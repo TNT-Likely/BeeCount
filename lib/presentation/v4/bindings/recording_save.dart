@@ -12,6 +12,7 @@ import '../../../services/data/tx_author_service.dart';
 import '../../../utils/shared_ledger_picker_filter.dart';
 import '../../../widgets/biz/amount_editor_sheet.dart';
 import 'recording_category_section.dart';
+import 'transfer_inline_accounts.dart';
 
 /// Persist an editor draft through the original repository and sync services.
 /// The page retains the created identity so a later metadata failure can retry
@@ -116,10 +117,20 @@ Future<void> persistTransferDraft(
   required AmountEditorResult result,
   required int? editingId,
   required ValueChanged<int> onCreated,
+  Set<int> pinnedAccountIds = const {},
 }) async {
   if (ledgerId != ref.read(currentLedgerIdProvider)) {
     throw StateError('Ledger context changed during transfer');
   }
+  await validateTransferInlineWrite(ref,
+      ledgerId: ledgerId,
+      fromAccountId: fromAccountId,
+      toAccountId: toAccountId,
+      amount: result.amount,
+      currencyCode: result.currencyCode,
+      nativeAmount: result.nativeAmount,
+      editingId: editingId,
+      pinnedAccountIds: pinnedAccountIds);
   final repo = ref.read(repositoryProvider);
   final category = await ref.read(transferCategoryProvider.future);
   final fromOverride = fromAccountId < 0

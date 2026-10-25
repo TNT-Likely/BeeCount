@@ -245,6 +245,10 @@ class AmountEditorSheet extends ConsumerStatefulWidget {
   // 折算基准不漂移,.docs/multi-currency-ledger 01 §4.2)。
   final String? initialCurrencyCode;
   final double? initialNativeAmount;
+  // Controlled transfer currency. Changing it preserves all draft fields while
+  // invalidating only the previous currency's rate / conversion snapshot.
+  final String? fixedCurrencyCode;
+  final String? blockedSubmitLabel;
 
   const AmountEditorSheet({
     super.key,
@@ -272,6 +276,8 @@ class AmountEditorSheet extends ConsumerStatefulWidget {
     this.initialExcludeFromBudget = false,
     this.initialCurrencyCode,
     this.initialNativeAmount,
+    this.fixedCurrencyCode,
+    this.blockedSubmitLabel,
   });
 
   @override
@@ -391,6 +397,13 @@ class AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
   @override
   void didUpdateWidget(covariant AmountEditorSheet oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (widget.transactionKind == 'transfer' &&
+        oldWidget.fixedCurrencyCode?.toUpperCase() !=
+            widget.fixedCurrencyCode?.toUpperCase()) {
+      _rateStr = null;
+      _rateManuallySet = false;
+      _rateFetchAttemptedFor = null;
+    }
     if (oldWidget.categoryId != widget.categoryId ||
         oldWidget.transactionKind != widget.transactionKind) {
       _loadRecentNotes();
@@ -437,6 +450,10 @@ class AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
   /// 币种必然一致。有账户但其币种尚在异步加载时,fallback 手选币种(而非本位
   /// 币,避免加载窗口内汇率行闪没)。
   String _txCurrency() {
+    if (widget.transactionKind == 'transfer' &&
+        widget.fixedCurrencyCode != null) {
+      return widget.fixedCurrencyCode!.toUpperCase();
+    }
     if (_selectedAccountId != null) {
       return _selectedAccountCurrency ??
           _pickedCurrency ??
@@ -795,8 +812,9 @@ class AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
         tagIds: _selectedTagIds,
         pendingAttachments: _pendingAttachments,
         excludeFromStats: _excludeFromStats,
-        excludeFromBudget:
-            widget.transactionKind == 'expense' && _excludeFromBudget,
+        excludeFromBudget: (widget.transactionKind == 'expense' ||
+                widget.transactionKind == 'transfer') &&
+            _excludeFromBudget,
         currencyCode: txCurrency,
         nativeAmount: nativeAmount,
       ));
@@ -1858,7 +1876,12 @@ class AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
           Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: amountCard),
-          SizedBox(height: compact && narrow ? 6 : 8),
+          SizedBox(
+              height: widget.transactionKind == 'transfer'
+                  ? 8
+                  : compact && narrow
+                      ? 6
+                      : 8),
           Expanded(
               child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -1881,7 +1904,12 @@ class AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
                                           editingTransactionId:
                                               widget.editingTransactionId!),
                                   ])))))),
-          SizedBox(height: compact && narrow ? 6 : 8),
+          SizedBox(
+              height: widget.transactionKind == 'transfer'
+                  ? 8
+                  : compact && narrow
+                      ? 6
+                      : 8),
           Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: metadata),
@@ -1950,7 +1978,9 @@ class AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
                                       child: Text(
                                           widget.canSubmit
                                               ? l10n.commonSave
-                                              : l10n.v4RecordingSelectCategory,
+                                              : widget.blockedSubmitLabel ??
+                                                  l10n
+                                                      .v4RecordingSelectCategory,
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
                                           style: const TextStyle(

@@ -96,6 +96,7 @@ class _TransactionEditorPageState extends ConsumerState<TransactionEditorPage> {
   Category? _cardCategory;
   GlobalKey<AmountEditorSheetState> _cardEditorKey =
       GlobalKey<AmountEditorSheetState>();
+  final _transferEditorKey = GlobalKey<TransferFormState>();
   bool _cardReset = false;
   int? _retryTransactionId;
   bool _cardDirty = false;
@@ -219,6 +220,15 @@ class _TransactionEditorPageState extends ConsumerState<TransactionEditorPage> {
                         ? const Center(child: CircularProgressIndicator())
                         : kind == 'transfer'
                             ? TransferForm(
+                                key: _transferEditorKey,
+                                systemKeyboardVisible:
+                                    MediaQuery.viewInsetsOf(context).bottom >
+                                        kMinInteractiveDimension,
+                                onSavingChanged: (saving) {
+                                  if (mounted) {
+                                    setState(() => _cardSaving = saving);
+                                  }
+                                },
                                 onTransferComplete: () =>
                                     Navigator.pop(context),
                                 initialFromAccountId: widget.initialAccountId,

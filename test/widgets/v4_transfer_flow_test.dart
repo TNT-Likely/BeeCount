@@ -29,6 +29,18 @@ class RetryTransferRepository extends LocalRepository {
   }
 }
 
+void transferTest(String name, Future<void> Function(WidgetTester) body) {
+  testWidgets(name, (tester) async {
+    try {
+      await body(tester);
+    } finally {
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pump(const Duration(seconds: 3));
+      await tester.pumpAndSettle();
+    }
+  });
+}
+
 void main() {
   late BeeDatabase db;
   late LocalRepository repo;
@@ -75,21 +87,25 @@ void main() {
             locale: const Locale('zh'),
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
-            home: Scaffold(
-                body: TransferForm(
-                    initialFromAccountId: fromId,
-                    initialToAccountId: toId,
-                    editingTransactionId: editingId,
-                    initialAmount: 12,
-                    initialTagIds: tagIds,
-                    initialCurrencyCode: editingId == null ? null : 'USD',
-                    initialNativeAmount: nativeAmount,
-                    onTransferComplete: () {})))));
+            home: Builder(
+                builder: (pageContext) => Scaffold(
+                    body: TransferForm(
+                        systemKeyboardVisible:
+                            MediaQuery.viewInsetsOf(pageContext).bottom >
+                                kMinInteractiveDimension,
+                        initialFromAccountId: fromId,
+                        initialToAccountId: toId,
+                        editingTransactionId: editingId,
+                        initialAmount: 12,
+                        initialTagIds: tagIds,
+                        initialCurrencyCode: editingId == null ? null : 'USD',
+                        initialNativeAmount: nativeAmount,
+                        onTransferComplete: () {}))))));
     await tester.pumpAndSettle();
   }
 
   for (final editing in [false, true]) {
-    testWidgets('${editing ? '历史' : '新建'}美元转账保留账户币种与折算快照', (tester) async {
+    transferTest('${editing ? '历史' : '新建'}美元转账保留账户币种与折算快照', (tester) async {
       tester.view.physicalSize = const Size(398, 900);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.resetPhysicalSize);
@@ -110,7 +126,9 @@ void main() {
       expect(find.textContaining('US\$', findRichText: true), findsOneWidget);
       expect(find.text(editing ? '≈ ¥86.40' : '≈ ¥85.20'), findsOneWidget);
       expect(find.bySemanticsLabel('更多选项'), findsNothing);
-      expect(find.bySemanticsLabel('关闭'), findsOneWidget);
+      expect(find.bySemanticsLabel('关闭'), findsNothing);
+      expect(find.byType(BottomSheet), findsNothing);
+      expect(find.byType(BeeTransferAccountPair), findsOneWidget);
       await tester.tap(find.byKey(const ValueKey('recording-save')));
       await tester.pumpAndSettle();
       final records = await db.select(db.transactions).get();
@@ -130,14 +148,12 @@ void main() {
     });
   }
 
-  testWidgets('历史外币账户对关闭金额弹层后仍显示并保留在选择器中', (tester) async {
+  transferTest('历史外币账户对在同屏编辑与取消选择器后仍保留', (tester) async {
     tester.view.physicalSize = const Size(398, 900);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
     await open(tester, editingId: 99, nativeAmount: 86.4);
-    await tester.tap(find.byTooltip('关闭'));
-    await tester.pumpAndSettle();
     final pair = find.byType(BeeTransferAccountPair);
     expect(find.text('美元现金'), findsOneWidget);
     expect(find.text('美元银行卡'), findsOneWidget);
@@ -148,12 +164,18 @@ void main() {
         tester.widget<BeeAccountPicker>(find.byType(BeeAccountPicker));
     expect(picker.accounts.map((a) => a.id), containsAll(['$fromId', '$toId']));
     expect(picker.selected, '$fromId');
+    Navigator.of(tester.element(find.byType(BeeAccountPicker))).pop();
+    await tester.pumpAndSettle();
+    expect(find.byType(BeeAccountPicker), findsNothing);
+    expect(find.text('美元现金'), findsOneWidget);
+    expect(find.text('美元银行卡'), findsOneWidget);
+    expect(find.byKey(const ValueKey('recording-save')), findsOneWidget);
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pumpAndSettle();
   });
 
-  testWidgets('转账元信息失败保留弹层与草稿，重试沿用同一身份并保存标签', (tester) async {
+  transferTest('转账元信息失败保留同屏草稿，重试沿用同一身份并保存标签', (tester) async {
     tester.view.physicalSize = const Size(398, 900);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -182,7 +204,11 @@ void main() {
     expect(saved.nativeAmount, closeTo(85.2, .000001));
     expect(saved.note, '转账保留草稿');
     expect((await repo.getTagsForTransaction(saved.id)).single.id, tagId);
-    expect(find.byKey(const ValueKey('recording-save')), findsNothing);
+    expect(
+        tester
+            .widget<FilledButton>(find.byKey(const ValueKey('recording-save')))
+            .onPressed,
+        isNull);
     expect(tester.takeException(), isNull);
     await tester.pump(const Duration(seconds: 3));
     await tester.pumpWidget(const SizedBox.shrink());
@@ -190,7 +216,7 @@ void main() {
   });
 
   for (final size in [const Size(398, 900), const Size(320, 568)]) {
-    testWidgets('转账弹层原位备注与系统键盘保持保存可达 $size 深色大字', (tester) async {
+    transferTest('转账同屏原位备注与系统键盘保持保存可达 $size 深色大字', (tester) async {
       tester.view.physicalSize = size;
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.resetPhysicalSize);
@@ -221,7 +247,7 @@ void main() {
     });
   }
 
-  testWidgets('转账的共享标签写入拥有者引用，不把负数身份写入本地标签表', (tester) async {
+  transferTest('转账的共享标签写入拥有者引用，不把负数身份写入本地标签表', (tester) async {
     tester.view.physicalSize = const Size(398, 900);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -230,10 +256,18 @@ void main() {
         "UPDATE ledgers SET sync_id='transfer-ledger',is_shared=1,my_role='editor' WHERE id=1");
     await db.customStatement(
         "INSERT INTO shared_ledger_tags(ledger_sync_id,sync_id,name,color,updated_at) VALUES('transfer-ledger','transfer-owner-tag','共同旅行','#219c9c',1792713600)");
+    await db.customStatement(
+        "INSERT INTO shared_ledger_accounts(ledger_sync_id,sync_id,name,currency,updated_at) VALUES('transfer-ledger','transfer-owner-from','拥有者美元现金','USD',1792713600),('transfer-ledger','transfer-owner-to','拥有者美元银行','USD',1792713600)");
+    fromId = syntheticIdForSyncId('transfer-owner-from');
+    toId = syntheticIdForSyncId('transfer-owner-to');
     await open(tester, tagIds: [syntheticIdForSyncId('transfer-owner-tag')]);
     await tester.tap(find.byKey(const ValueKey('recording-save')));
     await tester.pumpAndSettle();
     final tx = (await db.select(db.transactions).get()).single;
+    expect(tx.accountId, isNull);
+    expect(tx.toAccountId, isNull);
+    expect(tx.accountSyncIdOverride, 'transfer-owner-from');
+    expect(tx.toAccountSyncIdOverride, 'transfer-owner-to');
     expect(await db.select(db.transactionTags).get(), isEmpty);
     final override = (await db.select(db.transactionTagOverrides).get()).single;
     expect(override.transactionSyncId, tx.syncId);

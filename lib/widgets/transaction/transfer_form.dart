@@ -4,377 +4,182 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/db.dart';
-import '../../data/repositories/local/local_repository.dart';
 import '../../providers.dart';
 import '../../presentation/v4/bindings/recording_save.dart';
-import '../../providers/shared_ledger_providers.dart';
+import '../../presentation/v4/bindings/transfer_inline_accounts.dart';
 import '../../l10n/app_localizations.dart';
-import '../../styles/tokens.dart';
 import '../biz/amount_editor_sheet.dart';
 import '../../utils/account_type_utils.dart';
-import '../../utils/shared_ledger_picker_filter.dart';
 import '../ui/ui.dart';
 
-/// 转账表单组件
-/// 用于创建或编辑转账记录
+/// Account selection and the existing recording editor share one page. New
+/// transfers require a same-currency pair, independent of the ledger currency.
 class TransferForm extends ConsumerStatefulWidget {
-  final bool initialExcludeFromStats;
-  final bool initialExcludeFromBudget;
+  final bool initialExcludeFromStats, initialExcludeFromBudget;
   final String? initialCurrencyCode;
   final double? initialNativeAmount;
-
-  /// 转账完成回调
   final VoidCallback onTransferComplete;
-
-  /// 初始转出账户ID（可选）
-  final int? initialFromAccountId;
-
-  /// 初始转入账户ID（可选）
-  final int? initialToAccountId;
-
-  /// 正在编辑的交易ID（编辑模式）
-  final int? editingTransactionId;
-
-  /// 初始金额（可选）
+  final ValueChanged<bool>? onSavingChanged;
+  final int? initialFromAccountId, initialToAccountId, editingTransactionId;
   final double? initialAmount;
-
-  /// 初始备注（可选）
   final String? initialNote;
-
-  /// 初始日期（可选）
   final DateTime? initialDate;
-
-  /// 初始标签ID列表（可选）
   final List<int>? initialTagIds;
-
-  const TransferForm({
-    super.key,
-    this.initialExcludeFromStats = false,
-    this.initialExcludeFromBudget = false,
-    this.initialCurrencyCode,
-    this.initialNativeAmount,
-    required this.onTransferComplete,
-    this.initialFromAccountId,
-    this.initialToAccountId,
-    this.editingTransactionId,
-    this.initialAmount,
-    this.initialNote,
-    this.initialDate,
-    this.initialTagIds,
-  });
-
+  final bool systemKeyboardVisible;
+  const TransferForm(
+      {super.key,
+      this.initialExcludeFromStats = false,
+      this.initialExcludeFromBudget = false,
+      this.initialCurrencyCode,
+      this.initialNativeAmount,
+      required this.onTransferComplete,
+      this.onSavingChanged,
+      this.initialFromAccountId,
+      this.initialToAccountId,
+      this.editingTransactionId,
+      this.initialAmount,
+      this.initialNote,
+      this.initialDate,
+      this.initialTagIds,
+      this.systemKeyboardVisible = false});
   @override
-  ConsumerState<TransferForm> createState() => _TransferFormState();
+  ConsumerState<TransferForm> createState() => TransferFormState();
 }
 
-class _TransferFormState extends ConsumerState<TransferForm> {
-  int? _fromAccountId;
-  int? _toAccountId;
-  bool _autoOpened = false;
-  int? _retryTransactionId;
-  final _amountEditorKey = GlobalKey<AmountEditorSheetState>();
-
+class TransferFormState extends ConsumerState<TransferForm> {
+  int? _fromAccountId, _toAccountId, _retryTransactionId;
+  late final int _ledgerId;
+  late DateTime _initialDate;
+  GlobalKey<AmountEditorSheetState> _editorKey =
+      GlobalKey<AmountEditorSheetState>();
+  bool _saving = false, _reset = false;
+  bool get _accountsChanged =>
+      _fromAccountId != widget.initialFromAccountId ||
+      _toAccountId != widget.initialToAccountId;
+  bool get hasDraftChanges =>
+      _accountsChanged || (_editorKey.currentState?.hasDraftChanges ?? false);
+  bool get _originalPair =>
+      !_reset &&
+      widget.editingTransactionId != null &&
+      _fromAccountId == widget.initialFromAccountId &&
+      _toAccountId == widget.initialToAccountId;
   @override
   void initState() {
     super.initState();
-    // 初始化账户ID（用于编辑模式）
+    _ledgerId = ref.read(currentLedgerIdProvider);
+    _initialDate = widget.initialDate ?? DateTime.now();
     _fromAccountId = widget.initialFromAccountId;
     _toAccountId = widget.initialToAccountId;
-
-    // 如果是编辑模式且两个账户都已选择，自动打开金额编辑弹窗
-    if (_fromAccountId != null && _toAccountId != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
-        if (mounted && !_autoOpened) {
-          _autoOpened = true;
-          await _openAmountSheet();
-        }
-      });
-    }
-  }
-
-  // 检查两个账户是否是相同币种
-  Future<bool> _checkSameCurrency() async {
-    if (_fromAccountId == null || _toAccountId == null) return false;
-
-    final fromAccount = await _lookupAccount(_fromAccountId!);
-    final toAccount = await _lookupAccount(_toAccountId!);
-    return fromAccount?.currency == toAccount?.currency;
-  }
-
-  /// 反查账户:正数 id → 主表 accounts;负数 synthetic id → 扫
-  /// SharedLedgerAccounts 找 syntheticIdForSyncId 命中(共享账本 Editor
-  /// 视角下 picker 给出的是 Owner 的 synthetic 账户)。
-  Future<Account?> _lookupAccount(int accountId) async {
-    final repo = ref.read(repositoryProvider);
-    if (accountId >= 0) return repo.getAccount(accountId);
-    if (repo is! LocalRepository) return null;
-    return repo.db.findAccountBySyntheticId(accountId);
-  }
-
-  // 当两个账户都选择后，自动弹出金额输入弹窗
-  Future<void> _openAmountSheet() async {
-    final l10n = AppLocalizations.of(context);
-
-    // 检查币种是否一致(跨币种转账守卫,.docs/multi-currency-ledger 01 §4.4)
-    final sameCurrency = await _checkSameCurrency();
-    if (!sameCurrency) {
-      // 存量数据放行(2026-07-12 细则):编辑模式且账户对未改动(老数据在
-      // 守卫上线前就是跨币种)→ 放行让用户能改备注/日期等,不强迫重选账户。
-      final isOriginalPair = widget.editingTransactionId != null &&
-          _fromAccountId == widget.initialFromAccountId &&
-          _toAccountId == widget.initialToAccountId;
-      if (!isOriginalPair) {
-        if (mounted) {
-          showToast(context, l10n.transferDifferentCurrencyError,
-              tone: BeeTone.error);
-          // 重置转入账户
-          setState(() => _toAccountId = null);
-        }
-        return;
-      }
-    }
-
-    final ledgerId = ref.read(currentLedgerIdProvider);
-
-    final fromAccount = await _lookupAccount(_fromAccountId!);
-    final toAccount = await _lookupAccount(_toAccountId!);
-    if (!mounted) return;
-    final originalPair = widget.editingTransactionId != null &&
-        _fromAccountId == widget.initialFromAccountId &&
-        _toAccountId == widget.initialToAccountId;
-
-    await showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: BeeCardTheme.of(context).canvas,
-      builder: (context) => Padding(
-        padding:
-            EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
-        child: SafeArea(
-          top: false,
-          child: SizedBox(
-              height: MediaQuery.sizeOf(context).height * .88,
-              child: Column(children: [
-                Padding(
-                    padding: const EdgeInsets.fromLTRB(17, 6, 8, 0),
-                    child: Row(children: [
-                      Expanded(
-                          child: Text(l10n.transferTitle,
-                              style: const TextStyle(
-                                  fontSize: 16, fontWeight: FontWeight.w600))),
-                      BeeIconButton(
-                          label: l10n.commonClose,
-                          icon: const BeeLineIcon('X', size: 21),
-                          onPressed: () => Navigator.pop(context))
-                    ])),
-                Expanded(
-                    child: AmountEditorSheet(
-                  key: _amountEditorKey,
-                  cardLayout: true,
-                  systemKeyboardVisible:
-                      MediaQuery.viewInsetsOf(context).bottom >
-                          kMinInteractiveDimension,
-                  categorySection: BeeTransferAccountPair(
-                      fromLabel: l10n.transferFromAccount,
-                      toLabel: l10n.transferToAccount,
-                      fromName: fromAccount?.name ?? l10n.transferSelectAccount,
-                      toName: toAccount?.name ?? l10n.transferSelectAccount,
-                      fromDetail: fromAccount?.hidden == true
-                          ? l10n.accountHiddenTag
-                          : null,
-                      toDetail: toAccount?.hidden == true
-                          ? l10n.accountHiddenTag
-                          : null),
-                  categoryName: l10n.transferTitle,
-                  initialDate: widget.initialDate ?? DateTime.now(),
-                  initialAmount: widget.initialAmount,
-                  initialNote: widget.initialNote,
-                  initialTagIds: widget.initialTagIds,
-                  showAccountPicker: false,
-                  ledgerId: ledgerId,
-                  editingTransactionId: widget.editingTransactionId,
-                  transactionKind: 'transfer',
-                  initialExcludeFromStats: widget.initialExcludeFromStats,
-                  initialExcludeFromBudget: widget.initialExcludeFromBudget,
-                  initialCurrencyCode: originalPair
-                      ? widget.initialCurrencyCode ?? fromAccount?.currency
-                      : fromAccount?.currency,
-                  initialNativeAmount:
-                      originalPair ? widget.initialNativeAmount : null,
-                  onSubmit: (result) async {
-                    await persistTransferDraft(ref,
-                        ledgerId: ledgerId,
-                        fromAccountId: _fromAccountId!,
-                        toAccountId: _toAccountId!,
-                        result: result,
-                        editingId:
-                            widget.editingTransactionId ?? _retryTransactionId,
-                        onCreated: (id) => _retryTransactionId = id);
-                    _retryTransactionId = null;
-                    if (!context.mounted) return;
-                    Navigator.of(context).pop();
-                    showToast(
-                        context,
-                        widget.editingTransactionId == null
-                            ? l10n.transferCreateSuccess
-                            : l10n.transferUpdateSuccess,
-                        tone: BeeTone.success);
-                    if (widget.editingTransactionId == null && mounted) {
-                      setState(() {
-                        _fromAccountId = null;
-                        _toAccountId = null;
-                      });
-                    }
-                    widget.onTransferComplete();
-                  },
-                )),
-              ])),
-        ),
-      ),
-    );
-  }
-
-  /// §7 共享账本:Editor 在共享账本下转账要选 Owner 的账户(SharedLedger
-  /// Accounts 镜像),而非自己的 user-global。跟 AccountPicker / category_selector
-  /// 一致用 filterAccountsForLedger 转 synthetic Account。
-  ///
-  /// 账户隐藏(#240)E1 钉住:编辑历史转账(editingTransactionId != null)时,
-  /// 若转出/转入账户当前已被隐藏(因而被上面 filterAccountsForLedger 排
-  /// 除),补回候选(hidden=true,build() 渲染网格时打「已隐藏」灰标),让用
-  /// 户能原样保存;其余隐藏账户仍不出现。新建转账场景不钉住。跟
-  /// AccountSelector.pinnedAccountId 同一范式(见 account_selector.dart)。
-  Future<List<Account>> _loadFilteredAccounts() async {
-    final repo = ref.read(repositoryProvider);
-    final allAccounts = await repo.getAllAccounts();
-    var accounts = allAccounts;
-    if (repo is LocalRepository) {
-      final currentLedgerId = ref.read(currentLedgerIdProvider);
-      final ctx = await repo.db.loadLedgerPickerContext(currentLedgerId);
-      accounts = await repo.db.filterAccountsForLedger(allAccounts, ctx);
-    }
-
-    if (widget.editingTransactionId != null ||
-        widget.initialFromAccountId != null ||
-        widget.initialToAccountId != null) {
-      for (final pinnedId in {
-        widget.initialFromAccountId,
-        widget.initialToAccountId,
-      }) {
-        if (pinnedId == null) continue;
-        if (accounts.any((a) => a.id == pinnedId)) continue;
-        final pinned = await _lookupAccount(pinnedId);
-        if (pinned != null && pinned.hidden) {
-          accounts = [...accounts, pinned];
-        }
-      }
-    }
-
-    return accounts;
   }
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final currentLedgerAsync = ref.watch(currentLedgerProvider);
-    final currentCurrency = currentLedgerAsync.asData?.value?.currency ?? 'CNY';
-    // WS shared_resource_change 推 Owner 账户更新后 rebuild,重查 SharedLedger
-    // Accounts。
-    ref.watch(sharedResourceRefreshProvider);
-
-    return FutureBuilder<List<Account>>(
-      future: _loadFilteredAccounts(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState != ConnectionState.done) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        if (snapshot.hasError) {
-          return Center(
-            child: Text(
-              '${l10n.commonError}: ${snapshot.error}',
-              style: const TextStyle(color: Colors.red),
-            ),
-          );
-        }
-        final allAccounts = snapshot.data ?? const <Account>[];
-        // 只显示与当前账本同币种的可交易账户;E1 钉住的隐藏账户(hidden==true,
-        // 见 _loadFilteredAccounts)直接放行,不重复校验币种/类型,避免刚补回
-        // 又被这里的过滤吃掉(跟 AccountSelector 的钉住语义一致)。
-        final accounts = allAccounts
-            .where((account) =>
-                (widget.editingTransactionId != null &&
-                    (account.id == widget.initialFromAccountId ||
-                        account.id == widget.initialToAccountId)) ||
-                account.hidden ||
-                (account.currency == currentCurrency &&
-                    isTradableType(account.type)))
+    final l = AppLocalizations.of(context);
+    final base = ref.watch(currentLedgerCurrencyProvider);
+    final query = (
+      ledgerId: _ledgerId,
+      fromPin: _reset ? null : widget.initialFromAccountId,
+      toPin: _reset ? null : widget.initialToAccountId
+    );
+    final available = ref.watch(transferInlineAccountsProvider(query));
+    return available.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (error, _) => Center(
+          child: TextButton(
+              onPressed: () =>
+                  ref.invalidate(transferInlineAccountsProvider(query)),
+              child: Text(l.v4RecordingRetry))),
+      data: (all) {
+        final pins = {
+          if (query.fromPin != null) query.fromPin!,
+          if (query.toPin != null) query.toPin!
+        };
+        final accounts = all
+            .where((account) => isTransferInlineAccountEligible(account,
+                pinnedIds: pins, editing: widget.editingTransactionId != null))
             .toList();
-
-        if (accounts.isEmpty) {
-          return Center(
-            child: Padding(
-              padding: const EdgeInsets.all(32),
-              child: Text(
-                l10n.transferSelectAccount,
-                style: TextStyle(color: BeeTokens.textSecondary(context)),
-              ),
-            ),
-          );
-        }
-
         Account? account(int? id) {
-          for (final value in accounts) {
-            if (value.id == id) return value;
+          for (final item in accounts) {
+            if (item.id == id) return item;
           }
           return null;
         }
 
-        Future<void> select(bool from) async {
-          final candidates = from
+        final from = account(_fromAccountId), to = account(_toAccountId);
+        final validPair = from != null &&
+            to != null &&
+            from.id != to.id &&
+            (from.currency.toUpperCase() == to.currency.toUpperCase() ||
+                _originalPair);
+        final currency = _originalPair
+            ? (widget.initialCurrencyCode ?? from?.currency ?? base)
+            : (from?.currency ?? base);
+        Future<void> select(bool isFrom) async {
+          if (_saving) return;
+          FocusManager.instance.primaryFocus?.unfocus();
+          final candidates = isFrom
               ? accounts
-              : accounts.where((a) => a.id != _fromAccountId).toList();
+              : accounts
+                  .where((item) =>
+                      item.id != _fromAccountId &&
+                      (from == null ||
+                          item.currency.toUpperCase() ==
+                              from.currency.toUpperCase() ||
+                          (_originalPair &&
+                              item.id == widget.initialToAccountId)))
+                  .toList();
           final selected = await showBeeSheet<String>(context,
-              title: from ? l10n.transferFromAccount : l10n.transferToAccount,
+              title: isFrom ? l.transferFromAccount : l.transferToAccount,
               child: BeeAccountPicker(
-                  currency: currentCurrency,
+                  currency: from?.currency ?? base,
                   filterByCurrency: false,
                   allowUnset: false,
-                  unsetLabel: l10n.transferSelectAccount,
+                  unsetLabel: l.transferSelectAccount,
                   accounts: candidates
-                      .map((a) => BeeAccountChoice(
-                          id: '${a.id}',
-                          name: a.name,
-                          currency: a.currency,
+                      .map((item) => BeeAccountChoice(
+                          id: '${item.id}',
+                          name: item.name,
+                          currency: item.currency,
                           balance: '',
-                          detail: a.hidden ? l10n.accountHiddenTag : null,
-                          icon: AccountTypeIcon(type: a.type, size: 24)))
+                          detail: item.hidden ? l.accountHiddenTag : null,
+                          icon: AccountTypeIcon(type: item.type, size: 24)))
                       .toList(),
-                  selected: '${from ? _fromAccountId : _toAccountId}',
-                  searchLabel: l10n.transferSelectAccount,
-                  emptyLabel: l10n.accountsEmptyMessage,
+                  selected: '${isFrom ? _fromAccountId : _toAccountId}',
+                  searchLabel: l.transferSelectAccount,
+                  emptyLabel: l.accountsEmptyMessage,
                   onSelected: (id) => Navigator.pop(context, id)));
           if (selected == null || !mounted) return;
+          final id = int.parse(selected);
           setState(() {
-            if (from) {
-              _fromAccountId = int.parse(selected);
-              if (_toAccountId == _fromAccountId) _toAccountId = null;
+            if (isFrom) {
+              _fromAccountId = id;
+              final newFrom = account(id), oldTo = account(_toAccountId);
+              if (_toAccountId == id ||
+                  (!_originalPair &&
+                      newFrom != null &&
+                      oldTo != null &&
+                      newFrom.currency.toUpperCase() !=
+                          oldTo.currency.toUpperCase())) {
+                _toAccountId = null;
+              }
             } else {
-              _toAccountId = int.parse(selected);
+              _toAccountId = id;
             }
           });
-          if (_fromAccountId != null && _toAccountId != null) {
-            await _openAmountSheet();
-          }
         }
 
-        final from = account(_fromAccountId), to = account(_toAccountId);
-        return ListView(padding: const EdgeInsets.all(17), children: [
-          BeeTransferAccountPair(
-              fromLabel: l10n.transferFromAccount,
-              toLabel: l10n.transferToAccount,
-              fromName: from?.name ?? l10n.transferSelectAccount,
-              toName: to?.name ?? l10n.transferSelectAccount,
-              fromDetail: from?.hidden == true ? l10n.accountHiddenTag : null,
-              toDetail: to?.hidden == true ? l10n.accountHiddenTag : null,
+        return AmountEditorSheet(
+          key: _editorKey,
+          cardLayout: true,
+          systemKeyboardVisible: widget.systemKeyboardVisible,
+          categorySection: BeeTransferAccountPair(
+              fromLabel: l.transferFromAccount,
+              toLabel: l.transferToAccount,
+              fromName: from?.name ?? l.transferSelectAccount,
+              toName: to?.name ?? l.transferSelectAccount,
+              fromDetail:
+                  from?.hidden == true ? l.accountHiddenTag : from?.currency,
+              toDetail: to?.hidden == true ? l.accountHiddenTag : to?.currency,
               fromIcon: from == null
                   ? null
                   : AccountTypeIcon(type: from.type, size: 24),
@@ -382,13 +187,63 @@ class _TransferFormState extends ConsumerState<TransferForm> {
                   to == null ? null : AccountTypeIcon(type: to.type, size: 24),
               onFrom: () => select(true),
               onTo: () => select(false)),
-          const SizedBox(height: 16),
-          BeeButton(
-              label: l10n.commonNext,
-              onPressed: _fromAccountId != null && _toAccountId != null
-                  ? _openAmountSheet
-                  : null),
-        ]);
+          categoryName: l.transferTitle,
+          canSubmit: validPair,
+          blockedSubmitLabel: l.transferSelectAccount,
+          externalDraftChanged: _accountsChanged,
+          initialDate: _initialDate,
+          initialAmount: _reset ? null : widget.initialAmount,
+          initialNote: _reset ? null : widget.initialNote,
+          initialTagIds: _reset ? null : widget.initialTagIds,
+          showAccountPicker: false,
+          ledgerId: _ledgerId,
+          editingTransactionId: widget.editingTransactionId,
+          transactionKind: 'transfer',
+          initialExcludeFromStats: widget.initialExcludeFromStats,
+          initialExcludeFromBudget: widget.initialExcludeFromBudget,
+          initialCurrencyCode: _reset ? null : widget.initialCurrencyCode,
+          initialNativeAmount: _reset ? null : widget.initialNativeAmount,
+          fixedCurrencyCode: currency,
+          onSubmit: (result) async {
+            if (_saving || !validPair) return;
+            final fromId = _fromAccountId!, toId = _toAccountId!;
+            setState(() => _saving = true);
+            widget.onSavingChanged?.call(true);
+            try {
+              await persistTransferDraft(ref,
+                  ledgerId: _ledgerId,
+                  fromAccountId: fromId,
+                  toAccountId: toId,
+                  result: result,
+                  editingId: widget.editingTransactionId ?? _retryTransactionId,
+                  onCreated: (id) => _retryTransactionId = id,
+                  pinnedAccountIds: pins);
+              _retryTransactionId = null;
+              if (!mounted || !context.mounted) return;
+              showToast(
+                  context,
+                  widget.editingTransactionId == null
+                      ? l.transferCreateSuccess
+                      : l.transferUpdateSuccess,
+                  tone: BeeTone.success);
+              widget.onTransferComplete();
+              if (mounted && widget.editingTransactionId == null) {
+                setState(() {
+                  _reset = true;
+                  _fromAccountId = null;
+                  _toAccountId = null;
+                  _initialDate = DateTime.now();
+                  _editorKey = GlobalKey<AmountEditorSheetState>();
+                });
+              }
+            } finally {
+              if (mounted) {
+                setState(() => _saving = false);
+                widget.onSavingChanged?.call(false);
+              }
+            }
+          },
+        );
       },
     );
   }

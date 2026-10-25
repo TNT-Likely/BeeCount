@@ -17,6 +17,18 @@ import 'package:beecount/l10n/app_localizations.dart';
 import 'package:beecount/providers/database_providers.dart';
 import 'package:beecount/widgets/transaction/transfer_form.dart';
 
+void hiddenTransferTest(String name, Future<void> Function(WidgetTester) body) {
+  testWidgets(name, (tester) async {
+    try {
+      await body(tester);
+    } finally {
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pump(const Duration(seconds: 3));
+      await tester.pumpAndSettle();
+    }
+  });
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   SharedPreferences.setMockInitialValues({});
@@ -77,7 +89,8 @@ void main() {
   }
 
   for (final from in [true, false]) {
-    testWidgets('历史转账${from ? '转出' : '转入'}隐藏账户保持选中、灰标与候选', (tester) async {
+    hiddenTransferTest('历史转账${from ? '转出' : '转入'}隐藏账户保持选中、灰标与候选',
+        (tester) async {
       await tester.pumpWidget(host(
         editingTransactionId: 999,
         initialFromAccountId: from ? 2 : null,
@@ -102,7 +115,7 @@ void main() {
     });
   }
 
-  testWidgets('新建转账选择器不列出隐藏账户，也不能选择同一个转入账户', (tester) async {
+  hiddenTransferTest('新建转账选择器不列出隐藏账户，也不能选择同一个转入账户', (tester) async {
     await tester.pumpWidget(host());
     await tester.pumpAndSettle();
     final rows = find.descendant(
