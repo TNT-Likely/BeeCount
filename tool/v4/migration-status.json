@@ -94,8 +94,8 @@
     "ai/ai_settings_page.dart": {
       "name": "AI 设置",
       "priority": "P1",
-      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
-      "status": "待迁移",
+      "reason": "原529行/授权弹窗及配置Provider/Manager五文件备份；原授权门禁、三能力过滤、即时保存/取消、四策略及原导航已移入App绑定，纯展示组件和HTML/Flutter样例在完善。未安装R81，不计完成。",
+      "status": "迁移中·原功能与HTML/Widget通过，待完整规范与真机闭环",
       "components": "消息、配置表单、授权、任务状态与列表",
       "acceptance": "沿用原 AI 服务与权限，保留配置草稿、能力绑定、执行反馈、失败重试和取消。"
     },
@@ -486,10 +486,10 @@
     "settings/smart_billing_page.dart": {
       "name": "智能记账入口与识别偏好",
       "priority": "P1",
-      "reason": "原526行和三个Provider已只读备份；薄页与App平台/偏好绑定、纯引导和基础滑杆松手提交已实现，7项真实偏好Widget通过。HTML草稿未接入最终构建，原生验收与完整规范尚未完成。",
-      "status": "迁移中·7项偏好与弹窗Widget通过，待HTML和真机闭环",
-      "components": "智能记账入口、功能引导弹窗、默认行为开关与语音设置",
-      "acceptance": "平台/渠道入口、原三个默认开关、自动/按住语音、静音时长、配置弹窗与识别入口。"
+      "reason": "原526行及三个Provider完整备份，原Provider字节未改；薄页/纯引导/滑杆松手提交/App平台偏好绑定、HTML与Flutter样例、真实UI及独立全量数据/重启/封存闭环。",
+      "status": "已完成",
+      "components": "纯完整识别引导、统一设置行/开关/语音单选、500–4000ms滑杆松手提交；平台/偏好/回调留App，Flutter54真实只读与正式入口",
+      "acceptance": "最终3029788d提交副本93项/12文件相关回归、15文件静态0问题；20组HTML、324场景/75组规范/41基础控件与三宽度通过。845产品文件及lock一致、APK身份/签名/hash和私有备份核验；同一QA实际4原说明、3原目标、3开关保存/重启、语音选择/取消/4000重启及1500恢复、真实Flutter54/只读/入口和最终正常53笔首页通过。全部金融表/追踪、57/53/24/5及附件/3图片/两公共文件hash保持；仅5项原默认显式化与原运行日志正常保留策略变化，其他全偏好一致。22图25文件报告smart-r80封存，ZIP a39c3ae88f6554daf0523640a35e0de9ddb15cfdff57073ae938305e0288b7ba。Cloud/实际AI调用不适用；GP/iOS/物理短屏未执行，320英文深色140%由Widget/HTML覆盖。"
     },
     "settings/storage_management_page.dart": {
       "name": "存储空间管理",
