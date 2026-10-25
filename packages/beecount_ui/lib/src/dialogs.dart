@@ -9,11 +9,12 @@ class BeeDialog extends StatelessWidget {
       required this.title,
       this.content,
       this.actions = const [],
-      this.showClose = true});
+      this.showClose = true,
+      this.stackActions = false});
   final Widget title;
   final Widget? content;
   final List<Widget> actions;
-  final bool showClose;
+  final bool showClose, stackActions;
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -91,14 +92,30 @@ class BeeDialog extends StatelessWidget {
                         const SizedBox(height: 16),
                         Theme(
                             data: actionTheme,
-                            child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  for (var i = 0; i < actions.length; i++) ...[
-                                    if (i > 0) const SizedBox(width: 8),
-                                    Expanded(child: actions[i])
-                                  ]
-                                ]))
+                            child: stackActions
+                                ? Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                        for (var i = 0;
+                                            i < actions.length;
+                                            i++) ...[
+                                          if (i > 0) const SizedBox(height: 8),
+                                          actions[i]
+                                        ]
+                                      ])
+                                : Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                        for (var i = 0;
+                                            i < actions.length;
+                                            i++) ...[
+                                          if (i > 0) const SizedBox(width: 8),
+                                          Expanded(child: actions[i])
+                                        ]
+                                      ]))
                       ],
                     ]))));
   }
