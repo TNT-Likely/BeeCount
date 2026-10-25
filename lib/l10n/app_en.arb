@@ -4021,5 +4021,15 @@
   "v4RecurringLastGeneratedLabel": "Last generated",
   "v4TransactionDetailTitle": "Bill details",
   "v4TransactionDetailSnapshot": "Historical conversion",
-  "v4TransactionDetailSnapshotRate": "Rate at entry"
+  "v4TransactionDetailSnapshotRate": "Rate at entry",
+  "v4DetailConvertedScope": "Totals converted to current ledger currency {currency}",
+  "@v4DetailConvertedScope": {"placeholders":{"currency":{"type":"String"}}},
+  "v4DetailMissingConversion": "{count} records not converted · {currencies}. Summary amounts unavailable.",
+  "@v4DetailMissingConversion": {"placeholders":{"count":{"type":"int"},"currencies":{"type":"String"}}},
+  "v4DetailRateDate": "Rate date {date}",
+  "@v4DetailRateDate": {"placeholders":{"date":{"type":"String"}}},
+  "v4DetailRatesStale": "Rate is more than 7 days old · {date}",
+  "@v4DetailRatesStale": {"placeholders":{"date":{"type":"String"}}},
+  "v4ShareCardTitle": "Share card",
+  "v4ShareCardProfile": "My profile"
 }

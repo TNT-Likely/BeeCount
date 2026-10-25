@@ -16969,6 +16969,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Rate at entry'**
   String get v4TransactionDetailSnapshotRate;
+
+  /// No description provided for @v4DetailConvertedScope.
+  ///
+  /// In en, this message translates to:
+  /// **'Totals converted to current ledger currency {currency}'**
+  String v4DetailConvertedScope(String currency);
+
+  /// No description provided for @v4DetailMissingConversion.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} records not converted · {currencies}. Summary amounts unavailable.'**
+  String v4DetailMissingConversion(int count, String currencies);
+
+  /// No description provided for @v4DetailRateDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate date {date}'**
+  String v4DetailRateDate(String date);
+
+  /// No description provided for @v4DetailRatesStale.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate is more than 7 days old · {date}'**
+  String v4DetailRatesStale(String date);
+
+  /// No description provided for @v4ShareCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Share card'**
+  String get v4ShareCardTitle;
+
+  /// No description provided for @v4ShareCardProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'My profile'**
+  String get v4ShareCardProfile;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

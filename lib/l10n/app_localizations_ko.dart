@@ -9017,4 +9017,30 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get v4TransactionDetailSnapshotRate => 'Rate at entry';
+
+  @override
+  String v4DetailConvertedScope(String currency) {
+    return 'Totals converted to current ledger currency $currency';
+  }
+
+  @override
+  String v4DetailMissingConversion(int count, String currencies) {
+    return '$count records not converted · $currencies. Summary amounts unavailable.';
+  }
+
+  @override
+  String v4DetailRateDate(String date) {
+    return 'Rate date $date';
+  }
+
+  @override
+  String v4DetailRatesStale(String date) {
+    return 'Rate is more than 7 days old · $date';
+  }
+
+  @override
+  String get v4ShareCardTitle => 'Share card';
+
+  @override
+  String get v4ShareCardProfile => 'My profile';
 }

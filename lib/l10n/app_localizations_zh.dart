@@ -9009,6 +9009,32 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get v4TransactionDetailSnapshotRate => '记账时汇率';
+
+  @override
+  String v4DetailConvertedScope(String currency) {
+    return '已按当前账本币种 $currency 汇总';
+  }
+
+  @override
+  String v4DetailMissingConversion(int count, String currencies) {
+    return '$count 笔未折算 · $currencies，暂不显示汇总金额';
+  }
+
+  @override
+  String v4DetailRateDate(String date) {
+    return '汇率日期 $date';
+  }
+
+  @override
+  String v4DetailRatesStale(String date) {
+    return '汇率已超过 7 天 · $date';
+  }
+
+  @override
+  String get v4ShareCardTitle => '分享卡片';
+
+  @override
+  String get v4ShareCardProfile => '我的档案';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).

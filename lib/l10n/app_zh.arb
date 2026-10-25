@@ -3728,5 +3728,15 @@
   "v4RecurringLastGeneratedLabel": "最近生成",
   "v4TransactionDetailTitle": "账单详情",
   "v4TransactionDetailSnapshot": "历史折算",
-  "v4TransactionDetailSnapshotRate": "记账时汇率"
+  "v4TransactionDetailSnapshotRate": "记账时汇率",
+  "v4DetailConvertedScope": "已按当前账本币种 {currency} 汇总",
+  "@v4DetailConvertedScope": {"placeholders":{"currency":{"type":"String"}}},
+  "v4DetailMissingConversion": "{count} 笔未折算 · {currencies}，暂不显示汇总金额",
+  "@v4DetailMissingConversion": {"placeholders":{"count":{"type":"int"},"currencies":{"type":"String"}}},
+  "v4DetailRateDate": "汇率日期 {date}",
+  "@v4DetailRateDate": {"placeholders":{"date":{"type":"String"}}},
+  "v4DetailRatesStale": "汇率已超过 7 天 · {date}",
+  "@v4DetailRatesStale": {"placeholders":{"date":{"type":"String"}}},
+  "v4ShareCardTitle": "分享卡片",
+  "v4ShareCardProfile": "我的档案"
 }
