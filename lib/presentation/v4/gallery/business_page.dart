@@ -1,3 +1,10 @@
+import 'import_flow_sample.dart';
+import 'export_sample.dart';
+import 'recurring_editor_sample.dart';
+import 'annual_report_sample.dart';
+import 'receipt_sample.dart';
+import 'cloud_configuration_sample.dart';
+import 'recurring_bills_sample.dart';
 import 'ai_conversation_sample.dart';
 import 'execution_depth_sample.dart';
 import 'ai_prompt_sample.dart';
@@ -76,7 +83,14 @@ const businessCases = [
   'AI服务商与连接测试',
   '提示词草稿与变量',
   '助手执行深度',
-  'AI对话与记账卡'
+  'AI对话与记账卡',
+  '周期账单卡与真实模板',
+  '导入映射与任务状态',
+  'CSV导出与固定字段',
+  '周期编辑与完整频率',
+  '年度账单七段内容',
+  '小票弹窗与字段选择',
+  '云配置与登录表单'
 ];
 const demoTags = [
   BeeTagData('work', '工作日', Color(0xffaa8b29)),
@@ -108,7 +122,13 @@ class BusinessAcceptancePage extends StatefulWidget {
       this.aiProviderData,
       this.aiPromptData,
       this.executionDepthData,
-      this.aiConversationData});
+      this.aiConversationData,
+      this.recurringBillData,
+      this.importContextData,
+      this.exportData,
+      this.recurringEditorData,
+      this.annualReportData,
+      this.cloudConfigurationData});
   final Widget? liveData,
       tagLibraryData,
       reminderData,
@@ -127,7 +147,13 @@ class BusinessAcceptancePage extends StatefulWidget {
       aiProviderData,
       aiPromptData,
       executionDepthData,
-      aiConversationData;
+      aiConversationData,
+      recurringBillData,
+      importContextData,
+      exportData,
+      recurringEditorData,
+      annualReportData,
+      cloudConfigurationData;
   final int? isolatedCase;
   @override
   State<BusinessAcceptancePage> createState() => _BusinessAcceptancePageState();
@@ -1920,6 +1946,13 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
         56 => AIPromptSample(liveData: widget.aiPromptData),
         57 => ExecutionDepthSample(liveData: widget.executionDepthData),
         58 => AIConversationSample(liveData: widget.aiConversationData),
+        59 => RecurringBillsSample(liveData: widget.recurringBillData),
+        60 => ImportFlowSample(liveData: widget.importContextData),
+        61 => ExportSample(liveData: widget.exportData),
+        62 => RecurringEditorSample(liveData: widget.recurringEditorData),
+        63 => AnnualReportSample(liveData: widget.annualReportData),
+        64 => const ReceiptSample(),
+        65 => CloudConfigurationSample(liveData: widget.cloudConfigurationData),
         49 => BudgetSample(
             liveData: widget.budgetData, onEdit: () => record('选择预算编辑')),
         48 => ExchangeRateSample(liveData: widget.exchangeRateData),

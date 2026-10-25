@@ -1,5 +1,7 @@
 import 'package:beecount/l10n/app_localizations.dart';
 import 'package:beecount/presentation/v4/gallery/component_gallery_page.dart';
+import 'package:beecount/presentation/v4/gallery/business_page.dart'
+    show businessCases;
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -49,7 +51,7 @@ void main() {
                 find.byKey(const ValueKey('gallery-business-tickers')))
             .enabled,
         false);
-    expect(find.text('59 组组件 · 全部平铺'), findsOneWidget);
+    expect(find.text('${businessCases.length} 组组件 · 全部平铺'), findsOneWidget);
     await t.tap(find.byKey(const ValueKey('business-case')));
     await t.pumpAndSettle();
     final lastItem = find.widgetWithText(BeeButton, '51 · 预算编辑与分类草稿');

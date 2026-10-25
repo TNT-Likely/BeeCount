@@ -1,3 +1,9 @@
+import '../bindings/import_context_preview.dart';
+import '../bindings/export_preview.dart';
+import '../bindings/recurring_editor_preview.dart';
+import '../bindings/annual_report_preview.dart';
+import '../bindings/cloud_configuration_preview.dart';
+import '../bindings/recurring_bills_preview.dart';
 import '../bindings/ai_conversation_preview.dart';
 import '../bindings/execution_depth_preview.dart';
 import '../bindings/ai_prompt_preview.dart';
@@ -104,6 +110,24 @@ class _ComponentGalleryPageState extends State<ComponentGalleryPage> {
                                 key: const ValueKey('gallery-business-tickers'),
                                 enabled: tab == 1 && !motionPaused,
                                 child: BusinessAcceptancePage(
+                                    importContextData: widget.enableLiveData
+                                        ? const LiveImportContextPreview()
+                                        : null,
+                                    exportData: widget.enableLiveData
+                                        ? const ExportPreview()
+                                        : null,
+                                    recurringEditorData: widget.enableLiveData
+                                        ? const RecurringEditorPreview()
+                                        : null,
+                                    annualReportData: widget.enableLiveData
+                                        ? const LiveAnnualReportPreview()
+                                        : null,
+                                    cloudConfigurationData: widget.enableLiveData
+                                        ? const LiveCloudConfigurationPreview()
+                                        : null,
+                                    recurringBillData: widget.enableLiveData
+                                        ? const LiveRecurringBillsPreview()
+                                        : null,
                                     aiConversationData: widget.enableLiveData
                                         ? const LiveAIConversationPreview()
                                         : null,
@@ -137,30 +161,14 @@ class _ComponentGalleryPageState extends State<ComponentGalleryPage> {
                                     exchangeRateData: widget.enableLiveData
                                         ? const LiveExchangeRatePreview()
                                         : null,
-                                    categoryMigrationData: widget.enableLiveData
-                                        ? const LiveCategoryMigrationPreview()
-                                        : null,
-                                    attachmentLibraryData: widget.enableLiveData
-                                        ? const LiveAttachmentLibraryPreview()
-                                        : null,
-                                    fileWorkflowData: widget.enableLiveData
-                                        ? const LiveFileWorkflowPreview()
-                                        : null,
-                                    skinData: widget.enableLiveData
-                                        ? const LiveSkinPreview()
-                                        : null,
-                                    noteHistoryData: widget.enableLiveData
-                                        ? const LiveNoteHistoryPreview()
-                                        : null,
-                                    reminderData: widget.enableLiveData
-                                        ? const LiveReminderPreview()
-                                        : null,
-                                    tagLibraryData: widget.enableLiveData
-                                        ? const LiveTagLibraryPreview()
-                                        : null,
-                                    liveData: widget.enableLiveData
-                                        ? const LiveBusinessPreview()
-                                        : null))
+                                    categoryMigrationData: widget.enableLiveData ? const LiveCategoryMigrationPreview() : null,
+                                    attachmentLibraryData: widget.enableLiveData ? const LiveAttachmentLibraryPreview() : null,
+                                    fileWorkflowData: widget.enableLiveData ? const LiveFileWorkflowPreview() : null,
+                                    skinData: widget.enableLiveData ? const LiveSkinPreview() : null,
+                                    noteHistoryData: widget.enableLiveData ? const LiveNoteHistoryPreview() : null,
+                                    reminderData: widget.enableLiveData ? const LiveReminderPreview() : null,
+                                    tagLibraryData: widget.enableLiveData ? const LiveTagLibraryPreview() : null,
+                                    liveData: widget.enableLiveData ? const LiveBusinessPreview() : null))
                           ]))),
                   bottomNavigationBar: NavigationBar(
                       selectedIndex: tab,
