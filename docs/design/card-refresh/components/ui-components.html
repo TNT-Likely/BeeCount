@@ -2,6 +2,7 @@
 #bee-immersive-suite .bc-phone .tx3{--type-scale:var(--q-scale,1);--ink:var(--bc-ink);--surface:var(--bc-paper);--soft:var(--bc-soft);--muted:var(--bc-muted);--expense:var(--bc-green);--income:var(--bc-red);--line:var(--bc-line);background:var(--bc-paper);text-align:left;user-select:none;touch-action:pan-y}
 #bee-immersive-suite .bc-phone .tx-shell{background:var(--bc-paper);position:relative;border-bottom:1px solid var(--bc-line);touch-action:pan-y}
 #bee-immersive-suite .bc-phone .tx3 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;min-height:0}
+#bee-immersive-suite .bc-phone .tx3.tx-row button{min-height:0}
 #bee-immersive-suite .bc-phone .tx3 button:disabled{opacity:.4;cursor:default}
 #bee-immersive-suite .bc-phone .tx3 svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;display:block;flex:none}
 #bee-immersive-suite .bc-phone .tx3 .category-target{width:36px;height:36px;padding:0;display:grid;place-items:center;background:var(--bc-soft);border-radius:12px;overflow:hidden;flex:none}
@@ -90,6 +91,14 @@
 
 /* Gallery cards add an outer 18px gutter; the row already supplies its own. */
 #bee-immersive-suite #bee-immersive-phone .g-state>.tx-shell{margin-inline:-6px}
+
+/* Dedicated pages share the same row inset instead of nesting card padding. */
+#bee-immersive-suite .bc-phone .bc-surface.c3-consumer-list,
+#bee-immersive-suite .bc-phone .dc97-list.c3-consumer-list{padding-left:0;padding-right:0}
+#bee-immersive-suite .bc-phone .c3-consumer-list>.bc-between{padding:0 13px;margin-bottom:4px}
+#bee-immersive-suite .bc-phone .c3-consumer-list>.ad-end{padding:0 13px}
+#bee-immersive-suite .bc-phone .c3-consumer-list>.td-day,
+#bee-immersive-suite .bc-phone .c3-consumer-list>.dc97-day{padding-left:13px;padding-right:13px}
 
 .im87-shell{position:relative;display:grid;gap:12px;min-height:560px;padding:0 17px 20px;align-content:start;min-width:0}
 .im87-card{background:var(--bc-paper);border-radius:22px;padding:16px;min-width:0}

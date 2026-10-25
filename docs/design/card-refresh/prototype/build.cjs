@@ -70,7 +70,7 @@ change("const extra=state.additions.filter(r=>r.ledger===state.ledger&&r.month==
 change("const expense=(state.ledger==='日常生活'?({10:3286.5,9:4125,8:3895.25}[state.month]??3286.5):6800.8)", "const expense=(jHasPeriod()?(state.ledger==='日常生活'?({10:3286.5,9:4125,8:3895.25}[state.month]??3286.5):6800.8):0)");
 change("const income=(state.ledger==='日常生活'?12000:24000)", "const income=(jHasPeriod()?(state.ledger==='日常生活'?12000:24000):0)");
 
-change('  restore(window.openai?.widgetState);', fs.readFileSync(path.join(here,'src/transaction-row-core.js'),'utf8')+'\n'+fs.readFileSync(path.join(here,'src/transaction-row-binding.js'),'utf8')+'\n  restore(window.openai?.widgetState);');
+change('  restore(window.openai?.widgetState);', fs.readFileSync(path.join(here,'src/transaction-row-core.js'),'utf8')+'\n'+fs.readFileSync(path.join(here,'src/transaction-row-binding.js'),'utf8')+'\n'+fs.readFileSync(path.join(here,'src/transaction-row-consumers.js'),'utf8')+'\n  restore(window.openai?.widgetState);');
 change("rows.map(r=>btn(`p-select:${r.id}`,`<span class=\"p-check\">${icon('check')}</span><span class=\"bc-entry-icon\">${icon(r.icon)}</span><span class=\"p-batch-copy\"><b>${esc(r.title)}</b><small>${state.month}月${r.day}日 · ${esc(r.category)} · ${esc(r.account)}</small></span>${vRowAmount(r)}`,'选择'+r.title,'p-batch-row',`aria-pressed=\"${pSelected.has(r.id)}\"`)).join('')", "rows.map(r=>cRowsAPI.rowHtml(cRowData(r,{batch:true}),'c3-batch-'+r.id)).join('')");
 const previewCss=fs.readFileSync(path.join(here,'src/standalone.css'),'utf8');
 change('  restore(window.openai?.widgetState);', '  views.annual=()=>fRender("annual-report"); views.receipt=()=>fRender("receipt-preview"); views.cloud=()=>fRender("cloud-config");\n  restore(window.openai?.widgetState);');
