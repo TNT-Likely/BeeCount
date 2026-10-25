@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25T17:09:13+08:00",
+  "updated": "2026-10-25T17:39:44+08:00",
   "branch": "v4",
   "baselineCommit": "6616066247a8738a42996c496e1b99106820e59f",
   "pages": {
@@ -359,11 +359,13 @@
     "maintenance/orphan_cleanup_page.dart": {
       "name": "孤儿数据清理",
       "priority": "P2",
-      "reason": "R103四个维护页及纯业务组件/App绑定已提交a0dadeed，原四日志级别/来源筛选、14孤儿类型与清理范围、9桌面组件预览保留；74项UI/日志/SQLite边界回归及18文件静态检查通过。两个数据安全修复独立提交，尚未原生整页验收，不计完成。",
-      "status": "迁移中·代码与本地回归已交付，待统一产物和整页验收",
+      "reason": "R105实际生产扫描、选定owned文件取消/确认删除、重扫与正常launcher；原31表/64笔/5附件+3图及业务Prefs保持，root独立核24文件源码及稳定图并封存。",
+      "status": "已完成",
       "components": "清理概览、选择、确认与结果状态",
-      "acceptance": "统一候选R104源码cabfaff9，983个产品文件与构建产物逐字匹配；已构建未安装。整页生产UI、数据保护与正常入口重启仍待执行；不把单元/widget、HTML或构建成功计为整页完成。",
-      "implementationStage": "implemented"
+      "acceptance": "存储只验证58B/82B合成过滤文件各自取消/确认，不称模型可用或APK安装；孤儿只删一张306B本轮文件，其他13清理类型未原生执行。旧6→5通用guard失败与修正边界保留。独立三宽、ZIP/manifest/脱敏及只读封存；Cloud/iOS与IO故障等单列。",
+      "implementationStage": "accepted",
+      "acceptanceReport": ".docs/acceptance/v4-migration/2026-10-25/orphans-r105/index.html",
+      "acceptanceZipSha256": "5384c2214b2eaf2f71fc3da89af690ddc419364dd9acc9cb2056ffda392bef52"
     },
     "report/annual_report_page.dart": {
       "name": "年度账单",
@@ -526,11 +528,13 @@
     "settings/storage_management_page.dart": {
       "name": "存储空间管理",
       "priority": "P2",
-      "reason": "R103四个维护页及纯业务组件/App绑定已提交a0dadeed，原四日志级别/来源筛选、14孤儿类型与清理范围、9桌面组件预览保留；74项UI/日志/SQLite边界回归及18文件静态检查通过。两个数据安全修复独立提交，尚未原生整页验收，不计完成。",
-      "status": "迁移中·代码与本地回归已交付，待统一产物和整页验收",
+      "reason": "R105实际生产扫描、选定owned文件取消/确认删除、重扫与正常launcher；原31表/64笔/5附件+3图及业务Prefs保持，root独立核24文件源码及稳定图并封存。",
+      "status": "已完成",
       "components": "分组菜单、输入/选择/开关、弹窗与状态",
-      "acceptance": "统一候选R104源码cabfaff9，983个产品文件与构建产物逐字匹配；已构建未安装。整页生产UI、数据保护与正常入口重启仍待执行；不把单元/widget、HTML或构建成功计为整页完成。",
-      "implementationStage": "implemented"
+      "acceptance": "存储只验证58B/82B合成过滤文件各自取消/确认，不称模型可用或APK安装；孤儿只删一张306B本轮文件，其他13清理类型未原生执行。旧6→5通用guard失败与修正边界保留。独立三宽、ZIP/manifest/脱敏及只读封存；Cloud/iOS与IO故障等单列。",
+      "implementationStage": "accepted",
+      "acceptanceReport": ".docs/acceptance/v4-migration/2026-10-25/storage-r105/index.html",
+      "acceptanceZipSha256": "a21e835d2df2c0aa42baf71cdb887ab0d8cc55e0e948c6be52f2c686a5b0ac7a"
     },
     "settings/widget_management_page.dart": {
       "name": "桌面小组件管理",
@@ -885,17 +889,17 @@
     "reason": "按用户要求临时关闭，避免每次推送触发PR的AI Eval；v4继续开发和推送，全部迁移与验收准备好再恢复PR。"
   },
   "currentProgress": {
-    "updatedAt": "2026-10-25T17:09:13+08:00",
-    "engineeringEstimatePercent": 73,
+    "updatedAt": "2026-10-25T17:39:44+08:00",
+    "engineeringEstimatePercent": 74,
     "engineeringEstimateRange": [
-      70,
-      76
+      71,
+      77
     ],
-    "completedPages": 48,
+    "completedPages": 50,
     "totalPages": 73,
     "totalP0Pages": 17,
     "completedP0Pages": 17,
-    "basis": "48/73严格整页封存、P0全17完成；新增记账/搜索与4支持页。按未变函数复用旧版本真实闭环，新分类几何只做必要正向UI补验并守卫。余25页代码已交，文件恢复/云双向和平台SDK仍是主要剩余风险。存储/日志实际流程待报告，iOS新owned设备独立进行。",
+    "basis": "50/73整页封存、P0全17；新增存储与孤儿。R106已同QA安全更新，1010产品文件/27实际SVG字节验证，日志搜索原生增量通过而筛选视觉继续修；Widget/快捷图标及iOS相关补验并行，不把旧原生功能复用伪称本版重跑。文件7小fixture只准备未导入，Cloud App往返仍待执行。",
     "remainingEffortEstimateHours": [
       12,
       24
@@ -905,10 +909,10 @@
   "lastImplementationDelivery": {
     "at": "2026-10-25T15:30:48+08:00",
     "commit": "cabfaff9aa8796f161396a108e2105daa7992532",
-    "completedNativePages": 48,
-    "implementedPendingNativePages": 25,
+    "completedNativePages": 50,
+    "implementedPendingNativePages": 23,
     "inImplementationPages": 0,
     "candidateInstalled": false,
-    "latestNativeAuditAt": "2026-10-25T17:09:13+08:00"
+    "latestNativeAuditAt": "2026-10-25T17:39:44+08:00"
   }
 }
