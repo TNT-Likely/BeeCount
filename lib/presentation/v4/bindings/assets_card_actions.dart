@@ -3,11 +3,33 @@ part of '../../../pages/account/accounts_page.dart';
 /// The redesign only adds read-only view choices. Settings, sort writes, account
 /// editing and the detail routes keep their original App/Repository operations.
 extension _AssetsCardActions on _AccountsOverviewBindings {
-  void _scrollToAssetHidden() {
-    final target = _assetHiddenKey.currentContext;
-    if (target != null) {
-      Scrollable.ensureVisible(target,
-          duration: const Duration(milliseconds: 220), alignment: .2);
+  Future<void> _scrollToAssetHidden() async {
+    if (_assetLocatingHidden || !_assetListController.hasClients) return;
+    _assetLocatingHidden = true;
+    try {
+      // The final section may not be mounted by ListView yet. Bring its end
+      // into the viewport before resolving the key; lazy estimates can grow
+      // once another group is laid out, so allow a few bounded frame updates.
+      for (var attempt = 0;
+          mounted &&
+              _assetListController.hasClients &&
+              _assetHiddenKey.currentContext == null &&
+              attempt < 3;
+          attempt++) {
+        await _assetListController.animateTo(
+            _assetListController.position.maxScrollExtent,
+            duration: const Duration(milliseconds: 160),
+            curve: Curves.easeOut);
+        if (!mounted) return;
+        await WidgetsBinding.instance.endOfFrame;
+      }
+      final target = _assetHiddenKey.currentContext;
+      if (mounted && target != null && target.mounted) {
+        await Scrollable.ensureVisible(target,
+            duration: const Duration(milliseconds: 220), alignment: .2);
+      }
+    } finally {
+      _assetLocatingHidden = false;
     }
   }
 

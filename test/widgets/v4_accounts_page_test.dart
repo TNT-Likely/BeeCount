@@ -285,6 +285,75 @@ void main() {
     expect(tester.takeException(), isNull);
     await close(tester);
   });
+  for (final types in [
+    const ['cash'],
+    accountTypeOrder
+  ]) {
+    testWidgets('长账户列表首次点击隐藏提示定位未挂载分区且不改数据 ${types.length}种类型', (tester) async {
+      for (var i = 0; i < 24; i++) {
+        await repo.createAccount(
+            ledgerId: 1,
+            name: '长列表账户$i',
+            currency: 'CNY',
+            type: types[i % types.length],
+            initialBalance: i + 1);
+      }
+      final hidden = await repo.createAccount(
+          ledgerId: 1,
+          name: '长列表隐藏账户',
+          currency: 'CNY',
+          type: 'bank_card',
+          initialBalance: 50);
+      await repo.setAccountHidden(hidden, true);
+      final before = await repo.getAllAccounts();
+      await open(tester);
+      await ready(tester, find.byType(BeeAssetSummary));
+      final l = strings(tester);
+      final scroll =
+          tester.state<ScrollableState>(find.byType(Scrollable).first).position;
+      expect(scroll.pixels, 0);
+      expect(find.byType(HiddenAccountsSectionBinding), findsNothing,
+          reason: 'Do not pre-scroll the lazy target into existence');
+      final link = find.text(l.v4AssetsIncludesHidden(1));
+      await tester.tap(link);
+      await tester
+          .tap(link); // Fast repeated taps share one locating operation.
+      await tester.pumpAndSettle();
+      expect(scroll.pixels, greaterThan(0));
+      expect(find.byType(HiddenAccountsSectionBinding).hitTestable(),
+          findsOneWidget);
+      expect(await repo.getAllAccounts(), before);
+      expect(tester.takeException(), isNull);
+      await close(tester);
+    });
+  }
+
+  testWidgets('隐藏分区定位动画中离开页面不会使用已销毁的滚动位置', (tester) async {
+    for (var i = 0; i < 24; i++) {
+      await repo.createAccount(
+          ledgerId: 1,
+          name: '离开时账户$i',
+          currency: 'CNY',
+          type: 'cash',
+          initialBalance: i + 1);
+    }
+    final hidden = await repo.createAccount(
+        ledgerId: 1,
+        name: '离开时隐藏账户',
+        currency: 'CNY',
+        type: 'bank_card',
+        initialBalance: 50);
+    await repo.setAccountHidden(hidden, true);
+    final before = await repo.getAllAccounts();
+    await open(tester);
+    await ready(tester, find.byType(BeeAssetSummary));
+    await tester.tap(find.text(strings(tester).v4AssetsIncludesHidden(1)));
+    await tester.pump(const Duration(milliseconds: 20));
+    await close(tester);
+    expect(tester.takeException(), isNull);
+    expect(await repo.getAllAccounts(), before);
+  });
+
   testWidgets('隐藏分区默认折叠，恢复保留余额且不重新分配默认账户', (tester) async {
     final active = await repo.createAccount(
         ledgerId: 1,

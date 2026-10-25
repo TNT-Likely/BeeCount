@@ -7,6 +7,7 @@ mixin _AccountsOverviewBindings on ConsumerState<AccountsPage> {
   int? _assetTrendIndex;
   final _assetListController = ScrollController();
   final _assetHiddenKey = GlobalKey();
+  bool _assetLocatingHidden = false;
   void _updateAssetView(VoidCallback update) => setState(update);
 
   Map<String, List<db.Account>>? get _reorderingGroups;
