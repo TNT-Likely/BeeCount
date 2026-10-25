@@ -1,1 +1,11 @@
-{"source":"HTML analytics.css + validate-analytics.cjs, logical phone border excluded, 398x844/100%","sideInset":17,"summaryWidth":364,"summaryPadding":18,"heroFont":34,"selectorHeight":48,"trendHeight":240}
+{
+  "source": "HTML analytics.css + validate-analytics.cjs, logical phone border excluded, 398x844/100%",
+  "sideInset": 17,
+  "summaryWidth": 364,
+  "summaryPadding": 18,
+  "heroFont": 34,
+  "selectorHeight": 48,
+  "trendHeight": 240,
+  "progressTrackColor": 4294178037,
+  "progressTrackReference": "Actual HTML .a79-shell .bc-rank-bar computed rgb(243,244,245), var(--bc-soft), independently read in Chrome"
+}

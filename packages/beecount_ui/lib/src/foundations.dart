@@ -528,6 +528,7 @@ class BeeProgress extends StatelessWidget {
         ]),
         const SizedBox(height: 8),
         LinearProgressIndicator(
+            backgroundColor: BeeCardTheme.of(context).soft,
             value: value == null
                 ? null
                 : value!.isFinite

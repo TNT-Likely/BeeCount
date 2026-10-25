@@ -31,7 +31,7 @@ class BeeCardTheme extends ThemeExtension<BeeCardTheme> {
           : const BeeCardTheme(
               canvas: Color(0xfff5f6f7),
               surface: Colors.white,
-              soft: Color(0xfff3f4f3));
+              soft: Color(0xfff3f4f5));
 
   final Color canvas;
   final Color surface;

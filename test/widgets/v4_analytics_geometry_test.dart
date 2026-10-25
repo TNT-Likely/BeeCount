@@ -46,4 +46,19 @@ void main() {
       expect(t.takeException(), isNull);
     });
   }
+  testWidgets('进度底槽不会继承宿主Material种子的紫色', (t) async {
+    await t.pumpWidget(MaterialApp(
+        theme: ThemeData(
+            useMaterial3: true,
+            colorScheme: ColorScheme.fromSeed(seedColor: Colors.purple)
+                .copyWith(primary: const Color(0xfffacb16))),
+        home: const Scaffold(
+            body: BeeProgress(value: .365, label: '餐饮', trailing: '1200'))));
+    expect(
+        t
+            .widget<LinearProgressIndicator>(
+                find.byType(LinearProgressIndicator))
+            .backgroundColor,
+        Color(f['progressTrackColor'] as int));
+  });
 }
