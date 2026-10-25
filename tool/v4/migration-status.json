@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25T20:08:59+08:00",
+  "updated": "2026-10-25T20:38:19+08:00",
   "branch": "v4",
   "baselineCommit": "6616066247a8738a42996c496e1b99106820e59f",
   "pages": {
@@ -160,11 +160,13 @@
     "automation/auto_billing_settings_page.dart": {
       "name": "Android 自动记账设置",
       "priority": "P1",
-      "reason": "R111实际false→true返回再入、原电池dialog、true→false及正常launcher持久化已核；31表70/7附件+3图/其他Prefs护。仅原缺省screenshot_monitor_enabled→显式false，系统权限请求及photos granted已证但系统授权按钮手势NOT_RUN；不制造截图/AI账单。报告独立整理中。",
-      "status": "迁移中·真实开关与正常入口已验，待报告封存",
+      "reason": "R111实际原开关开启/返回再入、原电池信息dialog、关闭/再入与正常MAIN冷启动持久化完成。Root直接核7真实原图、18固定源和原31表/70笔/7附件3图、唯一业务Pref delta后封存7图19文件报告。",
+      "status": "已完成",
       "components": "平台引导、开关、选择项与配置表单",
-      "acceptance": "保留 Android/iOS/渠道条件、权限检查、设置跳转、默认值与失败反馈。",
-      "implementationStage": "implemented"
+      "acceptance": "真实false→true→返回再进true→电池原信息确定→true→false→返回再进false，原photos请求已granted，授权按钮手势未执行；不触OS电池配置。原缺省screenshot_monitor_enabled变显式false及app_logs源证变化，其余Prefs和全部31表/70财务/7附件+3图精确保持。Root直接核原完整Home d4134…与原PNG/crop，先前视觉误读已更正而非产品/actor错误，无补图重跑。7图19文件三宽/ZIP/manifest/脱敏/0444通过；截图MediaStore事件→AI记账、拒绝/storage/OS豁免和其它厂商原生未执行，原service/平台文件逐字不变。",
+      "implementationStage": "accepted",
+      "acceptanceReport": ".docs/acceptance/v4-migration/2026-10-25/auto-billing-r111/index.html",
+      "acceptanceZipSha256": "aaf2fd3d7882aa1d13a8c03df020c318c9e3e6005ac844de78406d7b9b56f07b"
     },
     "automation/ios_auto_billing_page.dart": {
       "name": "iOS 自动记账设置",
@@ -227,8 +229,8 @@
     "cloud/beecount_cloud_sync_page.dart": {
       "name": "BeeCount Cloud 同步",
       "priority": "P1",
-      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
-      "status": "迁移中·代码与本地回归已交付，待统一产物和整页验收",
+      "reason": "R111实际A登录/首push book8七笔；Root分别取实际App SQLite、Cloud SQL、正式sync/full及两端真实文件bytes，7identity/历史金额/关系/标签/附件exact0issues。原31本地表财务保护，AI key/models/bindings仅JSON编码次序变且全字段语义相同；唯一刷新清初读404，当前7/7、全局70/7及预算2/0真实差异保留。待Web回拉/角色/正常入口/报告，不计完整页。",
+      "status": "迁移中·App首次真实push与逐字段对照已验，待双向及角色闭环",
       "components": "同步状态、配置、成员列表与权限操作",
       "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。",
       "implementationStage": "implemented"
@@ -938,17 +940,17 @@
     "reason": "按用户要求临时关闭，避免每次推送触发PR的AI Eval；v4继续开发和推送，全部迁移与验收准备好再恢复PR。"
   },
   "currentProgress": {
-    "updatedAt": "2026-10-25T20:08:59+08:00",
-    "engineeringEstimatePercent": 82,
+    "updatedAt": "2026-10-25T20:38:19+08:00",
+    "engineeringEstimatePercent": 84,
     "engineeringEstimateRange": [
-      79,
-      85
+      81,
+      87
     ],
-    "completedPages": 64,
+    "completedPages": 65,
     "totalPages": 73,
     "totalP0Pages": 17,
     "completedP0Pages": 17,
-    "basis": "严格64/73（87.7%），P0全17；刚封存导入入口/确认/导出3源页面，真实CSV及原字段/附件/正常入口已独立核。工程82%左右与严格页数比例分开：剩余8个P1+1个P2主要为Cloud多角色/双向/文件恢复，权重更大。Android自动记账真实开关/电池/正常入口已完成、待报告。App C1开始、Web B同账号范围独立fixture准备并行，不把它当同步通过，ETA仍9–17小时。",
+    "basis": "严格65/73（89.0%），P0全17；Android自动记账设置整页封存。Cloud方向1：真实App7/Cloud SQL7/正式full7与两实际文件bytes独立exact0issues，原70/AI配置保持；UI初读stats404在唯一后续Refresh消失，global70/7差异如实保留。Web A正在新增独立0.37账单/合成PNG作Web→App→Web三向验证，Cloud页尚不提前计，剩余8源页面权重高，ETA仍9–17小时。",
     "remainingEffortEstimateHours": [
       9,
       17
@@ -958,11 +960,11 @@
   "lastImplementationDelivery": {
     "at": "2026-10-25T15:30:48+08:00",
     "commit": "cabfaff9aa8796f161396a108e2105daa7992532",
-    "completedNativePages": 64,
-    "implementedPendingNativePages": 9,
+    "completedNativePages": 65,
+    "implementedPendingNativePages": 8,
     "inImplementationPages": 0,
     "candidateInstalled": false,
-    "latestNativeAuditAt": "2026-10-25T20:08:59+08:00"
+    "latestNativeAuditAt": "2026-10-25T20:38:19+08:00"
   },
   "openRegressions": [],
   "resolvedRegressions": [
