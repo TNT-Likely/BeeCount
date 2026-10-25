@@ -126,7 +126,7 @@ class _AIPromptWorkspaceState extends State<AIPromptWorkspace> {
                               message: '${c.error}',
                               action: BeeButton(
                                   label: l.helpCenterRetry, onPressed: c.load))
-                          : BeePageBody(children: [
+                          : BeePageBody(eager: true, children: [
                               Text(l.aiPromptEditSubtitle,
                                   style: TextStyle(
                                       fontSize: 11,
@@ -173,6 +173,7 @@ class _AIPromptWorkspaceState extends State<AIPromptWorkspace> {
                                           onPressed: reset)
                                     ])),
                               BeePromptDocument(
+                                  key: const ValueKey('ai-prompt-document'),
                                   title: l.aiPromptContent,
                                   unsavedLabel: l.aiPromptUnsaved,
                                   dirty: c.dirty,

@@ -55,6 +55,36 @@ void main() {
     await t.pumpAndSettle();
   }
 
+  testWidgets('缺失提示出现与消失时保留正在输入的焦点和光标', (t) async {
+    SharedPreferences.setMockInitialValues(
+        {'ai_custom_prompt': PromptBuilder.defaultTemplate});
+    await open(t);
+    await t.scrollUntilVisible(find.byType(TextField), 180,
+        scrollable: find.byType(Scrollable).first);
+    await t.showKeyboard(find.byType(TextField));
+    expect(t.widget<EditableText>(find.byType(EditableText)).focusNode.hasFocus,
+        isTrue);
+    await t.enterText(find.byType(TextField), '');
+    await t.pumpAndSettle();
+    expect(t.widget<EditableText>(find.byType(EditableText)).focusNode.hasFocus,
+        isTrue);
+    await t.enterText(find.byType(TextField), 'Q');
+    await t.pumpAndSettle();
+    expect(
+        t
+            .widget<EditableText>(find.byType(EditableText))
+            .controller
+            .selection
+            .baseOffset,
+        1);
+    expect(t.widget<EditableText>(find.byType(EditableText)).focusNode.hasFocus,
+        isTrue);
+    await t.enterText(find.byType(TextField), PromptBuilder.defaultTemplate);
+    await t.pumpAndSettle();
+    expect(t.widget<EditableText>(find.byType(EditableText)).focusNode.hasFocus,
+        isTrue);
+    expect(t.takeException(), isNull);
+  });
   testWidgets('变量登记表全量展示、缺失能力只给安全补丁，保存走原通知', (t) async {
     var saves = 0;
     AIProviderManager.onConfigChanged = () => saves++;
