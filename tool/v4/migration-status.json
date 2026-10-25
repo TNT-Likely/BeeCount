@@ -86,18 +86,18 @@
     "ai/ai_provider_manage_page.dart": {
       "name": "AI 服务商管理",
       "priority": "P1",
-      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
-      "status": "待迁移",
+      "reason": "原1075行含管理/编辑和Factory/Manager/模型常量共五文件备份。纯服务卡/测试字段和基础静态标签起草，App控制器保留新增/编辑、内置身份、三能力并行测试/缓存/取消与保存状态，5项合成数据回归通过。尚未替换正式页，不计完成。",
+      "status": "迁移中·原实现备份及App草稿/请求控制器5项通过，待UI/设计与真机闭环",
       "components": "消息、配置表单、授权、任务状态与列表",
       "acceptance": "沿用原 AI 服务与权限，保留配置草稿、能力绑定、执行反馈、失败重试和取消。"
     },
     "ai/ai_settings_page.dart": {
       "name": "AI 设置",
       "priority": "P1",
-      "reason": "原529行/授权弹窗及配置Provider/Manager五文件备份；原授权门禁、三能力过滤、即时保存/取消、四策略及原导航已移入App绑定，纯展示组件和HTML/Flutter样例在完善。未安装R81，不计完成。",
-      "status": "迁移中·原功能与HTML/Widget通过，待完整规范与真机闭环",
-      "components": "消息、配置表单、授权、任务状态与列表",
-      "acceptance": "沿用原 AI 服务与权限，保留配置草稿、能力绑定、执行反馈、失败重试和取消。"
+      "reason": "原529行/授权弹窗和配置Provider、Manager、Store完整备份；配置Provider/Manager/Store原字节未改。薄页/纯组件/App真实门禁与能力绑定、HTML/Flutter55、真实UI/全量数据和重启/封存完成。",
+      "status": "已完成",
+      "components": "纯能力绑定行与完整原授权正文，标准弹窗/开关/四策略/折叠；真实过滤/保存/权限/缓存/导航留App；Flutter55受控和真实只读",
+      "acceptance": "最终0ef55f7b提交副本102项/15文件回归、14文件静态0问题，20组HTML/331场景/76组规范/41基础控件与三宽度通过。851产品文件/lock一致，实际APK身份/签名/hash和私有备份核验；同一QA完整原授权取消/政策往返/接受/版本1重启、3能力取消和内置保存、仅云端重启及原云端优先恢复、原两项本地策略禁用、2原目标/Flutter55/只读与正式入口及正常53笔首页通过。原全部金融表/追踪/57全局53当前24账户5附件、Smart偏好、Provider配置hash和全部图片/public文件保持；仅本页5原有效设置显式保存/原日志与Star小时缓存时间更新，计数2638保持。23图26文件ai-r81报告封存，ZIP 035ab7ef629832d6a0f938905343823b94e24efd0128f52a48dc1d7e19ed5011。实际AI/Cloud未执行；原升级补授权及多服务商过滤由Widget，物理短屏/iOS未执行。"
     },
     "attachment/attachment_preview_page.dart": {
       "name": "账单附件大图预览",
