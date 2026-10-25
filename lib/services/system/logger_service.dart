@@ -141,9 +141,18 @@ class LogEntry {
 class LoggerService {
   static final LoggerService _instance = LoggerService._internal();
   factory LoggerService() => _instance;
-  LoggerService._internal() {
+  LoggerService._internal()
+      : _getPreferences = SharedPreferences.getInstance {
     _setupNativeBridge();
   }
+
+  /// Isolated synthetic preferences only; does not register the native bridge.
+  @visibleForTesting
+  LoggerService.forTesting({
+    required Future<SharedPreferences> Function() getPreferences,
+  }) : _getPreferences = getPreferences;
+
+  final Future<SharedPreferences> Function() _getPreferences;
 
   static const _channel = MethodChannel('com.beecount.logger');
   static const _storageKey = 'app_logs';
@@ -158,7 +167,9 @@ class LoggerService {
 
   bool _isLoaded = false;
   Timer? _saveTimer;
-  bool _isSaving = false;
+  int _clearGeneration = 0;
+  Future<void>? _loadPending;
+  Future<void> _writeTail = Future<void>.value();
 
   /// 获取所有日志（自动加载持久化的日志）
   List<LogEntry> get logs {
@@ -214,36 +225,30 @@ class LoggerService {
   /// 加载持久化的日志
   void _loadLogs() {
     if (_isLoaded) return;
-
-    try {
-      SharedPreferences.getInstance().then((prefs) {
-        final jsonStr = prefs.getString(_storageKey);
-        if (jsonStr != null && jsonStr.isNotEmpty) {
-          final List<dynamic> jsonList = jsonDecode(jsonStr);
-          final now = DateTime.now();
-
-          // 过滤掉超过48小时的日志
-          for (final json in jsonList) {
-            try {
-              final entry = LogEntry.fromJson(json as Map<String, dynamic>);
-              final age = now.difference(entry.timestamp);
-
-              if (age.inHours < _maxStorageHours) {
-                _logs.add(entry);
-              }
-            } catch (e) {
-              debugPrint('加载日志条目失败: $e');
-            }
-          }
-
-          debugPrint('从持久化存储加载了 ${_logs.length} 条日志');
+    _isLoaded = true;
+    final generation = _clearGeneration;
+    _loadPending = Future<SharedPreferences>.sync(_getPreferences).then((prefs) {
+      // A clear may happen while preferences are still loading. The old snapshot
+      // must never be appended after the user has removed it.
+      if (generation != _clearGeneration) return;
+      final jsonStr = prefs.getString(_storageKey);
+      if (jsonStr == null || jsonStr.isEmpty) return;
+      final List<dynamic> jsonList = jsonDecode(jsonStr);
+      final now = DateTime.now();
+      for (final json in jsonList) {
+        try {
+          final entry = LogEntry.fromJson(json as Map<String, dynamic>);
+          final age = now.difference(entry.timestamp);
+          if (age.inHours < _maxStorageHours) _logs.add(entry);
+        } catch (e) {
+          debugPrint('加载日志条目失败: $e');
         }
-      });
-    } catch (e) {
+      }
+      debugPrint('从持久化存储加载了 ${_logs.length} 条日志');
+      _notifyListeners();
+    }).catchError((Object e) {
       debugPrint('加载日志失败: $e');
-    } finally {
-      _isLoaded = true;
-    }
+    });
   }
 
   /// 保存日志到持久化存储（节流：最多每 2 秒写一次）
@@ -253,25 +258,44 @@ class LoggerService {
   }
 
   Future<void> _doSaveLogs() async {
-    if (_isSaving) return;
-    _isSaving = true;
-    try {
-      final now = DateTime.now();
-      final validLogs = _logs.where((log) {
-        final age = now.difference(log.timestamp);
-        return age.inHours < _maxStorageHours;
-      }).toList();
+    final generation = _clearGeneration;
+    await _loadPending;
+    if (generation != _clearGeneration) return;
+    final now = DateTime.now();
+    final validLogs = _logs.where((log) {
+      final age = now.difference(log.timestamp);
+      return age.inHours < _maxStorageHours;
+    }).toList();
+    await _queueSnapshot(validLogs, generation);
+  }
 
-      final jsonList = validLogs.map((log) => log.toJson()).toList();
-      final jsonStr = jsonEncode(jsonList);
+  Future<void> _queueSnapshot(List<LogEntry> entries, int generation) {
+    // Serialize platform writes. An already-started old write is followed by
+    // the empty clear snapshot; queued stale generations are skipped entirely.
+    _writeTail = _writeTail.then((_) async {
+      if (generation != _clearGeneration) return;
+      try {
+        final prefs = await _getPreferences();
+        if (generation != _clearGeneration) return;
+        final jsonStr = jsonEncode(entries.map((log) => log.toJson()).toList());
+        await prefs.setString(_storageKey, jsonStr);
+      } catch (e) {
+        debugPrint('保存日志失败: $e');
+      }
+    });
+    return _writeTail;
+  }
 
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(_storageKey, jsonStr);
-    } catch (e) {
-      debugPrint('保存日志失败: $e');
-    } finally {
-      _isSaving = false;
-    }
+  @visibleForTesting
+  Future<void> waitForPendingWorkForTesting() async {
+    await _loadPending;
+    await _writeTail;
+  }
+
+  @visibleForTesting
+  void disposeForTesting() {
+    _saveTimer?.cancel();
+    _listeners.clear();
   }
 
   /// Debug 日志
@@ -325,8 +349,12 @@ class LoggerService {
 
   /// 清空日志
   void clear() {
+    _clearGeneration++;
+    _isLoaded = true;
+    _saveTimer?.cancel();
     _logs.clear();
     _notifyListeners();
+    unawaited(_queueSnapshot(const [], _clearGeneration));
   }
 
   /// 导出所有日志为文本
