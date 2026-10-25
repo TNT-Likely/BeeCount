@@ -570,7 +570,7 @@ void main() {
     await reveal(t, target);
     await t.tap(target);
     await flush(t);
-    expect(find.byType(AlertDialog), findsOneWidget);
+    expect(find.byType(BeeDialog), findsOneWidget);
     expect(find.text('时间:'), findsOneWidget);
     expect(find.text('级别:'), findsOneWidget);
     expect(find.text('平台:'), findsOneWidget);
@@ -578,7 +578,7 @@ void main() {
     await tap(t, '复制');
     expect(copied, logs[3].toFormattedString());
     await tap(t, '关闭');
-    expect(find.byType(AlertDialog), findsNothing);
+    expect(find.byType(BeeDialog), findsNothing);
   });
   scenario('长按日志保留直接复制', (t) async {
     String? copied;

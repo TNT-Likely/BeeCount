@@ -110,16 +110,12 @@ class BeeAutoBillingActionCard extends StatelessWidget {
         const SizedBox(height: 12),
         _copy(context, description),
         const SizedBox(height: 16),
-        FilledButton.icon(
+        BeeButton(
             key: actionKey,
+            label: actionLabel,
             onPressed: busy ? null : onAction,
-            icon: busy
-                ? const SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2))
-                : BeeLineIcon(icon, size: 18),
-            label: Text(actionLabel))
+            loading: busy,
+            icon: BeeLineIcon(icon, size: 18))
       ]));
 }
 

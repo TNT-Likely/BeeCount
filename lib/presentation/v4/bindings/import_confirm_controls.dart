@@ -365,9 +365,8 @@ class _ImportConfirmControlsState extends ConsumerState<ImportConfirmControls> {
       final l10n = AppLocalizations.of(context);
       final confirmed = await showDialog<bool>(
           context: context,
-          builder: (ctx) => AlertDialog(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(22)),
+          builder: (ctx) => BeeDialog(
+                showClose: false,
                 title: Text(l10n.importAccountCurrencyPreview),
                 content: SingleChildScrollView(
                     child: BeeImportAccountCurrencyReview(
@@ -381,7 +380,7 @@ class _ImportConfirmControlsState extends ConsumerState<ImportConfirmControls> {
                 actions: [
                   BeeButton(
                       label: l10n.commonCancel,
-                      kind: BeeButtonKind.quiet,
+                      kind: BeeButtonKind.secondary,
                       onPressed: () => Navigator.pop(ctx, false)),
                   BeeButton(
                       label: l10n.importStartImport,
@@ -591,13 +590,12 @@ class _ImportConfirmControlsState extends ConsumerState<ImportConfirmControls> {
       // 有失败或跳过: 使用弹窗显示详细信息,等待用户确认后再关闭页面
       await showDialog(
         context: currentContext,
-        builder: (ctx) => AlertDialog(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+        builder: (ctx) => BeeDialog(
+          showClose: false,
           title: Text(l10nToast.importCompleteTitle),
           content: Text(message),
           actions: [
-            TextButton(
+            FilledButton(
               onPressed: () => Navigator.pop(ctx),
               child: Text(l10nToast.commonConfirm),
             ),

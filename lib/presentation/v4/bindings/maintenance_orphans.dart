@@ -370,7 +370,8 @@ class _MaintenanceOrphansControlsState
     final l10n = AppLocalizations.of(context);
     final result = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
+      builder: (ctx) => BeeDialog(
+        showClose: false,
         title: Text(title),
         content: Text(message),
         actions: [
@@ -378,7 +379,7 @@ class _MaintenanceOrphansControlsState
             onPressed: () => Navigator.of(ctx).pop(false),
             child: Text(l10n.commonCancel),
           ),
-          TextButton(
+          FilledButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             child: Text(l10n.commonOk),
           ),

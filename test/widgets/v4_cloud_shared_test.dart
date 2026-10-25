@@ -587,7 +587,7 @@ void main() {
     await show(t, membersPage);
     await t.tap(find.byTooltip(l.sharedMembersRemoveCta));
     await flush(t);
-    expect(find.byType(AlertDialog), findsOneWidget);
+    expect(find.byType(BeeDialog), findsOneWidget);
     await tap(t, l.commonCancel);
     expect(calls('/members/', 'DELETE'), 0);
     expect(await db.select(db.ledgers).get(), hasLength(2));

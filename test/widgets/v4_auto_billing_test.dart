@@ -5,6 +5,7 @@ import 'package:beecount/pages/automation/ios_auto_billing_page.dart';
 import 'package:beecount/presentation/v4/bindings/auto_billing_actions.dart';
 import 'package:beecount/presentation/v4/bindings/ios_auto_billing_actions.dart';
 import 'package:beecount_business_ui/auto_billing.dart';
+import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -418,7 +419,7 @@ void main() {
     await tester.tap(button);
     await tester.pumpAndSettle();
     expect(actions.imports, 1);
-    expect(tester.widget<FilledButton>(button).onPressed, isNotNull);
+    expect(tester.widget<BeeButton>(button).onPressed, isNotNull);
     final l =
         AppLocalizations.of(tester.element(find.byType(IOSAutoBillingPage)));
     expect(find.text(l.iosAutoImportFailed), findsOneWidget);
@@ -435,7 +436,7 @@ void main() {
     await reveal(tester, button);
     await tester.tap(button);
     await tester.pumpAndSettle();
-    expect(tester.widget<FilledButton>(button).onPressed, isNotNull);
+    expect(tester.widget<BeeButton>(button).onPressed, isNotNull);
     actions.error = null;
     final tutorial = find.byKey(const ValueKey('auto-billing-tutorial'));
     await reveal(tester, tutorial);
@@ -457,7 +458,7 @@ void main() {
     await tester.tap(button);
     await tester.pump();
     expect(actions.imports, 1);
-    expect(tester.widget<FilledButton>(button).onPressed, isNull);
+    expect(tester.widget<BeeButton>(button).onPressed, isNull);
     await tester.pumpWidget(const SizedBox.shrink());
     actions.pending!.complete(false);
     await tester.pumpAndSettle();

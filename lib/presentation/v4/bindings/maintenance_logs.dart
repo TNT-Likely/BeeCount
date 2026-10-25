@@ -77,14 +77,15 @@ class _LogsState extends ConsumerState<MaintenanceLogsControls> {
     try {
       final confirmed = await showDialog<bool>(
           context: context,
-          builder: (ctx) => AlertDialog(
+          builder: (ctx) => BeeDialog(
+                  showClose: false,
                   title: Text(l.logCenterClearConfirmTitle),
                   content: Text(l.logCenterClearConfirmMessage),
                   actions: [
                     TextButton(
                         onPressed: () => Navigator.pop(ctx, false),
                         child: Text(l.commonCancel)),
-                    TextButton(
+                    FilledButton(
                         onPressed: () => Navigator.pop(ctx, true),
                         child: Text(l.commonConfirm))
                   ]));
@@ -113,7 +114,8 @@ class _LogsState extends ConsumerState<MaintenanceLogsControls> {
   void _details(LogEntry log) {
     showDialog<void>(
         context: context,
-        builder: (ctx) => AlertDialog(
+        builder: (ctx) => BeeDialog(
+                showClose: false,
                 title: Text('[${log.tag}]'),
                 content: SingleChildScrollView(
                     child: Column(
@@ -144,7 +146,7 @@ class _LogsState extends ConsumerState<MaintenanceLogsControls> {
                 actions: [
                   TextButton(
                       onPressed: () => _copy(log), child: const Text('复制')),
-                  TextButton(
+                  FilledButton(
                       onPressed: () => Navigator.pop(ctx),
                       child: const Text('关闭'))
                 ]));
