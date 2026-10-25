@@ -1,3 +1,5 @@
+import 'refresh_business_samples.dart';
+import 'poster_catalog_sample.dart';
 import 'transaction_fixture.dart';
 import 'ai_advanced_sample.dart';
 import 'support_sample.dart';
@@ -110,7 +112,10 @@ const businessCases = [
   '分享卡与原海报预览',
   'AI记忆权限与活动',
   '关于帮助与支持',
-  '日志存储与维护'
+  '日志存储与维护',
+  '启动品牌、状态与安全说明',
+  '七类分享海报平铺',
+  '云同步健康状态'
 ];
 const demoTags = [
   BeeTagData('work', '工作日', Color(0xffaa8b29)),
@@ -461,6 +466,12 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
       isolatedCase: widget.isolatedCase,
       sampleBuilder: (index) => _sample(index));
   Widget _sample(int index) => switch (index) {
+        75 => const StartupLayoutSample(),
+        76 => Localizations.override(
+            context: context,
+            delegates: const [AppLocalizations.delegate],
+            child: const PosterCatalogSample()),
+        77 => const SyncHealthSample(),
         0 => Column(children: [
             BeeHomeIdentity(
                 name: '蜜蜂记账',
@@ -1911,6 +1922,8 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
                     setState(() => balanceAdjustmentRecord = v),
                 onConfirm: (v) => record(v ? '确认新增平账记录' : '确认仅修改余额'))),
         40 => Column(mainAxisSize: MainAxisSize.min, children: [
+            const AssetToolbarSample(),
+            const SizedBox(height: 12),
             BeeAssetSummary(
                 compact: true,
                 unitLabel: '折合 CNY',

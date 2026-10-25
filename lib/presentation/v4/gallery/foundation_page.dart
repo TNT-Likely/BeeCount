@@ -1,3 +1,4 @@
+import 'refresh_foundation_samples.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'gallery_catalog.dart';
@@ -25,7 +26,11 @@ const foundationCases = [
   '加载与进度状态',
   '折线图',
   '时间滚轮',
-  'HSV配色与命名色板'
+  'HSV配色与命名色板',
+  '紧凑页签与柱状图',
+  '纸面、卡框与状态胶囊',
+  '启动描线、活动与局部弹层',
+  '主题与系统状态栏'
 ];
 
 class FoundationAcceptancePage extends StatefulWidget {
@@ -74,6 +79,10 @@ class _FoundationAcceptancePageState extends State<FoundationAcceptancePage> {
       isolatedCase: widget.isolatedCase,
       sampleBuilder: (index) => _sample(context, index));
   Widget _sample(BuildContext context, int index) => switch (index) {
+        22 => const RefreshTabsAndChartSample(),
+        23 => const PaperComponentsSample(),
+        24 => const StartupPrimitivesSample(),
+        25 => const SystemBarsSample(),
         0 => BeeSurface(
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
