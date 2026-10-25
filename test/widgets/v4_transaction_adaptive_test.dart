@@ -186,6 +186,49 @@ void main() {
     });
   }
 
+  testWidgets('R116真实美元转账在继承字距与紧邻换行阈值时不溢出', (tester) async {
+    // Exact existing QA transaction74 display values, without a device/data write.
+    // Material body text supplies letterSpacing=.25 and weight500; labels must
+    // use the same intrinsic metrics that the row planner measures.
+    const sample = <String, dynamic>{
+      'id': 'native-usd-transfer-74',
+      'amount': r'US$3.50',
+    };
+    for (final scale in [.9, 1.0, 1.32, 1.4]) {
+      for (final width in [
+        382.745,
+        for (var w = 320.0; w <= 398; w++) w,
+      ]) {
+        await open(
+            tester,
+            DefaultTextStyle.merge(
+                style: const TextStyle(
+                    letterSpacing: .25, fontWeight: FontWeight.w500),
+                child: BeeTransactionRow(
+                    title: 'QA-RP-USD transfer',
+                    amount: r'US$3.50',
+                    converted: '≈ ¥24.85',
+                    accountName: '测试·美元现金 → 测试·美元银行卡',
+                    kind: BeeTransactionKind.transfer,
+                    labels: galleryTransactionLabels,
+                    icon: const Icon(Icons.swap_horiz),
+                    tags: const [
+                      BeeTagData('29', 'QA-RP', Color(0xffe0ad00)),
+                      BeeTagData('31', 'QA-RP-美元', Color(0xffe0ad00))
+                    ],
+                    onCategoryTap: () {},
+                    onTap: () {})),
+            width: width,
+            scale: scale);
+        geometry(tester, {
+          ...sample,
+          'id': 'native-usd-transfer-74 width=$width scale=$scale'
+        });
+        expect(find.text('≈ ¥24.85'), findsOneWidget);
+      }
+    }
+  });
+
   for (final width in [398.0, 320.0]) {
     for (final scale in [1.0, 1.4]) {
       for (final dark in [false, true]) {

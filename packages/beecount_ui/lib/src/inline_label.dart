@@ -49,6 +49,10 @@ class BeeInlineLabel extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                               fontSize: fontSize,
+                              // Match intrinsic inline-token measurement even
+                              // inside Material's spaced/weighted body styles.
+                              fontWeight: FontWeight.w400,
+                              letterSpacing: 0,
                               height: 1.2,
                               color: foreground)),
                     ),
