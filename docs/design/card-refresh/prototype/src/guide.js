@@ -92,3 +92,11 @@ document.addEventListener('click',e=>{const save=e.target.closest('[data-a83-dem
 document.addEventListener('click',e=>{const el=e.target.closest('[data-a84-demo-value]');if(!el)return;const host=el.closest('.a84-guide-sample');for(const button of host.querySelectorAll('[data-a84-demo-value]')){button.setAttribute('aria-checked',String(button===el));button.querySelector('.a84-radio').classList.toggle('selected',button===el);}host.querySelector('[data-a84-demo-event]').textContent='示例选择 '+el.dataset.a84DemoValue+' 轮，不写真实执行配置';});
 
 document.addEventListener('click',e=>{const sample=e.target.closest('.a85-guide-sample');if(!sample)return;if(e.target.closest('[data-a85-demo-send]')){sample.querySelector('[data-a85-demo-event]').textContent='示例发送：'+sample.querySelector('[data-a85-demo-input]').value+' · 不调用模型';}if(e.target.closest('[data-a85-demo-undo]')){sample.querySelector('[data-a85-demo-event]').textContent='示例撤销，不改真实交易';sample.querySelector('.a85-bill-title b').textContent='已撤销';e.target.disabled=true;}});
+
+// Recurring examples only change local controls; production data stays in App.
+document.addEventListener('click',event=>{
+  const toggle=event.target.closest('[data-r86-demo-toggle]');
+  if(toggle){const checked=toggle.getAttribute('aria-checked')!=='true';toggle.setAttribute('aria-checked',String(checked));toggle.closest('.r86-guide').querySelector('[data-r86-demo-event]').textContent='示例已'+(checked?'启用':'停用')+'，不修改真实周期配置';}
+  const open=event.target.closest('[data-r86-demo-open]');
+  if(open)open.closest('.r86-guide').querySelector('[data-r86-demo-event]').textContent='示例编辑入口 · 实际页面由App导航';
+});
