@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-25T17:56:19+08:00",
+  "date": "2026-10-25T18:09:23+08:00",
   "branch": "v4",
   "pageFiles": 73,
   "helperFiles": [
@@ -1452,7 +1452,7 @@
       "classes": [
         "HomePage"
       ],
-      "lines": 379,
+      "lines": 384,
       "batch": "M2 首页与列表",
       "designRoutes": [
         "home",
@@ -1460,11 +1460,17 @@
       ],
       "designMapping": "已定位",
       "components": "BeeHomeLayout、身份/月汇总/预算、真实账本选择、虚拟账单流、受控扇形菜单与原底部栏",
-      "acceptance": "280项相关回归/36文件通过；R50品牌重启、隐私、滚轮取消、分类/标签/附件目标、批量48/筛选/日历、复制取消、小票实际关闭、空USD切换/缓存、左滑删除取消、原长按动作取消和正常重启通过。独立SQL核对支出3421.56/收入264.27及预算已用3220.72；原52笔/当前48/5附件/2分类图片及全部原业务行不变。报告home-r50，22图/三宽度/ZIP通过。Cloud/iOS/付费AI和独立目的页不计本页范围；Q01/Q07保留原规则。",
-      "status": "已完成",
+      "acceptance": "真实首笔32.50已保存且SQL正确，不重复创建。跨620高度父树重建导致旧single stream重复监听；稳定journal GlobalKey保留列表状态。纯测RED复现原StateError，GREEN验证长短屏往返与真实新增，3文件22项/analysis0；未改Repository/金融口径。原生验证通过前不计完整页。",
+      "status": "迁移中·iOS键盘回归修复待原生复验",
       "name": "首页明细",
       "priority": "P0",
-      "reason": "R50实际生产UI、独立SQL/文件、原数据保持、正常launcher重启与独立报告闭环；Q01行点击保留原编辑，新增独立详情另列。",
+      "reason": "R106真实iOS首笔账单保存后发现列表重复订阅报错；原有R50验收保留为历史证据，当前重新打开首页验收。d8cc3506已修复，22项首页回归通过，等待同QA原生复验。",
+      "previousAcceptanceBeforeRegression": {
+        "status": "已完成",
+        "reason": "R50实际生产UI、独立SQL/文件、原数据保持、正常launcher重启与独立报告闭环；Q01行点击保留原编辑，新增独立详情另列。",
+        "acceptance": "280项相关回归/36文件通过；R50品牌重启、隐私、滚轮取消、分类/标签/附件目标、批量48/筛选/日历、复制取消、小票实际关闭、空USD切换/缓存、左滑删除取消、原长按动作取消和正常重启通过。独立SQL核对支出3421.56/收入264.27及预算已用3220.72；原52笔/当前48/5附件/2分类图片及全部原业务行不变。报告home-r50，22图/三宽度/ZIP通过。Cloud/iOS/付费AI和独立目的页不计本页范围；Q01/Q07保留原规则。"
+      },
+      "implementationStage": "implemented",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=home",
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-empty"
