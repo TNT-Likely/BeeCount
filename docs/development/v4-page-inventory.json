@@ -344,10 +344,10 @@
       "designMapping": "已定位",
       "components": "原权限/记忆/活动菜单、受控执行深度选择器、标准底部弹层、加载/错误/重试、App真实本地Store与当前账本绑定",
       "acceptance": "沿用原 AI 服务与权限，保留配置草稿、能力绑定、执行反馈、失败重试和取消。",
-      "status": "迁移中·原实现与运行时备份、正式UI/样例/HTML及138项回归通过，待固定产物与真机闭环",
+      "status": "迁移中·固定产物已安装，四档/取消/重启与原三个目标通过，待组件页最终守卫及报告封存",
       "name": "AI 助手设置",
       "priority": "P1",
-      "reason": "原226行页面及运行时/本地Store/Provider四文件只读备份；原三入口/账本身份、四档底部选择及原持久化保留。纯执行深度选择器与App真实Store绑定、58组样例/真实只读入口、14组HTML/352场景/79规范组已实现；138项/28文件相关回归与11文件静态0问题通过，未安装验收不计整页。",
+      "reason": "最终38aa52af/868产品文件及APK已核验；提交副本138项28文件回归、11文件静态0问题，HTML14组/352场景/79规范通过。同一QA四档实际保存、取消缺省、8轮重启及恢复4轮、三个原目标返回通过；组件58/最终完整守卫和报告收口中，尚不计整页完成。",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-assistant-settings",
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-execution-depth"
@@ -400,18 +400,18 @@
       "classes": [
         "AIChatPage"
       ],
-      "lines": 1524,
+      "lines": 8,
       "batch": "M6 AI与自动化",
       "designRoutes": [
         "ai"
       ],
       "designMapping": "已定位",
-      "components": "消息、配置表单、授权、任务状态与列表",
+      "components": "会话输入与停止、消息/账单卡、工具执行与授权、原会话/消息真实仓储绑定、标准确认弹窗",
       "acceptance": "沿用原 AI 服务与权限，保留配置草稿、能力绑定、执行反馈、失败重试和取消。",
-      "status": "待迁移",
+      "status": "迁移中·原功能备份、正式UI与业务组件拆分中，24项相关回归通过，尚未整页验收",
       "name": "AI 对话与执行",
       "priority": "P1",
-      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "reason": "原1524行对话页及相关13文件4140行只读备份；原会话/流式/工具授权/只读追问/撤销编辑切账逻辑和服务保留。输入、用户消息、警告、账单卡和授权明细先抽纯组件，App接原数据，59组真实只读样例已实现；HTML场景和完整验收继续。",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=ai"
       ]
