@@ -748,14 +748,14 @@
   "fullMigrationBaselineCommit": "9b87aa06177616174e27c52c847cb20de6edede5",
   "completionStandard": "docs/development/v4-page-completion.md",
   "lastProgressReport": {
-    "reportedAt": "2026-10-25T11:54:26+08:00",
-    "scheduledReportAt": "2026-10-25T11:54:00+08:00",
-    "engineeringEstimatePercent": 56,
+    "reportedAt": "2026-10-25T12:54:12+08:00",
+    "scheduledReportAt": "2026-10-25T12:54:00+08:00",
+    "engineeringEstimatePercent": 57,
     "engineeringEstimateRange": [
-      54,
-      58
+      55,
+      59
     ],
-    "completedPages": 37,
+    "completedPages": 38,
     "totalPages": 73,
     "completedP0Pages": 13,
     "totalExistingP0Pages": 16,
@@ -796,22 +796,23 @@
       "记账提醒",
       "智能记账入口与识别偏好",
       "新增与编辑标签",
-      "标签管理"
+      "标签管理",
+      "AI 助手设置"
     ],
     "newlyCompletedSincePreviousReport": [
-      "AI 提示词编辑"
+      "AI 助手设置"
     ],
     "inProgress": [
-      "R83提示词编辑从部分实现进入实际UI、正常重启、独立SQL/完整偏好与文件核验，23图26文件报告已只读封存。",
-      "R84助手设置固定候选38aa52af已安装；四档保存/取消/launcher保持/恢复有效标准4和原三个目标返回通过，组件58与最终守卫/报告继续；未封存前不计完成。",
-      "R85对话页原服务保留，纯输入/消息/账单卡/授权内容与App绑定拆分、真实只读目录已写，24项相关回归通过；设计场景和整页验收未完成。",
-      "同一隔离App与数据保留，不重置不重建；原页面备份保留，PR575保持关闭。P0待确认项继续记录，不擅自改变产品行为。"
+      "R84助手设置18图21文件独立报告已只读封存，四档保存/取消/正常重启、原三个目标、Flutter58与完整数据偏好守卫通过。",
+      "R85对话页最终f809a3ec已安装同一QA；220项/35文件提交副本回归和HTML365场景/80规范组通过。实际指定模型查询及独立SQL摘要、停止、拒绝授权、一次允许准确新增13元专属账单、卡片进入正式编辑页仅改备注并刷新已通过；切账本/撤销、消息操作、Flutter59和最终报告未完成，不计完整页。",
+      "原有57笔交易、24账户、5附件及图片保持；R85新增自有空会话和目标账本、实际测试专属交易均有身份记录，不重建/重种统一环境。",
+      "P0待确认Q08–Q11继续跳过产品决定；保留原页面备份，v4继续推送，PR575保持关闭。"
     ],
     "remainingEffortEstimateHours": [
       18,
       38
     ],
-    "remainingEffortChangeReason": "较上一正式小时报告19–39小时减少约1个实际工作小时：R83补齐真机闭环并封存，R84主要交互通过且R85开始组件化。复杂对话/工具/Cloud、分享年度与剩余页面仍需分别核对，当前不足以进一步缩小区间；不按页面数线性外推，也不将估算当承诺。"
+    "remainingEffortChangeReason": "较11:54正式小时报告18–38小时暂不调整。新增完整R84，但R85真实模型与授权/编辑闭环、独立数据核验及Android输入驱动修正仍在推进；不把组件和局部通过当整页，也不按页数或经过的墙钟时间机械扣减工时。剩余Cloud、导入导出、周期账单、年度/分享和P2仍需分别核对，估算不是承诺。"
   },
   "pullRequest": {
     "number": 575,
