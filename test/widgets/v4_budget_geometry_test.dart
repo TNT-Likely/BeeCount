@@ -7,7 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   for (final editable in [true, false]) {
-    testWidgets('预算128环形与分类行冻结几何，editable=$editable', (t) async {
+    testWidgets('预算线性进度与分类行几何，editable=$editable', (t) async {
       final f = jsonDecode(
               File('test/fixtures/v4-budget-geometry.json').readAsStringSync())
           as Map<String, dynamic>;
@@ -47,14 +47,13 @@ void main() {
                   ])))));
       await t.pumpAndSettle();
       final overview = find.byType(BeeBudgetOverview),
-          ring = find.byType(CircularProgressIndicator),
+          ring = find.descendant(
+              of: overview, matching: find.byType(LinearProgressIndicator)),
           row = find.byType(BeeBudgetCategoryRow);
       expect(t.getSize(overview).width, f['overviewWidth']);
-      expect(t.getSize(ring), Size.square((f['ringSize'] as num).toDouble()));
+      expect(t.getSize(ring).height, f['summaryProgressHeight']);
       expect(
-          t.getTopLeft(ring).dy - t.getTopLeft(overview).dy, f['ringTopInset']);
-      expect(t.widget<CircularProgressIndicator>(ring).strokeWidth,
-          f['ringStroke']);
+          t.getSize(ring).width, greaterThan(t.getSize(overview).width * .7));
       expect(t.getSize(row).height, f['categoryRowHeight']);
       expect(t.takeException(), isNull);
     });

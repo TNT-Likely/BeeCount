@@ -29,7 +29,8 @@ enum SavePosterResult {
 /// 分享海报生成服务
 class SharePosterService {
   /// 生成分享海报图片数据
-  static Future<Uint8List?> generatePoster(BuildContext context, Color primaryColor) async {
+  static Future<Uint8List?> generatePoster(
+      BuildContext context, Color primaryColor) async {
     try {
       final l10n = AppLocalizations.of(context);
 
@@ -84,7 +85,8 @@ class SharePosterService {
   }
 
   /// 保存海报到相册
-  static Future<SavePosterResult> savePosterToGallery(Uint8List imageBytes) async {
+  static Future<SavePosterResult> savePosterToGallery(
+      Uint8List imageBytes) async {
     try {
       // 使用 Gal 保存图片，会自动处理权限
       await Gal.putImageBytes(imageBytes);
@@ -101,7 +103,8 @@ class SharePosterService {
   }
 
   /// 分享海报
-  static Future<void> sharePoster(Uint8List imageBytes, {
+  static Future<void> sharePoster(
+    Uint8List imageBytes, {
     void Function(Object error)? onError,
     void Function(ShareResult result)? onResult,
     Rect? sharePositionOrigin,
@@ -109,7 +112,8 @@ class SharePosterService {
     try {
       // 获取临时目录
       final tempDir = await getTemporaryDirectory();
-      final file = File('${tempDir.path}/beecount_share_${DateTime.now().millisecondsSinceEpoch}.png');
+      final file = File(
+          '${tempDir.path}/beecount_share_${DateTime.now().millisecondsSinceEpoch}.png');
 
       // 写入文件
       await file.writeAsBytes(imageBytes);
@@ -147,10 +151,16 @@ class SharePosterService {
         year: year,
       );
 
+      final currency =
+          (await repository.getLedgerById(ledgerId))?.currency ?? 'CNY';
       if (!context.mounted) return null;
       return await _generatePosterFromWidgetStatic(
         context,
-        YearSummaryPoster(data: data, primaryColor: primaryColor, hideIncome: hideIncome),
+        YearSummaryPoster(
+            data: data,
+            primaryColor: primaryColor,
+            hideIncome: hideIncome,
+            currencyCode: currency),
       );
     } catch (e) {
       return null;
@@ -177,10 +187,16 @@ class SharePosterService {
         month: month,
       );
 
+      final currency =
+          (await repository.getLedgerById(ledgerId))?.currency ?? 'CNY';
       if (!context.mounted) return null;
       return await _generatePosterFromWidgetStatic(
         context,
-        MonthSummaryPoster(data: data, primaryColor: primaryColor, hideIncome: hideIncome),
+        MonthSummaryPoster(
+            data: data,
+            primaryColor: primaryColor,
+            hideIncome: hideIncome,
+            currencyCode: currency),
       );
     } catch (e) {
       return null;
@@ -203,10 +219,16 @@ class SharePosterService {
         ledgerId: ledgerId,
       );
 
+      final currency =
+          (await repository.getLedgerById(ledgerId))?.currency ?? 'CNY';
       if (!context.mounted) return null;
       return await _generatePosterFromWidgetStatic(
         context,
-        LedgerSummaryPoster(data: data, primaryColor: primaryColor, hideIncome: hideIncome),
+        LedgerSummaryPoster(
+            data: data,
+            primaryColor: primaryColor,
+            hideIncome: hideIncome,
+            currencyCode: currency),
       );
     } catch (e) {
       return null;
@@ -283,7 +305,8 @@ class SharePosterService {
   }
 
   /// 显示海报预览对话框
-  static Future<void> showPosterPreview(BuildContext context, Uint8List imageBytes) async {
+  static Future<void> showPosterPreview(
+      BuildContext context, Uint8List imageBytes) async {
     await showDialog(
       context: context,
       builder: (context) => ShareCardDialog(imageBytes: imageBytes),
@@ -309,5 +332,4 @@ class SharePosterService {
       ),
     );
   }
-
 }

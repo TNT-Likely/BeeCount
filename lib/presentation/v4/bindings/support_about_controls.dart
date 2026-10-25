@@ -1,3 +1,4 @@
+import 'share_card_controls.dart';
 import 'package:beecount_business_ui/support.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
@@ -103,6 +104,14 @@ class _SupportAboutControlsState extends ConsumerState<SupportAboutControls> {
               version: version ??
                   (versionFailed ? l.commonError : l.aboutPageLoadingVersion),
               onStory: _story,
+              description: l.v4SharePosterOpenSourceBody,
+              tag: '${l.appPromoTagOpenSource} · ${l.appPromoTagFree}',
+              sourceLabel: l.v4SharePosterOpenSourceAction,
+              recommendLabel: l.v4SharePosterRecommend,
+              onSource: () => open('https://github.com/TNT-Likely/BeeCount'),
+              onRecommend: () => showDialog<void>(
+                  context: context,
+                  builder: (_) => const ShareCardDialog(type: 'app')),
               socials: [
                 social(l.aboutWebsite, 'website', WebsiteUrls.home(locale)),
                 social('GitHub', 'github',

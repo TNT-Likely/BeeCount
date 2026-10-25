@@ -17281,6 +17281,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Access'**
   String get v4TransactionRowAccess;
+
+  /// No description provided for @v4SharePosterProfileEyebrow.
+  ///
+  /// In en, this message translates to:
+  /// **'My everyday records'**
+  String get v4SharePosterProfileEyebrow;
+
+  /// No description provided for @v4SharePosterDayCaption.
+  ///
+  /// In en, this message translates to:
+  /// **'days of thoughtful records.'**
+  String get v4SharePosterDayCaption;
+
+  /// No description provided for @v4SharePosterProfileJourney.
+  ///
+  /// In en, this message translates to:
+  /// **'A small habit, a lasting story.'**
+  String get v4SharePosterProfileJourney;
+
+  /// No description provided for @v4SharePosterPromoInvite.
+  ///
+  /// In en, this message translates to:
+  /// **'Make a record of your days.'**
+  String get v4SharePosterPromoInvite;
+
+  /// No description provided for @v4SharePosterOpenSourceBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your data stays yours. Our code stays open.\nKeep bookkeeping simple, together.'**
+  String get v4SharePosterOpenSourceBody;
+
+  /// No description provided for @v4SharePosterOpenSourceAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Explore the source'**
+  String get v4SharePosterOpenSourceAction;
+
+  /// No description provided for @v4SharePosterRecommend.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommend to a friend'**
+  String get v4SharePosterRecommend;
+
+  /// No description provided for @v4SharePosterTopIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'TOP 3 income'**
+  String get v4SharePosterTopIncome;
+
+  /// No description provided for @v4SharePosterAverageRecords.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily records'**
+  String get v4SharePosterAverageRecords;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

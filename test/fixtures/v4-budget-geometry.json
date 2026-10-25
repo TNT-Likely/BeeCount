@@ -1,14 +1,15 @@
 {
   "source": "prototype/demo.html?page=flow-budget",
-  "viewport": [398, 844],
+  "viewport": [
+    398,
+    844
+  ],
   "textScale": 1,
   "previewFrameBorderExcluded": true,
   "pageInset": 17,
-  "surfaceInset": 16,
+  "surfaceInset": 20,
   "overviewWidth": 364,
-  "ringSize": 128,
-  "ringTopInset": 72,
-  "ringStroke": 10,
   "categoryRowHeight": 80,
-  "categoryIconSize": 36
+  "categoryIconSize": 36,
+  "summaryProgressHeight": 6
 }

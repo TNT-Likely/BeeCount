@@ -52,7 +52,7 @@ class BeeShareCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cards = BeeCardTheme.of(context);
     return Material(
-      color: cards.surface,
+      color: cards.canvas,
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(18, 8, 8, 8),
@@ -74,17 +74,10 @@ class BeeShareCard extends StatelessWidget {
         if (templates.length > 1)
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
-            child: Wrap(spacing: 8, runSpacing: 8, children: [
-              for (final template in templates)
-                BeeChoiceChip(
-                  key: ValueKey('share-card-template-${template.id}'),
-                  label: template.label,
-                  compact: true,
-                  selected: selected == template.id,
-                  onSelected:
-                      busy ? null : (_) => onTemplate?.call(template.id),
-                ),
-            ]),
+            child: _ShareTemplateTabs(
+                templates: templates,
+                selected: selected,
+                onTemplate: busy ? null : onTemplate),
           ),
         Expanded(
           child: ColoredBox(
@@ -227,4 +220,54 @@ class _ShareCardPreviewState extends State<_ShareCardPreview> {
         },
         child: widget.preview,
       );
+}
+
+class _ShareTemplateTabs extends StatelessWidget {
+  const _ShareTemplateTabs(
+      {required this.templates, required this.selected, this.onTemplate});
+  final List<BeeShareCardTemplate> templates;
+  final String selected;
+  final ValueChanged<String>? onTemplate;
+  @override
+  Widget build(BuildContext context) {
+    final colors = BeeCardTheme.of(context);
+    return DecoratedBox(
+        decoration: BoxDecoration(
+            color: colors.soft, borderRadius: BorderRadius.circular(11)),
+        child: SizedBox(
+            height: 44,
+            child: Row(children: [
+              for (final template in templates)
+                Expanded(
+                    child: Semantics(
+                        selected: selected == template.id,
+                        inMutuallyExclusiveGroup: true,
+                        child: InkWell(
+                            key: ValueKey('share-card-template-${template.id}'),
+                            onTap: onTemplate == null
+                                ? null
+                                : () => onTemplate!(template.id),
+                            borderRadius: BorderRadius.circular(10),
+                            child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 3, vertical: 4),
+                                child: Material(
+                                    color: selected == template.id
+                                        ? colors.surface
+                                        : Colors.transparent,
+                                    borderRadius: BorderRadius.circular(9),
+                                    child: Center(
+                                        child: Text(template.label,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(
+                                                fontSize: 11,
+                                                color: selected == template.id
+                                                    ? Theme.of(context)
+                                                        .colorScheme
+                                                        .onSurface
+                                                    : Theme.of(context)
+                                                        .hintColor))))))))
+            ])));
+  }
 }

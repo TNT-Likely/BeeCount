@@ -70,16 +70,15 @@ void main() {
               (color) => color != null && color != Colors.transparent)!;
         }
 
-        // Design selection uses primary at14%, independent of Material3's
-        // secondary container (purple on the observed native dialog).
+        // Approved D uses a neutral segmented track and white selected surface.
         expect(selectedPaint(profile),
-            theme.colorScheme.primary.withValues(alpha: .14));
+            BeeCardTheme.of(t.element(find.byType(BeeShareCard))).surface);
         expect(t.getSize(profile).height, greaterThanOrEqualTo(44));
         await t.tap(app);
         await t.pumpAndSettle();
         expect(calls, ['app']);
         expect(selectedPaint(app),
-            theme.colorScheme.primary.withValues(alpha: .14));
+            BeeCardTheme.of(t.element(find.byType(BeeShareCard))).surface);
         redraw(() => busy = true);
         // Busy shows an intentional indeterminate spinner; verify the disabled
         // control after a bounded frame rather than waiting for it to stop.

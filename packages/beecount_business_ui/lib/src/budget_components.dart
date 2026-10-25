@@ -1,3 +1,4 @@
+import 'package:beecount_ui/card_frame.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';
 
@@ -15,13 +16,17 @@ class BeeBudgetProgress extends StatelessWidget {
       required this.progress,
       required this.tone,
       required this.label,
-      this.height = 8});
+      this.height = 8,
+      this.accentForNormal = false});
   final double progress, height;
+  final bool accentForNormal;
   final BeeBudgetTone tone;
   final String label;
   @override
   Widget build(BuildContext context) {
-    final color = _budgetColor(context, tone);
+    final color = accentForNormal && tone == BeeBudgetTone.normal
+        ? Theme.of(context).colorScheme.primary
+        : _budgetColor(context, tone);
     return Semantics(
         label: label,
         child: ExcludeSemantics(
@@ -70,17 +75,23 @@ class BeeBudgetOverview extends StatelessWidget {
   final VoidCallback? onEdit;
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context), color = _budgetColor(context, tone);
-    Widget money(String value, double size, {Color? color}) => FittedBox(
-        fit: BoxFit.scaleDown,
-        alignment: Alignment.centerLeft,
-        child: Text(value,
-            style: TextStyle(
-                fontSize: size,
-                height: 1.4,
-                fontWeight: FontWeight.w600,
-                color: color)));
-    return BeeSurface(
+    final theme = Theme.of(context), statusColor = _budgetColor(context, tone);
+    Widget money(String value, double size,
+            {Color? color, Alignment alignment = Alignment.centerLeft}) =>
+        FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: alignment,
+            child: Text(value,
+                style: TextStyle(
+                    fontSize: size,
+                    height: 1.2,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -.5,
+                    color: color,
+                    fontFeatures: const [FontFeature.tabularFigures()])));
+    Widget caption(String text) => Text(text,
+        style: TextStyle(fontSize: 11, height: 1.5, color: theme.hintColor));
+    return BeeCardFrame(
         child:
             Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       ConstrainedBox(
@@ -92,88 +103,63 @@ class BeeBudgetOverview extends StatelessWidget {
                         fontSize: 14, fontWeight: FontWeight.w600))),
             if (onEdit != null)
               TextButton(
+                  onPressed: onEdit,
                   style: TextButton.styleFrom(
                       minimumSize: const Size(0, 44),
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap),
-                  onPressed: onEdit,
                   child: Text(editLabel))
           ])),
-      const SizedBox(height: 12),
-      Row(children: [
-        Semantics(
-            image: true,
-            label: '$usedLabel $progressLabel',
-            child: ExcludeSemantics(
-                child: SizedBox(
-                    width: 128,
-                    height: 128,
-                    child: Stack(alignment: Alignment.center, children: [
-                      Positioned.fill(
-                          child: CircularProgressIndicator(
-                              value:
-                                  progress.isFinite ? progress.clamp(0, 1) : 0,
-                              strokeWidth: 10,
-                              color: color,
-                              backgroundColor: color.withValues(alpha: .14))),
-                      Padding(
-                          padding: const EdgeInsets.all(18),
-                          child:
-                              Column(mainAxisSize: MainAxisSize.min, children: [
-                            Text(usedLabel,
-                                style: TextStyle(
-                                    fontSize: 11,
-                                    height: 1.4,
-                                    color: theme.hintColor)),
-                            const SizedBox(height: 4),
-                            money(progressLabel, 24)
-                          ]))
-                    ])))),
-        const SizedBox(width: 18),
+      const SizedBox(height: 14),
+      Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
         Expanded(
+            flex: 6,
             child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-              Text(remainingLabel,
-                  style: TextStyle(
-                      fontSize: 12, height: 1.4, color: theme.hintColor)),
-              const SizedBox(height: 5),
-              money(remaining, 24,
-                  color: negativeRemaining ? theme.colorScheme.error : null),
-              const SizedBox(height: 8),
-              Text('$totalLabel $amount',
-                  style: TextStyle(
-                      fontSize: 11, height: 1.5, color: theme.hintColor))
-            ]))
-      ]),
-      const SizedBox(height: 18),
-      const Divider(height: 1),
-      const SizedBox(height: 16),
-      Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  caption(usedLabel),
+                  const SizedBox(height: 8),
+                  money(used, 31)
+                ])),
+        const SizedBox(width: 17),
         Expanded(
-            child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-              Text(usedLabel,
-                  style: TextStyle(
-                      fontSize: 12, height: 1.4, color: theme.hintColor)),
-              const SizedBox(height: 5),
-              money(used, 20)
-            ])),
-        const SizedBox(width: 16),
-        Expanded(
+            flex: 4,
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-          Text(daysLabel,
-              style:
-                  TextStyle(fontSize: 12, height: 1.4, color: theme.hintColor),
-              textAlign: TextAlign.end),
-          const SizedBox(height: 5),
-          Text(dailyLabel,
-              style: const TextStyle(
-                  fontSize: 14, height: 1.4, fontWeight: FontWeight.w500),
-              textAlign: TextAlign.end)
-        ]))
-      ])
+              caption(remainingLabel),
+              const SizedBox(height: 8),
+              money(remaining, 15,
+                  alignment: Alignment.centerRight,
+                  color: negativeRemaining ? theme.colorScheme.error : null)
+            ]))
+      ]),
+      const SizedBox(height: 22),
+      BeeBudgetProgress(
+          progress: progress,
+          tone: tone,
+          height: 6,
+          label: '$usedLabel $progressLabel',
+          accentForNormal: true),
+      const SizedBox(height: 11),
+      Wrap(
+          alignment: WrapAlignment.spaceBetween,
+          spacing: 16,
+          runSpacing: 7,
+          children: [
+            Text('$usedLabel $progressLabel',
+                style: TextStyle(fontSize: 10, color: statusColor)),
+            caption('$totalLabel $amount')
+          ]),
+      const SizedBox(height: 16),
+      Divider(height: 1, color: BeeCardTheme.of(context).divider),
+      const SizedBox(height: 14),
+      Wrap(
+          alignment: WrapAlignment.spaceBetween,
+          spacing: 16,
+          runSpacing: 7,
+          children: [
+            caption(daysLabel),
+            Text(dailyLabel, style: const TextStyle(fontSize: 11, height: 1.5))
+          ])
     ]));
   }
 }

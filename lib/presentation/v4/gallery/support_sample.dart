@@ -19,6 +19,19 @@ class _SupportSampleState extends State<SupportSample> {
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       BeeSurface(child: Text(event)),
       const SizedBox(height: 12),
+      BeeSupportBrand(
+          logo: Image.asset('assets/logo2.png', width: 34, height: 34),
+          title: l.appName,
+          version: 'QA 4.0',
+          socials: const [],
+          onStory: () => feedback(l.aboutDeveloperStoryTitle),
+          description: l.v4SharePosterOpenSourceBody,
+          tag: '${l.appPromoTagOpenSource} · ${l.appPromoTagFree}',
+          sourceLabel: l.v4SharePosterOpenSourceAction,
+          onSource: () => feedback(l.v4SharePosterOpenSourceAction),
+          recommendLabel: l.v4SharePosterRecommend,
+          onRecommend: () => feedback(l.v4SharePosterRecommend)),
+      const SizedBox(height: 12),
       BeeSupportText(
           title: l.aboutPageTitle,
           description: l.aboutPageSubtitle,

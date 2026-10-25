@@ -47,7 +47,8 @@ List<Widget> annualReportSections(BuildContext context, AnnualReportData data,
       monthStartDay: monthStartDay, now: today);
   final dailyAvg =
       totalCalendarDays > 0 ? data.totalExpense / totalCalendarDays : 0.0;
-  final monthlyAvg = elapsedMonths > 0 ? data.totalExpense / elapsedMonths : 0.0;
+  final monthlyAvg =
+      elapsedMonths > 0 ? data.totalExpense / elapsedMonths : 0.0;
   int busiestMonth = 1;
   double maxMonthlyTotal = 0;
   for (final m in data.monthlyData) {
@@ -103,23 +104,17 @@ List<Widget> annualReportSections(BuildContext context, AnnualReportData data,
               income: money(data.totalIncome),
               savingsLabel: l.annualReportNetSavings,
               savings: money(data.netSavings, sign: true),
-              brand: Image.asset('assets/logo2.png', width: 50, height: 50)),
-          const SizedBox(height: 12),
-          Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Expanded(
-                child: metric(
-                    l.annualReportTotalDays,
-                    '${data.totalDays}${l.sharePosterUnitDay}',
-                    Icons.calendar_today_outlined,
-                    compact: true)),
-            const SizedBox(width: 12),
-            Expanded(
-                child: metric(
-                    l.annualReportTotalRecords,
-                    '${data.totalRecords}${l.sharePosterUnitCount}',
-                    Icons.edit_note_outlined,
-                    compact: true))
-          ]),
+              brand: Image.asset('assets/logo2.png', width: 32, height: 32),
+              facts: [
+                (
+                  label: l.annualReportTotalDays,
+                  value: '${data.totalDays}${l.sharePosterUnitDay}'
+                ),
+                (
+                  label: l.annualReportTotalRecords,
+                  value: '${data.totalRecords}${l.sharePosterUnitCount}'
+                )
+              ]),
         ])),
     section(l.annualReportInsightsTitle, l.annualReportInsightsSubtitle, [
       metric(l.annualReportAveragePerRecord, money(avgExpensePerRecord),

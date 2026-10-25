@@ -9183,6 +9183,33 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get v4TransactionRowAccess => '访问状态';
+
+  @override
+  String get v4SharePosterProfileEyebrow => '这是我的记账日常';
+
+  @override
+  String get v4SharePosterDayCaption => '天，把生活认真记下。';
+
+  @override
+  String get v4SharePosterProfileJourney => '把记录，变成一个小习惯。';
+
+  @override
+  String get v4SharePosterPromoInvite => '一起，把日子记下来。';
+
+  @override
+  String get v4SharePosterOpenSourceBody => '数据由你掌握，代码向你开放。\n和社区一起，让记账保持简单。';
+
+  @override
+  String get v4SharePosterOpenSourceAction => '了解开源';
+
+  @override
+  String get v4SharePosterRecommend => '推荐给朋友';
+
+  @override
+  String get v4SharePosterTopIncome => 'TOP 3 收入';
+
+  @override
+  String get v4SharePosterAverageRecords => '日均记账';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).

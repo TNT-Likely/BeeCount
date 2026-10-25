@@ -1,3 +1,4 @@
+import 'package:beecount_business_ui/card_refinements.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -367,25 +368,19 @@ class _CloudSharedSyncControlsState
     // SectionCard 已经给了 p12 内边距,这里内部只做垂直间距,不再加横向 padding。
     final l10n = AppLocalizations.of(context);
     final report = _latestReport;
-    final title = Row(
-      children: [
-        Icon(Icons.cloud_sync_outlined,
-            color: BeeTokens.iconSecondary(context), size: 20),
-        const SizedBox(width: 8),
-        Text(l10n.syncHealthTitle,
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  color: BeeTokens.textPrimary(context),
-                  fontWeight: FontWeight.w600,
-                )),
-        const Spacer(),
-        if (_checking || _autoSyncing)
-          const SizedBox(
-            width: 14,
-            height: 14,
-            child: CircularProgressIndicator(strokeWidth: 2),
-          ),
-      ],
-    );
+    final failed = _checkError != null || report?.error != null;
+    final title = BeeSyncHealthHeader(
+        title: l10n.syncHealthTitle,
+        status: failed
+            ? l10n.commonError
+            : (_checking || _autoSyncing || report == null)
+                ? l10n.mineCloudServiceLoading
+                : report.hasDiff
+                    ? l10n.syncHealthHasDiff
+                    : l10n.mineSyncInSyncSimple,
+        busy: _checking || _autoSyncing || (!failed && report == null),
+        error: failed,
+        difference: report?.hasDiff ?? false);
 
     // 初次 init 时 report 还没填,仍然把面板骨架 + 占位值画出来(用户要求常驻)。
     final effective = report ??

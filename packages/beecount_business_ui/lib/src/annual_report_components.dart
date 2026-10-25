@@ -1,3 +1,4 @@
+import 'package:beecount_ui/card_frame.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';
 
@@ -406,7 +407,8 @@ class BeeAnnualOverview extends StatelessWidget {
       required this.income,
       required this.savingsLabel,
       required this.savings,
-      this.brand});
+      this.brand,
+      this.facts = const []});
   final String year,
       title,
       subtitle,
@@ -417,23 +419,24 @@ class BeeAnnualOverview extends StatelessWidget {
       savingsLabel,
       savings;
   final Widget? brand;
+  final List<({String label, String value})> facts;
   @override
-  Widget build(BuildContext context) => BeeSurface(
-      padding: const EdgeInsets.all(21),
+  Widget build(BuildContext context) => BeeCardFrame(
+      padding: const EdgeInsets.all(20),
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         Row(children: [
           Expanded(
               child: Text(year,
                   style: const TextStyle(
-                      fontSize: 43,
+                      fontSize: 40,
                       height: 1.1,
                       fontWeight: FontWeight.w700,
                       letterSpacing: -1.5))),
-          if (brand != null) brand!
+          if (brand != null) SizedBox(width: 32, height: 32, child: brand!)
         ]),
         const SizedBox(height: 15),
         Text(title,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
         const SizedBox(height: 5),
         Text(subtitle,
             style: TextStyle(fontSize: 12, color: Theme.of(context).hintColor)),
@@ -441,28 +444,49 @@ class BeeAnnualOverview extends StatelessWidget {
         Text(expenseLabel,
             style: TextStyle(fontSize: 12, color: Theme.of(context).hintColor)),
         const SizedBox(height: 7),
-        Text(expense,
-            style: const TextStyle(
-                fontSize: 34,
-                fontWeight: FontWeight.w700,
-                letterSpacing: -.8,
-                fontFeatures: [FontFeature.tabularFigures()])),
+        FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(expense,
+                style: const TextStyle(
+                    fontSize: 34,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -.8,
+                    fontFeatures: [FontFeature.tabularFigures()]))),
         const SizedBox(height: 20),
         Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Expanded(child: _figure(context, incomeLabel, income)),
           const SizedBox(width: 12),
           Expanded(child: _figure(context, savingsLabel, savings))
         ]),
+        if (facts.isNotEmpty) ...[
+          const SizedBox(height: 21),
+          Divider(height: 1, color: BeeCardTheme.of(context).divider),
+          const SizedBox(height: 15),
+          Wrap(
+              alignment: WrapAlignment.spaceBetween,
+              spacing: 15,
+              runSpacing: 8,
+              children: [
+                for (final fact in facts)
+                  Text('${fact.label} ${fact.value}',
+                      style: TextStyle(
+                          fontSize: 11, color: Theme.of(context).hintColor))
+              ])
+        ],
       ]));
   Widget _figure(BuildContext context, String label, String value) =>
       Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(label,
             style: TextStyle(fontSize: 12, color: Theme.of(context).hintColor)),
         const SizedBox(height: 7),
-        Text(value,
-            style: const TextStyle(
-                fontSize: 17,
-                fontWeight: FontWeight.w600,
-                fontFeatures: [FontFeature.tabularFigures()]))
+        FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(value,
+                style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w600,
+                    fontFeatures: [FontFeature.tabularFigures()])))
       ]);
 }

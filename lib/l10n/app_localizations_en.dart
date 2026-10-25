@@ -9191,4 +9191,31 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get v4TransactionRowAccess => 'Access';
+
+  @override
+  String get v4SharePosterProfileEyebrow => 'My everyday records';
+
+  @override
+  String get v4SharePosterDayCaption => 'days of thoughtful records.';
+
+  @override
+  String get v4SharePosterProfileJourney => 'A small habit, a lasting story.';
+
+  @override
+  String get v4SharePosterPromoInvite => 'Make a record of your days.';
+
+  @override
+  String get v4SharePosterOpenSourceBody => 'Your data stays yours. Our code stays open.\nKeep bookkeeping simple, together.';
+
+  @override
+  String get v4SharePosterOpenSourceAction => 'Explore the source';
+
+  @override
+  String get v4SharePosterRecommend => 'Recommend to a friend';
+
+  @override
+  String get v4SharePosterTopIncome => 'TOP 3 income';
+
+  @override
+  String get v4SharePosterAverageRecords => 'Daily records';
 }

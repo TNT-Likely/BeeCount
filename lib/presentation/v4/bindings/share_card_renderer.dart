@@ -18,7 +18,7 @@ import '../../../widgets/posters/year_summary_poster.dart';
 final shareCardRendererProvider =
     Provider<ShareCardRenderer>((ref) => const ShareCardRenderer());
 
-/// Reads the original poster projection and paints the original fixed-size art.
+/// Reads the existing poster projection and paints the approved fixed-size art.
 class ShareCardRenderer {
   const ShareCardRenderer();
 
@@ -46,18 +46,36 @@ class ShareCardRenderer {
         final value = await data.calculateYearSummary(
             ledgerId: ledgerId, year: year ?? now.year);
         poster = YearSummaryPoster(
-            data: value, primaryColor: color, hideIncome: hideIncome);
+            data: value,
+            primaryColor: color,
+            hideIncome: hideIncome,
+            currencyCode:
+                (await ref.read(repositoryProvider).getLedgerById(ledgerId))
+                        ?.currency ??
+                    'CNY');
       case PosterType.monthSummary:
         final value = await data.calculateMonthSummary(
             ledgerId: ledgerId,
             year: year ?? now.year,
             month: month ?? now.month);
         poster = MonthSummaryPoster(
-            data: value, primaryColor: color, hideIncome: hideIncome);
+            data: value,
+            primaryColor: color,
+            hideIncome: hideIncome,
+            currencyCode:
+                (await ref.read(repositoryProvider).getLedgerById(ledgerId))
+                        ?.currency ??
+                    'CNY');
       case PosterType.ledgerSummary:
         final value = await data.calculateLedgerSummary(ledgerId: ledgerId);
         poster = LedgerSummaryPoster(
-            data: value, primaryColor: color, hideIncome: hideIncome);
+            data: value,
+            primaryColor: color,
+            hideIncome: hideIncome,
+            currencyCode:
+                (await ref.read(repositoryProvider).getLedgerById(ledgerId))
+                        ?.currency ??
+                    'CNY');
     }
     if (!context.mounted) return null;
     return capture(context, poster);
