@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25T19:55:17+08:00",
+  "updated": "2026-10-25T20:06:21+08:00",
   "branch": "v4",
   "baselineCommit": "6616066247a8738a42996c496e1b99106820e59f",
   "pages": {
@@ -57,11 +57,13 @@
     "ai/agent_memory_page.dart": {
       "name": "AI 记忆管理",
       "priority": "P2",
-      "reason": "R109同一iOS实际单条取消/拒绝全局/当前遗忘/清当前取消确认、真实其他账本保护及正常入口完成，31表/FTS/3财务行/旧21PNG已核；R111仅确认框改BeeDialog，79相关回归通过，待打开/取消最小视觉补件，不再重复CUD。",
-      "status": "迁移中·原生功能与作用范围已验，待确认框视觉补验与报告封存",
+      "reason": "R109实际当前/全局/其他账本记忆、单条取消/原global拒绝/当前遗忘、清当前取消确认及FTS/summary保护；R111规范确认框仅打开取消补验。17图25文件，Root逐图/17源单位及原31表跨版本精确保持后封存。",
+      "status": "已完成",
       "components": "消息、配置表单、授权、任务状态与列表",
-      "acceptance": "沿用原 AI 服务与权限，保留配置草稿、能力绑定、执行反馈、失败重试和取消。",
-      "implementationStage": "implemented"
+      "acceptance": "合成fixture准备一次，11scratch准备单元与真实模型/工具分开；真实5产品native共享批次与R1114增量批次均不按页重复累计，只有一次共享normal main。原3财务行/原会话/21PNG、global/other记忆与另本summary全护，仅合法UI产生book2及派生偏好；R111取消不再CUD。两个阶段全部守卫、三宽/ZIP/manifest/脱敏/0444通过；Android重复整套、真实模型/工具与30条压力未执行。",
+      "implementationStage": "accepted",
+      "acceptanceReport": ".docs/acceptance/v4-migration/2026-10-25/ai-memory-r111/index.html",
+      "acceptanceZipSha256": "043666491507f32ec284ca86d4cc83adf946fc3db5e4ac56aa2bc0ef0b7b3b8b"
     },
     "ai/agent_permissions_page.dart": {
       "name": "AI 权限管理",
@@ -323,11 +325,13 @@
     "donation/donation_page.dart": {
       "name": "打赏支持",
       "priority": "P2",
-      "reason": "R102五个支持页及纯业务组件/App绑定已提交e265ce76，原版本/渠道/文档URL/平台返回/六快捷方式/StoreKit流程保留；29项回归及18文件静态检查通过。原生整页、实际外链/WebView及平台支付未执行，不计完成。",
-      "status": "迁移中·代码与本地回归已交付，待统一产物和整页验收",
+      "reason": "R105真实生产入口/空态/返回及正常重启与R111同入口/返回增量完成；真实StoreKit initialize成功、查询error-null/0商品/noMock已核，9图25文件边界报告封存。",
+      "status": "已完成",
       "components": "支持选项、支付入口和说明",
-      "acceptance": "统一候选R104源码cabfaff9，983个产品文件与构建产物逐字匹配；已构建未安装。整页生产UI、数据保护与正常入口重启仍待执行；不把单元/widget、HTML或构建成功计为整页完成。",
-      "implementationStage": "implemented"
+      "acceptance": "原5单位跨5提交byteexact，DonationService952b保留原6商品ID/mock=false，Root已看旧6+新3图并核31表/偏好/图片保护。原R105两次本地SKTestSession Code3失败与skip保留；实际购买0，真实6商品价格选择/沙盒成功失败/真实AppStore支付未执行，是平台上线前边界，不冒称通过。旧ZIP64ec原字节不改，三宽/ZIP/manifest/脱敏/0444通过。",
+      "implementationStage": "accepted",
+      "acceptanceReport": ".docs/acceptance/v4-migration/2026-10-25/donation-r111/index.html",
+      "acceptanceZipSha256": "77cdbb6f0dabe2dc49a9d676f70d49436dea1d6907f600eb9164f242b5883ec0"
     },
     "main/analytics_page.dart": {
       "name": "统计与洞察",
@@ -384,11 +388,13 @@
     "report/annual_report_page.dart": {
       "name": "年度账单",
       "priority": "P1",
-      "reason": "R108实际年度7章节/空年切换/独立长海报两隐私与系统分享取消，PNG/SQL/31表已核；R111只改主生成按钮和预览footer为BeeButton，52相关回归通过，待原生最小视觉与最终报告，不重算/重写财务。",
-      "status": "迁移中·七章节与原海报已验，待操作按钮视觉补验",
+      "reason": "R108实际七章节/空年/独立年度长海报两隐私/系统取消与真实PNG完成；R111主生成和footer规范组件补验及正常入口保持，20图28文件独立报告封存。",
+      "status": "已完成",
       "components": "年度汇总、趋势、排行与分享内容",
-      "acceptance": "年度选择、金额/笔数统计口径、隐私、分享卡与真实图片导出。",
-      "implementationStage": "implemented"
+      "acceptance": "Root已审原实际16图及新增主按钮/两预览/正常main，原30单位与展示层差异独立核。原3财务行105.28/120/14.72、Q20已发生时间逻辑、原整数海报0/11与原含收入笔数平均分母均保留，隐私只遮金额不声称备注也隐藏。真实App导出PNG/系统取消与共享重启闭环；Cloud/Android重复整套/真实发给他人未执行。",
+      "implementationStage": "accepted",
+      "acceptanceReport": ".docs/acceptance/v4-migration/2026-10-25/annual-report-r111/index.html",
+      "acceptanceZipSha256": "2b3aada11ed7a40d2d774bd06decbacea678f849819891511415c1908fb908c2"
     },
     "settings/about_page.dart": {
       "name": "关于与检查更新",
@@ -666,16 +672,18 @@
     "report/share_card_page.dart": {
       "name": "分享卡片",
       "priority": "P1",
-      "status": "迁移中·原模板与隐私分享已验，待按钮视觉补验",
+      "status": "已完成",
       "batch": "M4 统计与分享",
       "designRoutes": [
         "poster"
       ],
-      "reason": "R108月/年/账本6隐私及Q19原档案/应用两模板实际PNG与系统分享取消通过；R109主题chip已原生补验，Root31图/30源单位核对。R111共享footer复用BeeButton，45相关回归通过，待实际footer/锚点取消与最终封存。",
-      "implementationStage": "implemented",
+      "reason": "原Q19档案/应用及月年账本总结、隐私/真实PNG/系统分享取消全部保留；R109主题chip与R111矩形footer/真实Rect系统取消增量完成，39图47文件独立封存。",
+      "implementationStage": "accepted",
       "newInV4": true,
       "components": "原分享模板、隐藏收入、预览、导出分享与错误/取消状态",
-      "acceptance": "原生产弹窗共用真实数据body；保留档案/应用/年月模板及平台保存/分享，当前周期均值按已发生时间，不写回财务；固定产物和整页原生验收尚未完成。"
+      "acceptance": "R108功能/PNG与R109主题、R111最小视觉明确分阶段，Root30源单位与31历史+新增实际图均审；原8PNG金额/收入mask保持，Q19新book2合法使档案账本数2，旧历史图数1不改。新footer45相关回归、R111实际系统取消与正常main/31表护，2motion图只操作附录。相册真实写入/发给他人/Cloud未执行，不将平台unit等同native。",
+      "acceptanceReport": ".docs/acceptance/v4-migration/2026-10-25/share-card-r111/index.html",
+      "acceptanceZipSha256": "564d20583abffecddcf3b545385a41ba78c798e70e757b087f589bb10be05b37"
     }
   },
   "plannedPages": [],
@@ -924,17 +932,17 @@
     "reason": "按用户要求临时关闭，避免每次推送触发PR的AI Eval；v4继续开发和推送，全部迁移与验收准备好再恢复PR。"
   },
   "currentProgress": {
-    "updatedAt": "2026-10-25T19:55:17+08:00",
-    "engineeringEstimatePercent": 78,
+    "updatedAt": "2026-10-25T20:06:21+08:00",
+    "engineeringEstimatePercent": 80,
     "engineeringEstimateRange": [
-      75,
-      81
+      77,
+      83
     ],
-    "completedPages": 57,
+    "completedPages": 61,
     "totalPages": 73,
     "totalP0Pages": 17,
     "completedP0Pages": 17,
-    "basis": "严格57/73，P0全17；本小时新增AI权限/活动2页。R111 iOS其余4页最小补验已完成，真实CSV导入/导出与双附件实际保存均跑通，报告与末共享闭环继续，不提前算页。四线并行复用同QA，剩余主要是Cloud双向/共享/文件恢复，估9–17小时实际连续并行工作。",
+    "basis": "严格61/73，P0全17；新增记忆管理/年度/分享/打赏4独立报告经Root实际图/全31表跨版本及最终ZIP验后封存。导入入口/确认/导出3页面也已Root批准等待最终包装，不提前计入。工程80%左右，余下Cloud联调含多角色/双向/文件恢复较重，仍估9–17小时，不按严格页数线性外推。",
     "remainingEffortEstimateHours": [
       9,
       17
@@ -944,11 +952,11 @@
   "lastImplementationDelivery": {
     "at": "2026-10-25T15:30:48+08:00",
     "commit": "cabfaff9aa8796f161396a108e2105daa7992532",
-    "completedNativePages": 57,
-    "implementedPendingNativePages": 16,
+    "completedNativePages": 61,
+    "implementedPendingNativePages": 12,
     "inImplementationPages": 0,
     "candidateInstalled": false,
-    "latestNativeAuditAt": "2026-10-25T19:48:49+08:00"
+    "latestNativeAuditAt": "2026-10-25T20:06:21+08:00"
   },
   "openRegressions": [],
   "resolvedRegressions": [
@@ -964,9 +972,9 @@
     }
   ],
   "latestInstalledCandidate": {
-    "sourceCommit": "d8cc35067dc0fc8a2a6a6e465df4f8f9d160e54b",
-    "androidApkSha256": "33f409cfb3ed1622fb76c2857d4f03a2d2e45b479370c3276e5f7a46116b701d",
-    "iosSignedFileTreeSha256": "435d982c4f23297998933881605e4fa1e00d7da32f821d4e1e698c9d7366745c",
+    "sourceCommit": "c7d6421800f1135d46ede6598370f0305f1cc552",
+    "androidApkSha256": "24713b5387a6c129e1c30388fad742c91ece0cb44d08e993fde24ba9709bedf6",
+    "iosSignedFileTreeSha256": "d81e4ac7db5dab8b4a362ab125e5d5cb2357ad50294562b005d5e1c3e8f2baf5",
     "sameRetainedQA": true,
     "qaDataPreserved": true
   },
