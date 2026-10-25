@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25T18:09:23+08:00",
+  "updated": "2026-10-25T18:18:10+08:00",
   "branch": "v4",
   "baselineCommit": "6616066247a8738a42996c496e1b99106820e59f",
   "pages": {
@@ -163,11 +163,12 @@
     "automation/ios_auto_billing_page.dart": {
       "name": "iOS 自动记账设置",
       "priority": "P1",
-      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
-      "status": "迁移中·代码与本地回归已交付，待统一产物和整页验收",
+      "reason": "固定R105流程与R106视觉增量，Root人工核图/独立源码、数据守卫和正常入口共享重启审阅，独立三宽/ZIP/manifest/脱敏后只读封存。",
+      "status": "已完成",
       "components": "平台引导、开关、选择项与配置表单",
-      "acceptance": "保留 Android/iOS/渠道条件、权限检查、设置跳转、默认值与失败反馈。",
-      "implementationStage": "implemented"
+      "acceptance": "真实iOS生产入口、六步展开/滚动/收起/返回，R106 CirclePlay视觉补验；30源码单元独立匹配。外部快捷指令导入/系统执行/低版本未测，只确认App说明页迁移。 独立报告ios-auto-billing-r106；失败/PARTIAL/INTERRUPTED与全部NOT_RUN原样保留，组件测试不等同原生动作，历史数据快照不代表当前。",
+      "implementationStage": "implemented",
+      "acceptanceReport": ".docs/acceptance/v4-migration/2026-10-25/ios-auto-billing-r106/index.html"
     },
     "budget/budget_edit_page.dart": {
       "name": "预算编辑",
@@ -545,11 +546,12 @@
     "settings/widget_management_page.dart": {
       "name": "桌面小组件管理",
       "priority": "P2",
-      "reason": "R103四个维护页及纯业务组件/App绑定已提交a0dadeed，原四日志级别/来源筛选、14孤儿类型与清理范围、9桌面组件预览保留；74项UI/日志/SQLite边界回归及18文件静态检查通过。两个数据安全修复独立提交，尚未原生整页验收，不计完成。",
-      "status": "迁移中·代码与本地回归已交付，待统一产物和整页验收",
+      "reason": "固定R105流程与R106视觉增量，Root人工核图/独立源码、数据守卫和正常入口共享重启审阅，独立三宽/ZIP/manifest/脱敏后只读封存。",
+      "status": "已完成",
       "components": "分组菜单、输入/选择/开关、弹窗与状态",
-      "acceptance": "统一候选R104源码cabfaff9，983个产品文件与构建产物逐字匹配；已构建未安装。整页生产UI、数据保护与正常入口重启仍待执行；不把单元/widget、HTML或构建成功计为整页完成。",
-      "implementationStage": "implemented"
+      "acceptance": "Android九张完整预览、iOS七张连续图覆盖九预览与各平台原说明；原View/样例/服务保留，20源码单元双版本40次独立比对。系统桌面放置/更新/deep link未测，原ellipsis/三占位保留。 独立报告widgets-r106；失败/PARTIAL/INTERRUPTED与全部NOT_RUN原样保留，组件测试不等同原生动作，历史数据快照不代表当前。",
+      "implementationStage": "implemented",
+      "acceptanceReport": ".docs/acceptance/v4-migration/2026-10-25/widgets-r106/index.html"
     },
     "tag/tag_detail_page.dart": {
       "name": "标签详情",
@@ -910,17 +912,17 @@
     "reason": "按用户要求临时关闭，避免每次推送触发PR的AI Eval；v4继续开发和推送，全部迁移与验收准备好再恢复PR。"
   },
   "currentProgress": {
-    "updatedAt": "2026-10-25T18:09:23+08:00",
+    "updatedAt": "2026-10-25T18:18:10+08:00",
     "engineeringEstimatePercent": 74,
     "engineeringEstimateRange": [
       71,
       77
     ],
-    "completedPages": 49,
+    "completedPages": 51,
     "totalPages": 73,
     "totalP0Pages": 17,
     "completedP0Pages": 16,
-    "basis": "严格49/73：首页在新iOS真实写入验收发现键盘伸缩回归，已重新打开验收；源码最小修复22项通过但尚待原生复验。旧50页快照保留为历史。安卓/iOS连续原生与离线报告并行；Cloud、文件恢复和平台边界继续实际闭环。",
+    "basis": "严格51/73，P0为16/17：首页新iOS键盘回归已修复，原生复验进行中；iOS自动记账说明与桌面小组件管理新增完成。安卓/iOS专职连续，独立报告/后端字段核对并行；Cloud、文件恢复和系统边界仍需实际闭环。",
     "remainingEffortEstimateHours": [
       10,
       20
@@ -930,8 +932,8 @@
   "lastImplementationDelivery": {
     "at": "2026-10-25T15:30:48+08:00",
     "commit": "cabfaff9aa8796f161396a108e2105daa7992532",
-    "completedNativePages": 49,
-    "implementedPendingNativePages": 24,
+    "completedNativePages": 51,
+    "implementedPendingNativePages": 22,
     "inImplementationPages": 0,
     "candidateInstalled": false,
     "latestNativeAuditAt": "2026-10-25T17:39:44+08:00"
