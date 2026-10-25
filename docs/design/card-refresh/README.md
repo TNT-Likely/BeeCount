@@ -103,3 +103,9 @@ Flutter 业务目录保留原 0–65 索引，追加 66 账单详情、67 备份
 本批保留前 526 个导出场景和 spec-1–94 的语义，追加 41 个 AI高级/支持/维护场景，实测共 567 场景、97 组规范。Flutter 原 0–71 索引保持，追加 72 AI记忆权限与活动、73 关于帮助与支持、74 日志存储与维护，对应 spec-95–97。AI/维护目录注入现成只读预览；支持目录为纯受控状态，生产五页仍使用真实 binding。旧 AI/日志/存储/组件入口路由继续使用相同模块。
 
 年度演示按已发生天数/月数计算当前周期平均值，含今天；已完成年度使用完整天数和 12 个月，并覆盖闰年、自定义起始日及未开始周期。静态导出的帮助/隐私文档保留原 URL，但显式显示 QA 占位并阻断外网，另导出真实加载/失败状态；不代表验证真实官网正文、法律文案或原生 WebView。所有新增设计和局部测试仍不计为整页原生验收。
+
+### 已确认的洞察 A 版
+
+[主 demo 洞察](prototype/demo.html?page=report) 已同步 [A 版评审稿](boards/insights-task-a-review.html)：紧凑月／年／全部与支出／收入／结余 Tab、可点选正负柱、同口径平均线、独立单色占比及可展开分类排行。当前演示时间冻结为2026-10-25，当前月平均除25天、当前年度平均除10个月，未开始的日期/月不计入。结余使用收支构成，不计算分类结余百分比。
+
+原渲染与检查源保留在 [A 版前备份](archive/insights-before-a-20261025/README.md)。仅需刷新洞察逐页资源时，可运行 `BEE_DESIGN_SKIP_PAGE_BOARDS=1 npm run export:selected -- report flow-analytics-income flow-analytics-balance flow-analytics-year flow-analytics-all flow-analytics-empty flow-analytics-loading flow-analytics-error flow-analytics-pie flow-analytics-foreign`；该选项跳过无关总览合成图，默认导出行为保持原样。此变更仅为 HTML 设计同步，不代表 Flutter 或真实数据验收完成。

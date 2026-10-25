@@ -88,7 +88,8 @@ if (!routes.length) throw Error('Pass one or more prototype route IDs');
     presets.save();
     fs.writeFileSync(domFile, JSON.stringify(snapshots));
     fs.writeFileSync(path.join(root, 'screens/manifest.json'), JSON.stringify(manifest, null, 2));
-    const boards = await require('./build-page-boards.cjs')(root, browser, manifest);
+    // Source worktrees can refresh only selected resources without rebuilding unrelated boards.
+    const boards = process.env.BEE_DESIGN_SKIP_PAGE_BOARDS === '1' ? [] : await require('./build-page-boards.cjs')(root, browser, manifest);
     require('./build-index.cjs');
     fs.writeFileSync(path.join(root, 'qa/selected-export-report.json'), JSON.stringify({ refreshed: routes, retainedOtherScenes: manifest.length - routes.length, total: manifest.length, boards, errors, qaDocumentResponses, qaExternalBlocked, websiteContentAndNativeWebView: 'NOT_RUN' }, null, 2));
     console.log(JSON.stringify({ refreshed: routes.length, scenes: manifest.length, errors, qaDocumentResponseCount:qaDocumentResponses.length, externalBlocked:qaExternalBlocked.length, websiteContentAndNativeWebView:'NOT_RUN' }));

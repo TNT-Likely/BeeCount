@@ -14,7 +14,7 @@
     "title": "洞察统计",
     "group": "主要页面",
     "slug": "report",
-    "fullHeight": 1775,
+    "fullHeight": 1495,
     "viewport": "screens/viewport/report.png",
     "full": "screens/full/report.png",
     "svg": "figma/report.svg"
@@ -3108,7 +3108,7 @@
     "title": "洞察 · 收入",
     "group": "补齐 · 主要页面",
     "slug": "flow-analytics-income",
-    "fullHeight": 1274,
+    "fullHeight": 1459,
     "viewport": "screens/viewport/flow-analytics-income.png",
     "full": "screens/full/flow-analytics-income.png",
     "svg": "figma/flow-analytics-income.svg"
@@ -3118,7 +3118,7 @@
     "title": "洞察 · 结余",
     "group": "补齐 · 主要页面",
     "slug": "flow-analytics-balance",
-    "fullHeight": 1055,
+    "fullHeight": 1078,
     "viewport": "screens/viewport/flow-analytics-balance.png",
     "full": "screens/full/flow-analytics-balance.png",
     "svg": "figma/flow-analytics-balance.svg"
@@ -3128,7 +3128,7 @@
     "title": "洞察 · 年度",
     "group": "补齐 · 主要页面",
     "slug": "flow-analytics-year",
-    "fullHeight": 1798,
+    "fullHeight": 1495,
     "viewport": "screens/viewport/flow-analytics-year.png",
     "full": "screens/full/flow-analytics-year.png",
     "svg": "figma/flow-analytics-year.svg"
@@ -3138,7 +3138,7 @@
     "title": "洞察 · 全部年份",
     "group": "补齐 · 主要页面",
     "slug": "flow-analytics-all",
-    "fullHeight": 1798,
+    "fullHeight": 1492,
     "viewport": "screens/viewport/flow-analytics-all.png",
     "full": "screens/full/flow-analytics-all.png",
     "svg": "figma/flow-analytics-all.svg"
@@ -3148,7 +3148,7 @@
     "title": "洞察 · 空周期",
     "group": "补齐 · 主要页面",
     "slug": "flow-analytics-empty",
-    "fullHeight": 881,
+    "fullHeight": 1495,
     "viewport": "screens/viewport/flow-analytics-empty.png",
     "full": "screens/full/flow-analytics-empty.png",
     "svg": "figma/flow-analytics-empty.svg"
@@ -3178,7 +3178,7 @@
     "title": "洞察 · 分类环图",
     "group": "补齐 · 主要页面",
     "slug": "flow-analytics-pie",
-    "fullHeight": 1439,
+    "fullHeight": 1495,
     "viewport": "screens/viewport/flow-analytics-pie.png",
     "full": "screens/full/flow-analytics-pie.png",
     "svg": "figma/flow-analytics-pie.svg"
@@ -3188,7 +3188,7 @@
     "title": "洞察 · 补折算确认",
     "group": "补齐 · 主要页面",
     "slug": "flow-analytics-foreign",
-    "fullHeight": 1900,
+    "fullHeight": 1570,
     "viewport": "screens/viewport/flow-analytics-foreign.png",
     "full": "screens/full/flow-analytics-foreign.png",
     "svg": "figma/flow-analytics-foreign.svg"

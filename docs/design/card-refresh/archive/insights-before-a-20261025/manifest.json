@@ -1,0 +1,21 @@
+{
+  "sourceCommit": "f320f2a1",
+  "reason": "User approved standalone insights A; preserve previous main-demo analytics sources before applying layout",
+  "files": [
+    {
+      "source": "prototype/src/analytics.js",
+      "backup": "analytics.js",
+      "sha256": "8803b68bcfd14180341a68148a645e6a50cd31df2351a6e0278bb0c9e3aacc8f"
+    },
+    {
+      "source": "prototype/src/analytics.css",
+      "backup": "analytics.css",
+      "sha256": "eee1ccfea3013db757af55ca011d0ac814cc406303372388197d71142f3a2820"
+    },
+    {
+      "source": "scripts/validate-analytics.cjs",
+      "backup": "validate-analytics.cjs",
+      "sha256": "187ec5ffe26d03459756295f5d5cad427043da23627ba1944514aeb9afef9c7d"
+    }
+  ]
+}
