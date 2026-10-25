@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26T01:32:04.161099+08:00",
+  "updated": "2026-10-26T02:00:22.707577+08:00",
   "branch": "v4",
   "baselineCommit": "6616066247a8738a42996c496e1b99106820e59f",
   "pages": {
@@ -905,14 +905,14 @@
   "fullMigrationBaselineCommit": "9b87aa06177616174e27c52c847cb20de6edede5",
   "completionStandard": "docs/development/v4-page-completion.md",
   "lastProgressReport": {
-    "reportedAt": "2026-10-26T01:00:51.843236+08:00",
-    "scheduledReportAt": "2026-10-26T00:54:00+08:00",
-    "engineeringEstimatePercent": 90,
+    "reportedAt": "2026-10-26T02:00:22.707577+08:00",
+    "scheduledReportAt": "2026-10-26T01:54:00+08:00",
+    "engineeringEstimatePercent": 95,
     "engineeringEstimateRange": [
-      88,
-      93
+      93,
+      97
     ],
-    "completedPages": 65,
+    "completedPages": 73,
     "totalPages": 73,
     "completedP0Pages": 17,
     "totalExistingP0Pages": 17,
@@ -931,6 +931,7 @@
       "AI 设置",
       "账单附件大图预览",
       "应用锁解锁",
+      "云账号登录",
       "PIN 设置与确认",
       "启动页",
       "欢迎与初始化全流程",
@@ -942,6 +943,13 @@
       "新增与编辑分类",
       "分类管理与工具",
       "分类迁移",
+      "BeeCount Cloud 同步",
+      "云服务配置与账号",
+      "云端备份与同步",
+      "共享账本邀请",
+      "加入共享账本",
+      "共享成员管理",
+      "共享成员统计",
       "汇率管理",
       "账单导出",
       "导入映射、预览与结果",
@@ -983,39 +991,48 @@
       "账单详情",
       "分享卡片"
     ],
-    "newlyCompletedSincePreviousReport": [],
+    "newlyCompletedSincePreviousReport": [
+      "云账号登录",
+      "云服务配置与账号",
+      "云端备份与同步",
+      "BeeCount Cloud 同步",
+      "共享账本邀请",
+      "加入共享账本",
+      "共享成员管理",
+      "共享成员统计"
+    ],
     "inProgress": [
-      "原云组8份独立报告候选正在最终打包/脱敏/离线链接核查，尚未封存、不增加65计数。",
-      "A洞察与B资产Flutter已合入，相关17文件115项回归通过；R115产物1035源文件/SDK18与c0eeb0e8精确一致，已备份后install-r，72笔/all31/持久文件Prefs保持，用户原包不动，待新增原生交互验收。",
-      "D分享海报与其他卡片已获批准，子代理先同步主demo后实现Flutter；E最新日间版B一笔成形获选并实现，A/C设计保留。",
-      "C两行优先、复杂最多3行、flags文字/账本tag/更多N项新稿已冻结；该小时快照之后用户批准，待调度Flutter。"
+      "原73页基线全部固定版本封存；本小时新增8云页，各独立HTML/ZIP、Root逐表/图片/真实往返、hash/链接三宽/脱敏均收口；新A–E修订与原报告单列。",
+      "R115 A/B完成actual9scope×view、分类二级与自定义图、资产SQL/原币/筛选/分组/搜索详情及原设置/排序/还款/估值取消、隐私/深色动态皮肤与共同normal。Root独立3份actualSQLite31表72逐行、8tar真实bytes、另ADB读取3原图sha、session仅3token字段及缓存变化。A主要实际流程通过待报告；B隐藏定位依旧actualFAIL不提前通过。",
+      "B懒挂载隐藏定位修复643847cc已提交，真实SQLite先红后绿/17回归/analyze0；深色去header后系统栏黑字问题已用基础BeeSystemBars+真实平台channel/输入保留/内层覆盖测试修复607bb5b2，均待下一候选原生补验。",
+      "C Flutter2fe64194与HTML98f1942f已合入，D Flutter5661828b与主demo233d8f8a已合入，E Flutter40a7d193/主demo3cb0a735已合入；B主demo3f59b6d3已合入，按组合源重编保留669注册项。分支测试不算整页新native完成，下一步组合回归/统一新candidate。",
+      "E代理补新基础/业务目录与HTML规范；C专用细节页残留HTML交易模板需统一源，定向大图/组件图和最终iOS增量/报告/准备PR继续。"
     ],
     "remainingEffortEstimateHours": [
-      7,
-      11
+      3,
+      6
     ],
-    "remainingEffortChangeReason": "旧73清单8云组关键真机实服均完成，进入8独立报告最终整理；A/B新UI已合入且17文件115项回归通过，R115新包核验并保留72笔升级。新增用户批准D海报卡片与E启动B实现和增量原生验收，纳入后约7–11h，较前6–10上调；C在该小时快照尚待确认，其随后批准按currentProgress另记，不按页数线性推算。",
+    "remainingEffortChangeReason": "较上一轮5–9h收敛：8云页独立报告已全部封存、C/D/E主要实现交付合入，A/B R115主要真机流程和Root独立数据核对完成；余下统一组合回归与新候选C/D/E及两项UI修复验收、iOS增量、设计图/目录/最终报告检查。分支测试未等同整页新UI通过，估算非承诺、不线性按页数计算。",
     "implementationStateCounts": {
-      "nativeCompleteOriginalBaseline": 65,
-      "implementedPendingAcceptanceOriginalBaseline": 8,
-      "nativeCoreFlowsPassedPendingIndependentReports": 8,
-      "approvedRevisionInstalledPendingNative": 2,
-      "approvedRevisionInImplementation": 2,
-      "unapprovedRevisionAtHourlySnapshot": 1
+      "nativeCompleteOriginalBaseline": 73,
+      "approvedDesignMajorCodeDelivered": 5,
+      "approvedDesignMajorNativeFlowsPassedPendingReport": 1,
+      "approvedDesignInstalledWithOpenNativeIssue": 1,
+      "approvedDesignImplementedPendingNewCandidateNative": 3,
+      "originalCloudReportsSealedThisHour": 8
     },
     "originalMigrationRemainingEffortEstimateHours": [
-      2,
-      4
+      0,
+      0
     ],
     "newApprovedDesignImplementationIncluded": [
       "A",
       "B",
+      "C",
       "D",
       "E"
     ],
-    "unapprovedDesignImplementationExcluded": [
-      "C"
-    ]
+    "unapprovedDesignImplementationExcluded": []
   },
   "pullRequest": {
     "number": 575,
@@ -1025,20 +1042,20 @@
     "reason": "按用户要求临时关闭，避免每次推送触发PR的AI Eval；v4继续开发和推送，全部迁移与验收准备好再恢复PR。"
   },
   "currentProgress": {
-    "updatedAt": "2026-10-26T01:12:50.678542+08:00",
-    "engineeringEstimatePercent": 93,
+    "updatedAt": "2026-10-26T02:00:22.707577+08:00",
+    "engineeringEstimatePercent": 95,
     "engineeringEstimateRange": [
-      90,
-      95
+      93,
+      97
     ],
     "completedPages": 73,
     "totalPages": 73,
     "totalP0Pages": 17,
     "completedP0Pages": 17,
-    "basis": "原73页面迁移基线均已固定版本整页封存：原65+8云页Root逐页审阅，独立ZIP及三宽/隐私/hash与只读封存完成，保留原失败/NOT_RUN/兼容边界。新增A–E修订分别验收：A/B已合入R115且115相关回归/72笔安全升级，actual9scope×view已通过正在继续；E方案B源码已交付合入、9相关测试和4Flutter渲染，待原生；C两/三行组件真实消费者和D分享卡片Flutter并行实现，D主demo已同步。工程93估90–95；当前剩余5–9h，较7–12收敛因8报告已封存、E实现交付且A/B新增原生顺利推进，不按页面线性扣减。",
+    "basis": "原73基线全封存；A–E全部主要实现已交付合入，R115洞察/资产主流程与独立31表72/文件偏好核对已完成，A待报告，B隐藏入口仍需新候选补验；C/D/E和系统栏样式修复待统一新候选。余下组合回归、组件目录与专用HTML剩余模板同步、定向大图、iOS增量、独立报告与最终检查，估计3–6h，不以原73全部完成当整体任务完成。",
     "remainingEffortEstimateHours": [
-      5,
-      9
+      3,
+      6
     ],
     "remainingEffortEstimateKind": "并行连续工作小时"
   },
@@ -1062,6 +1079,14 @@
       "nativeFailEvidence": "r115-B-hidden-account-footnote-actual-native-FAIL.json",
       "detectedAt": "2026-10-26T01:32:04.161099+08:00",
       "sourceFix": "643847cc"
+    },
+    {
+      "id": "R115-DARK-SYSTEM-BARS",
+      "page": "main.dart",
+      "status": "源修复607bb5b2及真实平台channel测试通过，待下一候选深色原生补验",
+      "summary": "去header后缺少默认系统栏AnnotatedRegion，暗色App仍用黑色Android时间/图标；现在MaterialApp.builder由真实Theme控制，旧Header内层仍可覆写，不改导航栏或启动路由",
+      "sourceFix": "607bb5b2",
+      "evidence": "r115-A-real-dark-mode-original-financial-body.png"
     }
   ],
   "resolvedRegressions": [
@@ -1146,7 +1171,7 @@
     {
       "id": "A",
       "name": "洞察页",
-      "status": "已确认；主demo已更新；Flutter已合入并升级R115，待新版真机验收",
+      "status": "R115主要实际流程、Root全31/72/文件偏好复核已通过；待新版独立报告封存",
       "url": "boards/insights-task-a-review.html",
       "flutterCommit": "0c730777",
       "flutterApproved": true
@@ -1154,43 +1179,48 @@
     {
       "id": "B",
       "name": "资产页",
-      "status": "新版真机验收发现长列表隐藏提示不能定位；修复与回归中，下一候选补验",
+      "status": "R115大部流程通过；隐藏定位643847cc待新候选补验；主demo与规范已同步",
       "url": "boards/assets-task-b-review.html",
       "flutterCommit": "de25c879",
-      "flutterApproved": true
+      "flutterApproved": true,
+      "mainDemoCommit": "3f59b6d3"
     },
     {
       "id": "C",
       "name": "交易明细行",
-      "status": "已确认C3；子代理实施组件、真实消费者及主demo同步中",
+      "status": "Flutter2fe64194、主demo/规范98f1942f已合入；待统一候选原生验收",
       "url": "boards/transaction-rows-task-c-review.html",
       "designCommit": "e00a31e6",
       "approvedHtmlSha256": "643833f7d50be973e5e08296ef84d01c096743a1086a02636de08b293f66177c",
       "approval": "子任务 c 就按照这个版本推进吧。",
-      "flutterApproved": true
+      "flutterApproved": true,
+      "flutterCommit": "2fe64194",
+      "mainDemoCommit": "98f1942f"
     },
     {
       "id": "D",
       "name": "分享海报与应用卡片",
-      "status": "已确认；主demo已同步233d8f8a，Flutter实现中",
+      "status": "Flutter5661828b、主demo233d8f8a已合入；待统一候选原生验收",
       "url": "boards/share-cards-task-d-review.html",
       "designCommit": "c93457bf",
       "approvedHtmlSha256": "8c039e5608b67add35cb8a9f66a83e1e85c20b35c91cc71013fb496ae43e4e5d",
       "approval": "子任务 d 设计稿确认没问题，更新下 demo 然后开做吧。",
       "flutterApproved": true,
-      "mainDemoCommit": "233d8f8a"
+      "mainDemoCommit": "233d8f8a",
+      "flutterCommit": "5661828b"
     },
     {
       "id": "E",
       "name": "启动页 · 一笔成形",
-      "status": "方案B Flutter与主demo均已合入；待下一候选原生验收",
+      "status": "方案B Flutter/主demo与系统栏修复已合入，组件目录补齐中；待统一候选原生验收",
       "url": "boards/splash-task-e-review.html?concept=trail",
       "designCommit": "c0eeb0e8",
       "approvedHtmlSha256": "cb3b28761dd234ad803c6a5b54eb74be80fd1c02c1156d651f1ed0ee0f12f665",
       "approval": "子任务 e 用方案 B",
       "flutterApproved": true,
       "flutterCommit": "40a7d193",
-      "mainDemoCommit": "3cb0a735"
+      "mainDemoCommit": "3cb0a735",
+      "systemBarsCommit": "607bb5b2"
     }
   ],
   "latestAcceptanceDelivery": {
