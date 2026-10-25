@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-25",
+  "date": "2026-10-25T15:30:48+08:00",
   "branch": "v4",
   "pageFiles": 73,
   "helperFiles": [
@@ -10,8 +10,8 @@
     "lib/pages/cloud/sync_preview_dialog.dart",
     "lib/pages/tag/widgets/tag_selector.dart"
   ],
-  "designSceneExports": 526,
-  "flowDefinitions": 449,
+  "designSceneExports": 567,
+  "flowDefinitions": 490,
   "priorityCounts": {
     "P0": 17,
     "P1": 43,
@@ -292,7 +292,10 @@
       "lines": 10,
       "batch": "M6 AI与自动化",
       "designRoutes": [
-        "flow-activity"
+        "flow-activity",
+        "flow-advanced-activity",
+        "flow-advanced-activity-empty",
+        "flow-advanced-activity-error"
       ],
       "designMapping": "已定位",
       "components": "消息、配置表单、授权、任务状态与列表",
@@ -303,7 +306,10 @@
       "reason": "r101三页保持原9项权限/两种模式/作用范围、记忆查看与遗忘/清空及最近30次活动，72项相关回归/14文件静态通过；原8依赖及测试业务断言完整，未执行模型/工具或原生UI，不计完整页。",
       "implementationStage": "implemented",
       "designLinks": [
-        "../../docs/design/card-refresh/prototype/demo.html?page=flow-activity"
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-activity",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-advanced-activity",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-advanced-activity-empty",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-advanced-activity-error"
       ]
     },
     {
@@ -347,7 +353,12 @@
       "lines": 10,
       "batch": "M6 AI与自动化",
       "designRoutes": [
-        "flow-memory"
+        "flow-memory",
+        "flow-advanced-memory",
+        "flow-advanced-memory-empty",
+        "flow-advanced-memory-loading",
+        "flow-advanced-memory-error",
+        "flow-advanced-memory-global"
       ],
       "designMapping": "已定位",
       "components": "消息、配置表单、授权、任务状态与列表",
@@ -358,7 +369,12 @@
       "reason": "r101三页保持原9项权限/两种模式/作用范围、记忆查看与遗忘/清空及最近30次活动，72项相关回归/14文件静态通过；原8依赖及测试业务断言完整，未执行模型/工具或原生UI，不计完整页。",
       "implementationStage": "implemented",
       "designLinks": [
-        "../../docs/design/card-refresh/prototype/demo.html?page=flow-memory"
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-memory",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-advanced-memory",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-advanced-memory-empty",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-advanced-memory-loading",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-advanced-memory-error",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-advanced-memory-global"
       ]
     },
     {
@@ -369,7 +385,10 @@
       "lines": 8,
       "batch": "M6 AI与自动化",
       "designRoutes": [
-        "flow-permissions"
+        "flow-permissions",
+        "flow-advanced-permissions",
+        "flow-advanced-permissions-modified",
+        "flow-advanced-permissions-error"
       ],
       "designMapping": "已定位",
       "components": "消息、配置表单、授权、任务状态与列表",
@@ -380,7 +399,10 @@
       "reason": "r101三页保持原9项权限/两种模式/作用范围、记忆查看与遗忘/清空及最近30次活动，72项相关回归/14文件静态通过；原8依赖及测试业务断言完整，未执行模型/工具或原生UI，不计完整页。",
       "implementationStage": "implemented",
       "designLinks": [
-        "../../docs/design/card-refresh/prototype/demo.html?page=flow-permissions"
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-permissions",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-advanced-permissions",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-advanced-permissions-modified",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-advanced-permissions-error"
       ]
     },
     {
@@ -1366,18 +1388,24 @@
       "lines": 8,
       "batch": "M8 设置与收尾",
       "designRoutes": [
-        "flow-donation"
+        "flow-donation",
+        "flow-support-donation-empty",
+        "flow-support-donation-loading",
+        "flow-support-donation-products"
       ],
       "designMapping": "已定位",
       "components": "支持选项、支付入口和说明",
-      "acceptance": "原支持选项、平台入口、复制/跳转与返回，沿用实际服务。",
-      "status": "迁移中·核对原功能并组件化，本地回归中",
+      "acceptance": "统一候选R104源码cabfaff9，983个产品文件与构建产物逐字匹配；已构建未安装。整页生产UI、数据保护与正常入口重启仍待执行；不把单元/widget、HTML或构建成功计为整页完成。",
+      "status": "迁移中·代码与本地回归已交付，待统一产物和整页验收",
       "name": "打赏支持",
       "priority": "P2",
-      "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
-      "implementationStage": "in_progress",
+      "reason": "R102五个支持页及纯业务组件/App绑定已提交e265ce76，原版本/渠道/文档URL/平台返回/六快捷方式/StoreKit流程保留；29项回归及18文件静态检查通过。原生整页、实际外链/WebView及平台支付未执行，不计完成。",
+      "implementationStage": "implemented",
       "designLinks": [
-        "../../docs/design/card-refresh/prototype/demo.html?page=flow-donation"
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-donation",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-support-donation-empty",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-support-donation-loading",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-support-donation-products"
       ]
     },
     {
@@ -1519,21 +1547,31 @@
       "classes": [
         "OrphanCleanupPage"
       ],
-      "lines": 429,
+      "lines": 8,
       "batch": "M7 初始化与数据",
       "designRoutes": [
-        "flow-orphan"
+        "flow-orphan",
+        "flow-maintenance-orphans",
+        "flow-maintenance-orphans-empty",
+        "flow-maintenance-orphans-error",
+        "flow-maintenance-orphans-confirm",
+        "flow-maintenance-orphans-partial"
       ],
       "designMapping": "已定位",
       "components": "清理概览、选择、确认与结果状态",
-      "acceptance": "沿用实际孤儿数据判断，预览/取消/确认、数量、失败反馈和数据安全。",
-      "status": "迁移中·核对原范围与组件化，日志技术修复及本地回归中",
+      "acceptance": "统一候选R104源码cabfaff9，983个产品文件与构建产物逐字匹配；已构建未安装。整页生产UI、数据保护与正常入口重启仍待执行；不把单元/widget、HTML或构建成功计为整页完成。",
+      "status": "迁移中·代码与本地回归已交付，待统一产物和整页验收",
       "name": "孤儿数据清理",
       "priority": "P2",
-      "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
-      "implementationStage": "in_progress",
+      "reason": "R103四个维护页及纯业务组件/App绑定已提交a0dadeed，原四日志级别/来源筛选、14孤儿类型与清理范围、9桌面组件预览保留；74项UI/日志/SQLite边界回归及18文件静态检查通过。两个数据安全修复独立提交，尚未原生整页验收，不计完成。",
+      "implementationStage": "implemented",
       "designLinks": [
-        "../../docs/design/card-refresh/prototype/demo.html?page=flow-orphan"
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-orphan",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-maintenance-orphans",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-maintenance-orphans-empty",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-maintenance-orphans-error",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-maintenance-orphans-confirm",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-maintenance-orphans-partial"
       ]
     },
     {
@@ -1541,7 +1579,7 @@
       "classes": [
         "AnnualReportPage"
       ],
-      "lines": 670,
+      "lines": 676,
       "batch": "M4 统计与分享",
       "designRoutes": [
         "annual",
@@ -1600,19 +1638,25 @@
       "batch": "M8 设置与收尾",
       "designRoutes": [
         "about",
-        "flow-update-check"
+        "flow-update-check",
+        "flow-support-about",
+        "flow-support-about-ios",
+        "flow-support-about-international"
       ],
       "designMapping": "已定位",
       "components": "版本/链接/分组菜单与升级弹窗",
-      "acceptance": "完整原菜单、检查升级的检查中/最新/可升级/错误、平台入口；调试组件入口不计页面迁移完成。",
-      "status": "迁移中·核对原功能并组件化，本地回归中",
+      "acceptance": "统一候选R104源码cabfaff9，983个产品文件与构建产物逐字匹配；已构建未安装。整页生产UI、数据保护与正常入口重启仍待执行；不把单元/widget、HTML或构建成功计为整页完成。",
+      "status": "迁移中·代码与本地回归已交付，待统一产物和整页验收",
       "name": "关于与检查更新",
       "priority": "P2",
-      "reason": "仅新增了调试验收入口，关于页本身未翻新；检查更新保持弹窗。",
-      "implementationStage": "in_progress",
+      "reason": "R102五个支持页及纯业务组件/App绑定已提交e265ce76，原版本/渠道/文档URL/平台返回/六快捷方式/StoreKit流程保留；29项回归及18文件静态检查通过。原生整页、实际外链/WebView及平台支付未执行，不计完成。",
+      "implementationStage": "implemented",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=about",
-        "../../docs/design/card-refresh/prototype/demo.html?page=flow-update-check"
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-update-check",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-support-about",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-support-about-ios",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-support-about-international"
       ]
     },
     {
@@ -1855,18 +1899,26 @@
       "lines": 13,
       "batch": "M8 设置与收尾",
       "designRoutes": [
-        "flow-help"
+        "flow-help",
+        "flow-support-help",
+        "flow-support-changelog",
+        "flow-support-help-error",
+        "flow-support-help-loading"
       ],
       "designMapping": "已定位",
       "components": "分组菜单、输入/选择/开关、弹窗与状态",
-      "acceptance": "逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。",
-      "status": "迁移中·核对原功能并组件化，本地回归中",
+      "acceptance": "统一候选R104源码cabfaff9，983个产品文件与构建产物逐字匹配；已构建未安装。整页生产UI、数据保护与正常入口重启仍待执行；不把单元/widget、HTML或构建成功计为整页完成。",
+      "status": "迁移中·代码与本地回归已交付，待统一产物和整页验收",
       "name": "帮助中心",
       "priority": "P2",
-      "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
-      "implementationStage": "in_progress",
+      "reason": "R102五个支持页及纯业务组件/App绑定已提交e265ce76，原版本/渠道/文档URL/平台返回/六快捷方式/StoreKit流程保留；29项回归及18文件静态检查通过。原生整页、实际外链/WebView及平台支付未执行，不计完成。",
+      "implementationStage": "implemented",
       "designLinks": [
-        "../../docs/design/card-refresh/prototype/demo.html?page=flow-help"
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-help",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-support-help",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-support-changelog",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-support-help-error",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-support-help-loading"
       ]
     },
     {
@@ -1895,23 +1947,31 @@
       "classes": [
         "LogCenterPage"
       ],
-      "lines": 554,
+      "lines": 8,
       "batch": "M8 设置与收尾",
       "designRoutes": [
         "flow-logs",
-        "flow-log-detail"
+        "flow-log-detail",
+        "flow-maintenance-logs",
+        "flow-maintenance-log-detail",
+        "flow-maintenance-log-clear",
+        "flow-maintenance-log-empty"
       ],
       "designMapping": "已定位",
       "components": "级别/来源多选、搜索、统计、日志行与堆栈详情",
-      "acceptance": "保留 DEBUG/INFO/WARN/ERROR、Flutter/当前平台、多选/搜索、详情/复制、导出与清空确认。",
-      "status": "迁移中·核对原范围与组件化，日志技术修复及本地回归中",
+      "acceptance": "统一候选R104源码cabfaff9，983个产品文件与构建产物逐字匹配；已构建未安装。整页生产UI、数据保护与正常入口重启仍待执行；不把单元/widget、HTML或构建成功计为整页完成。",
+      "status": "迁移中·代码与本地回归已交付，待统一产物和整页验收",
       "name": "日志中心",
       "priority": "P2",
-      "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
-      "implementationStage": "in_progress",
+      "reason": "R103四个维护页及纯业务组件/App绑定已提交a0dadeed，原四日志级别/来源筛选、14孤儿类型与清理范围、9桌面组件预览保留；74项UI/日志/SQLite边界回归及18文件静态检查通过。两个数据安全修复独立提交，尚未原生整页验收，不计完成。",
+      "implementationStage": "implemented",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-logs",
-        "../../docs/design/card-refresh/prototype/demo.html?page=flow-log-detail"
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-log-detail",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-maintenance-logs",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-maintenance-log-detail",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-maintenance-log-clear",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-maintenance-log-empty"
       ]
     },
     {
@@ -1947,18 +2007,24 @@
       "lines": 10,
       "batch": "M8 设置与收尾",
       "designRoutes": [
-        "leaf:隐私政策"
+        "leaf:隐私政策",
+        "flow-privacy",
+        "flow-support-privacy",
+        "flow-support-privacy-error"
       ],
       "designMapping": "已定位",
       "components": "分组菜单、输入/选择/开关、弹窗与状态",
-      "acceptance": "逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。",
-      "status": "迁移中·核对原功能并组件化，本地回归中",
+      "acceptance": "统一候选R104源码cabfaff9，983个产品文件与构建产物逐字匹配；已构建未安装。整页生产UI、数据保护与正常入口重启仍待执行；不把单元/widget、HTML或构建成功计为整页完成。",
+      "status": "迁移中·代码与本地回归已交付，待统一产物和整页验收",
       "name": "隐私政策",
       "priority": "P2",
-      "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
-      "implementationStage": "in_progress",
+      "reason": "R102五个支持页及纯业务组件/App绑定已提交e265ce76，原版本/渠道/文档URL/平台返回/六快捷方式/StoreKit流程保留；29项回归及18文件静态检查通过。原生整页、实际外链/WebView及平台支付未执行，不计完成。",
+      "implementationStage": "implemented",
       "designLinks": [
-        "../../docs/design/card-refresh/prototype/demo.html?page=leaf:隐私政策"
+        "../../docs/design/card-refresh/prototype/demo.html?page=leaf:隐私政策",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-privacy",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-support-privacy",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-support-privacy-error"
       ]
     },
     {
@@ -2002,18 +2068,22 @@
       "lines": 8,
       "batch": "M6 AI与自动化",
       "designRoutes": [
-        "flow-shortcuts"
+        "flow-shortcuts",
+        "flow-support-shortcuts-ios",
+        "flow-support-shortcuts-android"
       ],
       "designMapping": "已定位",
       "components": "分组菜单、输入/选择/开关、弹窗与状态",
-      "acceptance": "逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。",
-      "status": "迁移中·核对原功能并组件化，本地回归中",
+      "acceptance": "统一候选R104源码cabfaff9，983个产品文件与构建产物逐字匹配；已构建未安装。整页生产UI、数据保护与正常入口重启仍待执行；不把单元/widget、HTML或构建成功计为整页完成。",
+      "status": "迁移中·代码与本地回归已交付，待统一产物和整页验收",
       "name": "快捷指令引导",
       "priority": "P2",
-      "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
-      "implementationStage": "in_progress",
+      "reason": "R102五个支持页及纯业务组件/App绑定已提交e265ce76，原版本/渠道/文档URL/平台返回/六快捷方式/StoreKit流程保留；29项回归及18文件静态检查通过。原生整页、实际外链/WebView及平台支付未执行，不计完成。",
+      "implementationStage": "implemented",
       "designLinks": [
-        "../../docs/design/card-refresh/prototype/demo.html?page=flow-shortcuts"
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-shortcuts",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-support-shortcuts-ios",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-support-shortcuts-android"
       ]
     },
     {
@@ -2062,21 +2132,29 @@
       "classes": [
         "StorageManagementPage"
       ],
-      "lines": 282,
+      "lines": 8,
       "batch": "M7 初始化与数据",
       "designRoutes": [
-        "flow-storage"
+        "flow-storage",
+        "flow-maintenance-storage",
+        "flow-maintenance-storage-ios",
+        "flow-maintenance-storage-error",
+        "flow-maintenance-storage-clear"
       ],
       "designMapping": "已定位",
       "components": "分组菜单、输入/选择/开关、弹窗与状态",
-      "acceptance": "逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。",
-      "status": "迁移中·核对原范围与组件化，日志技术修复及本地回归中",
+      "acceptance": "统一候选R104源码cabfaff9，983个产品文件与构建产物逐字匹配；已构建未安装。整页生产UI、数据保护与正常入口重启仍待执行；不把单元/widget、HTML或构建成功计为整页完成。",
+      "status": "迁移中·代码与本地回归已交付，待统一产物和整页验收",
       "name": "存储空间管理",
       "priority": "P2",
-      "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
-      "implementationStage": "in_progress",
+      "reason": "R103四个维护页及纯业务组件/App绑定已提交a0dadeed，原四日志级别/来源筛选、14孤儿类型与清理范围、9桌面组件预览保留；74项UI/日志/SQLite边界回归及18文件静态检查通过。两个数据安全修复独立提交，尚未原生整页验收，不计完成。",
+      "implementationStage": "implemented",
       "designLinks": [
-        "../../docs/design/card-refresh/prototype/demo.html?page=flow-storage"
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-storage",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-maintenance-storage",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-maintenance-storage-ios",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-maintenance-storage-error",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-maintenance-storage-clear"
       ]
     },
     {
@@ -2084,21 +2162,25 @@
       "classes": [
         "WidgetManagementPage"
       ],
-      "lines": 903,
+      "lines": 8,
       "batch": "M8 设置与收尾",
       "designRoutes": [
-        "flow-widgets"
+        "flow-widgets",
+        "flow-maintenance-widgets-android",
+        "flow-maintenance-widgets-ios"
       ],
       "designMapping": "已定位",
       "components": "分组菜单、输入/选择/开关、弹窗与状态",
-      "acceptance": "逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。",
-      "status": "迁移中·核对原范围与组件化，日志技术修复及本地回归中",
+      "acceptance": "统一候选R104源码cabfaff9，983个产品文件与构建产物逐字匹配；已构建未安装。整页生产UI、数据保护与正常入口重启仍待执行；不把单元/widget、HTML或构建成功计为整页完成。",
+      "status": "迁移中·代码与本地回归已交付，待统一产物和整页验收",
       "name": "桌面小组件管理",
       "priority": "P2",
-      "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
-      "implementationStage": "in_progress",
+      "reason": "R103四个维护页及纯业务组件/App绑定已提交a0dadeed，原四日志级别/来源筛选、14孤儿类型与清理范围、9桌面组件预览保留；74项UI/日志/SQLite边界回归及18文件静态检查通过。两个数据安全修复独立提交，尚未原生整页验收，不计完成。",
+      "implementationStage": "implemented",
       "designLinks": [
-        "../../docs/design/card-refresh/prototype/demo.html?page=flow-widgets"
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-widgets",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-maintenance-widgets-android",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-maintenance-widgets-ios"
       ]
     },
     {

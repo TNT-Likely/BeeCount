@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25",
+  "updated": "2026-10-25T15:30:48+08:00",
   "branch": "v4",
   "baselineCommit": "6616066247a8738a42996c496e1b99106820e59f",
   "pages": {
@@ -318,11 +318,11 @@
     "donation/donation_page.dart": {
       "name": "打赏支持",
       "priority": "P2",
-      "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
-      "status": "迁移中·核对原功能并组件化，本地回归中",
+      "reason": "R102五个支持页及纯业务组件/App绑定已提交e265ce76，原版本/渠道/文档URL/平台返回/六快捷方式/StoreKit流程保留；29项回归及18文件静态检查通过。原生整页、实际外链/WebView及平台支付未执行，不计完成。",
+      "status": "迁移中·代码与本地回归已交付，待统一产物和整页验收",
       "components": "支持选项、支付入口和说明",
-      "acceptance": "原支持选项、平台入口、复制/跳转与返回，沿用实际服务。",
-      "implementationStage": "in_progress"
+      "acceptance": "统一候选R104源码cabfaff9，983个产品文件与构建产物逐字匹配；已构建未安装。整页生产UI、数据保护与正常入口重启仍待执行；不把单元/widget、HTML或构建成功计为整页完成。",
+      "implementationStage": "implemented"
     },
     "main/analytics_page.dart": {
       "name": "统计与洞察",
@@ -359,11 +359,11 @@
     "maintenance/orphan_cleanup_page.dart": {
       "name": "孤儿数据清理",
       "priority": "P2",
-      "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
-      "status": "迁移中·核对原范围与组件化，日志技术修复及本地回归中",
+      "reason": "R103四个维护页及纯业务组件/App绑定已提交a0dadeed，原四日志级别/来源筛选、14孤儿类型与清理范围、9桌面组件预览保留；74项UI/日志/SQLite边界回归及18文件静态检查通过。两个数据安全修复独立提交，尚未原生整页验收，不计完成。",
+      "status": "迁移中·代码与本地回归已交付，待统一产物和整页验收",
       "components": "清理概览、选择、确认与结果状态",
-      "acceptance": "沿用实际孤儿数据判断，预览/取消/确认、数量、失败反馈和数据安全。",
-      "implementationStage": "in_progress"
+      "acceptance": "统一候选R104源码cabfaff9，983个产品文件与构建产物逐字匹配；已构建未安装。整页生产UI、数据保护与正常入口重启仍待执行；不把单元/widget、HTML或构建成功计为整页完成。",
+      "implementationStage": "implemented"
     },
     "report/annual_report_page.dart": {
       "name": "年度账单",
@@ -377,11 +377,11 @@
     "settings/about_page.dart": {
       "name": "关于与检查更新",
       "priority": "P2",
-      "reason": "仅新增了调试验收入口，关于页本身未翻新；检查更新保持弹窗。",
-      "status": "迁移中·核对原功能并组件化，本地回归中",
+      "reason": "R102五个支持页及纯业务组件/App绑定已提交e265ce76，原版本/渠道/文档URL/平台返回/六快捷方式/StoreKit流程保留；29项回归及18文件静态检查通过。原生整页、实际外链/WebView及平台支付未执行，不计完成。",
+      "status": "迁移中·代码与本地回归已交付，待统一产物和整页验收",
       "components": "版本/链接/分组菜单与升级弹窗",
-      "acceptance": "完整原菜单、检查升级的检查中/最新/可升级/错误、平台入口；调试组件入口不计页面迁移完成。",
-      "implementationStage": "in_progress"
+      "acceptance": "统一候选R104源码cabfaff9，983个产品文件与构建产物逐字匹配；已构建未安装。整页生产UI、数据保护与正常入口重启仍待执行；不把单元/widget、HTML或构建成功计为整页完成。",
+      "implementationStage": "implemented"
     },
     "settings/app_lock_settings_page.dart": {
       "name": "应用锁设置",
@@ -450,11 +450,11 @@
     "settings/help_center_page.dart": {
       "name": "帮助中心",
       "priority": "P2",
-      "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
-      "status": "迁移中·核对原功能并组件化，本地回归中",
+      "reason": "R102五个支持页及纯业务组件/App绑定已提交e265ce76，原版本/渠道/文档URL/平台返回/六快捷方式/StoreKit流程保留；29项回归及18文件静态检查通过。原生整页、实际外链/WebView及平台支付未执行，不计完成。",
+      "status": "迁移中·代码与本地回归已交付，待统一产物和整页验收",
       "components": "分组菜单、输入/选择/开关、弹窗与状态",
-      "acceptance": "逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。",
-      "implementationStage": "in_progress"
+      "acceptance": "统一候选R104源码cabfaff9，983个产品文件与构建产物逐字匹配；已构建未安装。整页生产UI、数据保护与正常入口重启仍待执行；不把单元/widget、HTML或构建成功计为整页完成。",
+      "implementationStage": "implemented"
     },
     "settings/language_settings_page.dart": {
       "name": "语言设置",
@@ -467,11 +467,11 @@
     "settings/log_center_page.dart": {
       "name": "日志中心",
       "priority": "P2",
-      "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
-      "status": "迁移中·核对原范围与组件化，日志技术修复及本地回归中",
+      "reason": "R103四个维护页及纯业务组件/App绑定已提交a0dadeed，原四日志级别/来源筛选、14孤儿类型与清理范围、9桌面组件预览保留；74项UI/日志/SQLite边界回归及18文件静态检查通过。两个数据安全修复独立提交，尚未原生整页验收，不计完成。",
+      "status": "迁移中·代码与本地回归已交付，待统一产物和整页验收",
       "components": "级别/来源多选、搜索、统计、日志行与堆栈详情",
-      "acceptance": "保留 DEBUG/INFO/WARN/ERROR、Flutter/当前平台、多选/搜索、详情/复制、导出与清空确认。",
-      "implementationStage": "in_progress"
+      "acceptance": "统一候选R104源码cabfaff9，983个产品文件与构建产物逐字匹配；已构建未安装。整页生产UI、数据保护与正常入口重启仍待执行；不把单元/widget、HTML或构建成功计为整页完成。",
+      "implementationStage": "implemented"
     },
     "settings/personalize_page.dart": {
       "name": "主题色与自定义配色",
@@ -484,11 +484,11 @@
     "settings/privacy_policy_page.dart": {
       "name": "隐私政策",
       "priority": "P2",
-      "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
-      "status": "迁移中·核对原功能并组件化，本地回归中",
+      "reason": "R102五个支持页及纯业务组件/App绑定已提交e265ce76，原版本/渠道/文档URL/平台返回/六快捷方式/StoreKit流程保留；29项回归及18文件静态检查通过。原生整页、实际外链/WebView及平台支付未执行，不计完成。",
+      "status": "迁移中·代码与本地回归已交付，待统一产物和整页验收",
       "components": "分组菜单、输入/选择/开关、弹窗与状态",
-      "acceptance": "逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。",
-      "implementationStage": "in_progress"
+      "acceptance": "统一候选R104源码cabfaff9，983个产品文件与构建产物逐字匹配；已构建未安装。整页生产UI、数据保护与正常入口重启仍待执行；不把单元/widget、HTML或构建成功计为整页完成。",
+      "implementationStage": "implemented"
     },
     "settings/reminder_settings_page.dart": {
       "name": "记账提醒",
@@ -501,11 +501,11 @@
     "settings/shortcuts_guide_page.dart": {
       "name": "快捷指令引导",
       "priority": "P2",
-      "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
-      "status": "迁移中·核对原功能并组件化，本地回归中",
+      "reason": "R102五个支持页及纯业务组件/App绑定已提交e265ce76，原版本/渠道/文档URL/平台返回/六快捷方式/StoreKit流程保留；29项回归及18文件静态检查通过。原生整页、实际外链/WebView及平台支付未执行，不计完成。",
+      "status": "迁移中·代码与本地回归已交付，待统一产物和整页验收",
       "components": "分组菜单、输入/选择/开关、弹窗与状态",
-      "acceptance": "逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。",
-      "implementationStage": "in_progress"
+      "acceptance": "统一候选R104源码cabfaff9，983个产品文件与构建产物逐字匹配；已构建未安装。整页生产UI、数据保护与正常入口重启仍待执行；不把单元/widget、HTML或构建成功计为整页完成。",
+      "implementationStage": "implemented"
     },
     "settings/smart_billing_page.dart": {
       "name": "智能记账入口与识别偏好",
@@ -518,20 +518,20 @@
     "settings/storage_management_page.dart": {
       "name": "存储空间管理",
       "priority": "P2",
-      "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
-      "status": "迁移中·核对原范围与组件化，日志技术修复及本地回归中",
+      "reason": "R103四个维护页及纯业务组件/App绑定已提交a0dadeed，原四日志级别/来源筛选、14孤儿类型与清理范围、9桌面组件预览保留；74项UI/日志/SQLite边界回归及18文件静态检查通过。两个数据安全修复独立提交，尚未原生整页验收，不计完成。",
+      "status": "迁移中·代码与本地回归已交付，待统一产物和整页验收",
       "components": "分组菜单、输入/选择/开关、弹窗与状态",
-      "acceptance": "逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。",
-      "implementationStage": "in_progress"
+      "acceptance": "统一候选R104源码cabfaff9，983个产品文件与构建产物逐字匹配；已构建未安装。整页生产UI、数据保护与正常入口重启仍待执行；不把单元/widget、HTML或构建成功计为整页完成。",
+      "implementationStage": "implemented"
     },
     "settings/widget_management_page.dart": {
       "name": "桌面小组件管理",
       "priority": "P2",
-      "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
-      "status": "迁移中·核对原范围与组件化，日志技术修复及本地回归中",
+      "reason": "R103四个维护页及纯业务组件/App绑定已提交a0dadeed，原四日志级别/来源筛选、14孤儿类型与清理范围、9桌面组件预览保留；74项UI/日志/SQLite边界回归及18文件静态检查通过。两个数据安全修复独立提交，尚未原生整页验收，不计完成。",
+      "status": "迁移中·代码与本地回归已交付，待统一产物和整页验收",
       "components": "分组菜单、输入/选择/开关、弹窗与状态",
-      "acceptance": "逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。",
-      "implementationStage": "in_progress"
+      "acceptance": "统一候选R104源码cabfaff9，983个产品文件与构建产物逐字匹配；已构建未安装。整页生产UI、数据保护与正常入口重启仍待执行；不把单元/widget、HTML或构建成功计为整页完成。",
+      "implementationStage": "implemented"
     },
     "tag/tag_detail_page.dart": {
       "name": "标签详情",
@@ -864,19 +864,28 @@
     "reason": "按用户要求临时关闭，避免每次推送触发PR的AI Eval；v4继续开发和推送，全部迁移与验收准备好再恢复PR。"
   },
   "currentProgress": {
-    "updatedAt": "2026-10-25T14:56:01+08:00",
-    "engineeringEstimatePercent": 64,
+    "updatedAt": "2026-10-25T15:30:48+08:00",
+    "engineeringEstimatePercent": 67,
     "engineeringEstimateRange": [
-      61,
-      67
+      64,
+      70
     ],
     "completedPages": 39,
     "totalPages": 73,
-    "basis": "严格39/73与25页代码待验收、9页实现/审计分开；R96实际转账检查点封存、统一526场景/94规范及72业务目录已集成。驱动真实UI操作已提速，但原生/Cloud整页闭环仍串行，不把代码量或局部回归计完成。",
+    "basis": "39/73已通过整页验收；其余34页均代码交付，其中最后9个P2页面已组件化并本地回归。R104候选983个产品文件/产物已匹配但未安装，R98实际收支、批量字段保护、详情附件与跨账本分类复核进行中。Cloud网页准备通过不等于App往返；不把组件或构建计整页。",
     "remainingEffortEstimateHours": [
       12,
       24
     ],
-    "remainingEffortEstimateKind": "并行连续工作小时"
+    "remainingEffortEstimateKind": "并行连续工作小时",
+    "totalP0Pages": 17
+  },
+  "lastImplementationDelivery": {
+    "at": "2026-10-25T15:30:48+08:00",
+    "commit": "cabfaff9aa8796f161396a108e2105daa7992532",
+    "completedNativePages": 39,
+    "implementedPendingNativePages": 34,
+    "inImplementationPages": 0,
+    "candidateInstalled": false
   }
 }
