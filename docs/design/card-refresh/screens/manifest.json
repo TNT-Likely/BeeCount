@@ -111,9 +111,9 @@
   },
   {
     "route": "ai",
-    "slug": "ai",
     "title": "蜜蜂 AI",
     "group": "常用流程",
+    "slug": "ai",
     "fullHeight": 844,
     "viewport": "screens/viewport/ai.png",
     "full": "screens/full/ai.png",
@@ -3542,5 +3542,135 @@
     "viewport": "screens/viewport/flow-execution-depth-maximum.png",
     "full": "screens/full/flow-execution-depth-maximum.png",
     "svg": "figma/flow-execution-depth-maximum.svg"
+  },
+  {
+    "route": "flow-chat-empty",
+    "title": "空对话与真实账本摘要",
+    "group": "补齐 · AI与助手",
+    "slug": "flow-chat-empty",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-chat-empty.png",
+    "full": "screens/full/flow-chat-empty.png",
+    "svg": "figma/flow-chat-empty.svg"
+  },
+  {
+    "route": "flow-chat-history",
+    "title": "AI对话与消息",
+    "group": "补齐 · AI与助手",
+    "slug": "flow-chat-history",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-chat-history.png",
+    "full": "screens/full/flow-chat-history.png",
+    "svg": "figma/flow-chat-history.svg"
+  },
+  {
+    "route": "flow-chat-unconfigured",
+    "title": "AI对话 · 未配置",
+    "group": "补齐 · AI与助手",
+    "slug": "flow-chat-unconfigured",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-chat-unconfigured.png",
+    "full": "screens/full/flow-chat-unconfigured.png",
+    "svg": "figma/flow-chat-unconfigured.svg"
+  },
+  {
+    "route": "flow-chat-streaming",
+    "title": "AI对话 · 流式与停止",
+    "group": "补齐 · AI与助手",
+    "slug": "flow-chat-streaming",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-chat-streaming.png",
+    "full": "screens/full/flow-chat-streaming.png",
+    "svg": "figma/flow-chat-streaming.svg"
+  },
+  {
+    "route": "flow-chat-error",
+    "title": "AI对话 · 请求失败",
+    "group": "补齐 · AI与助手",
+    "slug": "flow-chat-error",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-chat-error.png",
+    "full": "screens/full/flow-chat-error.png",
+    "svg": "figma/flow-chat-error.svg"
+  },
+  {
+    "route": "flow-chat-bill",
+    "title": "AI对话 · 外币账单卡",
+    "group": "补齐 · AI与助手",
+    "slug": "flow-chat-bill",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-chat-bill.png",
+    "full": "screens/full/flow-chat-bill.png",
+    "svg": "figma/flow-chat-bill.svg"
+  },
+  {
+    "route": "flow-chat-undone",
+    "title": "AI对话 · 已撤销账单",
+    "group": "补齐 · AI与助手",
+    "slug": "flow-chat-undone",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-chat-undone.png",
+    "full": "screens/full/flow-chat-undone.png",
+    "svg": "figma/flow-chat-undone.svg"
+  },
+  {
+    "route": "flow-chat-authorization",
+    "title": "允许 Agent 执行操作？ · 弹窗",
+    "group": "补齐 · AI与助手",
+    "slug": "flow-chat-authorization",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-chat-authorization.png",
+    "full": "screens/full/flow-chat-authorization.png",
+    "svg": "figma/flow-chat-authorization.svg"
+  },
+  {
+    "route": "flow-chat-clear",
+    "title": "清除对话历史 · 弹窗",
+    "group": "补齐 · AI与助手",
+    "slug": "flow-chat-clear",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-chat-clear.png",
+    "full": "screens/full/flow-chat-clear.png",
+    "svg": "figma/flow-chat-clear.svg"
+  },
+  {
+    "route": "flow-chat-message-menu",
+    "title": "消息操作 · 弹窗",
+    "group": "补齐 · AI与助手",
+    "slug": "flow-chat-message-menu",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-chat-message-menu.png",
+    "full": "screens/full/flow-chat-message-menu.png",
+    "svg": "figma/flow-chat-message-menu.svg"
+  },
+  {
+    "route": "flow-chat-delete",
+    "title": "删除 · 弹窗",
+    "group": "补齐 · AI与助手",
+    "slug": "flow-chat-delete",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-chat-delete.png",
+    "full": "screens/full/flow-chat-delete.png",
+    "svg": "figma/flow-chat-delete.svg"
+  },
+  {
+    "route": "flow-chat-ledger",
+    "title": "账单所属账本 · 弹窗",
+    "group": "补齐 · AI与助手",
+    "slug": "flow-chat-ledger",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-chat-ledger.png",
+    "full": "screens/full/flow-chat-ledger.png",
+    "svg": "figma/flow-chat-ledger.svg"
+  },
+  {
+    "route": "flow-chat-first",
+    "title": "首笔记账空态",
+    "group": "补齐 · AI与助手",
+    "slug": "flow-chat-first",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-chat-first.png",
+    "full": "screens/full/flow-chat-first.png",
+    "svg": "figma/flow-chat-first.svg"
   }
 ]
