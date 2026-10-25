@@ -91,8 +91,9 @@ class BeeCloudSharedInviteForm extends StatelessWidget {
         const SizedBox(height: 9),
         Wrap(spacing: 8, runSpacing: 8, children: [
           for (final entry in expiryOptions.entries)
-            ChoiceChip(
-                label: Text(entry.value),
+            BeeChoiceChip(
+                label: entry.value,
+                compact: true,
                 selected: selectedHours == entry.key,
                 onSelected: busy
                     ? null
