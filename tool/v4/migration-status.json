@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26T02:45:52.813608+08:00",
+  "updated": "2026-10-26T02:53:56.946021+08:00",
   "branch": "v4",
   "baselineCommit": "6616066247a8738a42996c496e1b99106820e59f",
   "pages": {
@@ -905,12 +905,12 @@
   "fullMigrationBaselineCommit": "9b87aa06177616174e27c52c847cb20de6edede5",
   "completionStandard": "docs/development/v4-page-completion.md",
   "lastProgressReport": {
-    "reportedAt": "2026-10-26T02:00:22.707577+08:00",
-    "scheduledReportAt": "2026-10-26T01:54:00+08:00",
-    "engineeringEstimatePercent": 95,
+    "reportedAt": "2026-10-26T02:53:56.946021+08:00",
+    "scheduledReportAt": "2026-10-26T02:54:00+08:00",
+    "engineeringEstimatePercent": 96,
     "engineeringEstimateRange": [
-      93,
-      97
+      94,
+      98
     ],
     "completedPages": 73,
     "totalPages": 73,
@@ -991,35 +991,30 @@
       "账单详情",
       "分享卡片"
     ],
-    "newlyCompletedSincePreviousReport": [
-      "云账号登录",
-      "云服务配置与账号",
-      "云端备份与同步",
-      "BeeCount Cloud 同步",
-      "共享账本邀请",
-      "加入共享账本",
-      "共享成员管理",
-      "共享成员统计"
-    ],
+    "newlyCompletedSincePreviousReport": [],
     "inProgress": [
-      "原73页基线全部固定版本封存；本小时新增8云页，各独立HTML/ZIP、Root逐表/图片/真实往返、hash/链接三宽/脱敏均收口；新A–E修订与原报告单列。",
-      "R115 A/B完成actual9scope×view、分类二级与自定义图、资产SQL/原币/筛选/分组/搜索详情及原设置/排序/还款/估值取消、隐私/深色动态皮肤与共同normal。Root独立3份actualSQLite31表72逐行、8tar真实bytes、另ADB读取3原图sha、session仅3token字段及缓存变化。A主要实际流程通过待报告；B隐藏定位依旧actualFAIL不提前通过。",
-      "B懒挂载隐藏定位修复643847cc已提交，真实SQLite先红后绿/17回归/analyze0；深色去header后系统栏黑字问题已用基础BeeSystemBars+真实平台channel/输入保留/内层覆盖测试修复607bb5b2，均待下一候选原生补验。",
-      "C Flutter2fe64194与HTML98f1942f已合入，D Flutter5661828b与主demo233d8f8a已合入，E Flutter40a7d193/主demo3cb0a735已合入；B主demo3f59b6d3已合入，按组合源重编保留669注册项。分支测试不算整页新native完成，下一步组合回归/统一新candidate。",
-      "E代理补新基础/业务目录与HTML规范；C专用细节页残留HTML交易模板需统一源，定向大图/组件图和最终iOS增量/报告/准备PR继续。"
+      "A–E主要源码/主demo/平铺目录与最终C51路消费者已全部合入；统一ce44164f，1062产品/SDK18/lock匹配，Android同包72笔与全部持久文件Prefs保持。",
+      "R116 Android实际B首次顶部隐藏定位无需预滚动；C分类icon/编辑/长按详情/左滑取消/批量选择/复杂USD历史折算及1.32字/时间、26/78目录与七图只读查看，生产D海报继续。未提前把共同normal或Root最终数据核对记为通过。",
+      "同一iOS R116实际C分类/编辑取消/原OS键盘及A紧凑tab、D原应用分享系统取消/小票预览、根App暗色白系统栏通过；26/78目录和七海报增量中。唯一预声明themeMode absent→system归一化，其他31表3tx/23PNG/Group严格保护。",
+      "112个定向场景导出；567场景/669可交互路由与其他455场景1820资源原字节保持；完整567页面大图、浅深/基础29/业务76共105规范大图重建，链接与三宽通过。旧维护HTML标题挤竖排另作最小修复验证，不修改原生代码。",
+      "Root复核420原备份与77原页面全部SHA相符，基础/业务包无App/Provider/DB/HTTP依赖，原EN/ZH所有键值保持，KO/TW源字节不变；A/B旧候选报告等待R116补件，其余新版报告未封存。"
     ],
     "remainingEffortEstimateHours": [
-      3,
-      6
+      2,
+      4
     ],
-    "remainingEffortChangeReason": "较上一轮5–9h收敛：8云页独立报告已全部封存、C/D/E主要实现交付合入，A/B R115主要真机流程和Root独立数据核对完成；余下统一组合回归与新候选C/D/E及两项UI修复验收、iOS增量、设计图/目录/最终报告检查。分支测试未等同整页新UI通过，估算非承诺、不线性按页数计算。",
+    "remainingEffortEstimateKind": "并行连续工作小时",
+    "remainingEffortChangeReason": "较01:54的3–6小时收敛：统一新候选已安装，两平台实际流程/系统栏/目录已有实质进展，全部主要源和大图刷新已交付。尚余生产海报/启动与共同normal、Root独立全量数据核对、新版独立报告/最终集成检查；不按73页线性外推，不是完成承诺。",
     "implementationStateCounts": {
       "nativeCompleteOriginalBaseline": 73,
       "approvedDesignMajorCodeDelivered": 5,
-      "approvedDesignMajorNativeFlowsPassedPendingReport": 1,
-      "approvedDesignInstalledWithOpenNativeIssue": 1,
-      "approvedDesignImplementedPendingNewCandidateNative": 3,
-      "originalCloudReportsSealedThisHour": 8
+      "approvedDesignRevisionsSealed": 0,
+      "sameCandidateNativeInProgress": 5,
+      "designExportedScenes": 567,
+      "interactiveRouteOptions": 669,
+      "htmlComponentCards": 105,
+      "flutterFoundationGroups": 26,
+      "flutterBusinessGroups": 78
     },
     "originalMigrationRemainingEffortEstimateHours": [
       0,
@@ -1042,20 +1037,20 @@
     "reason": "按用户要求临时关闭，避免每次推送触发PR的AI Eval；v4继续开发和推送，全部迁移与验收准备好再恢复PR。"
   },
   "currentProgress": {
-    "updatedAt": "2026-10-26T02:45:52.813608+08:00",
-    "engineeringEstimatePercent": 95,
+    "updatedAt": "2026-10-26T02:53:56.946021+08:00",
+    "engineeringEstimatePercent": 96,
     "engineeringEstimateRange": [
-      93,
-      97
+      94,
+      98
     ],
     "completedPages": 73,
     "totalPages": 73,
     "totalP0Pages": 17,
     "completedP0Pages": 17,
-    "basis": "原73页基线全部固定版本封存；A–E实现、主demo和组件目录均已合入。统一R116源码ce44164f、1062产品文件/SDK18/lock匹配，Android同包升级前后72笔/all31与文件/偏好保持；新修订正分平台实际验收。B首次隐藏定位已实际到达目标，C已有真实导航/编辑取消/左滑取消/批量与复杂外币检查，尚待共同normal和Root独立最终核对；不提前封存。后续为两平台实际增量、定向大图、A–E独立报告和最终检查，不用原73证明新版完成。",
+    "basis": "原73页固定版本报告全部封存；A–E源码/主demo/平铺目录全部集成，Android/iOS同一保留QA的R116新候选已安装并在实际验收；B首次隐藏定位与iOS真实深色状态栏已实际证实，C导航/批量取消/复杂原币行及受控目录已走通；567导出场景/105组件大图刷新，420旧文件/77页面备份及分包依赖/语言不变检查通过。新版独立报告仍0/5封存；剩余生产海报/启动增量、共同normal、Root独立复核、离线报告和最终PR检查，非线性按页计时。",
     "remainingEffortEstimateHours": [
-      3,
-      6
+      2,
+      4
     ],
     "remainingEffortEstimateKind": "并行连续工作小时"
   },
