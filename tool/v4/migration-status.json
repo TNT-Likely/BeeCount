@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26T02:53:56.946021+08:00",
+  "updated": "2026-10-26T03:14:51.926126+08:00",
   "branch": "v4",
   "baselineCommit": "6616066247a8738a42996c496e1b99106820e59f",
   "pages": {
@@ -1037,7 +1037,7 @@
     "reason": "按用户要求临时关闭，避免每次推送触发PR的AI Eval；v4继续开发和推送，全部迁移与验收准备好再恢复PR。"
   },
   "currentProgress": {
-    "updatedAt": "2026-10-26T02:53:56.946021+08:00",
+    "updatedAt": "2026-10-26T03:14:51.926126+08:00",
     "engineeringEstimatePercent": 96,
     "engineeringEstimateRange": [
       94,
@@ -1047,7 +1047,7 @@
     "totalPages": 73,
     "totalP0Pages": 17,
     "completedP0Pages": 17,
-    "basis": "原73页固定版本报告全部封存；A–E源码/主demo/平铺目录全部集成，Android/iOS同一保留QA的R116新候选已安装并在实际验收；B首次隐藏定位与iOS真实深色状态栏已实际证实，C导航/批量取消/复杂原币行及受控目录已走通；567导出场景/105组件大图刷新，420旧文件/77页面备份及分包依赖/语言不变检查通过。新版独立报告仍0/5封存；剩余生产海报/启动增量、共同normal、Root独立复核、离线报告和最终PR检查，非线性按页计时。",
+    "basis": "原73基线已封存；A–E实现及设计大图已集成。R116全31表72笔、8附件/3图/原公共文件和业务偏好守卫与Root独立实际读取通过；B隐藏入口和暗色系统栏已实际修复。C最终normal暴露1.3px标签继承字距溢出，已先红复现并最小修复回归中，不称C整页通过；新增基础两样例与C修复统一R117最小补验，余下独立报告/最终检查。",
     "remainingEffortEstimateHours": [
       2,
       4
@@ -1065,24 +1065,14 @@
   },
   "openRegressions": [
     {
-      "id": "R115-ASSETS-HIDDEN-LOCATE",
-      "page": "account/accounts_page.dart",
-      "status": "R116首个顶部隐藏入口实际到达目标、无需预滚动；待共同normal后Root最终核对/独立报告",
-      "reportedPlatform": "Android R115 / same retained QA",
-      "source": "c0eeb0e8dc9e912b166379c1ef03481ba4fa200e",
-      "summary": "长列表顶部隐藏提示目标key尚未lazy挂载，点击不滚动；实际保持顶部12秒。Root真实SQLite长列表Widget复现offset0后修复为先定位末端、挂载后ensureVisible并防重复/销毁。",
-      "nativeFailEvidence": "r115-B-hidden-account-footnote-actual-native-FAIL.json",
-      "detectedAt": "2026-10-26T01:32:04.161099+08:00",
-      "sourceFix": "643847cc",
-      "nativeFixEvidence": "r116-B-first-hidden-lazy-footnote-actual-native.json"
-    },
-    {
-      "id": "R115-DARK-SYSTEM-BARS",
-      "page": "main.dart",
-      "status": "源修复与平台channel检查通过，R116 Android/iOS实际深色增量验收中",
-      "summary": "去header后缺少默认系统栏AnnotatedRegion，暗色App仍用黑色Android时间/图标；现在MaterialApp.builder由真实Theme控制，旧Header内层仍可覆写，不改导航栏或启动路由",
-      "sourceFix": "607bb5b2",
-      "evidence": "r115-A-real-dark-mode-original-financial-body.png"
+      "id": "R116-C-INHERITED-TAG-METRICS",
+      "page": "packages/beecount_ui/lib/src/inline_label.dart",
+      "status": "R116真实FAIL保留；原账单74参数Widget先红，字体继承最小源修复回归中，待R117真机",
+      "sourceCommit": "ce44164f684dc5363dae545b1c90aaff2d0662d1",
+      "summary": "共同normal后的美元转账行右侧溢出1.3px；金额/全部31表72笔和真实文件守卫仍独立PASS。标签量测显式0字距，而实际Text继承父级字距/字重，需统一字形样式，不加epsilon、不藏溢出、不丢字段。",
+      "nativeFailEvidence": "r116-C-actual-native-RenderFlex-1p3-right-FAIL.json",
+      "nativeManifestSHA256": "3962d431da510d8751a7c195ccfcff192349fb9c363a8e3f028a2e311c462be5",
+      "dataGuardIndependentPASS": true
     }
   ],
   "resolvedRegressions": [
@@ -1119,6 +1109,42 @@
       "detectedAt": "2026-10-25T22:06:23+08:00",
       "resolvedAt": "2026-10-25T23:53:37.317569+08:00",
       "report": "r114-root-C3-full31-original71-and-target-cleanup-final-review.json"
+    },
+    {
+      "id": "R115-ASSETS-HIDDEN-LOCATE",
+      "page": "account/accounts_page.dart",
+      "status": "R116实际最小增量与Root独立数据/视觉复核通过；旧失败保留",
+      "reportedPlatform": "Android R115 / same retained QA",
+      "source": "c0eeb0e8dc9e912b166379c1ef03481ba4fa200e",
+      "summary": "长列表顶部隐藏提示目标key尚未lazy挂载，点击不滚动；实际保持顶部12秒。Root真实SQLite长列表Widget复现offset0后修复为先定位末端、挂载后ensureVisible并防重复/销毁。",
+      "nativeFailEvidence": "r115-B-hidden-account-footnote-actual-native-FAIL.json",
+      "detectedAt": "2026-10-26T01:32:04.161099+08:00",
+      "sourceFix": "643847cc",
+      "nativeFixEvidence": "r116-B-first-hidden-lazy-footnote-actual-native.json",
+      "resolvedAt": "2026-10-26T03:14:51.926126+08:00",
+      "nativeSourceCommit": "ce44164f",
+      "rootIndependentEvidence": [
+        "r116-root-independent-actual-db-tar-prefs-final-review.json",
+        "r116-root-direct-three-image-bytes-installed-artifact-readonly-review.json"
+      ],
+      "frozenNativeManifestSHA256": "3962d431da510d8751a7c195ccfcff192349fb9c363a8e3f028a2e311c462be5",
+      "actualVisual": "首次点击顶部提示、无需手动预滚动，目标隐藏header实际进入原生视窗；Root原PNG复看"
+    },
+    {
+      "id": "R115-DARK-SYSTEM-BARS",
+      "page": "main.dart",
+      "status": "R116实际最小增量与Root独立数据/视觉复核通过；旧失败保留",
+      "summary": "去header后缺少默认系统栏AnnotatedRegion，暗色App仍用黑色Android时间/图标；现在MaterialApp.builder由真实Theme控制，旧Header内层仍可覆写，不改导航栏或启动路由",
+      "sourceFix": "607bb5b2",
+      "evidence": "r115-A-real-dark-mode-original-financial-body.png",
+      "resolvedAt": "2026-10-26T03:14:51.926126+08:00",
+      "nativeSourceCommit": "ce44164f",
+      "rootIndependentEvidence": [
+        "r116-root-independent-actual-db-tar-prefs-final-review.json",
+        "r116-root-direct-three-image-bytes-installed-artifact-readonly-review.json"
+      ],
+      "frozenNativeManifestSHA256": "3962d431da510d8751a7c195ccfcff192349fb9c363a8e3f028a2e311c462be5",
+      "actualVisual": "Root逐原PNG看R116 A/B/C白Android系统栏及iOS深Home白系统栏；不是gallery局部theme推断"
     }
   ],
   "latestInstalledCandidate": {
@@ -1171,7 +1197,7 @@
     {
       "id": "A",
       "name": "洞察页",
-      "status": "R115主要实际流程已通过；R116深色系统栏与新版合并源增量验收中，独立报告待封存",
+      "status": "R115主要实际流程、R116深色增量及Root源码连续性/数据/原图复核通过；新版报告待封存",
       "url": "boards/insights-task-a-review.html",
       "flutterCommit": "0c730777",
       "flutterApproved": true
@@ -1179,7 +1205,7 @@
     {
       "id": "B",
       "name": "资产页",
-      "status": "R116首点顶部提示已实际跳至懒挂载隐藏区；保留R115旧FAIL，待最终数据复核与报告",
+      "status": "R116首次隐藏定位与深色实际增量、Root逐表/文件/视觉复核通过；独立新版报告待封存",
       "url": "boards/assets-task-b-review.html",
       "flutterCommit": "de25c879",
       "flutterApproved": true,
@@ -1188,7 +1214,7 @@
     {
       "id": "C",
       "name": "交易明细行",
-      "status": "C3 Flutter、主demo/规范及详情/日历所有残留消费者已统一；R116两平台实际验收中",
+      "status": "R116主要实际流程与数据守卫通过，但最终USD转账行有1.3px真实溢出FAIL；最小修复回归中，待R117补验，不标新版通过",
       "url": "boards/transaction-rows-task-c-review.html",
       "designCommit": "e00a31e6",
       "approvedHtmlSha256": "643833f7d50be973e5e08296ef84d01c096743a1086a02636de08b293f66177c",
@@ -1213,7 +1239,7 @@
     {
       "id": "E",
       "name": "启动页 · 一笔成形",
-      "status": "日间方案B、系统栏及平铺验收目录已合入；R116两平台启动/深色增量验收中",
+      "status": "R116原生安全局部层/真实深色系统栏与共同normal完成；冷启首帧未捕获、系统减弱动效未执行，Widget边界分列；基础目录两缺失样例补齐待R117",
       "url": "boards/splash-task-e-review.html?concept=trail",
       "designCommit": "c0eeb0e8",
       "approvedHtmlSha256": "cb3b28761dd234ad803c6a5b54eb74be80fd1c02c1156d651f1ed0ee0f12f665",
