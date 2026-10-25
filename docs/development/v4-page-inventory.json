@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-25T15:58:54+08:00",
+  "date": "2026-10-25T16:30:09+08:00",
   "branch": "v4",
   "pageFiles": 73,
   "helperFiles": [
@@ -2471,13 +2471,15 @@
       ],
       "designMapping": "已定位",
       "components": "详情金额/历史折算、分类/账户/账本/日期/备注/标签、平铺附件与编辑复制小票",
-      "acceptance": "保留列表点击直接编辑，另设长按详情；分类图标导航、原币/本位币历史快照、隐私、附件实际文件/预览、编辑返回刷新、复制与原小票服务；固定产物和真实UI尚待验收。",
-      "status": "迁移中·详情及菜单代码已交付，待统一产物与整页验收",
+      "acceptance": "16稳定图/21文件独立包通过三宽/脱敏/ZIP/manifest并root审阅只读封存。源码0272614c/APK97819bb8，固定历史版本；同数据已更新R105，不将旧动作称为新版本执行。小票保存/分享及Cloud/iOS/异常权限等分别单列；原AndroidApp页面范围完成。",
+      "status": "已完成",
       "name": "账单详情",
       "priority": "P0",
-      "reason": "r94普通点击编辑/分类图标导航保持，长按新增详情、平铺附件/历史折算/复制编辑小票已组件化；34项回归/14文件静态与26组HTML通过。补批量长按消费及窄屏标签溢出，不改原财务服务；尚未真机，不计完成。",
-      "implementationStage": "implemented",
+      "reason": "R98实际支出三图平铺/大图、美元转账历史快照、收入隐私还原、账户往返、直接编辑/长按详情、复制新69再按原确认删除、原小票预览取消及正常launcher重启通过；原64交易/31表与附件保持。图片严格区分编辑入口和复制表单，不用加载态作回显证据。",
+      "implementationStage": "accepted",
       "newInV4": true,
+      "acceptanceReport": ".docs/acceptance/v4-migration/2026-10-25/transaction-detail-r98/index.html",
+      "acceptanceZipSha256": "782acf6615226d3db95bd366a96a8521fe981b59fd20c4bf0796984579364853",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=detail",
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-foreign-detail",

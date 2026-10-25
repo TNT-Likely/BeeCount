@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25T15:58:54+08:00",
+  "updated": "2026-10-25T16:30:09+08:00",
   "branch": "v4",
   "baselineCommit": "6616066247a8738a42996c496e1b99106820e59f",
   "pages": {
@@ -614,18 +614,20 @@
     "transaction/transaction_detail_page.dart": {
       "name": "账单详情",
       "priority": "P0",
-      "status": "迁移中·详情及菜单代码已交付，待统一产物与整页验收",
+      "status": "已完成",
       "batch": "M2 首页与列表",
       "designRoutes": [
         "detail",
         "flow-foreign-detail",
         "flow-attachment-grid"
       ],
-      "reason": "r94普通点击编辑/分类图标导航保持，长按新增详情、平铺附件/历史折算/复制编辑小票已组件化；34项回归/14文件静态与26组HTML通过。补批量长按消费及窄屏标签溢出，不改原财务服务；尚未真机，不计完成。",
-      "implementationStage": "implemented",
+      "reason": "R98实际支出三图平铺/大图、美元转账历史快照、收入隐私还原、账户往返、直接编辑/长按详情、复制新69再按原确认删除、原小票预览取消及正常launcher重启通过；原64交易/31表与附件保持。图片严格区分编辑入口和复制表单，不用加载态作回显证据。",
+      "implementationStage": "accepted",
       "components": "详情金额/历史折算、分类/账户/账本/日期/备注/标签、平铺附件与编辑复制小票",
-      "acceptance": "保留列表点击直接编辑，另设长按详情；分类图标导航、原币/本位币历史快照、隐私、附件实际文件/预览、编辑返回刷新、复制与原小票服务；固定产物和真实UI尚待验收。",
-      "newInV4": true
+      "acceptance": "16稳定图/21文件独立包通过三宽/脱敏/ZIP/manifest并root审阅只读封存。源码0272614c/APK97819bb8，固定历史版本；同数据已更新R105，不将旧动作称为新版本执行。小票保存/分享及Cloud/iOS/异常权限等分别单列；原AndroidApp页面范围完成。",
+      "newInV4": true,
+      "acceptanceReport": ".docs/acceptance/v4-migration/2026-10-25/transaction-detail-r98/index.html",
+      "acceptanceZipSha256": "782acf6615226d3db95bd366a96a8521fe981b59fd20c4bf0796984579364853"
     },
     "report/share_card_page.dart": {
       "name": "分享卡片",
@@ -871,17 +873,17 @@
     "reason": "按用户要求临时关闭，避免每次推送触发PR的AI Eval；v4继续开发和推送，全部迁移与验收准备好再恢复PR。"
   },
   "currentProgress": {
-    "updatedAt": "2026-10-25T15:58:54+08:00",
-    "engineeringEstimatePercent": 68,
+    "updatedAt": "2026-10-25T16:30:09+08:00",
+    "engineeringEstimatePercent": 69,
     "engineeringEstimateRange": [
-      65,
-      71
+      66,
+      72
     ],
-    "completedPages": 41,
+    "completedPages": 42,
     "totalPages": 73,
     "totalP0Pages": 17,
-    "completedP0Pages": 14,
-    "basis": "41/73严格整页完成，32页代码交付待整页。R98分类/标签跨本位币与正常重启独立包封存；9个P2与Q20/galleries的R104候选983产品文件匹配及298组合回归通过，未安装。新发现分类弹窗长列表展开问题已有Flutter/HTML修复与22回归待原生；Cloud/导入文件等闭环仍占主要剩余工时。",
+    "completedP0Pages": 15,
+    "basis": "严格42/73；新增账单详情R98独立包封存，剩记账/搜索两个P0继续多版本增量收口。R105真实批量与记账更多分类行内展开/取消已通过，64/57数据保持。子代理已独占同一安卓验收P2，Root并行离线报告与Cloud/iOS准备；iOS独有捐赠页不拿安卓debug替代。",
     "remainingEffortEstimateHours": [
       12,
       24
@@ -891,10 +893,10 @@
   "lastImplementationDelivery": {
     "at": "2026-10-25T15:30:48+08:00",
     "commit": "cabfaff9aa8796f161396a108e2105daa7992532",
-    "completedNativePages": 41,
-    "implementedPendingNativePages": 32,
+    "completedNativePages": 42,
+    "implementedPendingNativePages": 31,
     "inImplementationPages": 0,
     "candidateInstalled": false,
-    "latestNativeAuditAt": "2026-10-25T15:58:54+08:00"
+    "latestNativeAuditAt": "2026-10-25T16:30:09+08:00"
   }
 }
