@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25T22:06:23+08:00",
+  "updated": "2026-10-25T22:38:33.093795+08:00",
   "branch": "v4",
   "baselineCommit": "6616066247a8738a42996c496e1b99106820e59f",
   "pages": {
@@ -947,7 +947,7 @@
     "reason": "按用户要求临时关闭，避免每次推送触发PR的AI Eval；v4继续开发和推送，全部迁移与验收准备好再恢复PR。"
   },
   "currentProgress": {
-    "updatedAt": "2026-10-25T22:06:23+08:00",
+    "updatedAt": "2026-10-25T22:38:33.093795+08:00",
     "engineeringEstimatePercent": 85,
     "engineeringEstimateRange": [
       82,
@@ -957,7 +957,7 @@
     "totalPages": 73,
     "totalP0Pages": 17,
     "completedP0Pages": 17,
-    "basis": "严格65/73（89.0%）、P017/17，本小时0新封存。C2当前本三向/原图与owner三scope/移除/真实Web失权完成，但R113 A接受B触发全局历史重放，已推新账单note/time及ledger4月日回退，故C3/Cloud仍FAIL不计完成。正式Cloud历史证明确：旧foreign先、最新native事件被device过滤；Cloud当前正确。两代理并行最小目标/full水合和启动新账本补拉修复，保留普通增量/全局cursor/原71记录；Android原退出只做安全清理，R113 iOS本地3原生用例/31表23PNG保护完成。预计仍9–17h，不按页数线性扣减。",
+    "basis": "严格65/73（89.0%）、P0 17/17，仍无新增整页封存。R113真实共享加入发现旧foreign历史覆盖原已推账单note/time与账期；R114 c21b378a改为仅目标正式快照，并保护本地待推变更、HTTP期间账本删除竞态及精确override清理，6文件143项通过。单次提交构建/同QA升级完成，1028产品源/SDK18核验，71笔/all31/24持久文件与Prefs升级前后精确保持；原生C2恢复、fresh B加入/退出及C4 DAV/首次Cloud创建8接续中。快速回归不计整页完成。工程85%（82–88），剩余仍9–17小时，待实际同步闭环后调整。",
     "remainingEffortEstimateHours": [
       9,
       17
@@ -987,9 +987,9 @@
     {
       "id": "R113-CLOUD-INVITE-REPLAY",
       "page": "cloud/join_shared_ledger_page.dart",
-      "status": "真实失败·目标快照水合与启动补拉安全修复进行中",
+      "status": "R114目标快照与启动发现修复已安装·原UI恢复和真实加入/退出复验中",
       "reportedPlatform": "Android R113 f536 / same isolated Cloud",
-      "sourceFix": null,
+      "sourceFix": "c21b378a0322a0b48da631a9ff438f69574474cc",
       "summary": "接受共享账本时全局since0重放旧foreign事件，最新自身事件被Cloud/App设备过滤，原账期8→1及已同步新账单note/time回退；Cloud最新正确，原70其余交易/8文件保持。",
       "question": "Q26",
       "detectedAt": "2026-10-25T22:06:23+08:00"
@@ -1009,8 +1009,8 @@
   ],
   "latestInstalledCandidate": {
     "platform": "Android",
-    "sourceCommit": "f536d6db081c55bb5f6afce2da092ce5ed1a405f",
-    "androidApkSha256": "dd56e143f7974d1096b92ed70f8267fa68e4d84d5d9b723906b56140a713862d",
+    "sourceCommit": "c21b378a0322a0b48da631a9ff438f69574474cc",
+    "androidApkSha256": "e37427b9f7f35ce70d357ee2db9126bd18bd351147aab1aff5f7334c4052d6f3",
     "verifiedCommittedProductFiles": 1028,
     "verifiedSdkDartFiles": 18,
     "sameRetainedQA": true,
@@ -1020,20 +1020,27 @@
     "protectedUserAppUnchanged": true
   },
   "latestInstalledIOSCandidate": {
-    "sourceCommit": "c7d6421800f1135d46ede6598370f0305f1cc552",
-    "signedFileTreeSha256": "d81e4ac7db5dab8b4a362ab125e5d5cb2357ad50294562b005d5e1c3e8f2baf5",
+    "sourceCommit": "f536d6db081c55bb5f6afce2da092ce5ed1a405f",
+    "signedFileTreeSha256": "b73c3edcc6619e674d078aa25c952cde10a6f8e12a72a3007bce7ba6794252ee",
     "sameRetainedQA": true,
     "qaDataPreservedBeforeNormalLaunch": true,
-    "visualIncrementalAcceptance": "Actual 4 native cases and one shared normal main complete; root report closure in review, historical R108/R109 reports unchanged"
+    "verifiedCommittedProductFiles": 1028,
+    "verifiedSdkDartFiles": 18,
+    "actualInstalledFileManifestEntries": 888,
+    "rootIndependentOfflineReviewSha256": "d992950e6a3d239189bbe97d4b21837a770fc33bdf393c7cd56e25711f390e08",
+    "visualIncrementalAcceptance": "Actual3 readonly native cases and one shared normal main; Root re-read3 actual SQLite backups/all31 full fields and23 PNG bytes, compared actual preference values. Existing AutoBilling action visible, Logs real BeeDialog open/close. R114 Cloud not claimed; historical reports unchanged."
   },
   "latestCorrectionDelivery": {
-    "at": "2026-10-25T21:38:59+08:00",
-    "sourceCommit": "f536d6db081c55bb5f6afce2da092ce5ed1a405f",
-    "issue": "R111-CLOUD-MONTH-START",
-    "relatedTestsPassed": 135,
+    "at": "2026-10-25T22:38:33.093795+08:00",
+    "sourceCommit": "c21b378a0322a0b48da631a9ff438f69574474cc",
+    "issue": "R113-CLOUD-INVITE-REPLAY",
+    "relatedTestsPassed": 143,
     "productFiles": 2,
-    "productAddedLines": 7,
     "sameQAInstalled": true,
-    "nativeRecoveryAndFirstCreateValidation": "pending"
+    "sourceProductFilesVerified": 1028,
+    "qaTransactionsBeforeAndAfterInstall": 71,
+    "all24PersistentFilesAndPreferencesBeforeNormalLaunchExact": true,
+    "nativeRecoveryAndFreshTargetJoinLeaveValidation": "in_progress",
+    "ordinaryCursorAndDeviceFilterUnchanged": true
   }
 }

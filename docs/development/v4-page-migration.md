@@ -1,6 +1,6 @@
 # V4 完整页面迁移清单与优先级
 
-更新：2026-10-25T22:06:23+08:00。分支：`v4`。由 `tool/v4/build_migration_inventory.py` 扫描生成，人工决策保存在 [migration-status.json](../../tool/v4/migration-status.json)。
+更新：2026-10-25T22:38:33.093795+08:00。分支：`v4`。由 `tool/v4/build_migration_inventory.py` 扫描生成，人工决策保存在 [migration-status.json](../../tool/v4/migration-status.json)。
 
 现有 **73 个产品页面源文件**（P0 17 页、P1 43 页、P2 13 页），另有 **0 个新设计页面待新增**、6 个页面旁辅助文件和下方关联弹窗/表单。三个开发验收页不计入产品迁移进度。每个源文件均有设计入口，设计场景与代码页面不是一对一关系。
 
