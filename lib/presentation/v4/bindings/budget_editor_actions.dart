@@ -55,7 +55,7 @@ mixin _BudgetEditorActions on ConsumerState<BudgetEditPage> {
   }
 
   Future<void> _pickCategory() async {
-    if (_saving || _loading) return;
+    if (_saving || _loading || widget.budget != null) return;
     final l = AppLocalizations.of(context);
     final selected = await showBeeSheet<Category>(context,
         title: l.budgetCategoryLabel,

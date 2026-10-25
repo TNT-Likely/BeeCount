@@ -310,7 +310,7 @@ class BeeBudgetEditorForm extends StatelessWidget {
                   subtitle: categoryName ?? categoryHint,
                   leading:
                       categoryIcon ?? const BeeLineIcon('Shapes', size: 20),
-                  onTap: enabled ? onCategory : null)),
+                  onTap: enabled && !editing ? onCategory : null)),
           const SizedBox(height: 12)
         ],
         BeeSurface(

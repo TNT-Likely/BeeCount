@@ -349,7 +349,7 @@ void main() {
     expect((await repo.getAllBudgets(1)).single.amount, 99.25);
     await close(t);
   });
-  testWidgets('Q18保留原编辑写入范围，分类草稿选择不擅自改原财务归属', (t) async {
+  testWidgets('Q18 A编辑预算分类只读，金额与原身份仍正常保存', (t) async {
     final other = await repo.createCategory(
         name: '其他支出父级', kind: 'expense', icon: 'shopping');
     final id = await repo.createBudget(
@@ -366,10 +366,11 @@ void main() {
             .widget<BeeBudgetEditorForm>(find.byType(BeeBudgetEditorForm))
             .categoryName,
         '合成咖啡');
+    expect(t.widget<BeeMenuRow>(find.byType(BeeMenuRow)).onTap, isNull);
     await t.tap(find.byType(BeeMenuRow));
-    await ready(t, find.byType(BeeChoicePicker<Category>));
-    await t.tap(find.text('其他支出父级'));
     await t.pumpAndSettle();
+    expect(find.byType(BeeChoicePicker<Category>), findsNothing);
+    expect(find.text('其他支出父级'), findsNothing);
     await t.enterText(find.byType(TextField), '550.25');
     await save(t);
     final saved = (await repo.getAllBudgets(1)).firstWhere((b) => b.id == id);
