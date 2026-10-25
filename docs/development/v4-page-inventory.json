@@ -460,12 +460,12 @@
         "flow-provider-delete"
       ],
       "designMapping": "已定位",
-      "components": "消息、配置表单、授权、任务状态与列表",
-      "acceptance": "沿用原 AI 服务与权限，保留配置草稿、能力绑定、执行反馈、失败重试和取消。",
-      "status": "迁移中·原实现备份及App草稿/请求控制器5项通过，待UI/设计与真机闭环",
+      "components": "基础静态标签/外部字段标签、服务商能力卡、模型测试字段、配置弹窗、App请求/缓存/保存/删除绑定",
+      "acceptance": "476796f6提交源码858产品文件及lock与APK核对，118项/20文件提交副本回归、18文件静态0问题；24组HTML/341场景/77组规范/42基础控件及12场景最终导出通过。同一QA内置名称/地址锁定与密钥默认隐藏已实测，新增流程正在修正微信实体键盘IME转换/自动化返回关闭弹窗的驱动问题；尚未发起真实AI请求，不计整页完成。",
+      "status": "迁移中·118项回归/18文件静态及24组HTML通过，真机新增与真实连接待闭环",
       "name": "AI 服务商管理",
       "priority": "P1",
-      "reason": "原1075行含管理/编辑和Factory/Manager/模型常量共五文件备份。纯服务卡/测试字段和基础静态标签起草，App控制器保留新增/编辑、内置身份、三能力并行测试/缓存/取消与保存状态，5项合成数据回归通过。尚未替换正式页，不计完成。",
+      "reason": "原1075行管理/编辑及Factory/Manager/配置/常量五文件已只读备份。正式页已拆纯服务卡、模型测试字段、基础静态标签与App真实管理/编辑绑定；内置限制、三能力测试、详细失败原因及原保存/删除回退保留。当前完成代码/设计和提交副本回归，真机闭环进行中。",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-providers",
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-providers-many",
