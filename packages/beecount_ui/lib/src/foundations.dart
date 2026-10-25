@@ -122,6 +122,7 @@ class BeeField extends StatelessWidget {
   const BeeField(
       {super.key,
       required this.label,
+      this.showLabel = true,
       this.controller,
       this.hint,
       this.helper,
@@ -145,7 +146,7 @@ class BeeField extends StatelessWidget {
   final String label;
   final TextEditingController? controller;
   final String? hint, helper, error;
-  final bool enabled, obscure;
+  final bool enabled, obscure, showLabel;
   final ValueChanged<String>? onChanged;
   final TextInputType? keyboardType;
   final int? maxLength;
@@ -162,6 +163,7 @@ class BeeField extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Semantics(
       container: true,
+      label: showLabel ? null : label,
       child: TextFormField(
           controller: controller,
           readOnly: readOnly,
@@ -182,7 +184,7 @@ class BeeField extends StatelessWidget {
           decoration: InputDecoration(
               prefixIcon: prefixIcon,
               suffixIcon: suffixIcon,
-              labelText: label,
+              labelText: showLabel ? label : null,
               floatingLabelBehavior: FloatingLabelBehavior.always,
               labelStyle: TextStyle(
                   fontSize: 12,
@@ -407,6 +409,16 @@ class BeeSection extends StatelessWidget {
 
 enum BeeTone { neutral, success, warning, error, busy }
 
+Color beeToneColor(BuildContext context, BeeTone tone) {
+  final dark = Theme.of(context).brightness == Brightness.dark;
+  return switch (tone) {
+    BeeTone.success => dark ? const Color(0xff8bd4aa) : const Color(0xff38845c),
+    BeeTone.warning => dark ? const Color(0xfff5d580) : const Color(0xff88620c),
+    BeeTone.error => dark ? const Color(0xffffb3b3) : const Color(0xffb54242),
+    _ => Theme.of(context).colorScheme.onSurface
+  };
+}
+
 class BeeStatus extends StatelessWidget {
   const BeeStatus(
       {super.key,
@@ -425,15 +437,7 @@ class BeeStatus extends StatelessWidget {
   final String? dismissLabel;
   @override
   Widget build(BuildContext context) {
-    final dark = Theme.of(context).brightness == Brightness.dark;
-    final color = switch (tone) {
-      BeeTone.success =>
-        dark ? const Color(0xff8bd4aa) : const Color(0xff38845c),
-      BeeTone.warning =>
-        dark ? const Color(0xfff5d580) : const Color(0xff88620c),
-      BeeTone.error => dark ? const Color(0xffffb3b3) : const Color(0xffb54242),
-      _ => Theme.of(context).colorScheme.onSurface
-    };
+    final color = beeToneColor(context, tone);
     return Semantics(
         liveRegion: true,
         child: Row(children: [

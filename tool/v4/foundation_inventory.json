@@ -62,7 +62,8 @@
         "counter",
         "input-format",
         "submit",
-        "own-semantic-boundary"
+        "own-semantic-boundary",
+        "external_label"
       ],
       "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
     },
@@ -596,6 +597,20 @@
         "short-screen-scroll-host"
       ],
       "sampleCoverage": "Foundation22 HSV/multiline named palette, production theme dialog and widget tests"
+    },
+    {
+      "component": "BeeLabel",
+      "cases": [
+        13
+      ],
+      "supportedStates": [
+        "neutral",
+        "accent",
+        "leading",
+        "muted",
+        "noninteractive"
+      ],
+      "sampleCoverage": "14: static neutral/accent/leading/muted metadata with no button semantics"
     }
   ]
 }

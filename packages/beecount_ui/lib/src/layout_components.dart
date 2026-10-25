@@ -240,3 +240,32 @@ class BeeActionBar extends StatelessWidget {
         child: safeArea ? SafeArea(top: false, child: bar) : bar);
   }
 }
+
+/// Compact, non-interactive metadata. Selection controls use BeeChoiceChip.
+class BeeLabel extends StatelessWidget {
+  const BeeLabel(
+      {super.key,
+      required this.label,
+      this.leading,
+      this.accent = false,
+      this.muted = false});
+  final String label;
+  final Widget? leading;
+  final bool accent, muted;
+  @override
+  Widget build(BuildContext context) => Opacity(
+      opacity: muted ? .4 : 1,
+      child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+          decoration: BoxDecoration(
+              color: accent
+                  ? Theme.of(context).colorScheme.primary.withValues(alpha: .13)
+                  : BeeCardTheme.of(context).soft,
+              borderRadius: BorderRadius.circular(8)),
+          child: Row(mainAxisSize: MainAxisSize.min, children: [
+            if (leading != null) ...[leading!, const SizedBox(width: 4)],
+            Flexible(
+                child: Text(label,
+                    style: const TextStyle(fontSize: 11, height: 1.4))),
+          ])));
+}

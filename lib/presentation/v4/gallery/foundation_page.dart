@@ -151,6 +151,11 @@ class _FoundationAcceptancePageState extends State<FoundationAcceptancePage> {
             const SizedBox(height: 16),
             const BeeField(label: '只读内容', hint: '日常生活', enabled: false),
             const SizedBox(height: 16),
+            const Text('外置字段标题'),
+            const SizedBox(height: 4),
+            const BeeField(
+                label: '外置字段标题', hint: '不重复浮动标题，保留无障碍标签', showLabel: false),
+            const SizedBox(height: 16),
             const BeeField(label: '备注', maxLines: 3, maxLength: 100),
             BeeSearchField(
                 hint: '搜索账单',
@@ -575,6 +580,14 @@ class _FoundationAcceptancePageState extends State<FoundationAcceptancePage> {
                                 : (v) => setState(() => choices = v
                                     ? {...choices, i}
                                     : ({...choices}..remove(i)))))),
+                const SizedBox(height: 8),
+                const Wrap(spacing: 8, runSpacing: 8, children: [
+                  BeeLabel(label: '内置服务', accent: true),
+                  BeeLabel(
+                      label: '已配置',
+                      leading: BeeLineIcon('CircleCheck', size: 14)),
+                  BeeLabel(label: '未启用', muted: true),
+                ]),
                 const SizedBox(height: 8),
                 Wrap(spacing: 6, children: [
                   BeeChoiceChip(
