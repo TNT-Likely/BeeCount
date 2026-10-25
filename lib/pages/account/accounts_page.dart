@@ -13,15 +13,12 @@ import '../../providers.dart';
 import '../../services/billing/post_processor.dart';
 import '../../services/currency/rate_math.dart';
 import '../../widgets/ui/ui.dart';
-import '../../widgets/biz/amount_text.dart';
 import '../../data/db.dart' as db;
 import '../../l10n/app_localizations.dart';
 import '../../styles/tokens.dart';
 import '../../utils/ui_scale_extensions.dart';
 import '../../utils/account_type_utils.dart';
 import '../../utils/currencies.dart';
-import '../../widgets/charts/asset_composition_chart.dart';
-import '../../widgets/charts/line_chart.dart';
 import '../../utils/net_worth_trend_utils.dart';
 import '../currency/exchange_rate_page.dart';
 import 'account_edit_page.dart';
@@ -29,6 +26,7 @@ import 'account_detail_page.dart';
 import 'net_worth_trend_page.dart';
 
 part '../../presentation/v4/bindings/account_overview.dart';
+part '../../presentation/v4/bindings/assets_card_actions.dart';
 
 class AccountsPage extends ConsumerStatefulWidget {
   final bool asTab;
@@ -100,6 +98,12 @@ class _AccountsPageState extends ConsumerState<AccountsPage>
   }
 
   @override
+  void dispose() {
+    _assetListController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     return V4PageScaffold(
@@ -108,16 +112,22 @@ class _AccountsPageState extends ConsumerState<AccountsPage>
           title: widget.asTab ? l.tabAssets : l.accountsTitle,
           leading: widget.asTab ? null : const BackButton(),
           actions: [
-            BeeIconButton(
-                label: l.accountAddTooltip,
-                icon: const BeeLineIcon('Plus'),
-                onPressed: () => _addAccount(
-                    context, ref, ref.read(currentLedgerIdProvider))),
-            const BeeAssetsHeaderEntryBinding(),
+            DecoratedBox(
+                decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Theme.of(context)
+                        .colorScheme
+                        .primary
+                        .withValues(alpha: .12)),
+                child: BeeIconButton(
+                    label: l.accountAddTooltip,
+                    icon: const BeeLineIcon('Plus'),
+                    onPressed: () => _addAccount(
+                        context, ref, ref.read(currentLedgerIdProvider)))),
             BeeIconButton(
                 label: l.commonSettings,
-                icon: const BeeLineIcon('Settings2'),
-                onPressed: _showSettingsSheet),
+                icon: const BeeLineIcon('Ellipsis'),
+                onPressed: _showAssetMore),
           ]),
       Expanded(child: _buildAccountsBody(context)),
     ]));

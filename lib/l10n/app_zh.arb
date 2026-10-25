@@ -3762,5 +3762,26 @@
   "@v4InsightsAmountUnit": {"placeholders": {"currency": {"type": "String"}}},
   "v4InsightsCollapseCategories": "收起分类",
   "v4InsightsAllCategories": "全部 {count} 个分类",
-  "@v4InsightsAllCategories": {"placeholders": {"count": {"type": "int"}}}
+  "@v4InsightsAllCategories": {"placeholders": {"count": {"type": "int"}}},
+  "v4AssetsAllAccounts": "全部账户",
+  "v4AssetsByCurrency": "按币种查看",
+  "v4AssetsUnifiedConversion": "统一折算",
+  "v4AssetsCurrencyView": "金额显示方式",
+  "v4AssetsHiddenIncluded": "隐藏账户仍计入净资产",
+  "v4AssetsIncludesHidden": "含 {count} 个隐藏账户",
+  "v4AssetsOrder": "账户排序",
+  "v4AssetsOrderHint": "在同一账户类型内调整顺序，不改变余额。",
+  "v4AssetsSeparateCurrencyHint": "分别查看各币种，不混合相加。",
+  "v4AssetsOriginal": "原币",
+  "v4AssetsDefaultExpense": "默认支出",
+  "v4AssetsDefaultIncome": "默认收入",
+  "v4AssetsTrend": "趋势",
+  "v4AssetsComposition": "构成",
+  "@v4AssetsIncludesHidden": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

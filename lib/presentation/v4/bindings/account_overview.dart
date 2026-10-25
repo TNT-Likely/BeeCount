@@ -1,6 +1,14 @@
 part of '../../../pages/account/accounts_page.dart';
 
 mixin _AccountsOverviewBindings on ConsumerState<AccountsPage> {
+  String _assetAccountFilter = 'all';
+  bool _assetOriginalCurrency = false;
+  String? _assetCurrency;
+  int? _assetTrendIndex;
+  final _assetListController = ScrollController();
+  final _assetHiddenKey = GlobalKey();
+  void _updateAssetView(VoidCallback update) => setState(update);
+
   Map<String, List<db.Account>>? get _reorderingGroups;
   Map<String, List<db.Account>> _groupAccounts(List<db.Account> accounts);
   void _onReorder(
@@ -21,6 +29,7 @@ mixin _AccountsOverviewBindings on ConsumerState<AccountsPage> {
         final groups = _reorderingGroups ?? _groupAccounts(accounts);
 
         return ListView(
+          controller: _assetListController,
           padding: EdgeInsets.only(
             left: 17,
             right: 17,
@@ -52,37 +61,61 @@ mixin _AccountsOverviewBindings on ConsumerState<AccountsPage> {
                 primaryColor,
               ),
 
+              BeeAssetAccountToolbar(
+                  items: [
+                    BeeSegment('all', l10n.v4AssetsAllAccounts),
+                    BeeSegment('assets', l10n.assetAccounts),
+                    BeeSegment('liabilities', l10n.liabilityAccounts)
+                  ],
+                  value: _assetAccountFilter,
+                  onChanged: (value) =>
+                      setState(() => _assetAccountFilter = value),
+                  searchLabel: l10n.commonSearch,
+                  onSearch: () => _showAssetSearch(accounts),
+                  orderLabel: l10n.v4AssetsOrder,
+                  onOrder: () => _showAssetOrder(accounts)),
+
+              if ((_assetAccountFilter == 'assets' &&
+                      !accounts.any((a) => !a.hidden && isAssetType(a.type))) ||
+                  (_assetAccountFilter == 'liabilities' &&
+                      !accounts
+                          .any((a) => !a.hidden && isLiabilityType(a.type))))
+                BeeSurface(child: BeeStatus(label: l10n.widgetNoAccounts)),
+
               // 2. 资产账户分组
-              ..._buildClassificationSection(
-                context: context,
-                l10n: l10n,
-                title: l10n.assetAccounts,
-                icon: Icons.trending_up,
-                iconColor: BeeTokens.incomeColor(context, ref),
-                typeOrder: assetTypeOrder,
-                groups: groups,
-                allStats: allStatsAsync.valueOrNull,
-                primaryColor: primaryColor,
-                ledgerId: ledgerId,
-              ),
+              if (_assetAccountFilter != 'liabilities')
+                ..._buildClassificationSection(
+                  context: context,
+                  l10n: l10n,
+                  title: l10n.assetAccounts,
+                  icon: Icons.trending_up,
+                  iconColor: BeeTokens.incomeColor(context, ref),
+                  typeOrder: assetTypeOrder,
+                  groups: groups,
+                  allStats: allStatsAsync.valueOrNull,
+                  primaryColor: primaryColor,
+                  ledgerId: ledgerId,
+                ),
 
               // 3. 负债账户分组
-              ..._buildClassificationSection(
-                context: context,
-                l10n: l10n,
-                title: l10n.liabilityAccounts,
-                icon: Icons.trending_down,
-                iconColor: BeeTokens.expenseColor(context, ref),
-                typeOrder: liabilityTypeOrder,
-                groups: groups,
-                allStats: allStatsAsync.valueOrNull,
-                primaryColor: primaryColor,
-                ledgerId: ledgerId,
-              ),
+              if (_assetAccountFilter != 'assets')
+                ..._buildClassificationSection(
+                  context: context,
+                  l10n: l10n,
+                  title: l10n.liabilityAccounts,
+                  icon: Icons.trending_down,
+                  iconColor: BeeTokens.expenseColor(context, ref),
+                  typeOrder: liabilityTypeOrder,
+                  groups: groups,
+                  allStats: allStatsAsync.valueOrNull,
+                  primaryColor: primaryColor,
+                  ledgerId: ledgerId,
+                ),
 
               // 4. 其他未知类型(排除隐藏账户,账户隐藏 #240)
               ...groups.keys
                   .where((type) =>
+                      _assetAccountFilter != 'liabilities' &&
                       !accountTypeOrder.contains(type) &&
                       groups[type]!.any((a) => !a.hidden))
                   .map((type) {
@@ -90,6 +123,7 @@ mixin _AccountsOverviewBindings on ConsumerState<AccountsPage> {
                     groups[type]!.where((a) => !a.hidden).toList();
                 return AccountTypeGroupBinding(
                   key: ValueKey('account-type-$type'),
+                  compact: true,
                   type: type,
                   accounts: groupList,
                   primaryColor: primaryColor,
@@ -105,6 +139,8 @@ mixin _AccountsOverviewBindings on ConsumerState<AccountsPage> {
               // 5. 已隐藏账户分区(账户隐藏 #240,D2:主列表退场,
               // 分区头小计与净资产卡差额对账)
               HiddenAccountsSectionBinding(
+                key: _assetHiddenKey,
+                compact: true,
                 accounts: accounts.where((a) => a.hidden).toList(),
                 allStats: allStatsAsync.valueOrNull,
                 primaryColor: primaryColor,
@@ -144,8 +180,8 @@ mixin _AccountsOverviewBindings on ConsumerState<AccountsPage> {
       Color primaryColor) {
     final l = AppLocalizations.of(context);
     final multiCurrency = ref.watch(multiCurrencyActiveProvider);
-    final showComposition =
-        (netWorthAsync.valueOrNull?.length ?? 1) <= 1 || multiCurrency;
+    final showComposition = (netWorthAsync.valueOrNull?.length ?? 1) <= 1 ||
+        (!_assetOriginalCurrency && multiCurrency);
     final composition = multiCurrency
         ? ref.watch(convertedAssetCompositionProvider)
         : compositionAsync;
@@ -158,7 +194,7 @@ mixin _AccountsOverviewBindings on ConsumerState<AccountsPage> {
           data: (data) => _buildNetWorthContent(context, ref, data),
           loading: () => const BeeSurface(
               child: SizedBox(
-                  height: 100,
+                  height: 160,
                   child: Center(
                       child: CircularProgressIndicator(strokeWidth: 2)))),
           error: (_, __) => BeeStatus(
@@ -168,45 +204,45 @@ mixin _AccountsOverviewBindings on ConsumerState<AccountsPage> {
                   label: l.helpCenterRetry,
                   onPressed: () =>
                       ref.invalidate(netWorthBreakdownByCurrencyProvider)))),
-      const SizedBox(height: 12),
+      const SizedBox(height: 11),
       BeeAssetChartSection<AssetTrendView>(
+          compact: true,
           title: view == AssetTrendView.trend
               ? l.netWorthTrendTitle
               : l.assetComposition,
-          segments: showComposition
-              ? [
-                  BeeSegment(AssetTrendView.trend, l.netWorthTrendTitle),
-                  BeeSegment(AssetTrendView.composition, l.assetComposition)
-                ]
-              : const [],
+          segments: [
+            BeeSegment(AssetTrendView.trend, l.v4AssetsTrend),
+            BeeSegment(AssetTrendView.composition, l.v4AssetsComposition,
+                enabled: showComposition)
+          ],
           selected: view,
           onSelected: (value) =>
               ref.read(assetTrendViewProvider.notifier).select(value),
-          detailLabel: l.commonDetail,
-          onDetails: view == AssetTrendView.trend
-              ? () => Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const NetWorthTrendPage()))
-              : null,
           child: view == AssetTrendView.trend
-              ? Column(mainAxisSize: MainAxisSize.min, children: [
-                  _buildNetWorthChartInline(context, ref),
-                  if (multiCurrency) ...[
-                    const SizedBox(height: 8),
-                    Text(l.netWorthTrendMultiCurrencyNote,
-                        style: TextStyle(
-                            fontSize: 11, color: Theme.of(context).hintColor)),
-                  ],
-                ])
+              ? _buildNetWorthChartInline(context, ref)
               : composition.when(
                   skipLoadingOnReload: true,
-                  data: (data) =>
-                      AssetCompositionChart(data: data, embedded: true),
+                  data: (data) => BeeAssetComposition(
+                      hidden: ref.watch(hideAmountsProvider),
+                      items: [
+                        for (final item in data)
+                          if (item.totalBalance > 0)
+                            BeeAssetAllocation(
+                                label: getAccountTypeLabel(context, item.type),
+                                value: item.totalBalance,
+                                amount: _overviewAmount(item.totalBalance,
+                                    currency: ref.watch(baseCurrencyProvider),
+                                    showCurrency: true))
+                      ],
+                      note: data.any((d) => d.totalBalance < 0)
+                          ? l.negativeAssetBalanceHint
+                          : null),
                   loading: () => const SizedBox(
-                      height: 180,
+                      height: 110,
                       child: Center(
                           child: CircularProgressIndicator(strokeWidth: 2))),
                   error: (_, __) =>
-                      BeeStatus(label: l.commonError, tone: BeeTone.error))),
+                      BeeStatus(label: l.commonError, tone: BeeTone.error)))
     ]);
   }
 
@@ -232,149 +268,129 @@ mixin _AccountsOverviewBindings on ConsumerState<AccountsPage> {
               ({double totalAssets, double totalLiabilities, double netWorth})>
           byCurrency) {
     final l = AppLocalizations.of(context);
-    final multiCurrency = ref.watch(multiCurrencyActiveProvider);
+    final multi = ref.watch(multiCurrencyActiveProvider);
     final converted = ref.watch(convertedNetWorthProvider).valueOrNull;
     final base = ref.watch(baseCurrencyProvider).toUpperCase();
     final useCompact = ref.watch(compactAmountProvider);
-    final hidden = ref.watch(hideAmountsProvider);
-    final isConverted = multiCurrency && converted != null;
-    final singleCurrency = byCurrency.length <= 1;
-    final values = byCurrency.values.firstOrNull ??
+    final isConverted = multi && converted != null && !_assetOriginalCurrency;
+    final code = byCurrency.containsKey(_assetCurrency)
+        ? _assetCurrency!
+        : byCurrency.containsKey(base)
+            ? base
+            : byCurrency.keys.firstOrNull ?? base;
+    final original = byCurrency[code] ??
         (totalAssets: 0.0, totalLiabilities: 0.0, netWorth: 0.0);
-    final soleCurrency = byCurrency.keys.firstOrNull ?? base;
-    final balances = isConverted
-        ? [
-            BeeAssetAmount(
-                _overviewAmount(converted.netWorth,
-                    currency: base, showCurrency: true),
-                approximate: true)
-          ]
-        : singleCurrency
-            ? [
-                BeeAssetAmount(
-                    _overviewAmount(values.netWorth, currency: soleCurrency))
-              ]
-            : [
-                for (final e in byCurrency.entries)
-                  BeeAssetAmount(_overviewAmount(e.value.netWorth,
-                      currency: e.key, showCurrency: true))
-              ];
-    final assets = isConverted
-        ? [
-            '≈ ${_overviewAmount(converted.totalAssets, currency: base, showCurrency: true)}'
-          ]
-        : singleCurrency
-            ? [_overviewAmount(values.totalAssets, currency: soleCurrency)]
-            : [
-                for (final e in byCurrency.entries
-                    .where((e) => e.value.totalAssets != 0))
-                  _overviewAmount(e.value.totalAssets,
-                      currency: e.key, showCurrency: true)
-              ];
-    final liabilities = isConverted
-        ? [
-            '≈ ${_overviewAmount(converted.totalLiabilities.abs(), currency: base, showCurrency: true)}'
-          ]
-        : singleCurrency
-            ? [
-                _overviewAmount(values.totalLiabilities.abs(),
-                    currency: soleCurrency)
-              ]
-            : [
-                for (final e in byCurrency.entries
-                    .where((e) => e.value.totalLiabilities != 0))
-                  _overviewAmount(e.value.totalLiabilities.abs(),
-                      currency: e.key, showCurrency: true)
-              ];
+    final assets = isConverted ? converted.totalAssets : original.totalAssets;
+    final liabilities =
+        isConverted ? converted.totalLiabilities : original.totalLiabilities;
+    final net = isConverted ? converted.netWorth : original.netWorth;
+    final displayCode = isConverted ? base : code;
+    final hiddenAccounts = (ref.watch(allAccountsStreamProvider).valueOrNull ??
+            const <db.Account>[])
+        .where((a) => a.hidden)
+        .length;
     return BeeAssetSummary(
-        title: isConverted
-            ? l.convertedNetWorth(base)
-            : singleCurrency
-                ? '${l.accountTotalBalance} · $soleCurrency'
-                : l.accountTotalBalance,
-        balances: balances,
+        compact: true,
+        title: l.accountTotalBalance,
+        balances: [
+          BeeAssetAmount(
+              _overviewAmount(net,
+                  currency: displayCode,
+                  showCurrency: isConverted || byCurrency.length > 1),
+              approximate: isConverted)
+        ],
         assetsLabel: l.totalAssets,
-        assets: assets.isEmpty ? ['0'] : assets,
+        assets: [
+          _overviewAmount(assets,
+              currency: displayCode,
+              showCurrency: isConverted || byCurrency.length > 1)
+        ],
         liabilitiesLabel: l.totalLiabilities,
-        liabilities: liabilities.isEmpty ? ['0'] : liabilities,
-        hidden: hidden,
-        privacyLabel: hidden ? l.v4AmountsShow : l.v4AmountsHide,
-        onPrivacy: () => ref.read(hideAmountsProvider.notifier).state = !hidden,
-        detailLabel: l.conversionDetailTitle,
+        liabilities: [
+          _overviewAmount(liabilities.abs(),
+              currency: displayCode,
+              showCurrency: isConverted || byCurrency.length > 1)
+        ],
+        hidden: ref.watch(hideAmountsProvider),
+        privacyLabel:
+            ref.watch(hideAmountsProvider) ? l.v4AmountsShow : l.v4AmountsHide,
+        onPrivacy: () => ref.read(hideAmountsProvider.notifier).state =
+            !ref.read(hideAmountsProvider),
+        unitLabel: isConverted
+            ? l.v4RecordingConvertedLabel(base)
+            : '$displayCode · ${l.v4AssetsOriginal}',
+        onUnit: () => _showAssetCurrency(byCurrency.keys.toList()),
+        currencies: !isConverted && byCurrency.length > 1
+            ? [for (final c in byCurrency.keys) BeeSegment(c, c)]
+            : const [],
+        currency: code,
+        onCurrency: (value) => setState(() => _assetCurrency = value),
+        footnote: hiddenAccounts > 0
+            ? l.v4AssetsIncludesHidden(hiddenAccounts)
+            : l.v4AssetsAllAccounts,
+        onFootnote: hiddenAccounts > 0 ? _scrollToAssetHidden : null,
+        detailLabel: isConverted && converted.missingCurrencies.isNotEmpty
+            ? l.unconvertedBadge
+            : l.conversionDetailTitle,
+        warning: isConverted && converted.missingCurrencies.isNotEmpty,
         onDetails: isConverted
             ? () => _showNetWorthConversionDetail(
                 context, ref, converted, byCurrency, base, useCompact)
-            : null);
+            : () => showAccountConversionDetailSheet(context, ref,
+                title: l.v4AssetsByCurrency,
+                entries: [
+                  for (final e in byCurrency.entries)
+                    AccountConversionEntry(
+                        code: e.key,
+                        originalValue: e.value.netWorth,
+                        convertedValue: null,
+                        isBase: true,
+                        isMissing: false)
+                ],
+                baseSymbol: getCurrencySymbol(base),
+                useCompact: useCompact));
   }
 
   /// 资产卡内嵌净值走势图（完整版：带网格 + 月份标签，非缩略 sparkline），点击进全屏
   /// 趋势页。interactive:false → LineChart 不吞 tap，把点击交给外层 InkWell。
   Widget _buildNetWorthChartInline(BuildContext context, WidgetRef ref) {
-    final now = trendTodayAnchor();
-    final start = DateTime(now.year, now.month - 11, 1);
+    final now = trendTodayAnchor(), l = AppLocalizations.of(context);
+    final start = DateTime(now.year, now.month - 5, 1);
     final seriesAsync = ref
         .watch(netWorthTrendSeriesProvider((startDate: start, endDate: now)));
-    final hide = ref.watch(hideAmountsProvider);
-    final primary = ref.watch(primaryColorProvider);
-    final l10n = AppLocalizations.of(context);
-    return seriesAsync.maybeWhen(
-      data: (series) {
-        final monthly = downsampleMonthly(series);
-        if (monthly.length < 2) {
-          return _inlineChartBox(
-            context,
-            ref,
-            Text(l10n.commonEmpty,
-                style: TextStyle(
-                    fontSize: 12, color: BeeTokens.textTertiary(context))),
-          );
-        }
-        return InkWell(
-          onTap: () => Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const NetWorthTrendPage()),
-          ),
-          borderRadius: BorderRadius.circular(8),
-          child: SizedBox(
-            height: 180.0.scaled(context, ref),
-            child: LineChart(
-              values: monthly.map((e) => e.net).toList(),
-              xLabels: monthly
-                  .map((e) => '${e.date.year % 100}/${e.date.month}')
-                  .toList(),
-              highlightIndex: monthly.length - 1,
-              onSwipeLeft: () {},
-              onSwipeRight: () {},
-              showHint: false,
-              hideAmounts: hide,
-              themeColor: primary,
-              whiteBg: !BeeTokens.isDark(context),
-              isDark: BeeTokens.isDark(context),
-              showGrid: true,
-              showDots: false,
-              annotate: true,
-              interactive: false, // 点击交给外层 InkWell 进全屏页
-              minimal: true, // 去背景/Y轴/均线，避免嵌在 SectionCard 内暗黑模式「卡中卡」
-            ),
-          ),
-        );
-      },
-      error: (_, __) => _inlineChartBox(
-        context,
-        ref,
-        Text(l10n.commonError,
-            style: TextStyle(
-                fontSize: 12, color: BeeTokens.textTertiary(context))),
-      ),
-      orElse: () => _inlineChartBox(context, ref,
-          const Center(child: CircularProgressIndicator(strokeWidth: 2))),
-    );
+    final hide = ref.watch(hideAmountsProvider),
+        base = ref.watch(baseCurrencyProvider);
+    return seriesAsync.when(
+        skipLoadingOnReload: true,
+        data: (series) {
+          final monthly = downsampleMonthly(series);
+          if (monthly.length < 2) {
+            return Padding(
+                padding: const EdgeInsets.all(22), child: Text(l.commonEmpty));
+          }
+          final selected = (_assetTrendIndex ?? monthly.length - 1)
+              .clamp(0, monthly.length - 1);
+          final point = monthly[selected];
+          final labels = monthly.map((p) => '${p.date.month}').toList();
+          return BeeAssetTrendPreview(
+              values: monthly.map((p) => p.net).toList(),
+              labels: labels,
+              selected: selected,
+              pointLabel: '${point.date.year}/${point.date.month}',
+              amount: _overviewAmount(point.net,
+                  currency: base, showCurrency: true),
+              hidden: hide,
+              onSelected: (index) => setState(() => _assetTrendIndex = index),
+              detailLabel: '${l.netWorthTrend6M} · $base',
+              onDetails: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => const NetWorthTrendPage())));
+        },
+        error: (_, __) => Padding(
+            padding: const EdgeInsets.all(22), child: Text(l.commonError)),
+        loading: () => const SizedBox(
+            height: 115,
+            child: Center(child: CircularProgressIndicator(strokeWidth: 2))));
   }
-
-  Widget _inlineChartBox(BuildContext context, WidgetRef ref, Widget child) =>
-      SizedBox(
-        height: 180.0.scaled(context, ref),
-        child: Center(child: child),
-      );
 
   /// 净资产折算明细弹窗:每币种原币净值 + 折算后/未折算。复用 showAccountConversionDetailSheet。
   void _showNetWorthConversionDetail(
@@ -440,83 +456,6 @@ mixin _AccountsOverviewBindings on ConsumerState<AccountsPage> {
     );
   }
 
-  /// 分组小计折算视图:≈ {symbol}{折算和}(有缺失加橙警示),整块点击 → 分组明细弹窗。
-  /// 折算口径与净资产/构成图一致:缺汇率币种剔除,绝不按 1.0。
-  Widget _buildGroupConvertedSubtotal(
-    BuildContext context,
-    WidgetRef ref, {
-    required String groupTitle,
-    required Map<String, double> subtotalByCurrency,
-    required Map<String, EffectiveRate> rates,
-    required String base,
-    required Color iconColor,
-    required bool useCompact,
-  }) {
-    final baseSymbol = getCurrencySymbol(base);
-    final result = convertAmountsToBase(
-      amounts: subtotalByCurrency,
-      rates: rates,
-      base: base,
-    );
-    final hasMissing = result.missingCurrencies.isNotEmpty;
-    final hide = ref.watch(hideAmountsProvider);
-
-    return InkWell(
-      onTap: () => _showGroupConversionDetail(
-        context,
-        ref,
-        groupTitle: groupTitle,
-        subtotalByCurrency: subtotalByCurrency,
-        result: result,
-        baseSymbol: baseSymbol,
-        base: base,
-        useCompact: useCompact,
-      ),
-      borderRadius: BorderRadius.circular(4.0.scaled(context, ref)),
-      child: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: 4.0.scaled(context, ref),
-          vertical: 2.0.scaled(context, ref),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            if (hasMissing) ...[
-              Icon(
-                Icons.warning_amber_rounded,
-                size: 14.0.scaled(context, ref),
-                color: Colors.orange,
-              ),
-              SizedBox(width: 4.0.scaled(context, ref)),
-            ],
-            Flexible(
-              // abs 以沿用现状符号惯例:非折算时小计走 AmountText(signed:false) 即显绝对值,
-              // 负债组同口径(折算值不带负号)。
-              child: Text(
-                hide
-                    ? '≈ ****'
-                    : '≈ $baseSymbol${result.total.abs().toStringAsFixed(2)}',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: iconColor,
-                ),
-              ),
-            ),
-            Icon(
-              Icons.chevron_right,
-              size: 14.0.scaled(context, ref),
-              color: BeeTokens.iconTertiary(context),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   /// 分组小计折算明细弹窗:每币种原币小计 + 折算后/未折算。复用 showAccountConversionDetailSheet。
   void _showGroupConversionDetail(
     BuildContext context,
@@ -552,62 +491,6 @@ mixin _AccountsOverviewBindings on ConsumerState<AccountsPage> {
     );
   }
 
-  /// 多货币金额横排（用 · 分隔）
-  Widget _buildMultiCurrencyAmountRow(
-    BuildContext context,
-    WidgetRef ref, {
-    required List<({String currency, double value})> entries,
-    required Color valueColor,
-    required bool useCompact,
-  }) {
-    if (entries.isEmpty) {
-      return Text(
-        '-',
-        style: TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-          color: BeeTokens.textTertiary(context),
-        ),
-      );
-    }
-    return FittedBox(
-      fit: BoxFit.scaleDown,
-      alignment: Alignment.centerLeft,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          for (int i = 0; i < entries.length; i++) ...[
-            if (i > 0)
-              Padding(
-                padding:
-                    EdgeInsets.symmetric(horizontal: 4.0.scaled(context, ref)),
-                child: Text(
-                  '·',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: BeeTokens.textTertiary(context),
-                  ),
-                ),
-              ),
-            AmountText(
-              value: entries[i].value,
-              signed: false,
-              showCurrency: true,
-              currencyCode: entries[i].currency,
-              useCompactFormat: useCompact,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: valueColor,
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
   /// 构建资产/负债分类区域
   List<Widget> _buildClassificationSection({
     required BuildContext context,
@@ -628,100 +511,7 @@ mixin _AccountsOverviewBindings on ConsumerState<AccountsPage> {
         groups.containsKey(type) && groups[type]!.any((a) => !a.hidden));
     if (!hasAccounts) return [];
 
-    // 按币种分组计算小计(仅在用账户;隐藏账户的小计在「已隐藏」分区单独
-    // 展示,两者相加与净资产汇总卡对账 —— 01 §4.1)
-    final Map<String, double> subtotalByCurrency = {};
-    for (final type in typeOrder) {
-      if (groups.containsKey(type)) {
-        for (final account in groups[type]!) {
-          if (account.hidden) continue;
-          final balance = allStats?[account.id]?.balance ?? 0;
-          subtotalByCurrency.update(
-            account.currency,
-            (v) => v + balance,
-            ifAbsent: () => balance,
-          );
-        }
-      }
-    }
-    final useCompact = ref.watch(compactAmountProvider);
-    final isSingleCurrency = subtotalByCurrency.length <= 1;
-
-    // 折算态(总闸开启且汇率就绪)且组内多币种 → 小计折算并支持点击详情。
-    final multiCurrencyActive = ref.watch(multiCurrencyActiveProvider);
-    final rates = ref.watch(effectiveRatesProvider).valueOrNull;
-    final base = ref.watch(baseCurrencyProvider).toUpperCase();
-    final convertActive =
-        multiCurrencyActive && rates != null && !isSingleCurrency;
-
     return [
-      // 分类标题
-      Padding(
-        padding: EdgeInsets.only(
-          top: 16.0.scaled(context, ref),
-          bottom: 4.0.scaled(context, ref),
-          left: 4.0.scaled(context, ref),
-          right: 4.0.scaled(context, ref),
-        ),
-        child: Row(
-          children: [
-            Icon(icon, size: 18.0.scaled(context, ref), color: iconColor),
-            SizedBox(width: 6.0.scaled(context, ref)),
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: BeeTokens.textPrimary(context),
-              ),
-            ),
-            const Spacer(),
-            if (convertActive)
-              // 折算小计:≈ {symbol}{折算和}(有缺失加橙色警示),整块点击进详情。
-              // Expanded+Align 保证贴右(Spacer+Flexible 会让内容在右半槽内左对齐,
-              // 表头右侧出现空白),内部 Text 仍有 Flexible/ellipsis 兜长文本。
-              Expanded(
-                child: Align(
-                  alignment: Alignment.centerRight,
-                  child: _buildGroupConvertedSubtotal(
-                    context,
-                    ref,
-                    groupTitle: title,
-                    subtotalByCurrency: subtotalByCurrency,
-                    rates: rates,
-                    base: base,
-                    iconColor: iconColor,
-                    useCompact: useCompact,
-                  ),
-                ),
-              )
-            else if (isSingleCurrency)
-              AmountText(
-                value: subtotalByCurrency.values.firstOrNull ?? 0,
-                signed: false,
-                showCurrency: false,
-                useCompactFormat: useCompact,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: iconColor,
-                ),
-              )
-            else
-              Flexible(
-                child: _buildMultiCurrencyAmountRow(
-                  context,
-                  ref,
-                  entries: subtotalByCurrency.entries
-                      .map((e) => (currency: e.key, value: e.value))
-                      .toList(),
-                  valueColor: iconColor,
-                  useCompact: useCompact,
-                ),
-              ),
-          ],
-        ),
-      ),
       // 类型分组(排除隐藏账户,账户隐藏 #240)
       ...typeOrder
           .where((type) =>
@@ -730,6 +520,7 @@ mixin _AccountsOverviewBindings on ConsumerState<AccountsPage> {
         final groupList = groups[type]!.where((a) => !a.hidden).toList();
         return AccountTypeGroupBinding(
           key: ValueKey('account-type-$type'),
+          compact: true,
           type: type,
           accounts: groupList,
           primaryColor: primaryColor,

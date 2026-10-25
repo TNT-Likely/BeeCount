@@ -107,23 +107,24 @@ void main() {
     expect(find.byType(BeeAssetSummary), findsOneWidget);
     expect(find.byType(BeeAssetChartSection<int>), findsOneWidget);
     expect(find.byType(BeeAccountPreferences), findsOneWidget);
-    expect(find.textContaining('30,890', findRichText: true), findsOneWidget);
+    expect(find.textContaining('30,890', findRichText: true), findsNWidgets(2));
     await tester.ensureVisible(find.byTooltip('隐藏资产金额'));
     await tester.tap(find.byTooltip('隐藏资产金额'));
     await tester.pumpAndSettle();
     for (final amount in ['30,890', '32,750', '1,860']) {
       expect(find.textContaining(amount, findRichText: true), findsNothing);
     }
-    await tester.ensureVisible(find.text('资产构成'));
-    await tester.tap(find.text('资产构成'));
+    await tester.ensureVisible(find.text('构成'));
+    await tester.tap(find.text('构成'));
     await tester.pumpAndSettle();
-    expect(find.byType(BeeDonutChart), findsOneWidget);
+    expect(find.byType(BeeAssetComposition), findsOneWidget);
     expect(
         tester
-            .widget<BeeDonutChart>(find.byType(BeeDonutChart))
-            .items
-            .every((item) => item.valueLabel == '••••'),
+            .widget<BeeAssetComposition>(find.byType(BeeAssetComposition))
+            .hidden,
         true);
+    expect(find.textContaining('3,000', findRichText: true), findsNothing);
+    expect(find.textContaining('7,000', findRichText: true), findsNothing);
     await tester.ensureVisible(find.byType(Switch));
     await tester.tap(find.byType(Switch));
     await tester.pumpAndSettle();

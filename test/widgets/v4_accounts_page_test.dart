@@ -4,6 +4,8 @@ import 'package:beecount/data/repositories/local/local_repository.dart';
 import 'package:beecount/l10n/app_localizations.dart';
 import 'package:beecount/pages/account/accounts_page.dart';
 import 'package:beecount/pages/account/account_edit_page.dart';
+import 'package:beecount/pages/account/account_detail_page.dart';
+import 'package:beecount/utils/account_type_utils.dart';
 import 'package:beecount/providers.dart';
 import 'package:beecount/presentation/v4/bindings/account_sections.dart';
 import 'package:beecount_business_ui/beecount_business_ui.dart';
@@ -58,7 +60,8 @@ void main() {
   Future<void> open(WidgetTester tester,
       {Size size = const Size(398, 844),
       double scale = 1,
-      Brightness brightness = Brightness.light}) async {
+      Brightness brightness = Brightness.light,
+      Locale locale = const Locale('zh')}) async {
     tester.view.physicalSize = size;
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -71,7 +74,7 @@ void main() {
                 data: MediaQuery.of(context)
                     .copyWith(textScaler: TextScaler.linear(scale)),
                 child: child!),
-            locale: const Locale('zh'),
+            locale: locale,
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
             home: const AccountsPage())));
@@ -133,9 +136,9 @@ void main() {
     await tester.pumpAndSettle();
     expect(container.read(hideAmountsProvider), true);
     expect(find.textContaining('260', findRichText: true), findsNothing);
-    final tabs = find.byType(BeeSegmented<AssetTrendView>);
+    final tabs = find.byType(BeeCompactTabs<AssetTrendView>);
     final composition = find.descendant(
-        of: tabs, matching: find.text(strings(tester).assetComposition));
+        of: tabs, matching: find.text(strings(tester).v4AssetsComposition));
     await tester.ensureVisible(composition);
     await tester.tap(composition);
     await tester.pumpAndSettle();
@@ -183,7 +186,7 @@ void main() {
     final summary =
         tester.widget<BeeAssetSummary>(find.byType(BeeAssetSummary));
     expect(summary.balances.single.text, '¥29');
-    await tester.tap(find.byTooltip(strings(tester).conversionDetailTitle));
+    await tester.tap(find.byTooltip(strings(tester).unconvertedBadge));
     await ready(tester, find.byType(BeeAccountConversionRow));
     final rows = tester.widgetList<BeeAccountConversionRow>(
         find.byType(BeeAccountConversionRow));
@@ -220,6 +223,8 @@ void main() {
     await ready(tester, find.byType(BeeAssetSummary));
     final l = strings(tester);
     await tester.tap(find.byTooltip(l.commonSettings));
+    await ready(tester, find.text(l.commonSettings));
+    await tester.tap(find.text(l.commonSettings).last);
     await ready(tester, find.byType(BeeAccountPreferences));
     await tester.tap(find.text(l.accountDefaultExpenseTitle));
     await ready(tester, find.byType(BeeAccountPicker));
@@ -305,16 +310,13 @@ void main() {
     await tester.tap(
         find.descendant(of: section, matching: find.byType(BeeMenuRow)).first);
     await tester.pumpAndSettle();
-    final card =
-        find.byWidgetPredicate((w) => w is BeeAccountCard && w.name == '待恢复卡');
+    final card = find.byWidgetPredicate(
+        (w) => w is BeeCompactAccountRow && w.name == '待恢复卡');
     await tester.ensureVisible(card);
-    final more =
-        find.descendant(of: card, matching: find.byTooltip(l.commonMore));
-    await tester.ensureVisible(more);
-    await tester.pumpAndSettle();
-    await tester.tap(more);
-    await tester.pumpAndSettle();
-    await tester.tap(find.text(l.accountRestore));
+    final restore =
+        find.descendant(of: card, matching: find.text(l.accountRestore));
+    await tester.ensureVisible(restore);
+    await tester.tap(restore);
     await tester.pumpAndSettle();
     await tester
         .runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
@@ -331,6 +333,234 @@ void main() {
             .text,
         '150');
     expect(tester.takeException(), isNull);
+    await close(tester);
+  });
+
+  testWidgets('原币Tab只切展示，美元负债与缺失欧元不混加也不写主币种或原字段', (tester) async {
+    await repo.createAccount(
+        ledgerId: 1,
+        name: '主现金',
+        type: 'cash',
+        currency: 'CNY',
+        initialBalance: 100);
+    await repo.createAccount(
+        ledgerId: 1,
+        name: '美元贷款',
+        type: 'loan',
+        currency: 'USD',
+        initialBalance: -10);
+    await repo.createAccount(
+        ledgerId: 1,
+        name: '欧元备用',
+        type: 'bank_card',
+        currency: 'EUR',
+        initialBalance: 50);
+    final before = await repo.getAllAccounts();
+    final ratesBefore = await db.select(db.exchangeRates).get();
+    final prefs = await SharedPreferences.getInstance(),
+        baseBefore =
+            (await SharedPreferences.getInstance()).get('baseCurrency');
+    await open(tester);
+    await ready(tester, find.byType(BeeAssetSummary));
+    for (var i = 0;
+        i < 30 &&
+            tester
+                    .widget<BeeAssetSummary>(find.byType(BeeAssetSummary))
+                    .balances
+                    .single
+                    .text !=
+                '¥29';
+        i++) {
+      await tester.pump(const Duration(milliseconds: 30));
+      await tester.runAsync(
+          () => Future<void>.delayed(const Duration(milliseconds: 10)));
+    }
+    expect(
+        tester
+            .widget<BeeAssetSummary>(find.byType(BeeAssetSummary))
+            .balances
+            .single
+            .text,
+        '¥29');
+    final l = strings(tester);
+    await tester.tap(find.byTooltip(l.v4RecordingConvertedLabel('CNY')));
+    await ready(tester, find.text(l.v4AssetsByCurrency));
+    await tester.tap(find.text(l.v4AssetsByCurrency));
+    await tester.pumpAndSettle();
+    final usd =
+        find.byWidgetPredicate((w) => w is BeeChoiceChip && w.label == 'USD');
+    await tester.tap(usd);
+    await tester.pumpAndSettle();
+    var summary = tester.widget<BeeAssetSummary>(find.byType(BeeAssetSummary));
+    expect(summary.balances.single.text, r'$-10');
+    expect(summary.assets, [r'$0']);
+    expect(summary.liabilities, [r'$10']);
+    final euro =
+        find.byWidgetPredicate((w) => w is BeeChoiceChip && w.label == 'EUR');
+    await tester.tap(euro);
+    await tester.pumpAndSettle();
+    summary = tester.widget<BeeAssetSummary>(find.byType(BeeAssetSummary));
+    expect(summary.balances.single.text, '€50');
+    expect(container.read(baseCurrencyProvider), 'CNY');
+    expect(prefs.get('baseCurrency'), baseBefore);
+    expect(await repo.getAllAccounts(), before);
+    expect(await db.select(db.exchangeRates).get(), ratesBefore);
+    expect(await repo.getTransactionsByLedger(1), isEmpty);
+    expect(tester.takeException(), isNull);
+    await close(tester);
+  });
+
+  testWidgets('资产负债筛选保留负资产、信用卡溢缴款和贷款原聚合，切换不写账户', (tester) async {
+    for (final v in [
+      ('cash', '现金', 100.0),
+      ('cash', '现金透支', -20.0),
+      ('credit_card', '信用欠款', -60.0),
+      ('credit_card', '信用溢缴', 20.0),
+      ('loan', '贷款', -100.0)
+    ]) {
+      await repo.createAccount(
+          ledgerId: 1, name: v.$2, type: v.$1, initialBalance: v.$3);
+    }
+    final before = await repo.getAllAccounts();
+    await open(tester);
+    await ready(tester, find.byType(BeeAssetSummary));
+    final summary =
+        tester.widget<BeeAssetSummary>(find.byType(BeeAssetSummary));
+    expect(summary.balances.single.text, '-60');
+    expect(summary.assets, ['100']);
+    expect(summary.liabilities, ['160']);
+    final l = strings(tester), toolbar = find.byType(BeeAssetAccountToolbar);
+    await tester.ensureVisible(toolbar);
+    await tester.tap(
+        find.descendant(of: toolbar, matching: find.text(l.assetAccounts)));
+    await tester.pumpAndSettle();
+    expect(find.text('现金透支'), findsOneWidget);
+    expect(find.text('信用欠款'), findsNothing);
+    await tester.tap(
+        find.descendant(of: toolbar, matching: find.text(l.liabilityAccounts)));
+    await tester.pumpAndSettle();
+    expect(find.text('现金透支'), findsNothing);
+    expect(find.text('信用欠款'), findsOneWidget);
+    expect(await repo.getAllAccounts(), before);
+    expect(await repo.getTransactionsByLedger(1), isEmpty);
+    expect(tester.takeException(), isNull);
+    await close(tester);
+  });
+
+  testWidgets('实际搜索可打开原账户详情，返回和设置取消不改字段且保留滚动位置', (tester) async {
+    for (var i = 0; i < 7; i++) {
+      await repo.createAccount(
+          ledgerId: 1,
+          name: '储蓄卡$i',
+          type: 'bank_card',
+          currency: 'CNY',
+          initialBalance: 100 + i.toDouble());
+    }
+    final before = await repo.getAllAccounts();
+    await open(tester);
+    await ready(tester, find.byType(BeeAssetSummary));
+    final l = strings(tester), toolbar = find.byType(BeeAssetAccountToolbar);
+    await tester.ensureVisible(toolbar);
+    await tester.tap(find.byTooltip(l.commonSearch));
+    await ready(tester, find.byType(BeeAccountPicker));
+    await tester.enterText(find.byType(TextField), '储蓄卡6');
+    await tester.pumpAndSettle();
+    await tester.tap(find.descendant(
+        of: find.byType(BeeAccountPicker),
+        matching:
+            find.byWidgetPredicate((w) => w is Text && w.data == '储蓄卡6')));
+    await ready(tester, find.byType(AccountDetailPage));
+    expect(find.byType(AccountDetailPage), findsOneWidget);
+    Navigator.of(tester.element(find.byType(AccountDetailPage))).pop();
+    await tester.pumpAndSettle();
+    final scroll =
+        tester.state<ScrollableState>(find.byType(Scrollable).first).position;
+    scroll.jumpTo(180);
+    await tester.pumpAndSettle();
+    final offset = scroll.pixels;
+    await tester.tap(find.byTooltip(l.commonSettings));
+    await tester.pumpAndSettle();
+    Navigator.of(tester.element(find.byType(BeeSheet))).pop();
+    await tester.pumpAndSettle();
+    expect(scroll.pixels, offset);
+    expect(await repo.getAllAccounts(), before);
+    expect(await repo.getTransactionsByLedger(1), isEmpty);
+    expect(tester.takeException(), isNull);
+    await close(tester);
+  });
+
+  testWidgets('同类型真实拖排包含隐藏邻居，只更新排序不修改余额或其他字段', (tester) async {
+    final ids = <int>[];
+    for (var i = 0; i < 3; i++) {
+      ids.add(await repo.createAccount(
+          ledgerId: 1,
+          name: '排序卡$i',
+          type: 'bank_card',
+          initialBalance: 100 + i.toDouble()));
+    }
+    await repo.setAccountHidden(ids[1], true);
+    final before = await repo.getAllAccounts();
+    await open(tester);
+    await ready(tester, find.byType(BeeAssetSummary));
+    final l = strings(tester);
+    await tester.ensureVisible(find.byType(BeeAssetAccountToolbar));
+    await tester.tap(find.byTooltip(l.v4AssetsOrder));
+    await tester.pumpAndSettle();
+    final handle = find.descendant(
+        of: find.byKey(ValueKey('asset-sort-${ids.first}')),
+        matching: find.byType(ReorderableDragStartListener));
+    await tester.drag(handle, const Offset(0, 150));
+    await tester.pumpAndSettle();
+    await tester
+        .runAsync(() => Future<void>.delayed(const Duration(milliseconds: 80)));
+    await tester.pumpAndSettle();
+    final after = await repo.getAllAccounts();
+    expect(after.map((a) => a.id).toList(),
+        isNot(before.map((a) => a.id).toList()));
+    for (final a in after) {
+      final old = before.singleWhere((v) => v.id == a.id);
+      expect(a.copyWith(sortOrder: old.sortOrder), old);
+    }
+    expect(after.singleWhere((a) => a.id == ids[1]).hidden, true);
+    expect(await repo.getTransactionsByLedger(1), isEmpty);
+    expect(tester.takeException(), isNull);
+    await close(tester);
+  });
+
+  testWidgets('320英文深色140%完整类型、信用卡信息和弹层不溢出且不改数据', (tester) async {
+    for (final type in accountTypeOrder) {
+      await repo.createAccount(
+          ledgerId: 1,
+          name: 'Account $type',
+          type: type,
+          currency: type == 'bank_card' ? 'USD' : 'CNY',
+          initialBalance: isLiabilityType(type) ? -1350 : 20000,
+          creditLimit: type == 'credit_card' ? 20000 : null,
+          billingDay: type == 'credit_card' ? 12 : null,
+          paymentDueDay: type == 'credit_card' ? 30 : null,
+          note: 'A long account note for the compact layout');
+    }
+    final before = await repo.getAllAccounts();
+    await open(tester,
+        size: const Size(320, 568),
+        scale: 1.4,
+        brightness: Brightness.dark,
+        locale: const Locale('en'));
+    await ready(tester, find.byType(BeeAssetSummary));
+    expect(tester.takeException(), isNull);
+    await tester.scrollUntilVisible(find.text('Account loan'), 260,
+        scrollable: find.byType(Scrollable).first, maxScrolls: 35);
+    await tester.pumpAndSettle();
+    expect(find.text('Account loan'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    final l = strings(tester);
+    await tester.tap(find.byTooltip(l.commonSettings));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    Navigator.of(tester.element(find.byType(BeeSheet))).pop();
+    await tester.pumpAndSettle();
+    expect(await repo.getAllAccounts(), before);
+    expect(await repo.getTransactionsByLedger(1), isEmpty);
     await close(tester);
   });
 }

@@ -17131,6 +17131,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'All {count} categories'**
   String v4InsightsAllCategories(int count);
+
+  /// No description provided for @v4AssetsAllAccounts.
+  ///
+  /// In en, this message translates to:
+  /// **'All accounts'**
+  String get v4AssetsAllAccounts;
+
+  /// No description provided for @v4AssetsByCurrency.
+  ///
+  /// In en, this message translates to:
+  /// **'By currency'**
+  String get v4AssetsByCurrency;
+
+  /// No description provided for @v4AssetsUnifiedConversion.
+  ///
+  /// In en, this message translates to:
+  /// **'Converted total'**
+  String get v4AssetsUnifiedConversion;
+
+  /// No description provided for @v4AssetsCurrencyView.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount display'**
+  String get v4AssetsCurrencyView;
+
+  /// No description provided for @v4AssetsHiddenIncluded.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden accounts remain included in net worth.'**
+  String get v4AssetsHiddenIncluded;
+
+  /// No description provided for @v4AssetsIncludesHidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Includes {count} hidden accounts'**
+  String v4AssetsIncludesHidden(int count);
+
+  /// No description provided for @v4AssetsOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Account order'**
+  String get v4AssetsOrder;
+
+  /// No description provided for @v4AssetsOrderHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Reorder within an account type. Balances stay unchanged.'**
+  String get v4AssetsOrderHint;
+
+  /// No description provided for @v4AssetsSeparateCurrencyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'View each currency separately; currencies are not added together.'**
+  String get v4AssetsSeparateCurrencyHint;
+
+  /// No description provided for @v4AssetsOriginal.
+  ///
+  /// In en, this message translates to:
+  /// **'Original'**
+  String get v4AssetsOriginal;
+
+  /// No description provided for @v4AssetsDefaultExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Default expense'**
+  String get v4AssetsDefaultExpense;
+
+  /// No description provided for @v4AssetsDefaultIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Default income'**
+  String get v4AssetsDefaultIncome;
+
+  /// No description provided for @v4AssetsTrend.
+  ///
+  /// In en, this message translates to:
+  /// **'Trend'**
+  String get v4AssetsTrend;
+
+  /// No description provided for @v4AssetsComposition.
+  ///
+  /// In en, this message translates to:
+  /// **'Mix'**
+  String get v4AssetsComposition;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

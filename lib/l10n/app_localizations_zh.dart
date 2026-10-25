@@ -9104,6 +9104,50 @@ class AppLocalizationsZh extends AppLocalizations {
   String v4InsightsAllCategories(int count) {
     return '全部 $count 个分类';
   }
+
+  @override
+  String get v4AssetsAllAccounts => '全部账户';
+
+  @override
+  String get v4AssetsByCurrency => '按币种查看';
+
+  @override
+  String get v4AssetsUnifiedConversion => '统一折算';
+
+  @override
+  String get v4AssetsCurrencyView => '金额显示方式';
+
+  @override
+  String get v4AssetsHiddenIncluded => '隐藏账户仍计入净资产';
+
+  @override
+  String v4AssetsIncludesHidden(int count) {
+    return '含 $count 个隐藏账户';
+  }
+
+  @override
+  String get v4AssetsOrder => '账户排序';
+
+  @override
+  String get v4AssetsOrderHint => '在同一账户类型内调整顺序，不改变余额。';
+
+  @override
+  String get v4AssetsSeparateCurrencyHint => '分别查看各币种，不混合相加。';
+
+  @override
+  String get v4AssetsOriginal => '原币';
+
+  @override
+  String get v4AssetsDefaultExpense => '默认支出';
+
+  @override
+  String get v4AssetsDefaultIncome => '默认收入';
+
+  @override
+  String get v4AssetsTrend => '趋势';
+
+  @override
+  String get v4AssetsComposition => '构成';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).

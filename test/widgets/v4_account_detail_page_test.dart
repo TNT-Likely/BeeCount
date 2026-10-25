@@ -423,6 +423,8 @@ void main() {
         -200);
     await tester.scrollUntilVisible(find.text('住房贷款'), 350,
         scrollable: find.byType(Scrollable).first, maxScrolls: 30);
+    await tester.ensureVisible(find.text('住房贷款'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('住房贷款'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('更新欠款'));

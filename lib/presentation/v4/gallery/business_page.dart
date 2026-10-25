@@ -246,7 +246,7 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
   String pin = '';
   bool balanceAdjustmentRecord = false;
   bool overviewHidden = false, accountsEnabled = true;
-  int overviewChart = 0;
+  int overviewChart = 0, overviewPoint = 5;
   int _chartSlice = -1;
   String accountType = 'cash', accountTypeGroup = 'daily';
   String categoryIcon = 'coffee';
@@ -1904,7 +1904,11 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
                 onConfirm: (v) => record(v ? '确认新增平账记录' : '确认仅修改余额'))),
         40 => Column(mainAxisSize: MainAxisSize.min, children: [
             BeeAssetSummary(
-                title: '净资产（折 CNY）',
+                compact: true,
+                unitLabel: '折合 CNY',
+                footnote: '全部账户',
+                onUnit: () => record('切换金额显示方式'),
+                title: '净资产',
                 balances: const [
                   BeeAssetAmount('¥30,890.00', approximate: true)
                 ],
@@ -1920,27 +1924,68 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
                 onDetails: () => record('查看折算明细')),
             const SizedBox(height: 12),
             BeeAssetChartSection<int>(
+                compact: true,
                 title: overviewChart == 0 ? '净值趋势' : '资产构成',
-                segments: const [BeeSegment(0, '净值趋势'), BeeSegment(1, '资产构成')],
+                segments: const [BeeSegment(0, '趋势'), BeeSegment(1, '构成')],
                 selected: overviewChart,
                 onSelected: (v) => setState(() => overviewChart = v),
                 detailLabel: '查看详情',
                 onDetails: () => record('查看净值详情'),
                 child: overviewChart == 0
-                    ? const BeeTrendChart(
-                        values: [12, 18, 16, 24, 29, 31], label: '最近六个月净资产')
-                    : BeeDonutChart(items: [
-                        BeeChartSlice(
-                            label: '现金',
-                            value: 30,
-                            color: const Color(0xfffacb16),
-                            valueLabel: overviewHidden ? '••••' : '¥3,000'),
-                        BeeChartSlice(
-                            label: '银行卡',
-                            value: 70,
-                            color: const Color(0xff26a69a),
-                            valueLabel: overviewHidden ? '••••' : '¥7,000'),
-                      ], centerLabel: overviewHidden ? '****' : '¥10,000')),
+                    ? BeeAssetTrendPreview(
+                        values: const [
+                            20000,
+                            23000,
+                            21800,
+                            25600,
+                            28900,
+                            30890
+                          ],
+                        labels: const [
+                            '5',
+                            '6',
+                            '7',
+                            '8',
+                            '9',
+                            '10'
+                          ],
+                        selected: overviewPoint,
+                        pointLabel: '${overviewPoint + 5}月',
+                        amount: [
+                          '¥20,000',
+                          '¥23,000',
+                          '¥21,800',
+                          '¥25,600',
+                          '¥28,900',
+                          '¥30,890.00'
+                        ][overviewPoint],
+                        hidden: overviewHidden,
+                        detailLabel: '近6个月 · CNY',
+                        onSelected: (v) => setState(() => overviewPoint = v),
+                        onDetails: () => record('查看净值详情'))
+                    : BeeAssetComposition(hidden: overviewHidden, items: const [
+                        BeeAssetAllocation(
+                            label: '现金', value: 30, amount: '¥3,000'),
+                        BeeAssetAllocation(
+                            label: '银行卡', value: 70, amount: '¥7,000'),
+                      ])),
+            const SizedBox(height: 12),
+            BeeAssetTypeGroup(
+                title: '银行卡',
+                count: 1,
+                expanded: true,
+                onToggle: () => record('切换账户分组'),
+                children: [
+                  BeeCompactAccountRow(
+                      name: '招商储蓄卡',
+                      subtitle: '•• 8862',
+                      amount: '¥32,750.82',
+                      badge: '默认收入',
+                      hidden: overviewHidden,
+                      icon: const BeeLineIcon('CreditCard', size: 19),
+                      onTap: () => record('查看账户详情'),
+                      onEdit: () => record('编辑账户'))
+                ]),
             const SizedBox(height: 12),
             BeeSurface(
                 child: Column(children: [

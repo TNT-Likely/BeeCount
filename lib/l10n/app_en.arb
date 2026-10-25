@@ -4055,5 +4055,26 @@
   "@v4InsightsAmountUnit": {"placeholders": {"currency": {"type": "String"}}},
   "v4InsightsCollapseCategories": "Collapse categories",
   "v4InsightsAllCategories": "All {count} categories",
-  "@v4InsightsAllCategories": {"placeholders": {"count": {"type": "int"}}}
+  "@v4InsightsAllCategories": {"placeholders": {"count": {"type": "int"}}},
+  "v4AssetsAllAccounts": "All accounts",
+  "v4AssetsByCurrency": "By currency",
+  "v4AssetsUnifiedConversion": "Converted total",
+  "v4AssetsCurrencyView": "Amount display",
+  "v4AssetsHiddenIncluded": "Hidden accounts remain included in net worth.",
+  "v4AssetsIncludesHidden": "Includes {count} hidden accounts",
+  "v4AssetsOrder": "Account order",
+  "v4AssetsOrderHint": "Reorder within an account type. Balances stay unchanged.",
+  "v4AssetsSeparateCurrencyHint": "View each currency separately; currencies are not added together.",
+  "v4AssetsOriginal": "Original",
+  "v4AssetsDefaultExpense": "Default expense",
+  "v4AssetsDefaultIncome": "Default income",
+  "v4AssetsTrend": "Trend",
+  "v4AssetsComposition": "Mix",
+  "@v4AssetsIncludesHidden": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

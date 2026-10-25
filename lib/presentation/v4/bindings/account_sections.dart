@@ -99,6 +99,7 @@ void showAccountConversionDetailSheet(
 class AccountTypeGroupBinding extends ConsumerStatefulWidget {
   final String type;
   final List<db.Account> accounts;
+  final bool compact;
   final Color primaryColor;
   final Map<int, ({double balance, double expense, double income})>? allStats;
   final void Function(int oldIndex, int newIndex) onReorder;
@@ -107,6 +108,7 @@ class AccountTypeGroupBinding extends ConsumerStatefulWidget {
 
   const AccountTypeGroupBinding({
     super.key,
+    this.compact = false,
     required this.type,
     required this.accounts,
     required this.primaryColor,
@@ -128,6 +130,25 @@ class _AccountTypeGroupState extends ConsumerState<AccountTypeGroupBinding> {
   Widget build(BuildContext context) {
     final typeColor = getColorForAccountType(widget.type, widget.primaryColor);
 
+    if (widget.compact) {
+      return BeeAssetTypeGroup(
+          title: getAccountTypeLabel(context, widget.type),
+          count: widget.accounts.length,
+          expanded: _expanded,
+          onToggle: () => setState(() => _expanded = !_expanded),
+          children: [
+            for (final account in widget.accounts)
+              AccountCardBinding(
+                  key: ValueKey(account.id),
+                  account: account,
+                  compact: true,
+                  primaryColor: widget.primaryColor,
+                  typeColor: typeColor,
+                  stats: widget.allStats?[account.id],
+                  onTap: () => widget.onTap(account),
+                  onEdit: () => widget.onEdit(account))
+          ]);
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -168,6 +189,7 @@ class _AccountTypeGroupState extends ConsumerState<AccountTypeGroupBinding> {
 class HiddenAccountsSectionBinding extends ConsumerStatefulWidget {
   final List<db.Account> accounts;
   final Map<int, ({double balance, double expense, double income})>? allStats;
+  final bool compact;
   final Color primaryColor;
   final void Function(db.Account account) onTap;
   final void Function(db.Account account) onEdit;
@@ -175,6 +197,7 @@ class HiddenAccountsSectionBinding extends ConsumerStatefulWidget {
 
   const HiddenAccountsSectionBinding({
     super.key,
+    this.compact = false,
     required this.accounts,
     required this.allStats,
     required this.primaryColor,
@@ -224,6 +247,33 @@ class _HiddenAccountsSectionState
     final summary =
         l10n.accountHiddenSectionSummary(widget.accounts.length, totalText);
 
+    if (widget.compact) {
+      return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        BeeMenuRow(
+            title: summary,
+            subtitle: l10n.v4AssetsHiddenIncluded,
+            leading: const BeeLineIcon('EyeOff', size: 15),
+            trailing:
+                BeeLineIcon(_expanded ? 'ChevronUp' : 'ChevronDown', size: 13),
+            onTap: () => setState(() => _expanded = !_expanded)),
+        if (_expanded)
+          BeeSurface(
+              padding: EdgeInsets.zero,
+              child: Column(mainAxisSize: MainAxisSize.min, children: [
+                for (final account in widget.accounts)
+                  AccountCardBinding(
+                      key: ValueKey('hidden_${account.id}'),
+                      compact: true,
+                      account: account,
+                      primaryColor: widget.primaryColor,
+                      typeColor: mutedColor,
+                      stats: widget.allStats?[account.id],
+                      onTap: () => widget.onTap(account),
+                      onEdit: () => widget.onEdit(account),
+                      onRestore: () => widget.onRestore(account))
+              ]))
+      ]);
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -274,6 +324,7 @@ class _HiddenAccountsSectionState
 /// 账户卡片
 class AccountCardBinding extends ConsumerWidget {
   final db.Account account;
+  final bool compact;
   final Color primaryColor;
   final Color typeColor;
   final ({double balance, double expense, double income})? stats;
@@ -286,6 +337,7 @@ class AccountCardBinding extends ConsumerWidget {
 
   const AccountCardBinding({
     super.key,
+    this.compact = false,
     required this.account,
     required this.primaryColor,
     required this.typeColor,
@@ -301,6 +353,7 @@ class AccountCardBinding extends ConsumerWidget {
     final isDark = BeeTokens.isDark(context);
 
     final hidden = ref.watch(hideAmountsProvider);
+    if (compact) return _compactRow(context, ref, l10n);
     return Padding(
         padding: const EdgeInsets.only(bottom: 10),
         child: GestureDetector(
@@ -366,6 +419,88 @@ class AccountCardBinding extends ConsumerWidget {
                                       currencyCode: account.currency)),
                             ]),
             )));
+  }
+
+  Widget _compactRow(BuildContext context, WidgetRef ref, AppLocalizations l) {
+    final hidden = ref.watch(hideAmountsProvider);
+    final compactMoney = ref.watch(compactAmountProvider);
+    final base = ref.watch(baseCurrencyProvider).toUpperCase();
+    final rates = ref.watch(effectiveRatesProvider).valueOrNull;
+    final balance = stats?.balance;
+    String amount(double value) => formatDisplayAmount(value,
+        currencyCode: account.currency,
+        showCurrency: true,
+        signed: false,
+        useCompactFormat: compactMoney,
+        isChineseLocale: Localizations.localeOf(context).languageCode == 'zh');
+    final foreign = ref.watch(multiCurrencyActiveProvider) &&
+        account.currency.toUpperCase() != base;
+    final converted = balance == null || rates == null
+        ? null
+        : computeNativeAmount(
+            amount: balance,
+            accountCurrency: account.currency,
+            ledgerBase: base,
+            rates: rates);
+    final expense = ref.watch(defaultExpenseAccountIdProvider).valueOrNull;
+    final income = ref.watch(defaultIncomeAccountIdProvider).valueOrNull;
+    final badge = account.id == expense
+        ? l.v4AssetsDefaultExpense
+        : account.id == income
+            ? l.v4AssetsDefaultIncome
+            : null;
+    final credit = account.type == 'credit_card' && balance != null
+        ? CreditCardAmounts(balance, limit: account.creditLimit)
+        : null;
+    final dates = account.billingDay != null && account.paymentDueDay != null
+        ? l.creditCardBillingInfo(account.billingDay!, account.paymentDueDay!)
+        : null;
+    final metadata = [
+      if (account.cardLastFour?.isNotEmpty == true)
+        '•• ${account.cardLastFour}',
+      if (isValuationOnlyType(account.type) && account.updatedAt != null)
+        '${account.updatedAt!.month.toString().padLeft(2, '0')}-${account.updatedAt!.day.toString().padLeft(2, '0')}',
+      if (account.cardLastFour?.isNotEmpty != true &&
+          account.note?.isNotEmpty == true)
+        account.note!
+    ].join(' · ');
+    return BeeCompactAccountRow(
+        name: account.name,
+        subtitle: metadata,
+        amount: balance == null ? '—' : amount(balance),
+        hidden: hidden,
+        icon: AccountTypeIcon(
+            type: account.type,
+            size: 19,
+            monochrome: true,
+            color: Theme.of(context).hintColor),
+        onTap: onTap,
+        onEdit: onEdit,
+        badge: badge,
+        converted: foreign
+            ? (converted == null
+                ? l.unconvertedBadge
+                : '≈ ${formatDisplayAmount(converted, currencyCode: base, showCurrency: true, signed: false, useCompactFormat: compactMoney)}')
+            : null,
+        status: isValuationOnlyType(account.type)
+            ? (isLiabilityType(account.type)
+                ? l.valuationCurrentDebt
+                : l.valuationCurrentValue)
+            : credit != null
+                ? (credit.overpayment > 0
+                    ? l.creditCardOverpayment
+                    : l.creditCardOwed)
+                : null,
+        progress: credit != null && (account.creditLimit ?? 0) > 0
+            ? (credit.debt / account.creditLimit!).clamp(0.0, 1.0)
+            : null,
+        creditLeft: credit?.estimatedAvailable != null
+            ? '${l.creditAvailable} ${amount(credit!.estimatedAvailable!)}'
+            : null,
+        creditRight: credit != null ? dates : null,
+        onRestore: onRestore,
+        restoreLabel: l.accountRestore,
+        includedLabel: l.v4AssetsHiddenIncluded);
   }
 
   Widget _buildValuationStats(
@@ -581,7 +716,8 @@ class CardStatBinding extends StatelessWidget {
 /// 跟 setting / add 等 outlined 图标视觉重量完全一致;语义上暗示「升级 /
 /// 进阶版本」,鼓励点击。颜色自适应 header 背景。点击进入介绍弹窗。
 class BeeAssetsHeaderEntryBinding extends StatelessWidget {
-  const BeeAssetsHeaderEntryBinding({super.key});
+  const BeeAssetsHeaderEntryBinding({super.key, this.asMenuRow = false});
+  final bool asMenuRow;
 
   @override
   Widget build(BuildContext context) {
@@ -589,6 +725,12 @@ class BeeAssetsHeaderEntryBinding extends StatelessWidget {
     final info = beeAssetsPromo(context);
     final texts = buildPromoTexts(context, l10n.aboutBeeAssets);
 
+    if (asMenuRow) {
+      return BeeMenuRow(
+          title: info.title,
+          leading: const BeeLineIcon('Sparkles'),
+          onTap: () => ProductPromoLauncher.open(context, info, texts));
+    }
     return BeeIconButton(
       onPressed: () => ProductPromoLauncher.open(context, info, texts),
       label: info.title,

@@ -1,6 +1,8 @@
+export 'asset_cards.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';
 import 'finance_components.dart';
+import 'asset_cards.dart';
 
 /// The host formats every amount using the original currency, compact and
 /// historical-rate rules. No calculation or request belongs in these models.
@@ -24,6 +26,15 @@ class BeeAssetSummary extends StatelessWidget {
     required this.onPrivacy,
     this.detailLabel,
     this.onDetails,
+    this.compact = false,
+    this.unitLabel,
+    this.onUnit,
+    this.currencies = const [],
+    this.currency,
+    this.onCurrency,
+    this.footnote,
+    this.onFootnote,
+    this.warning = false,
   });
   final String title, assetsLabel, liabilitiesLabel, privacyLabel;
   final List<BeeAssetAmount> balances;
@@ -32,48 +43,77 @@ class BeeAssetSummary extends StatelessWidget {
   final VoidCallback onPrivacy;
   final String? detailLabel;
   final VoidCallback? onDetails;
+  final bool compact, warning;
+  final String? unitLabel, currency, footnote;
+  final VoidCallback? onUnit, onFootnote;
+  final List<BeeSegment<String>> currencies;
+  final ValueChanged<String>? onCurrency;
 
   @override
-  Widget build(BuildContext context) => BeeSurface(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(children: [
-              Expanded(
-                  child: Text(title,
-                      style: TextStyle(
-                          fontSize: 12, color: Theme.of(context).hintColor))),
-              BeeIconButton(
-                  label: privacyLabel,
-                  icon: BeeLineIcon(hidden ? 'EyeOff' : 'Eye', size: 17),
-                  onPressed: onPrivacy),
-              if (onDetails != null && detailLabel != null)
-                BeeIconButton(
-                    label: detailLabel!,
-                    icon: const BeeLineIcon('ChevronRight', size: 17),
-                    onPressed: onDetails),
-            ]),
-            for (var i = 0; i < balances.length; i++)
-              Padding(
-                  padding: EdgeInsets.only(top: i == 0 ? 2 : 6),
-                  child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: BeeMoney(
-                          amount: balances[i].text,
-                          hidden: hidden,
-                          prefix: balances[i].approximate ? '≈' : null,
-                          prefixSize: 19,
-                          size: i == 0 ? 34 : 24,
-                          lineHeight: 1.4))),
-            const SizedBox(height: 20),
-            Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Expanded(child: _metric(context, assetsLabel, assets)),
-              const SizedBox(width: 16),
-              Expanded(child: _metric(context, liabilitiesLabel, liabilities)),
-            ]),
-          ]));
+  Widget build(BuildContext context) => compact
+      ? BeeAssetOverviewCard(
+          title: title,
+          balance: balances.first.text,
+          approximate: balances.first.approximate,
+          assetsLabel: assetsLabel,
+          assets: assets.firstOrNull ?? '0',
+          liabilitiesLabel: liabilitiesLabel,
+          liabilities: liabilities.firstOrNull ?? '0',
+          hidden: hidden,
+          privacyLabel: privacyLabel,
+          onPrivacy: onPrivacy,
+          unitLabel: unitLabel,
+          onUnit: onUnit,
+          currencies: currencies,
+          currency: currency,
+          onCurrency: onCurrency,
+          footnote: footnote,
+          onFootnote: onFootnote,
+          detailLabel: detailLabel,
+          onDetails: onDetails,
+          warning: warning)
+      : BeeSurface(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(children: [
+                  Expanded(
+                      child: Text(title,
+                          style: TextStyle(
+                              fontSize: 12,
+                              color: Theme.of(context).hintColor))),
+                  BeeIconButton(
+                      label: privacyLabel,
+                      icon: BeeLineIcon(hidden ? 'EyeOff' : 'Eye', size: 17),
+                      onPressed: onPrivacy),
+                  if (onDetails != null && detailLabel != null)
+                    BeeIconButton(
+                        label: detailLabel!,
+                        icon: const BeeLineIcon('ChevronRight', size: 17),
+                        onPressed: onDetails),
+                ]),
+                for (var i = 0; i < balances.length; i++)
+                  Padding(
+                      padding: EdgeInsets.only(top: i == 0 ? 2 : 6),
+                      child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: BeeMoney(
+                              amount: balances[i].text,
+                              hidden: hidden,
+                              prefix: balances[i].approximate ? '≈' : null,
+                              prefixSize: 19,
+                              size: i == 0 ? 34 : 24,
+                              lineHeight: 1.4))),
+                const SizedBox(height: 20),
+                Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Expanded(child: _metric(context, assetsLabel, assets)),
+                  const SizedBox(width: 16),
+                  Expanded(
+                      child: _metric(context, liabilitiesLabel, liabilities)),
+                ]),
+              ]));
 
   Widget _metric(BuildContext context, String label, List<String> amounts) =>
       Column(
@@ -106,8 +146,10 @@ class BeeAssetChartSection<T> extends StatelessWidget {
     required this.onSelected,
     this.detailLabel,
     this.onDetails,
+    this.compact = false,
   });
   final String title;
+  final bool compact;
   final Widget child;
   final List<BeeSegment<T>> segments;
   final T selected;
@@ -116,28 +158,49 @@ class BeeAssetChartSection<T> extends StatelessWidget {
   final VoidCallback? onDetails;
 
   @override
-  Widget build(BuildContext context) => BeeSurface(
+  Widget build(BuildContext context) => compact
+      ? BeeSurface(
+          padding: const EdgeInsets.fromLTRB(17, 12, 17, 12),
           child: Column(mainAxisSize: MainAxisSize.min, children: [
-        Row(children: [
-          Expanded(
-              child: Text(title,
-                  style: const TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.w600))),
-          if (onDetails != null && detailLabel != null)
-            BeeButton(
-                label: detailLabel!,
-                kind: BeeButtonKind.quiet,
-                compact: true,
-                onPressed: onDetails),
-        ]),
-        if (segments.length > 1) ...[
+            Row(children: [
+              Expanded(
+                  child: Text(title,
+                      style: const TextStyle(
+                          fontSize: 13, fontWeight: FontWeight.w600))),
+              if (segments.length > 1)
+                SizedBox(
+                    width: 128,
+                    child: BeeCompactTabs<T>(
+                        items: segments,
+                        value: selected,
+                        onChanged: onSelected,
+                        trackHeight: 28,
+                        fontSize: 10))
+            ]),
+            child,
+          ]))
+      : BeeSurface(
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Row(children: [
+            Expanded(
+                child: Text(title,
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.w600))),
+            if (onDetails != null && detailLabel != null)
+              BeeButton(
+                  label: detailLabel!,
+                  kind: BeeButtonKind.quiet,
+                  compact: true,
+                  onPressed: onDetails),
+          ]),
+          if (segments.length > 1) ...[
+            const SizedBox(height: 12),
+            BeeSegmented<T>(
+                items: segments, value: selected, onChanged: onSelected),
+          ],
           const SizedBox(height: 12),
-          BeeSegmented<T>(
-              items: segments, value: selected, onChanged: onSelected),
-        ],
-        const SizedBox(height: 12),
-        child,
-      ]));
+          child,
+        ]));
 }
 
 /// A controlled settings body. Default-account selection and persistence remain

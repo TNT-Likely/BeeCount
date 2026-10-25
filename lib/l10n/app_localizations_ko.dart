@@ -9112,4 +9112,48 @@ class AppLocalizationsKo extends AppLocalizations {
   String v4InsightsAllCategories(int count) {
     return 'All $count categories';
   }
+
+  @override
+  String get v4AssetsAllAccounts => 'All accounts';
+
+  @override
+  String get v4AssetsByCurrency => 'By currency';
+
+  @override
+  String get v4AssetsUnifiedConversion => 'Converted total';
+
+  @override
+  String get v4AssetsCurrencyView => 'Amount display';
+
+  @override
+  String get v4AssetsHiddenIncluded => 'Hidden accounts remain included in net worth.';
+
+  @override
+  String v4AssetsIncludesHidden(int count) {
+    return 'Includes $count hidden accounts';
+  }
+
+  @override
+  String get v4AssetsOrder => 'Account order';
+
+  @override
+  String get v4AssetsOrderHint => 'Reorder within an account type. Balances stay unchanged.';
+
+  @override
+  String get v4AssetsSeparateCurrencyHint => 'View each currency separately; currencies are not added together.';
+
+  @override
+  String get v4AssetsOriginal => 'Original';
+
+  @override
+  String get v4AssetsDefaultExpense => 'Default expense';
+
+  @override
+  String get v4AssetsDefaultIncome => 'Default income';
+
+  @override
+  String get v4AssetsTrend => 'Trend';
+
+  @override
+  String get v4AssetsComposition => 'Mix';
 }
