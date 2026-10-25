@@ -10,8 +10,8 @@
     "lib/pages/cloud/sync_preview_dialog.dart",
     "lib/pages/tag/widgets/tag_selector.dart"
   ],
-  "designSceneExports": 429,
-  "flowDefinitions": 183,
+  "designSceneExports": 526,
+  "flowDefinitions": 449,
   "priorityCounts": {
     "P0": 17,
     "P1": 43,
@@ -289,7 +289,7 @@
       "classes": [
         "AgentActivityPage"
       ],
-      "lines": 273,
+      "lines": 10,
       "batch": "M6 AI与自动化",
       "designRoutes": [
         "flow-activity"
@@ -297,10 +297,11 @@
       "designMapping": "已定位",
       "components": "消息、配置表单、授权、任务状态与列表",
       "acceptance": "沿用原 AI 服务与权限，保留配置草稿、能力绑定、执行反馈、失败重试和取消。",
-      "status": "待迁移",
+      "status": "迁移中·核对原功能并组件化，本地回归中",
       "name": "AI 活动记录",
       "priority": "P2",
       "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
+      "implementationStage": "in_progress",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-activity"
       ]
@@ -314,7 +315,12 @@
       "batch": "M6 AI与自动化",
       "designRoutes": [
         "flow-assistant-settings",
-        "flow-execution-depth"
+        "flow-execution-depth",
+        "flow-assistant-settings-loading",
+        "flow-assistant-settings-error",
+        "flow-execution-depth-quick",
+        "flow-execution-depth-deep",
+        "flow-execution-depth-maximum"
       ],
       "designMapping": "已定位",
       "components": "原权限/记忆/活动菜单、受控执行深度选择器、标准底部弹层、加载/错误/重试、App真实本地Store与当前账本绑定",
@@ -325,7 +331,12 @@
       "reason": "原226行页面/执行配置/本地Store/Provider四文件只读备份；薄页/纯执行深度选择器与App真实存储分层，原三入口及账本身份保留。同一QA四档保存/取消/正常重启、三个原目标返回、Flutter58及全部业务偏好/SQL/文件核验后封存。",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-assistant-settings",
-        "../../docs/design/card-refresh/prototype/demo.html?page=flow-execution-depth"
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-execution-depth",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-assistant-settings-loading",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-assistant-settings-error",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-execution-depth-quick",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-execution-depth-deep",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-execution-depth-maximum"
       ]
     },
     {
@@ -333,7 +344,7 @@
       "classes": [
         "AgentMemoryPage"
       ],
-      "lines": 226,
+      "lines": 10,
       "batch": "M6 AI与自动化",
       "designRoutes": [
         "flow-memory"
@@ -341,10 +352,11 @@
       "designMapping": "已定位",
       "components": "消息、配置表单、授权、任务状态与列表",
       "acceptance": "沿用原 AI 服务与权限，保留配置草稿、能力绑定、执行反馈、失败重试和取消。",
-      "status": "待迁移",
+      "status": "迁移中·核对原功能并组件化，本地回归中",
       "name": "AI 记忆管理",
       "priority": "P2",
       "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
+      "implementationStage": "in_progress",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-memory"
       ]
@@ -354,7 +366,7 @@
       "classes": [
         "AgentPermissionsPage"
       ],
-      "lines": 492,
+      "lines": 8,
       "batch": "M6 AI与自动化",
       "designRoutes": [
         "flow-permissions"
@@ -362,10 +374,11 @@
       "designMapping": "已定位",
       "components": "消息、配置表单、授权、任务状态与列表",
       "acceptance": "沿用原 AI 服务与权限，保留配置草稿、能力绑定、执行反馈、失败重试和取消。",
-      "status": "待迁移",
+      "status": "迁移中·核对原功能并组件化，本地回归中",
       "name": "AI 权限管理",
       "priority": "P2",
       "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
+      "implementationStage": "in_progress",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-permissions"
       ]
@@ -378,7 +391,20 @@
       "lines": 8,
       "batch": "M6 AI与自动化",
       "designRoutes": [
-        "ai"
+        "ai",
+        "flow-chat-empty",
+        "flow-chat-first",
+        "flow-chat-history",
+        "flow-chat-unconfigured",
+        "flow-chat-streaming",
+        "flow-chat-error",
+        "flow-chat-bill",
+        "flow-chat-undone",
+        "flow-chat-authorization",
+        "flow-chat-clear",
+        "flow-chat-message-menu",
+        "flow-chat-delete",
+        "flow-chat-ledger"
       ],
       "designMapping": "已定位",
       "components": "会话输入与停止、消息/账单卡、工具执行与授权、原会话/消息真实仓储绑定、标准确认弹窗",
@@ -388,7 +414,20 @@
       "priority": "P1",
       "reason": "原1524行页面及13个关联文件4140行、原基础弹窗/消息菜单/账本选择器完整只读备份。七个纯对话组件与App真实绑定，服务/权限/Markdown/时间线/追问/可见性按原字节保持；实际指定模型、授权写入、编辑/切账本/撤销、消息操作/重启与Flutter59及完整数据守卫通过，31图34文件报告封存。",
       "designLinks": [
-        "../../docs/design/card-refresh/prototype/demo.html?page=ai"
+        "../../docs/design/card-refresh/prototype/demo.html?page=ai",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-chat-empty",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-chat-first",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-chat-history",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-chat-unconfigured",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-chat-streaming",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-chat-error",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-chat-bill",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-chat-undone",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-chat-authorization",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-chat-clear",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-chat-message-menu",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-chat-delete",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-chat-ledger"
       ]
     },
     {
@@ -399,7 +438,13 @@
       "lines": 9,
       "batch": "M6 AI与自动化",
       "designRoutes": [
-        "flow-prompt"
+        "flow-prompt",
+        "flow-prompt-draft",
+        "flow-prompt-missing",
+        "flow-prompt-complete",
+        "flow-prompt-preview",
+        "flow-prompt-reset",
+        "flow-prompt-share"
       ],
       "designMapping": "已定位",
       "components": "模板变量折叠、能力缺失提示与安全补丁、代码编辑/预览、草稿保存/重置、剪贴板与分享App绑定",
@@ -409,7 +454,13 @@
       "priority": "P1",
       "reason": "原631行提示词页面及模板/常量/Manager四文件只读备份；薄页/纯代码与变量文档组件/App真实草稿与持久化分层，原模板及服务字节保持。R83同一QA实际编辑/补丁/取消/保存/默认恢复/长预览/系统分享取消/Flutter57和正常重启、完整偏好文件核验封存。",
       "designLinks": [
-        "../../docs/design/card-refresh/prototype/demo.html?page=flow-prompt"
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-prompt",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-prompt-draft",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-prompt-missing",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-prompt-complete",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-prompt-preview",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-prompt-reset",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-prompt-share"
       ]
     },
     {
@@ -550,7 +601,10 @@
       "lines": 15,
       "batch": "M7 初始化与数据",
       "designRoutes": [
-        "flow-login"
+        "flow-login",
+        "flow-login-webdav",
+        "flow-login-busy",
+        "flow-login-error"
       ],
       "designMapping": "已定位",
       "components": "登录表单、安全输入、验证码与错误反馈",
@@ -561,7 +615,10 @@
       "reason": "r91六类服务、四配置弹窗、完整教程/登录/记住账号与原服务契约已组件化，41项模拟鉴权/MockClient/widget及9文件静态检查通过；未访问真实网络/Cloud或设备，待统一集成和实服验收。",
       "implementationStage": "implemented",
       "designLinks": [
-        "../../docs/design/card-refresh/prototype/demo.html?page=flow-login"
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-login",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-login-webdav",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-login-busy",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-login-error"
       ]
     },
     {
@@ -657,19 +714,41 @@
       "batch": "M6 AI与自动化",
       "designRoutes": [
         "flow-android-auto",
-        "flow-auto-platform"
+        "flow-auto-platform",
+        "flow-auto-billing-android",
+        "flow-auto-billing-android-on",
+        "flow-auto-billing-battery-ok",
+        "flow-auto-billing-battery-error",
+        "flow-auto-billing-no-battery-request",
+        "flow-auto-billing-load-error",
+        "flow-auto-billing-permission-denied",
+        "flow-auto-billing-enable-error",
+        "flow-auto-billing-disable-error",
+        "flow-auto-billing-busy",
+        "flow-auto-billing"
       ],
       "designMapping": "已定位",
       "components": "平台引导、开关、选择项与配置表单",
       "acceptance": "保留 Android/iOS/渠道条件、权限检查、设置跳转、默认值与失败反馈。",
-      "status": "迁移中·子代理核对原流程并实施，原生验收未执行",
+      "status": "迁移中·代码与本地回归已交付，待统一产物和整页验收",
       "name": "Android 自动记账设置",
       "priority": "P1",
       "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
-      "implementationStage": "in_progress",
+      "implementationStage": "implemented",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-android-auto",
-        "../../docs/design/card-refresh/prototype/demo.html?page=flow-auto-platform"
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-auto-platform",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-auto-billing-android",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-auto-billing-android-on",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-auto-billing-battery-ok",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-auto-billing-battery-error",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-auto-billing-no-battery-request",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-auto-billing-load-error",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-auto-billing-permission-denied",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-auto-billing-enable-error",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-auto-billing-disable-error",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-auto-billing-busy",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-auto-billing"
       ]
     },
     {
@@ -680,18 +759,28 @@
       "lines": 101,
       "batch": "M6 AI与自动化",
       "designRoutes": [
-        "flow-ios-auto"
+        "flow-ios-auto",
+        "flow-auto-billing-ios",
+        "flow-auto-billing-ios-old",
+        "flow-auto-billing-ios-manual",
+        "flow-auto-billing-ios-open-error",
+        "flow-auto-billing-ios-opening"
       ],
       "designMapping": "已定位",
       "components": "平台引导、开关、选择项与配置表单",
       "acceptance": "保留 Android/iOS/渠道条件、权限检查、设置跳转、默认值与失败反馈。",
-      "status": "迁移中·子代理核对原流程并实施，原生验收未执行",
+      "status": "迁移中·代码与本地回归已交付，待统一产物和整页验收",
       "name": "iOS 自动记账设置",
       "priority": "P1",
       "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
-      "implementationStage": "in_progress",
+      "implementationStage": "implemented",
       "designLinks": [
-        "../../docs/design/card-refresh/prototype/demo.html?page=flow-ios-auto"
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-ios-auto",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-auto-billing-ios",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-auto-billing-ios-old",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-auto-billing-ios-manual",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-auto-billing-ios-open-error",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-auto-billing-ios-opening"
       ]
     },
     {
@@ -745,7 +834,17 @@
       "lines": 62,
       "batch": "M4 统计与分享",
       "designRoutes": [
-        "budget"
+        "budget",
+        "flow-budget",
+        "flow-budget-warning",
+        "flow-budget-danger",
+        "flow-budget-exceeded",
+        "flow-budget-empty",
+        "flow-budget-readonly",
+        "flow-budget-empty-readonly",
+        "flow-budget-loading",
+        "flow-budget-error",
+        "flow-budget-usd"
       ],
       "designMapping": "已定位",
       "components": "纯预算概览、风险进度与分类预算行，App统计与编辑动作绑定、真实只读预览和首页偏好",
@@ -755,7 +854,17 @@
       "priority": "P1",
       "reason": "128环形概览/分类预算/个人首页显示卡片完成，原统计与权限/编辑对象保留；R76同一QA真实UI、独立SQL/文件和正常重启通过。",
       "designLinks": [
-        "../../docs/design/card-refresh/prototype/demo.html?page=budget"
+        "../../docs/design/card-refresh/prototype/demo.html?page=budget",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-budget",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-budget-warning",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-budget-danger",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-budget-exceeded",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-budget-empty",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-budget-readonly",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-budget-empty-readonly",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-budget-loading",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-budget-error",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-budget-usd"
       ]
     },
     {
@@ -869,7 +978,14 @@
       "lines": 120,
       "batch": "M3 资源管理与详情",
       "designRoutes": [
-        "flow-category-migration"
+        "flow-category-migration",
+        "flow-category-migration-from",
+        "flow-category-migration-ready",
+        "flow-category-migration-empty",
+        "flow-cgm-select",
+        "flow-cgm-confirm",
+        "flow-cgm-complete",
+        "flow-cgm-cannot"
       ],
       "designMapping": "已定位",
       "components": "分类迁移选择对、类型、规范确认/结果弹窗、固定操作栏和真实迁移信息预览",
@@ -879,7 +995,14 @@
       "priority": "P1",
       "reason": "原506行和SHA备份；120行组合页与分类选择对、App动作/真实预览分层。R74同一QA原分类弹窗、实际2笔正反迁移、独立业务字段/关系/hash与正常重启闭环完成，保留原全账本查询/本地迁移。",
       "designLinks": [
-        "../../docs/design/card-refresh/prototype/demo.html?page=flow-category-migration"
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-category-migration",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-category-migration-from",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-category-migration-ready",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-category-migration-empty",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-cgm-select",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-cgm-confirm",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-cgm-complete",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-cgm-cannot"
       ]
     },
     {
@@ -892,20 +1015,24 @@
       "designRoutes": [
         "flow-cloud-sync",
         "flow-sync-health",
-        "flow-twofa"
+        "flow-twofa",
+        "flow-shared-sync",
+        "flow-shared-sync-error"
       ],
       "designMapping": "已定位",
       "components": "同步状态、配置、成员列表与权限操作",
       "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。",
-      "status": "迁移中·子代理核对共享云原流程并实施，待真实权限与同步验收",
+      "status": "迁移中·代码与本地回归已交付，待统一产物和整页验收",
       "name": "BeeCount Cloud 同步",
       "priority": "P1",
       "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
-      "implementationStage": "in_progress",
+      "implementationStage": "implemented",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-cloud-sync",
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-sync-health",
-        "../../docs/design/card-refresh/prototype/demo.html?page=flow-twofa"
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-twofa",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-shared-sync",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-shared-sync-error"
       ]
     },
     {
@@ -916,7 +1043,10 @@
       "lines": 8,
       "batch": "M5 云与共享",
       "designRoutes": [
-        "flow-cloud-config"
+        "flow-cloud-config",
+        "flow-cloud-config-ios",
+        "flow-cloud-config-normal",
+        "flow-cloud-config-failed"
       ],
       "designMapping": "已定位",
       "components": "同步状态、配置、成员列表与权限操作",
@@ -927,7 +1057,10 @@
       "reason": "r91六类服务、四配置弹窗、完整教程/登录/记住账号与原服务契约已组件化，41项模拟鉴权/MockClient/widget及9文件静态检查通过；未访问真实网络/Cloud或设备，待统一集成和实服验收。",
       "implementationStage": "implemented",
       "designLinks": [
-        "../../docs/design/card-refresh/prototype/demo.html?page=flow-cloud-config"
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-cloud-config",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-cloud-config-ios",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-cloud-config-normal",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-cloud-config-failed"
       ]
     },
     {
@@ -939,7 +1072,20 @@
       "batch": "M5 云与共享",
       "designRoutes": [
         "flow-backup",
-        "flow-failure"
+        "flow-failure",
+        "flow-backup-loading",
+        "flow-backup-error",
+        "flow-backup-no-ledger",
+        "flow-backup-signed-out",
+        "flow-backup-supabase",
+        "flow-backup-beecount",
+        "flow-backup-relogin",
+        "flow-backup-uploading",
+        "flow-backup-detail",
+        "flow-backup-preview",
+        "flow-backup-old-format",
+        "flow-backup-empty",
+        "flow-backup-restore-error"
       ],
       "designMapping": "已定位",
       "components": "同步状态、配置、成员列表与权限操作",
@@ -951,7 +1097,20 @@
       "implementationStage": "implemented",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-backup",
-        "../../docs/design/card-refresh/prototype/demo.html?page=flow-failure"
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-failure",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-backup-loading",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-backup-error",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-backup-no-ledger",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-backup-signed-out",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-backup-supabase",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-backup-beecount",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-backup-relogin",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-backup-uploading",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-backup-detail",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-backup-preview",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-backup-old-format",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-backup-empty",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-backup-restore-error"
       ]
     },
     {
@@ -962,18 +1121,22 @@
       "lines": 11,
       "batch": "M5 云与共享",
       "designRoutes": [
-        "flow-invite"
+        "flow-invite",
+        "flow-shared-invite",
+        "flow-shared-code"
       ],
       "designMapping": "已定位",
       "components": "同步状态、配置、成员列表与权限操作",
       "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。",
-      "status": "迁移中·子代理核对共享云原流程并实施，待真实权限与同步验收",
+      "status": "迁移中·代码与本地回归已交付，待统一产物和整页验收",
       "name": "共享账本邀请",
       "priority": "P1",
       "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
-      "implementationStage": "in_progress",
+      "implementationStage": "implemented",
       "designLinks": [
-        "../../docs/design/card-refresh/prototype/demo.html?page=flow-invite"
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-invite",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-shared-invite",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-shared-code"
       ]
     },
     {
@@ -984,18 +1147,22 @@
       "lines": 10,
       "batch": "M5 云与共享",
       "designRoutes": [
-        "flow-join"
+        "flow-join",
+        "flow-shared-join",
+        "flow-shared-preview"
       ],
       "designMapping": "已定位",
       "components": "同步状态、配置、成员列表与权限操作",
       "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。",
-      "status": "迁移中·子代理核对共享云原流程并实施，待真实权限与同步验收",
+      "status": "迁移中·代码与本地回归已交付，待统一产物和整页验收",
       "name": "加入共享账本",
       "priority": "P1",
       "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
-      "implementationStage": "in_progress",
+      "implementationStage": "implemented",
       "designLinks": [
-        "../../docs/design/card-refresh/prototype/demo.html?page=flow-join"
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-join",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-shared-join",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-shared-preview"
       ]
     },
     {
@@ -1006,18 +1173,26 @@
       "lines": 11,
       "batch": "M5 云与共享",
       "designRoutes": [
-        "flow-members"
+        "flow-members",
+        "flow-shared-members-owner",
+        "flow-shared-members-editor",
+        "flow-shared-members-loading",
+        "flow-shared-members-error"
       ],
       "designMapping": "已定位",
       "components": "同步状态、配置、成员列表与权限操作",
       "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。",
-      "status": "迁移中·子代理核对共享云原流程并实施，待真实权限与同步验收",
+      "status": "迁移中·代码与本地回归已交付，待统一产物和整页验收",
       "name": "共享成员管理",
       "priority": "P1",
       "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
-      "implementationStage": "in_progress",
+      "implementationStage": "implemented",
       "designLinks": [
-        "../../docs/design/card-refresh/prototype/demo.html?page=flow-members"
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-members",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-shared-members-owner",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-shared-members-editor",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-shared-members-loading",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-shared-members-error"
       ]
     },
     {
@@ -1028,18 +1203,24 @@
       "lines": 11,
       "batch": "M5 云与共享",
       "designRoutes": [
-        "flow-member-stats"
+        "flow-member-stats",
+        "flow-shared-stats",
+        "flow-shared-stats-empty",
+        "flow-shared-stats-error"
       ],
       "designMapping": "已定位",
       "components": "同步状态、配置、成员列表与权限操作",
       "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。",
-      "status": "迁移中·子代理核对共享云原流程并实施，待真实权限与同步验收",
+      "status": "迁移中·代码与本地回归已交付，待统一产物和整页验收",
       "name": "共享成员统计",
       "priority": "P2",
       "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
-      "implementationStage": "in_progress",
+      "implementationStage": "implemented",
       "designLinks": [
-        "../../docs/design/card-refresh/prototype/demo.html?page=flow-member-stats"
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-member-stats",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-shared-stats",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-shared-stats-empty",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-shared-stats-error"
       ]
     },
     {
@@ -1050,7 +1231,13 @@
       "lines": 140,
       "batch": "M3 资源管理与详情",
       "designRoutes": [
-        "flow-rates"
+        "flow-rates",
+        "flow-rates-empty",
+        "flow-rates-loading",
+        "flow-rates-error",
+        "flow-rates-refresh-error",
+        "flow-xrm-base",
+        "flow-xrm-rate-edit"
       ],
       "designMapping": "已定位",
       "components": "汇率行、原始精度输入与规范编辑弹窗、基础IME兼容小数输入、真实只读缓存和实际动作绑定",
@@ -1060,7 +1247,13 @@
       "priority": "P1",
       "reason": "原币种列表/151搜索底部选择/手动精度与反向/24h节流强刷保留；R75同一QA真实生产UI、独立SQL/文件与正常重启闭环通过。",
       "designLinks": [
-        "../../docs/design/card-refresh/prototype/demo.html?page=flow-rates"
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-rates",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-rates-empty",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-rates-loading",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-rates-error",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-rates-refresh-error",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-xrm-base",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-xrm-rate-edit"
       ]
     },
     {
@@ -1071,7 +1264,13 @@
       "lines": 8,
       "batch": "M7 初始化与数据",
       "designRoutes": [
-        "flow-export"
+        "flow-export",
+        "flow-export-running",
+        "flow-export-success",
+        "flow-export-error",
+        "flow-export-ios",
+        "flow-export-share-error",
+        "flow-export-long"
       ],
       "designMapping": "已定位",
       "components": "导入选择、字段映射、预览、任务状态与结果",
@@ -1082,7 +1281,13 @@
       "reason": "固定CSV导出的原流程与相关服务已独立只读备份。子代理已交付纯组件/真实App绑定/本地回归（相关12项通过）和HTML接入材料；主代理尚未统一注册、固定产物和原生整页验收，不计完成。",
       "implementationStage": "implemented",
       "designLinks": [
-        "../../docs/design/card-refresh/prototype/demo.html?page=flow-export"
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-export",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-export-running",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-export-success",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-export-error",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-export-ios",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-export-share-error",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-export-long"
       ]
     },
     {
@@ -1097,7 +1302,15 @@
         "flow-category-map",
         "flow-import-preview",
         "flow-import-progress",
-        "flow-result"
+        "flow-result",
+        "flow-import-result",
+        "flow-import-partial",
+        "flow-import-cancelled",
+        "flow-import-reading",
+        "flow-import-empty",
+        "flow-import-open-error",
+        "flow-import-invalid-currency",
+        "flow-import-background"
       ],
       "designMapping": "已定位",
       "components": "导入选择、字段映射、预览、任务状态与结果",
@@ -1112,7 +1325,15 @@
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-category-map",
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-import-preview",
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-import-progress",
-        "../../docs/design/card-refresh/prototype/demo.html?page=flow-result"
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-result",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-import-result",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-import-partial",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-import-cancelled",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-import-reading",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-import-empty",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-import-open-error",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-import-invalid-currency",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-import-background"
       ]
     },
     {
@@ -1142,7 +1363,7 @@
       "classes": [
         "DonationPage"
       ],
-      "lines": 377,
+      "lines": 8,
       "batch": "M8 设置与收尾",
       "designRoutes": [
         "flow-donation"
@@ -1150,10 +1371,11 @@
       "designMapping": "已定位",
       "components": "支持选项、支付入口和说明",
       "acceptance": "原支持选项、平台入口、复制/跳转与返回，沿用实际服务。",
-      "status": "待迁移",
+      "status": "迁移中·核对原功能并组件化，本地回归中",
       "name": "打赏支持",
       "priority": "P2",
       "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
+      "implementationStage": "in_progress",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-donation"
       ]
@@ -1321,7 +1543,12 @@
       "lines": 670,
       "batch": "M4 统计与分享",
       "designRoutes": [
-        "annual"
+        "annual",
+        "flow-annual-report",
+        "flow-annual-report-loading",
+        "flow-annual-report-empty",
+        "flow-annual-report-error",
+        "flow-annual-report-long"
       ],
       "designMapping": "已定位",
       "components": "年度汇总、趋势、排行与分享内容",
@@ -1332,7 +1559,12 @@
       "reason": "年度账单的原流程与相关服务已独立只读备份。子代理已交付纯组件/真实App绑定/本地回归（相关27项通过）和HTML接入材料；主代理尚未统一注册、固定产物和原生整页验收，不计完成。",
       "implementationStage": "implemented",
       "designLinks": [
-        "../../docs/design/card-refresh/prototype/demo.html?page=annual"
+        "../../docs/design/card-refresh/prototype/demo.html?page=annual",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-annual-report",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-annual-report-loading",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-annual-report-empty",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-annual-report-error",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-annual-report-long"
       ]
     },
     {
@@ -1348,11 +1580,11 @@
       "designMapping": "已定位",
       "components": "原分享模板、隐藏收入、预览、导出分享与错误/取消状态",
       "acceptance": "原生产弹窗共用真实数据body；保留档案/应用/年月模板及平台保存/分享，当前周期均值按已发生时间，不写回财务；固定产物和整页原生验收尚未完成。",
-      "status": "迁移中·原模板与弹窗共享body实现中，当前周期均值按已确认口径调整",
+      "status": "迁移中·代码与本地回归已交付，待统一产物和整页验收",
       "name": "分享卡片",
       "priority": "P1",
       "reason": "Q19 A保留原用户档案/应用模板，Q20 B当前周期按已发生天/月。r100子代理迁移原生产showDialog入口为共享body并新增薄Page复用，真实PNG/取消/隐私与本地回归中；不改变原弹窗产品路径，不计完整页。",
-      "implementationStage": "in_progress",
+      "implementationStage": "implemented",
       "newInV4": true,
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=poster"
@@ -1363,7 +1595,7 @@
       "classes": [
         "AboutPage"
       ],
-      "lines": 567,
+      "lines": 8,
       "batch": "M8 设置与收尾",
       "designRoutes": [
         "about",
@@ -1372,10 +1604,11 @@
       "designMapping": "已定位",
       "components": "版本/链接/分组菜单与升级弹窗",
       "acceptance": "完整原菜单、检查升级的检查中/最新/可升级/错误、平台入口；调试组件入口不计页面迁移完成。",
-      "status": "待迁移",
+      "status": "迁移中·核对原功能并组件化，本地回归中",
       "name": "关于与检查更新",
       "priority": "P2",
       "reason": "仅新增了调试验收入口，关于页本身未翻新；检查更新保持弹窗。",
+      "implementationStage": "in_progress",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=about",
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-update-check"
@@ -1618,7 +1851,7 @@
       "classes": [
         "HelpCenterPage"
       ],
-      "lines": 243,
+      "lines": 13,
       "batch": "M8 设置与收尾",
       "designRoutes": [
         "flow-help"
@@ -1626,10 +1859,11 @@
       "designMapping": "已定位",
       "components": "分组菜单、输入/选择/开关、弹窗与状态",
       "acceptance": "逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。",
-      "status": "待迁移",
+      "status": "迁移中·核对原功能并组件化，本地回归中",
       "name": "帮助中心",
       "priority": "P2",
       "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
+      "implementationStage": "in_progress",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-help"
       ]
@@ -1708,7 +1942,7 @@
       "classes": [
         "PrivacyPolicyPage"
       ],
-      "lines": 173,
+      "lines": 10,
       "batch": "M8 设置与收尾",
       "designRoutes": [
         "leaf:隐私政策"
@@ -1716,10 +1950,11 @@
       "designMapping": "已定位",
       "components": "分组菜单、输入/选择/开关、弹窗与状态",
       "acceptance": "逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。",
-      "status": "待迁移",
+      "status": "迁移中·核对原功能并组件化，本地回归中",
       "name": "隐私政策",
       "priority": "P2",
       "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
+      "implementationStage": "in_progress",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=leaf:隐私政策"
       ]
@@ -1762,7 +1997,7 @@
       "classes": [
         "ShortcutsGuidePage"
       ],
-      "lines": 582,
+      "lines": 8,
       "batch": "M6 AI与自动化",
       "designRoutes": [
         "flow-shortcuts"
@@ -1770,10 +2005,11 @@
       "designMapping": "已定位",
       "components": "分组菜单、输入/选择/开关、弹窗与状态",
       "acceptance": "逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。",
-      "status": "待迁移",
+      "status": "迁移中·核对原功能并组件化，本地回归中",
       "name": "快捷指令引导",
       "priority": "P2",
       "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
+      "implementationStage": "in_progress",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-shortcuts"
       ]
@@ -1872,21 +2108,53 @@
         "tagDetail",
         "flow-tag-foreign-detail",
         "flow-tag-all-ledgers-detail",
-        "flow-tag-empty-detail"
+        "flow-tag-empty-detail",
+        "flow-detail-currency-tag-current",
+        "flow-detail-currency-tag-all",
+        "flow-detail-currency-tag-usd",
+        "flow-detail-currency-tag-missing",
+        "flow-detail-currency-tag-native-missing",
+        "flow-detail-currency-tag-legacy",
+        "flow-detail-currency-tag-unknown",
+        "flow-detail-currency-tag-stale",
+        "flow-detail-currency-tag-invalid",
+        "flow-detail-currency-tag-shared",
+        "flow-detail-currency-tag-privacy",
+        "flow-detail-currency-tag-privacy-missing",
+        "flow-detail-currency-tag-month",
+        "flow-detail-currency-tag-year",
+        "flow-detail-currency-tag-empty",
+        "flow-detail-currency-tag-custom-month"
       ],
       "designMapping": "已定位",
       "components": "语义标签、关联分类、统计/筛选和账单行",
       "acceptance": "14图独立报告tag-r60三宽度及17文件/ZIP校验通过，SHA256 4a89da66479ba71deef351711289fa187e849ad7916a56a51b3e93346009e3ee。原57笔/当前53/24账户/5附件及全部原表保持。实际保留标签只关联账本1，不冒充原生多账本聚合；两个账本与synthetic共享字段由真实DB/widget覆盖。Cloud/iOS未执行。",
-      "status": "迁移中·Q11 B/Q23汇率口径已确认，待实现及整页验收",
+      "status": "迁移中·代码与本地回归已交付，待统一产物和整页验收",
       "name": "标签详情",
       "priority": "P1",
       "reason": "原567行备份保持，新213行页面接入真实统计/流/批量元信息/共享账户水合，保留全部默认、月年与自定义周期。R60同一QA当前范围、滚轮/编辑/删除取消、带标签记账取消、专属空标签创建与确认删除、原31笔标签全范围及正常重启通过。340项/46文件、12组HTML及独立几何通过，跨本位币合计沿用旧口径，Q11不擅自改。 用户已确认统一为当前账本币种，保留各账本历史native金额并按查询时汇率汇总；历史账单不回写。当前统一汇总与缺失汇率提示待实施，不能按决定本身计完整页。",
-      "implementationStage": "in_progress",
+      "implementationStage": "implemented",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=tagDetail",
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-tag-foreign-detail",
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-tag-all-ledgers-detail",
-        "../../docs/design/card-refresh/prototype/demo.html?page=flow-tag-empty-detail"
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-tag-empty-detail",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-tag-current",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-tag-all",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-tag-usd",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-tag-missing",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-tag-native-missing",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-tag-legacy",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-tag-unknown",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-tag-stale",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-tag-invalid",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-tag-shared",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-tag-privacy",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-tag-privacy-missing",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-tag-month",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-tag-year",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-tag-empty",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-tag-custom-month"
       ]
     },
     {
@@ -1949,20 +2217,50 @@
       "lines": 311,
       "batch": "M3 资源管理与详情",
       "designRoutes": [
-        "categoryDetail"
+        "categoryDetail",
+        "flow-detail-currency-category-current",
+        "flow-detail-currency-category-all",
+        "flow-detail-currency-category-usd",
+        "flow-detail-currency-category-missing",
+        "flow-detail-currency-category-native-missing",
+        "flow-detail-currency-category-legacy",
+        "flow-detail-currency-category-unknown",
+        "flow-detail-currency-category-stale",
+        "flow-detail-currency-category-invalid",
+        "flow-detail-currency-category-shared",
+        "flow-detail-currency-category-privacy",
+        "flow-detail-currency-category-privacy-missing",
+        "flow-detail-currency-category-month",
+        "flow-detail-currency-category-year",
+        "flow-detail-currency-category-empty"
       ],
       "designMapping": "已定位",
       "components": "分类信息/父子展开、统计、日期筛选与账单行",
       "acceptance": "一级与二级分类图标、跨账本标记、收入/支出、日期/时间、备注/标签与详情导航。",
-      "status": "迁移中·Q11 B/Q23汇率口径已确认，待实现及整页验收",
+      "status": "迁移中·代码与本地回归已交付，待统一产物和整页验收",
       "name": "分类详情",
       "priority": "P0",
       "reason": "R55同一产物复核父子自定义图标、独立SQL两笔/15.50、月年全部、滚轮取消、排序、编辑/迁移预填取消、父子范围搜索、记账预填取消及正常launcher重启；56笔/5附件SHA保持。逻辑除整页Scaffold外与R21一致，R21实际新增/删除保留对应版本证据，Q10/Q11不擅自改口径。 用户已确认统一为当前账本币种，保留各账本历史native金额并按查询时汇率汇总；历史账单不回写。当前统一汇总与缺失汇率提示待实施，不能按决定本身计完整页。",
       "checkpointReport": ".docs/acceptance/v4-migration/2026-10-24/category-r55/index.html",
       "checkpointZipSha256": "a4cfbad0d465a4175bb36755cb51942a7f3a10ee44126ca58a4e86e12ca6d354",
-      "implementationStage": "in_progress",
+      "implementationStage": "implemented",
       "designLinks": [
-        "../../docs/design/card-refresh/prototype/demo.html?page=categoryDetail"
+        "../../docs/design/card-refresh/prototype/demo.html?page=categoryDetail",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-category-current",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-category-all",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-category-usd",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-category-missing",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-category-native-missing",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-category-legacy",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-category-unknown",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-category-stale",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-category-invalid",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-category-shared",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-category-privacy",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-category-privacy-missing",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-category-month",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-category-year",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-category-empty"
       ]
     },
     {
@@ -1973,7 +2271,18 @@
       "lines": 11,
       "batch": "M1 记账闭环",
       "designRoutes": [
-        "flow-recurring-edit"
+        "flow-recurring-edit",
+        "flow-recurring-edit-new",
+        "flow-recurring-edit-transfer",
+        "flow-recurring-edit-daily",
+        "flow-recurring-edit-weekly",
+        "flow-recurring-edit-yearly",
+        "flow-recurring-edit-saving",
+        "flow-recurring-edit-error",
+        "flow-recurring-edit-loading",
+        "flow-recurring-edit-load-error",
+        "flow-recurring-edit-long",
+        "flow-recurring-edit-empty-accounts"
       ],
       "designMapping": "已定位",
       "components": "周期编辑表单、金额/币种/账户、日期与频率选择",
@@ -1984,7 +2293,18 @@
       "reason": "r90纯组件/原生产绑定/HTML已交付，21项真实数据库与widget回归及10文件静态检查通过；原服务SHA保持，待统一注册、固定产物及原生验收。",
       "implementationStage": "implemented",
       "designLinks": [
-        "../../docs/design/card-refresh/prototype/demo.html?page=flow-recurring-edit"
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-recurring-edit",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-recurring-edit-new",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-recurring-edit-transfer",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-recurring-edit-daily",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-recurring-edit-weekly",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-recurring-edit-yearly",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-recurring-edit-saving",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-recurring-edit-error",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-recurring-edit-loading",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-recurring-edit-load-error",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-recurring-edit-long",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-recurring-edit-empty-accounts"
       ]
     },
     {

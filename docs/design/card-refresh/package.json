@@ -37,7 +37,8 @@
     "check:ai-settings": "node scripts/validate-ai-settings.cjs",
     "check:ai-providers": "node scripts/validate-ai-providers.cjs",
     "check:ai-prompt": "node scripts/validate-ai-prompt.cjs",
-    "check:assistant-settings": "node scripts/validate-assistant-settings.cjs"
+    "check:assistant-settings": "node scripts/validate-assistant-settings.cjs",
+    "check:recurring-bills": "node scripts/validate-recurring-bills.cjs"
   },
   "devDependencies": {
     "playwright": "1.62.1"

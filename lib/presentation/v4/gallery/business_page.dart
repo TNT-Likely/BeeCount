@@ -1,3 +1,10 @@
+import '../../../l10n/app_localizations.dart';
+import 'share_card_sample.dart';
+import 'transaction_detail_sample.dart';
+import 'cloud_backup_sample.dart';
+import 'auto_billing_sample.dart';
+import 'detail_currency_sample.dart';
+import 'cloud_shared_sample.dart';
 import 'import_flow_sample.dart';
 import 'export_sample.dart';
 import 'recurring_editor_sample.dart';
@@ -90,7 +97,13 @@ const businessCases = [
   '周期编辑与完整频率',
   '年度账单七段内容',
   '小票弹窗与字段选择',
-  '云配置与登录表单'
+  '云配置与登录表单',
+  '账单详情与历史快照',
+  '备份同步与差异选择',
+  '两端自动记账与原引导',
+  '汇总币种与缺失状态',
+  '共享云与成员权限',
+  '分享卡与原海报预览'
 ];
 const demoTags = [
   BeeTagData('work', '工作日', Color(0xffaa8b29)),
@@ -128,7 +141,13 @@ class BusinessAcceptancePage extends StatefulWidget {
       this.exportData,
       this.recurringEditorData,
       this.annualReportData,
-      this.cloudConfigurationData});
+      this.cloudConfigurationData,
+      this.transactionDetailData,
+      this.cloudBackupData,
+      this.autoBillingData,
+      this.detailCurrencyData,
+      this.cloudSharedData,
+      this.shareCardData});
   final Widget? liveData,
       tagLibraryData,
       reminderData,
@@ -153,7 +172,13 @@ class BusinessAcceptancePage extends StatefulWidget {
       exportData,
       recurringEditorData,
       annualReportData,
-      cloudConfigurationData;
+      cloudConfigurationData,
+      transactionDetailData,
+      cloudBackupData,
+      autoBillingData,
+      detailCurrencyData,
+      cloudSharedData,
+      shareCardData;
   final int? isolatedCase;
   @override
   State<BusinessAcceptancePage> createState() => _BusinessAcceptancePageState();
@@ -1953,6 +1978,15 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
         63 => AnnualReportSample(liveData: widget.annualReportData),
         64 => const ReceiptSample(),
         65 => CloudConfigurationSample(liveData: widget.cloudConfigurationData),
+        66 => TransactionDetailSample(liveData: widget.transactionDetailData),
+        67 => CloudBackupSample(liveData: widget.cloudBackupData),
+        68 => AutoBillingSample(liveData: widget.autoBillingData),
+        69 => DetailCurrencySample(liveData: widget.detailCurrencyData),
+        70 => CloudSharedSample(liveData: widget.cloudSharedData),
+        71 => Localizations.override(
+            context: context,
+            delegates: const [AppLocalizations.delegate],
+            child: ShareCardSample(liveData: widget.shareCardData)),
         49 => BudgetSample(
             liveData: widget.budgetData, onEdit: () => record('选择预算编辑')),
         48 => ExchangeRateSample(liveData: widget.exchangeRateData),

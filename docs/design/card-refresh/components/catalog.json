@@ -570,6 +570,104 @@
         "title": "AI对话与记账卡",
         "nativeCase": 58,
         "nativeLabel": "AI对话与记账卡"
+      },
+      {
+        "id": "spec-81",
+        "code": "B56",
+        "title": "周期账单卡与真实模板",
+        "nativeCase": 59,
+        "nativeLabel": "周期账单卡与真实模板"
+      },
+      {
+        "id": "spec-82",
+        "code": "B57",
+        "title": "导入映射与任务状态",
+        "nativeCase": 60,
+        "nativeLabel": "导入映射与任务状态"
+      },
+      {
+        "id": "spec-83",
+        "code": "B58",
+        "title": "CSV导出与固定字段",
+        "nativeCase": 61,
+        "nativeLabel": "CSV导出与固定字段"
+      },
+      {
+        "id": "spec-84",
+        "code": "B59",
+        "title": "周期编辑与完整频率",
+        "nativeCase": 62,
+        "nativeLabel": "周期编辑与完整频率"
+      },
+      {
+        "id": "spec-85",
+        "code": "B60",
+        "title": "年度账单七段内容",
+        "nativeCase": 63,
+        "nativeLabel": "年度账单七段内容"
+      },
+      {
+        "id": "spec-86",
+        "code": "B61",
+        "title": "小票弹窗与字段选择",
+        "nativeCase": 64,
+        "nativeLabel": "小票弹窗与字段选择"
+      },
+      {
+        "id": "spec-87",
+        "code": "B62",
+        "title": "云配置与登录表单",
+        "nativeCase": 65,
+        "nativeLabel": "云配置与登录表单"
+      },
+      {
+        "id": "spec-88",
+        "code": "B63",
+        "title": "转账同屏与原币快照",
+        "nativeCase": 33,
+        "nativeLabel": "转账账户对"
+      },
+      {
+        "id": "spec-89",
+        "code": "B64",
+        "title": "账单详情与历史快照",
+        "nativeCase": 66,
+        "nativeLabel": "账单详情与历史快照"
+      },
+      {
+        "id": "spec-90",
+        "code": "B65",
+        "title": "备份同步与差异选择",
+        "nativeCase": 67,
+        "nativeLabel": "备份同步与差异选择"
+      },
+      {
+        "id": "spec-91",
+        "code": "B66",
+        "title": "两端自动记账与原引导",
+        "nativeCase": 68,
+        "nativeLabel": "两端自动记账与原引导"
+      },
+      {
+        "id": "spec-92",
+        "code": "B67",
+        "title": "汇总币种与缺失状态",
+        "nativeCase": 69,
+        "nativeLabel": "汇总币种与缺失状态"
+      },
+      {
+        "id": "spec-93",
+        "code": "B68",
+        "title": "共享云与成员权限",
+        "nativeCase": 70,
+        "nativeLabel": "共享云与成员权限"
+      },
+      {
+        "id": "spec-94",
+        "code": "B69",
+        "title": "分享卡与原海报预览",
+        "nativeCase": 71,
+        "nativeLabel": "分享卡与原海报预览"
       }
     ]
   }

@@ -1,0 +1,1 @@
+document.addEventListener('click',event=>{const button=event.target.closest('[data-td94-demo]');if(!button)return;const out=button.closest('.td94-guide')?.querySelector('[data-td94-demo-result]');if(out)out.textContent='QA 局部详情回调，不编辑真实账单或分享文件';});

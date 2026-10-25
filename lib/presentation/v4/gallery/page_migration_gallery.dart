@@ -1,3 +1,12 @@
+import '../../../pages/transaction/transaction_detail_page.dart';
+import '../../../pages/automation/auto_billing_settings_page.dart';
+import '../../../pages/cloud/cloud_sync_page.dart';
+import '../../../pages/cloud/beecount_cloud_sync_page.dart';
+import '../../../pages/cloud/invite_page.dart';
+import '../../../pages/cloud/join_shared_ledger_page.dart';
+import '../../../pages/cloud/member_list_page.dart';
+import '../../../pages/cloud/member_stats_page.dart';
+import '../../../pages/tag/tag_detail_page.dart';
 import '../../../pages/ai/ai_settings_page.dart';
 import '../../../pages/ai/ai_provider_manage_page.dart';
 import '../../../pages/ai/ai_prompt_edit_page.dart';
@@ -37,11 +46,16 @@ class PageMigrationGallery extends ConsumerStatefulWidget {
 class _PageMigrationGalleryState extends ConsumerState<PageMigrationGallery> {
   String query = '';
   late final _resources = _load();
-  Future<({List<db.Category> categories, List<db.Transaction> transactions})>
-      _load() async {
+  Future<
+      ({
+        List<db.Category> categories,
+        List<db.Transaction> transactions,
+        List<db.Tag> tags
+      })> _load() async {
     final repo = ref.read(repositoryProvider);
     return (
       categories: await repo.getAllCategories(),
+      tags: await repo.getAllTags(),
       transactions:
           await repo.getTransactionsByLedger(ref.read(currentLedgerIdProvider))
     );
@@ -51,6 +65,7 @@ class _PageMigrationGalleryState extends ConsumerState<PageMigrationGallery> {
   Widget build(BuildContext context) {
     if (!kDebugMode) return const SizedBox.shrink();
     final ledgerId = ref.watch(currentLedgerIdProvider);
+    final ledger = ref.watch(currentLedgerProvider).valueOrNull;
     return Scaffold(
         appBar: AppBar(title: const Text('页面迁移验收')),
         body: FutureBuilder(
@@ -66,6 +81,7 @@ class _PageMigrationGalleryState extends ConsumerState<PageMigrationGallery> {
               final data = snapshot.requireData;
               final category =
                   data.categories.isEmpty ? null : data.categories.first;
+              final tag = data.tags.isEmpty ? null : data.tags.first;
               final tx =
                   data.transactions.isEmpty ? null : data.transactions.first;
               final routes =
@@ -159,6 +175,74 @@ class _PageMigrationGalleryState extends ConsumerState<PageMigrationGallery> {
                   title: '初始化五步',
                   open: () => const WelcomePage()
                 ),
+                if (tx != null)
+                  (
+                    id: 'transaction-detail',
+                    title: '账单详情与历史快照',
+                    open: () => TransactionDetailPage(
+                        transactionId: tx.id, ledgerId: tx.ledgerId)
+                  ),
+                (
+                  id: 'cloud-backup',
+                  title: '备份同步与差异选择',
+                  open: () => const CloudSyncPage()
+                ),
+                (
+                  id: 'auto-billing',
+                  title: '自动记账与当前平台引导',
+                  open: () => const AutoBillingSettingsPage()
+                ),
+                if (category != null)
+                  (
+                    id: 'category-detail-all',
+                    title: '分类详情 · 全部账本折算',
+                    open: () => CategoryDetailPage(
+                        categoryId: category.id,
+                        categoryName: category.name,
+                        allLedgers: true)
+                  ),
+                if (tag != null)
+                  (
+                    id: 'tag-detail-all',
+                    title: '标签详情 · 全部账本折算',
+                    open: () => TagDetailPage(
+                        tagId: tag.id, tagName: tag.name, allLedgers: true)
+                  ),
+                (
+                  id: 'shared-sync',
+                  title: '共享云同步状态',
+                  open: () => const BeeCountCloudSyncPage()
+                ),
+                (
+                  id: 'shared-join',
+                  title: '加入共享账本',
+                  open: () => const JoinSharedLedgerPage()
+                ),
+                if (ledger?.syncId?.isNotEmpty == true &&
+                    ledger!.myRole == 'owner')
+                  (
+                    id: 'shared-invite',
+                    title: '邀请账本成员',
+                    open: () => InvitePage(
+                        ledgerExternalId: ledger.syncId!,
+                        ledgerName: ledger.name)
+                  ),
+                if (ledger?.syncId?.isNotEmpty == true && ledger!.isShared) ...[
+                  (
+                    id: 'shared-members',
+                    title: '共享账本成员',
+                    open: () => MemberListPage(
+                        ledgerExternalId: ledger.syncId!,
+                        ledgerName: ledger.name)
+                  ),
+                  (
+                    id: 'shared-stats',
+                    title: '共享成员统计',
+                    open: () => MemberStatsPage(
+                        ledgerExternalId: ledger.syncId!,
+                        ledgerName: ledger.name)
+                  ),
+                ],
                 (id: 'splash', title: '启动状态', open: () => const SplashPage()),
                 (id: 'pin', title: '设置 PIN', open: () => const PinSetupPage()),
                 (id: 'lock', title: '应用锁', open: () => const AppLockScreen()),
@@ -180,7 +264,7 @@ class _PageMigrationGalleryState extends ConsumerState<PageMigrationGallery> {
                                 padding: EdgeInsets.zero,
                                 child: BeeMenuRow(
                                     title: r.title,
-                                    subtitle: 'P0 · ${r.id}',
+                                    subtitle: r.id,
                                     onTap: () => Navigator.of(context).push(
                                         MaterialPageRoute(
                                             builder: (_) => r.open())))))

@@ -1,0 +1,1 @@
+document.addEventListener('click',event=>{const button=event.target.closest('[data-sc100-demo]');if(!button)return;const out=button.closest('.sc100-guide')?.querySelector('[data-sc100-demo-result]');if(out)out.textContent='QA 局部回调完成，不调用系统相册与分享';});

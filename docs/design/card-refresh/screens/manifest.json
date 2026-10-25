@@ -31,9 +31,9 @@
   },
   {
     "route": "categoryPicker",
-    "slug": "categoryPicker",
     "title": "选择分类 · 底部弹层",
     "group": "主要页面",
+    "slug": "categoryPicker",
     "fullHeight": 844,
     "viewport": "screens/viewport/categoryPicker.png",
     "full": "screens/full/categoryPicker.png",
@@ -41,9 +41,9 @@
   },
   {
     "route": "search",
-    "slug": "search",
     "title": "账单搜索",
     "group": "主要页面",
+    "slug": "search",
     "fullHeight": 3369,
     "viewport": "screens/viewport/search.png",
     "full": "screens/full/search.png",
@@ -51,10 +51,10 @@
   },
   {
     "route": "batch",
-    "slug": "batch",
     "title": "批量操作",
     "group": "主要页面",
-    "fullHeight": 2615,
+    "slug": "batch",
+    "fullHeight": 2635,
     "viewport": "screens/viewport/batch.png",
     "full": "screens/full/batch.png",
     "svg": "figma/batch.svg"
@@ -71,10 +71,10 @@
   },
   {
     "route": "categoryDetail",
-    "slug": "categoryDetail",
     "title": "分类详情 · 含二级分类",
     "group": "主要页面",
-    "fullHeight": 1654,
+    "slug": "categoryDetail",
+    "fullHeight": 2139,
     "viewport": "screens/viewport/categoryDetail.png",
     "full": "screens/full/categoryDetail.png",
     "svg": "figma/categoryDetail.svg"
@@ -94,7 +94,7 @@
     "title": "标签详情",
     "group": "主要页面",
     "slug": "tagDetail",
-    "fullHeight": 1873,
+    "fullHeight": 1808,
     "viewport": "screens/viewport/tagDetail.png",
     "full": "screens/full/tagDetail.png",
     "svg": "figma/tagDetail.svg"
@@ -151,10 +151,10 @@
   },
   {
     "route": "detail",
-    "slug": "detail",
     "title": "账单详情",
     "group": "常用流程",
-    "fullHeight": 1195,
+    "slug": "detail",
+    "fullHeight": 1127,
     "viewport": "screens/viewport/detail.png",
     "full": "screens/full/detail.png",
     "svg": "figma/detail.svg"
@@ -221,9 +221,9 @@
   },
   {
     "route": "cloud",
-    "slug": "cloud",
     "title": "云服务与同步",
     "group": "设置与管理",
+    "slug": "cloud",
     "fullHeight": 844,
     "viewport": "screens/viewport/cloud.png",
     "full": "screens/full/cloud.png",
@@ -321,19 +321,19 @@
   },
   {
     "route": "annual",
-    "slug": "annual",
     "title": "年度账单",
     "group": "启动与分享",
-    "fullHeight": 1412,
+    "slug": "annual",
+    "fullHeight": 844,
     "viewport": "screens/viewport/annual.png",
     "full": "screens/full/annual.png",
     "svg": "figma/annual.svg"
   },
   {
     "route": "poster",
-    "slug": "poster",
     "title": "分享卡片",
     "group": "启动与分享",
+    "slug": "poster",
     "fullHeight": 844,
     "viewport": "screens/viewport/poster.png",
     "full": "screens/full/poster.png",
@@ -341,10 +341,10 @@
   },
   {
     "route": "receipt",
-    "slug": "receipt",
     "title": "账单小票",
     "group": "启动与分享",
-    "fullHeight": 950,
+    "slug": "receipt",
+    "fullHeight": 844,
     "viewport": "screens/viewport/receipt.png",
     "full": "screens/full/receipt.png",
     "svg": "figma/receipt.svg"
@@ -371,9 +371,9 @@
   },
   {
     "route": "flow-login",
+    "title": "登录",
+    "group": "补齐 · 云服务与同步",
     "slug": "flow-login",
-    "title": "登录云服务",
-    "group": "补齐 · 首次使用与安全",
     "fullHeight": 844,
     "viewport": "screens/viewport/flow-login.png",
     "full": "screens/full/flow-login.png",
@@ -531,9 +531,9 @@
   },
   {
     "route": "flow-cloud-config",
-    "slug": "flow-cloud-config",
-    "title": "云服务配置 · 弹窗",
+    "title": "云服务",
     "group": "补齐 · 云服务与同步",
+    "slug": "flow-cloud-config",
     "fullHeight": 844,
     "viewport": "screens/viewport/flow-cloud-config.png",
     "full": "screens/full/flow-cloud-config.png",
@@ -571,9 +571,9 @@
   },
   {
     "route": "flow-backup",
-    "slug": "flow-backup",
-    "title": "备份与恢复",
+    "title": "云同步",
     "group": "补齐 · 云服务与同步",
+    "slug": "flow-backup",
     "fullHeight": 844,
     "viewport": "screens/viewport/flow-backup.png",
     "full": "screens/full/flow-backup.png",
@@ -591,9 +591,9 @@
   },
   {
     "route": "flow-import",
-    "slug": "flow-import",
     "title": "导入账单",
     "group": "补齐 · 导入导出与维护",
+    "slug": "flow-import",
     "fullHeight": 844,
     "viewport": "screens/viewport/flow-import.png",
     "full": "screens/full/flow-import.png",
@@ -601,19 +601,19 @@
   },
   {
     "route": "flow-mapping",
-    "slug": "flow-mapping",
-    "title": "字段映射",
+    "title": "确认映射",
     "group": "补齐 · 导入导出与维护",
-    "fullHeight": 844,
+    "slug": "flow-mapping",
+    "fullHeight": 1340,
     "viewport": "screens/viewport/flow-mapping.png",
     "full": "screens/full/flow-mapping.png",
     "svg": "figma/flow-mapping.svg"
   },
   {
     "route": "flow-category-map",
-    "slug": "flow-category-map",
-    "title": "分类关联",
+    "title": "分类映射",
     "group": "补齐 · 导入导出与维护",
+    "slug": "flow-category-map",
     "fullHeight": 844,
     "viewport": "screens/viewport/flow-category-map.png",
     "full": "screens/full/flow-category-map.png",
@@ -621,9 +621,9 @@
   },
   {
     "route": "flow-import-preview",
-    "slug": "flow-import-preview",
-    "title": "确认导入",
+    "title": "确认账户币种",
     "group": "补齐 · 导入导出与维护",
+    "slug": "flow-import-preview",
     "fullHeight": 844,
     "viewport": "screens/viewport/flow-import-preview.png",
     "full": "screens/full/flow-import-preview.png",
@@ -631,9 +631,9 @@
   },
   {
     "route": "flow-import-progress",
-    "slug": "flow-import-progress",
-    "title": "正在导入",
+    "title": "正在导入…",
     "group": "补齐 · 导入导出与维护",
+    "slug": "flow-import-progress",
     "fullHeight": 844,
     "viewport": "screens/viewport/flow-import-progress.png",
     "full": "screens/full/flow-import-progress.png",
@@ -641,10 +641,10 @@
   },
   {
     "route": "flow-export",
-    "slug": "flow-export",
-    "title": "导出账单",
+    "title": "导出",
     "group": "补齐 · 导入导出与维护",
-    "fullHeight": 878,
+    "slug": "flow-export",
+    "fullHeight": 844,
     "viewport": "screens/viewport/flow-export.png",
     "full": "screens/full/flow-export.png",
     "svg": "figma/flow-export.svg"
@@ -711,9 +711,9 @@
   },
   {
     "route": "flow-export-scope",
-    "slug": "flow-export-scope",
     "title": "选择导出范围 · 弹窗",
     "group": "补齐 · 导入导出与维护",
+    "slug": "flow-export-scope",
     "fullHeight": 844,
     "viewport": "screens/viewport/flow-export-scope.png",
     "full": "screens/full/flow-export-scope.png",
@@ -821,9 +821,9 @@
   },
   {
     "route": "flow-recurring",
-    "slug": "flow-recurring",
     "title": "周期账单",
     "group": "补齐 · 自动化与识别",
+    "slug": "flow-recurring",
     "fullHeight": 844,
     "viewport": "screens/viewport/flow-recurring.png",
     "full": "screens/full/flow-recurring.png",
@@ -831,29 +831,29 @@
   },
   {
     "route": "flow-recurring-edit",
-    "slug": "flow-recurring-edit",
-    "title": "编辑周期账单",
+    "title": "编辑周期账单 · 原编辑流程",
     "group": "补齐 · 自动化与识别",
-    "fullHeight": 1417,
+    "slug": "flow-recurring-edit",
+    "fullHeight": 1365,
     "viewport": "screens/viewport/flow-recurring-edit.png",
     "full": "screens/full/flow-recurring-edit.png",
     "svg": "figma/flow-recurring-edit.svg"
   },
   {
     "route": "flow-android-auto",
-    "slug": "flow-android-auto",
     "title": "Android 截图记账",
     "group": "补齐 · 自动化与识别",
-    "fullHeight": 844,
+    "slug": "flow-android-auto",
+    "fullHeight": 898,
     "viewport": "screens/viewport/flow-android-auto.png",
     "full": "screens/full/flow-android-auto.png",
     "svg": "figma/flow-android-auto.svg"
   },
   {
     "route": "flow-ios-auto",
-    "slug": "flow-ios-auto",
     "title": "iOS 截图记账",
     "group": "补齐 · 自动化与识别",
+    "slug": "flow-ios-auto",
     "fullHeight": 844,
     "viewport": "screens/viewport/flow-ios-auto.png",
     "full": "screens/full/flow-ios-auto.png",
@@ -1211,9 +1211,9 @@
   },
   {
     "route": "flow-receipt-options",
-    "slug": "flow-receipt-options",
     "title": "小票展示字段 · 底部弹层",
     "group": "补齐 · 记账选择与弹层",
+    "slug": "flow-receipt-options",
     "fullHeight": 844,
     "viewport": "screens/viewport/flow-receipt-options.png",
     "full": "screens/full/flow-receipt-options.png",
@@ -1321,10 +1321,10 @@
   },
   {
     "route": "flow-foreign-detail",
-    "slug": "flow-foreign-detail",
     "title": "账单详情 · 外币与记录时汇率",
     "group": "补齐 · 交互补充",
-    "fullHeight": 986,
+    "slug": "flow-foreign-detail",
+    "fullHeight": 1002,
     "viewport": "screens/viewport/flow-foreign-detail.png",
     "full": "screens/full/flow-foreign-detail.png",
     "svg": "figma/flow-foreign-detail.svg"
@@ -1351,10 +1351,10 @@
   },
   {
     "route": "flow-attachment-grid",
-    "slug": "flow-attachment-grid",
     "title": "账单详情 · 多张附件",
     "group": "补齐 · 交互补充",
-    "fullHeight": 1116,
+    "slug": "flow-attachment-grid",
+    "fullHeight": 1055,
     "viewport": "screens/viewport/flow-attachment-grid.png",
     "full": "screens/full/flow-attachment-grid.png",
     "svg": "figma/flow-attachment-grid.svg"
@@ -3672,5 +3672,1615 @@
     "viewport": "screens/viewport/flow-chat-first.png",
     "full": "screens/full/flow-chat-first.png",
     "svg": "figma/flow-chat-first.svg"
+  },
+  {
+    "route": "flow-recurring-empty",
+    "title": "周期账单 · 空列表",
+    "group": "补齐 · 自动化与识别",
+    "slug": "flow-recurring-empty",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-recurring-empty.png",
+    "full": "screens/full/flow-recurring-empty.png",
+    "svg": "figma/flow-recurring-empty.svg"
+  },
+  {
+    "route": "flow-recurring-loading",
+    "title": "周期账单 · 加载中",
+    "group": "补齐 · 自动化与识别",
+    "slug": "flow-recurring-loading",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-recurring-loading.png",
+    "full": "screens/full/flow-recurring-loading.png",
+    "svg": "figma/flow-recurring-loading.svg"
+  },
+  {
+    "route": "flow-recurring-error",
+    "title": "周期账单 · 加载失败与重试",
+    "group": "补齐 · 自动化与识别",
+    "slug": "flow-recurring-error",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-recurring-error.png",
+    "full": "screens/full/flow-recurring-error.png",
+    "svg": "figma/flow-recurring-error.svg"
+  },
+  {
+    "route": "flow-recurring-saving",
+    "title": "周期账单 · 启停保存中",
+    "group": "补齐 · 自动化与识别",
+    "slug": "flow-recurring-saving",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-recurring-saving.png",
+    "full": "screens/full/flow-recurring-saving.png",
+    "svg": "figma/flow-recurring-saving.svg"
+  },
+  {
+    "route": "flow-recurring-long",
+    "title": "周期账单 · 长分类与账本名称",
+    "group": "补齐 · 自动化与识别",
+    "slug": "flow-recurring-long",
+    "fullHeight": 1005,
+    "viewport": "screens/viewport/flow-recurring-long.png",
+    "full": "screens/full/flow-recurring-long.png",
+    "svg": "figma/flow-recurring-long.svg"
+  },
+  {
+    "route": "flow-recurring-save-error",
+    "title": "周期账单 · 保存失败保持原状态",
+    "group": "补齐 · 自动化与识别",
+    "slug": "flow-recurring-save-error",
+    "fullHeight": 861,
+    "viewport": "screens/viewport/flow-recurring-save-error.png",
+    "full": "screens/full/flow-recurring-save-error.png",
+    "svg": "figma/flow-recurring-save-error.svg"
+  },
+  {
+    "route": "flow-import-result",
+    "title": "导入完成",
+    "group": "补齐 · 导入导出与维护",
+    "slug": "flow-import-result",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-import-result.png",
+    "full": "screens/full/flow-import-result.png",
+    "svg": "figma/flow-import-result.svg"
+  },
+  {
+    "route": "flow-import-partial",
+    "title": "导入完成",
+    "group": "补齐 · 导入导出与维护",
+    "slug": "flow-import-partial",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-import-partial.png",
+    "full": "screens/full/flow-import-partial.png",
+    "svg": "figma/flow-import-partial.svg"
+  },
+  {
+    "route": "flow-import-cancelled",
+    "title": "导入完成",
+    "group": "补齐 · 导入导出与维护",
+    "slug": "flow-import-cancelled",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-import-cancelled.png",
+    "full": "screens/full/flow-import-cancelled.png",
+    "svg": "figma/flow-import-cancelled.svg"
+  },
+  {
+    "route": "flow-import-reading",
+    "title": "读取文件中…",
+    "group": "补齐 · 导入导出与维护",
+    "slug": "flow-import-reading",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-import-reading.png",
+    "full": "screens/full/flow-import-reading.png",
+    "svg": "figma/flow-import-reading.svg"
+  },
+  {
+    "route": "flow-import-empty",
+    "title": "确认映射",
+    "group": "补齐 · 导入导出与维护",
+    "slug": "flow-import-empty",
+    "fullHeight": 926,
+    "viewport": "screens/viewport/flow-import-empty.png",
+    "full": "screens/full/flow-import-empty.png",
+    "svg": "figma/flow-import-empty.svg"
+  },
+  {
+    "route": "flow-import-open-error",
+    "title": "导入账单",
+    "group": "补齐 · 导入导出与维护",
+    "slug": "flow-import-open-error",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-import-open-error.png",
+    "full": "screens/full/flow-import-open-error.png",
+    "svg": "figma/flow-import-open-error.svg"
+  },
+  {
+    "route": "flow-import-invalid-currency",
+    "title": "分类映射",
+    "group": "补齐 · 导入导出与维护",
+    "slug": "flow-import-invalid-currency",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-import-invalid-currency.png",
+    "full": "screens/full/flow-import-invalid-currency.png",
+    "svg": "figma/flow-import-invalid-currency.svg"
+  },
+  {
+    "route": "flow-import-background",
+    "title": "正在导入…",
+    "group": "补齐 · 导入导出与维护",
+    "slug": "flow-import-background",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-import-background.png",
+    "full": "screens/full/flow-import-background.png",
+    "svg": "figma/flow-import-background.svg"
+  },
+  {
+    "route": "flow-export-running",
+    "title": "导出 · 导出中",
+    "group": "补齐 · 导入导出与维护",
+    "slug": "flow-export-running",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-export-running.png",
+    "full": "screens/full/flow-export-running.png",
+    "svg": "figma/flow-export-running.svg"
+  },
+  {
+    "route": "flow-export-success",
+    "title": "导出 · 已保存",
+    "group": "补齐 · 导入导出与维护",
+    "slug": "flow-export-success",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-export-success.png",
+    "full": "screens/full/flow-export-success.png",
+    "svg": "figma/flow-export-success.svg"
+  },
+  {
+    "route": "flow-export-error",
+    "title": "导出 · 失败后重试",
+    "group": "补齐 · 导入导出与维护",
+    "slug": "flow-export-error",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-export-error.png",
+    "full": "screens/full/flow-export-error.png",
+    "svg": "figma/flow-export-error.svg"
+  },
+  {
+    "route": "flow-export-ios",
+    "title": "导出 · iOS 分享入口",
+    "group": "补齐 · 导入导出与维护",
+    "slug": "flow-export-ios",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-export-ios.png",
+    "full": "screens/full/flow-export-ios.png",
+    "svg": "figma/flow-export-ios.svg"
+  },
+  {
+    "route": "flow-export-share-error",
+    "title": "导出 · 已保存但分享失败",
+    "group": "补齐 · 导入导出与维护",
+    "slug": "flow-export-share-error",
+    "fullHeight": 889,
+    "viewport": "screens/viewport/flow-export-share-error.png",
+    "full": "screens/full/flow-export-share-error.png",
+    "svg": "figma/flow-export-share-error.svg"
+  },
+  {
+    "route": "flow-export-long",
+    "title": "导出 · 长账本名称",
+    "group": "补齐 · 导入导出与维护",
+    "slug": "flow-export-long",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-export-long.png",
+    "full": "screens/full/flow-export-long.png",
+    "svg": "figma/flow-export-long.svg"
+  },
+  {
+    "route": "flow-cloud-config-ios",
+    "title": "云服务",
+    "group": "补齐 · 云服务与同步",
+    "slug": "flow-cloud-config-ios",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-cloud-config-ios.png",
+    "full": "screens/full/flow-cloud-config-ios.png",
+    "svg": "figma/flow-cloud-config-ios.svg"
+  },
+  {
+    "route": "flow-cloud-config-normal",
+    "title": "云服务",
+    "group": "补齐 · 云服务与同步",
+    "slug": "flow-cloud-config-normal",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-cloud-config-normal.png",
+    "full": "screens/full/flow-cloud-config-normal.png",
+    "svg": "figma/flow-cloud-config-normal.svg"
+  },
+  {
+    "route": "flow-cloud-config-failed",
+    "title": "云服务",
+    "group": "补齐 · 云服务与同步",
+    "slug": "flow-cloud-config-failed",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-cloud-config-failed.png",
+    "full": "screens/full/flow-cloud-config-failed.png",
+    "svg": "figma/flow-cloud-config-failed.svg"
+  },
+  {
+    "route": "flow-login-webdav",
+    "title": "登录",
+    "group": "补齐 · 云服务与同步",
+    "slug": "flow-login-webdav",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-login-webdav.png",
+    "full": "screens/full/flow-login-webdav.png",
+    "svg": "figma/flow-login-webdav.svg"
+  },
+  {
+    "route": "flow-login-busy",
+    "title": "登录",
+    "group": "补齐 · 云服务与同步",
+    "slug": "flow-login-busy",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-login-busy.png",
+    "full": "screens/full/flow-login-busy.png",
+    "svg": "figma/flow-login-busy.svg"
+  },
+  {
+    "route": "flow-login-error",
+    "title": "登录",
+    "group": "补齐 · 云服务与同步",
+    "slug": "flow-login-error",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-login-error.png",
+    "full": "screens/full/flow-login-error.png",
+    "svg": "figma/flow-login-error.svg"
+  },
+  {
+    "route": "flow-recurring-edit-new",
+    "title": "编辑周期账单 · 原编辑流程-new",
+    "group": "补齐 · 自动化与识别",
+    "slug": "flow-recurring-edit-new",
+    "fullHeight": 1365,
+    "viewport": "screens/viewport/flow-recurring-edit-new.png",
+    "full": "screens/full/flow-recurring-edit-new.png",
+    "svg": "figma/flow-recurring-edit-new.svg"
+  },
+  {
+    "route": "flow-recurring-edit-transfer",
+    "title": "编辑周期账单 · 原编辑流程-transfer",
+    "group": "补齐 · 自动化与识别",
+    "slug": "flow-recurring-edit-transfer",
+    "fullHeight": 1320,
+    "viewport": "screens/viewport/flow-recurring-edit-transfer.png",
+    "full": "screens/full/flow-recurring-edit-transfer.png",
+    "svg": "figma/flow-recurring-edit-transfer.svg"
+  },
+  {
+    "route": "flow-recurring-edit-daily",
+    "title": "编辑周期账单 · 原编辑流程-daily",
+    "group": "补齐 · 自动化与识别",
+    "slug": "flow-recurring-edit-daily",
+    "fullHeight": 1181,
+    "viewport": "screens/viewport/flow-recurring-edit-daily.png",
+    "full": "screens/full/flow-recurring-edit-daily.png",
+    "svg": "figma/flow-recurring-edit-daily.svg"
+  },
+  {
+    "route": "flow-recurring-edit-weekly",
+    "title": "编辑周期账单 · 原编辑流程-weekly",
+    "group": "补齐 · 自动化与识别",
+    "slug": "flow-recurring-edit-weekly",
+    "fullHeight": 1273,
+    "viewport": "screens/viewport/flow-recurring-edit-weekly.png",
+    "full": "screens/full/flow-recurring-edit-weekly.png",
+    "svg": "figma/flow-recurring-edit-weekly.svg"
+  },
+  {
+    "route": "flow-recurring-edit-yearly",
+    "title": "编辑周期账单 · 原编辑流程-yearly",
+    "group": "补齐 · 自动化与识别",
+    "slug": "flow-recurring-edit-yearly",
+    "fullHeight": 1273,
+    "viewport": "screens/viewport/flow-recurring-edit-yearly.png",
+    "full": "screens/full/flow-recurring-edit-yearly.png",
+    "svg": "figma/flow-recurring-edit-yearly.svg"
+  },
+  {
+    "route": "flow-recurring-edit-saving",
+    "title": "编辑周期账单 · 原编辑流程-saving",
+    "group": "补齐 · 自动化与识别",
+    "slug": "flow-recurring-edit-saving",
+    "fullHeight": 1365,
+    "viewport": "screens/viewport/flow-recurring-edit-saving.png",
+    "full": "screens/full/flow-recurring-edit-saving.png",
+    "svg": "figma/flow-recurring-edit-saving.svg"
+  },
+  {
+    "route": "flow-recurring-edit-error",
+    "title": "编辑周期账单 · 原编辑流程-error",
+    "group": "补齐 · 自动化与识别",
+    "slug": "flow-recurring-edit-error",
+    "fullHeight": 1395,
+    "viewport": "screens/viewport/flow-recurring-edit-error.png",
+    "full": "screens/full/flow-recurring-edit-error.png",
+    "svg": "figma/flow-recurring-edit-error.svg"
+  },
+  {
+    "route": "flow-recurring-edit-loading",
+    "title": "编辑周期账单 · 原编辑流程-loading",
+    "group": "补齐 · 自动化与识别",
+    "slug": "flow-recurring-edit-loading",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-recurring-edit-loading.png",
+    "full": "screens/full/flow-recurring-edit-loading.png",
+    "svg": "figma/flow-recurring-edit-loading.svg"
+  },
+  {
+    "route": "flow-recurring-edit-load-error",
+    "title": "编辑周期账单 · 原编辑流程-load-error",
+    "group": "补齐 · 自动化与识别",
+    "slug": "flow-recurring-edit-load-error",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-recurring-edit-load-error.png",
+    "full": "screens/full/flow-recurring-edit-load-error.png",
+    "svg": "figma/flow-recurring-edit-load-error.svg"
+  },
+  {
+    "route": "flow-recurring-edit-long",
+    "title": "编辑周期账单 · 原编辑流程-long",
+    "group": "补齐 · 自动化与识别",
+    "slug": "flow-recurring-edit-long",
+    "fullHeight": 1365,
+    "viewport": "screens/viewport/flow-recurring-edit-long.png",
+    "full": "screens/full/flow-recurring-edit-long.png",
+    "svg": "figma/flow-recurring-edit-long.svg"
+  },
+  {
+    "route": "flow-recurring-edit-empty-accounts",
+    "title": "编辑周期账单 · 原编辑流程-empty-accounts",
+    "group": "补齐 · 自动化与识别",
+    "slug": "flow-recurring-edit-empty-accounts",
+    "fullHeight": 1365,
+    "viewport": "screens/viewport/flow-recurring-edit-empty-accounts.png",
+    "full": "screens/full/flow-recurring-edit-empty-accounts.png",
+    "svg": "figma/flow-recurring-edit-empty-accounts.svg"
+  },
+  {
+    "route": "flow-annual-report",
+    "title": "年度账单",
+    "group": "补齐 · 年度账单与小票",
+    "slug": "flow-annual-report",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-annual-report.png",
+    "full": "screens/full/flow-annual-report.png",
+    "svg": "figma/flow-annual-report.svg"
+  },
+  {
+    "route": "flow-annual-report-loading",
+    "title": "年度账单 · 生成中",
+    "group": "补齐 · 年度账单与小票",
+    "slug": "flow-annual-report-loading",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-annual-report-loading.png",
+    "full": "screens/full/flow-annual-report-loading.png",
+    "svg": "figma/flow-annual-report-loading.svg"
+  },
+  {
+    "route": "flow-annual-report-empty",
+    "title": "年度账单 · 无数据",
+    "group": "补齐 · 年度账单与小票",
+    "slug": "flow-annual-report-empty",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-annual-report-empty.png",
+    "full": "screens/full/flow-annual-report-empty.png",
+    "svg": "figma/flow-annual-report-empty.svg"
+  },
+  {
+    "route": "flow-annual-report-error",
+    "title": "年度账单 · 错误与重试",
+    "group": "补齐 · 年度账单与小票",
+    "slug": "flow-annual-report-error",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-annual-report-error.png",
+    "full": "screens/full/flow-annual-report-error.png",
+    "svg": "figma/flow-annual-report-error.svg"
+  },
+  {
+    "route": "flow-annual-report-long",
+    "title": "年度账单 · 长名称",
+    "group": "补齐 · 年度账单与小票",
+    "slug": "flow-annual-report-long",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-annual-report-long.png",
+    "full": "screens/full/flow-annual-report-long.png",
+    "svg": "figma/flow-annual-report-long.svg"
+  },
+  {
+    "route": "flow-receipt-preview",
+    "title": "账单小票弹窗",
+    "group": "补齐 · 年度账单与小票",
+    "slug": "flow-receipt-preview",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-receipt-preview.png",
+    "full": "screens/full/flow-receipt-preview.png",
+    "svg": "figma/flow-receipt-preview.svg"
+  },
+  {
+    "route": "flow-receipt-long",
+    "title": "账单小票 · 长备注与大金额",
+    "group": "补齐 · 年度账单与小票",
+    "slug": "flow-receipt-long",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-receipt-long.png",
+    "full": "screens/full/flow-receipt-long.png",
+    "svg": "figma/flow-receipt-long.svg"
+  },
+  {
+    "route": "flow-receipt-busy",
+    "title": "账单小票 · 导出中",
+    "group": "补齐 · 年度账单与小票",
+    "slug": "flow-receipt-busy",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-receipt-busy.png",
+    "full": "screens/full/flow-receipt-busy.png",
+    "svg": "figma/flow-receipt-busy.svg"
+  },
+  {
+    "route": "flow-receipt-unavailable",
+    "title": "账单小票 · 无法加载",
+    "group": "补齐 · 年度账单与小票",
+    "slug": "flow-receipt-unavailable",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-receipt-unavailable.png",
+    "full": "screens/full/flow-receipt-unavailable.png",
+    "svg": "figma/flow-receipt-unavailable.svg"
+  },
+  {
+    "route": "flow-transfer-inline",
+    "title": "转账 · 同屏空草稿",
+    "group": "补齐 · 主记账转账",
+    "slug": "flow-transfer-inline",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-transfer-inline.png",
+    "full": "screens/full/flow-transfer-inline.png",
+    "svg": "figma/flow-transfer-inline.svg"
+  },
+  {
+    "route": "flow-transfer-inline-cny",
+    "title": "转账 · CNY → CNY",
+    "group": "补齐 · 主记账转账",
+    "slug": "flow-transfer-inline-cny",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-transfer-inline-cny.png",
+    "full": "screens/full/flow-transfer-inline-cny.png",
+    "svg": "figma/flow-transfer-inline-cny.svg"
+  },
+  {
+    "route": "flow-transfer-inline-usd",
+    "title": "转账 · CNY账本内 USD → USD",
+    "group": "补齐 · 主记账转账",
+    "slug": "flow-transfer-inline-usd",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-transfer-inline-usd.png",
+    "full": "screens/full/flow-transfer-inline-usd.png",
+    "svg": "figma/flow-transfer-inline-usd.svg"
+  },
+  {
+    "route": "flow-transfer-inline-from-empty",
+    "title": "转账 · 转出为空",
+    "group": "补齐 · 主记账转账",
+    "slug": "flow-transfer-inline-from-empty",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-transfer-inline-from-empty.png",
+    "full": "screens/full/flow-transfer-inline-from-empty.png",
+    "svg": "figma/flow-transfer-inline-from-empty.svg"
+  },
+  {
+    "route": "flow-transfer-inline-to-empty",
+    "title": "转账 · 转入为空",
+    "group": "补齐 · 主记账转账",
+    "slug": "flow-transfer-inline-to-empty",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-transfer-inline-to-empty.png",
+    "full": "screens/full/flow-transfer-inline-to-empty.png",
+    "svg": "figma/flow-transfer-inline-to-empty.svg"
+  },
+  {
+    "route": "flow-transfer-inline-same-account",
+    "title": "转账 · 同账户禁止",
+    "group": "补齐 · 主记账转账",
+    "slug": "flow-transfer-inline-same-account",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-transfer-inline-same-account.png",
+    "full": "screens/full/flow-transfer-inline-same-account.png",
+    "svg": "figma/flow-transfer-inline-same-account.svg"
+  },
+  {
+    "route": "flow-transfer-inline-different",
+    "title": "转账 · 新增跨币种禁止",
+    "group": "补齐 · 主记账转账",
+    "slug": "flow-transfer-inline-different",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-transfer-inline-different.png",
+    "full": "screens/full/flow-transfer-inline-different.png",
+    "svg": "figma/flow-transfer-inline-different.svg"
+  },
+  {
+    "route": "flow-transfer-inline-no-rate",
+    "title": "转账 · 缺汇率",
+    "group": "补齐 · 主记账转账",
+    "slug": "flow-transfer-inline-no-rate",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-transfer-inline-no-rate.png",
+    "full": "screens/full/flow-transfer-inline-no-rate.png",
+    "svg": "figma/flow-transfer-inline-no-rate.svg"
+  },
+  {
+    "route": "flow-transfer-inline-invalid-rate",
+    "title": "转账 · 非法汇率",
+    "group": "补齐 · 主记账转账",
+    "slug": "flow-transfer-inline-invalid-rate",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-transfer-inline-invalid-rate.png",
+    "full": "screens/full/flow-transfer-inline-invalid-rate.png",
+    "svg": "figma/flow-transfer-inline-invalid-rate.svg"
+  },
+  {
+    "route": "flow-transfer-inline-history",
+    "title": "转账 · 历史跨币种编辑",
+    "group": "补齐 · 主记账转账",
+    "slug": "flow-transfer-inline-history",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-transfer-inline-history.png",
+    "full": "screens/full/flow-transfer-inline-history.png",
+    "svg": "figma/flow-transfer-inline-history.svg"
+  },
+  {
+    "route": "flow-transfer-inline-history-copy",
+    "title": "转账 · 历史跨币种复制需改同币种",
+    "group": "补齐 · 主记账转账",
+    "slug": "flow-transfer-inline-history-copy",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-transfer-inline-history-copy.png",
+    "full": "screens/full/flow-transfer-inline-history-copy.png",
+    "svg": "figma/flow-transfer-inline-history-copy.svg"
+  },
+  {
+    "route": "flow-transfer-inline-hidden-history",
+    "title": "转账 · 隐藏账户历史编辑",
+    "group": "补齐 · 主记账转账",
+    "slug": "flow-transfer-inline-hidden-history",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-transfer-inline-hidden-history.png",
+    "full": "screens/full/flow-transfer-inline-hidden-history.png",
+    "svg": "figma/flow-transfer-inline-hidden-history.svg"
+  },
+  {
+    "route": "flow-transfer-inline-hidden-new",
+    "title": "转账 · 新建排除隐藏账户",
+    "group": "补齐 · 主记账转账",
+    "slug": "flow-transfer-inline-hidden-new",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-transfer-inline-hidden-new.png",
+    "full": "screens/full/flow-transfer-inline-hidden-new.png",
+    "svg": "figma/flow-transfer-inline-hidden-new.svg"
+  },
+  {
+    "route": "flow-transfer-inline-fields",
+    "title": "转账 · 备注日期标签附件",
+    "group": "补齐 · 主记账转账",
+    "slug": "flow-transfer-inline-fields",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-transfer-inline-fields.png",
+    "full": "screens/full/flow-transfer-inline-fields.png",
+    "svg": "figma/flow-transfer-inline-fields.svg"
+  },
+  {
+    "route": "flow-transfer-inline-saving",
+    "title": "转账 · 防重复保存",
+    "group": "补齐 · 主记账转账",
+    "slug": "flow-transfer-inline-saving",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-transfer-inline-saving.png",
+    "full": "screens/full/flow-transfer-inline-saving.png",
+    "svg": "figma/flow-transfer-inline-saving.svg"
+  },
+  {
+    "route": "flow-transfer-inline-save-error",
+    "title": "转账 · 元信息失败原身份重试",
+    "group": "补齐 · 主记账转账",
+    "slug": "flow-transfer-inline-save-error",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-transfer-inline-save-error.png",
+    "full": "screens/full/flow-transfer-inline-save-error.png",
+    "svg": "figma/flow-transfer-inline-save-error.svg"
+  },
+  {
+    "route": "flow-transfer-inline-empty-accounts",
+    "title": "转账 · 无可交易账户",
+    "group": "补齐 · 主记账转账",
+    "slug": "flow-transfer-inline-empty-accounts",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-transfer-inline-empty-accounts.png",
+    "full": "screens/full/flow-transfer-inline-empty-accounts.png",
+    "svg": "figma/flow-transfer-inline-empty-accounts.svg"
+  },
+  {
+    "route": "flow-transfer-inline-note",
+    "title": "转账 · 小屏展开备注",
+    "group": "补齐 · 主记账转账",
+    "slug": "flow-transfer-inline-note",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-transfer-inline-note.png",
+    "full": "screens/full/flow-transfer-inline-note.png",
+    "svg": "figma/flow-transfer-inline-note.svg"
+  },
+  {
+    "route": "flow-transaction-detail",
+    "title": "账单详情 · 原交易",
+    "group": "补齐 · 账单与详情",
+    "slug": "flow-transaction-detail",
+    "fullHeight": 1127,
+    "viewport": "screens/viewport/flow-transaction-detail.png",
+    "full": "screens/full/flow-transaction-detail.png",
+    "svg": "figma/flow-transaction-detail.svg"
+  },
+  {
+    "route": "flow-transaction-detail-income",
+    "title": "账单详情 · income",
+    "group": "补齐 · 账单与详情",
+    "slug": "flow-transaction-detail-income",
+    "fullHeight": 884,
+    "viewport": "screens/viewport/flow-transaction-detail-income.png",
+    "full": "screens/full/flow-transaction-detail-income.png",
+    "svg": "figma/flow-transaction-detail-income.svg"
+  },
+  {
+    "route": "flow-transaction-detail-transfer",
+    "title": "账单详情 · transfer",
+    "group": "补齐 · 账单与详情",
+    "slug": "flow-transaction-detail-transfer",
+    "fullHeight": 1245,
+    "viewport": "screens/viewport/flow-transaction-detail-transfer.png",
+    "full": "screens/full/flow-transaction-detail-transfer.png",
+    "svg": "figma/flow-transaction-detail-transfer.svg"
+  },
+  {
+    "route": "flow-transaction-detail-foreign",
+    "title": "账单详情 · foreign",
+    "group": "补齐 · 账单与详情",
+    "slug": "flow-transaction-detail-foreign",
+    "fullHeight": 1245,
+    "viewport": "screens/viewport/flow-transaction-detail-foreign.png",
+    "full": "screens/full/flow-transaction-detail-foreign.png",
+    "svg": "figma/flow-transaction-detail-foreign.svg"
+  },
+  {
+    "route": "flow-transaction-detail-unconverted",
+    "title": "账单详情 · unconverted",
+    "group": "补齐 · 账单与详情",
+    "slug": "flow-transaction-detail-unconverted",
+    "fullHeight": 1220,
+    "viewport": "screens/viewport/flow-transaction-detail-unconverted.png",
+    "full": "screens/full/flow-transaction-detail-unconverted.png",
+    "svg": "figma/flow-transaction-detail-unconverted.svg"
+  },
+  {
+    "route": "flow-transaction-detail-private",
+    "title": "账单详情 · private",
+    "group": "补齐 · 账单与详情",
+    "slug": "flow-transaction-detail-private",
+    "fullHeight": 1245,
+    "viewport": "screens/viewport/flow-transaction-detail-private.png",
+    "full": "screens/full/flow-transaction-detail-private.png",
+    "svg": "figma/flow-transaction-detail-private.svg"
+  },
+  {
+    "route": "flow-transaction-detail-attachments",
+    "title": "账单详情 · attachments",
+    "group": "补齐 · 账单与详情",
+    "slug": "flow-transaction-detail-attachments",
+    "fullHeight": 1055,
+    "viewport": "screens/viewport/flow-transaction-detail-attachments.png",
+    "full": "screens/full/flow-transaction-detail-attachments.png",
+    "svg": "figma/flow-transaction-detail-attachments.svg"
+  },
+  {
+    "route": "flow-transaction-detail-missing-image",
+    "title": "账单详情 · missing-image",
+    "group": "补齐 · 账单与详情",
+    "slug": "flow-transaction-detail-missing-image",
+    "fullHeight": 1055,
+    "viewport": "screens/viewport/flow-transaction-detail-missing-image.png",
+    "full": "screens/full/flow-transaction-detail-missing-image.png",
+    "svg": "figma/flow-transaction-detail-missing-image.svg"
+  },
+  {
+    "route": "flow-transaction-detail-long",
+    "title": "账单详情 · long",
+    "group": "补齐 · 账单与详情",
+    "slug": "flow-transaction-detail-long",
+    "fullHeight": 1560,
+    "viewport": "screens/viewport/flow-transaction-detail-long.png",
+    "full": "screens/full/flow-transaction-detail-long.png",
+    "svg": "figma/flow-transaction-detail-long.svg"
+  },
+  {
+    "route": "flow-transaction-detail-loading",
+    "title": "账单详情 · loading",
+    "group": "补齐 · 账单与详情",
+    "slug": "flow-transaction-detail-loading",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-transaction-detail-loading.png",
+    "full": "screens/full/flow-transaction-detail-loading.png",
+    "svg": "figma/flow-transaction-detail-loading.svg"
+  },
+  {
+    "route": "flow-transaction-detail-error",
+    "title": "账单详情 · error",
+    "group": "补齐 · 账单与详情",
+    "slug": "flow-transaction-detail-error",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-transaction-detail-error.png",
+    "full": "screens/full/flow-transaction-detail-error.png",
+    "svg": "figma/flow-transaction-detail-error.svg"
+  },
+  {
+    "route": "flow-transaction-detail-missing",
+    "title": "账单详情 · missing",
+    "group": "补齐 · 账单与详情",
+    "slug": "flow-transaction-detail-missing",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-transaction-detail-missing.png",
+    "full": "screens/full/flow-transaction-detail-missing.png",
+    "svg": "figma/flow-transaction-detail-missing.svg"
+  },
+  {
+    "route": "flow-transaction-detail-readonly",
+    "title": "账单详情 · readonly",
+    "group": "补齐 · 账单与详情",
+    "slug": "flow-transaction-detail-readonly",
+    "fullHeight": 1127,
+    "viewport": "screens/viewport/flow-transaction-detail-readonly.png",
+    "full": "screens/full/flow-transaction-detail-readonly.png",
+    "svg": "figma/flow-transaction-detail-readonly.svg"
+  },
+  {
+    "route": "flow-backup-loading",
+    "title": "云同步",
+    "group": "补齐 · 云服务与同步",
+    "slug": "flow-backup-loading",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-backup-loading.png",
+    "full": "screens/full/flow-backup-loading.png",
+    "svg": "figma/flow-backup-loading.svg"
+  },
+  {
+    "route": "flow-backup-error",
+    "title": "云同步",
+    "group": "补齐 · 云服务与同步",
+    "slug": "flow-backup-error",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-backup-error.png",
+    "full": "screens/full/flow-backup-error.png",
+    "svg": "figma/flow-backup-error.svg"
+  },
+  {
+    "route": "flow-backup-no-ledger",
+    "title": "云同步",
+    "group": "补齐 · 云服务与同步",
+    "slug": "flow-backup-no-ledger",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-backup-no-ledger.png",
+    "full": "screens/full/flow-backup-no-ledger.png",
+    "svg": "figma/flow-backup-no-ledger.svg"
+  },
+  {
+    "route": "flow-backup-signed-out",
+    "title": "云同步",
+    "group": "补齐 · 云服务与同步",
+    "slug": "flow-backup-signed-out",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-backup-signed-out.png",
+    "full": "screens/full/flow-backup-signed-out.png",
+    "svg": "figma/flow-backup-signed-out.svg"
+  },
+  {
+    "route": "flow-backup-supabase",
+    "title": "云同步",
+    "group": "补齐 · 云服务与同步",
+    "slug": "flow-backup-supabase",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-backup-supabase.png",
+    "full": "screens/full/flow-backup-supabase.png",
+    "svg": "figma/flow-backup-supabase.svg"
+  },
+  {
+    "route": "flow-backup-beecount",
+    "title": "云同步",
+    "group": "补齐 · 云服务与同步",
+    "slug": "flow-backup-beecount",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-backup-beecount.png",
+    "full": "screens/full/flow-backup-beecount.png",
+    "svg": "figma/flow-backup-beecount.svg"
+  },
+  {
+    "route": "flow-backup-relogin",
+    "title": "云同步",
+    "group": "补齐 · 云服务与同步",
+    "slug": "flow-backup-relogin",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-backup-relogin.png",
+    "full": "screens/full/flow-backup-relogin.png",
+    "svg": "figma/flow-backup-relogin.svg"
+  },
+  {
+    "route": "flow-backup-uploading",
+    "title": "云同步",
+    "group": "补齐 · 云服务与同步",
+    "slug": "flow-backup-uploading",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-backup-uploading.png",
+    "full": "screens/full/flow-backup-uploading.png",
+    "svg": "figma/flow-backup-uploading.svg"
+  },
+  {
+    "route": "flow-backup-detail",
+    "title": "云同步",
+    "group": "补齐 · 云服务与同步",
+    "slug": "flow-backup-detail",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-backup-detail.png",
+    "full": "screens/full/flow-backup-detail.png",
+    "svg": "figma/flow-backup-detail.svg"
+  },
+  {
+    "route": "flow-backup-preview",
+    "title": "云同步",
+    "group": "补齐 · 云服务与同步",
+    "slug": "flow-backup-preview",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-backup-preview.png",
+    "full": "screens/full/flow-backup-preview.png",
+    "svg": "figma/flow-backup-preview.svg"
+  },
+  {
+    "route": "flow-backup-old-format",
+    "title": "云同步",
+    "group": "补齐 · 云服务与同步",
+    "slug": "flow-backup-old-format",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-backup-old-format.png",
+    "full": "screens/full/flow-backup-old-format.png",
+    "svg": "figma/flow-backup-old-format.svg"
+  },
+  {
+    "route": "flow-backup-empty",
+    "title": "云同步",
+    "group": "补齐 · 云服务与同步",
+    "slug": "flow-backup-empty",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-backup-empty.png",
+    "full": "screens/full/flow-backup-empty.png",
+    "svg": "figma/flow-backup-empty.svg"
+  },
+  {
+    "route": "flow-backup-restore-error",
+    "title": "云同步",
+    "group": "补齐 · 云服务与同步",
+    "slug": "flow-backup-restore-error",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-backup-restore-error.png",
+    "full": "screens/full/flow-backup-restore-error.png",
+    "svg": "figma/flow-backup-restore-error.svg"
+  },
+  {
+    "route": "flow-auto-billing-android",
+    "title": "Android · 默认关闭",
+    "group": "自动记账 · 平台与错误",
+    "slug": "flow-auto-billing-android",
+    "fullHeight": 898,
+    "viewport": "screens/viewport/flow-auto-billing-android.png",
+    "full": "screens/full/flow-auto-billing-android.png",
+    "svg": "figma/flow-auto-billing-android.svg"
+  },
+  {
+    "route": "flow-auto-billing-android-on",
+    "title": "Android · 已开启",
+    "group": "自动记账 · 平台与错误",
+    "slug": "flow-auto-billing-android-on",
+    "fullHeight": 898,
+    "viewport": "screens/viewport/flow-auto-billing-android-on.png",
+    "full": "screens/full/flow-auto-billing-android-on.png",
+    "svg": "figma/flow-auto-billing-android-on.svg"
+  },
+  {
+    "route": "flow-auto-billing-battery-ok",
+    "title": "Android · 电池已豁免",
+    "group": "自动记账 · 平台与错误",
+    "slug": "flow-auto-billing-battery-ok",
+    "fullHeight": 898,
+    "viewport": "screens/viewport/flow-auto-billing-battery-ok.png",
+    "full": "screens/full/flow-auto-billing-battery-ok.png",
+    "svg": "figma/flow-auto-billing-battery-ok.svg"
+  },
+  {
+    "route": "flow-auto-billing-battery-error",
+    "title": "Android · 电池读取失败",
+    "group": "自动记账 · 平台与错误",
+    "slug": "flow-auto-billing-battery-error",
+    "fullHeight": 898,
+    "viewport": "screens/viewport/flow-auto-billing-battery-error.png",
+    "full": "screens/full/flow-auto-billing-battery-error.png",
+    "svg": "figma/flow-auto-billing-battery-error.svg"
+  },
+  {
+    "route": "flow-auto-billing-no-battery-request",
+    "title": "Android · 系统不支持请求",
+    "group": "自动记账 · 平台与错误",
+    "slug": "flow-auto-billing-no-battery-request",
+    "fullHeight": 898,
+    "viewport": "screens/viewport/flow-auto-billing-no-battery-request.png",
+    "full": "screens/full/flow-auto-billing-no-battery-request.png",
+    "svg": "figma/flow-auto-billing-no-battery-request.svg"
+  },
+  {
+    "route": "flow-auto-billing-load-error",
+    "title": "Android · 状态读取失败可重试",
+    "group": "自动记账 · 平台与错误",
+    "slug": "flow-auto-billing-load-error",
+    "fullHeight": 1020,
+    "viewport": "screens/viewport/flow-auto-billing-load-error.png",
+    "full": "screens/full/flow-auto-billing-load-error.png",
+    "svg": "figma/flow-auto-billing-load-error.svg"
+  },
+  {
+    "route": "flow-auto-billing-permission-denied",
+    "title": "Android · 权限拒绝",
+    "group": "自动记账 · 平台与错误",
+    "slug": "flow-auto-billing-permission-denied",
+    "fullHeight": 898,
+    "viewport": "screens/viewport/flow-auto-billing-permission-denied.png",
+    "full": "screens/full/flow-auto-billing-permission-denied.png",
+    "svg": "figma/flow-auto-billing-permission-denied.svg"
+  },
+  {
+    "route": "flow-auto-billing-enable-error",
+    "title": "Android · 启用失败",
+    "group": "自动记账 · 平台与错误",
+    "slug": "flow-auto-billing-enable-error",
+    "fullHeight": 898,
+    "viewport": "screens/viewport/flow-auto-billing-enable-error.png",
+    "full": "screens/full/flow-auto-billing-enable-error.png",
+    "svg": "figma/flow-auto-billing-enable-error.svg"
+  },
+  {
+    "route": "flow-auto-billing-disable-error",
+    "title": "Android · 停用失败",
+    "group": "自动记账 · 平台与错误",
+    "slug": "flow-auto-billing-disable-error",
+    "fullHeight": 898,
+    "viewport": "screens/viewport/flow-auto-billing-disable-error.png",
+    "full": "screens/full/flow-auto-billing-disable-error.png",
+    "svg": "figma/flow-auto-billing-disable-error.svg"
+  },
+  {
+    "route": "flow-auto-billing-busy",
+    "title": "Android · 操作处理中",
+    "group": "自动记账 · 平台与错误",
+    "slug": "flow-auto-billing-busy",
+    "fullHeight": 898,
+    "viewport": "screens/viewport/flow-auto-billing-busy.png",
+    "full": "screens/full/flow-auto-billing-busy.png",
+    "svg": "figma/flow-auto-billing-busy.svg"
+  },
+  {
+    "route": "flow-auto-billing-ios",
+    "title": "iOS · 一键导入与手动兜底",
+    "group": "自动记账 · 平台与错误",
+    "slug": "flow-auto-billing-ios",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-auto-billing-ios.png",
+    "full": "screens/full/flow-auto-billing-ios.png",
+    "svg": "figma/flow-auto-billing-ios.svg"
+  },
+  {
+    "route": "flow-auto-billing-ios-old",
+    "title": "iOS · 16以下提示",
+    "group": "自动记账 · 平台与错误",
+    "slug": "flow-auto-billing-ios-old",
+    "fullHeight": 959,
+    "viewport": "screens/viewport/flow-auto-billing-ios-old.png",
+    "full": "screens/full/flow-auto-billing-ios-old.png",
+    "svg": "figma/flow-auto-billing-ios-old.svg"
+  },
+  {
+    "route": "flow-auto-billing-ios-manual",
+    "title": "iOS · 展开六步引导",
+    "group": "自动记账 · 平台与错误",
+    "slug": "flow-auto-billing-ios-manual",
+    "fullHeight": 1235,
+    "viewport": "screens/viewport/flow-auto-billing-ios-manual.png",
+    "full": "screens/full/flow-auto-billing-ios-manual.png",
+    "svg": "figma/flow-auto-billing-ios-manual.svg"
+  },
+  {
+    "route": "flow-auto-billing-ios-open-error",
+    "title": "iOS · 导入失败",
+    "group": "自动记账 · 平台与错误",
+    "slug": "flow-auto-billing-ios-open-error",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-auto-billing-ios-open-error.png",
+    "full": "screens/full/flow-auto-billing-ios-open-error.png",
+    "svg": "figma/flow-auto-billing-ios-open-error.svg"
+  },
+  {
+    "route": "flow-auto-billing-ios-opening",
+    "title": "iOS · 外部打开中防重",
+    "group": "自动记账 · 平台与错误",
+    "slug": "flow-auto-billing-ios-opening",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-auto-billing-ios-opening.png",
+    "full": "screens/full/flow-auto-billing-ios-opening.png",
+    "svg": "figma/flow-auto-billing-ios-opening.svg"
+  },
+  {
+    "route": "flow-auto-billing-sample",
+    "title": "自动记账 · 受控组件",
+    "group": "自动记账 · 平台与错误",
+    "slug": "flow-auto-billing-sample",
+    "fullHeight": 1006,
+    "viewport": "screens/viewport/flow-auto-billing-sample.png",
+    "full": "screens/full/flow-auto-billing-sample.png",
+    "svg": "figma/flow-auto-billing-sample.svg"
+  },
+  {
+    "route": "flow-detail-currency-category-current",
+    "title": "分类详情 · 当前账本本币与外币历史快照",
+    "group": "分类与标签 · 汇总币种",
+    "slug": "flow-detail-currency-category-current",
+    "fullHeight": 1348,
+    "viewport": "screens/viewport/flow-detail-currency-category-current.png",
+    "full": "screens/full/flow-detail-currency-category-current.png",
+    "svg": "figma/flow-detail-currency-category-current.svg"
+  },
+  {
+    "route": "flow-detail-currency-category-all",
+    "title": "分类详情 · 全部账本统一为CNY",
+    "group": "分类与标签 · 汇总币种",
+    "slug": "flow-detail-currency-category-all",
+    "fullHeight": 1568,
+    "viewport": "screens/viewport/flow-detail-currency-category-all.png",
+    "full": "screens/full/flow-detail-currency-category-all.png",
+    "svg": "figma/flow-detail-currency-category-all.svg"
+  },
+  {
+    "route": "flow-detail-currency-category-usd",
+    "title": "分类详情 · 切当前账本为USD与反向汇率",
+    "group": "分类与标签 · 汇总币种",
+    "slug": "flow-detail-currency-category-usd",
+    "fullHeight": 1568,
+    "viewport": "screens/viewport/flow-detail-currency-category-usd.png",
+    "full": "screens/full/flow-detail-currency-category-usd.png",
+    "svg": "figma/flow-detail-currency-category-usd.svg"
+  },
+  {
+    "route": "flow-detail-currency-category-missing",
+    "title": "分类详情 · 缺USD汇率禁止完整合计",
+    "group": "分类与标签 · 汇总币种",
+    "slug": "flow-detail-currency-category-missing",
+    "fullHeight": 1570,
+    "viewport": "screens/viewport/flow-detail-currency-category-missing.png",
+    "full": "screens/full/flow-detail-currency-category-missing.png",
+    "svg": "figma/flow-detail-currency-category-missing.svg"
+  },
+  {
+    "route": "flow-detail-currency-category-native-missing",
+    "title": "分类详情 · 显式外币缺历史native",
+    "group": "分类与标签 · 汇总币种",
+    "slug": "flow-detail-currency-category-native-missing",
+    "fullHeight": 1567,
+    "viewport": "screens/viewport/flow-detail-currency-category-native-missing.png",
+    "full": "screens/full/flow-detail-currency-category-native-missing.png",
+    "svg": "figma/flow-detail-currency-category-native-missing.svg"
+  },
+  {
+    "route": "flow-detail-currency-category-legacy",
+    "title": "分类详情 · 旧null原币与空native合法本币",
+    "group": "分类与标签 · 汇总币种",
+    "slug": "flow-detail-currency-category-legacy",
+    "fullHeight": 1078,
+    "viewport": "screens/viewport/flow-detail-currency-category-legacy.png",
+    "full": "screens/full/flow-detail-currency-category-legacy.png",
+    "svg": "figma/flow-detail-currency-category-legacy.svg"
+  },
+  {
+    "route": "flow-detail-currency-category-unknown",
+    "title": "分类详情 · 来源或币种缺失",
+    "group": "分类与标签 · 汇总币种",
+    "slug": "flow-detail-currency-category-unknown",
+    "fullHeight": 1585,
+    "viewport": "screens/viewport/flow-detail-currency-category-unknown.png",
+    "full": "screens/full/flow-detail-currency-category-unknown.png",
+    "svg": "figma/flow-detail-currency-category-unknown.svg"
+  },
+  {
+    "route": "flow-detail-currency-category-stale",
+    "title": "分类详情 · 陈旧有效缓存与日期",
+    "group": "分类与标签 · 汇总币种",
+    "slug": "flow-detail-currency-category-stale",
+    "fullHeight": 1583,
+    "viewport": "screens/viewport/flow-detail-currency-category-stale.png",
+    "full": "screens/full/flow-detail-currency-category-stale.png",
+    "svg": "figma/flow-detail-currency-category-stale.svg"
+  },
+  {
+    "route": "flow-detail-currency-category-invalid",
+    "title": "分类详情 · 无效直接手动率不得回退",
+    "group": "分类与标签 · 汇总币种",
+    "slug": "flow-detail-currency-category-invalid",
+    "fullHeight": 1570,
+    "viewport": "screens/viewport/flow-detail-currency-category-invalid.png",
+    "full": "screens/full/flow-detail-currency-category-invalid.png",
+    "svg": "figma/flow-detail-currency-category-invalid.svg"
+  },
+  {
+    "route": "flow-detail-currency-category-shared",
+    "title": "分类详情 · 共享synthetic分类标签来源",
+    "group": "分类与标签 · 汇总币种",
+    "slug": "flow-detail-currency-category-shared",
+    "fullHeight": 1111,
+    "viewport": "screens/viewport/flow-detail-currency-category-shared.png",
+    "full": "screens/full/flow-detail-currency-category-shared.png",
+    "svg": "figma/flow-detail-currency-category-shared.svg"
+  },
+  {
+    "route": "flow-detail-currency-category-privacy",
+    "title": "分类详情 · 隐私不泄露金额与百分比",
+    "group": "分类与标签 · 汇总币种",
+    "slug": "flow-detail-currency-category-privacy",
+    "fullHeight": 1553,
+    "viewport": "screens/viewport/flow-detail-currency-category-privacy.png",
+    "full": "screens/full/flow-detail-currency-category-privacy.png",
+    "svg": "figma/flow-detail-currency-category-privacy.svg"
+  },
+  {
+    "route": "flow-detail-currency-category-privacy-missing",
+    "title": "分类详情 · 隐私保留缺项状态",
+    "group": "分类与标签 · 汇总币种",
+    "slug": "flow-detail-currency-category-privacy-missing",
+    "fullHeight": 1570,
+    "viewport": "screens/viewport/flow-detail-currency-category-privacy-missing.png",
+    "full": "screens/full/flow-detail-currency-category-privacy-missing.png",
+    "svg": "figma/flow-detail-currency-category-privacy-missing.svg"
+  },
+  {
+    "route": "flow-detail-currency-category-month",
+    "title": "分类详情 · 月范围与二级分组",
+    "group": "分类与标签 · 汇总币种",
+    "slug": "flow-detail-currency-category-month",
+    "fullHeight": 1428,
+    "viewport": "screens/viewport/flow-detail-currency-category-month.png",
+    "full": "screens/full/flow-detail-currency-category-month.png",
+    "svg": "figma/flow-detail-currency-category-month.svg"
+  },
+  {
+    "route": "flow-detail-currency-category-year",
+    "title": "分类详情 · 年范围",
+    "group": "分类与标签 · 汇总币种",
+    "slug": "flow-detail-currency-category-year",
+    "fullHeight": 1522,
+    "viewport": "screens/viewport/flow-detail-currency-category-year.png",
+    "full": "screens/full/flow-detail-currency-category-year.png",
+    "svg": "figma/flow-detail-currency-category-year.svg"
+  },
+  {
+    "route": "flow-detail-currency-category-empty",
+    "title": "分类详情 · 无关联记录",
+    "group": "分类与标签 · 汇总币种",
+    "slug": "flow-detail-currency-category-empty",
+    "fullHeight": 936,
+    "viewport": "screens/viewport/flow-detail-currency-category-empty.png",
+    "full": "screens/full/flow-detail-currency-category-empty.png",
+    "svg": "figma/flow-detail-currency-category-empty.svg"
+  },
+  {
+    "route": "flow-detail-currency-tag-current",
+    "title": "标签详情 · 当前账本本币与外币历史快照",
+    "group": "分类与标签 · 汇总币种",
+    "slug": "flow-detail-currency-tag-current",
+    "fullHeight": 1181,
+    "viewport": "screens/viewport/flow-detail-currency-tag-current.png",
+    "full": "screens/full/flow-detail-currency-tag-current.png",
+    "svg": "figma/flow-detail-currency-tag-current.svg"
+  },
+  {
+    "route": "flow-detail-currency-tag-all",
+    "title": "标签详情 · 全部账本统一为CNY",
+    "group": "分类与标签 · 汇总币种",
+    "slug": "flow-detail-currency-tag-all",
+    "fullHeight": 1439,
+    "viewport": "screens/viewport/flow-detail-currency-tag-all.png",
+    "full": "screens/full/flow-detail-currency-tag-all.png",
+    "svg": "figma/flow-detail-currency-tag-all.svg"
+  },
+  {
+    "route": "flow-detail-currency-tag-usd",
+    "title": "标签详情 · 切当前账本为USD与反向汇率",
+    "group": "分类与标签 · 汇总币种",
+    "slug": "flow-detail-currency-tag-usd",
+    "fullHeight": 1439,
+    "viewport": "screens/viewport/flow-detail-currency-tag-usd.png",
+    "full": "screens/full/flow-detail-currency-tag-usd.png",
+    "svg": "figma/flow-detail-currency-tag-usd.svg"
+  },
+  {
+    "route": "flow-detail-currency-tag-missing",
+    "title": "标签详情 · 缺USD汇率禁止完整合计",
+    "group": "分类与标签 · 汇总币种",
+    "slug": "flow-detail-currency-tag-missing",
+    "fullHeight": 1455,
+    "viewport": "screens/viewport/flow-detail-currency-tag-missing.png",
+    "full": "screens/full/flow-detail-currency-tag-missing.png",
+    "svg": "figma/flow-detail-currency-tag-missing.svg"
+  },
+  {
+    "route": "flow-detail-currency-tag-native-missing",
+    "title": "标签详情 · 显式外币缺历史native",
+    "group": "分类与标签 · 汇总币种",
+    "slug": "flow-detail-currency-tag-native-missing",
+    "fullHeight": 1452,
+    "viewport": "screens/viewport/flow-detail-currency-tag-native-missing.png",
+    "full": "screens/full/flow-detail-currency-tag-native-missing.png",
+    "svg": "figma/flow-detail-currency-tag-native-missing.svg"
+  },
+  {
+    "route": "flow-detail-currency-tag-legacy",
+    "title": "标签详情 · 旧null原币与空native合法本币",
+    "group": "分类与标签 · 汇总币种",
+    "slug": "flow-detail-currency-tag-legacy",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-detail-currency-tag-legacy.png",
+    "full": "screens/full/flow-detail-currency-tag-legacy.png",
+    "svg": "figma/flow-detail-currency-tag-legacy.svg"
+  },
+  {
+    "route": "flow-detail-currency-tag-unknown",
+    "title": "标签详情 · 来源或币种缺失",
+    "group": "分类与标签 · 汇总币种",
+    "slug": "flow-detail-currency-tag-unknown",
+    "fullHeight": 1470,
+    "viewport": "screens/viewport/flow-detail-currency-tag-unknown.png",
+    "full": "screens/full/flow-detail-currency-tag-unknown.png",
+    "svg": "figma/flow-detail-currency-tag-unknown.svg"
+  },
+  {
+    "route": "flow-detail-currency-tag-stale",
+    "title": "标签详情 · 陈旧有效缓存与日期",
+    "group": "分类与标签 · 汇总币种",
+    "slug": "flow-detail-currency-tag-stale",
+    "fullHeight": 1454,
+    "viewport": "screens/viewport/flow-detail-currency-tag-stale.png",
+    "full": "screens/full/flow-detail-currency-tag-stale.png",
+    "svg": "figma/flow-detail-currency-tag-stale.svg"
+  },
+  {
+    "route": "flow-detail-currency-tag-invalid",
+    "title": "标签详情 · 无效直接手动率不得回退",
+    "group": "分类与标签 · 汇总币种",
+    "slug": "flow-detail-currency-tag-invalid",
+    "fullHeight": 1455,
+    "viewport": "screens/viewport/flow-detail-currency-tag-invalid.png",
+    "full": "screens/full/flow-detail-currency-tag-invalid.png",
+    "svg": "figma/flow-detail-currency-tag-invalid.svg"
+  },
+  {
+    "route": "flow-detail-currency-tag-shared",
+    "title": "标签详情 · 共享synthetic分类标签来源",
+    "group": "分类与标签 · 汇总币种",
+    "slug": "flow-detail-currency-tag-shared",
+    "fullHeight": 850,
+    "viewport": "screens/viewport/flow-detail-currency-tag-shared.png",
+    "full": "screens/full/flow-detail-currency-tag-shared.png",
+    "svg": "figma/flow-detail-currency-tag-shared.svg"
+  },
+  {
+    "route": "flow-detail-currency-tag-privacy",
+    "title": "标签详情 · 隐私不泄露金额与百分比",
+    "group": "分类与标签 · 汇总币种",
+    "slug": "flow-detail-currency-tag-privacy",
+    "fullHeight": 1439,
+    "viewport": "screens/viewport/flow-detail-currency-tag-privacy.png",
+    "full": "screens/full/flow-detail-currency-tag-privacy.png",
+    "svg": "figma/flow-detail-currency-tag-privacy.svg"
+  },
+  {
+    "route": "flow-detail-currency-tag-privacy-missing",
+    "title": "标签详情 · 隐私保留缺项状态",
+    "group": "分类与标签 · 汇总币种",
+    "slug": "flow-detail-currency-tag-privacy-missing",
+    "fullHeight": 1455,
+    "viewport": "screens/viewport/flow-detail-currency-tag-privacy-missing.png",
+    "full": "screens/full/flow-detail-currency-tag-privacy-missing.png",
+    "svg": "figma/flow-detail-currency-tag-privacy-missing.svg"
+  },
+  {
+    "route": "flow-detail-currency-tag-month",
+    "title": "标签详情 · 月范围与二级分组",
+    "group": "分类与标签 · 汇总币种",
+    "slug": "flow-detail-currency-tag-month",
+    "fullHeight": 1166,
+    "viewport": "screens/viewport/flow-detail-currency-tag-month.png",
+    "full": "screens/full/flow-detail-currency-tag-month.png",
+    "svg": "figma/flow-detail-currency-tag-month.svg"
+  },
+  {
+    "route": "flow-detail-currency-tag-year",
+    "title": "标签详情 · 年范围",
+    "group": "分类与标签 · 汇总币种",
+    "slug": "flow-detail-currency-tag-year",
+    "fullHeight": 1326,
+    "viewport": "screens/viewport/flow-detail-currency-tag-year.png",
+    "full": "screens/full/flow-detail-currency-tag-year.png",
+    "svg": "figma/flow-detail-currency-tag-year.svg"
+  },
+  {
+    "route": "flow-detail-currency-tag-empty",
+    "title": "标签详情 · 无关联记录",
+    "group": "分类与标签 · 汇总币种",
+    "slug": "flow-detail-currency-tag-empty",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-detail-currency-tag-empty.png",
+    "full": "screens/full/flow-detail-currency-tag-empty.png",
+    "svg": "figma/flow-detail-currency-tag-empty.svg"
+  },
+  {
+    "route": "flow-detail-currency-tag-custom-month",
+    "title": "标签详情 · 自定义8日月边界",
+    "group": "分类与标签 · 汇总币种",
+    "slug": "flow-detail-currency-tag-custom-month",
+    "fullHeight": 865,
+    "viewport": "screens/viewport/flow-detail-currency-tag-custom-month.png",
+    "full": "screens/full/flow-detail-currency-tag-custom-month.png",
+    "svg": "figma/flow-detail-currency-tag-custom-month.svg"
+  },
+  {
+    "route": "flow-detail-currency-component",
+    "title": "汇总币种提示 · 受控状态",
+    "group": "分类与标签 · 汇总币种",
+    "slug": "flow-detail-currency-component",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-detail-currency-component.png",
+    "full": "screens/full/flow-detail-currency-component.png",
+    "svg": "figma/flow-detail-currency-component.svg"
+  },
+  {
+    "route": "flow-shared-sync",
+    "title": "云同步",
+    "group": "补齐 · 共享账本与云同步",
+    "slug": "flow-shared-sync",
+    "fullHeight": 999,
+    "viewport": "screens/viewport/flow-shared-sync.png",
+    "full": "screens/full/flow-shared-sync.png",
+    "svg": "figma/flow-shared-sync.svg"
+  },
+  {
+    "route": "flow-shared-sync-error",
+    "title": "云同步",
+    "group": "补齐 · 共享账本与云同步",
+    "slug": "flow-shared-sync-error",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-shared-sync-error.png",
+    "full": "screens/full/flow-shared-sync-error.png",
+    "svg": "figma/flow-shared-sync-error.svg"
+  },
+  {
+    "route": "flow-shared-invite",
+    "title": "邀请新成员",
+    "group": "补齐 · 共享账本与云同步",
+    "slug": "flow-shared-invite",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-shared-invite.png",
+    "full": "screens/full/flow-shared-invite.png",
+    "svg": "figma/flow-shared-invite.svg"
+  },
+  {
+    "route": "flow-shared-code",
+    "title": "邀请新成员",
+    "group": "补齐 · 共享账本与云同步",
+    "slug": "flow-shared-code",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-shared-code.png",
+    "full": "screens/full/flow-shared-code.png",
+    "svg": "figma/flow-shared-code.svg"
+  },
+  {
+    "route": "flow-shared-join",
+    "title": "加入共享账本",
+    "group": "补齐 · 共享账本与云同步",
+    "slug": "flow-shared-join",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-shared-join.png",
+    "full": "screens/full/flow-shared-join.png",
+    "svg": "figma/flow-shared-join.svg"
+  },
+  {
+    "route": "flow-shared-preview",
+    "title": "加入共享账本",
+    "group": "补齐 · 共享账本与云同步",
+    "slug": "flow-shared-preview",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-shared-preview.png",
+    "full": "screens/full/flow-shared-preview.png",
+    "svg": "figma/flow-shared-preview.svg"
+  },
+  {
+    "route": "flow-shared-members-owner",
+    "title": "成员管理",
+    "group": "补齐 · 共享账本与云同步",
+    "slug": "flow-shared-members-owner",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-shared-members-owner.png",
+    "full": "screens/full/flow-shared-members-owner.png",
+    "svg": "figma/flow-shared-members-owner.svg"
+  },
+  {
+    "route": "flow-shared-members-editor",
+    "title": "成员管理",
+    "group": "补齐 · 共享账本与云同步",
+    "slug": "flow-shared-members-editor",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-shared-members-editor.png",
+    "full": "screens/full/flow-shared-members-editor.png",
+    "svg": "figma/flow-shared-members-editor.svg"
+  },
+  {
+    "route": "flow-shared-members-loading",
+    "title": "成员管理",
+    "group": "补齐 · 共享账本与云同步",
+    "slug": "flow-shared-members-loading",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-shared-members-loading.png",
+    "full": "screens/full/flow-shared-members-loading.png",
+    "svg": "figma/flow-shared-members-loading.svg"
+  },
+  {
+    "route": "flow-shared-members-error",
+    "title": "成员管理",
+    "group": "补齐 · 共享账本与云同步",
+    "slug": "flow-shared-members-error",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-shared-members-error.png",
+    "full": "screens/full/flow-shared-members-error.png",
+    "svg": "figma/flow-shared-members-error.svg"
+  },
+  {
+    "route": "flow-shared-stats",
+    "title": "成员收支",
+    "group": "补齐 · 共享账本与云同步",
+    "slug": "flow-shared-stats",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-shared-stats.png",
+    "full": "screens/full/flow-shared-stats.png",
+    "svg": "figma/flow-shared-stats.svg"
+  },
+  {
+    "route": "flow-shared-stats-empty",
+    "title": "成员收支",
+    "group": "补齐 · 共享账本与云同步",
+    "slug": "flow-shared-stats-empty",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-shared-stats-empty.png",
+    "full": "screens/full/flow-shared-stats-empty.png",
+    "svg": "figma/flow-shared-stats-empty.svg"
+  },
+  {
+    "route": "flow-shared-stats-error",
+    "title": "成员收支",
+    "group": "补齐 · 共享账本与云同步",
+    "slug": "flow-shared-stats-error",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-shared-stats-error.png",
+    "full": "screens/full/flow-shared-stats-error.png",
+    "svg": "figma/flow-shared-stats-error.svg"
+  },
+  {
+    "route": "flow-share-card",
+    "title": "分享卡片",
+    "group": "补齐 · 启动与分享",
+    "slug": "flow-share-card",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-share-card.png",
+    "full": "screens/full/flow-share-card.png",
+    "svg": "figma/flow-share-card.svg"
+  },
+  {
+    "route": "flow-share-card-app",
+    "title": "分享卡片",
+    "group": "补齐 · 启动与分享",
+    "slug": "flow-share-card-app",
+    "fullHeight": 868,
+    "viewport": "screens/viewport/flow-share-card-app.png",
+    "full": "screens/full/flow-share-card-app.png",
+    "svg": "figma/flow-share-card-app.svg"
+  },
+  {
+    "route": "flow-share-card-month",
+    "title": "分享卡片",
+    "group": "补齐 · 启动与分享",
+    "slug": "flow-share-card-month",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-share-card-month.png",
+    "full": "screens/full/flow-share-card-month.png",
+    "svg": "figma/flow-share-card-month.svg"
+  },
+  {
+    "route": "flow-share-card-year",
+    "title": "分享卡片",
+    "group": "补齐 · 启动与分享",
+    "slug": "flow-share-card-year",
+    "fullHeight": 914,
+    "viewport": "screens/viewport/flow-share-card-year.png",
+    "full": "screens/full/flow-share-card-year.png",
+    "svg": "figma/flow-share-card-year.svg"
+  },
+  {
+    "route": "flow-share-card-ledger",
+    "title": "分享卡片",
+    "group": "补齐 · 启动与分享",
+    "slug": "flow-share-card-ledger",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-share-card-ledger.png",
+    "full": "screens/full/flow-share-card-ledger.png",
+    "svg": "figma/flow-share-card-ledger.svg"
+  },
+  {
+    "route": "flow-share-card-private",
+    "title": "分享卡片",
+    "group": "补齐 · 启动与分享",
+    "slug": "flow-share-card-private",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-share-card-private.png",
+    "full": "screens/full/flow-share-card-private.png",
+    "svg": "figma/flow-share-card-private.svg"
+  },
+  {
+    "route": "flow-share-card-loading",
+    "title": "分享卡片",
+    "group": "补齐 · 启动与分享",
+    "slug": "flow-share-card-loading",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-share-card-loading.png",
+    "full": "screens/full/flow-share-card-loading.png",
+    "svg": "figma/flow-share-card-loading.svg"
+  },
+  {
+    "route": "flow-share-card-error",
+    "title": "分享卡片",
+    "group": "补齐 · 启动与分享",
+    "slug": "flow-share-card-error",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-share-card-error.png",
+    "full": "screens/full/flow-share-card-error.png",
+    "svg": "figma/flow-share-card-error.svg"
+  },
+  {
+    "route": "flow-share-card-long",
+    "title": "分享卡片",
+    "group": "补齐 · 启动与分享",
+    "slug": "flow-share-card-long",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-share-card-long.png",
+    "full": "screens/full/flow-share-card-long.png",
+    "svg": "figma/flow-share-card-long.svg"
+  },
+  {
+    "route": "flow-auto-billing",
+    "title": "截图自动记账",
+    "group": "补齐 · 自动化与识别",
+    "slug": "flow-auto-billing",
+    "fullHeight": 961,
+    "viewport": "screens/viewport/flow-auto-billing.png",
+    "full": "screens/full/flow-auto-billing.png",
+    "svg": "figma/flow-auto-billing.svg"
   }
 ]

@@ -1,0 +1,14 @@
+const fs=require('fs'),path=require('path');
+const here=path.resolve(__dirname,'..'),root=path.resolve(here,'../../../..');
+const fixtures=require('./transfer-inline-samples.cjs'),text=JSON.parse(fs.readFileSync(path.join(root,'lib/l10n/app_zh.arb'),'utf8'));
+const moduleSource=fs.readFileSync(path.join(__dirname,'transfer-inline.js'),'utf8').replace('__TRANSFER_INLINE_TEXTS__',()=>JSON.stringify(text)).replace('__TRANSFER_INLINE_FIXTURES__',()=>JSON.stringify(fixtures));
+let html=fs.readFileSync(path.join(here,'demo.html'),'utf8');
+if(!html.includes('const views={'))throw Error('Cannot find views registration anchor');
+if(!html.includes('const ti93Text='))html=html.replace('const views={',()=>moduleSource+'\n  const views={');
+html=html.replace('</head>',()=>'<style>'+fs.readFileSync(path.join(__dirname,'transfer-inline.css'),'utf8')+'</style></head>');
+for(const file of ['vendor/lucide.min.js','scene-presets.js'])html=html.replace(`<script src="${file}"></script>`,()=>'<script>'+fs.readFileSync(path.join(here,file),'utf8')+'</script>');
+html=html.replace('const qInitialScene=qApplyPreviewLink();',"if(!new URLSearchParams(location.search).has('page'))state.page='flow-transfer-inline-usd';\n  const qInitialScene=qApplyPreviewLink();");
+const out=path.join(root,'.docs/v4-ui-migration');fs.mkdirSync(out,{recursive:true});fs.writeFileSync(path.join(out,'r93-transfer-inline-preview.html'),html);
+const guide='<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>同屏转账 · r93场景目录</title><style>:root{font-family:system-ui;color:#292c30;background:#f5f6f7;--bc-paper:#fff}body{max-width:820px;margin:24px auto;padding:0 16px}.v4-wrap{display:flex;gap:10px;flex-wrap:wrap}.v4-wrap a{padding:10px 12px;background:#fff;border-radius:12px;color:inherit;text-decoration:none;min-height:24px}'+fs.readFileSync(path.join(__dirname,'transfer-inline.css'),'utf8')+'</style>'+fixtures.guide.replaceAll('../prototype/demo.html','r93-transfer-inline-preview.html')+'</html>';
+fs.writeFileSync(path.join(out,'r93-transfer-inline-guide.html'),guide);
+console.log(JSON.stringify({preview:path.join(out,'r93-transfer-inline-preview.html'),guide:path.join(out,'r93-transfer-inline-guide.html'),scenes:fixtures.scenes.length}));

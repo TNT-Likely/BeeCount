@@ -1,3 +1,9 @@
+import '../bindings/share_card_preview.dart';
+import '../bindings/transaction_detail_preview.dart';
+import '../bindings/cloud_backup_preview.dart';
+import '../bindings/auto_billing_preview.dart';
+import '../bindings/detail_currency_preview.dart';
+import '../bindings/cloud_shared_preview.dart';
 import '../bindings/import_context_preview.dart';
 import '../bindings/export_preview.dart';
 import '../bindings/recurring_editor_preview.dart';
@@ -110,6 +116,24 @@ class _ComponentGalleryPageState extends State<ComponentGalleryPage> {
                                 key: const ValueKey('gallery-business-tickers'),
                                 enabled: tab == 1 && !motionPaused,
                                 child: BusinessAcceptancePage(
+                                    shareCardData: widget.enableLiveData
+                                        ? const ShareCardPreview()
+                                        : null,
+                                    transactionDetailData: widget.enableLiveData
+                                        ? const TransactionDetailPreview()
+                                        : null,
+                                    cloudBackupData: widget.enableLiveData
+                                        ? const LiveCloudBackupPreview()
+                                        : null,
+                                    autoBillingData: widget.enableLiveData
+                                        ? const LiveAutoBillingPreview()
+                                        : null,
+                                    detailCurrencyData: widget.enableLiveData
+                                        ? const LiveDetailCurrencyPreview()
+                                        : null,
+                                    cloudSharedData: widget.enableLiveData
+                                        ? const CloudSharedPreview()
+                                        : null,
                                     importContextData: widget.enableLiveData
                                         ? const LiveImportContextPreview()
                                         : null,
@@ -146,21 +170,11 @@ class _ComponentGalleryPageState extends State<ComponentGalleryPage> {
                                     smartBillingData: widget.enableLiveData
                                         ? const LiveSmartBillingPreview()
                                         : null,
-                                    analyticsData: widget.enableLiveData
-                                        ? const LiveAnalyticsPreview()
-                                        : null,
-                                    calendarData: widget.enableLiveData
-                                        ? const LiveCalendarPreview()
-                                        : null,
-                                    budgetEditorData: widget.enableLiveData
-                                        ? const LiveBudgetEditorPreview()
-                                        : null,
-                                    budgetData: widget.enableLiveData
-                                        ? const LiveBudgetPreview()
-                                        : null,
-                                    exchangeRateData: widget.enableLiveData
-                                        ? const LiveExchangeRatePreview()
-                                        : null,
+                                    analyticsData: widget.enableLiveData ? const LiveAnalyticsPreview() : null,
+                                    calendarData: widget.enableLiveData ? const LiveCalendarPreview() : null,
+                                    budgetEditorData: widget.enableLiveData ? const LiveBudgetEditorPreview() : null,
+                                    budgetData: widget.enableLiveData ? const LiveBudgetPreview() : null,
+                                    exchangeRateData: widget.enableLiveData ? const LiveExchangeRatePreview() : null,
                                     categoryMigrationData: widget.enableLiveData ? const LiveCategoryMigrationPreview() : null,
                                     attachmentLibraryData: widget.enableLiveData ? const LiveAttachmentLibraryPreview() : null,
                                     fileWorkflowData: widget.enableLiveData ? const LiveFileWorkflowPreview() : null,
