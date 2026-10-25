@@ -16,6 +16,7 @@ import '../../utils/transaction_edit_utils.dart';
 import '../../utils/category_utils.dart';
 import '../category_icon.dart';
 import '../../pages/transaction/category_detail_page.dart';
+import '../../pages/transaction/transaction_detail_page.dart';
 import '../../pages/tag/tag_detail_page.dart';
 import '../../pages/attachment/attachment_preview_page.dart';
 import '../../widgets/biz/transaction_receipt_dialog.dart';
@@ -115,7 +116,13 @@ class TransactionListState extends ConsumerState<TransactionList> {
     _showingTransactionActions = true;
     try {
       final action = await _pickTransactionAction(rowContext);
-      if (action == 'copy' && mounted) {
+      if (action == 'detail' && mounted) {
+        switchToStreamMode();
+        await Navigator.of(context).push(MaterialPageRoute<void>(
+            builder: (_) => TransactionDetailPage(
+                transactionId: transaction.id,
+                ledgerId: transaction.ledgerId)));
+      } else if (action == 'copy' && mounted) {
         switchToStreamMode();
         await TransactionEditUtils.copyTransaction(context, ref, transaction);
       } else if (action == 'receipt' && mounted) {
@@ -139,6 +146,11 @@ class TransactionListState extends ConsumerState<TransactionList> {
         context: context,
         anchor: row.localToGlobal(Offset.zero, ancestor: overlay) & row.size,
         items: [
+          BeeMenuItem.action(
+            value: 'detail',
+            icon: Icons.description_outlined,
+            label: AppLocalizations.of(context).v4TransactionDetailTitle,
+          ),
           BeeMenuItem.action(
             value: 'copy',
             icon: Icons.copy_outlined,

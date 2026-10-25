@@ -204,7 +204,9 @@ class TransactionListItem extends ConsumerWidget {
             },
     );
     return GestureDetector(
-      onLongPressStart: isSelectionMode ? null : onLongPressStart,
+      // Consume a held press without turning its release into a selection tap.
+      excludeFromSemantics: isSelectionMode,
+      onLongPressStart: isSelectionMode ? (_) {} : onLongPressStart,
       child: Padding(padding: const EdgeInsets.only(right: 12), child: row),
     );
   }

@@ -1,3 +1,4 @@
+import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/db.dart';
@@ -5,6 +6,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../../pages/attachment/attachment_preview_page.dart';
 import '../../../pages/tag/tag_detail_page.dart';
 import '../../../pages/transaction/category_detail_page.dart';
+import '../../../pages/transaction/transaction_detail_page.dart';
 import '../../../utils/category_utils.dart';
 import '../../../utils/transaction_edit_utils.dart';
 import '../../../widgets/biz/transaction_list_item.dart';
@@ -104,6 +106,24 @@ class TransactionTileBinding extends ConsumerWidget {
                 await TransactionEditUtils.editTransaction(
                     context, ref, t, row.category);
                 onReturned();
+              },
+        onLongPressStart: batch
+            ? null
+            : (details) async {
+                final action = await showBeeContextMenu<String>(context,
+                    anchor: details.globalPosition,
+                    items: [
+                      BeeMenuAction(
+                          value: 'detail',
+                          label: l.v4TransactionDetailTitle,
+                          icon: const BeeLineIcon('FileText', size: 18))
+                    ]);
+                if (action == 'detail' && context.mounted) {
+                  await open(TransactionDetailPage(
+                      transactionId: t.id,
+                      ledgerId: t.ledgerId,
+                      allLedgers: allLedgers));
+                }
               },
         onCategoryTap: !allowCategoryNavigation ||
                 batch ||
