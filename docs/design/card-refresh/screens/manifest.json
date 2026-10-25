@@ -704,7 +704,7 @@
     "title": "孤儿数据清理",
     "group": "补齐 · 导入导出与维护",
     "slug": "flow-orphan",
-    "fullHeight": 2045,
+    "fullHeight": 1727,
     "viewport": "screens/viewport/flow-orphan.png",
     "full": "screens/full/flow-orphan.png",
     "svg": "figma/flow-orphan.svg"
@@ -5648,7 +5648,7 @@
     "title": "数据清理",
     "group": "补齐 · 维护与本地诊断",
     "slug": "flow-maintenance-orphans",
-    "fullHeight": 2045,
+    "fullHeight": 1727,
     "viewport": "screens/viewport/flow-maintenance-orphans.png",
     "full": "screens/full/flow-maintenance-orphans.png",
     "svg": "figma/flow-maintenance-orphans.svg"
@@ -5678,7 +5678,7 @@
     "title": "数据清理",
     "group": "补齐 · 维护与本地诊断",
     "slug": "flow-maintenance-orphans-confirm",
-    "fullHeight": 2045,
+    "fullHeight": 1727,
     "viewport": "screens/viewport/flow-maintenance-orphans-confirm.png",
     "full": "screens/full/flow-maintenance-orphans-confirm.png",
     "svg": "figma/flow-maintenance-orphans-confirm.svg"
@@ -5688,7 +5688,7 @@
     "title": "数据清理",
     "group": "补齐 · 维护与本地诊断",
     "slug": "flow-maintenance-orphans-partial",
-    "fullHeight": 2045,
+    "fullHeight": 1727,
     "viewport": "screens/viewport/flow-maintenance-orphans-partial.png",
     "full": "screens/full/flow-maintenance-orphans-partial.png",
     "svg": "figma/flow-maintenance-orphans-partial.svg"
