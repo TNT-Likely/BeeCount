@@ -556,6 +556,13 @@
         "title": "提示词草稿与变量",
         "nativeCase": 56,
         "nativeLabel": "提示词草稿与变量"
+      },
+      {
+        "id": "spec-79",
+        "code": "B54",
+        "title": "助手执行深度",
+        "nativeCase": 57,
+        "nativeLabel": "助手执行深度"
       }
     ]
   }

@@ -1,0 +1,18 @@
+[
+  {
+    "turns": 2,
+    "labelKey": "agentExecutionDepthQuick"
+  },
+  {
+    "turns": 4,
+    "labelKey": "agentExecutionDepthStandard"
+  },
+  {
+    "turns": 6,
+    "labelKey": "agentExecutionDepthDeep"
+  },
+  {
+    "turns": 8,
+    "labelKey": "agentExecutionDepthCustom"
+  }
+]

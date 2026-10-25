@@ -981,9 +981,9 @@
   },
   {
     "route": "flow-assistant-settings",
-    "slug": "flow-assistant-settings",
-    "title": "助手设置",
+    "title": "AI助手",
     "group": "补齐 · AI 与助手",
+    "slug": "flow-assistant-settings",
     "fullHeight": 844,
     "viewport": "screens/viewport/flow-assistant-settings.png",
     "full": "screens/full/flow-assistant-settings.png",
@@ -1041,9 +1041,9 @@
   },
   {
     "route": "flow-execution-depth",
-    "slug": "flow-execution-depth",
     "title": "执行深度 · 底部弹层",
     "group": "补齐 · AI 与助手",
+    "slug": "flow-execution-depth",
     "fullHeight": 844,
     "viewport": "screens/viewport/flow-execution-depth.png",
     "full": "screens/full/flow-execution-depth.png",
@@ -3492,5 +3492,55 @@
     "viewport": "screens/viewport/flow-prompt-share.png",
     "full": "screens/full/flow-prompt-share.png",
     "svg": "figma/flow-prompt-share.svg"
+  },
+  {
+    "route": "flow-assistant-settings-loading",
+    "title": "AI助手 · 加载中",
+    "group": "补齐 · AI与助手",
+    "slug": "flow-assistant-settings-loading",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-assistant-settings-loading.png",
+    "full": "screens/full/flow-assistant-settings-loading.png",
+    "svg": "figma/flow-assistant-settings-loading.svg"
+  },
+  {
+    "route": "flow-assistant-settings-error",
+    "title": "AI助手 · 读取失败",
+    "group": "补齐 · AI与助手",
+    "slug": "flow-assistant-settings-error",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-assistant-settings-error.png",
+    "full": "screens/full/flow-assistant-settings-error.png",
+    "svg": "figma/flow-assistant-settings-error.svg"
+  },
+  {
+    "route": "flow-execution-depth-quick",
+    "title": "执行深度 · 快速 · 底部弹层",
+    "group": "补齐 · AI与助手",
+    "slug": "flow-execution-depth-quick",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-execution-depth-quick.png",
+    "full": "screens/full/flow-execution-depth-quick.png",
+    "svg": "figma/flow-execution-depth-quick.svg"
+  },
+  {
+    "route": "flow-execution-depth-deep",
+    "title": "执行深度 · 深入 · 底部弹层",
+    "group": "补齐 · AI与助手",
+    "slug": "flow-execution-depth-deep",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-execution-depth-deep.png",
+    "full": "screens/full/flow-execution-depth-deep.png",
+    "svg": "figma/flow-execution-depth-deep.svg"
+  },
+  {
+    "route": "flow-execution-depth-maximum",
+    "title": "执行深度 · 自定义上限 · 底部弹层",
+    "group": "补齐 · AI与助手",
+    "slug": "flow-execution-depth-maximum",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-execution-depth-maximum.png",
+    "full": "screens/full/flow-execution-depth-maximum.png",
+    "svg": "figma/flow-execution-depth-maximum.svg"
   }
 ]
