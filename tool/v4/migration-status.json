@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26T02:00:22.707577+08:00",
+  "updated": "2026-10-26T02:45:52.813608+08:00",
   "branch": "v4",
   "baselineCommit": "6616066247a8738a42996c496e1b99106820e59f",
   "pages": {
@@ -1042,7 +1042,7 @@
     "reason": "按用户要求临时关闭，避免每次推送触发PR的AI Eval；v4继续开发和推送，全部迁移与验收准备好再恢复PR。"
   },
   "currentProgress": {
-    "updatedAt": "2026-10-26T02:00:22.707577+08:00",
+    "updatedAt": "2026-10-26T02:45:52.813608+08:00",
     "engineeringEstimatePercent": 95,
     "engineeringEstimateRange": [
       93,
@@ -1052,7 +1052,7 @@
     "totalPages": 73,
     "totalP0Pages": 17,
     "completedP0Pages": 17,
-    "basis": "原73基线全封存；A–E全部主要实现已交付合入，R115洞察/资产主流程与独立31表72/文件偏好核对已完成，A待报告，B隐藏入口仍需新候选补验；C/D/E和系统栏样式修复待统一新候选。余下组合回归、组件目录与专用HTML剩余模板同步、定向大图、iOS增量、独立报告与最终检查，估计3–6h，不以原73全部完成当整体任务完成。",
+    "basis": "原73页基线全部固定版本封存；A–E实现、主demo和组件目录均已合入。统一R116源码ce44164f、1062产品文件/SDK18/lock匹配，Android同包升级前后72笔/all31与文件/偏好保持；新修订正分平台实际验收。B首次隐藏定位已实际到达目标，C已有真实导航/编辑取消/左滑取消/批量与复杂外币检查，尚待共同normal和Root独立最终核对；不提前封存。后续为两平台实际增量、定向大图、A–E独立报告和最终检查，不用原73证明新版完成。",
     "remainingEffortEstimateHours": [
       3,
       6
@@ -1072,18 +1072,19 @@
     {
       "id": "R115-ASSETS-HIDDEN-LOCATE",
       "page": "account/accounts_page.dart",
-      "status": "修复已提交，真实SQLite长列表先红后绿；17项回归/3文件analyze0，待新候选最小原生补验",
+      "status": "R116首个顶部隐藏入口实际到达目标、无需预滚动；待共同normal后Root最终核对/独立报告",
       "reportedPlatform": "Android R115 / same retained QA",
       "source": "c0eeb0e8dc9e912b166379c1ef03481ba4fa200e",
       "summary": "长列表顶部隐藏提示目标key尚未lazy挂载，点击不滚动；实际保持顶部12秒。Root真实SQLite长列表Widget复现offset0后修复为先定位末端、挂载后ensureVisible并防重复/销毁。",
       "nativeFailEvidence": "r115-B-hidden-account-footnote-actual-native-FAIL.json",
       "detectedAt": "2026-10-26T01:32:04.161099+08:00",
-      "sourceFix": "643847cc"
+      "sourceFix": "643847cc",
+      "nativeFixEvidence": "r116-B-first-hidden-lazy-footnote-actual-native.json"
     },
     {
       "id": "R115-DARK-SYSTEM-BARS",
       "page": "main.dart",
-      "status": "源修复607bb5b2及真实平台channel测试通过，待下一候选深色原生补验",
+      "status": "源修复与平台channel检查通过，R116 Android/iOS实际深色增量验收中",
       "summary": "去header后缺少默认系统栏AnnotatedRegion，暗色App仍用黑色Android时间/图标；现在MaterialApp.builder由真实Theme控制，旧Header内层仍可覆写，不改导航栏或启动路由",
       "sourceFix": "607bb5b2",
       "evidence": "r115-A-real-dark-mode-original-financial-body.png"
@@ -1127,9 +1128,9 @@
   ],
   "latestInstalledCandidate": {
     "platform": "Android",
-    "sourceCommit": "c0eeb0e8dc9e912b166379c1ef03481ba4fa200e",
-    "androidApkSha256": "6a3a9073c2d73df30b9aeef0626da85ded435447a1f8d4c26d541b0792d8be97",
-    "verifiedCommittedProductFiles": 1035,
+    "sourceCommit": "ce44164f684dc5363dae545b1c90aaff2d0662d1",
+    "androidApkSha256": "b5dae9367e36587b23b646cd26019e57fde87590ec631e565bff4d541dfca3bc",
+    "verifiedCommittedProductFiles": 1062,
     "verifiedSdkDartFiles": 18,
     "sameRetainedQA": true,
     "qaDataPreserved": true,
@@ -1138,9 +1139,13 @@
     "protectedUserAppUnchanged": true,
     "approvedDesignRevisionsInstalled": [
       "A",
-      "B"
+      "B",
+      "C",
+      "D",
+      "E"
     ],
-    "approvedDesignRevisionsNativePassed": false
+    "approvedDesignRevisionsNativePassed": false,
+    "nativeStatus": "R116实际操作中；正常入口与Root最终复核、报告未完成，不以局部PASS代表整页新版验收"
   },
   "latestInstalledIOSCandidate": {
     "sourceCommit": "f536d6db081c55bb5f6afce2da092ce5ed1a405f",
@@ -1171,7 +1176,7 @@
     {
       "id": "A",
       "name": "洞察页",
-      "status": "R115主要实际流程、Root全31/72/文件偏好复核已通过；待新版独立报告封存",
+      "status": "R115主要实际流程已通过；R116深色系统栏与新版合并源增量验收中，独立报告待封存",
       "url": "boards/insights-task-a-review.html",
       "flutterCommit": "0c730777",
       "flutterApproved": true
@@ -1179,7 +1184,7 @@
     {
       "id": "B",
       "name": "资产页",
-      "status": "R115大部流程通过；隐藏定位643847cc待新候选补验；主demo与规范已同步",
+      "status": "R116首点顶部提示已实际跳至懒挂载隐藏区；保留R115旧FAIL，待最终数据复核与报告",
       "url": "boards/assets-task-b-review.html",
       "flutterCommit": "de25c879",
       "flutterApproved": true,
@@ -1188,19 +1193,20 @@
     {
       "id": "C",
       "name": "交易明细行",
-      "status": "Flutter2fe64194、主demo/规范98f1942f已合入；待统一候选原生验收",
+      "status": "C3 Flutter、主demo/规范及详情/日历所有残留消费者已统一；R116两平台实际验收中",
       "url": "boards/transaction-rows-task-c-review.html",
       "designCommit": "e00a31e6",
       "approvedHtmlSha256": "643833f7d50be973e5e08296ef84d01c096743a1086a02636de08b293f66177c",
       "approval": "子任务 c 就按照这个版本推进吧。",
       "flutterApproved": true,
       "flutterCommit": "2fe64194",
-      "mainDemoCommit": "98f1942f"
+      "mainDemoCommit": "98f1942f",
+      "allConsumersDemoCommit": "765729d7"
     },
     {
       "id": "D",
       "name": "分享海报与应用卡片",
-      "status": "Flutter5661828b、主demo233d8f8a已合入；待统一候选原生验收",
+      "status": "七类海报与应用卡片、主demo和组件目录已合入；R116实际数据/导出取消验收中",
       "url": "boards/share-cards-task-d-review.html",
       "designCommit": "c93457bf",
       "approvedHtmlSha256": "8c039e5608b67add35cb8a9f66a83e1e85c20b35c91cc71013fb496ae43e4e5d",
@@ -1212,7 +1218,7 @@
     {
       "id": "E",
       "name": "启动页 · 一笔成形",
-      "status": "方案B Flutter/主demo与系统栏修复已合入，组件目录补齐中；待统一候选原生验收",
+      "status": "日间方案B、系统栏及平铺验收目录已合入；R116两平台启动/深色增量验收中",
       "url": "boards/splash-task-e-review.html?concept=trail",
       "designCommit": "c0eeb0e8",
       "approvedHtmlSha256": "cb3b28761dd234ad803c6a5b54eb74be80fd1c02c1156d651f1ed0ee0f12f665",
@@ -1220,7 +1226,8 @@
       "flutterApproved": true,
       "flutterCommit": "40a7d193",
       "mainDemoCommit": "3cb0a735",
-      "systemBarsCommit": "607bb5b2"
+      "systemBarsCommit": "607bb5b2",
+      "componentGalleryCommit": "983f6180"
     }
   ],
   "latestAcceptanceDelivery": {
