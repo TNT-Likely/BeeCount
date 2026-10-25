@@ -1,3 +1,4 @@
+import '../bindings/ai_provider_preview.dart';
 import '../bindings/ai_settings_preview.dart';
 import '../bindings/smart_billing_preview.dart';
 import '../bindings/analytics_preview.dart';
@@ -100,6 +101,9 @@ class _ComponentGalleryPageState extends State<ComponentGalleryPage> {
                                 key: const ValueKey('gallery-business-tickers'),
                                 enabled: tab == 1 && !motionPaused,
                                 child: BusinessAcceptancePage(
+                                    aiProviderData: widget.enableLiveData
+                                        ? const LiveAIProviderPreview()
+                                        : null,
                                     aiSettingsData: widget.enableLiveData
                                         ? const LiveAISettingsPreview()
                                         : null,

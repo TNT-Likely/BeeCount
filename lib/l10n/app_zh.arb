@@ -3719,5 +3719,7 @@
   "v4AnalyticsShowRanking": "显示分类排行",
   "v4AnalyticsShowPie": "显示分类环图",
   "v4AnalyticsView": "统计视角",
-  "v4AnalyticsRecalculate": "补折算"
+  "v4AnalyticsRecalculate": "补折算",
+  "aiProviderShowKey": "显示密钥",
+  "aiProviderHideKey": "隐藏密钥"
 }

@@ -4012,5 +4012,7 @@
   "v4AnalyticsShowRanking": "Show category ranking",
   "v4AnalyticsShowPie": "Show category chart",
   "v4AnalyticsView": "Statistics view",
-  "v4AnalyticsRecalculate": "Convert now"
+  "v4AnalyticsRecalculate": "Convert now",
+  "aiProviderShowKey": "Show API key",
+  "aiProviderHideKey": "Hide API key"
 }

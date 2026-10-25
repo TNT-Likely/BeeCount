@@ -8990,4 +8990,10 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get v4AnalyticsRecalculate => 'Convert now';
+
+  @override
+  String get aiProviderShowKey => 'Show API key';
+
+  @override
+  String get aiProviderHideKey => 'Hide API key';
 }

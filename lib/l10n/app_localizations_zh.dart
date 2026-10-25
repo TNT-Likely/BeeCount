@@ -8982,6 +8982,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get v4AnalyticsRecalculate => '补折算';
+
+  @override
+  String get aiProviderShowKey => '显示密钥';
+
+  @override
+  String get aiProviderHideKey => '隐藏密钥';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).

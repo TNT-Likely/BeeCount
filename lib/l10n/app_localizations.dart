@@ -16915,6 +16915,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Convert now'**
   String get v4AnalyticsRecalculate;
+
+  /// No description provided for @aiProviderShowKey.
+  ///
+  /// In en, this message translates to:
+  /// **'Show API key'**
+  String get aiProviderShowKey;
+
+  /// No description provided for @aiProviderHideKey.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide API key'**
+  String get aiProviderHideKey;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

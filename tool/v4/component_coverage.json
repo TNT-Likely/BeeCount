@@ -694,5 +694,16 @@
     ],
     "page": "business",
     "case": 54
+  },
+  {
+    "design_key": "aiProvider",
+    "components": [
+      "BeeAIProviderCard",
+      "BeeAIModelTestField",
+      "BeeLabel",
+      "BeeField"
+    ],
+    "page": "business",
+    "case": 55
   }
 ]
