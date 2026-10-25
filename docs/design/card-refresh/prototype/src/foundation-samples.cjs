@@ -11,3 +11,6 @@ module.exports={
  loadingStates:`<div class="v4-stack"><div class="bc-feedback-status">${icon('loader-circle')}<div class="bc-feedback-copy">处理中<small>进度未知时不显示虚假百分比</small></div></div>${[[0,'尚未开始 · 0%'],[64,'处理中 · 64%'],[100,'已完成 · 100%']].map(([n,t])=>`<div class="v4-small">${t}</div><div class="v4-progress"><i style="width:${n}%"></i></div>`).join('')}<div class="v4-small">不确定进度</div><div class="v4-progress"><i style="width:35%"></i></div><p class="v4-small">刷新保留已有内容，加载 / 失败 / 空结果互斥。</p></div>`,
 };
 module.exports.choiceChips += `<div style="margin-top:8px;min-height:44px;display:flex;align-items:center"><button class="p-chip" style="min-height:34px;border-radius:10px">紧凑筛选<i data-lucide="x" style="width:12px;height:12px"></i></button></div><p class="v4-small">紧凑筛选视觉 34；Flutter 保留 44 触控区，不放大正文中的语义标签。</p>`;
+
+module.exports.choiceChips += `<div class="v4-wrap" style="margin-top:8px"><span class="v4-info-label" data-accent>内置服务</span><span class="v4-info-label">${icon('circle-check')}已配置</span><span class="v4-info-label" data-muted>未启用</span></div><p class="v4-small">静态信息标签：11号字、8×3内距、8圆角；不承担选择或点击。</p>`;
+module.exports.inputStates += `<label class="v4-input">外置字段标题<input aria-label="外置字段标题" placeholder="标题只出现一次，保留无障碍标签"></label>`;

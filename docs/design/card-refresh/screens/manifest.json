@@ -941,9 +941,9 @@
   },
   {
     "route": "flow-providers",
-    "slug": "flow-providers",
-    "title": "AI 服务商",
+    "title": "服务商管理",
     "group": "补齐 · AI 与助手",
+    "slug": "flow-providers",
     "fullHeight": 844,
     "viewport": "screens/viewport/flow-providers.png",
     "full": "screens/full/flow-providers.png",
@@ -951,10 +951,10 @@
   },
   {
     "route": "flow-provider-edit",
-    "slug": "flow-provider-edit",
-    "title": "编辑 AI 服务商",
+    "title": "编辑服务商 · 弹窗",
     "group": "补齐 · AI 与助手",
-    "fullHeight": 943,
+    "slug": "flow-provider-edit",
+    "fullHeight": 991,
     "viewport": "screens/viewport/flow-provider-edit.png",
     "full": "screens/full/flow-provider-edit.png",
     "svg": "figma/flow-provider-edit.svg"
@@ -3332,5 +3332,105 @@
     "viewport": "screens/viewport/flow-ai-capability-speech.png",
     "full": "screens/full/flow-ai-capability-speech.png",
     "svg": "figma/flow-ai-capability-speech.svg"
+  },
+  {
+    "route": "flow-providers-many",
+    "title": "服务商 · 多能力",
+    "group": "补齐 · AI与助手",
+    "slug": "flow-providers-many",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-providers-many.png",
+    "full": "screens/full/flow-providers-many.png",
+    "svg": "figma/flow-providers-many.svg"
+  },
+  {
+    "route": "flow-providers-empty",
+    "title": "服务商 · 空列表",
+    "group": "补齐 · AI与助手",
+    "slug": "flow-providers-empty",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-providers-empty.png",
+    "full": "screens/full/flow-providers-empty.png",
+    "svg": "figma/flow-providers-empty.svg"
+  },
+  {
+    "route": "flow-providers-loading",
+    "title": "服务商 · 加载中",
+    "group": "补齐 · AI与助手",
+    "slug": "flow-providers-loading",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-providers-loading.png",
+    "full": "screens/full/flow-providers-loading.png",
+    "svg": "figma/flow-providers-loading.svg"
+  },
+  {
+    "route": "flow-providers-error",
+    "title": "服务商 · 读取失败",
+    "group": "补齐 · AI与助手",
+    "slug": "flow-providers-error",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-providers-error.png",
+    "full": "screens/full/flow-providers-error.png",
+    "svg": "figma/flow-providers-error.svg"
+  },
+  {
+    "route": "flow-provider-add",
+    "title": "添加服务商 · 弹窗",
+    "group": "补齐 · AI与助手",
+    "slug": "flow-provider-add",
+    "fullHeight": 1022,
+    "viewport": "screens/viewport/flow-provider-add.png",
+    "full": "screens/full/flow-provider-add.png",
+    "svg": "figma/flow-provider-add.svg"
+  },
+  {
+    "route": "flow-provider-custom",
+    "title": "编辑服务商 · 弹窗",
+    "group": "补齐 · AI与助手",
+    "slug": "flow-provider-custom",
+    "fullHeight": 1002,
+    "viewport": "screens/viewport/flow-provider-custom.png",
+    "full": "screens/full/flow-provider-custom.png",
+    "svg": "figma/flow-provider-custom.svg"
+  },
+  {
+    "route": "flow-provider-testing",
+    "title": "编辑服务商 · 弹窗",
+    "group": "补齐 · AI与助手",
+    "slug": "flow-provider-testing",
+    "fullHeight": 991,
+    "viewport": "screens/viewport/flow-provider-testing.png",
+    "full": "screens/full/flow-provider-testing.png",
+    "svg": "figma/flow-provider-testing.svg"
+  },
+  {
+    "route": "flow-provider-success",
+    "title": "编辑服务商 · 弹窗",
+    "group": "补齐 · AI与助手",
+    "slug": "flow-provider-success",
+    "fullHeight": 1095,
+    "viewport": "screens/viewport/flow-provider-success.png",
+    "full": "screens/full/flow-provider-success.png",
+    "svg": "figma/flow-provider-success.svg"
+  },
+  {
+    "route": "flow-provider-failed",
+    "title": "编辑服务商 · 弹窗",
+    "group": "补齐 · AI与助手",
+    "slug": "flow-provider-failed",
+    "fullHeight": 1130,
+    "viewport": "screens/viewport/flow-provider-failed.png",
+    "full": "screens/full/flow-provider-failed.png",
+    "svg": "figma/flow-provider-failed.svg"
+  },
+  {
+    "route": "flow-provider-delete",
+    "title": "删除服务商 · 弹窗",
+    "group": "补齐 · AI与助手",
+    "slug": "flow-provider-delete",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-provider-delete.png",
+    "full": "screens/full/flow-provider-delete.png",
+    "svg": "figma/flow-provider-delete.svg"
   }
 ]

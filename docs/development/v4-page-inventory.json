@@ -10,7 +10,7 @@
     "lib/pages/cloud/sync_preview_dialog.dart",
     "lib/pages/tag/widgets/tag_selector.dart"
   ],
-  "designSceneExports": 331,
+  "designSceneExports": 341,
   "flowDefinitions": 183,
   "priorityCounts": {
     "P0": 16,
@@ -443,11 +443,21 @@
         "AIProviderManagePage",
         "AIProviderEditPage"
       ],
-      "lines": 1075,
+      "lines": 50,
       "batch": "M6 AI与自动化",
       "designRoutes": [
         "flow-providers",
-        "flow-provider-edit"
+        "flow-providers-many",
+        "flow-providers-empty",
+        "flow-providers-loading",
+        "flow-providers-error",
+        "flow-provider-edit",
+        "flow-provider-add",
+        "flow-provider-custom",
+        "flow-provider-testing",
+        "flow-provider-success",
+        "flow-provider-failed",
+        "flow-provider-delete"
       ],
       "designMapping": "已定位",
       "components": "消息、配置表单、授权、任务状态与列表",
@@ -458,7 +468,17 @@
       "reason": "原1075行含管理/编辑和Factory/Manager/模型常量共五文件备份。纯服务卡/测试字段和基础静态标签起草，App控制器保留新增/编辑、内置身份、三能力并行测试/缓存/取消与保存状态，5项合成数据回归通过。尚未替换正式页，不计完成。",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-providers",
-        "../../docs/design/card-refresh/prototype/demo.html?page=flow-provider-edit"
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-providers-many",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-providers-empty",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-providers-loading",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-providers-error",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-provider-edit",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-provider-add",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-provider-custom",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-provider-testing",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-provider-success",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-provider-failed",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-provider-delete"
       ]
     },
     {

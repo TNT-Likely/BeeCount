@@ -129,3 +129,8 @@
 #bee-immersive-suite .bc-phone [role="switch"][aria-checked="true"]>.bc-switch::after{background:var(--bc-on-accent)}
 #bee-immersive-suite .bc-phone [role="switch"][aria-checked="false"]>.bc-switch{border:1px solid var(--bc-muted)}
 #bee-immersive-suite .bc-phone [role="switch"][aria-checked="false"]>.bc-switch::after{background:var(--bc-muted)}
+
+#bee-immersive-suite .v4-info-label{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:8px;background:var(--bc-soft);font-size:calc(11px * var(--q-scale,1));line-height:1.4;color:var(--bc-ink)}
+#bee-immersive-suite .v4-info-label[data-accent]{background:color-mix(in srgb,var(--bc-accent) 13%,transparent)}
+#bee-immersive-suite .v4-info-label[data-muted]{opacity:.4}
+#bee-immersive-suite .v4-info-label svg{width:14px;height:14px}

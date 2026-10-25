@@ -80,3 +80,10 @@ for(const demo of document.querySelectorAll('[data-a81-demo]'))demo.addEventList
  if(event.target.closest('[data-a81-cancel]'))event.target.closest('dialog').close();
  if(event.target.closest('[data-a81-demo-agree]')){demo.querySelector('[data-a81-result]').textContent='示例同意，不写真实授权';event.target.closest('dialog').close();}
 });
+
+for(const demo of document.querySelectorAll('[data-a82-demo]')){
+ const render=()=>{const stage=demo.querySelector('[data-a82-demo-stage]').value;demo.querySelector('.a82-test').dataset.testTone=stage;const test=demo.querySelector('[data-a82-demo-test]'),detail=demo.querySelector('[data-a82-demo-detail]');test.disabled=stage==='testing';test.textContent={idle:'测试',testing:'测试中',success:'测试成功',failed:'测试失败'}[stage];detail.hidden=!['success','failed'].includes(stage);detail.textContent=stage==='success'?'文本与工具调用可用':stage==='failed'?'合成连接失败，请检查配置':'';demo.querySelector('[data-a82-demo-event]').textContent='示例状态：'+stage+'，不发起请求';};
+ demo.querySelector('[data-a82-demo-stage]').addEventListener('change',render);
+ demo.querySelector('[data-a82-demo-test]').addEventListener('click',()=>{demo.querySelector('[data-a82-demo-stage]').value='testing';render();});
+}
+for(const button of document.querySelectorAll('[data-a82-demo-delete]'))button.addEventListener('click',()=>{button.closest('.a82-guide-sample').querySelector('[data-a82-demo-event]').textContent='示例删除入口，实际管理页保留确认弹窗';});

@@ -542,6 +542,13 @@
         "title": "AI能力绑定与原授权",
         "nativeCase": 54,
         "nativeLabel": "AI能力绑定与授权"
+      },
+      {
+        "id": "spec-77",
+        "code": "B52",
+        "title": "AI服务商与连接测试",
+        "nativeCase": 55,
+        "nativeLabel": "AI服务商与连接测试"
       }
     ]
   }

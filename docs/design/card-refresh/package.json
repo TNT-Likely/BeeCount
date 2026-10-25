@@ -34,7 +34,8 @@
     "check:calendar": "node scripts/validate-calendar.cjs",
     "check:analytics": "node scripts/validate-analytics.cjs",
     "check:smart-billing": "node scripts/validate-smart-billing.cjs",
-    "check:ai-settings": "node scripts/validate-ai-settings.cjs"
+    "check:ai-settings": "node scripts/validate-ai-settings.cjs",
+    "check:ai-providers": "node scripts/validate-ai-providers.cjs"
   },
   "devDependencies": {
     "playwright": "1.62.1"
