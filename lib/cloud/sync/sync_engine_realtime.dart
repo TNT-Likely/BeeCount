@@ -167,13 +167,14 @@ extension SyncEngineRealtime on SyncEngine {
       // 不会跑,但需要跟 mobile-side accept 等价的完整初始化流程:
       //   1. syncLedgersFromServer 拉新 ledger 行(内部自动调
       //      fetchAndStoreSharedResources 拉 SharedLedger* 资源)
-      //   2. replayAllChanges 把 sync_changes 表所有历史 tx 重新 apply 到本地
-      //      (单跑 _pull 拉不回历史 — 设备 cursor 已经在最新位置)
+      //   2. hydrateLedgerFromServer 仅水合新账本的当前正式快照
+      //      (普通 pull 的全局 cursor 可能已越过该账本的历史)
       if (changeType == 'joined' && affectedUserId != null && affectedUserId == myUserId) {
         logger.info('SyncEngine',
             '自己加入 ledger=$ledgerExternalId(可能 web 端 accept),触发完整初始化');
+        await _assertHydrationHasNoPendingChanges(ledgerExternalId);
         await syncLedgersFromServer();
-        await replayAllChanges();
+        await hydrateLedgerFromServer(ledgerExternalId);
         _emit(PullCompleted(ledgerId: ledgerExternalId));
         return;
       }
@@ -460,8 +461,333 @@ extension SyncEngineRealtime on SyncEngine {
     _emit(SharedResourceChanged(ledgerId: ledgerExternalId));
   }
 
+  Future<void> _assertHydrationHasNoPendingChanges(String externalId) async {
+    final rows = await (db.select(db.ledgers)
+          ..where((l) => l.syncId.equals(externalId))).get();
+    for (final ledger in rows) {
+      if ((await changeTracker.getUnpushedChangesForLedger(ledger.id))
+          .isNotEmpty) {
+        throw StateError('Hydration target has unpushed local changes');
+      }
+    }
+  }
+
+  /// 用正式 /full 当前快照水合一个已登记的账本,不重放其它账本的历史。
+  /// 调用方先 syncLedgersFromServer / shared-resources;目标有待推变更则拒绝。
+  /// 不导入 owner 的 user-global 主表,不推进普通增量的全局 cursor。
+  Future<int> hydrateLedgerFromServer(String ledgerExternalId) async {
+    if (ledgerExternalId.isEmpty ||
+        ledgerExternalId.trim() != ledgerExternalId) {
+      throw const FormatException('Invalid hydration ledger scope');
+    }
+    // 与普通 pull 共用互斥,但不能让普通 pull 复用本次水合的结果或 cache。
+    while (_pullInFlight != null) {
+      try {
+        await _pullInFlight!.future;
+      } catch (_) {/* 本次水合仍独立校验自己的快照。 */}
+    }
+    final completer = Completer<int>();
+    completer.future.ignore();
+    _pullInFlight = completer;
+    _pullInFlightSince = -1;
+    try {
+      final ledgers = await (db.select(db.ledgers)
+            ..where((l) => l.syncId.equals(ledgerExternalId)))
+          .get();
+      if (ledgers.length != 1) {
+        throw StateError('Hydration requires one registered target ledger');
+      }
+      final ledger = ledgers.single;
+      Future<void> checkPending() async {
+        if ((await changeTracker.getUnpushedChangesForLedger(ledger.id))
+            .isNotEmpty) {
+          throw StateError('Hydration target has unpushed local changes');
+        }
+      }
+
+      await checkPending();
+      final content = await provider.storage.download(path: ledgerExternalId);
+      if (content == null) {
+        throw StateError('Hydration target has no formal snapshot');
+      }
+      final decoded = jsonDecode(content);
+      if (decoded is! Map<String, dynamic> ||
+          decoded['ledgerSyncId'] != ledgerExternalId ||
+          decoded['items'] is! List ||
+          decoded['budgets'] is! List) {
+        throw const FormatException(
+            'Invalid hydration snapshot scope or lists');
+      }
+      Never invalid(String field) =>
+          throw FormatException('Invalid hydration snapshot field: $field');
+      String identity(dynamic value, String field) {
+        if (value is! String || value.isEmpty || value.trim() != value) {
+          invalid(field);
+        }
+        return value;
+      }
+
+      bool finite(dynamic value) => value is num && value.isFinite;
+      final txs = <Map<String, dynamic>>[];
+      final budgets = <Map<String, dynamic>>[];
+      final txIds = <String>{};
+      final budgetIds = <String>{};
+      for (final raw in decoded['items'] as List) {
+        if (raw is! Map<String, dynamic>) invalid('items');
+        final item = Map<String, dynamic>.from(raw);
+        final id = identity(item['syncId'], 'items.syncId');
+        if (!txIds.add(id)) invalid('items.syncId duplicate');
+        if (item.containsKey('ledgerSyncId') &&
+            item['ledgerSyncId'] != ledgerExternalId) {
+          invalid('items.scope');
+        }
+        if (!['expense', 'income', 'transfer'].contains(item['type'])) {
+          invalid('items.type');
+        }
+        if (!finite(item['amount'])) invalid('items.amount');
+        final time = item['happenedAt'];
+        if (time is! String ||
+            !time.contains('T') ||
+            !RegExp(r'(Z|[+-]\d{2}:\d{2})$').hasMatch(time) ||
+            DateTime.tryParse(time) == null) {
+          invalid('items.happenedAt');
+        }
+        for (final flag in ['excludeFromStats', 'excludeFromBudget']) {
+          if (item[flag] is! bool) invalid('items.$flag');
+        }
+        if (item['note'] != null && item['note'] is! String) {
+          invalid('items.note');
+        }
+        if (item['nativeAmount'] != null && !finite(item['nativeAmount'])) {
+          invalid('items.nativeAmount');
+        }
+        if (item['currencyCode'] != null &&
+            (item['currencyCode'] is! String ||
+                !RegExp(r'^[A-Z]{3}$')
+                    .hasMatch(item['currencyCode'] as String))) {
+          invalid('items.currencyCode');
+        }
+        // 固定正式/full builder 省略 SQL NULL;只有此路径补显式 NULL,
+        // 复用原 apply 的 containsKey 语义,不让 native 缺省退化为 amount。
+        item.putIfAbsent('nativeAmount', () => null);
+        item.putIfAbsent('currencyCode', () => null);
+        final tags = item['tagIds'];
+        if (tags != null && tags is! List) invalid('items.tagIds');
+        final tagIds = <String>{};
+        for (final tag in (tags as List?) ?? const []) {
+          if (!tagIds.add(identity(tag, 'items.tagIds'))) {
+            invalid('items.tagIds duplicate');
+          }
+        }
+        if (item['tags'] != null && item['tags'] is! String) {
+          invalid('items.tags');
+        }
+        if (tagIds.isEmpty && (item['tags'] as String? ?? '').isNotEmpty) {
+          invalid('items.tagIds missing stable identity');
+        }
+        item['tagIds'] = tagIds.toList();
+        if (tagIds.isEmpty) item['tags'] = null;
+        for (final field in ['categoryId', 'accountId', 'fromAccountId',
+          'toAccountId', 'createdByUserId', 'updatedByUserId']) {
+          if (item[field] != null) identity(item[field], 'items.$field');
+        }
+        for (final field in ['categoryName', 'categoryKind', 'accountName',
+          'fromAccountName', 'toAccountName']) {
+          if (item[field] != null && item[field] is! String) {
+            invalid('items.$field');
+          }
+        }
+        if (item['type'] == 'transfer' && item['accountId'] != null &&
+            item['fromAccountId'] != null &&
+            item['accountId'] != item['fromAccountId']) {
+          invalid('items.transfer source identity');
+        }
+        final attachments = item['attachments'];
+        if (attachments != null && attachments is! List) {
+          invalid('items.attachments');
+        }
+        final names = <String>{};
+        for (final a in (attachments as List?) ?? const []) {
+          if (a is! Map<String, dynamic>) invalid('items.attachments');
+          final fileName = identity(a['fileName'], 'attachments.fileName');
+          if (p.basename(fileName) != fileName || fileName.contains('\\') ||
+              fileName == '.' || fileName == '..') {
+            invalid('attachments.fileName path');
+          }
+          if (!names.add(fileName)) {
+            invalid('attachments.fileName duplicate');
+          }
+          final order = a['sortOrder'];
+          // 老账单可有并列 sortOrder;保留正式快照数组顺序,不重排/编号。
+          if (order is! int || order < 0) {
+            invalid('attachments.sortOrder');
+          }
+          identity(a['cloudFileId'], 'attachments.cloudFileId');
+          final digest = identity(a['cloudSha256'], 'attachments.cloudSha256');
+          if (!RegExp(r'^[a-fA-F0-9]{64}$').hasMatch(digest)) {
+            invalid('attachments.cloudSha256');
+          }
+          if (a['originalName'] != null && a['originalName'] is! String) {
+            invalid('attachments.originalName');
+          }
+          for (final field in ['fileSize', 'width', 'height']) {
+            if (a[field] != null &&
+                (a[field] is! int || (a[field] as int) < 0)) {
+              invalid('attachments.$field');
+            }
+          }
+        }
+        item['attachments'] = attachments ?? <dynamic>[];
+        txs.add(item);
+      }
+      if (decoded['count'] is! int || decoded['count'] != txs.length) {
+        invalid('count');
+      }
+      for (final raw in decoded['budgets'] as List) {
+        if (raw is! Map<String, dynamic>) invalid('budgets');
+        final item = Map<String, dynamic>.from(raw);
+        final id = identity(item['syncId'], 'budgets.syncId');
+        if (!budgetIds.add(id)) invalid('budgets.syncId duplicate');
+        if (item['ledgerSyncId'] != ledgerExternalId) invalid('budgets.scope');
+        if (!finite(item['amount'])) invalid('budgets.amount');
+        if (item['enabled'] is! bool) invalid('budgets.enabled');
+        for (final field in ['type', 'period', 'categoryId']) {
+          if (item[field] != null) identity(item[field], 'budgets.$field');
+        }
+        if (item['startDay'] != null && (item['startDay'] is! int ||
+            (item['startDay'] as int) < 1 || (item['startDay'] as int) > 31)) {
+          invalid('budgets.startDay');
+        }
+        budgets.add(item);
+      }
+      final applied = await db.transaction(() async {
+        // HTTP 等待期间可能退出/删除/重新登记目标;写前确认仍是同一本。
+        final currentLedgers = await (db.select(db.ledgers)
+              ..where((l) => l.syncId.equals(ledgerExternalId))).get();
+        if (currentLedgers.length != 1 || currentLedgers.single.id != ledger.id) {
+          throw StateError('Hydration target ledger changed during download');
+        }
+        // 用户可能在 HTTP 等待期间编辑;事务内再次保护,校验完才开始写。
+        await checkPending();
+        final localCategories = (await db.select(db.categories).get())
+            .map((r) => r.syncId).whereType<String>().toSet();
+        final localAccounts = (await db.select(db.accounts).get())
+            .map((r) => r.syncId).whereType<String>().toSet();
+        final localTags = (await db.select(db.tags).get())
+            .map((r) => r.syncId).whereType<String>().toSet();
+        final sharedCategories = (await (db.select(db.sharedLedgerCategories)
+              ..where((r) => r.ledgerSyncId.equals(ledgerExternalId))).get())
+            .map((r) => r.syncId).toSet();
+        final sharedAccounts = (await (db.select(db.sharedLedgerAccounts)
+              ..where((r) => r.ledgerSyncId.equals(ledgerExternalId))).get())
+            .map((r) => r.syncId).toSet();
+        final sharedTags = (await (db.select(db.sharedLedgerTags)
+              ..where((r) => r.ledgerSyncId.equals(ledgerExternalId))).get())
+            .map((r) => r.syncId).toSet();
+        void reference(Map<String, dynamic> item, String field,
+            Set<String> local, Set<String> shared, List<String> nameFields) {
+          final id = item[field] as String?;
+          if (id == null) {
+            if (nameFields.any((f) => (item[f] as String? ?? '').isNotEmpty)) {
+              invalid('items.$field missing stable identity');
+            }
+            return;
+          }
+          if (local.contains(id)) return;
+          if (!shared.contains(id)) invalid('items.$field unresolved');
+          // 保持 syncId 优先;不能让同名的本人资源抢走 Owner 的共享引用。
+          for (final name in nameFields) { item.remove(name); }
+        }
+        for (final item in txs) {
+          reference(item, 'categoryId', localCategories, sharedCategories,
+              ['categoryName']);
+          reference(item, 'accountId', localAccounts, sharedAccounts,
+              ['accountName']);
+          reference(item, 'fromAccountId', localAccounts, sharedAccounts,
+              ['fromAccountName']);
+          reference(item, 'toAccountId', localAccounts, sharedAccounts,
+              ['toAccountName']);
+          for (final id in item['tagIds'] as List) {
+            if (!localTags.contains(id) && !sharedTags.contains(id)) {
+              invalid('items.tagIds unresolved');
+            }
+          }
+        }
+        for (final item in budgets) {
+          final category = item['categoryId'];
+          // Budget 主表无共享 override 列,不可把 unresolved 分类静默降为总预算。
+          if (category != null && !localCategories.contains(category)) {
+            invalid('budgets.categoryId unresolved');
+          }
+        }
+        final newlyInsertedSyncIds = <String>{};
+        for (final item in txs) {
+          final existing = await (db.select(db.transactions)
+                ..where((t) => t.syncId.equals(item['syncId'] as String)))
+              .get();
+          if (existing.any((t) => t.ledgerId != ledger.id) ||
+              existing.length > 1) {
+            invalid('items.syncId cross-ledger collision');
+          }
+          if (existing.isEmpty) {
+            newlyInsertedSyncIds.add(item['syncId'] as String);
+          }
+        }
+        for (final item in budgets) {
+          final existing = await (db.select(db.budgets)
+                ..where((b) => b.syncId.equals(item['syncId'] as String)))
+              .get();
+          if (existing.any((b) => b.ledgerId != ledger.id) ||
+              existing.length > 1) {
+            invalid('budgets.syncId cross-ledger collision');
+          }
+        }
+        // 老版本退出可能留下无 FK 的 override。只有正式 target item 的
+        // 本地交易确实不存在且跨本碰撞校验已过时,才能精确接管该遗留键。
+        if (newlyInsertedSyncIds.isNotEmpty) {
+          await db.batch((batch) {
+            for (final id in newlyInsertedSyncIds) {
+              batch.deleteWhere(db.transactionTagOverrides,
+                  (row) => row.transactionSyncId.equals(id));
+            }
+          });
+        }
+        for (final item in txs) {
+          await _applyTransactionChange(BeeCountCloudSyncChange(
+              changeId: 0,
+              ledgerId: ledgerExternalId,
+              entityType: 'transaction',
+              entitySyncId: item['syncId'] as String,
+              action: 'upsert',
+              payload: item));
+        }
+        for (final item in budgets) {
+          await _applyBudgetChange(BeeCountCloudSyncChange(
+              changeId: 0,
+              ledgerId: ledgerExternalId,
+              entityType: 'budget',
+              entitySyncId: item['syncId'] as String,
+              action: 'upsert',
+              payload: item));
+        }
+        return txs.length + budgets.length;
+      });
+      completer.complete(applied);
+      return applied;
+    } catch (e, st) {
+      completer.completeError(e, st);
+      rethrow;
+    } finally {
+      if (_pullInFlight == completer) {
+        _pullInFlight = null;
+        _pullInFlightSince = null;
+      }
+    }
+  }
+
   Future<void> onInviteAccepted(String ledgerExternalId) async {
     try {
+      await _assertHydrationHasNoPendingChanges(ledgerExternalId);
       await syncLedgersFromServer();
       // GC:清掉所有 ledger_sync_id 在 ledgers 表里找不到的孤儿 SharedLedger*
       // 行。测试 / 退出账本 / Owner 删账本 留下的残留(数据库迁移 v25 之前
@@ -470,15 +796,9 @@ extension SyncEngineRealtime on SyncEngine {
 
       await fetchAndStoreSharedResources(ledgerExternalId);
 
-      // 拉历史 tx — 让 Editor 看到 Owner 之前记的账。
-      // 关键:不能走 pull(默认用 SharedPreferences cursor,B 设备如果之前
-      // sync 过自己单人账本,cursor 已经在最新位置,A 之前的 sync_changes
-      // change_id 已小于 cursor → 拉不回历史 tx / budget。
-      // 强制 sinceOverride=0 走 replayAllChanges,server pull 路径会按
-      // accessible_ledger_ids 过滤,Editor 自然只拿到自己能看的(含新加入
-      // 的共享账本)。pullChanges apply 是 idempotent,重复 apply 已存在
-      // 的不会出错。
-      await replayAllChanges();
+      // 只水合新加入的账本。全局 since=0 会重放其它账本的旧 foreign
+      // 事件,而 server 已过滤本设备最新事件,导致已成功推送的本地值回退。
+      await hydrateLedgerFromServer(ledgerExternalId);
       _emit(PullCompleted(ledgerId: ledgerExternalId));
     } catch (e, st) {
       logger.warning('SyncEngine', 'onInviteAccepted 失败 ledger=$ledgerExternalId', st);
@@ -597,6 +917,15 @@ extension SyncEngineRealtime on SyncEngine {
   Future<void> _purgeLocalLedgerByExternalId(String ledgerExternalId) async {
     final localId = await _resolveLedgerIdBySyncId(ledgerExternalId);
     if (localId == null) return;
+    // Override 表无 FK;只按目标交易 syncId 清理,不能按共享 tagId 全局删。
+    final txSyncIds = (await (db.select(db.transactions)
+          ..where((t) => t.ledgerId.equals(localId))).get())
+        .map((t) => t.syncId).whereType<String>()
+        .where((id) => id.isNotEmpty).toSet().toList();
+    if (txSyncIds.isNotEmpty) {
+      await (db.delete(db.transactionTagOverrides)
+            ..where((t) => t.transactionSyncId.isIn(txSyncIds))).go();
+    }
     // tx + tags + attachments 走级联;ledgers 行本身删
     await (db.delete(db.transactions)..where((t) => t.ledgerId.equals(localId))).go();
     await (db.delete(db.ledgers)..where((l) => l.id.equals(localId))).go();

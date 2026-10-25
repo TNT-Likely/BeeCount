@@ -883,7 +883,7 @@ void main() {
     expect(find.text(l.cloudSyncHelpTroubleshootBody), findsOneWidget);
   });
   scenario('加入重放历史保留共享引用归属币种且重复同步幂等', (t) async {
-    cloud.pushFakeChange(
+    final history = cloud.pushFakeChange(
         entitySyncId: 'history-tx',
         ledgerId: 'book-shared',
         entityType: 'transaction',
@@ -901,6 +901,18 @@ void main() {
           'excludeFromStats': true,
           'excludeFromBudget': true
         });
+    await cloud.storage.upload(
+        path: 'book-shared',
+        data: jsonEncode({
+          'ledgerSyncId': 'book-shared',
+          'ledgerName': 'Shared book',
+          'currency': 'CNY',
+          'count': 1,
+          'items': [
+            {'syncId': history.entitySyncId, ...history.payload!}
+          ],
+          'budgets': [],
+        }));
     await show(t, const JoinSharedLedgerPage(prefilledCode: 'ABC234'));
     await tap(t, l.sharedJoinAcceptButton);
     final row = (await db.select(db.transactions).get()).single;
