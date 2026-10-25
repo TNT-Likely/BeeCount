@@ -4017,5 +4017,9 @@
   "aiProviderHideKey": "Hide API key",
   "aiPromptShare": "Share prompt",
   "aiPromptPaste": "Paste prompt",
-  "v4AIChatSend": "Send message"
+  "v4AIChatSend": "Send message",
+  "v4RecurringLastGeneratedLabel": "Last generated",
+  "v4TransactionDetailTitle": "Bill details",
+  "v4TransactionDetailSnapshot": "Historical conversion",
+  "v4TransactionDetailSnapshotRate": "Rate at entry"
 }

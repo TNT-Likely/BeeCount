@@ -3567,6 +3567,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get webdavConfiguredMessage => 'WebDAV cloud service uses the credentials provided during configuration, no additional login required.';
 
   @override
+  String get v4RecurringLastGeneratedLabel => 'Last generated';
+
+  @override
   String get recurringTransactionTitle => 'Recurring Bills';
 
   @override
@@ -9005,4 +9008,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get v4AIChatSend => 'Send message';
+
+  @override
+  String get v4TransactionDetailTitle => 'Bill details';
+
+  @override
+  String get v4TransactionDetailSnapshot => 'Historical conversion';
+
+  @override
+  String get v4TransactionDetailSnapshotRate => 'Rate at entry';
 }

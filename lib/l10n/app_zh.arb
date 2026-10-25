@@ -3724,5 +3724,9 @@
   "aiProviderHideKey": "隐藏密钥",
   "aiPromptShare": "分享提示词",
   "aiPromptPaste": "粘贴提示词",
-  "v4AIChatSend": "发送消息"
+  "v4AIChatSend": "发送消息",
+  "v4RecurringLastGeneratedLabel": "最近生成",
+  "v4TransactionDetailTitle": "账单详情",
+  "v4TransactionDetailSnapshot": "历史折算",
+  "v4TransactionDetailSnapshotRate": "记账时汇率"
 }

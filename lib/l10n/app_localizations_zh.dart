@@ -3567,6 +3567,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get webdavConfiguredMessage => 'WebDAV 云服务使用配置时提供的凭据，无需额外登录。';
 
   @override
+  String get v4RecurringLastGeneratedLabel => '最近生成';
+
+  @override
   String get recurringTransactionTitle => '周期账单';
 
   @override
@@ -8997,6 +9000,15 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get v4AIChatSend => '发送消息';
+
+  @override
+  String get v4TransactionDetailTitle => '账单详情';
+
+  @override
+  String get v4TransactionDetailSnapshot => '历史折算';
+
+  @override
+  String get v4TransactionDetailSnapshotRate => '记账时汇率';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).

@@ -6758,6 +6758,12 @@ abstract class AppLocalizations {
   /// **'WebDAV cloud service uses the credentials provided during configuration, no additional login required.'**
   String get webdavConfiguredMessage;
 
+  /// No description provided for @v4RecurringLastGeneratedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Last generated'**
+  String get v4RecurringLastGeneratedLabel;
+
   /// No description provided for @recurringTransactionTitle.
   ///
   /// In en, this message translates to:
@@ -16945,6 +16951,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Send message'**
   String get v4AIChatSend;
+
+  /// No description provided for @v4TransactionDetailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bill details'**
+  String get v4TransactionDetailTitle;
+
+  /// No description provided for @v4TransactionDetailSnapshot.
+  ///
+  /// In en, this message translates to:
+  /// **'Historical conversion'**
+  String get v4TransactionDetailSnapshot;
+
+  /// No description provided for @v4TransactionDetailSnapshotRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate at entry'**
+  String get v4TransactionDetailSnapshotRate;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

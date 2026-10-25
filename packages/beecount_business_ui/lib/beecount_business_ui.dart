@@ -59,3 +59,5 @@ export 'src/ai_prompt_document.dart';
 export 'src/execution_depth_picker.dart';
 
 export 'src/assistant_conversation.dart';
+
+export 'src/recurring_bill.dart';
