@@ -3567,9 +3567,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get webdavConfiguredMessage => 'WebDAV 클라우드 서비스는 설정 시 입력한 인증 정보를 사용하므로 추가 로그인이 필요하지 않습니다.';
 
   @override
-  String get v4RecurringLastGeneratedLabel => 'Last generated';
-
-  @override
   String get recurringTransactionTitle => '정기 결제';
 
   @override
@@ -9008,6 +9005,9 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get v4AIChatSend => 'Send message';
+
+  @override
+  String get v4RecurringLastGeneratedLabel => 'Last generated';
 
   @override
   String get v4TransactionDetailTitle => 'Bill details';
