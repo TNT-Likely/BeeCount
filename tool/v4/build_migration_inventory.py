@@ -4,6 +4,9 @@ root=Path(__file__).resolve().parents[2];d=root/'.docs/v4-ui-migration';d.mkdir(
 config=json.loads((root/'tool/v4/migration-status.json').read_text())
 flows=json.loads((root/'docs/design/card-refresh/tokens/flow-sources.json').read_text());manifest=json.loads((root/'docs/design/card-refresh/screens/manifest.json').read_text())
 manual={
+ 'report/share_card_page.dart':['poster'],
+ 'transaction/transaction_detail_page.dart':['detail','flow-foreign-detail','flow-attachment-grid'],
+ 'transaction/recurring_transaction_page.dart':['flow-recurring','flow-recurring-empty','flow-recurring-loading','flow-recurring-error','flow-recurring-saving','flow-recurring-long','flow-recurring-save-error'],
 'ai/ai_chat_page.dart':['ai'],'ai/ai_provider_manage_page.dart':['flow-providers','flow-providers-many','flow-providers-empty','flow-providers-loading','flow-providers-error','flow-provider-edit','flow-provider-add','flow-provider-custom','flow-provider-testing','flow-provider-success','flow-provider-failed','flow-provider-delete'],'ai/ai_settings_page.dart':['flow-ai-settings','flow-ai-settings-enabled','flow-ai-settings-loading','flow-ai-settings-error','flow-ai-settings-long','flow-ai-consent','flow-capabilities','flow-ai-capability-text','flow-ai-capability-vision','flow-ai-capability-speech'],'budget/budget_edit_page.dart':['flow-budget-edit','flow-budget-edit-existing-total','flow-budget-edit-total','flow-budget-edit-category','flow-budget-edit-custom','flow-budget-edit-empty-categories','flow-budget-edit-loading','flow-budget-edit-error','flow-budget-edit-write-error','flow-budget-edit-readonly','flow-bge-category','flow-bge-delete'],'budget/budget_page.dart':['budget'],'tag/tag_detail_page.dart':['tagDetail','flow-tag-foreign-detail','flow-tag-all-ledgers-detail','flow-tag-empty-detail'],'transaction/category_detail_page.dart':['categoryDetail'],'transaction/search_page.dart':['search','batch'],
 'main/home_page.dart':['home'],'main/analytics_page.dart':['report','flow-analytics-income','flow-analytics-balance','flow-analytics-year','flow-analytics-all','flow-analytics-empty','flow-analytics-loading','flow-analytics-error','flow-analytics-pie','flow-analytics-foreign'],'main/mine_page.dart':['mine'],'main/ledgers_page_new.dart':['ledgers','flow-ledger-edit','flow-ledger-actions','flow-ledger-create','flow-ledger-period','flow-ledger-currencies','flow-ledger-remote-actions','flow-ledgers-empty','flow-ledgers-remote','flow-ledgers-loading','flow-ledgers-error','flow-ledgers-editor','flow-ledger-conflict'],
 'tag/tag_manage_page.dart':['flow-tag-management','flow-tag-management-empty','flow-tag-management-error','flow-tag-management-loading','flow-tag-tools'],
@@ -176,7 +179,7 @@ for priority in ['P0','P1','P2']:
         routes='、'.join('`'+x+'`' for x in r['designRoutes'])
         page+=f"| {title} | {r['status']} | {r['batch'].split()[0]} | {r['components']} | {r['acceptance']}<br>设计：{routes}<br>优先理由：{r['reason']} |\n"
     page+='\n'
-page+='## 待新增页面（不与现有 71 页重复计数）\n\n| 页面 | 优先级 / 状态 | 计划位置 | 原代码与新稿差别 |\n| --- | --- | --- | --- |\n'
+page+='## 待新增页面（不与已存在的页面重复计数）\n\n| 页面 | 优先级 / 状态 | 计划位置 | 原代码与新稿差别 |\n| --- | --- | --- | --- |\n'
 for r in config['plannedPages']:
     page+=f"| {r['name']} | {r['priority']} / {r['status']} | `{r['source']}` | {r['reason']}<br>设计：{'、'.join('`'+x+'`' for x in r['designRoutes'])} |\n"
 page+='\n## 必须随页面迁移的关联表单与弹窗\n\n这些不是独立 Page，不能从清单遗漏，也不能为了换皮把原弹窗改成新页面。P2 所属的检查升级弹窗可以随关于页后置；若上游提前消费，弹窗随上游一批交付。\n\n| 流程 / 源码 | 优先级 / 状态 | 验收要求 |\n| --- | --- | --- |\n'
@@ -201,4 +204,6 @@ python3 tool/v4/build_migration_inventory.py
 生成器会拒绝未登记的新页面，确保优先级和状态不会悄悄遗漏。
 """
 (public/'v4-page-migration.md').write_text(page)
+from build_migration_progress import build_progress_page
+progress_page = build_progress_page(root, config, rows, manifest)
 print(json.dumps({'pages':len(rows),'helpers':len(helpers),'mapped':sum(bool(r['designRoutes']) for r in rows),'priorityCounts':dict(sorted(priority_counts.items())),'plannedPages':len(config['plannedPages']),'backup':str(backup)},ensure_ascii=False))

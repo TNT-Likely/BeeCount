@@ -1,7 +1,7 @@
 {
   "date": "2026-10-25",
   "branch": "v4",
-  "pageFiles": 71,
+  "pageFiles": 73,
   "helperFiles": [
     "lib/pages/ai/agent_message_visibility.dart",
     "lib/pages/ai/agent_tool_presentation.dart",
@@ -10,39 +10,14 @@
     "lib/pages/cloud/sync_preview_dialog.dart",
     "lib/pages/tag/widgets/tag_selector.dart"
   ],
-  "designSceneExports": 365,
+  "designSceneExports": 429,
   "flowDefinitions": 183,
   "priorityCounts": {
-    "P0": 16,
-    "P1": 42,
+    "P0": 17,
+    "P1": 43,
     "P2": 13
   },
-  "plannedPages": [
-    {
-      "name": "账单详情",
-      "source": "lib/pages/transaction/transaction_detail_page.dart",
-      "priority": "P0",
-      "status": "待新增",
-      "batch": "M2 首页与列表",
-      "designRoutes": [
-        "detail",
-        "flow-foreign-detail",
-        "flow-attachment-grid"
-      ],
-      "reason": "原列表点击进入编辑，原代码没有独立详情 Page；新版需落地已设计的详情入口、附件、复制、编辑和小票。"
-    },
-    {
-      "name": "分享卡片",
-      "source": "lib/pages/report/share_card_page.dart",
-      "priority": "P1",
-      "status": "待新增",
-      "batch": "M4 统计与分享",
-      "designRoutes": [
-        "poster"
-      ],
-      "reason": "新稿有独立卡片预览与样式切换；原分享服务继续复用，页面只组合内容与导出。"
-    }
-  ],
+  "plannedPages": [],
   "associatedFlows": [
     {
       "name": "转账表单（同币种/跨币种）",
@@ -572,7 +547,7 @@
         "AuthPage",
         "LoginPage"
       ],
-      "lines": 509,
+      "lines": 15,
       "batch": "M7 初始化与数据",
       "designRoutes": [
         "flow-login"
@@ -580,10 +555,11 @@
       "designMapping": "已定位",
       "components": "登录表单、安全输入、验证码与错误反馈",
       "acceptance": "原账号/验证方式、合法输入、加载防重、取消、登录失败/恢复和实际鉴权。",
-      "status": "待迁移",
+      "status": "迁移中·子代理代码已交付，待统一集成与整页验收",
       "name": "云账号登录",
       "priority": "P1",
-      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "reason": "r91六类服务、四配置弹窗、完整教程/登录/记住账号与原服务契约已组件化，41项模拟鉴权/MockClient/widget及9文件静态检查通过；未访问真实网络/Cloud或设备，待统一集成和实服验收。",
+      "implementationStage": "implemented",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-login"
       ]
@@ -677,7 +653,7 @@
         "AutoBillingSettingsPage",
         "AndroidAutoBillingPage"
       ],
-      "lines": 519,
+      "lines": 234,
       "batch": "M6 AI与自动化",
       "designRoutes": [
         "flow-android-auto",
@@ -686,10 +662,11 @@
       "designMapping": "已定位",
       "components": "平台引导、开关、选择项与配置表单",
       "acceptance": "保留 Android/iOS/渠道条件、权限检查、设置跳转、默认值与失败反馈。",
-      "status": "待迁移",
+      "status": "迁移中·子代理核对原流程并实施，原生验收未执行",
       "name": "Android 自动记账设置",
       "priority": "P1",
       "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "implementationStage": "in_progress",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-android-auto",
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-auto-platform"
@@ -700,7 +677,7 @@
       "classes": [
         "IOSAutoBillingPage"
       ],
-      "lines": 459,
+      "lines": 101,
       "batch": "M6 AI与自动化",
       "designRoutes": [
         "flow-ios-auto"
@@ -708,10 +685,11 @@
       "designMapping": "已定位",
       "components": "平台引导、开关、选择项与配置表单",
       "acceptance": "保留 Android/iOS/渠道条件、权限检查、设置跳转、默认值与失败反馈。",
-      "status": "待迁移",
+      "status": "迁移中·子代理核对原流程并实施，原生验收未执行",
       "name": "iOS 自动记账设置",
       "priority": "P1",
       "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "implementationStage": "in_progress",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-ios-auto"
       ]
@@ -909,7 +887,7 @@
       "classes": [
         "BeeCountCloudSyncPage"
       ],
-      "lines": 653,
+      "lines": 8,
       "batch": "M5 云与共享",
       "designRoutes": [
         "flow-cloud-sync",
@@ -919,10 +897,11 @@
       "designMapping": "已定位",
       "components": "同步状态、配置、成员列表与权限操作",
       "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。",
-      "status": "待迁移",
+      "status": "迁移中·子代理核对共享云原流程并实施，待真实权限与同步验收",
       "name": "BeeCount Cloud 同步",
       "priority": "P1",
       "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "implementationStage": "in_progress",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-cloud-sync",
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-sync-health",
@@ -934,7 +913,7 @@
       "classes": [
         "CloudServicePage"
       ],
-      "lines": 2487,
+      "lines": 8,
       "batch": "M5 云与共享",
       "designRoutes": [
         "flow-cloud-config"
@@ -942,10 +921,11 @@
       "designMapping": "已定位",
       "components": "同步状态、配置、成员列表与权限操作",
       "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。",
-      "status": "待迁移",
+      "status": "迁移中·子代理代码已交付，待统一集成与整页验收",
       "name": "云服务配置与账号",
       "priority": "P1",
-      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "reason": "r91六类服务、四配置弹窗、完整教程/登录/记住账号与原服务契约已组件化，41项模拟鉴权/MockClient/widget及9文件静态检查通过；未访问真实网络/Cloud或设备，待统一集成和实服验收。",
+      "implementationStage": "implemented",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-cloud-config"
       ]
@@ -955,7 +935,7 @@
       "classes": [
         "CloudSyncPage"
       ],
-      "lines": 746,
+      "lines": 8,
       "batch": "M5 云与共享",
       "designRoutes": [
         "flow-backup",
@@ -964,10 +944,11 @@
       "designMapping": "已定位",
       "components": "同步状态、配置、成员列表与权限操作",
       "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。",
-      "status": "待迁移",
+      "status": "迁移中·备份同步代码与原子旧格式恢复已交付，待实服及整页验收",
       "name": "云端备份与同步",
       "priority": "P1",
-      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "reason": "r95保留原八种同步状态、手动上传/下载、v6差异预览、认证/重登与自动同步；61项模拟/真实SQLite回归通过。旧格式仅追加与原清空承诺不符已增加独立事务适配，现代v6和全部旧方法字节保持；真实Cloud/设备尚未执行，不计完成。",
+      "implementationStage": "implemented",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-backup",
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-failure"
@@ -978,7 +959,7 @@
       "classes": [
         "InvitePage"
       ],
-      "lines": 247,
+      "lines": 11,
       "batch": "M5 云与共享",
       "designRoutes": [
         "flow-invite"
@@ -986,10 +967,11 @@
       "designMapping": "已定位",
       "components": "同步状态、配置、成员列表与权限操作",
       "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。",
-      "status": "待迁移",
+      "status": "迁移中·子代理核对共享云原流程并实施，待真实权限与同步验收",
       "name": "共享账本邀请",
       "priority": "P1",
       "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "implementationStage": "in_progress",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-invite"
       ]
@@ -999,7 +981,7 @@
       "classes": [
         "JoinSharedLedgerPage"
       ],
-      "lines": 368,
+      "lines": 10,
       "batch": "M5 云与共享",
       "designRoutes": [
         "flow-join"
@@ -1007,10 +989,11 @@
       "designMapping": "已定位",
       "components": "同步状态、配置、成员列表与权限操作",
       "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。",
-      "status": "待迁移",
+      "status": "迁移中·子代理核对共享云原流程并实施，待真实权限与同步验收",
       "name": "加入共享账本",
       "priority": "P1",
       "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "implementationStage": "in_progress",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-join"
       ]
@@ -1020,7 +1003,7 @@
       "classes": [
         "MemberListPage"
       ],
-      "lines": 342,
+      "lines": 11,
       "batch": "M5 云与共享",
       "designRoutes": [
         "flow-members"
@@ -1028,10 +1011,11 @@
       "designMapping": "已定位",
       "components": "同步状态、配置、成员列表与权限操作",
       "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。",
-      "status": "待迁移",
+      "status": "迁移中·子代理核对共享云原流程并实施，待真实权限与同步验收",
       "name": "共享成员管理",
       "priority": "P1",
       "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "implementationStage": "in_progress",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-members"
       ]
@@ -1041,7 +1025,7 @@
       "classes": [
         "MemberStatsPage"
       ],
-      "lines": 323,
+      "lines": 11,
       "batch": "M5 云与共享",
       "designRoutes": [
         "flow-member-stats"
@@ -1049,10 +1033,11 @@
       "designMapping": "已定位",
       "components": "同步状态、配置、成员列表与权限操作",
       "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。",
-      "status": "待迁移",
+      "status": "迁移中·子代理核对共享云原流程并实施，待真实权限与同步验收",
       "name": "共享成员统计",
       "priority": "P2",
       "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
+      "implementationStage": "in_progress",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-member-stats"
       ]
@@ -1083,7 +1068,7 @@
       "classes": [
         "ExportPage"
       ],
-      "lines": 286,
+      "lines": 8,
       "batch": "M7 初始化与数据",
       "designRoutes": [
         "flow-export"
@@ -1091,10 +1076,11 @@
       "designMapping": "已定位",
       "components": "导入选择、字段映射、预览、任务状态与结果",
       "acceptance": "原格式和字段、分类映射、错误/部分成功、进度取消、恢复与导出范围。",
-      "status": "待迁移",
+      "status": "迁移中·子代理代码已交付，待统一集成与整页验收",
       "name": "账单导出",
       "priority": "P1",
-      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "reason": "固定CSV导出的原流程与相关服务已独立只读备份。子代理已交付纯组件/真实App绑定/本地回归（相关12项通过）和HTML接入材料；主代理尚未统一注册、固定产物和原生整页验收，不计完成。",
+      "implementationStage": "implemented",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-export"
       ]
@@ -1104,7 +1090,7 @@
       "classes": [
         "ImportConfirmPage"
       ],
-      "lines": 1057,
+      "lines": 17,
       "batch": "M7 初始化与数据",
       "designRoutes": [
         "flow-mapping",
@@ -1116,10 +1102,11 @@
       "designMapping": "已定位",
       "components": "导入选择、字段映射、预览、任务状态与结果",
       "acceptance": "原格式和字段、分类映射、错误/部分成功、进度取消、恢复与导出范围。",
-      "status": "待迁移",
+      "status": "迁移中·子代理代码已交付，待统一集成与整页验收",
       "name": "导入映射、预览与结果",
       "priority": "P1",
-      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "reason": "导入映射预览与结果的原流程与相关服务已独立只读备份。子代理已交付纯组件/真实App绑定/本地回归（相关52项通过）和HTML接入材料；主代理尚未统一注册、固定产物和原生整页验收，不计完成。",
+      "implementationStage": "implemented",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-mapping",
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-category-map",
@@ -1133,7 +1120,7 @@
       "classes": [
         "ImportPage"
       ],
-      "lines": 266,
+      "lines": 10,
       "batch": "M7 初始化与数据",
       "designRoutes": [
         "flow-import"
@@ -1141,10 +1128,11 @@
       "designMapping": "已定位",
       "components": "导入选择、字段映射、预览、任务状态与结果",
       "acceptance": "原格式和字段、分类映射、错误/部分成功、进度取消、恢复与导出范围。",
-      "status": "待迁移",
+      "status": "迁移中·子代理代码已交付，待统一集成与整页验收",
       "name": "账单导入入口",
       "priority": "P1",
-      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "reason": "导入入口的原流程与相关服务已独立只读备份。子代理已交付纯组件/真实App绑定/本地回归（相关52项通过）和HTML接入材料；主代理尚未统一注册、固定产物和原生整页验收，不计完成。",
+      "implementationStage": "implemented",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-import"
       ]
@@ -1330,7 +1318,7 @@
       "classes": [
         "AnnualReportPage"
       ],
-      "lines": 2114,
+      "lines": 670,
       "batch": "M4 统计与分享",
       "designRoutes": [
         "annual"
@@ -1338,12 +1326,36 @@
       "designMapping": "已定位",
       "components": "年度汇总、趋势、排行与分享内容",
       "acceptance": "年度选择、金额/笔数统计口径、隐私、分享卡与真实图片导出。",
-      "status": "待迁移",
+      "status": "迁移中·子代理代码已交付，待统一集成与整页验收",
       "name": "年度账单",
       "priority": "P1",
-      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "reason": "年度账单的原流程与相关服务已独立只读备份。子代理已交付纯组件/真实App绑定/本地回归（相关27项通过）和HTML接入材料；主代理尚未统一注册、固定产物和原生整页验收，不计完成。",
+      "implementationStage": "implemented",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=annual"
+      ]
+    },
+    {
+      "source": "lib/pages/report/share_card_page.dart",
+      "classes": [
+        "ShareCardPage"
+      ],
+      "lines": 17,
+      "batch": "M4 统计与分享",
+      "designRoutes": [
+        "poster"
+      ],
+      "designMapping": "已定位",
+      "components": "原分享模板、隐藏收入、预览、导出分享与错误/取消状态",
+      "acceptance": "原生产弹窗共用真实数据body；保留档案/应用/年月模板及平台保存/分享，当前周期均值按已发生时间，不写回财务；固定产物和整页原生验收尚未完成。",
+      "status": "迁移中·原模板与弹窗共享body实现中，当前周期均值按已确认口径调整",
+      "name": "分享卡片",
+      "priority": "P1",
+      "reason": "Q19 A保留原用户档案/应用模板，Q20 B当前周期按已发生天/月。r100子代理迁移原生产showDialog入口为共享body并新增薄Page复用，真实PNG/取消/隐私与本地回归中；不改变原弹窗产品路径，不计完整页。",
+      "implementationStage": "in_progress",
+      "newInV4": true,
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=poster"
       ]
     },
     {
@@ -1865,10 +1877,11 @@
       "designMapping": "已定位",
       "components": "语义标签、关联分类、统计/筛选和账单行",
       "acceptance": "14图独立报告tag-r60三宽度及17文件/ZIP校验通过，SHA256 4a89da66479ba71deef351711289fa187e849ad7916a56a51b3e93346009e3ee。原57笔/当前53/24账户/5附件及全部原表保持。实际保留标签只关联账本1，不冒充原生多账本聚合；两个账本与synthetic共享字段由真实DB/widget覆盖。Cloud/iOS未执行。",
-      "status": "部分迁移·R60可执行范围闭环完成，Q11待确认",
+      "status": "迁移中·Q11 B/Q23汇率口径已确认，待实现及整页验收",
       "name": "标签详情",
       "priority": "P1",
-      "reason": "原567行备份保持，新213行页面接入真实统计/流/批量元信息/共享账户水合，保留全部默认、月年与自定义周期。R60同一QA当前范围、滚轮/编辑/删除取消、带标签记账取消、专属空标签创建与确认删除、原31笔标签全范围及正常重启通过。340项/46文件、12组HTML及独立几何通过，跨本位币合计沿用旧口径，Q11不擅自改。",
+      "reason": "原567行备份保持，新213行页面接入真实统计/流/批量元信息/共享账户水合，保留全部默认、月年与自定义周期。R60同一QA当前范围、滚轮/编辑/删除取消、带标签记账取消、专属空标签创建与确认删除、原31笔标签全范围及正常重启通过。340项/46文件、12组HTML及独立几何通过，跨本位币合计沿用旧口径，Q11不擅自改。 用户已确认统一为当前账本币种，保留各账本历史native金额并按查询时汇率汇总；历史账单不回写。当前统一汇总与缺失汇率提示待实施，不能按决定本身计完整页。",
+      "implementationStage": "in_progress",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=tagDetail",
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-tag-foreign-detail",
@@ -1933,7 +1946,7 @@
       "classes": [
         "CategoryDetailPage"
       ],
-      "lines": 298,
+      "lines": 311,
       "batch": "M3 资源管理与详情",
       "designRoutes": [
         "categoryDetail"
@@ -1941,12 +1954,13 @@
       "designMapping": "已定位",
       "components": "分类信息/父子展开、统计、日期筛选与账单行",
       "acceptance": "一级与二级分类图标、跨账本标记、收入/支出、日期/时间、备注/标签与详情导航。",
-      "status": "部分迁移·R55当前产物复核通过，Q10/Q11待确认",
+      "status": "迁移中·Q11 B/Q23汇率口径已确认，待实现及整页验收",
       "name": "分类详情",
       "priority": "P0",
-      "reason": "R55同一产物复核父子自定义图标、独立SQL两笔/15.50、月年全部、滚轮取消、排序、编辑/迁移预填取消、父子范围搜索、记账预填取消及正常launcher重启；56笔/5附件SHA保持。逻辑除整页Scaffold外与R21一致，R21实际新增/删除保留对应版本证据，Q10/Q11不擅自改口径。",
+      "reason": "R55同一产物复核父子自定义图标、独立SQL两笔/15.50、月年全部、滚轮取消、排序、编辑/迁移预填取消、父子范围搜索、记账预填取消及正常launcher重启；56笔/5附件SHA保持。逻辑除整页Scaffold外与R21一致，R21实际新增/删除保留对应版本证据，Q10/Q11不擅自改口径。 用户已确认统一为当前账本币种，保留各账本历史native金额并按查询时汇率汇总；历史账单不回写。当前统一汇总与缺失汇率提示待实施，不能按决定本身计完整页。",
       "checkpointReport": ".docs/acceptance/v4-migration/2026-10-24/category-r55/index.html",
       "checkpointZipSha256": "a4cfbad0d465a4175bb36755cb51942a7f3a10ee44126ca58a4e86e12ca6d354",
+      "implementationStage": "in_progress",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=categoryDetail"
       ]
@@ -1956,7 +1970,7 @@
       "classes": [
         "RecurringTransactionEditPage"
       ],
-      "lines": 930,
+      "lines": 11,
       "batch": "M1 记账闭环",
       "designRoutes": [
         "flow-recurring-edit"
@@ -1964,10 +1978,11 @@
       "designMapping": "已定位",
       "components": "周期编辑表单、金额/币种/账户、日期与频率选择",
       "acceptance": "周期/频率/起止/下次执行、币种/账户/标签/备注、取消和调度更新。",
-      "status": "待迁移",
+      "status": "迁移中·子代理代码已交付，待统一集成与整页验收",
       "name": "周期账单编辑",
       "priority": "P1",
-      "reason": "常用扩展业务与资产/统计/管理，核心闭环稳定后按整条流程迁移。",
+      "reason": "r90纯组件/原生产绑定/HTML已交付，21项真实数据库与widget回归及10文件静态检查通过；原服务SHA保持，待统一注册、固定产物及原生验收。",
+      "implementationStage": "implemented",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-recurring-edit"
       ]
@@ -1977,20 +1992,33 @@
       "classes": [
         "RecurringTransactionPage"
       ],
-      "lines": 465,
+      "lines": 8,
       "batch": "M1 记账闭环",
       "designRoutes": [
-        "flow-recurring"
+        "flow-recurring",
+        "flow-recurring-empty",
+        "flow-recurring-loading",
+        "flow-recurring-error",
+        "flow-recurring-saving",
+        "flow-recurring-long",
+        "flow-recurring-save-error"
       ],
       "designMapping": "已定位",
       "components": "周期任务列表、状态、菜单与空态",
-      "acceptance": "周期/下一次、启用停用、编辑/删除和已有任务状态，调度与执行服务不变。",
-      "status": "迁移中·原流程及六个相关文件已只读备份，待组件化与整页验收",
+      "acceptance": "真实跨账本模板、四频率/间隔、最近生成日期、启停与编辑返回、空/加载/失败重试、原币ISO及自定义图标；调度与执行服务不变。固定产物、真实UI与最终整页验收尚未完成。",
+      "status": "迁移中·组件化与HTML已完成，待固定产物和整页验收",
       "name": "周期账单列表",
       "priority": "P1",
-      "reason": "全账本列表、使用说明、分类/转账、频率和间隔、最近生成日、备注、外币ISO码/金额、开关真实写入与原编辑/新建返回刷新均按原代码核对。六文件2169行只读备份，继续复用原生成服务/仓储和Provider。",
+      "reason": "原六文件2169行只读备份；正式薄页/跨账本原数据流、纯周期卡及使用说明、真实启停/忙碌防重/失败重试、Flutter60受控与真实只读预览已实现。74项相关回归、14组HTML和371场景/81规范组已通过；新增加载重试测试的宿主清理继续，尚未安装或封存，不计完整页。",
+      "implementationStage": "implemented",
       "designLinks": [
-        "../../docs/design/card-refresh/prototype/demo.html?page=flow-recurring"
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-recurring",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-recurring-empty",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-recurring-loading",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-recurring-error",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-recurring-saving",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-recurring-long",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-recurring-save-error"
       ]
     },
     {
@@ -2007,15 +2035,43 @@
       "designMapping": "已定位",
       "components": "搜索、筛选/日期范围、账单行和批量操作栏",
       "acceptance": "保留当前账本的关键词、分类含二级、金额和日期筛选；对齐设计扩展项。批量备注/分类/删除需保留币种快照、转账目标、共享分类与账户引用、标签和附件；检查取消、合计与空态。",
-      "status": "部分迁移·App可执行范围R55通过，Q08待确认",
+      "status": "迁移中·Q08 A已确认，原可执行范围已验收，待当前产物复核",
       "name": "账单搜索与批量操作",
       "priority": "P0",
-      "reason": "R54/R55同一隔离App实际搜索/完整时间、组合筛选草稿取消、全选反选、批量备注/标签/同类型分类、混合转账分类守卫、独占新建目标删除取消/确认及正常launcher重启通过；逐字段SQL保留原52笔、四笔增量及5附件SHA。302项相关回归和22图脱敏离线报告通过；Q08成功后撤销仍跳过，不计严格新增整页。",
+      "reason": "R54/R55同一隔离App实际搜索/完整时间、组合筛选草稿取消、全选反选、批量备注/标签/同类型分类、混合转账分类守卫、独占新建目标删除取消/确认及正常launcher重启通过；逐字段SQL保留原52笔、四笔增量及5附件SHA。302项相关回归和22图脱敏离线报告通过；Q08成功后撤销仍跳过，不计严格新增整页。 用户已确认Q08 A不新增批量成功撤销；待新统一产物复核，不将产品决定本身当作原生验收。",
       "checkpointReport": ".docs/acceptance/v4-migration/2026-10-24/search-r55/index.html",
       "checkpointZipSha256": "e1c785304f48b4c2eabcd67af71abe8a91244277f51fe2c87da8c50277525d80",
+      "implementationStage": "implemented",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=search",
         "../../docs/design/card-refresh/prototype/demo.html?page=batch"
+      ]
+    },
+    {
+      "source": "lib/pages/transaction/transaction_detail_page.dart",
+      "classes": [
+        "TransactionDetailPage"
+      ],
+      "lines": 17,
+      "batch": "M2 首页与列表",
+      "designRoutes": [
+        "detail",
+        "flow-foreign-detail",
+        "flow-attachment-grid"
+      ],
+      "designMapping": "已定位",
+      "components": "详情金额/历史折算、分类/账户/账本/日期/备注/标签、平铺附件与编辑复制小票",
+      "acceptance": "保留列表点击直接编辑，另设长按详情；分类图标导航、原币/本位币历史快照、隐私、附件实际文件/预览、编辑返回刷新、复制与原小票服务；固定产物和真实UI尚待验收。",
+      "status": "迁移中·详情及菜单代码已交付，待统一产物与整页验收",
+      "name": "账单详情",
+      "priority": "P0",
+      "reason": "r94普通点击编辑/分类图标导航保持，长按新增详情、平铺附件/历史折算/复制编辑小票已组件化；34项回归/14文件静态与26组HTML通过。补批量长按消费及窄屏标签溢出，不改原财务服务；尚未真机，不计完成。",
+      "implementationStage": "implemented",
+      "newInV4": true,
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=detail",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-foreign-detail",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-attachment-grid"
       ]
     },
     {
@@ -2023,7 +2079,7 @@
       "classes": [
         "TransactionEditorPage"
       ],
-      "lines": 422,
+      "lines": 432,
       "batch": "M1 记账闭环",
       "designRoutes": [
         "editor",
@@ -2033,10 +2089,11 @@
       "designMapping": "已定位",
       "components": "金额/折算、计算器、两行元信息、分类/资源选择器与转账账户组合",
       "acceptance": "293项相关回归/37文件及R8冻结几何通过。原52笔/5附件保持，保留4笔本轮UI新增数据，总56/当前52；金额/元信息/键盘固定，历史快照、身份、标签和标记独立核对。真实完整IME遮挡因设备最小化未执行，长短屏140%由widget验证。通用分类弹窗正在另行统一。",
-      "status": "部分迁移·App可执行范围R53通过，Q09待确认",
+      "status": "迁移中·Q04/Q06/Q09已确认，转账同屏与外币账户范围实施验收中",
       "name": "记账、新增、编辑与复制",
       "priority": "P0",
-      "reason": "R52/R53真实录入、行内备注返回、完整选中二级、自定义图片、历史汇率1、收入及转账、独立SQL/文件和正常重启已通过；23图检查点已封存。转账同屏/弹层Q09保留旧流程待确认，不计整页完成。",
+      "reason": "保留R52/R53已封存的收支/编辑/复制范围；用户确认Q09 B同屏转账、Q04 A新增仅同币种、Q06 B允许异本位币账本同外币账户对。子代理r93补实现与真实SQLite回归，统一产物和整页真机验收尚未完成，不计完整页。 R96同一QA实际完成人民币0.23、美元1.25→8.875 CNY的同屏保存、取消保留草稿、只编辑自有美元备注及正常重启，原57笔/附件不变，保留2笔新转账，总59笔；仍待最终统一产物与报告收口。",
+      "implementationStage": "implemented",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=editor",
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-foreign-editor",
