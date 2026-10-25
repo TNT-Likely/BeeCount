@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26T01:12:50.678542+08:00",
+  "updated": "2026-10-26T01:32:04.161099+08:00",
   "branch": "v4",
   "baselineCommit": "6616066247a8738a42996c496e1b99106820e59f",
   "pages": {
@@ -1051,7 +1051,19 @@
     "candidateInstalled": false,
     "latestNativeAuditAt": "2026-10-25T20:38:19+08:00"
   },
-  "openRegressions": [],
+  "openRegressions": [
+    {
+      "id": "R115-ASSETS-HIDDEN-LOCATE",
+      "page": "account/accounts_page.dart",
+      "status": "修复已提交，真实SQLite长列表先红后绿；17项回归/3文件analyze0，待新候选最小原生补验",
+      "reportedPlatform": "Android R115 / same retained QA",
+      "source": "c0eeb0e8dc9e912b166379c1ef03481ba4fa200e",
+      "summary": "长列表顶部隐藏提示目标key尚未lazy挂载，点击不滚动；实际保持顶部12秒。Root真实SQLite长列表Widget复现offset0后修复为先定位末端、挂载后ensureVisible并防重复/销毁。",
+      "nativeFailEvidence": "r115-B-hidden-account-footnote-actual-native-FAIL.json",
+      "detectedAt": "2026-10-26T01:32:04.161099+08:00",
+      "sourceFix": "643847cc"
+    }
+  ],
   "resolvedRegressions": [
     {
       "id": "R108-HOME-KEYBOARD",
@@ -1142,7 +1154,7 @@
     {
       "id": "B",
       "name": "资产页",
-      "status": "已确认；Flutter已合入并升级R115，待新版真机验收",
+      "status": "新版真机验收发现长列表隐藏提示不能定位；修复与回归中，下一候选补验",
       "url": "boards/assets-task-b-review.html",
       "flutterCommit": "de25c879",
       "flutterApproved": true
@@ -1171,13 +1183,14 @@
     {
       "id": "E",
       "name": "启动页 · 一笔成形",
-      "status": "方案B已合入40a7d193；9项相关回归与4组Flutter渲染通过，待下一候选原生验收",
-      "url": "boards/splash-task-e-review.html",
+      "status": "方案B Flutter与主demo均已合入；待下一候选原生验收",
+      "url": "boards/splash-task-e-review.html?concept=trail",
       "designCommit": "c0eeb0e8",
       "approvedHtmlSha256": "cb3b28761dd234ad803c6a5b54eb74be80fd1c02c1156d651f1ed0ee0f12f665",
       "approval": "子任务 e 用方案 B",
       "flutterApproved": true,
-      "flutterCommit": "40a7d193"
+      "flutterCommit": "40a7d193",
+      "mainDemoCommit": "3cb0a735"
     }
   ],
   "latestAcceptanceDelivery": {

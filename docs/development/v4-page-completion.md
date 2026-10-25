@@ -967,3 +967,10 @@ A新洞察Flutter代码38项回归、21 Dart静态0问题已交付；主demo10�
 云账号登录、BeeCount Cloud 同步、云服务配置与账号、云端备份与同步、共享账本邀请、加入共享账本、共享成员管理、共享成员统计独立通过。本轮Root阅读全部功能矩阵与边界、核209候选文件和8ZIP、逐文件hash/CRC/精确归档/链接、27个三宽离线检查与26唯一安全图片，原159/旧96输入保持，最终报告另存后只读封存。原c7/R113视觉与R114新sync core实证版本分别列明，C3/C4各共用一次正常入口，不称8次独立重启。Root全31/原71/8附件+3图以及首次Cloud月8与真实DAV一条备注恢复、实际重登完整独立复核；2本9笔正式MATCH与全7本拒绝/共享B Q24秒精度MISMATCH分列，其他后端未实服不写通过。
 
 报告组：`.docs/acceptance/v4-migration/2026-10-26/cloud-r114-final/index.html`；group manifest SHA256 `c1b7b9b693e5a417be9a908d88da3232c448d3f58a85371b59b80b57ddc0b2b4`；seal receipt SHA256 `90504f1869fda67e957d18c659c04ec6ebfce9adbab665460f7505c2e53825e0`。ZIP散列列在机器清单每页report中，旧候选/DRAFT与失败原件均保留；未把后续R115 A/B或E新UI纳入本固定包。
+
+
+## R115新增资产设计回归：隐藏提示首次定位
+
+同一72笔QA，真实点击顶部隐藏账户提示12秒后仍停原位置，失败图/JSON保留。Root用真实SQLite长列表复现：点击时末尾HiddenAccountsSectionBinding尚未被ListView挂载，旧代码仅key.currentContext非空才滚动，offset仍0。修复 `643847cc` 先滚至末尾让惰性分区挂载，再ensureVisible；快速连点共用定位过程、页面销毁安全退出，不改账户、余额、排序或金融查询。单类型/12类型长列表、重复点击和定位中离页等新用例及既有相关回归17项通过，3文件analyze无问题。当前仍待新候选最小原生复验；R115本包此入口保持FAIL，原73页基线固定证据不被冒称新版通过。
+
+新增E启动B Flutter `40a7d193`、主demo B及可重建的D海报演示模块 `3cb0a735` 已合入；对应最新启动入口 `prototype/demo.html?page=flow-splash`，原A/C独立稿保留，B独立预览可用 `boards/splash-task-e-review.html?concept=trail`。主demo 398/320、深浅/140%及静态无溢出、安全说明弹层可取消，D18组分享回归与750×1334 PNG导出仍通过。原稿HTML不改，E新原生等待下一候选。

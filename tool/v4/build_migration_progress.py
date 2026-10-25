@@ -176,9 +176,9 @@ search.oninput=filter;status.onchange=filter;unfinished.onchange=filter;document
             '<a href="#questions">待确认问题 ' + str(questions['pending']) + '</a>'
             '<button class="button primary" id="refresh">刷新进度</button></nav></header>'
             '<div class="summary-grid"><article class="summary-card done-card">'
-            '<span class="label">整页验收完成</span><div class="number">' + str(done)
+            '<span class="label">原迁移基线验收完成</span><div class="number">' + str(done)
             + '<small> / ' + str(total) + ' 页</small></div><span class="caption">'
-            + str(ratio) + '% · 已迁移并通过完整验收</span><progress value="'
+            + str(ratio) + '% · 新增设计修订单独验收</span><progress value="'
             + str(done) + '" max="' + str(total) + '" aria-label="整页验收完成进度"></progress>'
             '</article>' + ''.join('<article class="summary-card"><span class="label">'
                                  + label + '</span><div class="number">' + str(counts[state])
