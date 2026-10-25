@@ -1,3 +1,7 @@
+import '../../../pages/ai/ai_settings_page.dart';
+import '../../../pages/ai/ai_provider_manage_page.dart';
+import '../../../pages/ai/ai_prompt_edit_page.dart';
+import '../../../pages/ai/agent_assistant_settings_page.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -52,11 +56,13 @@ class _PageMigrationGalleryState extends ConsumerState<PageMigrationGallery> {
         body: FutureBuilder(
             future: _resources,
             builder: (context, snapshot) {
-              if (snapshot.hasError)
+              if (snapshot.hasError) {
                 return BeeStatus(
                     label: '${snapshot.error}', tone: BeeTone.error);
-              if (!snapshot.hasData)
+              }
+              if (!snapshot.hasData) {
                 return const Center(child: CircularProgressIndicator());
+              }
               final data = snapshot.requireData;
               final category =
                   data.categories.isEmpty ? null : data.categories.first;
@@ -116,6 +122,26 @@ class _PageMigrationGalleryState extends ConsumerState<PageMigrationGallery> {
                   open: () => const LedgersPageNew()
                 ),
                 (id: 'mine', title: '我的', open: () => const MinePage()),
+                (
+                  id: 'ai-settings',
+                  title: 'AI设置与授权',
+                  open: () => const AISettingsPage()
+                ),
+                (
+                  id: 'providers',
+                  title: 'AI服务商管理',
+                  open: () => const AIProviderManagePage()
+                ),
+                (
+                  id: 'prompt',
+                  title: '提示词编辑',
+                  open: () => const AIPromptEditPage()
+                ),
+                (
+                  id: 'assistant-settings',
+                  title: 'AI助手设置',
+                  open: () => AgentAssistantSettingsPage(ledgerId: ledgerId)
+                ),
                 (
                   id: 'config',
                   title: '配置导入导出',

@@ -733,5 +733,14 @@
     ],
     "page": "business",
     "case": 56
+  },
+  {
+    "design_key": "executionDepth",
+    "components": [
+      "BeeExecutionDepthPicker",
+      "BeeRadioTile"
+    ],
+    "page": "business",
+    "case": 57
   }
 ]
