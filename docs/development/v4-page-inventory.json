@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-25T18:54:58+08:00",
+  "date": "2026-10-25T19:24:15+08:00",
   "branch": "v4",
   "pageFiles": 73,
   "helperFiles": [
@@ -391,13 +391,15 @@
         "flow-advanced-permissions-error"
       ],
       "designMapping": "已定位",
-      "components": "消息、配置表单、授权、任务状态与列表",
-      "acceptance": "沿用原 AI 服务与权限，保留配置草稿、能力绑定、执行反馈、失败重试和取消。",
-      "status": "迁移中·代码与本地回归已交付，待目录集成及整页验收",
+      "components": "原9工具权限列表、两种受控授权方式、作用范围提示与规范恢复确认弹窗",
+      "acceptance": "固定R108/d8cc3506，同一保留iOS QA：query→每次询问、record→始终允许实际保存并正常重启，恢复取消不写、确认清原权限key并重启回缺省；其余7项逐项写入NOT_RUN。原3财务行与21图片及其余业务表保持，原空会话/6运行偏好差异逐项记录，无模型/工具调用。15图22文件，三宽/完整hash/脱敏/0444通过；ZIP b165a527434a0f15732823f57b9a93e73ee1560169e563696e4923aafb0862cc。Android重复整套、真实模型执行和故障注入未执行。",
+      "status": "已完成",
       "name": "AI 权限管理",
       "priority": "P2",
-      "reason": "r101三页保持原9项权限/两种模式/作用范围、记忆查看与遗忘/清空及最近30次活动，72项相关回归/14文件静态通过；原8依赖及测试业务断言完整，未执行模型/工具或原生UI，不计完整页。",
-      "implementationStage": "implemented",
+      "reason": "原9项权限与两种模式、作用范围保留；iOS实际选择两项、重启持久化、恢复取消/确认并回到原缺省，独立SQL/偏好/文件和正常main通过。15图22文件离线报告经Root逐图/15源单位与最终ZIP/manifest核验后只读封存。",
+      "implementationStage": "accepted",
+      "acceptanceReport": ".docs/acceptance/v4-migration/2026-10-25/ai-permissions-r108/index.html",
+      "acceptanceZipSha256": "b165a527434a0f15732823f57b9a93e73ee1560169e563696e4923aafb0862cc",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-permissions",
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-advanced-permissions",

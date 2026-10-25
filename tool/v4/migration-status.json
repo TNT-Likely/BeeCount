@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25T18:54:58+08:00",
+  "updated": "2026-10-25T19:24:15+08:00",
   "branch": "v4",
   "baselineCommit": "6616066247a8738a42996c496e1b99106820e59f",
   "pages": {
@@ -64,11 +64,13 @@
     "ai/agent_permissions_page.dart": {
       "name": "AI 权限管理",
       "priority": "P2",
-      "reason": "r101三页保持原9项权限/两种模式/作用范围、记忆查看与遗忘/清空及最近30次活动，72项相关回归/14文件静态通过；原8依赖及测试业务断言完整，未执行模型/工具或原生UI，不计完整页。",
-      "status": "迁移中·代码与本地回归已交付，待目录集成及整页验收",
-      "components": "消息、配置表单、授权、任务状态与列表",
-      "acceptance": "沿用原 AI 服务与权限，保留配置草稿、能力绑定、执行反馈、失败重试和取消。",
-      "implementationStage": "implemented"
+      "reason": "原9项权限与两种模式、作用范围保留；iOS实际选择两项、重启持久化、恢复取消/确认并回到原缺省，独立SQL/偏好/文件和正常main通过。15图22文件离线报告经Root逐图/15源单位与最终ZIP/manifest核验后只读封存。",
+      "status": "已完成",
+      "components": "原9工具权限列表、两种受控授权方式、作用范围提示与规范恢复确认弹窗",
+      "acceptance": "固定R108/d8cc3506，同一保留iOS QA：query→每次询问、record→始终允许实际保存并正常重启，恢复取消不写、确认清原权限key并重启回缺省；其余7项逐项写入NOT_RUN。原3财务行与21图片及其余业务表保持，原空会话/6运行偏好差异逐项记录，无模型/工具调用。15图22文件，三宽/完整hash/脱敏/0444通过；ZIP b165a527434a0f15732823f57b9a93e73ee1560169e563696e4923aafb0862cc。Android重复整套、真实模型执行和故障注入未执行。",
+      "implementationStage": "accepted",
+      "acceptanceReport": ".docs/acceptance/v4-migration/2026-10-25/ai-permissions-r108/index.html",
+      "acceptanceZipSha256": "b165a527434a0f15732823f57b9a93e73ee1560169e563696e4923aafb0862cc"
     },
     "ai/ai_chat_page.dart": {
       "name": "AI 对话与执行",
@@ -921,17 +923,17 @@
     "reason": "按用户要求临时关闭，避免每次推送触发PR的AI Eval；v4继续开发和推送，全部迁移与验收准备好再恢复PR。"
   },
   "currentProgress": {
-    "updatedAt": "2026-10-25T18:54:58+08:00",
-    "engineeringEstimatePercent": 76,
+    "updatedAt": "2026-10-25T19:24:15+08:00",
+    "engineeringEstimatePercent": 77,
     "engineeringEstimateRange": [
-      73,
-      79
+      74,
+      80
     ],
-    "completedPages": 55,
+    "completedPages": 56,
     "totalPages": 73,
     "totalP0Pages": 17,
     "completedP0Pages": 17,
-    "basis": "严格55/73，P0全17；一小时净新增5整页。周期CUD、iOS年度/三总结/Q19与权限实际批次、一次6行真实导入均跑通；后者报告/视觉增量/附图与Cloud闭环未齐，仍不提前计页。安卓/iOS/报告/后端字段工具并行且复用同环境。剩余主量为Cloud共享双向、文件与附件恢复及SDK边界，估10–18小时实际并行工作。",
+    "basis": "严格56/73，P0全17；新增AI权限管理实际iOS设置/重启/恢复整页封存，原生与报告分线推进。真实6行导入与7行导出已逐字段核对，年度/分享及真实附图继续收口；Cloud双向与文件恢复尚未闭环，不提前计页。",
     "remainingEffortEstimateHours": [
       10,
       18
@@ -941,11 +943,11 @@
   "lastImplementationDelivery": {
     "at": "2026-10-25T15:30:48+08:00",
     "commit": "cabfaff9aa8796f161396a108e2105daa7992532",
-    "completedNativePages": 55,
-    "implementedPendingNativePages": 18,
+    "completedNativePages": 56,
+    "implementedPendingNativePages": 17,
     "inImplementationPages": 0,
     "candidateInstalled": false,
-    "latestNativeAuditAt": "2026-10-25T18:42:09+08:00"
+    "latestNativeAuditAt": "2026-10-25T19:24:15+08:00"
   },
   "openRegressions": [],
   "resolvedRegressions": [
