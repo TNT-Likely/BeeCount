@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25T16:30:09+08:00",
+  "updated": "2026-10-25T16:56:54+08:00",
   "branch": "v4",
   "baselineCommit": "6616066247a8738a42996c496e1b99106820e59f",
   "pages": {
@@ -791,16 +791,16 @@
   "fullMigrationBaselineCommit": "9b87aa06177616174e27c52c847cb20de6edede5",
   "completionStandard": "docs/development/v4-page-completion.md",
   "lastProgressReport": {
-    "reportedAt": "2026-10-25T15:58:54+08:00",
-    "scheduledReportAt": "2026-10-25T15:54:00+08:00",
-    "engineeringEstimatePercent": 68,
+    "reportedAt": "2026-10-25T16:56:54+08:00",
+    "scheduledReportAt": "2026-10-25T16:54:00+08:00",
+    "engineeringEstimatePercent": 69,
     "engineeringEstimateRange": [
-      65,
-      71
+      66,
+      72
     ],
-    "completedPages": 41,
+    "completedPages": 42,
     "totalPages": 73,
-    "completedP0Pages": 14,
+    "completedP0Pages": 15,
     "totalExistingP0Pages": 17,
     "completedPageNames": [
       "账户详情",
@@ -843,25 +843,25 @@
       "标签详情",
       "新增与编辑标签",
       "标签管理",
-      "分类详情"
+      "分类详情",
+      "账单详情"
     ],
     "newlyCompletedSincePreviousReport": [
-      "分类详情",
-      "标签详情"
+      "账单详情"
     ],
     "inProgress": [
-      "记账/编辑/转账、搜索/批量、账单详情继续P0收口；长列表分类展开fix待新统一产物真实UI",
-      "后续32页代码交付，导入/导出/周期/报表/云/支持维护等待对应整页验收",
-      "同一Cloud已有真实Web登录；App往返与附加owned WebDAV transport待根接入，不计通过"
+      "记账/搜索P0：R105更多分类选择返回与owned交易分类保存/恢复补验",
+      "关于/快捷指令/帮助/隐私/日志：真实原生流程已执行，独立报告审阅中；存储/清理继续",
+      "导入导出、Cloud App往返和同run DAV备份恢复仍待实际UI；iOS捐赠独立原生SDK路径调查中"
     ],
     "remainingEffortEstimateHours": [
       12,
       24
     ],
-    "remainingEffortChangeReason": "与上次12–24小时保持。9个P2代码及集成已交、原生驱动和并行准备提速，但新增发现分类弹窗真实可用性问题，且Cloud往返、文件恢复、原生平台路径仍未闭环；不按32页数量线性外推。",
+    "remainingEffortChangeReason": "与上次12–24小时保持。安卓原生操作、离线报告和iOS平台三线已并行，代码交付不是主要瓶颈；文件恢复/Cloud真实往返尚未闭环，StoreKit首次激活失败需处理。按实际风险估算，不按31页数量线性推算。",
     "implementationStateCounts": {
-      "nativeComplete": 41,
-      "implementedPendingAcceptance": 32,
+      "nativeComplete": 42,
+      "implementedPendingAcceptance": 31,
       "inImplementation": 0
     }
   },
@@ -873,7 +873,7 @@
     "reason": "按用户要求临时关闭，避免每次推送触发PR的AI Eval；v4继续开发和推送，全部迁移与验收准备好再恢复PR。"
   },
   "currentProgress": {
-    "updatedAt": "2026-10-25T16:30:09+08:00",
+    "updatedAt": "2026-10-25T16:56:54+08:00",
     "engineeringEstimatePercent": 69,
     "engineeringEstimateRange": [
       66,
@@ -883,7 +883,7 @@
     "totalPages": 73,
     "totalP0Pages": 17,
     "completedP0Pages": 15,
-    "basis": "严格42/73；新增账单详情R98独立包封存，剩记账/搜索两个P0继续多版本增量收口。R105真实批量与记账更多分类行内展开/取消已通过，64/57数据保持。子代理已独占同一安卓验收P2，Root并行离线报告与Cloud/iOS准备；iOS独有捐赠页不拿安卓debug替代。",
+    "basis": "严格42/73，新增账单详情独立包封存；31页代码交付待整页。R105已安装且更多分类行内展开/取消通过，正补实际选择与分类写回恢复。关于/快捷指令/帮助/隐私/日志实际原生流程待独立报告审阅；同run附加DAV仅HTTP22项通过，iOS新独立QA设备/产物已注册，StoreKit激活失败不冒称通过。",
     "remainingEffortEstimateHours": [
       12,
       24
@@ -897,6 +897,6 @@
     "implementedPendingNativePages": 31,
     "inImplementationPages": 0,
     "candidateInstalled": false,
-    "latestNativeAuditAt": "2026-10-25T16:30:09+08:00"
+    "latestNativeAuditAt": "2026-10-25T16:56:54+08:00"
   }
 }
