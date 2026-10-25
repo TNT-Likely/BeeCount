@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26T03:57:11.930388+08:00",
+  "updated": "2026-10-26T04:12:19.911638+08:00",
   "branch": "v4",
   "baselineCommit": "6616066247a8738a42996c496e1b99106820e59f",
   "pages": {
@@ -1037,27 +1037,31 @@
   "pullRequest": {
     "number": 575,
     "url": "https://github.com/TNT-Likely/BeeCount/pull/575",
-    "state": "CLOSED",
     "closedAt": "2026-10-24T19:52:53+08:00",
-    "reason": "按用户要求临时关闭，避免每次推送触发PR的AI Eval；v4继续开发和推送，全部迁移与验收准备好再恢复PR。"
+    "reason": "按用户要求临时关闭，避免每次推送触发PR的AI Eval；v4继续开发和推送，全部迁移与验收准备好再恢复PR。",
+    "lastObservedState": "CLOSED",
+    "lastObservedStateNote": "关闭状态为最终交付前已核历史；静态看板不缓存后续PR实时状态，点击GitHub入口查看",
+    "statusSource": "GitHub PR live state",
+    "implementationAndAcceptanceReady": true
   },
   "currentProgress": {
-    "updatedAt": "2026-10-26T03:57:11.930388+08:00",
-    "engineeringEstimatePercent": 98,
+    "updatedAt": "2026-10-26T04:12:19.911638+08:00",
+    "engineeringEstimatePercent": 100,
     "engineeringEstimateRange": [
-      97,
-      99
+      100,
+      100
     ],
     "completedPages": 73,
     "totalPages": 73,
     "totalP0Pages": 17,
     "completedP0Pages": 17,
-    "basis": "原73基线已封存，A–E全部源码/HTML/大图/完整组件映射齐备；R117原74溢出修复与两个真实基础样例已在Android/iOS最小补验，Root另开实际SQLite/Prefs/文件和签名/已安装产物复核通过。当前无新增未解决UI回归，只有旧问题及明确NOT_RUN边界。余下五项新报告与iOS脱敏独立ZIP的最终核验、文档一致性/推送与准备PR；不把旧private报告含路径当安全公开交付，不按页线性估工时。",
+    "basis": "P0/P1/P2全部73个产品页面已按固定版本闭环，后续A–E五项确认设计的实际增量和源码连续性经Root复核并独立封存，当前版本按原整页＋新增范围合并接受；没有把组件/局部测试/增量数量当新增整页。完整HTML/大图/组件清单/备份、两平台同QA数据与签名保护、本地CI对应全部命令已收口。PR及远程检查实时状态以GitHub入口为准，已记录旧业务边界与明确NOT_RUN，QA保留供人工验收。",
     "remainingEffortEstimateHours": [
-      0.5,
-      1.5
+      0,
+      0
     ],
-    "remainingEffortEstimateKind": "并行连续工作小时"
+    "remainingEffortEstimateKind": "并行连续工作小时",
+    "implementationAndAcceptedScopeComplete": true
   },
   "lastImplementationDelivery": {
     "at": "2026-10-25T15:30:48+08:00",
@@ -1178,7 +1182,7 @@
       "E"
     ],
     "approvedDesignRevisionsNativePassed": true,
-    "nativeStatus": "适用执行范围接受：R115/R116核心与R117仅字形/基础样例补验按版本分列；原C失败/NOT_RUN保留，独立报告封存尚待最后校验",
+    "nativeStatus": "当前R117按固定原基线与确认改版增量合并接受，独立报告已封存；实际边界保留",
     "acceptedEvidenceStages": {
       "A": [
         "R115",
@@ -1217,7 +1221,7 @@
     "R117AllBusinessPrefsRawExactIncludingSystemTheme": true,
     "R116PredeclaredThemeAbsentToSystemExceptionRetained": true,
     "nativeScope": "R116 selected7 + R117 minimal2, not full73iOS replay; source/actualData/signedbyte exact, Root review PASS",
-    "reportStatus": "新的run外简洁脱敏报告整理中；原private-review包保持不变但含私有路径不作公开交付"
+    "reportStatus": "run外新脱敏独立HTML/ZIP已封存；原私有含路径材料仅保留作私有审查来源，未公开复制"
   },
   "latestCorrectionDelivery": {
     "at": "2026-10-25T22:38:33.093795+08:00",
@@ -1237,24 +1241,36 @@
     {
       "id": "A",
       "name": "洞察页",
-      "status": "R115主要流程+R116深色增量/源码连续性/Root核对通过；新版报告最终打包中",
+      "status": "已实现并按原整页基线＋源码连续性＋对应原生增量合并验收；独立报告已封存，失败与NOT_RUN按原阶段保留",
       "url": "boards/insights-task-a-review.html",
       "flutterCommit": "0c730777",
-      "flutterApproved": true
+      "flutterApproved": true,
+      "executedScopeAccepted": true,
+      "revisionReportSealed": true,
+      "compositeCurrentVersionAcceptance": true,
+      "reportHTML": ".docs/acceptance/v4-migration/2026-10-26/approved-AE-r117-final/A-insights-r116/index.html",
+      "reportZIP": ".docs/acceptance/v4-migration/2026-10-26/approved-AE-r117-final/A-insights-r116.zip",
+      "reportZIPsha256": "b00e5487a09b0b9678d6ea88f172d3fc84ac66650e299ec4c5b5f2076d74a360"
     },
     {
       "id": "B",
       "name": "资产页",
-      "status": "R115主要流程+R116首次隐藏/深色修复与Root核对通过；新版报告最终打包中",
+      "status": "已实现并按原整页基线＋源码连续性＋对应原生增量合并验收；独立报告已封存，失败与NOT_RUN按原阶段保留",
       "url": "boards/assets-task-b-review.html",
       "flutterCommit": "de25c879",
       "flutterApproved": true,
-      "mainDemoCommit": "3f59b6d3"
+      "mainDemoCommit": "3f59b6d3",
+      "executedScopeAccepted": true,
+      "revisionReportSealed": true,
+      "compositeCurrentVersionAcceptance": true,
+      "reportHTML": ".docs/acceptance/v4-migration/2026-10-26/approved-AE-r117-final/B-assets-r116/index.html",
+      "reportZIP": ".docs/acceptance/v4-migration/2026-10-26/approved-AE-r117-final/B-assets-r116.zip",
+      "reportZIPsha256": "5106722ddf5ce78972383e0ee4524409f5f656be70aae4aa0353f29534551125"
     },
     {
       "id": "C",
       "name": "交易明细行",
-      "status": "R116主要功能+R117原74真实溢出修复、基础两样例/共同normal/Root实际数据与原图复核通过；MoreN原生文字仍NOT_RUN，报告最终打包中",
+      "status": "已实现并按原整页基线＋源码连续性＋对应原生增量合并验收；独立报告已封存，失败与NOT_RUN按原阶段保留",
       "url": "boards/transaction-rows-task-c-review.html",
       "designCommit": "e00a31e6",
       "approvedHtmlSha256": "643833f7d50be973e5e08296ef84d01c096743a1086a02636de08b293f66177c",
@@ -1262,24 +1278,36 @@
       "flutterApproved": true,
       "flutterCommit": "2fe64194",
       "mainDemoCommit": "98f1942f",
-      "allConsumersDemoCommit": "765729d7"
+      "allConsumersDemoCommit": "765729d7",
+      "executedScopeAccepted": true,
+      "revisionReportSealed": true,
+      "compositeCurrentVersionAcceptance": true,
+      "reportHTML": ".docs/acceptance/v4-migration/2026-10-26/approved-AE-r117-final/C-transaction-rows-r116/index.html",
+      "reportZIP": ".docs/acceptance/v4-migration/2026-10-26/approved-AE-r117-final/C-transaction-rows-r116.zip",
+      "reportZIPsha256": "b426a58429d71e463220657f85b048d193ee6822d6862d1900080c01503863f1"
     },
     {
       "id": "D",
       "name": "分享海报与应用卡片",
-      "status": "R116实际七类相关预览/原币小票四字段/三次取消与共用Save真实字节通过；Root月/小票原PNG复看，独立报告最终打包中",
+      "status": "已实现并按原整页基线＋源码连续性＋对应原生增量合并验收；独立报告已封存，失败与NOT_RUN按原阶段保留",
       "url": "boards/share-cards-task-d-review.html",
       "designCommit": "c93457bf",
       "approvedHtmlSha256": "8c039e5608b67add35cb8a9f66a83e1e85c20b35c91cc71013fb496ae43e4e5d",
       "approval": "子任务 d 设计稿确认没问题，更新下 demo 然后开做吧。",
       "flutterApproved": true,
       "mainDemoCommit": "233d8f8a",
-      "flutterCommit": "5661828b"
+      "flutterCommit": "5661828b",
+      "executedScopeAccepted": true,
+      "revisionReportSealed": true,
+      "compositeCurrentVersionAcceptance": true,
+      "reportHTML": ".docs/acceptance/v4-migration/2026-10-26/approved-AE-r117-final/D-share-cards-r116/index.html",
+      "reportZIP": ".docs/acceptance/v4-migration/2026-10-26/approved-AE-r117-final/D-share-cards-r116.zip",
+      "reportZIPsha256": "1b0f52c9a973c7299c4528056cfc50dca120abdae33cafd1d553f8f404de71fc"
     },
     {
       "id": "E",
       "name": "启动页 · 一笔成形",
-      "status": "R116受控B/安全局部层/真实深色栏+R117基础样例与正常main通过；冷启首帧/OS减弱动效边界保留，独立报告最终打包中",
+      "status": "已实现并按原整页基线＋源码连续性＋对应原生增量合并验收；独立报告已封存，失败与NOT_RUN按原阶段保留",
       "url": "boards/splash-task-e-review.html?concept=trail",
       "designCommit": "c0eeb0e8",
       "approvedHtmlSha256": "cb3b28761dd234ad803c6a5b54eb74be80fd1c02c1156d651f1ed0ee0f12f665",
@@ -1288,34 +1316,39 @@
       "flutterCommit": "40a7d193",
       "mainDemoCommit": "3cb0a735",
       "systemBarsCommit": "607bb5b2",
-      "componentGalleryCommit": "983f6180"
+      "componentGalleryCommit": "983f6180",
+      "executedScopeAccepted": true,
+      "revisionReportSealed": true,
+      "compositeCurrentVersionAcceptance": true,
+      "reportHTML": ".docs/acceptance/v4-migration/2026-10-26/approved-AE-r117-final/E-launch-components-r116/index.html",
+      "reportZIP": ".docs/acceptance/v4-migration/2026-10-26/approved-AE-r117-final/E-launch-components-r116.zip",
+      "reportZIPsha256": "dfe892a17439c591525d8af735c044926933994611b4e610b6b0a7a7b1cb296f"
     }
   ],
   "latestAcceptanceDelivery": {
-    "at": "2026-10-26T01:12:50.678542+08:00",
-    "scope": "original73MigrationBaseline",
-    "newlyAcceptedPages": [
-      "云账号登录",
-      "BeeCount Cloud 同步",
-      "云服务配置与账号",
-      "云端备份与同步",
-      "共享账本邀请",
-      "加入共享账本",
-      "共享成员管理",
-      "共享成员统计"
-    ],
+    "at": "2026-10-26T04:12:19.911638+08:00",
+    "scope": "original73PlusApprovedAECompositeCurrentVersionAcceptance",
     "completedPages": 73,
     "totalPages": 73,
-    "groupReport": ".docs/acceptance/v4-migration/2026-10-26/cloud-r114-final/index.html",
-    "groupManifestSHA256": "c1b7b9b693e5a417be9a908d88da3232c448d3f58a85371b59b80b57ddc0b2b4",
-    "sealReceiptSHA256": "90504f1869fda67e957d18c659c04ec6ebfce9adbab665460f7505c2e53825e0",
-    "newApprovedUiRevisionsStillPending": [
+    "completedP0Pages": 17,
+    "completedP1Pages": 43,
+    "completedP2Pages": 13,
+    "approvedDesignRevisionsSealed": [
       "A",
       "B",
       "C",
       "D",
       "E"
     ],
-    "oldReportsNotRewritten": true
+    "newProductPagesAddedByRevisionReports": 0,
+    "groupReport": ".docs/acceptance/v4-migration/2026-10-26/approved-AE-r117-final/index.html",
+    "groupManifestSHA256": "72db6786fc04a291c00e024b60d9f1bad76fda704cafec57109299bd6f269c86",
+    "iosIncrementReport": ".docs/acceptance/v4-migration/2026-10-26/ios-r116-r117-final/index.html",
+    "rootSealReceiptSHA256": "73cbe405cc7a944c94d842168555f3854ce28f7707f2c3ffc1edc745440e0e42",
+    "newApprovedUiRevisionsStillPending": [],
+    "oldReportsNotRewritten": true,
+    "finalReportsReadOnly": true,
+    "sameRetainedQAPreserved": true,
+    "fullAllPlatformReplayClaimed": false
   }
 }

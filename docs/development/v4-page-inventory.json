@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-26T03:57:11.930388+08:00",
+  "date": "2026-10-26T04:12:19.911638+08:00",
   "branch": "v4",
   "pageFiles": 73,
   "helperFiles": [
@@ -2636,24 +2636,36 @@
     {
       "id": "A",
       "name": "洞察页",
-      "status": "R115主要流程+R116深色增量/源码连续性/Root核对通过；新版报告最终打包中",
+      "status": "已实现并按原整页基线＋源码连续性＋对应原生增量合并验收；独立报告已封存，失败与NOT_RUN按原阶段保留",
       "url": "boards/insights-task-a-review.html",
       "flutterCommit": "0c730777",
-      "flutterApproved": true
+      "flutterApproved": true,
+      "executedScopeAccepted": true,
+      "revisionReportSealed": true,
+      "compositeCurrentVersionAcceptance": true,
+      "reportHTML": ".docs/acceptance/v4-migration/2026-10-26/approved-AE-r117-final/A-insights-r116/index.html",
+      "reportZIP": ".docs/acceptance/v4-migration/2026-10-26/approved-AE-r117-final/A-insights-r116.zip",
+      "reportZIPsha256": "b00e5487a09b0b9678d6ea88f172d3fc84ac66650e299ec4c5b5f2076d74a360"
     },
     {
       "id": "B",
       "name": "资产页",
-      "status": "R115主要流程+R116首次隐藏/深色修复与Root核对通过；新版报告最终打包中",
+      "status": "已实现并按原整页基线＋源码连续性＋对应原生增量合并验收；独立报告已封存，失败与NOT_RUN按原阶段保留",
       "url": "boards/assets-task-b-review.html",
       "flutterCommit": "de25c879",
       "flutterApproved": true,
-      "mainDemoCommit": "3f59b6d3"
+      "mainDemoCommit": "3f59b6d3",
+      "executedScopeAccepted": true,
+      "revisionReportSealed": true,
+      "compositeCurrentVersionAcceptance": true,
+      "reportHTML": ".docs/acceptance/v4-migration/2026-10-26/approved-AE-r117-final/B-assets-r116/index.html",
+      "reportZIP": ".docs/acceptance/v4-migration/2026-10-26/approved-AE-r117-final/B-assets-r116.zip",
+      "reportZIPsha256": "5106722ddf5ce78972383e0ee4524409f5f656be70aae4aa0353f29534551125"
     },
     {
       "id": "C",
       "name": "交易明细行",
-      "status": "R116主要功能+R117原74真实溢出修复、基础两样例/共同normal/Root实际数据与原图复核通过；MoreN原生文字仍NOT_RUN，报告最终打包中",
+      "status": "已实现并按原整页基线＋源码连续性＋对应原生增量合并验收；独立报告已封存，失败与NOT_RUN按原阶段保留",
       "url": "boards/transaction-rows-task-c-review.html",
       "designCommit": "e00a31e6",
       "approvedHtmlSha256": "643833f7d50be973e5e08296ef84d01c096743a1086a02636de08b293f66177c",
@@ -2661,24 +2673,36 @@
       "flutterApproved": true,
       "flutterCommit": "2fe64194",
       "mainDemoCommit": "98f1942f",
-      "allConsumersDemoCommit": "765729d7"
+      "allConsumersDemoCommit": "765729d7",
+      "executedScopeAccepted": true,
+      "revisionReportSealed": true,
+      "compositeCurrentVersionAcceptance": true,
+      "reportHTML": ".docs/acceptance/v4-migration/2026-10-26/approved-AE-r117-final/C-transaction-rows-r116/index.html",
+      "reportZIP": ".docs/acceptance/v4-migration/2026-10-26/approved-AE-r117-final/C-transaction-rows-r116.zip",
+      "reportZIPsha256": "b426a58429d71e463220657f85b048d193ee6822d6862d1900080c01503863f1"
     },
     {
       "id": "D",
       "name": "分享海报与应用卡片",
-      "status": "R116实际七类相关预览/原币小票四字段/三次取消与共用Save真实字节通过；Root月/小票原PNG复看，独立报告最终打包中",
+      "status": "已实现并按原整页基线＋源码连续性＋对应原生增量合并验收；独立报告已封存，失败与NOT_RUN按原阶段保留",
       "url": "boards/share-cards-task-d-review.html",
       "designCommit": "c93457bf",
       "approvedHtmlSha256": "8c039e5608b67add35cb8a9f66a83e1e85c20b35c91cc71013fb496ae43e4e5d",
       "approval": "子任务 d 设计稿确认没问题，更新下 demo 然后开做吧。",
       "flutterApproved": true,
       "mainDemoCommit": "233d8f8a",
-      "flutterCommit": "5661828b"
+      "flutterCommit": "5661828b",
+      "executedScopeAccepted": true,
+      "revisionReportSealed": true,
+      "compositeCurrentVersionAcceptance": true,
+      "reportHTML": ".docs/acceptance/v4-migration/2026-10-26/approved-AE-r117-final/D-share-cards-r116/index.html",
+      "reportZIP": ".docs/acceptance/v4-migration/2026-10-26/approved-AE-r117-final/D-share-cards-r116.zip",
+      "reportZIPsha256": "1b0f52c9a973c7299c4528056cfc50dca120abdae33cafd1d553f8f404de71fc"
     },
     {
       "id": "E",
       "name": "启动页 · 一笔成形",
-      "status": "R116受控B/安全局部层/真实深色栏+R117基础样例与正常main通过；冷启首帧/OS减弱动效边界保留，独立报告最终打包中",
+      "status": "已实现并按原整页基线＋源码连续性＋对应原生增量合并验收；独立报告已封存，失败与NOT_RUN按原阶段保留",
       "url": "boards/splash-task-e-review.html?concept=trail",
       "designCommit": "c0eeb0e8",
       "approvedHtmlSha256": "cb3b28761dd234ad803c6a5b54eb74be80fd1c02c1156d651f1ed0ee0f12f665",
@@ -2687,7 +2711,13 @@
       "flutterCommit": "40a7d193",
       "mainDemoCommit": "3cb0a735",
       "systemBarsCommit": "607bb5b2",
-      "componentGalleryCommit": "983f6180"
+      "componentGalleryCommit": "983f6180",
+      "executedScopeAccepted": true,
+      "revisionReportSealed": true,
+      "compositeCurrentVersionAcceptance": true,
+      "reportHTML": ".docs/acceptance/v4-migration/2026-10-26/approved-AE-r117-final/E-launch-components-r116/index.html",
+      "reportZIP": ".docs/acceptance/v4-migration/2026-10-26/approved-AE-r117-final/E-launch-components-r116.zip",
+      "reportZIPsha256": "dfe892a17439c591525d8af735c044926933994611b4e610b6b0a7a7b1cb296f"
     }
   ]
 }

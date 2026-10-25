@@ -50,8 +50,9 @@ def build_progress_page(root, config, inventory_rows, scenes):
     report_time = datetime.fromisoformat(estimate_at).astimezone(
         ZoneInfo('Asia/Shanghai')).strftime('%m月%d日 %H:%M')
     timestamp = datetime.now(ZoneInfo('Asia/Shanghai')).strftime('%Y-%m-%d %H:%M')
-    pr_state = config.get('pullRequest', {}).get('state', '')
-    pr_label = '暂时关闭，准备就绪后再开' if pr_state == 'CLOSED' else '已打开' if pr_state == 'OPEN' else '尚未创建'
+    pr_info = config.get('pullRequest', {})
+    pr_url = pr_info.get('url', '')
+    pr_label = '#' + str(pr_info.get('number', '')) + '（查看实时状态）' if pr_url else '尚未创建'
     esc = lambda value: html.escape(str(value), quote=True)
     titles = {scene['route']: scene['title'] for scene in scenes}
     by_slug = {scene['slug']: scene for scene in scenes}
@@ -189,11 +190,11 @@ search.oninput=filter;status.onchange=filter;unfinished.onchange=filter;document
                                      ('todo', '尚未开始', '包含待新增页面')]) + '</div>'
             '<aside class="estimate"><p><strong>整体工程估计 ' + str(engineering)
             + '%</strong>（' + str(estimate_range[0]) + '%–' + str(estimate_range[1])
-            + '%） · 与整页验收完成率分开记录。</p><p>剩余时间预估：<strong>'
+            + '%） · 与整页验收完成率分开记录。</p><p>剩余实现与验收工作：<strong>'
             + str(hours[0]) + '–' + str(hours[1]) + ' 个' + esc(time_kind) + '</strong><br>'
             + esc(report_time) + ' 更新，估算不是交付承诺。</p></aside>'
             '<div class="meta"><span>看板生成：' + esc(timestamp) + '（北京时间）</span>'
-            '<span>分支：v4</span><span>PR：' + esc(pr_label) + '</span></div>'
+            '<span>分支：v4</span><span>PR：<a href="' + esc(pr_url or '#') + '">' + esc(pr_label) + '</a></span></div>'
             '<section class="filters" aria-label="筛选页面"><nav class="tabs" aria-label="优先级">'
             + tabs + '</nav><input id="search" type="search" placeholder="搜索中文页面名，例如：记账、导入" aria-label="搜索页面名称">'
             '<select id="status" aria-label="筛选进度"><option value="">全部进度</option>'

@@ -1,6 +1,6 @@
 # V4 完整页面迁移清单与优先级
 
-更新：2026-10-26T03:57:11.930388+08:00。分支：`v4`。由 `tool/v4/build_migration_inventory.py` 扫描生成，人工决策保存在 [migration-status.json](../../tool/v4/migration-status.json)。
+更新：2026-10-26T04:12:19.911638+08:00。分支：`v4`。由 `tool/v4/build_migration_inventory.py` 扫描生成，人工决策保存在 [migration-status.json](../../tool/v4/migration-status.json)。
 
 现有 **73 个产品页面源文件**（P0 17 页、P1 43 页、P2 13 页），当前待新增 Page 占位 **0 个**，另有 6 个页面旁辅助文件和下方关联弹窗/表单。三个开发验收页不计入产品迁移进度。每个源文件均有设计入口，设计场景与代码页面不是一对一关系。
 
@@ -12,11 +12,11 @@
 
 | 修订 | 当前状态 | 已批准设计 |
 | --- | --- | --- |
-| A · 洞察页 | R115主要流程+R116深色增量/源码连续性/Root核对通过；新版报告最终打包中 | [交互稿](../design/card-refresh/boards/insights-task-a-review.html) |
-| B · 资产页 | R115主要流程+R116首次隐藏/深色修复与Root核对通过；新版报告最终打包中 | [交互稿](../design/card-refresh/boards/assets-task-b-review.html) |
-| C · 交易明细行 | R116主要功能+R117原74真实溢出修复、基础两样例/共同normal/Root实际数据与原图复核通过；MoreN原生文字仍NOT_RUN，报告最终打包中 | [交互稿](../design/card-refresh/boards/transaction-rows-task-c-review.html) |
-| D · 分享海报与应用卡片 | R116实际七类相关预览/原币小票四字段/三次取消与共用Save真实字节通过；Root月/小票原PNG复看，独立报告最终打包中 | [交互稿](../design/card-refresh/boards/share-cards-task-d-review.html) |
-| E · 启动页 · 一笔成形 | R116受控B/安全局部层/真实深色栏+R117基础样例与正常main通过；冷启首帧/OS减弱动效边界保留，独立报告最终打包中 | [交互稿](../design/card-refresh/boards/splash-task-e-review.html?concept=trail) |
+| A · 洞察页 | 已实现并按原整页基线＋源码连续性＋对应原生增量合并验收；独立报告已封存，失败与NOT_RUN按原阶段保留 | [交互稿](../design/card-refresh/boards/insights-task-a-review.html) |
+| B · 资产页 | 已实现并按原整页基线＋源码连续性＋对应原生增量合并验收；独立报告已封存，失败与NOT_RUN按原阶段保留 | [交互稿](../design/card-refresh/boards/assets-task-b-review.html) |
+| C · 交易明细行 | 已实现并按原整页基线＋源码连续性＋对应原生增量合并验收；独立报告已封存，失败与NOT_RUN按原阶段保留 | [交互稿](../design/card-refresh/boards/transaction-rows-task-c-review.html) |
+| D · 分享海报与应用卡片 | 已实现并按原整页基线＋源码连续性＋对应原生增量合并验收；独立报告已封存，失败与NOT_RUN按原阶段保留 | [交互稿](../design/card-refresh/boards/share-cards-task-d-review.html) |
+| E · 启动页 · 一笔成形 | 已实现并按原整页基线＋源码连续性＋对应原生增量合并验收；独立报告已封存，失败与NOT_RUN按原阶段保留 | [交互稿](../design/card-refresh/boards/splash-task-e-review.html?concept=trail) |
 
 ## 优先级与顺序
 
