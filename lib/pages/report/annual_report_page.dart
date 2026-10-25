@@ -362,13 +362,13 @@ class _AnnualReportPageState extends ConsumerState<AnnualReportPage> {
                           padding: const EdgeInsets.fromLTRB(17, 0, 17, 14),
                           child: SizedBox(
                               width: double.infinity,
-                              child: FilledButton.icon(
+                              child: BeeButton(
                                   key: const ValueKey('annual-generate-poster'),
+                                  label: l.annualReportShareButton,
                                   onPressed: _generatingPoster
                                       ? null
                                       : _generatePoster,
-                                  icon: const BeeLineIcon('Share', size: 18),
-                                  label: Text(l.annualReportShareButton))))
+                                  icon: const BeeLineIcon('Share', size: 18))))
                     ]);
                   })),
         ])));

@@ -221,7 +221,7 @@ void main() {
       await tester.runAsync(
           () => Future<void>.delayed(const Duration(milliseconds: 20)));
       await tester.pump(const Duration(milliseconds: 20));
-      final button = tester.widget<FilledButton>(
+      final button = tester.widget<BeeButton>(
           find.byKey(const ValueKey('annual-generate-poster')));
       if (button.onPressed != null) break;
     }
@@ -229,7 +229,7 @@ void main() {
     expect(find.byType(BeeAnnualPosterPreview), findsNothing);
     expect(
         tester
-            .widget<FilledButton>(
+            .widget<BeeButton>(
                 find.byKey(const ValueKey('annual-generate-poster')))
             .onPressed,
         isNotNull);
@@ -261,11 +261,11 @@ void main() {
     await tester.pumpWidget(preview(true));
     await tester.pump();
     for (final id in ['privacy', 'save', 'share']) {
+      final finder = find.byKey(ValueKey('annual-poster-$id'));
       expect(
-          tester
-              .widget<ButtonStyleButton>(
-                  find.byKey(ValueKey('annual-poster-$id')))
-              .onPressed,
+          id == 'privacy'
+              ? tester.widget<ButtonStyleButton>(finder).onPressed
+              : tester.widget<BeeButton>(finder).onPressed,
           isNull);
     }
     expect(close, 0);

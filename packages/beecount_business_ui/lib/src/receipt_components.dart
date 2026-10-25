@@ -110,25 +110,24 @@ class BeeReceiptComposer extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(18, 4, 18, 18),
               child: Row(children: [
                 Expanded(
-                    child: OutlinedButton.icon(
+                    child: BeeButton(
                         key: const ValueKey('receipt-save'),
+                        label: saveLabel,
+                        kind: BeeButtonKind.secondary,
                         onPressed: busy ? null : onSave,
-                        icon: busy && !sharing
-                            ? _spinner()
-                            : const BeeLineIcon('Download', size: 18),
-                        label: Text(saveLabel))),
+                        loading: busy && !sharing,
+                        icon: const BeeLineIcon('Download', size: 18))),
                 const SizedBox(width: 10),
                 Expanded(
                     child: Builder(
-                        builder: (buttonContext) => FilledButton.icon(
+                        builder: (buttonContext) => BeeButton(
                             key: const ValueKey('receipt-share'),
+                            label: shareLabel,
                             onPressed: busy
                                 ? null
                                 : () => onShare?.call(_anchor(buttonContext)),
-                            icon: busy && sharing
-                                ? _spinner()
-                                : const BeeLineIcon('Share', size: 18),
-                            label: Text(shareLabel)))),
+                            loading: busy && sharing,
+                            icon: const BeeLineIcon('Share', size: 18)))),
               ])),
         ]));
   }
@@ -137,9 +136,6 @@ class BeeReceiptComposer extends StatelessWidget {
     final box = context.findRenderObject() as RenderBox;
     return box.localToGlobal(Offset.zero) & box.size;
   }
-
-  static Widget _spinner() => const SizedBox(
-      width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2));
 }
 
 /// A neutral preview dialog; host callbacks own regeneration and native export.
@@ -214,18 +210,19 @@ class BeeAnnualPosterPreview extends StatelessWidget {
                       const SizedBox(height: 6),
                       Row(children: [
                         Expanded(
-                            child: OutlinedButton.icon(
+                            child: BeeButton(
                                 key: const ValueKey('annual-poster-save'),
+                                label: saveLabel,
+                                kind: BeeButtonKind.secondary,
                                 onPressed: busy ? null : onSave,
-                                icon: const BeeLineIcon('Download', size: 18),
-                                label: Text(saveLabel))),
+                                icon: const BeeLineIcon('Download', size: 18))),
                         const SizedBox(width: 10),
                         Expanded(
-                            child: FilledButton.icon(
+                            child: BeeButton(
                                 key: const ValueKey('annual-poster-share'),
+                                label: shareLabel,
                                 onPressed: busy ? null : onShare,
-                                icon: const BeeLineIcon('Share', size: 18),
-                                label: Text(shareLabel)))
+                                icon: const BeeLineIcon('Share', size: 18)))
                       ])
                     ])),
               ]))));

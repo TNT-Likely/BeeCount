@@ -138,20 +138,18 @@ class BeeShareCard extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(16, 10, 16, 16),
           child: LayoutBuilder(builder: (context, constraints) {
             final buttons = [
-              OutlinedButton.icon(
+              BeeButton(
                 key: const ValueKey('share-card-save'),
+                label: saveLabel,
+                kind: BeeButtonKind.secondary,
                 onPressed: busy || generating ? null : onSave,
-                icon: busy && !sharing
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2))
-                    : const BeeLineIcon('Download', size: 18),
-                label: Text(saveLabel, textAlign: TextAlign.center),
+                loading: busy && !sharing,
+                icon: const BeeLineIcon('Download', size: 18),
               ),
               Builder(
-                  builder: (buttonContext) => FilledButton.icon(
+                  builder: (buttonContext) => BeeButton(
                         key: const ValueKey('share-card-share'),
+                        label: shareLabel,
                         onPressed: busy || generating || onShare == null
                             ? null
                             : () {
@@ -160,14 +158,8 @@ class BeeShareCard extends StatelessWidget {
                                 onShare!(
                                     box.localToGlobal(Offset.zero) & box.size);
                               },
-                        icon: busy && sharing
-                            ? const SizedBox(
-                                width: 18,
-                                height: 18,
-                                child:
-                                    CircularProgressIndicator(strokeWidth: 2))
-                            : const BeeLineIcon('Share', size: 18),
-                        label: Text(shareLabel, textAlign: TextAlign.center),
+                        loading: busy && sharing,
+                        icon: const BeeLineIcon('Share', size: 18),
                       )),
             ];
             if (MediaQuery.textScalerOf(context).scale(14) > 17 &&
