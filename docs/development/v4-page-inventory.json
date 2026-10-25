@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-25T16:56:54+08:00",
+  "date": "2026-10-25T17:09:13+08:00",
   "branch": "v4",
   "pageFiles": 73,
   "helperFiles": [
@@ -23,7 +23,7 @@
       "name": "转账表单（同币种/跨币种）",
       "source": "lib/widgets/transaction/transfer_form.dart",
       "priority": "P0",
-      "status": "部分接入·待完整验收",
+      "status": "已完成·P0生产消费者按固定版本累积验收；其他页面继续各自核对",
       "designRoutes": [
         "editor"
       ],
@@ -33,7 +33,7 @@
       "name": "金额与元信息表单",
       "source": "lib/widgets/biz/amount_editor_sheet.dart",
       "priority": "P0",
-      "status": "部分迁移·完整验收中",
+      "status": "已完成·P0生产消费者按固定版本累积验收；其他页面继续各自核对",
       "designRoutes": [
         "editor",
         "flow-foreign-editor"
@@ -44,7 +44,7 @@
       "name": "账单行、长按与滑动菜单",
       "source": "lib/widgets/biz/transaction_list.dart",
       "priority": "P0",
-      "status": "部分接入·待完整验收",
+      "status": "已完成·P0生产消费者按固定版本累积验收；其他页面继续各自核对",
       "designRoutes": [
         "home",
         "search",
@@ -56,7 +56,7 @@
       "name": "分类选择弹窗",
       "source": "lib/widgets/biz/category_selector_dialog.dart",
       "priority": "P0",
-      "status": "新版组件就绪·旧消费者待迁移",
+      "status": "已完成·P0生产消费者按固定版本累积验收；其他页面继续各自核对",
       "designRoutes": [
         "categoryPicker"
       ],
@@ -66,7 +66,7 @@
       "name": "账户选择弹窗",
       "source": "lib/widgets/biz/account_selector.dart",
       "priority": "P0",
-      "status": "部分接入·待完整验收",
+      "status": "已完成·P0生产消费者按固定版本累积验收；其他页面继续各自核对",
       "designRoutes": [
         "flow-account-picker"
       ],
@@ -86,7 +86,7 @@
       "name": "币种选择弹层与汇率编辑",
       "source": "lib/widgets/currency/currency_picker_sheet.dart",
       "priority": "P0",
-      "status": "真实业务组件已接入·待完整验收",
+      "status": "已完成·P0生产消费者按固定版本累积验收；其他页面继续各自核对",
       "designRoutes": [
         "flow-currency-picker",
         "flow-exchange-rate"
@@ -97,7 +97,7 @@
       "name": "标签横排选择",
       "source": "lib/pages/tag/widgets/tag_selector.dart",
       "priority": "P0",
-      "status": "真实业务组件已接入·待完整验收",
+      "status": "已完成·P0生产消费者按固定版本累积验收；其他页面继续各自核对",
       "designRoutes": [
         "flow-tag-picker-many"
       ],
@@ -117,7 +117,7 @@
       "name": "历史备注选择",
       "source": "lib/widgets/biz/note_picker_dialog.dart",
       "priority": "P1",
-      "status": "待迁移",
+      "status": "V4弹窗已接入·原服务/方法体保持；原生选择边界单列",
       "designRoutes": [
         "editor"
       ],
@@ -147,7 +147,7 @@
       "name": "检查升级弹窗",
       "source": "lib/services/update/update_dialogs.dart",
       "priority": "P2",
-      "status": "待迁移",
+      "status": "已完成·R105实际检查/新版本/稍后取消；下载安装边界单列",
       "designRoutes": [
         "flow-update-check"
       ],
@@ -1645,12 +1645,14 @@
       ],
       "designMapping": "已定位",
       "components": "版本/链接/分组菜单与升级弹窗",
-      "acceptance": "统一候选R104源码cabfaff9，983个产品文件与构建产物逐字匹配；已构建未安装。整页生产UI、数据保护与正常入口重启仍待执行；不把单元/widget、HTML或构建成功计为整页完成。",
-      "status": "迁移中·代码与本地回归已交付，待统一产物和整页验收",
+      "acceptance": "独立包三宽/ZIP/manifest/脱敏并root只读封存；原范围检查/PARTIAL/exit78和未执行项保留。剪贴板内容读回、外部App/下载安装/iOS和故障等未测边界不冒称通过；早期SVG未绘完Home截图从最终图册排除，17:00同R105稳定Home只作共同视觉补图。",
+      "status": "已完成",
       "name": "关于与检查更新",
       "priority": "P2",
-      "reason": "R102五个支持页及纯业务组件/App绑定已提交e265ce76，原版本/渠道/文档URL/平台返回/六快捷方式/StoreKit流程保留；29项回归及18文件静态检查通过。原生整页、实际外链/WebView及平台支付未执行，不计完成。",
-      "implementationStage": "implemented",
+      "reason": "R105实际生产入口、主要页面动作、返回和正常launcher及31表/64笔/5附件+3图/业务Prefs守卫；root逐张核图并独立校24文件与原功能、29项固定源码回归。关于实际更新取消；快捷六项复制反馈；帮助/隐私实际原WebView正文和滚动。",
+      "implementationStage": "accepted",
+      "acceptanceReport": ".docs/acceptance/v4-migration/2026-10-25/about-r105/index.html",
+      "acceptanceZipSha256": "b90dd4073aafb2cf0e95237fb3773dcca7a8218c4abc2e32edd8f611140a5793",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=about",
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-update-check",
@@ -1907,12 +1909,14 @@
       ],
       "designMapping": "已定位",
       "components": "分组菜单、输入/选择/开关、弹窗与状态",
-      "acceptance": "统一候选R104源码cabfaff9，983个产品文件与构建产物逐字匹配；已构建未安装。整页生产UI、数据保护与正常入口重启仍待执行；不把单元/widget、HTML或构建成功计为整页完成。",
-      "status": "迁移中·代码与本地回归已交付，待统一产物和整页验收",
+      "acceptance": "独立包三宽/ZIP/manifest/脱敏并root只读封存；原范围检查/PARTIAL/exit78和未执行项保留。剪贴板内容读回、外部App/下载安装/iOS和故障等未测边界不冒称通过；早期SVG未绘完Home截图从最终图册排除，17:00同R105稳定Home只作共同视觉补图。",
+      "status": "已完成",
       "name": "帮助中心",
       "priority": "P2",
-      "reason": "R102五个支持页及纯业务组件/App绑定已提交e265ce76，原版本/渠道/文档URL/平台返回/六快捷方式/StoreKit流程保留；29项回归及18文件静态检查通过。原生整页、实际外链/WebView及平台支付未执行，不计完成。",
-      "implementationStage": "implemented",
+      "reason": "R105实际生产入口、主要页面动作、返回和正常launcher及31表/64笔/5附件+3图/业务Prefs守卫；root逐张核图并独立校24文件与原功能、29项固定源码回归。关于实际更新取消；快捷六项复制反馈；帮助/隐私实际原WebView正文和滚动。",
+      "implementationStage": "accepted",
+      "acceptanceReport": ".docs/acceptance/v4-migration/2026-10-25/help-r105/index.html",
+      "acceptanceZipSha256": "589750cd792bb4fb58ce1ec45bcc894a35203a73d60d9fd6d0c34c75d25137ab",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-help",
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-support-help",
@@ -2014,12 +2018,14 @@
       ],
       "designMapping": "已定位",
       "components": "分组菜单、输入/选择/开关、弹窗与状态",
-      "acceptance": "统一候选R104源码cabfaff9，983个产品文件与构建产物逐字匹配；已构建未安装。整页生产UI、数据保护与正常入口重启仍待执行；不把单元/widget、HTML或构建成功计为整页完成。",
-      "status": "迁移中·代码与本地回归已交付，待统一产物和整页验收",
+      "acceptance": "独立包三宽/ZIP/manifest/脱敏并root只读封存；原范围检查/PARTIAL/exit78和未执行项保留。剪贴板内容读回、外部App/下载安装/iOS和故障等未测边界不冒称通过；早期SVG未绘完Home截图从最终图册排除，17:00同R105稳定Home只作共同视觉补图。",
+      "status": "已完成",
       "name": "隐私政策",
       "priority": "P2",
-      "reason": "R102五个支持页及纯业务组件/App绑定已提交e265ce76，原版本/渠道/文档URL/平台返回/六快捷方式/StoreKit流程保留；29项回归及18文件静态检查通过。原生整页、实际外链/WebView及平台支付未执行，不计完成。",
-      "implementationStage": "implemented",
+      "reason": "R105实际生产入口、主要页面动作、返回和正常launcher及31表/64笔/5附件+3图/业务Prefs守卫；root逐张核图并独立校24文件与原功能、29项固定源码回归。关于实际更新取消；快捷六项复制反馈；帮助/隐私实际原WebView正文和滚动。",
+      "implementationStage": "accepted",
+      "acceptanceReport": ".docs/acceptance/v4-migration/2026-10-25/privacy-r105/index.html",
+      "acceptanceZipSha256": "7b86de8706b3d2abed4d500cd18ab7d3221ad2ec5baffdb524291c9ee0ad7d23",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=leaf:隐私政策",
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-privacy",
@@ -2074,12 +2080,14 @@
       ],
       "designMapping": "已定位",
       "components": "分组菜单、输入/选择/开关、弹窗与状态",
-      "acceptance": "统一候选R104源码cabfaff9，983个产品文件与构建产物逐字匹配；已构建未安装。整页生产UI、数据保护与正常入口重启仍待执行；不把单元/widget、HTML或构建成功计为整页完成。",
-      "status": "迁移中·代码与本地回归已交付，待统一产物和整页验收",
+      "acceptance": "独立包三宽/ZIP/manifest/脱敏并root只读封存；原范围检查/PARTIAL/exit78和未执行项保留。剪贴板内容读回、外部App/下载安装/iOS和故障等未测边界不冒称通过；早期SVG未绘完Home截图从最终图册排除，17:00同R105稳定Home只作共同视觉补图。",
+      "status": "已完成",
       "name": "快捷指令引导",
       "priority": "P2",
-      "reason": "R102五个支持页及纯业务组件/App绑定已提交e265ce76，原版本/渠道/文档URL/平台返回/六快捷方式/StoreKit流程保留；29项回归及18文件静态检查通过。原生整页、实际外链/WebView及平台支付未执行，不计完成。",
-      "implementationStage": "implemented",
+      "reason": "R105实际生产入口、主要页面动作、返回和正常launcher及31表/64笔/5附件+3图/业务Prefs守卫；root逐张核图并独立校24文件与原功能、29项固定源码回归。关于实际更新取消；快捷六项复制反馈；帮助/隐私实际原WebView正文和滚动。",
+      "implementationStage": "accepted",
+      "acceptanceReport": ".docs/acceptance/v4-migration/2026-10-25/shortcuts-r105/index.html",
+      "acceptanceZipSha256": "10823de21008c98cff0a93c3f5f9049b6f4bb4b7e2de85bc99982bad61dbe0d3",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-shortcuts",
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-support-shortcuts-ios",
@@ -2444,14 +2452,16 @@
       ],
       "designMapping": "已定位",
       "components": "搜索、筛选/日期范围、账单行和批量操作栏",
-      "acceptance": "保留当前账本的关键词、分类含二级、金额和日期筛选；对齐设计扩展项。批量备注/分类/删除需保留币种快照、转账目标、共享分类与账户引用、标签和附件；检查取消、合计与空态。",
-      "status": "迁移中·Q08 A已确认，原可执行范围已验收，待当前产物复核",
+      "acceptance": "Root独立匹配154份源码/3458函数审计、相关固定版本回归及新稳定截图；记账14图/搜索27图，三宽/ZIP/manifest/脱敏与只读封存通过。短屏/140%等按widget/HTML，Cloud/iOS/系统外部边界继续单列。",
+      "status": "已完成",
       "name": "账单搜索与批量操作",
       "priority": "P0",
-      "reason": "R54/R55同一隔离App实际搜索/完整时间、组合筛选草稿取消、全选反选、批量备注/标签/同类型分类、混合转账分类守卫、独占新建目标删除取消/确认及正常launcher重启通过；逐字段SQL保留原52笔、四笔增量及5附件SHA。302项相关回归和22图脱敏离线报告通过；Q08成功后撤销仍跳过，不计严格新增整页。 用户已确认Q08 A不新增批量成功撤销；待新统一产物复核，不将产品决定本身当作原生验收。",
+      "reason": "按固定R52/53、R54/55、R96/R98旧原生证据与未变源码/函数复用收口；R105新分类几何分别实际验证默认确认回传或仅owned64分类3→4→3保存恢复，正常重启31表/64笔/5附件+3图/业务偏好守卫。原阶段状态和NOT_RUN保留，非宣称所有动作R105重跑。",
       "checkpointReport": ".docs/acceptance/v4-migration/2026-10-24/search-r55/index.html",
       "checkpointZipSha256": "e1c785304f48b4c2eabcd67af71abe8a91244277f51fe2c87da8c50277525d80",
-      "implementationStage": "implemented",
+      "implementationStage": "accepted",
+      "acceptanceReport": ".docs/acceptance/v4-migration/2026-10-25/search-incremental-r105/index.html",
+      "acceptanceZipSha256": "ccc6d1b0e68fd5e1c7a57c64147b9cc0307f1e2402e0f199ebe684d35eff58d0",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=search",
         "../../docs/design/card-refresh/prototype/demo.html?page=batch"
@@ -2500,12 +2510,14 @@
       ],
       "designMapping": "已定位",
       "components": "金额/折算、计算器、两行元信息、分类/资源选择器与转账账户组合",
-      "acceptance": "293项相关回归/37文件及R8冻结几何通过。原52笔/5附件保持，保留4笔本轮UI新增数据，总56/当前52；金额/元信息/键盘固定，历史快照、身份、标签和标记独立核对。真实完整IME遮挡因设备最小化未执行，长短屏140%由widget验证。通用分类弹窗正在另行统一。",
-      "status": "迁移中·Q04/Q06/Q09已确认，转账同屏与外币账户范围实施验收中",
+      "acceptance": "Root独立匹配154份源码/3458函数审计、相关固定版本回归及新稳定截图；记账14图/搜索27图，三宽/ZIP/manifest/脱敏与只读封存通过。短屏/140%等按widget/HTML，Cloud/iOS/系统外部边界继续单列。",
+      "status": "已完成",
       "name": "记账、新增、编辑与复制",
       "priority": "P0",
-      "reason": "保留R52/R53已封存的收支/编辑/复制范围；用户确认Q09 B同屏转账、Q04 A新增仅同币种、Q06 B允许异本位币账本同外币账户对。子代理r93补实现与真实SQLite回归，统一产物和整页真机验收尚未完成，不计完整页。 R96同一QA实际完成人民币0.23、美元1.25→8.875 CNY的同屏保存、取消保留草稿、只编辑自有美元备注及正常重启，原57笔/附件不变，保留2笔新转账，总59笔；仍待最终统一产物与报告收口。",
-      "implementationStage": "implemented",
+      "reason": "按固定R52/53、R54/55、R96/R98旧原生证据与未变源码/函数复用收口；R105新分类几何分别实际验证默认确认回传或仅owned64分类3→4→3保存恢复，正常重启31表/64笔/5附件+3图/业务偏好守卫。原阶段状态和NOT_RUN保留，非宣称所有动作R105重跑。",
+      "implementationStage": "accepted",
+      "acceptanceReport": ".docs/acceptance/v4-migration/2026-10-25/recording-incremental-r105/index.html",
+      "acceptanceZipSha256": "6fe961bdbff5b7ad32ce5721a98ca209ed59296a813fdec51b889e2483144f8a",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=editor",
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-foreign-editor",
