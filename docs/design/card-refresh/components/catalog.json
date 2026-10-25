@@ -178,6 +178,34 @@
         "title": "HSV配色与命名色板",
         "nativeCase": 21,
         "nativeLabel": "HSV配色与命名色板"
+      },
+      {
+        "id": "spec-2001",
+        "code": "F26",
+        "title": "紧凑页签与柱状图",
+        "nativeCase": 22,
+        "nativeLabel": "紧凑页签与柱状图"
+      },
+      {
+        "id": "spec-2002",
+        "code": "F27",
+        "title": "纸面、卡框与状态胶囊",
+        "nativeCase": 23,
+        "nativeLabel": "纸面、卡框与状态胶囊"
+      },
+      {
+        "id": "spec-2003",
+        "code": "F28",
+        "title": "启动描线、活动与局部弹层",
+        "nativeCase": 24,
+        "nativeLabel": "启动描线、活动与局部弹层"
+      },
+      {
+        "id": "spec-2004",
+        "code": "F29",
+        "title": "主题与系统状态栏",
+        "nativeCase": 25,
+        "nativeLabel": "主题与系统状态栏"
       }
     ]
   },
@@ -689,6 +717,34 @@
         "title": "日志存储与维护",
         "nativeCase": 74,
         "nativeLabel": "日志存储与维护"
+      },
+      {
+        "id": "spec-2005",
+        "code": "B73",
+        "title": "启动品牌、状态与安全说明",
+        "nativeCase": 75,
+        "nativeLabel": "启动品牌、状态与安全说明"
+      },
+      {
+        "id": "spec-2006",
+        "code": "B74",
+        "title": "七类分享海报平铺",
+        "nativeCase": 76,
+        "nativeLabel": "七类分享海报平铺"
+      },
+      {
+        "id": "spec-2007",
+        "code": "B75",
+        "title": "云同步健康状态",
+        "nativeCase": 77,
+        "nativeLabel": "云同步健康状态"
+      },
+      {
+        "id": "spec-2008",
+        "code": "B76",
+        "title": "资产账户工具栏",
+        "nativeCase": 40,
+        "nativeLabel": "资产总览与账户设置"
       }
     ]
   }
