@@ -6,6 +6,28 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  test('正式智能记账行的所有图标均随包提供', () {
+    final entries =
+        File('lib/presentation/v4/bindings/smart_billing_entries.dart')
+            .readAsStringSync();
+    final preferences =
+        File('lib/presentation/v4/bindings/smart_billing_preferences.dart')
+            .readAsStringSync();
+    final icons = <String>{
+      ...RegExp(r"(?:row|guide)\(\s*'([A-Za-z0-9]+)'", multiLine: true)
+          .allMatches(entries)
+          .map((m) => m[1]!),
+      ...RegExp(r"BeeLineIcon\('([A-Za-z0-9]+)'", multiLine: true)
+          .allMatches(preferences)
+          .map((m) => m[1]!),
+    };
+    expect(icons, containsAll(['ScanLine', 'Command', 'Paperclip']));
+    for (final icon in icons) {
+      final asset = File('packages/beecount_ui/assets/icons/$icon.svg');
+      expect(asset.existsSync(), isTrue, reason: icon);
+      expect(asset.readAsStringSync(), contains('viewBox="0 0 24 24"'));
+    }
+  });
   final f = jsonDecode(File('test/fixtures/v4-smart-billing-geometry.json')
       .readAsStringSync()) as Map;
   for (final width in [398.0, 320.0]) {
