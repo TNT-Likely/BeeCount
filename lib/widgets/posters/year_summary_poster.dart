@@ -24,8 +24,6 @@ class YearSummaryPoster extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-
     // 创建渐变背景色
     final gradient = LinearGradient(
       begin: Alignment.topLeft,
@@ -56,6 +54,22 @@ class YearSummaryPoster extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Fixed export art: retain the original scale when it fits.
+                  // Long localized content shrinks together; the footer stays fixed.
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.topLeft,
+                      child: FittedBox(
+                        key: const ValueKey('year-summary-fit'),
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.topLeft,
+                        child: SizedBox(
+                          key: const ValueKey('year-summary-content'),
+                          width: 670,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
                   // 标题区域
                   _buildHeader(context),
 
@@ -74,7 +88,12 @@ class YearSummaryPoster extends StatelessWidget {
                   // 其他数据
                   _buildAdditionalStats(context),
 
-                  const Spacer(),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
 
                   // 底部Logo和slogan
                   _buildFooter(context),
@@ -348,15 +367,14 @@ class YearSummaryPoster extends StatelessWidget {
         ),
         const SizedBox(width: 18),
         // 标签
-        Text(
+        Expanded(child: Text(
           label,
           style: const TextStyle(
             fontSize: 20,
             color: Color(0xFF666666),
             fontWeight: FontWeight.w500,
           ),
-        ),
-        const Spacer(),
+        )),
         // 数值
         Text(
           value,
@@ -571,6 +589,7 @@ class YearSummaryPoster extends StatelessWidget {
               ),
             ),
           ),
+          const SizedBox(width: 12),
           // 金额和占比
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
@@ -619,7 +638,7 @@ class YearSummaryPoster extends StatelessWidget {
           // 月均收入
           _buildInfoRow(
             l10n.sharePosterAvgMonthlyIncome,
-            '¥${formatter.format(data.avgMonthlyIncome)}',
+            hideIncome ? '**' : '¥${formatter.format(data.avgMonthlyIncome)}',
           ),
           if (data.maxExpenseMonth != null) ...[
             const SizedBox(height: 18),
@@ -639,21 +658,25 @@ class YearSummaryPoster extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
+        Flexible(
+            child: Text(
           label,
           style: TextStyle(
             color: Colors.white.withValues(alpha: 0.85),
             fontSize: 18,
           ),
-        ),
-        Text(
+        )),
+        const SizedBox(width: 12),
+        Flexible(
+            child: Text(
           value,
+          textAlign: TextAlign.right,
           style: const TextStyle(
             color: Colors.white,
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
-        ),
+        )),
       ],
     );
   }

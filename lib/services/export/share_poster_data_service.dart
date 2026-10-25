@@ -11,7 +11,16 @@ import 'share_poster_types.dart';
 class SharePosterDataService {
   final BaseRepository repository;
 
-  const SharePosterDataService(this.repository);
+  const SharePosterDataService(this.repository, {this.clock});
+
+  /// Optional deterministic clock for read-only period calculations.
+  final DateTime Function()? clock;
+
+  DateTime get _today {
+    final now = (clock ?? DateTime.now)();
+    // Calendar days avoid DST-dependent 23/25-hour day counts.
+    return DateTime(now.year, now.month, now.day);
+  }
 
   /// 计算年度总结海报数据
   Future<YearSummaryPosterData> calculateYearSummary({
@@ -98,8 +107,16 @@ class SharePosterDataService {
     );
 
     // 5. 计算月均收支
-    final avgMonthlyExpense = totalExpense / 12;
-    final avgMonthlyIncome = totalIncome / 12;
+    final today = _today;
+    final elapsedMonths = today.isBefore(startDate)
+        ? 0
+        : !today.isBefore(endDate)
+            ? 12
+            : labelForDate(today, sd).month;
+    final avgMonthlyExpense =
+        elapsedMonths > 0 ? totalExpense / elapsedMonths : 0.0;
+    final avgMonthlyIncome =
+        elapsedMonths > 0 ? totalIncome / elapsedMonths : 0.0;
 
     // 6. 计算结余
     final balance = totalIncome - totalExpense;
@@ -194,8 +211,17 @@ class SharePosterDataService {
     );
 
     // 5. 计算日均支出
-    final daysInMonth = endDate.difference(startDate).inDays;
-    final avgDailyExpense = daysInMonth > 0 ? totalExpense / daysInMonth : 0.0;
+    final today = _today;
+    final cutoff = today.isBefore(startDate)
+        ? startDate
+        : today.isBefore(endDate)
+            ? DateTime(today.year, today.month, today.day + 1)
+            : endDate;
+    final elapsedDays = DateTime.utc(cutoff.year, cutoff.month, cutoff.day)
+        .difference(
+            DateTime.utc(startDate.year, startDate.month, startDate.day))
+        .inDays;
+    final avgDailyExpense = elapsedDays > 0 ? totalExpense / elapsedDays : 0.0;
 
     // 6. 计算结余
     final balance = totalIncome - totalExpense;
