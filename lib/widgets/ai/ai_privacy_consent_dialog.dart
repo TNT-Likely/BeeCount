@@ -5,7 +5,8 @@ import '../../ai/privacy/ai_privacy_consent.dart';
 import '../../l10n/app_localizations.dart';
 import '../../pages/settings/privacy_policy_page.dart';
 import '../../providers/ai_privacy_consent_providers.dart';
-import '../../providers/theme_providers.dart';
+import 'package:beecount_ui/beecount_ui.dart';
+import 'package:beecount_business_ui/beecount_business_ui.dart';
 
 /// 确保已取得"AI 第三方数据共享"的同意。
 ///
@@ -28,51 +29,26 @@ Future<bool> ensureAiPrivacyConsent(BuildContext context, WidgetRef ref) async {
 
 class AiPrivacyConsentDialog extends ConsumerWidget {
   const AiPrivacyConsentDialog({super.key});
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context);
-    final primary = ref.watch(primaryColorProvider);
-    return AlertDialog(
-      title: Text(l10n.aiConsentTitle),
-      content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(l10n.aiConsentBody, style: const TextStyle(height: 1.5)),
-            const SizedBox(height: 4),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: TextButton(
-                style: TextButton.styleFrom(
-                  padding: EdgeInsets.zero,
-                  minimumSize: const Size(0, 36),
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-                onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (_) => const PrivacyPolicyPage()),
-                ),
-                child: Text(l10n.aboutPrivacyPolicy,
-                    style: TextStyle(color: primary)),
-              ),
-            ),
-          ],
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context, false),
-          child: Text(l10n.commonCancel),
-        ),
-        FilledButton(
-          style: FilledButton.styleFrom(backgroundColor: primary),
-          onPressed: () => Navigator.pop(context, true),
-          child: Text(l10n.aiConsentAgree),
-        ),
-      ],
-    );
+    final l = AppLocalizations.of(context);
+    return BeeDialog(
+        showClose: false,
+        title: Text(l.aiConsentTitle),
+        content: BeeAIConsentContent(
+            description: l.aiConsentBody,
+            policyLabel: l.aboutPrivacyPolicy,
+            onPolicy: () => Navigator.push(
+                context,
+                MaterialPageRoute<void>(
+                    builder: (_) => const PrivacyPolicyPage()))),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: Text(l.commonCancel)),
+          FilledButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: Text(l.aiConsentAgree)),
+        ]);
   }
 }

@@ -1,3 +1,4 @@
+import 'ai_settings_sample.dart';
 import 'billing_guide_sample.dart';
 import 'analytics_sample.dart';
 import 'calendar_sample.dart';
@@ -66,7 +67,8 @@ const businessCases = [
   '预算编辑与分类草稿',
   '账单日历与按日汇总',
   '洞察汇总与分类排行',
-  '智能记账引导与语音偏好'
+  '智能记账引导与语音偏好',
+  'AI能力绑定与授权'
 ];
 const demoTags = [
   BeeTagData('work', '工作日', Color(0xffaa8b29)),
@@ -93,7 +95,8 @@ class BusinessAcceptancePage extends StatefulWidget {
       this.budgetEditorData,
       this.calendarData,
       this.analyticsData,
-      this.smartBillingData});
+      this.smartBillingData,
+      this.aiSettingsData});
   final Widget? liveData,
       tagLibraryData,
       reminderData,
@@ -107,7 +110,8 @@ class BusinessAcceptancePage extends StatefulWidget {
       budgetEditorData,
       calendarData,
       analyticsData,
-      smartBillingData;
+      smartBillingData,
+      aiSettingsData;
   final int? isolatedCase;
   @override
   State<BusinessAcceptancePage> createState() => _BusinessAcceptancePageState();
@@ -1895,6 +1899,7 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
         51 => CalendarSample(liveData: widget.calendarData),
         52 => AnalyticsSample(liveData: widget.analyticsData),
         53 => BillingGuideSample(liveData: widget.smartBillingData),
+        54 => AISettingsSample(liveData: widget.aiSettingsData),
         49 => BudgetSample(
             liveData: widget.budgetData, onEdit: () => record('选择预算编辑')),
         48 => ExchangeRateSample(liveData: widget.exchangeRateData),

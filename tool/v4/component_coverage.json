@@ -683,5 +683,16 @@
     ],
     "page": "business",
     "case": 53
+  },
+  {
+    "design_key": "aiSettings",
+    "components": [
+      "BeeAICapabilityRow",
+      "BeeAIConsentContent",
+      "BeeRadioTile",
+      "BeeToggleRow"
+    ],
+    "page": "business",
+    "case": 54
   }
 ]

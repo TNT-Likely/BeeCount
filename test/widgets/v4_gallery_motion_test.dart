@@ -49,7 +49,7 @@ void main() {
                 find.byKey(const ValueKey('gallery-business-tickers')))
             .enabled,
         false);
-    expect(find.text('54 组组件 · 全部平铺'), findsOneWidget);
+    expect(find.text('55 组组件 · 全部平铺'), findsOneWidget);
     await t.tap(find.byKey(const ValueKey('business-case')));
     await t.pumpAndSettle();
     final lastItem = find.widgetWithText(BeeButton, '51 · 预算编辑与分类草稿');
