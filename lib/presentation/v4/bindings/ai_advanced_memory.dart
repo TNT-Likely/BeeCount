@@ -64,7 +64,8 @@ class _MemoryState extends ConsumerState<AIAdvancedMemoryControls> {
     try {
       final confirmed = await showDialog<bool>(
           context: context,
-          builder: (ctx) => AlertDialog(
+          builder: (ctx) => BeeDialog(
+                  showClose: false,
                   title: Text(memory == null
                       ? l.agentMemoryClearTitle
                       : l.agentMemoryDeleteTitle),

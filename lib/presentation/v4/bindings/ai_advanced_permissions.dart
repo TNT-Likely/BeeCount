@@ -77,7 +77,8 @@ class _PermissionsState extends ConsumerState<AIAdvancedPermissionsControls> {
     try {
       final confirmed = await showDialog<bool>(
           context: context,
-          builder: (ctx) => AlertDialog(
+          builder: (ctx) => BeeDialog(
+                  showClose: false,
                   title: Text(l.agentPermissionsRestoreTitle),
                   content: Text(l.agentPermissionsRestoreDescription),
                   actions: [

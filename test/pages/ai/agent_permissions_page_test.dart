@@ -3,6 +3,7 @@ import 'package:beecount/l10n/app_localizations.dart';
 import 'package:beecount/pages/ai/agent_permissions_page.dart';
 import 'package:beecount/providers/ai_chat_providers.dart';
 import 'package:beecount/styles/tokens.dart';
+import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -118,6 +119,14 @@ void main() {
     await tester.tap(
       find.byKey(const ValueKey('restore-agent-permissions')),
     );
+    await tester.pumpAndSettle();
+    expect(find.byType(BeeDialog), findsOneWidget);
+    expect(find.byType(AlertDialog), findsNothing);
+    await tester.tap(find.text('取消').last);
+    await tester.pumpAndSettle();
+    expect(await store.permissionFor('record_transaction_from_text'),
+        AgentToolPermission.alwaysAllow);
+    await tester.tap(find.byKey(const ValueKey('restore-agent-permissions')));
     await tester.pumpAndSettle();
     await tester.tap(find.text('恢复').last);
     await tester.pumpAndSettle();
