@@ -101,7 +101,7 @@ mixin AttachmentTransferActions<T extends ConsumerStatefulWidget>
   Future<void> selectAttachmentImportFile() async {
     final pickerResult = await FilePicker.platform.pickFiles(
       type: FileType.custom,
-      allowedExtensions: ['gz', 'tar'],
+      allowedExtensions: ['gz'],
     );
 
     if (pickerResult == null || pickerResult.files.isEmpty) return;
