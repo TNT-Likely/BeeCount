@@ -17,6 +17,7 @@ export 'src/layout_components.dart';
 export 'src/page_components.dart';
 export 'src/launch_motion.dart';
 export 'src/local_sheet.dart';
+export 'src/system_bars.dart';
 
 /// Local v4 surfaces. The app supplies its existing accent and brightness.
 @immutable

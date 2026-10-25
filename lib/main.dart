@@ -597,7 +597,7 @@ class MainApp extends ConsumerWidget {
         locale: selectedLanguage,
         builder: (context, child) {
           final showPrivacy = ref.watch(showPrivacyScreenProvider);
-          return Stack(
+          return BeeSystemBars(child: Stack(
             children: [
               child ?? const SizedBox.shrink(),
               if (showPrivacy)
@@ -616,7 +616,7 @@ class MainApp extends ConsumerWidget {
                   ),
                 ),
             ],
-          );
+          ));
         },
         // 显式命名根路由，便于路由日志与 popUntil 精确识别
         home: _getHomePage(initState, ref),
