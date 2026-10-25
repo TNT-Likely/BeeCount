@@ -278,7 +278,8 @@ class BeeMaintenanceWidgetCard extends StatelessWidget {
                 color: Theme.of(context).hintColor)),
         const SizedBox(height: 14),
         Center(child: LayoutBuilder(builder: (context, constraints) {
-          final width = constraints.maxWidth.clamp(0.0, 400.0);
+          final maxWidth = previewSize == const Size(155, 155) ? 190.0 : 400.0;
+          final width = constraints.maxWidth.clamp(0.0, maxWidth);
           return SizedBox(
               width: width,
               height: width * previewSize.height / previewSize.width,

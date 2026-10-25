@@ -180,23 +180,13 @@ class _LogsState extends ConsumerState<MaintenanceLogsControls> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                   BeeSurface(
-                      child: TextField(
+                      child: BeeSearchField(
                           key: const ValueKey('maintenance-log-search'),
                           controller: _search,
+                          hint: l.logCenterSearchHint,
+                          clearLabel: l.searchClearFilter,
                           onChanged: (value) =>
-                              setState(() => _keyword = value),
-                          decoration: InputDecoration(
-                              hintText: l.logCenterSearchHint,
-                              prefixIcon: const BeeLineIcon('Search', size: 20),
-                              suffixIcon: _keyword.isEmpty
-                                  ? null
-                                  : BeeIconButton(
-                                      label: l.searchClearFilter,
-                                      icon: const BeeLineIcon('X', size: 18),
-                                      onPressed: () {
-                                        _search.clear();
-                                        setState(() => _keyword = '');
-                                      })))),
+                              setState(() => _keyword = value))),
                   const SizedBox(height: 12),
                   BeeMaintenanceLogFilters(
                       levelLabel: l.logCenterFilterLevel,

@@ -79,6 +79,7 @@ class MaintenanceWidgetsControls extends ConsumerWidget {
                   sizeLabel: l10n.widgetSizeMedium,
                   previewSize: const Size(364, 169),
                   preview: GlanceView.medium(
+                    isolatePreviewTypography: true,
                     todayExpense: '¥88.5',
                     todayIncome: '¥0',
                     monthExpense: '¥3,200.5',
@@ -110,6 +111,7 @@ class MaintenanceWidgetsControls extends ConsumerWidget {
                   sizeLabel: l10n.widgetSizeSmall,
                   previewSize: const Size(155, 155),
                   preview: GlanceView.small(
+                    isolatePreviewTypography: true,
                     todayExpense: '¥88.5',
                     monthExpense: '¥3,200.5',
                     monthIncome: '¥8,000',

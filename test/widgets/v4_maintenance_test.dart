@@ -353,6 +353,20 @@ void main() {
       expect(find.text('${l.logCenterFiltered}: 12'), findsOneWidget);
     });
   }
+  scenario('日志搜索图标和边框沿用基础搜索规范，避免前缀被输入框撑大', (t) async {
+    await show(t, const LogCenterPage());
+    final field = find.byKey(const ValueKey('maintenance-log-search'));
+    final icon = find.descendant(
+        of: field,
+        matching: find.byWidgetPredicate(
+            (widget) => widget is BeeLineIcon && widget.name == 'Search'));
+    expect(t.getSize(icon), const Size(20, 20));
+    final input = t.widget<TextField>(
+        find.descendant(of: field, matching: find.byType(TextField)));
+    final border = input.decoration!.enabledBorder! as OutlineInputBorder;
+    expect(border.borderSide, BorderSide.none);
+    expect(border.borderRadius, BorderRadius.circular(13));
+  });
   scenario('日志搜索大小写不敏感匹配message或tag，清除不改多选', (t) async {
     await show(t, const LogCenterPage(), platform: TargetPlatform.macOS);
     await t.enterText(
