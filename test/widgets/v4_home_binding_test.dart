@@ -272,6 +272,59 @@ void main() {
     expect(tester.takeException(), isNull);
     await close(tester);
   });
+  testWidgets('首页键盘压缩后恢复仍复用列表订阅并显示新账单', (tester) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(398, 900);
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final interval = VisibilityDetectorController.instance.updateInterval;
+    VisibilityDetectorController.instance.updateInterval = Duration.zero;
+    addTearDown(
+        () => VisibilityDetectorController.instance.updateInterval = interval);
+    await tester.pumpWidget(UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(
+            theme: beeTheme(),
+            locale: const Locale('zh'),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: const HomePage())));
+    await tester.pumpAndSettle();
+    final listState = tester.state<TransactionListState>(
+        find.byType(TransactionList, skipOffstage: false));
+    // A note keyboard can reduce the covered Home route below the compact
+    // layout boundary. Returning from the editor restores the full height.
+    for (final height in [568.0, 900.0, 568.0, 900.0]) {
+      tester.view.physicalSize = Size(398, height);
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      expect(
+          tester.state<TransactionListState>(
+              find.byType(TransactionList, skipOffstage: false)),
+          same(listState));
+    }
+    final id = await repo.addTransaction(
+        ledgerId: 1,
+        type: 'expense',
+        amount: 32.5,
+        happenedAt: DateTime(2026, 10, 25),
+        note: '键盘返回后真实新增');
+    for (var i = 0; i < 20; i++) {
+      await tester.runAsync(
+          () => Future<void>.delayed(const Duration(milliseconds: 10)));
+      await tester.pump(const Duration(milliseconds: 20));
+      final list = tester.widget<TransactionList>(
+          find.byType(TransactionList, skipOffstage: false));
+      if (list.transactions!.any((row) => row.t.id == id)) break;
+    }
+    final list = tester.widget<TransactionList>(
+        find.byType(TransactionList, skipOffstage: false));
+    expect(list.transactions!.map((row) => row.t.id), contains(id));
+    expect(list.transactions, hasLength(3));
+    expect((await repo.getTransactionById(id))!.amount, 32.5);
+    expect(tester.takeException(), isNull);
+    await close(tester);
+  });
   for (final small in [false, true]) {
     testWidgets('首页更多菜单与品牌偏好完整可达，${small ? '320深色大字' : '标准屏'}', (tester) async {
       tester.view.physicalSize =

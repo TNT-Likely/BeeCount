@@ -39,6 +39,10 @@ class HomePage extends ConsumerStatefulWidget {
 class _HomePageState extends ConsumerState<HomePage> {
   late FlutterListViewController _listController;
   final _pageScrollController = ScrollController();
+  // The note keyboard can move Home across BeeHomeLayout's compact boundary.
+  // Keep the journal subtree (and its single-subscription stream) mounted when
+  // its parent changes between the fixed and scrolling layouts.
+  final _journalFrameKey = GlobalKey();
   bool _isJumping = false;
   final GlobalKey<TransactionListState> _transactionListKey =
       GlobalKey<TransactionListState>();
@@ -314,6 +318,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             onBudget: () => Navigator.push(context,
                 MaterialPageRoute(builder: (_) => const BudgetPage()))),
         journal: HomeJournalFrame(
+            key: _journalFrameKey,
             onCalendar: () => _openHomeTool('calendar'),
             onFilter: () => _openJournalSearch(filters: true),
             onBatch: () => _openJournalSearch(batch: true),
