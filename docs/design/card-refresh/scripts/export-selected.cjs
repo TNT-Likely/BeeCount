@@ -1,4 +1,4 @@
-// Refresh changed routes while preserving every other exported scene and preset.
+// Refresh changed routes or scene:<slug> while preserving every other scene and preset.
 const fs = require('fs'), path = require('path');
 const { pathToFileURL } = require('url');
 const { chromium } = require('playwright');
@@ -47,21 +47,37 @@ if (!routes.length) throw Error('Pass one or more prototype route IDs');
       const i = items.findIndex(m => m.slug === value.slug);
       if (i < 0) items.push(value); else items[i] = value;
     }
-    for (const route of routes) {
+    for (const request of routes) {
+      const sceneSlug = request.startsWith('scene:') ? request.slice(6) : null;
+      const scene = sceneSlug ? manifest.find(m => m.slug === sceneSlug) : null;
+      if (sceneSlug && !scene) throw Error('Unknown scene: ' + sceneSlug);
+      const route = scene ? scene.route : request;
       const options = await picker.locator('option').evaluateAll(elements => elements.map(e => ({
         route: e.value, title: e.textContent, group: e.parentElement.label || '其他'
       })));
-      const target = options.find(o => o.route === route);
+      const target = scene || options.find(o => o.route === route);
       if (!target) throw Error('Unknown route: ' + route);
-      const slug = route.replaceAll(/[^a-zA-Z0-9_-]/g, '-');
-      await page.evaluate(baseline => {
+      const slug = sceneSlug || route.replaceAll(/[^a-zA-Z0-9_-]/g, '-');
+      if (scene) {
+        const url = new URL(pathToFileURL(path.join(root, 'prototype/demo.html')).href);
+        url.search = new URLSearchParams({ page: route, scene: sceneSlug });
+        await page.goto(url.href);
+        await page.waitForFunction(() => window.beeImmersiveDemo);
+      } else {
+        if (new URL(page.url()).searchParams.has('scene')) {
+          await page.goto(pathToFileURL(path.join(root, 'prototype/demo.html')).href);
+          await page.waitForFunction(() => window.beeImmersiveDemo);
+        }
+        await page.evaluate(baseline => {
         const api = window.beeImmersiveDemo;
         Object.assign(api.state, JSON.parse(JSON.stringify(baseline)));
         api.state.history = [];
         Object.assign(api.settings, { skin: 'none', appearance: 'light', immersive: false, showBrand: true });
-      }, baseline);
-      await picker.selectOption(route);
+        }, baseline);
+        await picker.selectOption(route);
+      }
       await page.evaluate(() => { window.beeImmersiveDemo.freeze(5); document.activeElement?.blur(); });
+      const viewport = await page.evaluate(() => ({ ...window.beeResponsivePreview.value }));
       await phone.locator('iframe[src^="https://count.beejz.com/"]').evaluateAll((frames,notice)=>frames.forEach(frame=>{if(!frame.previousElementSibling?.hasAttribute('data-qa-document-note')){const note=document.createElement('p');note.dataset.qaDocumentNote='true';note.textContent=notice;note.style.cssText='font-size:12px;color:#777;padding:8px;overflow-wrap:anywhere';frame.before(note);}}),qaDocumentNotice);
       const fullStyle = await page.addStyleTag({ content: '#bee-immersive-suite .bc-phone:not([data-modal="true"]) .bc-main:has(.s80-shell){height:auto!important;display:block!important}#bee-immersive-suite .bc-phone:not([data-modal="true"]) .s80-shell{height:auto;display:block}#bee-immersive-suite .bc-phone:not([data-modal="true"]) .s80-scroll{overflow:visible} #bee-immersive-suite .bc-phone:not([data-modal="true"]) .bc-main:has(.a79-shell){height:auto!important;display:block!important}#bee-immersive-suite .bc-phone:not([data-modal="true"]) .a79-shell{height:auto;display:block}#bee-immersive-suite .bc-phone:not([data-modal="true"]) .a79-scroll{overflow:visible} #bee-immersive-suite .bc-phone[data-page="home"] .bc-main{height:auto!important;display:block!important}#bee-immersive-suite .bc-phone[data-page="home"] .bc-stream{height:auto!important;display:block!important}#bee-immersive-suite .bc-phone[data-page="home"] .h-journal-list{height:auto!important;overflow:visible!important}#bee-immersive-suite .bc-phone:not([data-modal="true"]){height:auto!important;max-height:none!important}#bee-immersive-suite .bc-phone:not([data-modal="true"]) .bc-main{max-height:none!important;overflow:visible!important}#bee-immersive-suite .bc-phone:not([data-modal="true"]) .bc-main:has(.ae-shell){height:auto!important;display:block!important}#bee-immersive-suite .bc-phone:not([data-modal="true"]) .ae-shell{display:block}#bee-immersive-suite .bc-phone:not([data-modal="true"]) .ae-scroll{overflow:visible}#bee-immersive-suite .bc-phone:not([data-modal="true"]) .bc-main:has(.cm-manager-page){height:auto!important;display:block!important}#bee-immersive-suite .bc-phone:not([data-modal="true"]) .cm-manager-page{display:block}#bee-immersive-suite .bc-phone:not([data-modal="true"]) .cm-manager-scroll{overflow:visible}#bee-immersive-suite .bc-phone:not([data-modal="true"]) .bc-main:has(.av-shell){height:auto!important;display:block!important}#bee-immersive-suite .bc-phone:not([data-modal="true"]) .av-shell{display:block}#bee-immersive-suite .bc-phone:not([data-modal="true"]) .av-scroll{overflow:visible}#bee-immersive-suite .bc-phone:not([data-modal="true"]) .bc-main:has(.tl-shell){height:auto!important;display:block!important}#bee-immersive-suite .bc-phone:not([data-modal="true"]) .tl-shell{display:block}#bee-immersive-suite .bc-phone:not([data-modal="true"]) .tl-scroll{overflow:visible}#bee-immersive-suite .bc-phone:not([data-modal="true"]) .bc-main:has(.fs-shell){height:auto!important;max-height:none!important;display:block!important}#bee-immersive-suite .bc-phone:not([data-modal="true"]) .fs-shell{display:block}#bee-immersive-suite .bc-phone:not([data-modal="true"]) .fs-scroll{overflow:visible}#bee-immersive-suite .bc-phone:not([data-modal="true"]) .bc-main:has(.nw-scroll){height:auto!important;max-height:none!important;display:block!important}#bee-immersive-suite .bc-phone:not([data-modal="true"]) .nw-scroll{overflow:visible}#bee-immersive-suite .bc-phone:not([data-modal="true"]) .bc-main:has(.rd-scroll){height:auto!important;max-height:none!important;display:block!important}#bee-immersive-suite .bc-phone:not([data-modal="true"]) .rd-scroll{overflow:visible}#bee-immersive-suite .bc-phone:not([data-modal="true"]) .bc-main:has(.ap-scroll){height:auto!important;max-height:none!important;display:block!important}#bee-immersive-suite .bc-phone:not([data-modal="true"]) .ap-scroll{overflow:visible}#bee-immersive-suite .bc-phone:not([data-modal="true"]) .bc-main:has(.bgt-shell){height:auto!important;display:block!important}#bee-immersive-suite .bc-phone:not([data-modal="true"]) .bgt-shell{height:auto;display:block}#bee-immersive-suite .bc-phone:not([data-modal="true"]) .bgt-scroll{overflow:visible}' });
       // Expand long provider forms only for the 'full content' design export.
@@ -71,18 +87,21 @@ if (!routes.length) throw Error('Pass one or more prototype route IDs');
       await phone.screenshot({ path: path.join(root, 'screens/full', slug + '.png') });
       if (providerFull) await providerFull.evaluate(e => e.remove());
       await fullStyle.evaluate(e => e.remove());
-      const viewportStyle = await page.addStyleTag({ content: '#bee-immersive-suite .bc-phone{height:844px!important;min-height:844px!important;max-height:844px!important;overflow:hidden!important}' });
+      const viewportHeight = Number(viewport.height) || 844;
+      const viewportWidth = Number(viewport.width) || 398;
+      const viewportStyle = await page.addStyleTag({ content: `#bee-immersive-suite .bc-phone{height:${viewportHeight}px!important;min-height:${viewportHeight}px!important;max-height:${viewportHeight}px!important;overflow:hidden!important}` });
       await phone.screenshot({ path: path.join(root, 'screens/viewport', slug + '.png') });
       const vector = await phone.evaluate(toSvg);
       fs.writeFileSync(path.join(root, 'figma', slug + '.svg'), vector.svg);
       await presets.capture(page, slug);
       const dom = await phone.evaluate(snapshotDom);
       const restore = '<script>for(const e of document.querySelectorAll("[data-snapshot-scroll]"))e.scrollTop=Number(e.dataset.snapshotScroll);</script>';
-      const head = '<meta charset="utf-8"><style>' + css + '</style><style>*{box-sizing:border-box}body{margin:0;background:#eceeef;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif}#bee-immersive-suite{width:398px}.bc-phone{height:844px!important;min-height:844px!important;max-height:844px!important;overflow:hidden!important}</style>';
+      const head = '<meta charset="utf-8"><style>' + css + `</style><style>*{box-sizing:border-box}body{margin:0;background:#eceeef;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif}#bee-immersive-suite{width:${viewportWidth}px}.bc-phone{height:${viewportHeight}px!important;min-height:${viewportHeight}px!important;max-height:${viewportHeight}px!important;overflow:hidden!important}</style>`;
       fs.writeFileSync(path.join(root, 'figma/html', slug + '.html'), '<!doctype html><html lang="zh-CN">' + head + '<div id="bee-immersive-suite">' + dom + '</div>' + restore + '</html>');
       upsert(snapshots, { slug, title: target.title, group: target.group, dom });
       await viewportStyle.evaluate(e => e.remove());
       upsert(manifest, { ...target, slug, fullHeight: Math.round(bounds.height), viewport: 'screens/viewport/' + slug + '.png', full: 'screens/full/' + slug + '.png', svg: 'figma/' + slug + '.svg' });
+      console.log(JSON.stringify({ refreshedScene: slug, route, viewport }));
     }
     if (errors.length) throw Error(errors.join('\n'));
     presets.save();

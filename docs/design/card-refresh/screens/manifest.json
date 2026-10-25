@@ -4,7 +4,7 @@
     "title": "明细首页",
     "group": "主要页面",
     "slug": "home",
-    "fullHeight": 3316,
+    "fullHeight": 3071,
     "viewport": "screens/viewport/home.png",
     "full": "screens/full/home.png",
     "svg": "figma/home.svg"
@@ -44,7 +44,7 @@
     "title": "账单搜索",
     "group": "主要页面",
     "slug": "search",
-    "fullHeight": 3369,
+    "fullHeight": 3124,
     "viewport": "screens/viewport/search.png",
     "full": "screens/full/search.png",
     "svg": "figma/search.svg"
@@ -54,7 +54,7 @@
     "title": "批量操作",
     "group": "主要页面",
     "slug": "batch",
-    "fullHeight": 2635,
+    "fullHeight": 2444,
     "viewport": "screens/viewport/batch.png",
     "full": "screens/full/batch.png",
     "svg": "figma/batch.svg"
@@ -64,7 +64,7 @@
     "title": "资产账户",
     "group": "主要页面",
     "slug": "assets",
-    "fullHeight": 2241,
+    "fullHeight": 1509,
     "viewport": "screens/viewport/assets.png",
     "full": "screens/full/assets.png",
     "svg": "figma/assets.svg"
@@ -74,7 +74,7 @@
     "title": "分类详情 · 含二级分类",
     "group": "主要页面",
     "slug": "categoryDetail",
-    "fullHeight": 2139,
+    "fullHeight": 2224,
     "viewport": "screens/viewport/categoryDetail.png",
     "full": "screens/full/categoryDetail.png",
     "svg": "figma/categoryDetail.svg"
@@ -84,7 +84,7 @@
     "title": "账户详情",
     "group": "主要页面",
     "slug": "accountDetail",
-    "fullHeight": 1250,
+    "fullHeight": 1598,
     "viewport": "screens/viewport/accountDetail.png",
     "full": "screens/full/accountDetail.png",
     "svg": "figma/accountDetail.svg"
@@ -94,7 +94,7 @@
     "title": "标签详情",
     "group": "主要页面",
     "slug": "tagDetail",
-    "fullHeight": 1808,
+    "fullHeight": 1888,
     "viewport": "screens/viewport/tagDetail.png",
     "full": "screens/full/tagDetail.png",
     "svg": "figma/tagDetail.svg"
@@ -144,7 +144,7 @@
     "title": "账单日历",
     "group": "常用流程",
     "slug": "calendar",
-    "fullHeight": 1182,
+    "fullHeight": 1179,
     "viewport": "screens/viewport/calendar.png",
     "full": "screens/full/calendar.png",
     "svg": "figma/calendar.svg"
@@ -334,7 +334,7 @@
     "title": "分享卡片",
     "group": "启动与分享",
     "slug": "poster",
-    "fullHeight": 844,
+    "fullHeight": 878,
     "viewport": "screens/viewport/poster.png",
     "full": "screens/full/poster.png",
     "svg": "figma/poster.svg"
@@ -431,9 +431,9 @@
   },
   {
     "route": "flow-balance-adjust",
-    "slug": "flow-balance-adjust",
     "title": "调整余额 · 弹窗",
     "group": "补齐 · 账户与资产",
+    "slug": "flow-balance-adjust",
     "fullHeight": 844,
     "viewport": "screens/viewport/flow-balance-adjust.png",
     "full": "screens/full/flow-balance-adjust.png",
@@ -1381,10 +1381,10 @@
   },
   {
     "route": "flow-transaction-states",
-    "slug": "flow-transaction-states",
     "title": "账单行 · 全部场景用例",
     "group": "补齐 · 组件验收",
-    "fullHeight": 5694,
+    "slug": "flow-transaction-states",
+    "fullHeight": 7465,
     "viewport": "screens/viewport/flow-transaction-states.png",
     "full": "screens/full/flow-transaction-states.png",
     "svg": "figma/flow-transaction-states.svg"
@@ -1394,7 +1394,7 @@
     "slug": "home-anniversary-light",
     "title": "一岁星座 · 浅色",
     "group": "动态皮肤",
-    "fullHeight": 3356,
+    "fullHeight": 3091,
     "viewport": "screens/viewport/home-anniversary-light.png",
     "full": "screens/full/home-anniversary-light.png",
     "svg": "figma/home-anniversary-light.svg"
@@ -1404,7 +1404,7 @@
     "slug": "home-anniversary-dark",
     "title": "一岁星座 · 深色",
     "group": "动态皮肤",
-    "fullHeight": 3356,
+    "fullHeight": 3091,
     "viewport": "screens/viewport/home-anniversary-dark.png",
     "full": "screens/full/home-anniversary-dark.png",
     "svg": "figma/home-anniversary-dark.svg"
@@ -1414,7 +1414,7 @@
     "slug": "home-anniv_cake-light",
     "title": "周年蛋糕 · 浅色",
     "group": "动态皮肤",
-    "fullHeight": 3356,
+    "fullHeight": 3091,
     "viewport": "screens/viewport/home-anniv_cake-light.png",
     "full": "screens/full/home-anniv_cake-light.png",
     "svg": "figma/home-anniv_cake-light.svg"
@@ -1424,7 +1424,7 @@
     "slug": "home-anniv_cake-dark",
     "title": "周年蛋糕 · 深色",
     "group": "动态皮肤",
-    "fullHeight": 3356,
+    "fullHeight": 3091,
     "viewport": "screens/viewport/home-anniv_cake-dark.png",
     "full": "screens/full/home-anniv_cake-dark.png",
     "svg": "figma/home-anniv_cake-dark.svg"
@@ -1434,7 +1434,7 @@
     "slug": "home-swipe",
     "title": "首页 · 左滑删除",
     "group": "交互状态",
-    "fullHeight": 844,
+    "fullHeight": 3071,
     "viewport": "screens/viewport/home-swipe.png",
     "full": "screens/full/home-swipe.png",
     "svg": "figma/home-swipe.svg"
@@ -1534,7 +1534,7 @@
     "slug": "home-no-brand",
     "title": "首页 · 无品牌版本",
     "group": "交互状态",
-    "fullHeight": 844,
+    "fullHeight": 3071,
     "viewport": "screens/viewport/home-no-brand.png",
     "full": "screens/full/home-no-brand.png",
     "svg": "figma/home-no-brand.svg"
@@ -1780,7 +1780,7 @@
     "group": "反馈补充",
     "width": 398,
     "height": 844,
-    "fullHeight": 844,
+    "fullHeight": 3071,
     "viewport": "screens/viewport/feedback-success.png",
     "full": "screens/full/feedback-success.png",
     "svg": "figma/feedback-success.svg"
@@ -1792,7 +1792,7 @@
     "group": "反馈补充",
     "width": 398,
     "height": 844,
-    "fullHeight": 844,
+    "fullHeight": 3071,
     "viewport": "screens/viewport/feedback-error.png",
     "full": "screens/full/feedback-error.png",
     "svg": "figma/feedback-error.svg"
@@ -1804,7 +1804,7 @@
     "group": "反馈补充",
     "width": 398,
     "height": 844,
-    "fullHeight": 844,
+    "fullHeight": 3071,
     "viewport": "screens/viewport/feedback-success-dark.png",
     "full": "screens/full/feedback-success-dark.png",
     "svg": "figma/feedback-success-dark.svg"
@@ -1816,7 +1816,7 @@
     "group": "反馈补充",
     "width": 398,
     "height": 844,
-    "fullHeight": 844,
+    "fullHeight": 3071,
     "viewport": "screens/viewport/feedback-error-dark.png",
     "full": "screens/full/feedback-error-dark.png",
     "svg": "figma/feedback-error-dark.svg"
@@ -2008,7 +2008,7 @@
     "title": "资产 · 单币种",
     "group": "补齐 · 账户与资产",
     "slug": "flow-assets-single",
-    "fullHeight": 1811,
+    "fullHeight": 1315,
     "viewport": "screens/viewport/flow-assets-single.png",
     "full": "screens/full/flow-assets-single.png",
     "svg": "figma/flow-assets-single.svg"
@@ -2018,7 +2018,7 @@
     "title": "资产 · 缺失汇率",
     "group": "补齐 · 账户与资产",
     "slug": "flow-assets-missing",
-    "fullHeight": 2241,
+    "fullHeight": 1509,
     "viewport": "screens/viewport/flow-assets-missing.png",
     "full": "screens/full/flow-assets-missing.png",
     "svg": "figma/flow-assets-missing.svg"
@@ -2038,7 +2038,7 @@
     "title": "资产 · 隐藏账户",
     "group": "补齐 · 账户与资产",
     "slug": "flow-assets-hidden",
-    "fullHeight": 2065,
+    "fullHeight": 1460,
     "viewport": "screens/viewport/flow-assets-hidden.png",
     "full": "screens/full/flow-assets-hidden.png",
     "svg": "figma/flow-assets-hidden.svg"
@@ -2048,7 +2048,7 @@
     "title": "资产 · 估值账户",
     "group": "补齐 · 账户与资产",
     "slug": "flow-assets-valuation",
-    "fullHeight": 2471,
+    "fullHeight": 1631,
     "viewport": "screens/viewport/flow-assets-valuation.png",
     "full": "screens/full/flow-assets-valuation.png",
     "svg": "figma/flow-assets-valuation.svg"
@@ -2198,7 +2198,7 @@
     "title": "账户详情 · 信用卡",
     "group": "补齐 · 账户与资产",
     "slug": "flow-account-credit-detail",
-    "fullHeight": 1231,
+    "fullHeight": 1369,
     "viewport": "screens/viewport/flow-account-credit-detail.png",
     "full": "screens/full/flow-account-credit-detail.png",
     "svg": "figma/flow-account-credit-detail.svg"
@@ -2208,7 +2208,7 @@
     "title": "账户详情 · 溢缴款",
     "group": "补齐 · 账户与资产",
     "slug": "flow-account-overpayment-detail",
-    "fullHeight": 1231,
+    "fullHeight": 1369,
     "viewport": "screens/viewport/flow-account-overpayment-detail.png",
     "full": "screens/full/flow-account-overpayment-detail.png",
     "svg": "figma/flow-account-overpayment-detail.svg"
@@ -2218,7 +2218,7 @@
     "title": "账户详情 · 未设额度",
     "group": "补齐 · 账户与资产",
     "slug": "flow-account-no-limit-detail",
-    "fullHeight": 1053,
+    "fullHeight": 1191,
     "viewport": "screens/viewport/flow-account-no-limit-detail.png",
     "full": "screens/full/flow-account-no-limit-detail.png",
     "svg": "figma/flow-account-no-limit-detail.svg"
@@ -2248,7 +2248,7 @@
     "title": "账户详情 · 空流水",
     "group": "补齐 · 账户与资产",
     "slug": "flow-account-empty-detail",
-    "fullHeight": 862,
+    "fullHeight": 853,
     "viewport": "screens/viewport/flow-account-empty-detail.png",
     "full": "screens/full/flow-account-empty-detail.png",
     "svg": "figma/flow-account-empty-detail.svg"
@@ -2256,9 +2256,9 @@
   {
     "route": "flow-tag-foreign-detail",
     "title": "标签详情 · 原币与多状态",
-    "group": "补齐 · 账户与资产",
+    "group": "补齐 · 标签与分类",
     "slug": "flow-tag-foreign-detail",
-    "fullHeight": 1486,
+    "fullHeight": 1400,
     "viewport": "screens/viewport/flow-tag-foreign-detail.png",
     "full": "screens/full/flow-tag-foreign-detail.png",
     "svg": "figma/flow-tag-foreign-detail.svg"
@@ -2266,9 +2266,9 @@
   {
     "route": "flow-tag-all-ledgers-detail",
     "title": "标签详情 · 全部账本",
-    "group": "补齐 · 账户与资产",
+    "group": "补齐 · 标签与分类",
     "slug": "flow-tag-all-ledgers-detail",
-    "fullHeight": 1504,
+    "fullHeight": 1480,
     "viewport": "screens/viewport/flow-tag-all-ledgers-detail.png",
     "full": "screens/full/flow-tag-all-ledgers-detail.png",
     "svg": "figma/flow-tag-all-ledgers-detail.svg"
@@ -2276,7 +2276,7 @@
   {
     "route": "flow-tag-empty-detail",
     "title": "标签详情 · 空记录",
-    "group": "补齐 · 账户与资产",
+    "group": "补齐 · 标签与分类",
     "slug": "flow-tag-empty-detail",
     "fullHeight": 844,
     "viewport": "screens/viewport/flow-tag-empty-detail.png",
@@ -3028,7 +3028,7 @@
     "title": "账单日历",
     "group": "补齐 · 常用流程",
     "slug": "flow-calendar",
-    "fullHeight": 1182,
+    "fullHeight": 1179,
     "viewport": "screens/viewport/flow-calendar.png",
     "full": "screens/full/flow-calendar.png",
     "svg": "figma/flow-calendar.svg"
@@ -4738,7 +4738,7 @@
     "title": "分类详情 · 当前账本本币与外币历史快照",
     "group": "分类与标签 · 汇总币种",
     "slug": "flow-detail-currency-category-current",
-    "fullHeight": 1348,
+    "fullHeight": 1379,
     "viewport": "screens/viewport/flow-detail-currency-category-current.png",
     "full": "screens/full/flow-detail-currency-category-current.png",
     "svg": "figma/flow-detail-currency-category-current.svg"
@@ -4748,7 +4748,7 @@
     "title": "分类详情 · 全部账本统一为CNY",
     "group": "分类与标签 · 汇总币种",
     "slug": "flow-detail-currency-category-all",
-    "fullHeight": 1568,
+    "fullHeight": 1651,
     "viewport": "screens/viewport/flow-detail-currency-category-all.png",
     "full": "screens/full/flow-detail-currency-category-all.png",
     "svg": "figma/flow-detail-currency-category-all.svg"
@@ -4758,7 +4758,7 @@
     "title": "分类详情 · 切当前账本为USD与反向汇率",
     "group": "分类与标签 · 汇总币种",
     "slug": "flow-detail-currency-category-usd",
-    "fullHeight": 1568,
+    "fullHeight": 1651,
     "viewport": "screens/viewport/flow-detail-currency-category-usd.png",
     "full": "screens/full/flow-detail-currency-category-usd.png",
     "svg": "figma/flow-detail-currency-category-usd.svg"
@@ -4768,7 +4768,7 @@
     "title": "分类详情 · 缺USD汇率禁止完整合计",
     "group": "分类与标签 · 汇总币种",
     "slug": "flow-detail-currency-category-missing",
-    "fullHeight": 1570,
+    "fullHeight": 1652,
     "viewport": "screens/viewport/flow-detail-currency-category-missing.png",
     "full": "screens/full/flow-detail-currency-category-missing.png",
     "svg": "figma/flow-detail-currency-category-missing.svg"
@@ -4778,7 +4778,7 @@
     "title": "分类详情 · 显式外币缺历史native",
     "group": "分类与标签 · 汇总币种",
     "slug": "flow-detail-currency-category-native-missing",
-    "fullHeight": 1567,
+    "fullHeight": 1652,
     "viewport": "screens/viewport/flow-detail-currency-category-native-missing.png",
     "full": "screens/full/flow-detail-currency-category-native-missing.png",
     "svg": "figma/flow-detail-currency-category-native-missing.svg"
@@ -4788,7 +4788,7 @@
     "title": "分类详情 · 旧null原币与空native合法本币",
     "group": "分类与标签 · 汇总币种",
     "slug": "flow-detail-currency-category-legacy",
-    "fullHeight": 1078,
+    "fullHeight": 1088,
     "viewport": "screens/viewport/flow-detail-currency-category-legacy.png",
     "full": "screens/full/flow-detail-currency-category-legacy.png",
     "svg": "figma/flow-detail-currency-category-legacy.svg"
@@ -4798,7 +4798,7 @@
     "title": "分类详情 · 来源或币种缺失",
     "group": "分类与标签 · 汇总币种",
     "slug": "flow-detail-currency-category-unknown",
-    "fullHeight": 1585,
+    "fullHeight": 1652,
     "viewport": "screens/viewport/flow-detail-currency-category-unknown.png",
     "full": "screens/full/flow-detail-currency-category-unknown.png",
     "svg": "figma/flow-detail-currency-category-unknown.svg"
@@ -4808,7 +4808,7 @@
     "title": "分类详情 · 陈旧有效缓存与日期",
     "group": "分类与标签 · 汇总币种",
     "slug": "flow-detail-currency-category-stale",
-    "fullHeight": 1583,
+    "fullHeight": 1666,
     "viewport": "screens/viewport/flow-detail-currency-category-stale.png",
     "full": "screens/full/flow-detail-currency-category-stale.png",
     "svg": "figma/flow-detail-currency-category-stale.svg"
@@ -4818,7 +4818,7 @@
     "title": "分类详情 · 无效直接手动率不得回退",
     "group": "分类与标签 · 汇总币种",
     "slug": "flow-detail-currency-category-invalid",
-    "fullHeight": 1570,
+    "fullHeight": 1652,
     "viewport": "screens/viewport/flow-detail-currency-category-invalid.png",
     "full": "screens/full/flow-detail-currency-category-invalid.png",
     "svg": "figma/flow-detail-currency-category-invalid.svg"
@@ -4828,7 +4828,7 @@
     "title": "分类详情 · 共享synthetic分类标签来源",
     "group": "分类与标签 · 汇总币种",
     "slug": "flow-detail-currency-category-shared",
-    "fullHeight": 1111,
+    "fullHeight": 1104,
     "viewport": "screens/viewport/flow-detail-currency-category-shared.png",
     "full": "screens/full/flow-detail-currency-category-shared.png",
     "svg": "figma/flow-detail-currency-category-shared.svg"
@@ -4838,7 +4838,7 @@
     "title": "分类详情 · 隐私不泄露金额与百分比",
     "group": "分类与标签 · 汇总币种",
     "slug": "flow-detail-currency-category-privacy",
-    "fullHeight": 1553,
+    "fullHeight": 1636,
     "viewport": "screens/viewport/flow-detail-currency-category-privacy.png",
     "full": "screens/full/flow-detail-currency-category-privacy.png",
     "svg": "figma/flow-detail-currency-category-privacy.svg"
@@ -4848,7 +4848,7 @@
     "title": "分类详情 · 隐私保留缺项状态",
     "group": "分类与标签 · 汇总币种",
     "slug": "flow-detail-currency-category-privacy-missing",
-    "fullHeight": 1570,
+    "fullHeight": 1652,
     "viewport": "screens/viewport/flow-detail-currency-category-privacy-missing.png",
     "full": "screens/full/flow-detail-currency-category-privacy-missing.png",
     "svg": "figma/flow-detail-currency-category-privacy-missing.svg"
@@ -4858,7 +4858,7 @@
     "title": "分类详情 · 月范围与二级分组",
     "group": "分类与标签 · 汇总币种",
     "slug": "flow-detail-currency-category-month",
-    "fullHeight": 1428,
+    "fullHeight": 1459,
     "viewport": "screens/viewport/flow-detail-currency-category-month.png",
     "full": "screens/full/flow-detail-currency-category-month.png",
     "svg": "figma/flow-detail-currency-category-month.svg"
@@ -4868,7 +4868,7 @@
     "title": "分类详情 · 年范围",
     "group": "分类与标签 · 汇总币种",
     "slug": "flow-detail-currency-category-year",
-    "fullHeight": 1522,
+    "fullHeight": 1579,
     "viewport": "screens/viewport/flow-detail-currency-category-year.png",
     "full": "screens/full/flow-detail-currency-category-year.png",
     "svg": "figma/flow-detail-currency-category-year.svg"
@@ -4888,7 +4888,7 @@
     "title": "标签详情 · 当前账本本币与外币历史快照",
     "group": "分类与标签 · 汇总币种",
     "slug": "flow-detail-currency-tag-current",
-    "fullHeight": 1181,
+    "fullHeight": 1222,
     "viewport": "screens/viewport/flow-detail-currency-tag-current.png",
     "full": "screens/full/flow-detail-currency-tag-current.png",
     "svg": "figma/flow-detail-currency-tag-current.svg"
@@ -4898,7 +4898,7 @@
     "title": "标签详情 · 全部账本统一为CNY",
     "group": "分类与标签 · 汇总币种",
     "slug": "flow-detail-currency-tag-all",
-    "fullHeight": 1439,
+    "fullHeight": 1546,
     "viewport": "screens/viewport/flow-detail-currency-tag-all.png",
     "full": "screens/full/flow-detail-currency-tag-all.png",
     "svg": "figma/flow-detail-currency-tag-all.svg"
@@ -4908,7 +4908,7 @@
     "title": "标签详情 · 切当前账本为USD与反向汇率",
     "group": "分类与标签 · 汇总币种",
     "slug": "flow-detail-currency-tag-usd",
-    "fullHeight": 1439,
+    "fullHeight": 1546,
     "viewport": "screens/viewport/flow-detail-currency-tag-usd.png",
     "full": "screens/full/flow-detail-currency-tag-usd.png",
     "svg": "figma/flow-detail-currency-tag-usd.svg"
@@ -4918,7 +4918,7 @@
     "title": "标签详情 · 缺USD汇率禁止完整合计",
     "group": "分类与标签 · 汇总币种",
     "slug": "flow-detail-currency-tag-missing",
-    "fullHeight": 1455,
+    "fullHeight": 1563,
     "viewport": "screens/viewport/flow-detail-currency-tag-missing.png",
     "full": "screens/full/flow-detail-currency-tag-missing.png",
     "svg": "figma/flow-detail-currency-tag-missing.svg"
@@ -4928,7 +4928,7 @@
     "title": "标签详情 · 显式外币缺历史native",
     "group": "分类与标签 · 汇总币种",
     "slug": "flow-detail-currency-tag-native-missing",
-    "fullHeight": 1452,
+    "fullHeight": 1563,
     "viewport": "screens/viewport/flow-detail-currency-tag-native-missing.png",
     "full": "screens/full/flow-detail-currency-tag-native-missing.png",
     "svg": "figma/flow-detail-currency-tag-native-missing.svg"
@@ -4948,7 +4948,7 @@
     "title": "标签详情 · 来源或币种缺失",
     "group": "分类与标签 · 汇总币种",
     "slug": "flow-detail-currency-tag-unknown",
-    "fullHeight": 1470,
+    "fullHeight": 1563,
     "viewport": "screens/viewport/flow-detail-currency-tag-unknown.png",
     "full": "screens/full/flow-detail-currency-tag-unknown.png",
     "svg": "figma/flow-detail-currency-tag-unknown.svg"
@@ -4958,7 +4958,7 @@
     "title": "标签详情 · 陈旧有效缓存与日期",
     "group": "分类与标签 · 汇总币种",
     "slug": "flow-detail-currency-tag-stale",
-    "fullHeight": 1454,
+    "fullHeight": 1561,
     "viewport": "screens/viewport/flow-detail-currency-tag-stale.png",
     "full": "screens/full/flow-detail-currency-tag-stale.png",
     "svg": "figma/flow-detail-currency-tag-stale.svg"
@@ -4968,7 +4968,7 @@
     "title": "标签详情 · 无效直接手动率不得回退",
     "group": "分类与标签 · 汇总币种",
     "slug": "flow-detail-currency-tag-invalid",
-    "fullHeight": 1455,
+    "fullHeight": 1563,
     "viewport": "screens/viewport/flow-detail-currency-tag-invalid.png",
     "full": "screens/full/flow-detail-currency-tag-invalid.png",
     "svg": "figma/flow-detail-currency-tag-invalid.svg"
@@ -4978,7 +4978,7 @@
     "title": "标签详情 · 共享synthetic分类标签来源",
     "group": "分类与标签 · 汇总币种",
     "slug": "flow-detail-currency-tag-shared",
-    "fullHeight": 850,
+    "fullHeight": 844,
     "viewport": "screens/viewport/flow-detail-currency-tag-shared.png",
     "full": "screens/full/flow-detail-currency-tag-shared.png",
     "svg": "figma/flow-detail-currency-tag-shared.svg"
@@ -4988,7 +4988,7 @@
     "title": "标签详情 · 隐私不泄露金额与百分比",
     "group": "分类与标签 · 汇总币种",
     "slug": "flow-detail-currency-tag-privacy",
-    "fullHeight": 1439,
+    "fullHeight": 1546,
     "viewport": "screens/viewport/flow-detail-currency-tag-privacy.png",
     "full": "screens/full/flow-detail-currency-tag-privacy.png",
     "svg": "figma/flow-detail-currency-tag-privacy.svg"
@@ -4998,7 +4998,7 @@
     "title": "标签详情 · 隐私保留缺项状态",
     "group": "分类与标签 · 汇总币种",
     "slug": "flow-detail-currency-tag-privacy-missing",
-    "fullHeight": 1455,
+    "fullHeight": 1563,
     "viewport": "screens/viewport/flow-detail-currency-tag-privacy-missing.png",
     "full": "screens/full/flow-detail-currency-tag-privacy-missing.png",
     "svg": "figma/flow-detail-currency-tag-privacy-missing.svg"
@@ -5008,7 +5008,7 @@
     "title": "标签详情 · 月范围与二级分组",
     "group": "分类与标签 · 汇总币种",
     "slug": "flow-detail-currency-tag-month",
-    "fullHeight": 1166,
+    "fullHeight": 1221,
     "viewport": "screens/viewport/flow-detail-currency-tag-month.png",
     "full": "screens/full/flow-detail-currency-tag-month.png",
     "svg": "figma/flow-detail-currency-tag-month.svg"
@@ -5018,7 +5018,7 @@
     "title": "标签详情 · 年范围",
     "group": "分类与标签 · 汇总币种",
     "slug": "flow-detail-currency-tag-year",
-    "fullHeight": 1326,
+    "fullHeight": 1408,
     "viewport": "screens/viewport/flow-detail-currency-tag-year.png",
     "full": "screens/full/flow-detail-currency-tag-year.png",
     "svg": "figma/flow-detail-currency-tag-year.svg"
@@ -5038,7 +5038,7 @@
     "title": "标签详情 · 自定义8日月边界",
     "group": "分类与标签 · 汇总币种",
     "slug": "flow-detail-currency-tag-custom-month",
-    "fullHeight": 865,
+    "fullHeight": 875,
     "viewport": "screens/viewport/flow-detail-currency-tag-custom-month.png",
     "full": "screens/full/flow-detail-currency-tag-custom-month.png",
     "svg": "figma/flow-detail-currency-tag-custom-month.svg"
@@ -5188,7 +5188,7 @@
     "title": "分享卡片",
     "group": "补齐 · 启动与分享",
     "slug": "flow-share-card",
-    "fullHeight": 844,
+    "fullHeight": 878,
     "viewport": "screens/viewport/flow-share-card.png",
     "full": "screens/full/flow-share-card.png",
     "svg": "figma/flow-share-card.svg"
@@ -5198,7 +5198,7 @@
     "title": "分享卡片",
     "group": "补齐 · 启动与分享",
     "slug": "flow-share-card-app",
-    "fullHeight": 868,
+    "fullHeight": 878,
     "viewport": "screens/viewport/flow-share-card-app.png",
     "full": "screens/full/flow-share-card-app.png",
     "svg": "figma/flow-share-card-app.svg"
@@ -5208,7 +5208,7 @@
     "title": "分享卡片",
     "group": "补齐 · 启动与分享",
     "slug": "flow-share-card-month",
-    "fullHeight": 844,
+    "fullHeight": 950,
     "viewport": "screens/viewport/flow-share-card-month.png",
     "full": "screens/full/flow-share-card-month.png",
     "svg": "figma/flow-share-card-month.svg"
@@ -5218,7 +5218,7 @@
     "title": "分享卡片",
     "group": "补齐 · 启动与分享",
     "slug": "flow-share-card-year",
-    "fullHeight": 914,
+    "fullHeight": 953,
     "viewport": "screens/viewport/flow-share-card-year.png",
     "full": "screens/full/flow-share-card-year.png",
     "svg": "figma/flow-share-card-year.svg"
@@ -5228,7 +5228,7 @@
     "title": "分享卡片",
     "group": "补齐 · 启动与分享",
     "slug": "flow-share-card-ledger",
-    "fullHeight": 844,
+    "fullHeight": 946,
     "viewport": "screens/viewport/flow-share-card-ledger.png",
     "full": "screens/full/flow-share-card-ledger.png",
     "svg": "figma/flow-share-card-ledger.svg"
@@ -5238,7 +5238,7 @@
     "title": "分享卡片",
     "group": "补齐 · 启动与分享",
     "slug": "flow-share-card-private",
-    "fullHeight": 844,
+    "fullHeight": 947,
     "viewport": "screens/viewport/flow-share-card-private.png",
     "full": "screens/full/flow-share-card-private.png",
     "svg": "figma/flow-share-card-private.svg"
@@ -5268,7 +5268,7 @@
     "title": "分享卡片",
     "group": "补齐 · 启动与分享",
     "slug": "flow-share-card-long",
-    "fullHeight": 844,
+    "fullHeight": 894,
     "viewport": "screens/viewport/flow-share-card-long.png",
     "full": "screens/full/flow-share-card-long.png",
     "svg": "figma/flow-share-card-long.svg"
