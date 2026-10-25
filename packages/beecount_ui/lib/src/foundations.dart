@@ -133,6 +133,8 @@ class BeeField extends StatelessWidget {
       this.keyboardType,
       this.maxLength,
       this.maxLines = 1,
+      this.minLines,
+      this.textStyle,
       this.readOnly = false,
       this.focusNode,
       this.prefixIcon,
@@ -151,6 +153,8 @@ class BeeField extends StatelessWidget {
   final TextInputType? keyboardType;
   final int? maxLength;
   final int maxLines;
+  final int? minLines;
+  final TextStyle? textStyle;
   final bool readOnly;
   final FocusNode? focusNode;
   final Widget? prefixIcon, suffixIcon;
@@ -180,7 +184,8 @@ class BeeField extends StatelessWidget {
           keyboardType: keyboardType,
           maxLength: maxLength,
           maxLines: maxLines,
-          style: const TextStyle(fontSize: 13),
+          minLines: minLines,
+          style: textStyle ?? const TextStyle(fontSize: 13),
           decoration: InputDecoration(
               prefixIcon: prefixIcon,
               suffixIcon: suffixIcon,

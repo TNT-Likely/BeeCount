@@ -7,6 +7,7 @@ export 'src/hsv_color_picker.dart';
 export 'src/foundations.dart';
 export 'src/dialogs.dart';
 export 'src/controls.dart';
+export 'src/code_components.dart';
 export 'src/form_components.dart';
 export 'src/selection_components.dart';
 export 'src/layout_components.dart';

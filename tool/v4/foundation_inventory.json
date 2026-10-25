@@ -611,6 +611,33 @@
         "noninteractive"
       ],
       "sampleCoverage": "14: static neutral/accent/leading/muted metadata with no button semantics"
+    },
+    {
+      "component": "BeeCodeEditor",
+      "supportedStates": [
+        "草稿输入",
+        "多行与行数约束",
+        "只读",
+        "外置无障碍标签",
+        "长文本换行"
+      ],
+      "cases": [
+        2
+      ],
+      "sampleCoverage": "3: editable/read-only multiline template and selectable wrapping code text; 13px/20px line grid and 13px radius"
+    },
+    {
+      "component": "BeeCodeBlock",
+      "supportedStates": [
+        "可选择",
+        "长文本换行",
+        "浅深色",
+        "代码字体"
+      ],
+      "cases": [
+        2
+      ],
+      "sampleCoverage": "3: editable/read-only multiline template and selectable wrapping code text; 13px/20px line grid and 13px radius"
     }
   ]
 }

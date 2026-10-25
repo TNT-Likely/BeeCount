@@ -53,11 +53,13 @@ class _FoundationAcceptancePageState extends State<FoundationAcceptancePage> {
   final form = GlobalKey<FormState>();
   final nameController = TextEditingController();
   final readonlyController = TextEditingController(text: '可复制的只读内容');
+  final codeController = TextEditingController(text: 'template {{VALUE}}');
   final fieldFocus = FocusNode();
   @override
   void dispose() {
     nameController.dispose();
     readonlyController.dispose();
+    codeController.dispose();
     fieldFocus.dispose();
     super.dispose();
   }
@@ -157,6 +159,16 @@ class _FoundationAcceptancePageState extends State<FoundationAcceptancePage> {
                 label: '外置字段标题', hint: '不重复浮动标题，保留无障碍标签', showLabel: false),
             const SizedBox(height: 16),
             const BeeField(label: '备注', maxLines: 3, maxLength: 100),
+            const SizedBox(height: 16),
+            BeeCodeEditor(
+                label: '代码与模板',
+                controller: codeController,
+                minLines: 3,
+                maxLines: 6,
+                onChanged: (v) => record('代码已修改')),
+            const SizedBox(height: 8),
+            const BeeCodeBlock(
+                text: 'source {{VALUE}}\nSelectable and wrapping'),
             BeeSearchField(
                 hint: '搜索账单',
                 clearLabel: '清空搜索',
