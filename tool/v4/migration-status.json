@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25T18:18:10+08:00",
+  "updated": "2026-10-25T18:36:36+08:00",
   "branch": "v4",
   "baselineCommit": "6616066247a8738a42996c496e1b99106820e59f",
   "pages": {
@@ -336,16 +336,19 @@
     "main/home_page.dart": {
       "name": "首页明细",
       "priority": "P0",
-      "reason": "R106真实iOS首笔账单保存后发现列表重复订阅报错；原有R50验收保留为历史证据，当前重新打开首页验收。d8cc3506已修复，22项首页回归通过，等待同QA原生复验。",
-      "status": "迁移中·iOS键盘回归修复待原生复验",
+      "reason": "原R50完整验收基础上，R106新iOS键盘回归重新打开后已由R108增量闭环：真实Repo红绿、iOS完整键盘取消/三笔/同次正常main、Android既有USD转账备注取消及共享正常重启。Root核图与31表/文件/业务Prefs守卫后封存。",
+      "status": "已完成",
       "components": "BeeHomeLayout、身份/月汇总/预算、真实账本选择、虚拟账单流、受控扇形菜单与原底部栏",
-      "acceptance": "真实首笔32.50已保存且SQL正确，不重复创建。跨620高度父树重建导致旧single stream重复监听；稳定journal GlobalKey保留列表状态。纯测RED复现原StateError，GREEN验证长短屏往返与真实新增，3文件22项/analysis0；未改Repository/金融口径。原生验证通过前不计完整页。",
+      "acceptance": "R108只加稳定journal GlobalKey，Repository/金额口径不变；3文件22项回归/2文件analysis0。iOS独立Home case exit0，完整键盘与正常入口后稳定图及31表/3笔守卫；Android64/57/原5附件+3图保持。Android帧只证明备注聚焦，不伪称完整OS键盘。初次startup UI树IllegalStateException及iOS大case AX驱动失败均保留，原固定版本Home功能范围仍按R50，不冒称iOS全部菜单重跑。增量独立home-keyboard-r108三宽/ZIP/脱敏只读封存。",
       "previousAcceptanceBeforeRegression": {
         "status": "已完成",
         "reason": "R50实际生产UI、独立SQL/文件、原数据保持、正常launcher重启与独立报告闭环；Q01行点击保留原编辑，新增独立详情另列。",
         "acceptance": "280项相关回归/36文件通过；R50品牌重启、隐私、滚轮取消、分类/标签/附件目标、批量48/筛选/日历、复制取消、小票实际关闭、空USD切换/缓存、左滑删除取消、原长按动作取消和正常重启通过。独立SQL核对支出3421.56/收入264.27及预算已用3220.72；原52笔/当前48/5附件/2分类图片及全部原业务行不变。报告home-r50，22图/三宽度/ZIP通过。Cloud/iOS/付费AI和独立目的页不计本页范围；Q01/Q07保留原规则。"
       },
-      "implementationStage": "implemented"
+      "implementationStage": "implemented",
+      "incrementalAcceptanceReports": [
+        ".docs/acceptance/v4-migration/2026-10-25/home-keyboard-r108/index.html"
+      ]
     },
     "main/ledgers_page_new.dart": {
       "name": "账本管理与切换",
@@ -480,11 +483,12 @@
     "settings/log_center_page.dart": {
       "name": "日志中心",
       "priority": "P2",
-      "reason": "R103四个维护页及纯业务组件/App绑定已提交a0dadeed，原四日志级别/来源筛选、14孤儿类型与清理范围、9桌面组件预览保留；74项UI/日志/SQLite边界回归及18文件静态检查通过。两个数据安全修复独立提交，尚未原生整页验收，不计完成。",
-      "status": "迁移中·代码与本地回归已交付，待统一产物和整页验收",
+      "reason": "R105功能与R108视觉增量经Root独立审阅封存；实际四级别/两来源状态、搜索空态、复制详情、清空取消确认、安全空导出取消和正常入口闭环，范围及失败分列。",
+      "status": "已完成",
       "components": "级别/来源多选、搜索、统计、日志行与堆栈详情",
-      "acceptance": "统一候选R104源码cabfaff9，983个产品文件与构建产物逐字匹配；已构建未安装。整页生产UI、数据保护与正常入口重启仍待执行；不把单元/widget、HTML或构建成功计为整页完成。",
-      "implementationStage": "implemented"
+      "acceptance": "R105真实2398→0且旧2395 fingerprints不回灌，安全空日志系统Chooser取消、复制反馈；R108六个checked/checkable逐项false→true、主题紧凑选择与SearchField、安全搜索/空态/恢复及一次共享正常main。24源码单元独立核，清空/导出/复制/详情函数字节相同。R10746维护回归与实际原生区分；剪贴板读回/非空外发/iOS/权限故障NOT_RUN。logs-r108独立9图/三宽/ZIP/manifest/脱敏并只读封存。",
+      "implementationStage": "implemented",
+      "acceptanceReport": ".docs/acceptance/v4-migration/2026-10-25/logs-r108/index.html"
     },
     "settings/personalize_page.dart": {
       "name": "主题色与自定义配色",
@@ -912,17 +916,17 @@
     "reason": "按用户要求临时关闭，避免每次推送触发PR的AI Eval；v4继续开发和推送，全部迁移与验收准备好再恢复PR。"
   },
   "currentProgress": {
-    "updatedAt": "2026-10-25T18:18:10+08:00",
-    "engineeringEstimatePercent": 74,
+    "updatedAt": "2026-10-25T18:36:36+08:00",
+    "engineeringEstimatePercent": 75,
     "engineeringEstimateRange": [
-      71,
-      77
+      72,
+      78
     ],
-    "completedPages": 51,
+    "completedPages": 53,
     "totalPages": 73,
     "totalP0Pages": 17,
-    "completedP0Pages": 16,
-    "basis": "严格51/73，P0为16/17：首页新iOS键盘回归已修复，原生复验进行中；iOS自动记账说明与桌面小组件管理新增完成。安卓/iOS专职连续，独立报告/后端字段核对并行；Cloud、文件恢复和系统边界仍需实际闭环。",
+    "completedP0Pages": 17,
+    "basis": "严格53/73，P0恢复17/17：新iOS首页键盘真实回归R108闭环，日志R105功能+R108视觉增量封存。周期双页与年度/三总结已实际执行、报告核对继续但未提前计页。安卓专职文件/Cloud、iOS权限、离线报告与后端字段比较并行；Cloud双向/文件恢复及SDK边界仍是主要剩余量，工时暂维持10–20小时。",
     "remainingEffortEstimateHours": [
       10,
       20
@@ -932,20 +936,30 @@
   "lastImplementationDelivery": {
     "at": "2026-10-25T15:30:48+08:00",
     "commit": "cabfaff9aa8796f161396a108e2105daa7992532",
-    "completedNativePages": 51,
-    "implementedPendingNativePages": 22,
+    "completedNativePages": 53,
+    "implementedPendingNativePages": 20,
     "inImplementationPages": 0,
     "candidateInstalled": false,
-    "latestNativeAuditAt": "2026-10-25T17:39:44+08:00"
+    "latestNativeAuditAt": "2026-10-25T18:36:36+08:00"
   },
-  "openRegressions": [
+  "openRegressions": [],
+  "resolvedRegressions": [
     {
       "id": "R108-HOME-KEYBOARD",
       "page": "main/home_page.dart",
-      "status": "源码修复，原生待复验",
+      "status": "R108源码与原生增量已闭环",
       "reportedPlatform": "iOS 26.5 / R106",
       "sourceFix": "d8cc3506",
-      "summary": "备注键盘导致首页跨紧凑布局边界，列表重复订阅；账单数据保存正确，不重复造数据。"
+      "summary": "备注键盘导致首页跨紧凑布局边界，列表重复订阅；账单数据保存正确，不重复造数据。",
+      "resolvedAt": "2026-10-25T18:36:36+08:00",
+      "report": "home-keyboard-r108"
     }
-  ]
+  ],
+  "latestInstalledCandidate": {
+    "sourceCommit": "d8cc35067dc0fc8a2a6a6e465df4f8f9d160e54b",
+    "androidApkSha256": "33f409cfb3ed1622fb76c2857d4f03a2d2e45b479370c3276e5f7a46116b701d",
+    "iosSignedFileTreeSha256": "435d982c4f23297998933881605e4fa1e00d7da32f821d4e1e698c9d7366745c",
+    "sameRetainedQA": true,
+    "qaDataPreserved": true
+  }
 }
