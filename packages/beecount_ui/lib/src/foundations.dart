@@ -550,10 +550,15 @@ class BeeProgress extends StatelessWidget {
 
 class BeeSheet extends StatelessWidget {
   const BeeSheet(
-      {super.key, required this.title, required this.child, this.footer});
+      {super.key,
+      required this.title,
+      required this.child,
+      this.footer,
+      this.onClose});
   final String title;
   final Widget child;
   final Widget? footer;
+  final VoidCallback? onClose;
   @override
   Widget build(BuildContext context) => SafeArea(
       top: false,
@@ -576,7 +581,7 @@ class BeeSheet extends StatelessWidget {
                       child: Text(title,
                           style: const TextStyle(
                               fontSize: 16, fontWeight: FontWeight.w600))),
-                  CloseButton()
+                  CloseButton(onPressed: onClose)
                 ]),
                 Flexible(child: child),
                 if (footer != null) ...[const SizedBox(height: 12), footer!],

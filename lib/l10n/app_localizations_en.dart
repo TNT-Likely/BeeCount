@@ -733,6 +733,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get splashSecurityFeature3 => '• Optional cloud sync, consistent data across devices';
 
   @override
+  String get splashPreparingRecords => 'Getting your records ready';
+
+  @override
+  String get splashSecuritySummary => 'Local data · Open source';
+
+  @override
+  String get splashSecurityCaption => 'Optional cloud sync. Your data, your choice.';
+
+  @override
+  String get splashSecurityLocalTitle => 'Local storage';
+
+  @override
+  String get splashSecurityOpenTitle => 'Open source';
+
+  @override
+  String get splashSecuritySyncTitle => 'Optional cloud sync';
+
+  @override
+  String get splashSecurityFootnote => 'Start without an account. Cloud sync is optional.';
+
+  @override
   String get splashInitializing => 'Initializing data...';
 
   @override

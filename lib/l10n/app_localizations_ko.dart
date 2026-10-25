@@ -733,6 +733,27 @@ class AppLocalizationsKo extends AppLocalizations {
   String get splashSecurityFeature3 => '• 선택적 클라우드 동기화로 기기 간 데이터 일치';
 
   @override
+  String get splashPreparingRecords => 'Getting your records ready';
+
+  @override
+  String get splashSecuritySummary => 'Local data · Open source';
+
+  @override
+  String get splashSecurityCaption => 'Optional cloud sync. Your data, your choice.';
+
+  @override
+  String get splashSecurityLocalTitle => 'Local storage';
+
+  @override
+  String get splashSecurityOpenTitle => 'Open source';
+
+  @override
+  String get splashSecuritySyncTitle => 'Optional cloud sync';
+
+  @override
+  String get splashSecurityFootnote => 'Start without an account. Cloud sync is optional.';
+
+  @override
   String get splashInitializing => '데이터 초기화 중...';
 
   @override

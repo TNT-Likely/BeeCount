@@ -1418,6 +1418,48 @@ abstract class AppLocalizations {
   /// **'• Optional cloud sync, consistent data across devices'**
   String get splashSecurityFeature3;
 
+  /// No description provided for @splashPreparingRecords.
+  ///
+  /// In en, this message translates to:
+  /// **'Getting your records ready'**
+  String get splashPreparingRecords;
+
+  /// No description provided for @splashSecuritySummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Local data · Open source'**
+  String get splashSecuritySummary;
+
+  /// No description provided for @splashSecurityCaption.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional cloud sync. Your data, your choice.'**
+  String get splashSecurityCaption;
+
+  /// No description provided for @splashSecurityLocalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Local storage'**
+  String get splashSecurityLocalTitle;
+
+  /// No description provided for @splashSecurityOpenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Open source'**
+  String get splashSecurityOpenTitle;
+
+  /// No description provided for @splashSecuritySyncTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional cloud sync'**
+  String get splashSecuritySyncTitle;
+
+  /// No description provided for @splashSecurityFootnote.
+  ///
+  /// In en, this message translates to:
+  /// **'Start without an account. Cloud sync is optional.'**
+  String get splashSecurityFootnote;
+
   /// No description provided for @splashInitializing.
   ///
   /// In en, this message translates to:

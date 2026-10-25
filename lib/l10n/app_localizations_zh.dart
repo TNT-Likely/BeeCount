@@ -733,6 +733,27 @@ class AppLocalizationsZh extends AppLocalizations {
   String get splashSecurityFeature3 => '• 可选云端同步，多设备数据一致';
 
   @override
+  String get splashPreparingRecords => '正在准备你的记录';
+
+  @override
+  String get splashSecuritySummary => '本地存储 · 开源透明';
+
+  @override
+  String get splashSecurityCaption => '云同步由你选择，数据始终由你掌握';
+
+  @override
+  String get splashSecurityLocalTitle => '数据本地存储';
+
+  @override
+  String get splashSecurityOpenTitle => '开源代码透明';
+
+  @override
+  String get splashSecuritySyncTitle => '可选云端同步';
+
+  @override
+  String get splashSecurityFootnote => '无需账号也能开始记录，云端同步由你选择。';
+
+  @override
   String get splashInitializing => '正在初始化数据...';
 
   @override
