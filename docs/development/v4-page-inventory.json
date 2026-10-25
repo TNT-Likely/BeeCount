@@ -297,11 +297,11 @@
       "designMapping": "已定位",
       "components": "消息、配置表单、授权、任务状态与列表",
       "acceptance": "沿用原 AI 服务与权限，保留配置草稿、能力绑定、执行反馈、失败重试和取消。",
-      "status": "迁移中·核对原功能并组件化，本地回归中",
+      "status": "迁移中·代码与本地回归已交付，待目录集成及整页验收",
       "name": "AI 活动记录",
       "priority": "P2",
-      "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
-      "implementationStage": "in_progress",
+      "reason": "r101三页保持原9项权限/两种模式/作用范围、记忆查看与遗忘/清空及最近30次活动，72项相关回归/14文件静态通过；原8依赖及测试业务断言完整，未执行模型/工具或原生UI，不计完整页。",
+      "implementationStage": "implemented",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-activity"
       ]
@@ -352,11 +352,11 @@
       "designMapping": "已定位",
       "components": "消息、配置表单、授权、任务状态与列表",
       "acceptance": "沿用原 AI 服务与权限，保留配置草稿、能力绑定、执行反馈、失败重试和取消。",
-      "status": "迁移中·核对原功能并组件化，本地回归中",
+      "status": "迁移中·代码与本地回归已交付，待目录集成及整页验收",
       "name": "AI 记忆管理",
       "priority": "P2",
-      "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
-      "implementationStage": "in_progress",
+      "reason": "r101三页保持原9项权限/两种模式/作用范围、记忆查看与遗忘/清空及最近30次活动，72项相关回归/14文件静态通过；原8依赖及测试业务断言完整，未执行模型/工具或原生UI，不计完整页。",
+      "implementationStage": "implemented",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-memory"
       ]
@@ -374,11 +374,11 @@
       "designMapping": "已定位",
       "components": "消息、配置表单、授权、任务状态与列表",
       "acceptance": "沿用原 AI 服务与权限，保留配置草稿、能力绑定、执行反馈、失败重试和取消。",
-      "status": "迁移中·核对原功能并组件化，本地回归中",
+      "status": "迁移中·代码与本地回归已交付，待目录集成及整页验收",
       "name": "AI 权限管理",
       "priority": "P2",
-      "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
-      "implementationStage": "in_progress",
+      "reason": "r101三页保持原9项权限/两种模式/作用范围、记忆查看与遗忘/清空及最近30次活动，72项相关回归/14文件静态通过；原8依赖及测试业务断言完整，未执行模型/工具或原生UI，不计完整页。",
+      "implementationStage": "implemented",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-permissions"
       ]
@@ -1527,10 +1527,11 @@
       "designMapping": "已定位",
       "components": "清理概览、选择、确认与结果状态",
       "acceptance": "沿用实际孤儿数据判断，预览/取消/确认、数量、失败反馈和数据安全。",
-      "status": "待迁移",
+      "status": "迁移中·核对原范围与组件化，日志技术修复及本地回归中",
       "name": "孤儿数据清理",
       "priority": "P2",
       "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
+      "implementationStage": "in_progress",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-orphan"
       ]
@@ -1903,10 +1904,11 @@
       "designMapping": "已定位",
       "components": "级别/来源多选、搜索、统计、日志行与堆栈详情",
       "acceptance": "保留 DEBUG/INFO/WARN/ERROR、Flutter/当前平台、多选/搜索、详情/复制、导出与清空确认。",
-      "status": "待迁移",
+      "status": "迁移中·核对原范围与组件化，日志技术修复及本地回归中",
       "name": "日志中心",
       "priority": "P2",
       "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
+      "implementationStage": "in_progress",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-logs",
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-log-detail"
@@ -2068,10 +2070,11 @@
       "designMapping": "已定位",
       "components": "分组菜单、输入/选择/开关、弹窗与状态",
       "acceptance": "逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。",
-      "status": "待迁移",
+      "status": "迁移中·核对原范围与组件化，日志技术修复及本地回归中",
       "name": "存储空间管理",
       "priority": "P2",
       "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
+      "implementationStage": "in_progress",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-storage"
       ]
@@ -2089,10 +2092,11 @@
       "designMapping": "已定位",
       "components": "分组菜单、输入/选择/开关、弹窗与状态",
       "acceptance": "逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。",
-      "status": "待迁移",
+      "status": "迁移中·核对原范围与组件化，日志技术修复及本地回归中",
       "name": "桌面小组件管理",
       "priority": "P2",
       "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
+      "implementationStage": "in_progress",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-widgets"
       ]

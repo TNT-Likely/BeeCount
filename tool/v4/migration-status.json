@@ -38,11 +38,11 @@
     "ai/agent_activity_page.dart": {
       "name": "AI 活动记录",
       "priority": "P2",
-      "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
-      "status": "迁移中·核对原功能并组件化，本地回归中",
+      "reason": "r101三页保持原9项权限/两种模式/作用范围、记忆查看与遗忘/清空及最近30次活动，72项相关回归/14文件静态通过；原8依赖及测试业务断言完整，未执行模型/工具或原生UI，不计完整页。",
+      "status": "迁移中·代码与本地回归已交付，待目录集成及整页验收",
       "components": "消息、配置表单、授权、任务状态与列表",
       "acceptance": "沿用原 AI 服务与权限，保留配置草稿、能力绑定、执行反馈、失败重试和取消。",
-      "implementationStage": "in_progress"
+      "implementationStage": "implemented"
     },
     "ai/agent_assistant_settings_page.dart": {
       "name": "AI 助手设置",
@@ -55,20 +55,20 @@
     "ai/agent_memory_page.dart": {
       "name": "AI 记忆管理",
       "priority": "P2",
-      "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
-      "status": "迁移中·核对原功能并组件化，本地回归中",
+      "reason": "r101三页保持原9项权限/两种模式/作用范围、记忆查看与遗忘/清空及最近30次活动，72项相关回归/14文件静态通过；原8依赖及测试业务断言完整，未执行模型/工具或原生UI，不计完整页。",
+      "status": "迁移中·代码与本地回归已交付，待目录集成及整页验收",
       "components": "消息、配置表单、授权、任务状态与列表",
       "acceptance": "沿用原 AI 服务与权限，保留配置草稿、能力绑定、执行反馈、失败重试和取消。",
-      "implementationStage": "in_progress"
+      "implementationStage": "implemented"
     },
     "ai/agent_permissions_page.dart": {
       "name": "AI 权限管理",
       "priority": "P2",
-      "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
-      "status": "迁移中·核对原功能并组件化，本地回归中",
+      "reason": "r101三页保持原9项权限/两种模式/作用范围、记忆查看与遗忘/清空及最近30次活动，72项相关回归/14文件静态通过；原8依赖及测试业务断言完整，未执行模型/工具或原生UI，不计完整页。",
+      "status": "迁移中·代码与本地回归已交付，待目录集成及整页验收",
       "components": "消息、配置表单、授权、任务状态与列表",
       "acceptance": "沿用原 AI 服务与权限，保留配置草稿、能力绑定、执行反馈、失败重试和取消。",
-      "implementationStage": "in_progress"
+      "implementationStage": "implemented"
     },
     "ai/ai_chat_page.dart": {
       "name": "AI 对话与执行",
@@ -360,9 +360,10 @@
       "name": "孤儿数据清理",
       "priority": "P2",
       "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
-      "status": "待迁移",
+      "status": "迁移中·核对原范围与组件化，日志技术修复及本地回归中",
       "components": "清理概览、选择、确认与结果状态",
-      "acceptance": "沿用实际孤儿数据判断，预览/取消/确认、数量、失败反馈和数据安全。"
+      "acceptance": "沿用实际孤儿数据判断，预览/取消/确认、数量、失败反馈和数据安全。",
+      "implementationStage": "in_progress"
     },
     "report/annual_report_page.dart": {
       "name": "年度账单",
@@ -467,9 +468,10 @@
       "name": "日志中心",
       "priority": "P2",
       "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
-      "status": "待迁移",
+      "status": "迁移中·核对原范围与组件化，日志技术修复及本地回归中",
       "components": "级别/来源多选、搜索、统计、日志行与堆栈详情",
-      "acceptance": "保留 DEBUG/INFO/WARN/ERROR、Flutter/当前平台、多选/搜索、详情/复制、导出与清空确认。"
+      "acceptance": "保留 DEBUG/INFO/WARN/ERROR、Flutter/当前平台、多选/搜索、详情/复制、导出与清空确认。",
+      "implementationStage": "in_progress"
     },
     "settings/personalize_page.dart": {
       "name": "主题色与自定义配色",
@@ -517,17 +519,19 @@
       "name": "存储空间管理",
       "priority": "P2",
       "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
-      "status": "待迁移",
+      "status": "迁移中·核对原范围与组件化，日志技术修复及本地回归中",
       "components": "分组菜单、输入/选择/开关、弹窗与状态",
-      "acceptance": "逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。"
+      "acceptance": "逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。",
+      "implementationStage": "in_progress"
     },
     "settings/widget_management_page.dart": {
       "name": "桌面小组件管理",
       "priority": "P2",
       "reason": "低频配置、诊断、引导或支持内容，后置迁移并保留原入口。",
-      "status": "待迁移",
+      "status": "迁移中·核对原范围与组件化，日志技术修复及本地回归中",
       "components": "分组菜单、输入/选择/开关、弹窗与状态",
-      "acceptance": "逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。"
+      "acceptance": "逐项核对原字段/默认值/选项、平台条件、保存/取消/返回；原弹窗保持弹窗。",
+      "implementationStage": "in_progress"
     },
     "tag/tag_detail_page.dart": {
       "name": "标签详情",
@@ -781,12 +785,12 @@
   "fullMigrationBaselineCommit": "9b87aa06177616174e27c52c847cb20de6edede5",
   "completionStandard": "docs/development/v4-page-completion.md",
   "lastProgressReport": {
-    "reportedAt": "2026-10-25T14:01:01+08:00",
-    "scheduledReportAt": "2026-10-25T13:54:00+08:00",
-    "engineeringEstimatePercent": 58,
+    "reportedAt": "2026-10-25T14:56:01+08:00",
+    "scheduledReportAt": "2026-10-25T14:54:00+08:00",
+    "engineeringEstimatePercent": 64,
     "engineeringEstimateRange": [
-      56,
-      60
+      61,
+      67
     ],
     "completedPages": 39,
     "totalPages": 73,
@@ -833,20 +837,24 @@
       "新增与编辑标签",
       "标签管理"
     ],
-    "newlyCompletedSincePreviousReport": [
-      "AI 对话与执行"
-    ],
+    "newlyCompletedSincePreviousReport": [],
     "inProgress": [
-      "R85真实指定模型查询、停止/拒绝/一次授权、编辑备注/切账本/撤销、消息操作与正常重启闭环封存；57笔原交易/24账户/5附件及原偏好保持。",
-      "周期列表、导入两页、导出、年度、周期编辑、云配置与登录共8页代码待统一集成与整页验收；自动记账两页本地实现待HTML与后续验收，不计完整。",
-      "Q01 B、Q04 A、Q06 B、Q09 B、Q15 A、Q18 A已获用户确认；转账及账单详情优先实施，Cloud备份同步并行，其他不确定项继续保留旧行为。",
-      "仍复用唯一隔离QA环境、保留旧页备份和用户原包数据；v4推送继续，PR575保持关闭。"
+      "本小时无新增严格整页；R96同一QA实际转账保存/取消/编辑/正常重启及原57笔/8数据文件/全部其他表和业务偏好保护已封存为检查点，保留2条自有转账，现59笔/当前55笔。未以检查点替代整页。",
+      "25页代码与本地回归已交付，9页实现/审计中；当前全局526场景/94规范、72组Flutter业务目录、原0..65索引保持、所有设计链接和三宽度已通过。新统一产物排队构建与真实UI验收。",
+      "原产品问题均已答复，汇总按原账本历史金额/查询时汇率，当前周期平均按已发生时间，原模板/授权等保持；5项技术核对单列。",
+      "分工改为两路实现/一路集成准备，root串行真机与Cloud。持久UI驱动真实搜索/输入/返回约2.92秒，6次查询均值约0.046秒，四个拒绝守卫通过，DB/附件不变；尚不按单项基准外推全部工时。",
+      "同一隔离App/数据保留，新增同run隔离Cloud已验证新数据库及路径身份，尚未宣称真实同步通过；v4持续提交，PR575保持关闭。"
     ],
     "remainingEffortEstimateHours": [
       12,
       24
     ],
-    "remainingEffortChangeReason": "较12:54串行18–38小时调整为三路子代理并行后12–24小时连续工作暂估。各页代码/组件/本地回归可并行；统一真机、真实Cloud闭环和报告仍串行，不能按页数或已经过去的墙钟时间扣减。估算并非承诺，后续根据实际封存产出复核。"
+    "remainingEffortChangeReason": "较上次并行暂估12–24小时维持。代码与集成明显增加且设备驱动开销实测降低，但本小时严格整页尚未增加，真实Cloud/角色/同步/原生文件流程与报告仍需串行闭环；不按已写完页面数或单次0.046秒查询基准线性外推，估算不是承诺。",
+    "implementationStateCounts": {
+      "done": 39,
+      "implemented": 25,
+      "in_progress": 9
+    }
   },
   "pullRequest": {
     "number": 575,
@@ -856,7 +864,7 @@
     "reason": "按用户要求临时关闭，避免每次推送触发PR的AI Eval；v4继续开发和推送，全部迁移与验收准备好再恢复PR。"
   },
   "currentProgress": {
-    "updatedAt": "2026-10-25T14:27:50+08:00",
+    "updatedAt": "2026-10-25T14:56:01+08:00",
     "engineeringEstimatePercent": 64,
     "engineeringEstimateRange": [
       61,
@@ -864,7 +872,7 @@
     ],
     "completedPages": 39,
     "totalPages": 73,
-    "basis": "严格整页39/73不变；同页CNY/USD转账实际UI保存/取消/编辑/正常重启和原57笔/附件保持已通过，新增两笔合成转账保留共59笔，检查点待封存。导入导出/周期/年度小票/云配置等已分领域提交并接入真实预览，429场景/88规范与三宽度检查通过；详情及跨账本汇总本地回归通过，Cloud共享/分享继续实施。工程估计包括实现与集成工作，绝不等同严格整页比例。原产品问题全部已答，技术和平台边界继续分别验收。",
+    "basis": "严格39/73与25页代码待验收、9页实现/审计分开；R96实际转账检查点封存、统一526场景/94规范及72业务目录已集成。驱动真实UI操作已提速，但原生/Cloud整页闭环仍串行，不把代码量或局部回归计完成。",
     "remainingEffortEstimateHours": [
       12,
       24
