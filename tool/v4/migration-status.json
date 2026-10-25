@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25T17:39:44+08:00",
+  "updated": "2026-10-25T17:56:19+08:00",
   "branch": "v4",
   "baselineCommit": "6616066247a8738a42996c496e1b99106820e59f",
   "pages": {
@@ -807,16 +807,16 @@
   "fullMigrationBaselineCommit": "9b87aa06177616174e27c52c847cb20de6edede5",
   "completionStandard": "docs/development/v4-page-completion.md",
   "lastProgressReport": {
-    "reportedAt": "2026-10-25T16:56:54+08:00",
-    "scheduledReportAt": "2026-10-25T16:54:00+08:00",
-    "engineeringEstimatePercent": 69,
+    "reportedAt": "2026-10-25T17:56:19+08:00",
+    "scheduledReportAt": "2026-10-25T17:54:00+08:00",
+    "engineeringEstimatePercent": 74,
     "engineeringEstimateRange": [
-      66,
-      72
+      71,
+      77
     ],
-    "completedPages": 42,
+    "completedPages": 50,
     "totalPages": 73,
-    "completedP0Pages": 15,
+    "completedP0Pages": 17,
     "totalExistingP0Pages": 17,
     "completedPageNames": [
       "账户详情",
@@ -844,6 +844,8 @@
       "首页明细",
       "账本管理与切换",
       "我的、昵称与当前账本",
+      "孤儿数据清理",
+      "关于与检查更新",
       "应用锁设置",
       "显示与外观设置",
       "全局附件库",
@@ -852,32 +854,45 @@
       "数据管理入口",
       "字体设置",
       "皮肤选择与预览",
+      "帮助中心",
       "语言设置",
       "主题色与自定义配色",
+      "隐私政策",
       "记账提醒",
+      "快捷指令引导",
       "智能记账入口与识别偏好",
+      "存储空间管理",
       "标签详情",
       "新增与编辑标签",
       "标签管理",
       "分类详情",
+      "账单搜索与批量操作",
+      "记账、新增、编辑与复制",
       "账单详情"
     ],
     "newlyCompletedSincePreviousReport": [
-      "账单详情"
+      "孤儿数据清理",
+      "关于与检查更新",
+      "帮助中心",
+      "隐私政策",
+      "快捷指令引导",
+      "存储空间管理",
+      "账单搜索与批量操作",
+      "记账、新增、编辑与复制"
     ],
     "inProgress": [
-      "记账/搜索P0：R105更多分类选择返回与owned交易分类保存/恢复补验",
-      "关于/快捷指令/帮助/隐私/日志：真实原生流程已执行，独立报告审阅中；存储/清理继续",
-      "导入导出、Cloud App往返和同run DAV备份恢复仍待实际UI；iOS捐赠独立原生SDK路径调查中"
+      "R106日志搜索原生通过、筛选主题样式继续修；Widget/快捷图标与iOS对应页增量证据审阅中，不提前计页",
+      "同一iOS QA由生产UI追加少量owned CNY记录并行年度/分享/周期；不复制/重建Android库，不连Cloud",
+      "Android专职继续P1、7小文件已准备但尚未导入；Root同一Cloud只读基线已核，待首次App push及真正Web→App回拉"
     ],
     "remainingEffortEstimateHours": [
-      12,
-      24
+      10,
+      20
     ],
-    "remainingEffortChangeReason": "与上次12–24小时保持。安卓原生操作、离线报告和iOS平台三线已并行，代码交付不是主要瓶颈；文件恢复/Cloud真实往返尚未闭环，StoreKit首次激活失败需处理。按实际风险估算，不按31页数量线性推算。",
+    "remainingEffortChangeReason": "从12–24小时收窄为10–20：P0已收口，8页封存，安卓连续验收与iOS独立财务页面真正并行；只读集中校验/报告离线及27缺SVG全局预检减少串行等待和逐页重装。仍不按页面数线性外推；Cloud双向、导入恢复和StoreKit SDK边界保留风险，估算不是承诺。",
     "implementationStateCounts": {
-      "nativeComplete": 42,
-      "implementedPendingAcceptance": 31,
+      "nativeComplete": 50,
+      "implementedPendingAcceptance": 23,
       "inImplementation": 0
     }
   },
@@ -889,7 +904,7 @@
     "reason": "按用户要求临时关闭，避免每次推送触发PR的AI Eval；v4继续开发和推送，全部迁移与验收准备好再恢复PR。"
   },
   "currentProgress": {
-    "updatedAt": "2026-10-25T17:39:44+08:00",
+    "updatedAt": "2026-10-25T17:56:19+08:00",
     "engineeringEstimatePercent": 74,
     "engineeringEstimateRange": [
       71,
@@ -899,10 +914,10 @@
     "totalPages": 73,
     "totalP0Pages": 17,
     "completedP0Pages": 17,
-    "basis": "50/73整页封存、P0全17；新增存储与孤儿。R106已同QA安全更新，1010产品文件/27实际SVG字节验证，日志搜索原生增量通过而筛选视觉继续修；Widget/快捷图标及iOS相关补验并行，不把旧原生功能复用伪称本版重跑。文件7小fixture只准备未导入，Cloud App往返仍待执行。",
+    "basis": "严格50/73，P0全17；本小时新增8页，余23页代码交付。安卓专职连续原生、iOS独立报表/周期、离线报告和root backend并行；只读集中核、金融写后逐字段、未变版本证据复用。27缺图标已一次补齐。Cloud App↔Web/导入恢复/共享及平台SDK仍未闭环，视觉增量待审页不提前计数。",
     "remainingEffortEstimateHours": [
-      12,
-      24
+      10,
+      20
     ],
     "remainingEffortEstimateKind": "并行连续工作小时"
   },
