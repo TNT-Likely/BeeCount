@@ -76,9 +76,10 @@ class BeeShareCard extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
             child: Wrap(spacing: 8, runSpacing: 8, children: [
               for (final template in templates)
-                ChoiceChip(
+                BeeChoiceChip(
                   key: ValueKey('share-card-template-${template.id}'),
-                  label: Text(template.label),
+                  label: template.label,
+                  compact: true,
                   selected: selected == template.id,
                   onSelected:
                       busy ? null : (_) => onTemplate?.call(template.id),
