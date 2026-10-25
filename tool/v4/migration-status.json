@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25T19:24:15+08:00",
+  "updated": "2026-10-25T19:55:17+08:00",
   "branch": "v4",
   "baselineCommit": "6616066247a8738a42996c496e1b99106820e59f",
   "pages": {
@@ -38,11 +38,13 @@
     "ai/agent_activity_page.dart": {
       "name": "AI 活动记录",
       "priority": "P2",
-      "reason": "r101三页保持原9项权限/两种模式/作用范围、记忆查看与遗忘/清空及最近30次活动，72项相关回归/14文件静态通过；原8依赖及测试业务断言完整，未执行模型/工具或原生UI，不计完整页。",
-      "status": "迁移中·代码与本地回归已交付，待目录集成及整页验收",
-      "components": "消息、配置表单、授权、任务状态与列表",
-      "acceptance": "沿用原 AI 服务与权限，保留配置草稿、能力绑定、执行反馈、失败重试和取消。",
-      "implementationStage": "implemented"
+      "reason": "R109同一iOS实际4运行状态/3工具结果、只读刷新、真实两账本范围及共享一次正常main通过；合成展示fixture与实际模型/工具严格分开。Root逐20unique图、17固定源和31表复核，9图16文件独立报告最终封存。",
+      "status": "已完成",
+      "components": "原最近30次活动、运行与工具状态、错误反馈、只读刷新及当前账本真实仓储绑定",
+      "acceptance": "原recent30/createdAt工具顺序与服务逐字保留。5产品native共享批次中本页使用查看/跨本/最终3场景（不当成5个本页独有），4状态及completed/failed/denied工具结果实际可见；一共5合成runs/3calls，真实模型/网络工具未执行。3财务行/原会话行/旧21PNG全保护，两页共用一次正常入口重启31表逐字段相同。9图16文件三宽/ZIP/manifest/脱敏/0444通过，ZIP ba11fa9905fd655b464367cfca9d689228a78dda5291f15daa013df5512360e5。30条压力/多工具排序仅原源码与unit，Android重复完整套未执行。",
+      "implementationStage": "accepted",
+      "acceptanceReport": ".docs/acceptance/v4-migration/2026-10-25/ai-activity-r109/index.html",
+      "acceptanceZipSha256": "ba11fa9905fd655b464367cfca9d689228a78dda5291f15daa013df5512360e5"
     },
     "ai/agent_assistant_settings_page.dart": {
       "name": "AI 助手设置",
@@ -55,8 +57,8 @@
     "ai/agent_memory_page.dart": {
       "name": "AI 记忆管理",
       "priority": "P2",
-      "reason": "r101三页保持原9项权限/两种模式/作用范围、记忆查看与遗忘/清空及最近30次活动，72项相关回归/14文件静态通过；原8依赖及测试业务断言完整，未执行模型/工具或原生UI，不计完整页。",
-      "status": "迁移中·代码与本地回归已交付，待目录集成及整页验收",
+      "reason": "R109同一iOS实际单条取消/拒绝全局/当前遗忘/清当前取消确认、真实其他账本保护及正常入口完成，31表/FTS/3财务行/旧21PNG已核；R111仅确认框改BeeDialog，79相关回归通过，待打开/取消最小视觉补件，不再重复CUD。",
+      "status": "迁移中·原生功能与作用范围已验，待确认框视觉补验与报告封存",
       "components": "消息、配置表单、授权、任务状态与列表",
       "acceptance": "沿用原 AI 服务与权限，保留配置草稿、能力绑定、执行反馈、失败重试和取消。",
       "implementationStage": "implemented"
@@ -294,8 +296,8 @@
     "data/export_page.dart": {
       "name": "账单导出",
       "priority": "P1",
-      "reason": "固定CSV导出的原流程与相关服务已独立只读备份。子代理已交付纯组件/真实App绑定/本地回归（相关12项通过）和HTML接入材料；主代理尚未统一注册、固定产物和原生整页验收，不计完成。",
-      "status": "迁移中·子代理代码已交付，待统一集成与整页验收",
+      "reason": "R108实际唯一一次导出book8七笔970B CSV、12头/BOM；Root实际SQLite独立核全部84单元格及3stable图/14源单位，DRAFT三宽通过。等待附件模块同次正常重启保护补件，不重导、不把后加图片回写旧CSV。",
+      "status": "迁移中·真实CSV导出已验，待共享重启及报告封存",
       "components": "导入选择、字段映射、预览、任务状态与结果",
       "acceptance": "原格式和字段、分类映射、错误/部分成功、进度取消、恢复与导出范围。",
       "implementationStage": "implemented"
@@ -303,8 +305,8 @@
     "data/import_confirm_page.dart": {
       "name": "导入映射、预览与结果",
       "priority": "P1",
-      "reason": "导入映射预览与结果的原流程与相关服务已独立只读备份。子代理已交付纯组件/真实App绑定/本地回归（相关52项通过）和HTML接入材料；主代理尚未统一注册、固定产物和原生整页验收，不计完成。",
-      "status": "迁移中·子代理代码已交付，待统一集成与整页验收",
+      "reason": "R108真实12字段与分类映射、4同币种账户审查取消零写、唯一一次六行确认及正常入口七笔持久已核，原历史double与125.27显示保留。小批进度弹窗未捕获NOT_RUN；实际双附件及最后共享重启补件继续，DRAFT三宽与原服务/方法保持已核。",
+      "status": "迁移中·真实映射及唯一六行写入已验，待最终报告",
       "components": "导入选择、字段映射、预览、任务状态与结果",
       "acceptance": "原格式和字段、分类映射、错误/部分成功、进度取消、恢复与导出范围。",
       "implementationStage": "implemented"
@@ -312,8 +314,8 @@
     "data/import_page.dart": {
       "name": "账单导入入口",
       "priority": "P1",
-      "reason": "导入入口的原流程与相关服务已独立只读备份。子代理已交付纯组件/真实App绑定/本地回归（相关52项通过）和HTML接入材料；主代理尚未统一注册、固定产物和原生整页验收，不计完成。",
-      "status": "迁移中·子代理代码已交付，待统一集成与整页验收",
+      "reason": "R108真实OEM系统文件选择返回/取消、12列映射、账户预审取消与同稿唯一6行确认，64→70/book8 1→7，原数据保护；实际XLSX首sheet横滚预览取消不写。Root12stable图/23固定源单位复核；真实两张附件已保存、原生预览/最后共用重启收尾。",
+      "status": "迁移中·真实系统选择与导入已验，待附件和最终报告",
       "components": "导入选择、字段映射、预览、任务状态与结果",
       "acceptance": "原格式和字段、分类映射、错误/部分成功、进度取消、恢复与导出范围。",
       "implementationStage": "implemented"
@@ -382,8 +384,8 @@
     "report/annual_report_page.dart": {
       "name": "年度账单",
       "priority": "P1",
-      "reason": "年度账单的原流程与相关服务已独立只读备份。子代理已交付纯组件/真实App绑定/本地回归（相关27项通过）和HTML接入材料；主代理尚未统一注册、固定产物和原生整页验收，不计完成。",
-      "status": "迁移中·子代理代码已交付，待统一集成与整页验收",
+      "reason": "R108实际年度7章节/空年切换/独立长海报两隐私与系统分享取消，PNG/SQL/31表已核；R111只改主生成按钮和预览footer为BeeButton，52相关回归通过，待原生最小视觉与最终报告，不重算/重写财务。",
+      "status": "迁移中·七章节与原海报已验，待操作按钮视觉补验",
       "components": "年度汇总、趋势、排行与分享内容",
       "acceptance": "年度选择、金额/笔数统计口径、隐私、分享卡与真实图片导出。",
       "implementationStage": "implemented"
@@ -664,12 +666,12 @@
     "report/share_card_page.dart": {
       "name": "分享卡片",
       "priority": "P1",
-      "status": "迁移中·代码与本地回归已交付，待统一产物和整页验收",
+      "status": "迁移中·原模板与隐私分享已验，待按钮视觉补验",
       "batch": "M4 统计与分享",
       "designRoutes": [
         "poster"
       ],
-      "reason": "Q19 A保留原用户档案/应用模板，Q20 B当前周期按已发生天/月。r100子代理迁移原生产showDialog入口为共享body并新增薄Page复用，真实PNG/取消/隐私与本地回归中；不改变原弹窗产品路径，不计完整页。",
+      "reason": "R108月/年/账本6隐私及Q19原档案/应用两模板实际PNG与系统分享取消通过；R109主题chip已原生补验，Root31图/30源单位核对。R111共享footer复用BeeButton，45相关回归通过，待实际footer/锚点取消与最终封存。",
       "implementationStage": "implemented",
       "newInV4": true,
       "components": "原分享模板、隐藏收入、预览、导出分享与错误/取消状态",
@@ -823,14 +825,14 @@
   "fullMigrationBaselineCommit": "9b87aa06177616174e27c52c847cb20de6edede5",
   "completionStandard": "docs/development/v4-page-completion.md",
   "lastProgressReport": {
-    "reportedAt": "2026-10-25T18:54:58+08:00",
-    "scheduledReportAt": "2026-10-25T18:54:00+08:00",
-    "engineeringEstimatePercent": 76,
+    "reportedAt": "2026-10-25T19:55:17+08:00",
+    "scheduledReportAt": "2026-10-25T19:54:00+08:00",
+    "engineeringEstimatePercent": 78,
     "engineeringEstimateRange": [
-      73,
-      79
+      75,
+      81
     ],
-    "completedPages": 55,
+    "completedPages": 57,
     "totalPages": 73,
     "completedP0Pages": 17,
     "totalExistingP0Pages": 17,
@@ -839,7 +841,9 @@
       "新增与编辑账户",
       "资产与账户列表",
       "净资产趋势",
+      "AI 活动记录",
       "AI 助手设置",
+      "AI 权限管理",
       "AI 对话与执行",
       "AI 提示词编辑",
       "AI 服务商管理",
@@ -888,30 +892,27 @@
       "周期账单编辑",
       "周期账单列表",
       "账单搜索与批量操作",
-      "账单详情",
-      "记账、新增、编辑与复制"
+      "记账、新增、编辑与复制",
+      "账单详情"
     ],
     "newlyCompletedSincePreviousReport": [
-      "iOS 自动记账设置",
-      "日志中心",
-      "桌面小组件管理",
-      "周期账单编辑",
-      "周期账单列表"
+      "AI 权限管理",
+      "AI 活动记录"
     ],
     "inProgress": [
-      "账单导入真实系统选择/映射/账户审查取消与唯一六行确认已完成：原64→70、book8 1→7；导出/真实附图和Cloud继续，进度弹窗未捕获如实NOT_RUN",
-      "iOS年度/三总结/Q19原两模板/权限9项与恢复均实际批次通过；独立PNG/数据/报告审阅继续，Q19紫色M3 chip视觉修复R109源码已改/纯测通过，原生视觉待复验",
-      "同一Cloud/DAV持续保留，独立比较器78合成unit仅工具准备，未把HTTP准备或比较器当真同步通过；待App→Cloud→Web→App正式闭环",
-      "iOS记忆/活动仅只读准备fixture方案，尚未额外写DB；不再重复Android已完整周期CUD"
+      "R111 iOS确认框/三footer/Q19主题与真实系统分享取消、Donation生产SDK空商品/返回及一次共同正常main已完成4原生case；31表/3财务行/21旧PNG保护，只新增2真实导出PNG。Root已核15增量截图，4独立页报告收尾未提前计页。",
+      "同一Android真实6行导入、7行12列BOM导出（Root84单元格独立SQL一致）及实际双附件选择/保存已完成；原压缩设置JPEG字节保留.png名如实记录，正在实际预览/末重启，再一次更新候选后连贯验自动记账与Cloud。",
+      "原iOS专职切换到同一Cloud真实Web准备，沿用既有普通owner/editor和私有profile；当前只授权真实网页登录/auth会话准备，暂未App首次push或Web业务写入，不把HTTP准备当同步通过。",
+      "Android/iOS(转Web)/报告/Root比较与产物核验四线并行；同一run/旧页面备份和原应用数据持续保护，PR575保持CLOSED，v4已推送至c7d64218。"
     ],
     "remainingEffortEstimateHours": [
-      10,
-      18
+      9,
+      17
     ],
-    "remainingEffortChangeReason": "上次10–20收窄为10–18：系统FileExplorer接力已实际跑通且唯一六行导入成功，年度/分享/权限模块真实并行完成，独立报告脱离设备；Cloud比较工具减少逐字段手工。下界不降低，因为Cloud共享双向/文件附件恢复尚未闭环，StoreKit平台边界仍在。不是按页面数线性外推，不是承诺。",
+    "remainingEffortChangeReason": "从10–18略降为9–17：iOS跨本记忆/活动和R111最小视觉/真实SDK空态批次均已实际闭环、原生与独立报告脱钩，OEM PhotoPicker归属/checkbox与真实双附件已跑通；腾出的iOS代理转做同Cloud Web并行。Cloud双向、共享角色、Web回拉与文件恢复仍未真正闭环，保留宽区间，不按页数或测试数线性外推，不是承诺。",
     "implementationStateCounts": {
-      "nativeComplete": 55,
-      "implementedPendingAcceptance": 18,
+      "nativeComplete": 57,
+      "implementedPendingAcceptance": 16,
       "inImplementation": 0
     }
   },
@@ -923,31 +924,31 @@
     "reason": "按用户要求临时关闭，避免每次推送触发PR的AI Eval；v4继续开发和推送，全部迁移与验收准备好再恢复PR。"
   },
   "currentProgress": {
-    "updatedAt": "2026-10-25T19:24:15+08:00",
-    "engineeringEstimatePercent": 77,
+    "updatedAt": "2026-10-25T19:55:17+08:00",
+    "engineeringEstimatePercent": 78,
     "engineeringEstimateRange": [
-      74,
-      80
+      75,
+      81
     ],
-    "completedPages": 56,
+    "completedPages": 57,
     "totalPages": 73,
     "totalP0Pages": 17,
     "completedP0Pages": 17,
-    "basis": "严格56/73，P0全17；新增AI权限管理实际iOS设置/重启/恢复整页封存，原生与报告分线推进。真实6行导入与7行导出已逐字段核对，年度/分享及真实附图继续收口；Cloud双向与文件恢复尚未闭环，不提前计页。",
+    "basis": "严格57/73，P0全17；本小时新增AI权限/活动2页。R111 iOS其余4页最小补验已完成，真实CSV导入/导出与双附件实际保存均跑通，报告与末共享闭环继续，不提前算页。四线并行复用同QA，剩余主要是Cloud双向/共享/文件恢复，估9–17小时实际连续并行工作。",
     "remainingEffortEstimateHours": [
-      10,
-      18
+      9,
+      17
     ],
     "remainingEffortEstimateKind": "并行连续工作小时"
   },
   "lastImplementationDelivery": {
     "at": "2026-10-25T15:30:48+08:00",
     "commit": "cabfaff9aa8796f161396a108e2105daa7992532",
-    "completedNativePages": 56,
-    "implementedPendingNativePages": 17,
+    "completedNativePages": 57,
+    "implementedPendingNativePages": 16,
     "inImplementationPages": 0,
     "candidateInstalled": false,
-    "latestNativeAuditAt": "2026-10-25T19:24:15+08:00"
+    "latestNativeAuditAt": "2026-10-25T19:48:49+08:00"
   },
   "openRegressions": [],
   "resolvedRegressions": [
@@ -968,5 +969,12 @@
     "iosSignedFileTreeSha256": "435d982c4f23297998933881605e4fa1e00d7da32f821d4e1e698c9d7366745c",
     "sameRetainedQA": true,
     "qaDataPreserved": true
+  },
+  "latestInstalledIOSCandidate": {
+    "sourceCommit": "c7d6421800f1135d46ede6598370f0305f1cc552",
+    "signedFileTreeSha256": "d81e4ac7db5dab8b4a362ab125e5d5cb2357ad50294562b005d5e1c3e8f2baf5",
+    "sameRetainedQA": true,
+    "qaDataPreservedBeforeNormalLaunch": true,
+    "visualIncrementalAcceptance": "Actual 4 native cases and one shared normal main complete; root report closure in review, historical R108/R109 reports unchanged"
   }
 }
