@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25T20:56:56+08:00",
+  "updated": "2026-10-25T21:23:15+08:00",
   "branch": "v4",
   "baselineCommit": "6616066247a8738a42996c496e1b99106820e59f",
   "pages": {
@@ -955,7 +955,7 @@
     "reason": "按用户要求临时关闭，避免每次推送触发PR的AI Eval；v4继续开发和推送，全部迁移与验收准备好再恢复PR。"
   },
   "currentProgress": {
-    "updatedAt": "2026-10-25T20:54:30+08:00",
+    "updatedAt": "2026-10-25T21:23:15+08:00",
     "engineeringEstimatePercent": 84,
     "engineeringEstimateRange": [
       81,
@@ -965,7 +965,7 @@
     "totalPages": 73,
     "totalP0Pages": 17,
     "completedP0Pages": 17,
-    "basis": "严格65/73（89.0%），P0全17；本小时8页报告封存。C1真实App→Cloud当前7笔/2附件三份逐字段及物理字节一致；C2真实Web新增0.37/3标签/单原图986065B已完成，原Cloud8笔4文件与资源保持，Android拉回及回推进行中。R112普通框架7产品/4测试已提交，247相关测试与42保护通过，但未安装不算新增原生。余8页已实现，重心为云往返/角色/恢复。 C2首次App拉回仅毫秒不匹配，已证旧Drift秒存储边界Q24；原比较失败保留，未降低比较标准。",
+    "basis": "严格65/73（89.0%）、P0全17；8云与共享页仍待整页封存。C2真实Web→App原图与主动选择分钟+备注后Web只读回显均完成，首次671ms秒存储MISMATCH保留Q24。共同正常main后捕获原账本4.month_start_day8→1，Cloud默认创建参数缺失根因已定位，最小App/SDK修复与回归并行，修好后原UI恢复8再验；不提前计云页。原71交易与其它业务、8文件3图保护，正常启动按旧代码向Cloud增加其它QA本63笔5文件（现72/10），报告分列。",
     "remainingEffortEstimateHours": [
       9,
       17
@@ -981,7 +981,18 @@
     "candidateInstalled": false,
     "latestNativeAuditAt": "2026-10-25T20:38:19+08:00"
   },
-  "openRegressions": [],
+  "openRegressions": [
+    {
+      "id": "R111-CLOUD-MONTH-START",
+      "page": "cloud/beecount_cloud_sync_page.dart",
+      "status": "已定位·最小App修复与原生复验进行中",
+      "reportedPlatform": "Android Redmi / c7 R111 / same isolated Cloud",
+      "sourceFix": null,
+      "summary": "首次Cloud创建账本未传已有月账期8，server默认1随后pull覆盖本地；原9b87也存在。正常MAIN实际捕获，必须修复并通过原UI恢复已知8再复验；不修改比较器或直接回灌DB。",
+      "question": "Q25",
+      "detectedAt": "2026-10-25T21:23:15+08:00"
+    }
+  ],
   "resolvedRegressions": [
     {
       "id": "R108-HOME-KEYBOARD",
