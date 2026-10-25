@@ -1,6 +1,6 @@
 # V4 完整页面迁移清单与优先级
 
-更新：2026-10-26T03:14:51.926126+08:00。分支：`v4`。由 `tool/v4/build_migration_inventory.py` 扫描生成，人工决策保存在 [migration-status.json](../../tool/v4/migration-status.json)。
+更新：2026-10-26T03:48:19.471555+08:00。分支：`v4`。由 `tool/v4/build_migration_inventory.py` 扫描生成，人工决策保存在 [migration-status.json](../../tool/v4/migration-status.json)。
 
 现有 **73 个产品页面源文件**（P0 17 页、P1 43 页、P2 13 页），当前待新增 Page 占位 **0 个**，另有 6 个页面旁辅助文件和下方关联弹窗/表单。三个开发验收页不计入产品迁移进度。每个源文件均有设计入口，设计场景与代码页面不是一对一关系。
 
@@ -12,11 +12,11 @@
 
 | 修订 | 当前状态 | 已批准设计 |
 | --- | --- | --- |
-| A · 洞察页 | R115主要实际流程、R116深色增量及Root源码连续性/数据/原图复核通过；新版报告待封存 | [交互稿](../design/card-refresh/boards/insights-task-a-review.html) |
-| B · 资产页 | R116首次隐藏定位与深色实际增量、Root逐表/文件/视觉复核通过；独立新版报告待封存 | [交互稿](../design/card-refresh/boards/assets-task-b-review.html) |
-| C · 交易明细行 | R116主要实际流程与数据守卫通过，但最终USD转账行有1.3px真实溢出FAIL；最小修复回归中，待R117补验，不标新版通过 | [交互稿](../design/card-refresh/boards/transaction-rows-task-c-review.html) |
-| D · 分享海报与应用卡片 | 七类海报与应用卡片、主demo和组件目录已合入；R116实际数据/导出取消验收中 | [交互稿](../design/card-refresh/boards/share-cards-task-d-review.html) |
-| E · 启动页 · 一笔成形 | R116原生安全局部层/真实深色系统栏与共同normal完成；冷启首帧未捕获、系统减弱动效未执行，Widget边界分列；基础目录两缺失样例补齐待R117 | [交互稿](../design/card-refresh/boards/splash-task-e-review.html?concept=trail) |
+| A · 洞察页 | R115主要流程+R116深色增量/源码连续性/Root核对通过；新版报告最终打包中 | [交互稿](../design/card-refresh/boards/insights-task-a-review.html) |
+| B · 资产页 | R115主要流程+R116首次隐藏/深色修复与Root核对通过；新版报告最终打包中 | [交互稿](../design/card-refresh/boards/assets-task-b-review.html) |
+| C · 交易明细行 | R116主要功能+R117原74真实溢出修复、基础两样例/共同normal/Root实际数据与原图复核通过；MoreN原生文字仍NOT_RUN，报告最终打包中 | [交互稿](../design/card-refresh/boards/transaction-rows-task-c-review.html) |
+| D · 分享海报与应用卡片 | R116实际七类相关预览/原币小票四字段/三次取消与共用Save真实字节通过；Root月/小票原PNG复看，独立报告最终打包中 | [交互稿](../design/card-refresh/boards/share-cards-task-d-review.html) |
+| E · 启动页 · 一笔成形 | R116受控B/安全局部层/真实深色栏+R117基础样例与正常main通过；冷启首帧/OS减弱动效边界保留，独立报告最终打包中 | [交互稿](../design/card-refresh/boards/splash-task-e-review.html?concept=trail) |
 
 ## 优先级与顺序
 
@@ -128,7 +128,7 @@
 
 | 流程 / 源码 | 优先级 / 状态 | 验收要求 |
 | --- | --- | --- |
-| **转账表单（同币种/跨币种）**<br>[lib/widgets/transaction/transfer_form.dart](../../lib/widgets/transaction/transfer_form.dart) | P0 / 已完成·P0生产消费者按固定版本累积验收；其他页面继续各自核对 | 转出/转入账户、币种与汇率、金额、备注、标签、统计、余额与保存防重；先提取账户组合组件。 |
+| **转账表单（新增同币种／兼容历史跨币种）**<br>[lib/widgets/transaction/transfer_form.dart](../../lib/widgets/transaction/transfer_form.dart) | P0 / 已完成·P0生产消费者按固定版本累积验收；其他页面继续各自核对 | 按Q04/Q06/Q09：新增仅同币种账户对，允许其他本位币账本的同一外币账户对；历史跨币种编辑兼容、复制遵守新增规则；同屏金额/账户、历史快照、余额与保存防重。 |
 | **金额与元信息表单**<br>[lib/widgets/biz/amount_editor_sheet.dart](../../lib/widgets/biz/amount_editor_sheet.dart) | P0 / 已完成·P0生产消费者按固定版本累积验收；其他页面继续各自核对 | 键盘贴底、8px 间距、备注直接修改、附件右上角、分类独立滚动、折算右对齐。 |
 | **账单行、长按与滑动菜单**<br>[lib/widgets/biz/transaction_list.dart](../../lib/widgets/biz/transaction_list.dart) | P0 / 已完成·P0生产消费者按固定版本累积验收；其他页面继续各自核对 | 真实列表绑定、分类图标导航、时间/折算/标签/附件、批量与只读、长按菜单和删除确认。 |
 | **分类选择弹窗**<br>[lib/widgets/biz/category_selector_dialog.dart](../../lib/widgets/biz/category_selector_dialog.dart) | P0 / 已完成·P0生产消费者按固定版本累积验收；其他页面继续各自核对 | 二级图标、自定义图片、搜索、更多分类、取消不提交。 |
@@ -136,9 +136,9 @@
 | **账本选择弹层**<br>[lib/widgets/biz/ledger_picker_sheet.dart](../../lib/widgets/biz/ledger_picker_sheet.dart) | P0 / 已完成·本地真实选择与原管理入口 | 当前态、个人/共享、币种与搜索、切换账本不丢草稿。 |
 | **币种选择弹层与汇率编辑**<br>[lib/widgets/currency/currency_picker_sheet.dart](../../lib/widgets/currency/currency_picker_sheet.dart) | P0 / 已完成·P0生产消费者按固定版本累积验收；其他页面继续各自核对 | 搜索、同币种账户联动、历史快照、汇率缺失和正数校验。 |
 | **标签横排选择**<br>[lib/pages/tag/widgets/tag_selector.dart](../../lib/pages/tag/widgets/tag_selector.dart) | P0 / 已完成·P0生产消费者按固定版本累积验收；其他页面继续各自核对 | 多选、搜索、取消不提交、新建标签、长标签与 +N。 |
-| **日期与时间滚轮**<br>[lib/widgets/ui/wheel_date_picker.dart](../../lib/widgets/ui/wheel_date_picker.dart) | P0 / 已复用·待全消费者核对 | 月末/闰年、时间开关、取消和系统安全区。 |
-| **历史备注选择**<br>[lib/widgets/biz/note_picker_dialog.dart](../../lib/widgets/biz/note_picker_dialog.dart) | P1 / V4弹窗已接入·原服务/方法体保持；原生选择边界单列 | 常用备注筛选/排序、直接输入与选择后的草稿一致性。 |
-| **账单小票弹窗**<br>[lib/widgets/biz/transaction_receipt_dialog.dart](../../lib/widgets/biz/transaction_receipt_dialog.dart) | P1 / 待迁移 | 原币与折算、标签/附件、隐私、图片生成和系统分享，沿用弹窗。 |
+| **日期与时间滚轮**<br>[lib/widgets/ui/wheel_date_picker.dart](../../lib/widgets/ui/wheel_date_picker.dart) | P0 / 已复用·正式消费者随各页固定版本验收；日期边界与未原生重跑组合分列 | 月末/闰年、时间开关、取消和系统安全区。 |
+| **历史备注选择**<br>[lib/widgets/biz/note_picker_dialog.dart](../../lib/widgets/biz/note_picker_dialog.dart) | P1 / 已完成UI迁移·原服务/方法体保持；本轮未新增原生历史选择重跑，边界保留 | 常用备注筛选/排序、直接输入与选择后的草稿一致性。 |
+| **账单小票弹窗**<br>[lib/widgets/biz/transaction_receipt_dialog.dart](../../lib/widgets/biz/transaction_receipt_dialog.dart) | P1 / 已完成·原小票R108/R111固定范围已封存；D新版R116实际PNG/四字段与系统取消，报告另列 | 保留弹窗与原币格式，备注/标签/账户/账本四个原字段开关、图片生成和系统分享；原小票本无额外历史折算/附件图，未伪装成新增能力。R116实际USD10.25的960×1659 PNG、字段切换及取消；共用保存链以月PNG实存字节验证，未重复执行小票Save。 |
 | **AI 授权弹窗**<br>[lib/widgets/ai/agent_tool_authorization_dialog.dart](../../lib/widgets/ai/agent_tool_authorization_dialog.dart) | P1 / 已完成·R85正式消费者与真实拒绝/一次允许闭环 | 标准三动作弹窗保留实际工具、当前账本和安全参数；真实拒绝不写账、本次允许准确一笔，权限不提升；Flutter59仅局部返回选择，原Gate字节不变。 |
 | **检查升级弹窗**<br>[lib/services/update/update_dialogs.dart](../../lib/services/update/update_dialogs.dart) | P2 / 已完成·R105实际检查/新版本/稍后取消；下载安装边界单列 | 保持原弹窗，检查中/最新/可升级/错误与下载入口。 |
 | **关闭应用锁前的私有密码验证页**<br>[lib/pages/settings/app_lock_settings_page.dart](../../lib/pages/settings/app_lock_settings_page.dart) | P1 / 已完成·R73原PIN验证与关闭闭环 | R73实际错误PIN/取消保持锁，正确验证后清除PIN和关闭生物识别；四位原服务、错误半秒恢复和未知超时均保留，报告app-lock-settings-r73封存。 |

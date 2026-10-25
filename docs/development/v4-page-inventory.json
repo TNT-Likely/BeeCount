@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-26T03:14:51.926126+08:00",
+  "date": "2026-10-26T03:48:19.471555+08:00",
   "branch": "v4",
   "pageFiles": 73,
   "helperFiles": [
@@ -20,14 +20,14 @@
   "plannedPages": [],
   "associatedFlows": [
     {
-      "name": "转账表单（同币种/跨币种）",
+      "name": "转账表单（新增同币种／兼容历史跨币种）",
       "source": "lib/widgets/transaction/transfer_form.dart",
       "priority": "P0",
       "status": "已完成·P0生产消费者按固定版本累积验收；其他页面继续各自核对",
       "designRoutes": [
         "editor"
       ],
-      "acceptance": "转出/转入账户、币种与汇率、金额、备注、标签、统计、余额与保存防重；先提取账户组合组件。"
+      "acceptance": "按Q04/Q06/Q09：新增仅同币种账户对，允许其他本位币账本的同一外币账户对；历史跨币种编辑兼容、复制遵守新增规则；同屏金额/账户、历史快照、余额与保存防重。"
     },
     {
       "name": "金额与元信息表单",
@@ -107,7 +107,7 @@
       "name": "日期与时间滚轮",
       "source": "lib/widgets/ui/wheel_date_picker.dart",
       "priority": "P0",
-      "status": "已复用·待全消费者核对",
+      "status": "已复用·正式消费者随各页固定版本验收；日期边界与未原生重跑组合分列",
       "designRoutes": [
         "flow-date-picker"
       ],
@@ -117,7 +117,7 @@
       "name": "历史备注选择",
       "source": "lib/widgets/biz/note_picker_dialog.dart",
       "priority": "P1",
-      "status": "V4弹窗已接入·原服务/方法体保持；原生选择边界单列",
+      "status": "已完成UI迁移·原服务/方法体保持；本轮未新增原生历史选择重跑，边界保留",
       "designRoutes": [
         "editor"
       ],
@@ -127,11 +127,11 @@
       "name": "账单小票弹窗",
       "source": "lib/widgets/biz/transaction_receipt_dialog.dart",
       "priority": "P1",
-      "status": "待迁移",
+      "status": "已完成·原小票R108/R111固定范围已封存；D新版R116实际PNG/四字段与系统取消，报告另列",
       "designRoutes": [
         "receipt"
       ],
-      "acceptance": "原币与折算、标签/附件、隐私、图片生成和系统分享，沿用弹窗。"
+      "acceptance": "保留弹窗与原币格式，备注/标签/账户/账本四个原字段开关、图片生成和系统分享；原小票本无额外历史折算/附件图，未伪装成新增能力。R116实际USD10.25的960×1659 PNG、字段切换及取消；共用保存链以月PNG实存字节验证，未重复执行小票Save。"
     },
     {
       "name": "AI 授权弹窗",
@@ -2636,7 +2636,7 @@
     {
       "id": "A",
       "name": "洞察页",
-      "status": "R115主要实际流程、R116深色增量及Root源码连续性/数据/原图复核通过；新版报告待封存",
+      "status": "R115主要流程+R116深色增量/源码连续性/Root核对通过；新版报告最终打包中",
       "url": "boards/insights-task-a-review.html",
       "flutterCommit": "0c730777",
       "flutterApproved": true
@@ -2644,7 +2644,7 @@
     {
       "id": "B",
       "name": "资产页",
-      "status": "R116首次隐藏定位与深色实际增量、Root逐表/文件/视觉复核通过；独立新版报告待封存",
+      "status": "R115主要流程+R116首次隐藏/深色修复与Root核对通过；新版报告最终打包中",
       "url": "boards/assets-task-b-review.html",
       "flutterCommit": "de25c879",
       "flutterApproved": true,
@@ -2653,7 +2653,7 @@
     {
       "id": "C",
       "name": "交易明细行",
-      "status": "R116主要实际流程与数据守卫通过，但最终USD转账行有1.3px真实溢出FAIL；最小修复回归中，待R117补验，不标新版通过",
+      "status": "R116主要功能+R117原74真实溢出修复、基础两样例/共同normal/Root实际数据与原图复核通过；MoreN原生文字仍NOT_RUN，报告最终打包中",
       "url": "boards/transaction-rows-task-c-review.html",
       "designCommit": "e00a31e6",
       "approvedHtmlSha256": "643833f7d50be973e5e08296ef84d01c096743a1086a02636de08b293f66177c",
@@ -2666,7 +2666,7 @@
     {
       "id": "D",
       "name": "分享海报与应用卡片",
-      "status": "七类海报与应用卡片、主demo和组件目录已合入；R116实际数据/导出取消验收中",
+      "status": "R116实际七类相关预览/原币小票四字段/三次取消与共用Save真实字节通过；Root月/小票原PNG复看，独立报告最终打包中",
       "url": "boards/share-cards-task-d-review.html",
       "designCommit": "c93457bf",
       "approvedHtmlSha256": "8c039e5608b67add35cb8a9f66a83e1e85c20b35c91cc71013fb496ae43e4e5d",
@@ -2678,7 +2678,7 @@
     {
       "id": "E",
       "name": "启动页 · 一笔成形",
-      "status": "R116原生安全局部层/真实深色系统栏与共同normal完成；冷启首帧未捕获、系统减弱动效未执行，Widget边界分列；基础目录两缺失样例补齐待R117",
+      "status": "R116受控B/安全局部层/真实深色栏+R117基础样例与正常main通过；冷启首帧/OS减弱动效边界保留，独立报告最终打包中",
       "url": "boards/splash-task-e-review.html?concept=trail",
       "designCommit": "c0eeb0e8",
       "approvedHtmlSha256": "cb3b28761dd234ad803c6a5b54eb74be80fd1c02c1156d651f1ed0ee0f12f665",

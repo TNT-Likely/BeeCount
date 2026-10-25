@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26T03:14:51.926126+08:00",
+  "updated": "2026-10-26T03:48:19.471555+08:00",
   "branch": "v4",
   "baselineCommit": "6616066247a8738a42996c496e1b99106820e59f",
   "pages": {
@@ -761,14 +761,14 @@
   "plannedPages": [],
   "associatedFlows": [
     {
-      "name": "转账表单（同币种/跨币种）",
+      "name": "转账表单（新增同币种／兼容历史跨币种）",
       "source": "lib/widgets/transaction/transfer_form.dart",
       "priority": "P0",
       "status": "已完成·P0生产消费者按固定版本累积验收；其他页面继续各自核对",
       "designRoutes": [
         "editor"
       ],
-      "acceptance": "转出/转入账户、币种与汇率、金额、备注、标签、统计、余额与保存防重；先提取账户组合组件。"
+      "acceptance": "按Q04/Q06/Q09：新增仅同币种账户对，允许其他本位币账本的同一外币账户对；历史跨币种编辑兼容、复制遵守新增规则；同屏金额/账户、历史快照、余额与保存防重。"
     },
     {
       "name": "金额与元信息表单",
@@ -848,7 +848,7 @@
       "name": "日期与时间滚轮",
       "source": "lib/widgets/ui/wheel_date_picker.dart",
       "priority": "P0",
-      "status": "已复用·待全消费者核对",
+      "status": "已复用·正式消费者随各页固定版本验收；日期边界与未原生重跑组合分列",
       "designRoutes": [
         "flow-date-picker"
       ],
@@ -858,7 +858,7 @@
       "name": "历史备注选择",
       "source": "lib/widgets/biz/note_picker_dialog.dart",
       "priority": "P1",
-      "status": "V4弹窗已接入·原服务/方法体保持；原生选择边界单列",
+      "status": "已完成UI迁移·原服务/方法体保持；本轮未新增原生历史选择重跑，边界保留",
       "designRoutes": [
         "editor"
       ],
@@ -868,11 +868,11 @@
       "name": "账单小票弹窗",
       "source": "lib/widgets/biz/transaction_receipt_dialog.dart",
       "priority": "P1",
-      "status": "待迁移",
+      "status": "已完成·原小票R108/R111固定范围已封存；D新版R116实际PNG/四字段与系统取消，报告另列",
       "designRoutes": [
         "receipt"
       ],
-      "acceptance": "原币与折算、标签/附件、隐私、图片生成和系统分享，沿用弹窗。"
+      "acceptance": "保留弹窗与原币格式，备注/标签/账户/账本四个原字段开关、图片生成和系统分享；原小票本无额外历史折算/附件图，未伪装成新增能力。R116实际USD10.25的960×1659 PNG、字段切换及取消；共用保存链以月PNG实存字节验证，未重复执行小票Save。"
     },
     {
       "name": "AI 授权弹窗",
@@ -1037,20 +1037,20 @@
     "reason": "按用户要求临时关闭，避免每次推送触发PR的AI Eval；v4继续开发和推送，全部迁移与验收准备好再恢复PR。"
   },
   "currentProgress": {
-    "updatedAt": "2026-10-26T03:14:51.926126+08:00",
-    "engineeringEstimatePercent": 96,
+    "updatedAt": "2026-10-26T03:48:19.471555+08:00",
+    "engineeringEstimatePercent": 97,
     "engineeringEstimateRange": [
-      94,
-      98
+      95,
+      99
     ],
     "completedPages": 73,
     "totalPages": 73,
     "totalP0Pages": 17,
     "completedP0Pages": 17,
-    "basis": "原73基线已封存；A–E实现及设计大图已集成。R116全31表72笔、8附件/3图/原公共文件和业务偏好守卫与Root独立实际读取通过；B隐藏入口和暗色系统栏已实际修复。C最终normal暴露1.3px标签继承字距溢出，已先红复现并最小修复回归中，不称C整页通过；新增基础两样例与C修复统一R117最小补验，余下独立报告/最终检查。",
+    "basis": "原73基线已封存，A–E全部源码/HTML/大图/完整组件映射齐备；R117原74溢出修复与两个真实基础样例已在Android/iOS最小补验，Root另开实际SQLite/Prefs/文件和签名/已安装产物复核通过。当前无新增未解决UI回归，只有旧问题及明确NOT_RUN边界。余下五项新报告与iOS脱敏独立ZIP的最终核验、文档一致性/推送与准备PR；不把旧private报告含路径当安全公开交付，不按页线性估工时。",
     "remainingEffortEstimateHours": [
-      2,
-      4
+      1,
+      2
     ],
     "remainingEffortEstimateKind": "并行连续工作小时"
   },
@@ -1063,18 +1063,7 @@
     "candidateInstalled": false,
     "latestNativeAuditAt": "2026-10-25T20:38:19+08:00"
   },
-  "openRegressions": [
-    {
-      "id": "R116-C-INHERITED-TAG-METRICS",
-      "page": "packages/beecount_ui/lib/src/inline_label.dart",
-      "status": "R116真实FAIL保留；原账单74参数Widget先红，字体继承最小源修复回归中，待R117真机",
-      "sourceCommit": "ce44164f684dc5363dae545b1c90aaff2d0662d1",
-      "summary": "共同normal后的美元转账行右侧溢出1.3px；金额/全部31表72笔和真实文件守卫仍独立PASS。标签量测显式0字距，而实际Text继承父级字距/字重，需统一字形样式，不加epsilon、不藏溢出、不丢字段。",
-      "nativeFailEvidence": "r116-C-actual-native-RenderFlex-1p3-right-FAIL.json",
-      "nativeManifestSHA256": "3962d431da510d8751a7c195ccfcff192349fb9c363a8e3f028a2e311c462be5",
-      "dataGuardIndependentPASS": true
-    }
-  ],
+  "openRegressions": [],
   "resolvedRegressions": [
     {
       "id": "R108-HOME-KEYBOARD",
@@ -1145,12 +1134,30 @@
       ],
       "frozenNativeManifestSHA256": "3962d431da510d8751a7c195ccfcff192349fb9c363a8e3f028a2e311c462be5",
       "actualVisual": "Root逐原PNG看R116 A/B/C白Android系统栏及iOS深Home白系统栏；不是gallery局部theme推断"
+    },
+    {
+      "id": "R116-C-INHERITED-TAG-METRICS",
+      "page": "packages/beecount_ui/lib/src/inline_label.dart",
+      "status": "R117实际原74完整可见/编辑取消、共同正常后无红溢出与0新增RenderFlex；Root实际SQL/文件/Prefs/原图与artifact复核通过，原R116FAIL保留",
+      "sourceCommit": "ce44164f684dc5363dae545b1c90aaff2d0662d1",
+      "summary": "共同normal后的美元转账行右侧溢出1.3px；金额/全部31表72笔和真实文件守卫仍独立PASS。标签量测显式0字距，而实际Text继承父级字距/字重，需统一字形样式，不加epsilon、不藏溢出、不丢字段。",
+      "nativeFailEvidence": "r116-C-actual-native-RenderFlex-1p3-right-FAIL.json",
+      "nativeManifestSHA256": "1af65385136e165130d9645c0da34e22e484078dd77b548579af9e4f4a9ed59a",
+      "dataGuardIndependentPASS": true,
+      "sourceFix": "3578c3c7",
+      "resolvedAt": "2026-10-26T03:48:19.471555+08:00",
+      "acceptedInstalledSource": "a2c531246b41637b4abf7e59f6f777527a31748d",
+      "acceptedAPK": "efe9c79f3724734bb42bca7c03e1345e66ace706c89785873802202dd4a85308",
+      "rootIndependentEvidence": [
+        "r117-root-independent-actual-db-tar-prefs-final-review.json",
+        "r117-root-direct-three-image-bytes-installed-artifact-readonly-review.json"
+      ]
     }
   ],
   "latestInstalledCandidate": {
     "platform": "Android",
-    "sourceCommit": "ce44164f684dc5363dae545b1c90aaff2d0662d1",
-    "androidApkSha256": "b5dae9367e36587b23b646cd26019e57fde87590ec631e565bff4d541dfca3bc",
+    "sourceCommit": "a2c531246b41637b4abf7e59f6f777527a31748d",
+    "androidApkSha256": "efe9c79f3724734bb42bca7c03e1345e66ace706c89785873802202dd4a85308",
     "verifiedCommittedProductFiles": 1062,
     "verifiedSdkDartFiles": 18,
     "sameRetainedQA": true,
@@ -1165,19 +1172,47 @@
       "D",
       "E"
     ],
-    "approvedDesignRevisionsNativePassed": false,
-    "nativeStatus": "R116实际操作中；正常入口与Root最终复核、报告未完成，不以局部PASS代表整页新版验收"
+    "approvedDesignRevisionsNativePassed": true,
+    "nativeStatus": "适用执行范围接受：R115/R116核心与R117仅字形/基础样例补验按版本分列；原C失败/NOT_RUN保留，独立报告封存尚待最后校验",
+    "acceptedEvidenceStages": {
+      "A": [
+        "R115",
+        "R116"
+      ],
+      "B": [
+        "R115",
+        "R116"
+      ],
+      "C": [
+        "R116",
+        "R117"
+      ],
+      "D": [
+        "R116"
+      ],
+      "E": [
+        "R116",
+        "R117"
+      ]
+    },
+    "rootIndependentDataVisualReviewed": true
   },
   "latestInstalledIOSCandidate": {
-    "sourceCommit": "f536d6db081c55bb5f6afce2da092ce5ed1a405f",
-    "signedFileTreeSha256": "b73c3edcc6619e674d078aa25c952cde10a6f8e12a72a3007bce7ba6794252ee",
-    "sameRetainedQA": true,
-    "qaDataPreservedBeforeNormalLaunch": true,
-    "verifiedCommittedProductFiles": 1028,
+    "platform": "iOS",
+    "sourceCommit": "a2c531246b41637b4abf7e59f6f777527a31748d",
+    "signedArtifactTreeSHA256": "b4a7156f78b4d9880e535ec60f6408acea657a57613f86be5867979978ac55e4",
+    "verifiedCommittedProductFiles": 1062,
     "verifiedSdkDartFiles": 18,
-    "actualInstalledFileManifestEntries": 888,
-    "rootIndependentOfflineReviewSha256": "d992950e6a3d239189bbe97d4b21837a770fc33bdf393c7cd56e25711f390e08",
-    "visualIncrementalAcceptance": "Actual3 readonly native cases and one shared normal main; Root re-read3 actual SQLite backups/all31 full fields and23 PNG bytes, compared actual preference values. Existing AutoBilling action visible, Logs real BeeDialog open/close. R114 Cloud not claimed; historical reports unchanged."
+    "actualInstalledSignedFiles": 889,
+    "rootActuallyRehashedAllInstalledFiles": true,
+    "qaTransactions": 3,
+    "qaRetainedPNGs": 24,
+    "sameRetainedQA": true,
+    "group16KeysAndPlistExact": true,
+    "R117AllBusinessPrefsRawExactIncludingSystemTheme": true,
+    "R116PredeclaredThemeAbsentToSystemExceptionRetained": true,
+    "nativeScope": "R116 selected7 + R117 minimal2, not full73iOS replay; source/actualData/signedbyte exact, Root review PASS",
+    "reportStatus": "新的run外简洁脱敏报告整理中；原private-review包保持不变但含私有路径不作公开交付"
   },
   "latestCorrectionDelivery": {
     "at": "2026-10-25T22:38:33.093795+08:00",
@@ -1197,7 +1232,7 @@
     {
       "id": "A",
       "name": "洞察页",
-      "status": "R115主要实际流程、R116深色增量及Root源码连续性/数据/原图复核通过；新版报告待封存",
+      "status": "R115主要流程+R116深色增量/源码连续性/Root核对通过；新版报告最终打包中",
       "url": "boards/insights-task-a-review.html",
       "flutterCommit": "0c730777",
       "flutterApproved": true
@@ -1205,7 +1240,7 @@
     {
       "id": "B",
       "name": "资产页",
-      "status": "R116首次隐藏定位与深色实际增量、Root逐表/文件/视觉复核通过；独立新版报告待封存",
+      "status": "R115主要流程+R116首次隐藏/深色修复与Root核对通过；新版报告最终打包中",
       "url": "boards/assets-task-b-review.html",
       "flutterCommit": "de25c879",
       "flutterApproved": true,
@@ -1214,7 +1249,7 @@
     {
       "id": "C",
       "name": "交易明细行",
-      "status": "R116主要实际流程与数据守卫通过，但最终USD转账行有1.3px真实溢出FAIL；最小修复回归中，待R117补验，不标新版通过",
+      "status": "R116主要功能+R117原74真实溢出修复、基础两样例/共同normal/Root实际数据与原图复核通过；MoreN原生文字仍NOT_RUN，报告最终打包中",
       "url": "boards/transaction-rows-task-c-review.html",
       "designCommit": "e00a31e6",
       "approvedHtmlSha256": "643833f7d50be973e5e08296ef84d01c096743a1086a02636de08b293f66177c",
@@ -1227,7 +1262,7 @@
     {
       "id": "D",
       "name": "分享海报与应用卡片",
-      "status": "七类海报与应用卡片、主demo和组件目录已合入；R116实际数据/导出取消验收中",
+      "status": "R116实际七类相关预览/原币小票四字段/三次取消与共用Save真实字节通过；Root月/小票原PNG复看，独立报告最终打包中",
       "url": "boards/share-cards-task-d-review.html",
       "designCommit": "c93457bf",
       "approvedHtmlSha256": "8c039e5608b67add35cb8a9f66a83e1e85c20b35c91cc71013fb496ae43e4e5d",
@@ -1239,7 +1274,7 @@
     {
       "id": "E",
       "name": "启动页 · 一笔成形",
-      "status": "R116原生安全局部层/真实深色系统栏与共同normal完成；冷启首帧未捕获、系统减弱动效未执行，Widget边界分列；基础目录两缺失样例补齐待R117",
+      "status": "R116受控B/安全局部层/真实深色栏+R117基础样例与正常main通过；冷启首帧/OS减弱动效边界保留，独立报告最终打包中",
       "url": "boards/splash-task-e-review.html?concept=trail",
       "designCommit": "c0eeb0e8",
       "approvedHtmlSha256": "cb3b28761dd234ad803c6a5b54eb74be80fd1c02c1156d651f1ed0ee0f12f665",
