@@ -742,5 +742,19 @@
     ],
     "page": "business",
     "case": 57
+  },
+  {
+    "design_key": "aiConversation",
+    "components": [
+      "BeeConversationInput",
+      "BeeConversationUserMessage",
+      "BeeConversationNotice",
+      "BeeAssistantBillCard",
+      "BeeToolRequestDetails",
+      "BeeConversationStart",
+      "BeeConversationLedgerBrief"
+    ],
+    "page": "business",
+    "case": 58
   }
 ]

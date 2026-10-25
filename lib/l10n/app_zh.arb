@@ -3723,5 +3723,6 @@
   "aiProviderShowKey": "显示密钥",
   "aiProviderHideKey": "隐藏密钥",
   "aiPromptShare": "分享提示词",
-  "aiPromptPaste": "粘贴提示词"
+  "aiPromptPaste": "粘贴提示词",
+  "v4AIChatSend": "发送消息"
 }

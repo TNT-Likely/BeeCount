@@ -16939,6 +16939,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Paste prompt'**
   String get aiPromptPaste;
+
+  /// No description provided for @v4AIChatSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send message'**
+  String get v4AIChatSend;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

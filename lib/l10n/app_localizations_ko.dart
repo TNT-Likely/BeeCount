@@ -9002,4 +9002,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get aiPromptPaste => 'Paste prompt';
+
+  @override
+  String get v4AIChatSend => 'Send message';
 }

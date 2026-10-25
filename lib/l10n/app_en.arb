@@ -4016,5 +4016,6 @@
   "aiProviderShowKey": "Show API key",
   "aiProviderHideKey": "Hide API key",
   "aiPromptShare": "Share prompt",
-  "aiPromptPaste": "Paste prompt"
+  "aiPromptPaste": "Paste prompt",
+  "v4AIChatSend": "Send message"
 }

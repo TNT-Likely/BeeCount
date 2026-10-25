@@ -8994,6 +8994,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get aiPromptPaste => '粘贴提示词';
+
+  @override
+  String get v4AIChatSend => '发送消息';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).

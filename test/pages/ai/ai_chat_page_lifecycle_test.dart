@@ -1,3 +1,4 @@
+import 'package:beecount_ui/beecount_ui.dart';
 import 'dart:async';
 import 'dart:convert';
 
@@ -95,6 +96,100 @@ void main() {
       ),
     );
   }
+
+  testWidgets('清除历史先确认，取消不变，确认只删当前会话消息', (tester) async {
+    final ledgerId = await repository.createLedger(name: 'QA 当前账本');
+    final conversation = await repository.createConversation(
+        ConversationsCompanion.insert(title: const Value('QA 清除')));
+    final other = await repository.createConversation(
+        ConversationsCompanion.insert(
+            title: const Value('QA 较旧会话'), updatedAt: Value(DateTime(2020))));
+    for (final pair in [(conversation, 'QA 当前消息'), (other, 'QA 保留消息')]) {
+      await repository.createMessage(MessagesCompanion.insert(
+          conversationId: pair.$1,
+          role: 'user',
+          content: pair.$2,
+          messageType: 'text'));
+    }
+    final before = await (database.select(database.messages)
+          ..where((r) => r.conversationId.equals(conversation)))
+        .get();
+    await tester.pumpWidget(host());
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('agent-chat-clear')));
+    await tester.pumpAndSettle();
+    expect(find.text(AppLocalizationsZh().aiChatClearHistoryDialogContent),
+        findsOneWidget);
+    await tester.tap(find.text(AppLocalizationsZh().commonCancel));
+    await tester.pumpAndSettle();
+    expect(
+        (await (database.select(database.messages)
+                  ..where((r) => r.conversationId.equals(conversation)))
+                .get())
+            .map((r) => r.toJson())
+            .toList(),
+        before.map((r) => r.toJson()).toList());
+    await tester.tap(find.byKey(const ValueKey('agent-chat-clear')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(AppLocalizationsZh().commonConfirm));
+    await tester.pumpAndSettle();
+    expect(
+        await (database.select(database.messages)
+              ..where((r) => r.conversationId.equals(conversation)))
+            .get(),
+        isEmpty);
+    expect(
+        (await (database.select(database.messages)
+                  ..where((r) => r.conversationId.equals(other)))
+                .get())
+            .single
+            .content,
+        'QA 保留消息');
+    expect((await repository.getLedgerById(ledgerId))!.name, 'QA 当前账本');
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump(const Duration(seconds: 3));
+    await tester.pumpAndSettle();
+  });
+
+  testWidgets('消息长按使用共享菜单，删除取消保留、确认仅删除目标', (tester) async {
+    await repository.createLedger(name: 'QA 菜单账本');
+    final conversation = await repository.createConversation(
+        ConversationsCompanion.insert(title: const Value('QA 消息菜单')));
+    final target = await repository.createMessage(MessagesCompanion.insert(
+        conversationId: conversation,
+        role: 'user',
+        content: 'qa-menu-target',
+        messageType: 'text'));
+    final keep = await repository.createMessage(MessagesCompanion.insert(
+        conversationId: conversation,
+        role: 'user',
+        content: 'qa-menu-keep',
+        messageType: 'text'));
+    await tester.pumpWidget(host());
+    await tester.pumpAndSettle();
+    for (final confirm in [false, true]) {
+      await tester.ensureVisible(find.text('qa-menu-target'));
+      await tester.longPress(find.text('qa-menu-target'));
+      await tester.pumpAndSettle();
+      expect(find.byType(PopupMenuItem<int>), findsNWidgets(2));
+      await tester.tap(find.text(AppLocalizationsZh().commonDelete));
+      await tester.pumpAndSettle();
+      expect(find.text(AppLocalizationsZh().aiChatDeleteMessageConfirm),
+          findsOneWidget);
+      await tester.tap(confirm
+          ? find.widgetWithText(BeeButton, AppLocalizationsZh().commonDelete)
+          : find.widgetWithText(TextButton, AppLocalizationsZh().commonCancel));
+      await tester.pumpAndSettle();
+      final rows = await database.select(database.messages).get();
+      expect(rows.any((r) => r.id == target), !confirm);
+      expect(rows.any((r) => r.id == keep), true);
+    }
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump(const Duration(seconds: 3));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+  });
 
   testWidgets('离开 AI 对话页不会在 dispose 后读取 ref', (tester) async {
     await tester.pumpWidget(host());
@@ -344,6 +439,12 @@ void main() {
     expect(users.single.content, prompt);
     final runs = await database.select(database.agentRuns).get();
     expect(runs.single.userMessage, prompt);
+    await tester.scrollUntilVisible(find.text(prompt), -200,
+        scrollable: find
+            .descendant(
+                of: find.byType(ListView).first,
+                matching: find.byType(Scrollable))
+            .first);
     expect(find.text(prompt), findsOneWidget);
     await tester.pumpWidget(const SizedBox());
     await tester.pump(const Duration(seconds: 3));
@@ -459,6 +560,13 @@ void main() {
     expect(messages.single.content, '本月支出0元。');
     expect(AssistantExecutionMetadata.decode(messages.single.metadata),
         hasLength(1));
+    await tester.drag(find.byType(ListView).first, const Offset(0, 180));
+    await tester.pumpAndSettle();
+    await tester
+        .ensureVisible(find.byKey(const ValueKey('agent-activity-toggle')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('agent-activity-toggle')).hitTestable(),
+        findsOneWidget);
     await tester.tap(find.byKey(const ValueKey('agent-activity-toggle')));
     await tester.pumpAndSettle();
     expect(find.text('收支概览'), findsOneWidget);

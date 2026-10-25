@@ -1,3 +1,4 @@
+import 'ai_conversation_sample.dart';
 import 'execution_depth_sample.dart';
 import 'ai_prompt_sample.dart';
 import 'ai_provider_sample.dart';
@@ -74,7 +75,8 @@ const businessCases = [
   'AI能力绑定与授权',
   'AI服务商与连接测试',
   '提示词草稿与变量',
-  '助手执行深度'
+  '助手执行深度',
+  'AI对话与记账卡'
 ];
 const demoTags = [
   BeeTagData('work', '工作日', Color(0xffaa8b29)),
@@ -105,7 +107,8 @@ class BusinessAcceptancePage extends StatefulWidget {
       this.aiSettingsData,
       this.aiProviderData,
       this.aiPromptData,
-      this.executionDepthData});
+      this.executionDepthData,
+      this.aiConversationData});
   final Widget? liveData,
       tagLibraryData,
       reminderData,
@@ -123,7 +126,8 @@ class BusinessAcceptancePage extends StatefulWidget {
       aiSettingsData,
       aiProviderData,
       aiPromptData,
-      executionDepthData;
+      executionDepthData,
+      aiConversationData;
   final int? isolatedCase;
   @override
   State<BusinessAcceptancePage> createState() => _BusinessAcceptancePageState();
@@ -1915,6 +1919,7 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
         55 => AIProviderSample(liveData: widget.aiProviderData),
         56 => AIPromptSample(liveData: widget.aiPromptData),
         57 => ExecutionDepthSample(liveData: widget.executionDepthData),
+        58 => AIConversationSample(liveData: widget.aiConversationData),
         49 => BudgetSample(
             liveData: widget.budgetData, onEdit: () => record('选择预算编辑')),
         48 => ExchangeRateSample(liveData: widget.exchangeRateData),

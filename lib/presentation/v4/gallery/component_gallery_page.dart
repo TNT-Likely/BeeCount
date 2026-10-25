@@ -1,3 +1,4 @@
+import '../bindings/ai_conversation_preview.dart';
 import '../bindings/execution_depth_preview.dart';
 import '../bindings/ai_prompt_preview.dart';
 import '../bindings/ai_provider_preview.dart';
@@ -103,6 +104,9 @@ class _ComponentGalleryPageState extends State<ComponentGalleryPage> {
                                 key: const ValueKey('gallery-business-tickers'),
                                 enabled: tab == 1 && !motionPaused,
                                 child: BusinessAcceptancePage(
+                                    aiConversationData: widget.enableLiveData
+                                        ? const LiveAIConversationPreview()
+                                        : null,
                                     executionDepthData: widget.enableLiveData
                                         ? const LiveExecutionDepthPreview()
                                         : null,
