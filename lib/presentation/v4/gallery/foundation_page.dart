@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'gallery_catalog.dart';
 import 'package:beecount_ui/beecount_ui.dart';
+import 'package:beecount_ui/multi_select.dart';
 
 const foundationCases = [
   '按钮',
@@ -51,6 +52,7 @@ class _FoundationAcceptancePageState extends State<FoundationAcceptancePage> {
   bool iconSelected = false, passwordHidden = true, demoMotion = false;
   bool statusDismissed = false, chartHidden = false;
   Set<int> choices = {0, 2};
+  Set<String> multiChoices = {'one'};
   String pickerMode = 'data';
   int picked = 0;
   int colorChoice = 0;
@@ -629,6 +631,54 @@ class _FoundationAcceptancePageState extends State<FoundationAcceptancePage> {
                 const BeeCheckTile(label: '禁用复选', value: true, onChanged: null),
                 const BeeToggleRow(
                     title: '禁用开关', value: false, onChanged: null),
+                const BeeDivider(label: '受控集合多选'),
+                BeeMultiSelect<String>(
+                    key: const ValueKey('foundation-multi-select'),
+                    selectedValues: multiChoices,
+                    options: const [
+                      BeeMultiSelectOption(value: 'one', label: '受控选项一'),
+                      BeeMultiSelectOption(
+                          value: 'two',
+                          label: '受控选项二',
+                          key: ValueKey('foundation-multi-select-two')),
+                    ],
+                    onChanged: (value) => setState(() {
+                          multiChoices = value;
+                          event = '多选示例：${value.length} 项';
+                        })),
+                const SizedBox(height: 8),
+                const BeeMultiSelect<String>(
+                    key: ValueKey('foundation-disabled-multi-select'),
+                    selectedValues: {'disabled'},
+                    options: [
+                      BeeMultiSelectOption(value: 'disabled', label: '禁用多选示例')
+                    ],
+                    onChanged: null),
+                const BeeDivider(label: '紧凑行内标签'),
+                Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      BeeInlineLabel(
+                          label: '静态短标签',
+                          foreground: Theme.of(context).colorScheme.onSurface,
+                          background: BeeCardTheme.of(context).soft),
+                      BeeInlineLabel(
+                          label: '完整标签名称用于检查省略与提示',
+                          maxWidth: 96,
+                          foreground: Theme.of(context).colorScheme.onSurface,
+                          background: BeeCardTheme.of(context).soft),
+                      BeeInlineLabel(
+                          label: '局部点击标签',
+                          hitPadding: const EdgeInsets.symmetric(vertical: 14),
+                          foreground: Theme.of(context).colorScheme.primary,
+                          background: Theme.of(context)
+                              .colorScheme
+                              .primary
+                              .withValues(alpha: .10),
+                          onTap: () => record('点击紧凑标签，只更新示例')),
+                    ]),
               ])),
         14 => BeeSurface(
               child: Column(

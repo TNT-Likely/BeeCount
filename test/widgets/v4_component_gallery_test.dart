@@ -8,6 +8,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:beecount/theme.dart';
 import 'package:beecount_ui/beecount_ui.dart';
+import 'package:beecount_ui/multi_select.dart';
 import 'package:beecount_business_ui/beecount_business_ui.dart';
 import 'package:beecount/presentation/v4/gallery/foundation_page.dart';
 import 'package:beecount/presentation/v4/gallery/business_page.dart';
@@ -458,6 +459,84 @@ void main() {
     await tester.tap(find.widgetWithText(BeeChoiceChip, '第二个选项'));
     await tester.pumpAndSettle();
     expect(tester.widget<BeeCheckTile>(all).mixed, isTrue);
+  });
+  testWidgets('原标签分区真实展示集合多选与紧凑标签，保留禁用和提示', (tester) async {
+    expect(foundationCases.length, 26);
+    expect(foundationCases[13], '标签块与多选');
+    for (final width in [320.0, 398.0]) {
+      for (final brightness in [Brightness.light, Brightness.dark]) {
+        for (final scale in [1.0, 1.4]) {
+          await open(tester,
+              FoundationAcceptancePage(key: UniqueKey(), isolatedCase: 13),
+              size: Size(width, 844), brightness: brightness, scale: scale);
+          expect(find.byType(BeeInlineLabel), findsNWidgets(3));
+          final active = find.byKey(const ValueKey('foundation-multi-select'));
+          final disabled =
+              find.byKey(const ValueKey('foundation-disabled-multi-select'));
+          expect(tester.widget<BeeMultiSelect<String>>(disabled).onChanged,
+              isNull);
+          final choice =
+              find.byKey(const ValueKey('foundation-multi-select-two'));
+          await tester.ensureVisible(choice);
+          await tester.tap(choice);
+          await tester.pumpAndSettle();
+          expect(tester.widget<BeeMultiSelect<String>>(active).selectedValues,
+              {'one', 'two'});
+          await tester.tap(find.text('禁用多选示例'));
+          await tester.pumpAndSettle();
+          expect(tester.widget<BeeMultiSelect<String>>(disabled).selectedValues,
+              {'disabled'});
+          final label = find.widgetWithText(BeeInlineLabel, '完整标签名称用于检查省略与提示');
+          await tester.ensureVisible(label);
+          expect(tester.getSize(label).width, lessThanOrEqualTo(96));
+          final text = tester.widget<Text>(find.descendant(
+              of: label, matching: find.text('完整标签名称用于检查省略与提示')));
+          expect(text.maxLines, 1);
+          expect(text.overflow, TextOverflow.ellipsis);
+          final tooltip =
+              find.descendant(of: label, matching: find.byType(Tooltip));
+          expect(tester.widget<Tooltip>(tooltip).message, '完整标签名称用于检查省略与提示');
+          final action = find.widgetWithText(BeeInlineLabel, '局部点击标签');
+          await tester.ensureVisible(action);
+          expect(tester.getSize(action).height, greaterThanOrEqualTo(44));
+          await tester.tap(action);
+          await tester.pumpAndSettle();
+          expect(find.text('点击紧凑标签，只更新示例'), findsOneWidget);
+          expect(tester.takeException(), isNull);
+          await shot(
+              tester, 'foundation-inline-$width-${brightness.name}-$scale');
+        }
+      }
+    }
+  });
+  testWidgets('集合多选在原平铺目录定位与关闭后保持局部状态', (tester) async {
+    await open(tester, const FoundationAcceptancePage(), reduceMotion: true);
+    final choice = find.byKey(const ValueKey('foundation-multi-select-two'));
+    await tester.ensureVisible(choice);
+    await tester.tap(choice);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('foundation-case')));
+    await tester.pumpAndSettle();
+    final entry = find.widgetWithText(BeeButton, '14 · 标签块与多选');
+    await tester.ensureVisible(entry);
+    await tester.tap(entry);
+    await tester.pumpAndSettle();
+    expect(
+        tester
+            .widget<BeeMultiSelect<String>>(
+                find.byKey(const ValueKey('foundation-multi-select')))
+            .selectedValues,
+        {'one', 'two'});
+    final scroll = tester.widget<SingleChildScrollView>(
+        find.byKey(const ValueKey('foundation-catalog-scroll')));
+    final position = scroll.controller!.offset;
+    await tester.tap(find.byKey(const ValueKey('foundation-case')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(CloseButton).last);
+    await tester.pumpAndSettle();
+    expect(scroll.controller!.offset, closeTo(position, .01));
+    expect(find.byKey(const ValueKey('foundation-section-25')), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
   testWidgets('搜索清空与外部 controller 所有权', (tester) async {
     final semantics = tester.ensureSemantics();
