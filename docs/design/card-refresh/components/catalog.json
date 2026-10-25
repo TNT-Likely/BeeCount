@@ -535,6 +535,13 @@
         "title": "智能记账引导与语音偏好",
         "nativeCase": 53,
         "nativeLabel": "智能记账引导与语音偏好"
+      },
+      {
+        "id": "spec-76",
+        "code": "B51",
+        "title": "AI能力绑定与原授权",
+        "nativeCase": 54,
+        "nativeLabel": "AI能力绑定与授权"
       }
     ]
   }

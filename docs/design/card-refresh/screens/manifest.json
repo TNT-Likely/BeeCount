@@ -931,9 +931,9 @@
   },
   {
     "route": "flow-ai-settings",
-    "slug": "flow-ai-settings",
-    "title": "AI 设置",
+    "title": "AI小助手",
     "group": "补齐 · AI 与助手",
+    "slug": "flow-ai-settings",
     "fullHeight": 844,
     "viewport": "screens/viewport/flow-ai-settings.png",
     "full": "screens/full/flow-ai-settings.png",
@@ -961,9 +961,9 @@
   },
   {
     "route": "flow-capabilities",
-    "slug": "flow-capabilities",
     "title": "AI 能力分配 · 弹窗",
     "group": "补齐 · AI 与助手",
+    "slug": "flow-capabilities",
     "fullHeight": 844,
     "viewport": "screens/viewport/flow-capabilities.png",
     "full": "screens/full/flow-capabilities.png",
@@ -1021,9 +1021,9 @@
   },
   {
     "route": "flow-ai-consent",
-    "slug": "flow-ai-consent",
-    "title": "AI 隐私说明 · 弹窗",
+    "title": "开启 AI 功能前,请知悉 · 弹窗",
     "group": "补齐 · AI 与助手",
+    "slug": "flow-ai-consent",
     "fullHeight": 844,
     "viewport": "screens/viewport/flow-ai-consent.png",
     "full": "screens/full/flow-ai-consent.png",
@@ -3262,5 +3262,75 @@
     "viewport": "screens/viewport/flow-smart-guide-share.png",
     "full": "screens/full/flow-smart-guide-share.png",
     "svg": "figma/flow-smart-guide-share.svg"
+  },
+  {
+    "route": "flow-ai-settings-enabled",
+    "title": "AI设置 · 已启用",
+    "group": "补齐 · AI与助手",
+    "slug": "flow-ai-settings-enabled",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-ai-settings-enabled.png",
+    "full": "screens/full/flow-ai-settings-enabled.png",
+    "svg": "figma/flow-ai-settings-enabled.svg"
+  },
+  {
+    "route": "flow-ai-settings-loading",
+    "title": "AI设置 · 加载中",
+    "group": "补齐 · AI与助手",
+    "slug": "flow-ai-settings-loading",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-ai-settings-loading.png",
+    "full": "screens/full/flow-ai-settings-loading.png",
+    "svg": "figma/flow-ai-settings-loading.svg"
+  },
+  {
+    "route": "flow-ai-settings-error",
+    "title": "AI设置 · 读取失败",
+    "group": "补齐 · AI与助手",
+    "slug": "flow-ai-settings-error",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-ai-settings-error.png",
+    "full": "screens/full/flow-ai-settings-error.png",
+    "svg": "figma/flow-ai-settings-error.svg"
+  },
+  {
+    "route": "flow-ai-settings-long",
+    "title": "AI设置 · 长服务商名称",
+    "group": "补齐 · AI与助手",
+    "slug": "flow-ai-settings-long",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-ai-settings-long.png",
+    "full": "screens/full/flow-ai-settings-long.png",
+    "svg": "figma/flow-ai-settings-long.svg"
+  },
+  {
+    "route": "flow-ai-capability-text",
+    "title": "文本对话 · 弹窗",
+    "group": "补齐 · AI与助手",
+    "slug": "flow-ai-capability-text",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-ai-capability-text.png",
+    "full": "screens/full/flow-ai-capability-text.png",
+    "svg": "figma/flow-ai-capability-text.svg"
+  },
+  {
+    "route": "flow-ai-capability-vision",
+    "title": "图片理解 · 弹窗",
+    "group": "补齐 · AI与助手",
+    "slug": "flow-ai-capability-vision",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-ai-capability-vision.png",
+    "full": "screens/full/flow-ai-capability-vision.png",
+    "svg": "figma/flow-ai-capability-vision.svg"
+  },
+  {
+    "route": "flow-ai-capability-speech",
+    "title": "语音转文字 · 弹窗",
+    "group": "补齐 · AI与助手",
+    "slug": "flow-ai-capability-speech",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-ai-capability-speech.png",
+    "full": "screens/full/flow-ai-capability-speech.png",
+    "svg": "figma/flow-ai-capability-speech.svg"
   }
 ]

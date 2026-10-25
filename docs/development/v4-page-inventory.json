@@ -10,7 +10,7 @@
     "lib/pages/cloud/sync_preview_dialog.dart",
     "lib/pages/tag/widgets/tag_selector.dart"
   ],
-  "designSceneExports": 324,
+  "designSceneExports": 331,
   "flowDefinitions": 183,
   "priorityCounts": {
     "P0": 16,
@@ -466,11 +466,19 @@
       "classes": [
         "AISettingsPage"
       ],
-      "lines": 529,
+      "lines": 52,
       "batch": "M6 AI与自动化",
       "designRoutes": [
         "flow-ai-settings",
-        "flow-capabilities"
+        "flow-ai-settings-enabled",
+        "flow-ai-settings-loading",
+        "flow-ai-settings-error",
+        "flow-ai-settings-long",
+        "flow-ai-consent",
+        "flow-capabilities",
+        "flow-ai-capability-text",
+        "flow-ai-capability-vision",
+        "flow-ai-capability-speech"
       ],
       "designMapping": "已定位",
       "components": "消息、配置表单、授权、任务状态与列表",
@@ -481,7 +489,15 @@
       "reason": "原529行/授权弹窗及配置Provider/Manager五文件备份；原授权门禁、三能力过滤、即时保存/取消、四策略及原导航已移入App绑定，纯展示组件和HTML/Flutter样例在完善。未安装R81，不计完成。",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-ai-settings",
-        "../../docs/design/card-refresh/prototype/demo.html?page=flow-capabilities"
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-ai-settings-enabled",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-ai-settings-loading",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-ai-settings-error",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-ai-settings-long",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-ai-consent",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-capabilities",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-ai-capability-text",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-ai-capability-vision",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-ai-capability-speech"
       ]
     },
     {

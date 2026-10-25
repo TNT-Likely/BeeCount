@@ -72,3 +72,11 @@ document.addEventListener('click',event=>{const button=event.target.closest('[da
 document.addEventListener('click',event=>{const button=event.target.closest('[data-s80-demo-mode]');if(!button)return;const root=button.closest('[data-s80-demo]');for(const item of root.querySelectorAll('[data-s80-demo-mode]'))item.setAttribute('aria-pressed',String(item===button));root.querySelector('[data-s80-demo-slider]').hidden=button.dataset.s80DemoMode!=='auto';});
 document.addEventListener('input',event=>{if(event.target.matches('[data-s80-demo-range]'))event.target.closest('label').querySelector('output').textContent=(Number(event.target.value)/1000).toFixed(1)+' 秒';});
 document.addEventListener('change',event=>{if(event.target.matches('[data-s80-demo-range]'))event.target.closest('[data-s80-demo]').querySelector('[data-s80-demo-event]').textContent='示例松手提交 '+event.target.value+' ms';});
+
+for(const demo of document.querySelectorAll('[data-a81-demo]'))demo.addEventListener('click',event=>{
+ if(event.target.closest('[data-a81-choose-open]'))demo.querySelector('[data-a81-provider-dialog]').showModal();
+ if(event.target.closest('[data-a81-consent-open]'))demo.querySelector('[data-a81-consent-dialog]').showModal();
+ const choice=event.target.closest('[data-a81-provider]');if(choice){demo.querySelector('[data-a81-provider-label]').textContent=choice.dataset.a81Provider;demo.querySelector('[data-a81-result]').textContent='示例选择 '+choice.dataset.a81Provider;choice.closest('dialog').close();}
+ if(event.target.closest('[data-a81-cancel]'))event.target.closest('dialog').close();
+ if(event.target.closest('[data-a81-demo-agree]')){demo.querySelector('[data-a81-result]').textContent='示例同意，不写真实授权';event.target.closest('dialog').close();}
+});
