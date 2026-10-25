@@ -8,6 +8,7 @@ import '../../../pages/report/annual_report_page.dart';
 import '../../../services/data/category_service.dart';
 import '../../../utils/currencies.dart';
 import '../../../utils/month_range.dart';
+import '../../../utils/report_period_elapsed.dart';
 
 /// Localization, currency formatting and the existing report calculations stay
 /// in App. Business UI receives only values, labels and chart proportions.
@@ -41,13 +42,12 @@ List<Widget> annualReportSections(BuildContext context, AnnualReportData data,
       data.totalRecords > 0 ? data.totalExpense / data.totalRecords : 0.0;
   final today = now ?? DateTime.now();
   final yr = yearRangeFor(data.year, monthStartDay);
-  final isCurrentYear = !today.isBefore(yr.start) && today.isBefore(yr.end);
-  final yearEnd =
-      isCurrentYear ? today : yr.end.subtract(const Duration(days: 1));
-  final totalCalendarDays = yearEnd.difference(yr.start).inDays + 1;
+  final totalCalendarDays = elapsedReportDays(yr, now: today);
+  final elapsedMonths = elapsedReportYearMonths(data.year,
+      monthStartDay: monthStartDay, now: today);
   final dailyAvg =
       totalCalendarDays > 0 ? data.totalExpense / totalCalendarDays : 0.0;
-  final monthlyAvg = data.totalExpense / 12;
+  final monthlyAvg = elapsedMonths > 0 ? data.totalExpense / elapsedMonths : 0.0;
   int busiestMonth = 1;
   double maxMonthlyTotal = 0;
   for (final m in data.monthlyData) {

@@ -382,6 +382,7 @@ class _AnnualReportPageState extends ConsumerState<AnnualReportPage> {
 
     final l10n = AppLocalizations.of(context);
     final primaryColor = ref.read(primaryColorProvider);
+    final monthStartDay = ref.read(currentMonthStartDayProvider);
 
     setState(() => _generatingPoster = true);
 
@@ -443,6 +444,7 @@ class _AnnualReportPageState extends ConsumerState<AnnualReportPage> {
         child: AnnualReportPoster(
           data: data,
           primaryColor: primaryColor,
+          monthStartDay: monthStartDay,
         ),
       );
 
@@ -461,6 +463,7 @@ class _AnnualReportPageState extends ConsumerState<AnnualReportPage> {
           initialImageBytes: pngBytes,
           data: data,
           primaryColor: primaryColor,
+          monthStartDay: monthStartDay,
         ),
       );
     } catch (e) {
@@ -517,11 +520,13 @@ class _AnnualReportPosterPreview extends StatefulWidget {
   final Uint8List initialImageBytes;
   final AnnualReportData data;
   final Color primaryColor;
+  final int monthStartDay;
 
   const _AnnualReportPosterPreview({
     required this.initialImageBytes,
     required this.data,
     required this.primaryColor,
+    required this.monthStartDay,
   });
 
   @override
@@ -559,6 +564,7 @@ class _AnnualReportPosterPreviewState
           data: widget.data,
           primaryColor: widget.primaryColor,
           hideIncome: _hideIncome,
+          monthStartDay: widget.monthStartDay,
         ),
       );
 

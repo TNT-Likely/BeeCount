@@ -10,6 +10,8 @@ import '../../pages/report/annual_report_page.dart';
 import '../../services/data/category_service.dart';
 import '../../l10n/app_localizations.dart';
 import '../../utils/currencies.dart';
+import '../../utils/month_range.dart';
+import '../../utils/report_period_elapsed.dart';
 
 /// 年度账单长图海报
 /// 将多个页面内容合并成一张长图用于分享
@@ -17,12 +19,16 @@ class AnnualReportPoster extends StatelessWidget {
   final AnnualReportData data;
   final Color primaryColor;
   final bool hideIncome;
+  final int monthStartDay;
+  final DateTime? now;
 
   const AnnualReportPoster({
     super.key,
     required this.data,
     required this.primaryColor,
     this.hideIncome = false,
+    this.monthStartDay = 1,
+    this.now,
   });
 
   @override
@@ -632,16 +638,15 @@ class AnnualReportPoster extends StatelessWidget {
   Widget _buildStatsSummary(BuildContext context, AppLocalizations l10n) {
     final formatter = NumberFormat('#,##0', l10n.localeName);
 
-    // 计算年度总天数：过去年份用全年天数，当前年份用截至今天的天数
-    final now = DateTime.now();
-    final isCurrentYear = data.year == now.year;
-    final yearEnd = isCurrentYear ? now : DateTime(data.year, 12, 31);
-    final yearStart = DateTime(data.year, 1, 1);
-    final totalCalendarDays = yearEnd.difference(yearStart).inDays + 1;
-
+    // Reuse the same custom calendar denominators as the report and share cards.
+    final today = now ?? DateTime.now();
+    final totalCalendarDays = elapsedReportDays(
+        yearRangeFor(data.year, monthStartDay), now: today);
+    final elapsedMonths = elapsedReportYearMonths(data.year,
+        monthStartDay: monthStartDay, now: today);
     final dailyAvg =
         totalCalendarDays > 0 ? data.totalExpense / totalCalendarDays : 0;
-    final monthlyAvg = data.totalExpense / 12;
+    final monthlyAvg = elapsedMonths > 0 ? data.totalExpense / elapsedMonths : 0;
 
     return Container(
       margin: const EdgeInsets.fromLTRB(40, 30, 40, 0),

@@ -3,6 +3,7 @@ library;
 
 import '../../data/repositories/base_repository.dart';
 import '../../utils/month_range.dart';
+import '../../utils/report_period_elapsed.dart';
 import '../ui/avatar_service.dart';
 import '../../utils/app_localizations_resolver.dart';
 import 'share_poster_types.dart';
@@ -107,12 +108,8 @@ class SharePosterDataService {
     );
 
     // 5. 计算月均收支
-    final today = _today;
-    final elapsedMonths = today.isBefore(startDate)
-        ? 0
-        : !today.isBefore(endDate)
-            ? 12
-            : labelForDate(today, sd).month;
+    final elapsedMonths = elapsedReportYearMonths(year,
+        monthStartDay: sd, now: _today);
     final avgMonthlyExpense =
         elapsedMonths > 0 ? totalExpense / elapsedMonths : 0.0;
     final avgMonthlyIncome =
@@ -211,16 +208,7 @@ class SharePosterDataService {
     );
 
     // 5. 计算日均支出
-    final today = _today;
-    final cutoff = today.isBefore(startDate)
-        ? startDate
-        : today.isBefore(endDate)
-            ? DateTime(today.year, today.month, today.day + 1)
-            : endDate;
-    final elapsedDays = DateTime.utc(cutoff.year, cutoff.month, cutoff.day)
-        .difference(
-            DateTime.utc(startDate.year, startDate.month, startDate.day))
-        .inDays;
+    final elapsedDays = elapsedReportDays(range, now: _today);
     final avgDailyExpense = elapsedDays > 0 ? totalExpense / elapsedDays : 0.0;
 
     // 6. 计算结余
