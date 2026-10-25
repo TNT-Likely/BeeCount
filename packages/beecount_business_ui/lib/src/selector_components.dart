@@ -110,8 +110,54 @@ class _BeeCategoryPickerState extends State<BeeCategoryPicker> {
                 parent.label.toLowerCase().contains(q) ||
                 c.label.toLowerCase().contains(q))
             .toList();
-    final expanded =
-        widget.expandAllChildren ? visible : [if (parent != null) parent];
+    List<Widget> childBlock(BeeCategoryChoice group) => [
+          if (childrenOf(group).isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                    color: BeeCardTheme.of(context).soft,
+                    borderRadius: BorderRadius.circular(14)),
+                child: LayoutBuilder(builder: (context, constraints) {
+                  final choices = [group, ...childrenOf(group)],
+                      columns = constraints.maxWidth < 270 ? 2 : 4;
+                  return Wrap(
+                      spacing: 4,
+                      runSpacing: 4,
+                      children: choices
+                          .map((c) => SizedBox(
+                              width:
+                                  (constraints.maxWidth - (columns - 1) * 4) /
+                                      columns,
+                              child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    SizedBox(
+                                        height: 44,
+                                        child: Opacity(
+                                            opacity: c.enabled ? 1 : .4,
+                                            child: RecordingSubcategoryChip(
+                                                label: c.label,
+                                                icon: c.icon,
+                                                selected: draft == c.id,
+                                                onTap: c.enabled
+                                                    ? () =>
+                                                        choose(c, direct: true)
+                                                    : null))),
+                                    if (c.detail != null)
+                                      Padding(
+                                          padding:
+                                              const EdgeInsets.only(top: 3),
+                                          child: Text(c.detail!,
+                                              style: TextStyle(
+                                                  fontSize: 10,
+                                                  color: Theme.of(context)
+                                                      .hintColor))),
+                                  ])))
+                          .toList());
+                }))
+          ]
+        ];
     return Column(mainAxisSize: MainAxisSize.min, children: [
       BeeSearchField(
           hint: widget.searchLabel,
@@ -126,83 +172,41 @@ class _BeeCategoryPickerState extends State<BeeCategoryPicker> {
                       child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            LayoutBuilder(
-                                builder: (context, constraints) => Wrap(
-                                    children: visible
-                                        .map((i) => SizedBox(
-                                            width: constraints.maxWidth / 4,
-                                            child: tile(i)))
-                                        .toList())),
-                            for (final group in expanded)
-                              if (childrenOf(group).isNotEmpty) ...[
-                                const SizedBox(height: 8),
-                                Container(
-                                    padding: const EdgeInsets.all(8),
-                                    decoration: BoxDecoration(
-                                        color: BeeCardTheme.of(context).soft,
-                                        borderRadius:
-                                            BorderRadius.circular(14)),
-                                    child: LayoutBuilder(
-                                        builder: (context, constraints) {
-                                      final choices = [
-                                            group,
-                                            ...childrenOf(group)
-                                          ],
-                                          columns = constraints.maxWidth < 270
-                                              ? 2
-                                              : 4;
-                                      return Wrap(
-                                          spacing: 4,
-                                          runSpacing: 4,
-                                          children: choices
-                                              .map((c) => SizedBox(
-                                                  width: (constraints.maxWidth -
-                                                          (columns - 1) * 4) /
-                                                      columns,
-                                                  child: Column(
-                                                      mainAxisSize:
-                                                          MainAxisSize.min,
-                                                      children: [
-                                                        SizedBox(
-                                                            height: 44,
-                                                            child: Opacity(
-                                                                opacity:
-                                                                    c.enabled
-                                                                        ? 1
-                                                                        : .4,
-                                                                child: RecordingSubcategoryChip(
-                                                                    label:
-                                                                        c.label,
-                                                                    icon:
-                                                                        c.icon,
-                                                                    selected:
-                                                                        draft ==
-                                                                            c
-                                                                                .id,
-                                                                    onTap: c.enabled
-                                                                        ? () => choose(
-                                                                            c,
-                                                                            direct:
-                                                                                true)
-                                                                        : null))),
-                                                        if (c.detail != null)
-                                                          Padding(
-                                                              padding:
-                                                                  const EdgeInsets
-                                                                      .only(
-                                                                      top: 3),
-                                                              child: Text(
-                                                                  c.detail!,
-                                                                  style: TextStyle(
-                                                                      fontSize:
-                                                                          10,
-                                                                      color: Theme.of(
-                                                                              context)
-                                                                          .hintColor))),
-                                                      ])))
-                                              .toList());
-                                    }))
-                              ]
+                            LayoutBuilder(builder: (context, constraints) {
+                              Widget grid(List<BeeCategoryChoice> row) => Wrap(
+                                  children: row
+                                      .map((i) => SizedBox(
+                                          width: constraints.maxWidth / 4,
+                                          child: tile(i)))
+                                      .toList());
+                              if (widget.expandAllChildren) {
+                                return Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
+                                    children: [
+                                      grid(visible),
+                                      for (final group in visible)
+                                        ...childBlock(group),
+                                    ]);
+                              }
+                              final rows = <Widget>[];
+                              for (var start = 0;
+                                  start < visible.length;
+                                  start += 4) {
+                                final row =
+                                    visible.skip(start).take(4).toList();
+                                rows.add(grid(row));
+                                // Keep expansion beside the tapped grid row,
+                                // even when many later parents fill the popup.
+                                if (parent != null && row.contains(parent)) {
+                                  rows.addAll(childBlock(parent));
+                                }
+                              }
+                              return Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  children: rows);
+                            }),
                           ])))),
       if (!widget.immediate) ...[
         const SizedBox(height: 12),
