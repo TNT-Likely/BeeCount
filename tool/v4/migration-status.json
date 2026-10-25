@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-25T23:55:48.883991+08:00",
+  "updated": "2026-10-26T01:12:50.678542+08:00",
   "branch": "v4",
   "baselineCommit": "6616066247a8738a42996c496e1b99106820e59f",
   "pages": {
@@ -127,11 +127,19 @@
     "auth/login_page.dart": {
       "name": "云账号登录",
       "priority": "P1",
-      "reason": "同一QA已完成真实登录/配置、共享角色与数据保护、DAV差异取消及单条恢复、首次Cloud创建月日起8与正常入口；Root实际SQL/full及文件对照通过。独立报告封存后再计整页，S3/iCloud/Supabase实际连接范围不从DAV推定。",
-      "status": "迁移中·R114关键原生与实服闭环通过，独立报告待封存",
+      "reason": "Root已逐页审阅原功能/设计/组件/相关回归与实际原生实服闭环，R114固定版本独立HTML/ZIP解压hash/links与三宽检查通过并只读封存。",
+      "status": "已完成",
       "components": "登录表单、安全输入、验证码与错误反馈",
-      "acceptance": "原账号/验证方式、合法输入、加载防重、取消、登录失败/恢复和实际鉴权。",
-      "implementationStage": "implemented"
+      "acceptance": "原账号/验证方式、合法输入、加载防重、取消、登录失败/恢复和实际鉴权。 R114整页封存：cloud-login-r114；原c7/R113视觉证据按源连续性复用，R114目标水合/加入退出与DAV真实恢复/重登/首建月8和共同正常入口单列。2本9笔/3附件refs两侧实际字节严格MATCH；全原71保护，最终仅新增0.41至72。Q24精度MISMATCH、旧附件order拒绝、DAVv6字段边界、未实服后端等继续保留。该报告不覆盖后续A–E新设计修订。",
+      "implementationStage": "accepted",
+      "report": {
+        "path": ".docs/acceptance/v4-migration/2026-10-26/cloud-r114-final/cloud-login-r114/index.html",
+        "zip": ".docs/acceptance/v4-migration/2026-10-26/cloud-r114-final/cloud-login-r114.zip",
+        "zipSHA256": "6bce62be76ea534ed3020999b3f816a0f33a5a3d30e69a8e63cd0eb39f4fed07",
+        "sourceCommit": "c21b378a0322a0b48da631a9ff438f69574474cc",
+        "artifactSHA256": "e37427b9f7f35ce70d357ee2db9126bd18bd351147aab1aff5f7334c4052d6f3",
+        "sealed": true
+      }
     },
     "auth/pin_setup_page.dart": {
       "name": "PIN 设置与确认",
@@ -229,65 +237,121 @@
     "cloud/beecount_cloud_sync_page.dart": {
       "name": "BeeCount Cloud 同步",
       "priority": "P1",
-      "reason": "同一QA已完成真实登录/配置、共享角色与数据保护、DAV差异取消及单条恢复、首次Cloud创建月日起8与正常入口；Root实际SQL/full及文件对照通过。独立报告封存后再计整页，S3/iCloud/Supabase实际连接范围不从DAV推定。",
-      "status": "迁移中·R114关键原生与实服闭环通过，独立报告待封存",
+      "reason": "Root已逐页审阅原功能/设计/组件/相关回归与实际原生实服闭环，R114固定版本独立HTML/ZIP解压hash/links与三宽检查通过并只读封存。",
+      "status": "已完成",
       "components": "同步状态、配置、成员列表与权限操作",
-      "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。",
-      "implementationStage": "implemented"
+      "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。 R114整页封存：beecount-cloud-sync-r114；原c7/R113视觉证据按源连续性复用，R114目标水合/加入退出与DAV真实恢复/重登/首建月8和共同正常入口单列。2本9笔/3附件refs两侧实际字节严格MATCH；全原71保护，最终仅新增0.41至72。Q24精度MISMATCH、旧附件order拒绝、DAVv6字段边界、未实服后端等继续保留。该报告不覆盖后续A–E新设计修订。",
+      "implementationStage": "accepted",
+      "report": {
+        "path": ".docs/acceptance/v4-migration/2026-10-26/cloud-r114-final/beecount-cloud-sync-r114/index.html",
+        "zip": ".docs/acceptance/v4-migration/2026-10-26/cloud-r114-final/beecount-cloud-sync-r114.zip",
+        "zipSHA256": "2c169162b9050d25fb7a0b46a06172170e8d32fe614b959bfbb83ec8d7a822cc",
+        "sourceCommit": "c21b378a0322a0b48da631a9ff438f69574474cc",
+        "artifactSHA256": "e37427b9f7f35ce70d357ee2db9126bd18bd351147aab1aff5f7334c4052d6f3",
+        "sealed": true
+      }
     },
     "cloud/cloud_service_page.dart": {
       "name": "云服务配置与账号",
       "priority": "P1",
-      "reason": "同一QA已完成真实登录/配置、共享角色与数据保护、DAV差异取消及单条恢复、首次Cloud创建月日起8与正常入口；Root实际SQL/full及文件对照通过。独立报告封存后再计整页，S3/iCloud/Supabase实际连接范围不从DAV推定。",
-      "status": "迁移中·R114关键原生与实服闭环通过，独立报告待封存",
+      "reason": "Root已逐页审阅原功能/设计/组件/相关回归与实际原生实服闭环，R114固定版本独立HTML/ZIP解压hash/links与三宽检查通过并只读封存。",
+      "status": "已完成",
       "components": "同步状态、配置、成员列表与权限操作",
-      "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。",
-      "implementationStage": "implemented"
+      "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。 R114整页封存：cloud-configuration-r114；原c7/R113视觉证据按源连续性复用，R114目标水合/加入退出与DAV真实恢复/重登/首建月8和共同正常入口单列。2本9笔/3附件refs两侧实际字节严格MATCH；全原71保护，最终仅新增0.41至72。Q24精度MISMATCH、旧附件order拒绝、DAVv6字段边界、未实服后端等继续保留。该报告不覆盖后续A–E新设计修订。",
+      "implementationStage": "accepted",
+      "report": {
+        "path": ".docs/acceptance/v4-migration/2026-10-26/cloud-r114-final/cloud-configuration-r114/index.html",
+        "zip": ".docs/acceptance/v4-migration/2026-10-26/cloud-r114-final/cloud-configuration-r114.zip",
+        "zipSHA256": "622c1c87a64f6e8599115841321e9d5ee75ae25802963784bec9b0ec6e0fbe6f",
+        "sourceCommit": "c21b378a0322a0b48da631a9ff438f69574474cc",
+        "artifactSHA256": "e37427b9f7f35ce70d357ee2db9126bd18bd351147aab1aff5f7334c4052d6f3",
+        "sealed": true
+      }
     },
     "cloud/cloud_sync_page.dart": {
       "name": "云端备份与同步",
       "priority": "P1",
-      "reason": "同一QA已完成真实登录/配置、共享角色与数据保护、DAV差异取消及单条恢复、首次Cloud创建月日起8与正常入口；Root实际SQL/full及文件对照通过。独立报告封存后再计整页，S3/iCloud/Supabase实际连接范围不从DAV推定。",
-      "status": "迁移中·R114关键原生与实服闭环通过，独立报告待封存",
+      "reason": "Root已逐页审阅原功能/设计/组件/相关回归与实际原生实服闭环，R114固定版本独立HTML/ZIP解压hash/links与三宽检查通过并只读封存。",
+      "status": "已完成",
       "components": "同步状态、配置、成员列表与权限操作",
-      "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。",
-      "implementationStage": "implemented"
+      "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。 R114整页封存：cloud-backup-r114；原c7/R113视觉证据按源连续性复用，R114目标水合/加入退出与DAV真实恢复/重登/首建月8和共同正常入口单列。2本9笔/3附件refs两侧实际字节严格MATCH；全原71保护，最终仅新增0.41至72。Q24精度MISMATCH、旧附件order拒绝、DAVv6字段边界、未实服后端等继续保留。该报告不覆盖后续A–E新设计修订。",
+      "implementationStage": "accepted",
+      "report": {
+        "path": ".docs/acceptance/v4-migration/2026-10-26/cloud-r114-final/cloud-backup-r114/index.html",
+        "zip": ".docs/acceptance/v4-migration/2026-10-26/cloud-r114-final/cloud-backup-r114.zip",
+        "zipSHA256": "f38cbbf93fe6cd8fbbeb7d4d1790582eadddf12dadf322ef975e075ed3d6cea2",
+        "sourceCommit": "c21b378a0322a0b48da631a9ff438f69574474cc",
+        "artifactSHA256": "e37427b9f7f35ce70d357ee2db9126bd18bd351147aab1aff5f7334c4052d6f3",
+        "sealed": true
+      }
     },
     "cloud/invite_page.dart": {
       "name": "共享账本邀请",
       "priority": "P1",
-      "reason": "同一QA已完成真实登录/配置、共享角色与数据保护、DAV差异取消及单条恢复、首次Cloud创建月日起8与正常入口；Root实际SQL/full及文件对照通过。独立报告封存后再计整页，S3/iCloud/Supabase实际连接范围不从DAV推定。",
-      "status": "迁移中·R114关键原生与实服闭环通过，独立报告待封存",
+      "reason": "Root已逐页审阅原功能/设计/组件/相关回归与实际原生实服闭环，R114固定版本独立HTML/ZIP解压hash/links与三宽检查通过并只读封存。",
+      "status": "已完成",
       "components": "同步状态、配置、成员列表与权限操作",
-      "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。",
-      "implementationStage": "implemented"
+      "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。 R114整页封存：shared-invite-r114；原c7/R113视觉证据按源连续性复用，R114目标水合/加入退出与DAV真实恢复/重登/首建月8和共同正常入口单列。2本9笔/3附件refs两侧实际字节严格MATCH；全原71保护，最终仅新增0.41至72。Q24精度MISMATCH、旧附件order拒绝、DAVv6字段边界、未实服后端等继续保留。该报告不覆盖后续A–E新设计修订。",
+      "implementationStage": "accepted",
+      "report": {
+        "path": ".docs/acceptance/v4-migration/2026-10-26/cloud-r114-final/shared-invite-r114/index.html",
+        "zip": ".docs/acceptance/v4-migration/2026-10-26/cloud-r114-final/shared-invite-r114.zip",
+        "zipSHA256": "c40776cfdd9cdc66f01e3c98bfa84005be8d0ca7ba09d0f222c9e6f22bd82c8e",
+        "sourceCommit": "c21b378a0322a0b48da631a9ff438f69574474cc",
+        "artifactSHA256": "e37427b9f7f35ce70d357ee2db9126bd18bd351147aab1aff5f7334c4052d6f3",
+        "sealed": true
+      }
     },
     "cloud/join_shared_ledger_page.dart": {
       "name": "加入共享账本",
       "priority": "P1",
-      "reason": "同一QA已完成真实登录/配置、共享角色与数据保护、DAV差异取消及单条恢复、首次Cloud创建月日起8与正常入口；Root实际SQL/full及文件对照通过。独立报告封存后再计整页，S3/iCloud/Supabase实际连接范围不从DAV推定。",
-      "status": "迁移中·R114关键原生与实服闭环通过，独立报告待封存",
+      "reason": "Root已逐页审阅原功能/设计/组件/相关回归与实际原生实服闭环，R114固定版本独立HTML/ZIP解压hash/links与三宽检查通过并只读封存。",
+      "status": "已完成",
       "components": "同步状态、配置、成员列表与权限操作",
-      "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。",
-      "implementationStage": "implemented"
+      "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。 R114整页封存：join-shared-ledger-r114；原c7/R113视觉证据按源连续性复用，R114目标水合/加入退出与DAV真实恢复/重登/首建月8和共同正常入口单列。2本9笔/3附件refs两侧实际字节严格MATCH；全原71保护，最终仅新增0.41至72。Q24精度MISMATCH、旧附件order拒绝、DAVv6字段边界、未实服后端等继续保留。该报告不覆盖后续A–E新设计修订。",
+      "implementationStage": "accepted",
+      "report": {
+        "path": ".docs/acceptance/v4-migration/2026-10-26/cloud-r114-final/join-shared-ledger-r114/index.html",
+        "zip": ".docs/acceptance/v4-migration/2026-10-26/cloud-r114-final/join-shared-ledger-r114.zip",
+        "zipSHA256": "afab5ae0155cc45d975f86b333713cd007e9133961e61d5887ec6aab9bf15ee3",
+        "sourceCommit": "c21b378a0322a0b48da631a9ff438f69574474cc",
+        "artifactSHA256": "e37427b9f7f35ce70d357ee2db9126bd18bd351147aab1aff5f7334c4052d6f3",
+        "sealed": true
+      }
     },
     "cloud/member_list_page.dart": {
       "name": "共享成员管理",
       "priority": "P1",
-      "reason": "同一QA已完成真实登录/配置、共享角色与数据保护、DAV差异取消及单条恢复、首次Cloud创建月日起8与正常入口；Root实际SQL/full及文件对照通过。独立报告封存后再计整页，S3/iCloud/Supabase实际连接范围不从DAV推定。",
-      "status": "迁移中·R114关键原生与实服闭环通过，独立报告待封存",
+      "reason": "Root已逐页审阅原功能/设计/组件/相关回归与实际原生实服闭环，R114固定版本独立HTML/ZIP解压hash/links与三宽检查通过并只读封存。",
+      "status": "已完成",
       "components": "同步状态、配置、成员列表与权限操作",
-      "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。",
-      "implementationStage": "implemented"
+      "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。 R114整页封存：member-list-r114；原c7/R113视觉证据按源连续性复用，R114目标水合/加入退出与DAV真实恢复/重登/首建月8和共同正常入口单列。2本9笔/3附件refs两侧实际字节严格MATCH；全原71保护，最终仅新增0.41至72。Q24精度MISMATCH、旧附件order拒绝、DAVv6字段边界、未实服后端等继续保留。该报告不覆盖后续A–E新设计修订。",
+      "implementationStage": "accepted",
+      "report": {
+        "path": ".docs/acceptance/v4-migration/2026-10-26/cloud-r114-final/member-list-r114/index.html",
+        "zip": ".docs/acceptance/v4-migration/2026-10-26/cloud-r114-final/member-list-r114.zip",
+        "zipSHA256": "1a4398a1a47f3595981cdbe31f89c17d977ba6612e3943e4b9c4ecaeccc8c4bd",
+        "sourceCommit": "c21b378a0322a0b48da631a9ff438f69574474cc",
+        "artifactSHA256": "e37427b9f7f35ce70d357ee2db9126bd18bd351147aab1aff5f7334c4052d6f3",
+        "sealed": true
+      }
     },
     "cloud/member_stats_page.dart": {
       "name": "共享成员统计",
       "priority": "P2",
-      "reason": "同一QA已完成真实登录/配置、共享角色与数据保护、DAV差异取消及单条恢复、首次Cloud创建月日起8与正常入口；Root实际SQL/full及文件对照通过。独立报告封存后再计整页，S3/iCloud/Supabase实际连接范围不从DAV推定。",
-      "status": "迁移中·R114关键原生与实服闭环通过，独立报告待封存",
+      "reason": "Root已逐页审阅原功能/设计/组件/相关回归与实际原生实服闭环，R114固定版本独立HTML/ZIP解压hash/links与三宽检查通过并只读封存。",
+      "status": "已完成",
       "components": "同步状态、配置、成员列表与权限操作",
-      "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。",
-      "implementationStage": "implemented"
+      "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。 R114整页封存：member-stats-r114；原c7/R113视觉证据按源连续性复用，R114目标水合/加入退出与DAV真实恢复/重登/首建月8和共同正常入口单列。2本9笔/3附件refs两侧实际字节严格MATCH；全原71保护，最终仅新增0.41至72。Q24精度MISMATCH、旧附件order拒绝、DAVv6字段边界、未实服后端等继续保留。该报告不覆盖后续A–E新设计修订。",
+      "implementationStage": "accepted",
+      "report": {
+        "path": ".docs/acceptance/v4-migration/2026-10-26/cloud-r114-final/member-stats-r114/index.html",
+        "zip": ".docs/acceptance/v4-migration/2026-10-26/cloud-r114-final/member-stats-r114.zip",
+        "zipSHA256": "09cc4ea44ea5f43d3fadecc26e419158deeec58e491efeae0958390adb6a62d6",
+        "sourceCommit": "c21b378a0322a0b48da631a9ff438f69574474cc",
+        "artifactSHA256": "e37427b9f7f35ce70d357ee2db9126bd18bd351147aab1aff5f7334c4052d6f3",
+        "sealed": true
+      }
     },
     "currency/exchange_rate_page.dart": {
       "name": "汇率管理",
@@ -841,8 +905,8 @@
   "fullMigrationBaselineCommit": "9b87aa06177616174e27c52c847cb20de6edede5",
   "completionStandard": "docs/development/v4-page-completion.md",
   "lastProgressReport": {
-    "reportedAt": "2026-10-25T23:55:48.883991+08:00",
-    "scheduledReportAt": "2026-10-25T23:54:00+08:00",
+    "reportedAt": "2026-10-26T01:00:51.843236+08:00",
+    "scheduledReportAt": "2026-10-26T00:54:00+08:00",
     "engineeringEstimatePercent": 90,
     "engineeringEstimateRange": [
       88,
@@ -921,35 +985,33 @@
     ],
     "newlyCompletedSincePreviousReport": [],
     "inProgress": [
-      "原8个云服务页关键原生/实服链路完成，5页报告在组装，后3页复用已完成C4资料，不重复UI或造环境。",
-      "Root首Cloud创建：App正常后本12=8/Cloud SQL8/最早创建事件8/formal-full8/count1，原故障Q25与Q26转已解决；旧失败不删。",
-      "Root双账本9笔/3附件refs两侧真实字节严格MATCH；最终72仅原71+专用本12的.41，原71全字段与另外29表/8附件3图保持，Auth/DAV/LRU/cursor/runtime6键变化独立审定。",
-      "用户已批准A洞察与B资产新稿：A Flutter38项/21 Dart analyze0已交付待统一安装，主demo10场景定向同步且其他557保留；B独立实现中。",
-      "C明细行用户要求整条最多3行，新版设计按12,288有效组合/布局上下文与最坏场景检查，仍须再确认后才实现。"
+      "原云组8份独立报告候选正在最终打包/脱敏/离线链接核查，尚未封存、不增加65计数。",
+      "A洞察与B资产Flutter已合入，相关17文件115项回归通过；R115产物1035源文件/SDK18与c0eeb0e8精确一致，已备份后install-r，72笔/all31/持久文件Prefs保持，用户原包不动，待新增原生交互验收。",
+      "D分享海报与其他卡片已获批准，子代理先同步主demo后实现Flutter；E最新日间版B一笔成形获选并实现，A/C设计保留。",
+      "C两行优先、复杂最多3行、flags文字/账本tag/更多N项新稿已冻结；该小时快照之后用户批准，待调度Flutter。"
     ],
     "remainingEffortEstimateHours": [
-      6,
-      10
+      7,
+      11
     ],
-    "remainingEffortChangeReason": "原7–13主线估算收敛：目标快照安全修复、共享实服角色闭环、DAV真实恢复与首Cloud建账月8已完成，旧73收尾估3–6h；本小时新增并已批准A/B Flutter设计实现及增量原生验收纳入后，当前全部已授权实现约6–10h。C还在最多3行设计确认阶段，实现未计。不是按页数/已耗时间扣减，不是承诺。",
+    "remainingEffortChangeReason": "旧73清单8云组关键真机实服均完成，进入8独立报告最终整理；A/B新UI已合入且17文件115项回归通过，R115新包核验并保留72笔升级。新增用户批准D海报卡片与E启动B实现和增量原生验收，纳入后约7–11h，较前6–10上调；C在该小时快照尚待确认，其随后批准按currentProgress另记，不按页数线性推算。",
     "implementationStateCounts": {
-      "nativeComplete": 65,
-      "implementedPendingAcceptance": 8,
-      "inImplementation": 0,
+      "nativeCompleteOriginalBaseline": 65,
+      "implementedPendingAcceptanceOriginalBaseline": 8,
       "nativeCoreFlowsPassedPendingIndependentReports": 8,
-      "additionalSyncSafetyFixInImplementation": 0,
-      "additionalSyncSafetyFixInstalledPendingFinalNativeClosure": 0,
-      "newApprovedUiImplementationReady": 1,
-      "newApprovedUiInImplementation": 1,
-      "newUnapprovedUiDesignRefinement": 1
+      "approvedRevisionInstalledPendingNative": 2,
+      "approvedRevisionInImplementation": 2,
+      "unapprovedRevisionAtHourlySnapshot": 1
     },
     "originalMigrationRemainingEffortEstimateHours": [
-      3,
-      6
+      2,
+      4
     ],
     "newApprovedDesignImplementationIncluded": [
       "A",
-      "B"
+      "B",
+      "D",
+      "E"
     ],
     "unapprovedDesignImplementationExcluded": [
       "C"
@@ -963,20 +1025,20 @@
     "reason": "按用户要求临时关闭，避免每次推送触发PR的AI Eval；v4继续开发和推送，全部迁移与验收准备好再恢复PR。"
   },
   "currentProgress": {
-    "updatedAt": "2026-10-25T23:55:48.883991+08:00",
-    "engineeringEstimatePercent": 90,
+    "updatedAt": "2026-10-26T01:12:50.678542+08:00",
+    "engineeringEstimatePercent": 93,
     "engineeringEstimateRange": [
-      88,
-      93
+      90,
+      95
     ],
-    "completedPages": 65,
+    "completedPages": 73,
     "totalPages": 73,
     "totalP0Pages": 17,
     "completedP0Pages": 17,
-    "basis": "严格封存65/73，P0 17/17，本小时新增封存0；其余8云组关键原生与实服对照现已完成，独立报告待封存。R114143快回归+真实共享加入退出/原71/精确override清理与正常启动通过；DAV实际上传/1备注diff取消恢复/重登/首次Cloud新本8与正常持久化通过。Root两本9笔actual SQL/full/3附件双方bytes严格MATCH，原71及其他29表不变，最终72只新增12/79 .41，6个Prefs变化按原源精确归类。新批准A Flutter38项交付待合入安装、主demo同步；B实现中；C最多3行设计修订待再确认。原迁移收尾3–6h，含已批A/B当前总计6–10h，C设计确认后的实现另计，不按页数外推。",
+    "basis": "原73页面迁移基线均已固定版本整页封存：原65+8云页Root逐页审阅，独立ZIP及三宽/隐私/hash与只读封存完成，保留原失败/NOT_RUN/兼容边界。新增A–E修订分别验收：A/B已合入R115且115相关回归/72笔安全升级，actual9scope×view已通过正在继续；E方案B源码已交付合入、9相关测试和4Flutter渲染，待原生；C两/三行组件真实消费者和D分享卡片Flutter并行实现，D主demo已同步。工程93估90–95；当前剩余5–9h，较7–12收敛因8报告已封存、E实现交付且A/B新增原生顺利推进，不按页面线性扣减。",
     "remainingEffortEstimateHours": [
-      6,
-      10
+      5,
+      9
     ],
     "remainingEffortEstimateKind": "并行连续工作小时"
   },
@@ -1028,15 +1090,20 @@
   ],
   "latestInstalledCandidate": {
     "platform": "Android",
-    "sourceCommit": "c21b378a0322a0b48da631a9ff438f69574474cc",
-    "androidApkSha256": "e37427b9f7f35ce70d357ee2db9126bd18bd351147aab1aff5f7334c4052d6f3",
-    "verifiedCommittedProductFiles": 1028,
+    "sourceCommit": "c0eeb0e8dc9e912b166379c1ef03481ba4fa200e",
+    "androidApkSha256": "6a3a9073c2d73df30b9aeef0626da85ded435447a1f8d4c26d541b0792d8be97",
+    "verifiedCommittedProductFiles": 1035,
     "verifiedSdkDartFiles": 18,
     "sameRetainedQA": true,
     "qaDataPreserved": true,
-    "qaTransactionsBeforeAndAfterInstall": 71,
-    "all24PersistentFilesAndPreferencesBeforeNormalLaunchExact": true,
-    "protectedUserAppUnchanged": true
+    "qaTransactionsBeforeAndAfterInstall": 72,
+    "allPersistentFilesAndPreferencesBeforeNormalLaunchExact": true,
+    "protectedUserAppUnchanged": true,
+    "approvedDesignRevisionsInstalled": [
+      "A",
+      "B"
+    ],
+    "approvedDesignRevisionsNativePassed": false
   },
   "latestInstalledIOSCandidate": {
     "sourceCommit": "f536d6db081c55bb5f6afce2da092ce5ed1a405f",
@@ -1066,24 +1133,78 @@
   "parallelDesignTasks": [
     {
       "id": "A",
-      "name": "洞察页交互设计",
-      "status": "已确认，Flutter38项交付待统一合入安装；主demo已同步",
-      "branch": "fix/insights-design-review",
-      "flutterBranch": "refactor/insights-card-layout",
-      "flutterCommit": "16b54efc7d9a837ee89b98bb49f37ccce97e8e76"
+      "name": "洞察页",
+      "status": "已确认；主demo已更新；Flutter已合入并升级R115，待新版真机验收",
+      "url": "boards/insights-task-a-review.html",
+      "flutterCommit": "0c730777",
+      "flutterApproved": true
     },
     {
       "id": "B",
-      "name": "资产页交互设计",
-      "status": "已确认，Flutter独立实现中",
-      "branch": "fix/assets-design-review",
-      "flutterBranch": "refactor/assets-card-layout"
+      "name": "资产页",
+      "status": "已确认；Flutter已合入并升级R115，待新版真机验收",
+      "url": "boards/assets-task-b-review.html",
+      "flutterCommit": "de25c879",
+      "flutterApproved": true
     },
     {
       "id": "C",
-      "name": "交易明细行多状态设计",
-      "status": "用户要求整条最多3行，新版交互稿修订中，仍待再次确认",
-      "branch": "fix/transaction-row-three-lines"
+      "name": "交易明细行",
+      "status": "已确认C3；子代理实施组件、真实消费者及主demo同步中",
+      "url": "boards/transaction-rows-task-c-review.html",
+      "designCommit": "e00a31e6",
+      "approvedHtmlSha256": "643833f7d50be973e5e08296ef84d01c096743a1086a02636de08b293f66177c",
+      "approval": "子任务 c 就按照这个版本推进吧。",
+      "flutterApproved": true
+    },
+    {
+      "id": "D",
+      "name": "分享海报与应用卡片",
+      "status": "已确认；主demo已同步233d8f8a，Flutter实现中",
+      "url": "boards/share-cards-task-d-review.html",
+      "designCommit": "c93457bf",
+      "approvedHtmlSha256": "8c039e5608b67add35cb8a9f66a83e1e85c20b35c91cc71013fb496ae43e4e5d",
+      "approval": "子任务 d 设计稿确认没问题，更新下 demo 然后开做吧。",
+      "flutterApproved": true,
+      "mainDemoCommit": "233d8f8a"
+    },
+    {
+      "id": "E",
+      "name": "启动页 · 一笔成形",
+      "status": "方案B已合入40a7d193；9项相关回归与4组Flutter渲染通过，待下一候选原生验收",
+      "url": "boards/splash-task-e-review.html",
+      "designCommit": "c0eeb0e8",
+      "approvedHtmlSha256": "cb3b28761dd234ad803c6a5b54eb74be80fd1c02c1156d651f1ed0ee0f12f665",
+      "approval": "子任务 e 用方案 B",
+      "flutterApproved": true,
+      "flutterCommit": "40a7d193"
     }
-  ]
+  ],
+  "latestAcceptanceDelivery": {
+    "at": "2026-10-26T01:12:50.678542+08:00",
+    "scope": "original73MigrationBaseline",
+    "newlyAcceptedPages": [
+      "云账号登录",
+      "BeeCount Cloud 同步",
+      "云服务配置与账号",
+      "云端备份与同步",
+      "共享账本邀请",
+      "加入共享账本",
+      "共享成员管理",
+      "共享成员统计"
+    ],
+    "completedPages": 73,
+    "totalPages": 73,
+    "groupReport": ".docs/acceptance/v4-migration/2026-10-26/cloud-r114-final/index.html",
+    "groupManifestSHA256": "c1b7b9b693e5a417be9a908d88da3232c448d3f58a85371b59b80b57ddc0b2b4",
+    "sealReceiptSHA256": "90504f1869fda67e957d18c659c04ec6ebfce9adbab665460f7505c2e53825e0",
+    "newApprovedUiRevisionsStillPending": [
+      "A",
+      "B",
+      "C",
+      "D",
+      "E"
+    ],
+    "oldReportsNotRewritten": true
+  }
 }
