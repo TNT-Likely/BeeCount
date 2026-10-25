@@ -1,5 +1,8 @@
 from pathlib import Path
-import re,json,subprocess,hashlib,tarfile,io,collections
+import re,json,subprocess,hashlib,tarfile,io,collections,argparse
+parser=argparse.ArgumentParser(description='重建逐页清单；机器状态始终只读。')
+parser.add_argument('--inventory-only',action='store_true',help='只重建清单和备份说明，不刷新进度HTML。')
+options=parser.parse_args()
 root=Path(__file__).resolve().parents[2];d=root/'.docs/v4-ui-migration';d.mkdir(exist_ok=True,parents=True)
 config=json.loads((root/'tool/v4/migration-status.json').read_text())
 flows=json.loads((root/'docs/design/card-refresh/tokens/flow-sources.json').read_text());manifest=json.loads((root/'docs/design/card-refresh/screens/manifest.json').read_text())
@@ -33,14 +36,14 @@ def batch(rel):
  if rel.startswith(('data/','auth/','attachment/','maintenance/')) or name in ['config_import_export_page.dart','data_management_page.dart','attachment_preview_page.dart','storage_management_page.dart']:return 'M7 初始化与数据'
  return 'M8 设置与收尾'
 contracts={
-'M1 记账闭环':('金额卡、计算器、分类/账户/币种/日期/标签选择器；补 TransferAccountPair','保存/编辑/复制、再记一笔、历史汇率快照、同币种/跨币种转账、共享权限和草稿'),
+'M1 记账闭环':('金额卡、计算器、分类/账户/币种/日期/标签选择器、BeeTransferAccountPair','保存/编辑/复制、再记一笔、历史汇率快照、新增同币种转账与历史跨币种记录、共享权限和草稿'),
 'M2 首页与列表':('资料/余额、账单行、汇总、筛选与批量栏、底部导航','当前账本、隐私、分类图标导航、长按/删除、标签/附件入口和批量选择'),
 'M3 资源管理与详情':('分类层级、图标编辑、排序、账户/标签卡、详情列表','自定义图片、转账图标设置、隐藏账户历史、余额调整、资源权限与筛选'),
-'M4 统计与分享':('趋势/环图/排行/预算；补日历与日期范围组合','日月年统计、本位币合计、隐私、小票/年度/分享实际导出'),
-'M5 云与共享':('同步行、配置弹窗、授权；补成员/邀请/角色组合','全部同步状态、重试、远端/本地删除差别、邀请权限和多成员资源'),
-'M6 AI与自动化':('消息、执行时间线、授权；补服务商/能力绑定与任务状态','平台/渠道入口、配置草稿、连接测试、授权、记忆/活动、语音触发与静音时长'),
-'M7 初始化与数据':('初始化、映射、附件/预览；补导入任务和附件库组合','语言等完整步骤、取消/恢复、部分失败、附件关联、预览/导入/导出/备份'),
-'M8 设置与收尾':('分组列表、表单、主题/色板、滚轮、反馈；补日志组合','原菜单/筛选完整、弹窗形态、平台入口、主题/皮肤、检查更新、应用锁与通知'),
+'M4 统计与分享':('趋势/环图/排行/预算、日历与日期范围组合','日月年统计、本位币合计、隐私、小票/年度/分享实际导出'),
+'M5 云与共享':('同步行、配置弹窗、授权、成员/邀请/角色组合','全部同步状态、重试、远端/本地删除差别、邀请权限和多成员资源'),
+'M6 AI与自动化':('消息、执行时间线、授权、服务商/能力绑定与任务状态','平台/渠道入口、配置草稿、连接测试、授权、记忆/活动、语音触发与静音时长'),
+'M7 初始化与数据':('初始化、映射、附件/预览、导入任务和附件库组合','语言等完整步骤、取消/恢复、部分失败、附件关联、预览/导入/导出/备份'),
+'M8 设置与收尾':('分组列表、表单、主题/色板、滚轮、反馈、日志组合','原菜单/筛选完整、弹窗形态、平台入口、主题/皮肤、检查更新、应用锁与通知'),
 }
 rows=[];helpers=[]
 for p in sorted((root/'lib/pages').rglob('*.dart')):
@@ -61,7 +64,8 @@ for flow in config['associatedFlows']:
 priority_counts=collections.Counter(r['priority'] for r in rows)
 completed_count=sum(r['status']=='已完成' for r in rows)
 completed_names='、'.join(r['name'] for r in rows if r['status']=='已完成') or '暂无'
-audit={'date':config['updated'],'branch':config['branch'],'pageFiles':len(rows),'helperFiles':helpers,'designSceneExports':len(manifest),'flowDefinitions':len(flows),'priorityCounts':dict(sorted(priority_counts.items())),'plannedPages':config['plannedPages'],'associatedFlows':config['associatedFlows'],'rows':rows}
+revisions=config.get('parallelDesignTasks',[])
+audit={'date':config['updated'],'branch':config['branch'],'pageFiles':len(rows),'helperFiles':helpers,'designSceneExports':len(manifest),'flowDefinitions':len(flows),'priorityCounts':dict(sorted(priority_counts.items())),'plannedPages':config['plannedPages'],'associatedFlows':config['associatedFlows'],'rows':rows,'baselineCompletion':{'completed':completed_count,'total':len(rows),'scope':'原迁移基线；后续设计修订独立记录，不据此宣称新修订已验收'},'approvedDesignRevisions':revisions}
 (d/'page-inventory.json').write_text(json.dumps(audit,ensure_ascii=False,indent=2)+'\n')
 head=config['baselineCommit'];backup=d/'backup'/('pre-v4-'+head[:12]);
 if not (backup/'MANIFEST.json').exists():
@@ -92,11 +96,11 @@ git diff --no-index .docs/v4-ui-migration/backup/pre-v4-{head[:12]}/lib/pages/ma
 counts=collections.Counter(r['batch'] for r in rows)
 body='''# 全部页面翻新计划
 
-更新日期：2026-10-24。工作分支：`v4`。面向公开 4.0，内部按完整流程分批验收。当前收支记账两行布局已落地，待人工验收；转账与多数页面仍待迁移。完整优先级见受版本控制的 [页面迁移清单](../../docs/development/v4-page-migration.md)。
+工作分支：`v4`。面向公开 4.0，内部按完整流程分批验收。原迁移基线与后续 A–E 设计修订分别记录，不能用基线完成数宣称新修订通过。当前时间、优先级和逐页状态见受版本控制的 [页面迁移清单](../../docs/development/v4-page-migration.md)。
 
 ## 当前结论
 
-不能将组件目录齐全等同于全业务覆盖。两个包的组件与样例数量以 [组件包说明](../../docs/development/v4-component-packages.md) 和当前 HTML/Flutter 目录为准。还存在 [组件缺口](component-audit.md)，必须在对应页面开工前明确状态、交互和真实数据绑定。
+不能将组件目录齐全等同于全业务覆盖。两个包的组件与样例数量以 [组件包说明](../../docs/development/v4-component-packages.md) 和当前 HTML/Flutter 目录为准。旧 [组件盘点](component-audit.md) 属于历史计划；后续修订仍需逐项明确状态、交互和真实数据绑定，以当前覆盖清单为准。
 
 页面清单按当前代码自动盘点，辅助文件单列。设计导出场景与页面不是一对一关系，不能用场景数量当完成率。详见 [逐页清单](page-inventory.json)。
 
@@ -154,10 +158,22 @@ page=f"""# V4 完整页面迁移清单与优先级
 
 更新：{config['updated']}。分支：`v4`。由 `tool/v4/build_migration_inventory.py` 扫描生成，人工决策保存在 [migration-status.json](../../tool/v4/migration-status.json)。
 
-现有 **{len(rows)} 个产品页面源文件**（{counts_text}），另有 **{len(config['plannedPages'])} 个新设计页面待新增**、{len(helpers)} 个页面旁辅助文件和下方关联弹窗/表单。三个开发验收页不计入产品迁移进度。每个源文件均有设计入口，设计场景与代码页面不是一对一关系。
+现有 **{len(rows)} 个产品页面源文件**（{counts_text}），当前待新增 Page 占位 **{len(config['plannedPages'])} 个**，另有 {len(helpers)} 个页面旁辅助文件和下方关联弹窗/表单。三个开发验收页不计入产品迁移进度。每个源文件均有设计入口，设计场景与代码页面不是一对一关系。
 
-当前完整完成页面为 **{completed_count}**（{completed_names}）。已完整验收的页面按表标记；记账/转账、搜索与分类/标签详情的待确认项保留当前行为，其余页面逐页迁移并独立验收。全局主题变化不计为页面完成。判定条件见 [页面完成标准](v4-page-completion.md)。
+原迁移基线按机器记录已完整验收 **{completed_count}/{len(rows)} 页**；下方逐页状态属于该基线。已批准的 A–E 后续设计修订另列，仍须各自实现、整页验收和独立报告，不叠加为额外产品页面，也不继承旧版的通过结论。最新进度、问题与报告边界见 [页面完成标准](v4-page-completion.md) 和 [迁移进度](../design/card-refresh/migration-progress.html#design-revisions)。
 
+## 已批准的后续设计修订
+
+以下状态逐项取自同一份机器记录，与原迁移基线分列；设计确认或组件测试通过均不等于整页原生验收完成。
+
+| 修订 | 当前状态 | 已批准设计 |
+| --- | --- | --- |
+
+"""
+page=page.rstrip()+'\n'
+for revision in revisions:
+    page+=f"| {revision['id']} · {revision['name']} | {revision['status']} | [交互稿](../design/card-refresh/{revision['url']}) |\n"
+page+="""
 ## 优先级与顺序
 
 | 优先级 | 范围 | 完成条件 |
@@ -179,10 +195,14 @@ for priority in ['P0','P1','P2']:
         routes='、'.join('`'+x+'`' for x in r['designRoutes'])
         page+=f"| {title} | {r['status']} | {r['batch'].split()[0]} | {r['components']} | {r['acceptance']}<br>设计：{routes}<br>优先理由：{r['reason']} |\n"
     page+='\n'
-page+='## 待新增页面（不与已存在的页面重复计数）\n\n| 页面 | 优先级 / 状态 | 计划位置 | 原代码与新稿差别 |\n| --- | --- | --- | --- |\n'
+page+='## 待新增页面（不与已存在的页面重复计数）\n\n'
+if config['plannedPages']:
+    page+='| 页面 | 优先级 / 状态 | 计划位置 | 原代码与新稿差别 |\n| --- | --- | --- | --- |\n'
+else:
+    page+='当前没有待新增 Page 占位；关联表单与弹窗在下一节单列。\n'
 for r in config['plannedPages']:
     page+=f"| {r['name']} | {r['priority']} / {r['status']} | `{r['source']}` | {r['reason']}<br>设计：{'、'.join('`'+x+'`' for x in r['designRoutes'])} |\n"
-page+='\n## 必须随页面迁移的关联表单与弹窗\n\n这些不是独立 Page，不能从清单遗漏，也不能为了换皮把原弹窗改成新页面。P2 所属的检查升级弹窗可以随关于页后置；若上游提前消费，弹窗随上游一批交付。\n\n| 流程 / 源码 | 优先级 / 状态 | 验收要求 |\n| --- | --- | --- |\n'
+page+=f'\n## 必须随页面迁移的关联表单与弹窗\n\n这些不是独立 Page，不能从清单遗漏，也不能为了换皮把原弹窗改成新页面。其状态按机器原字段单列，不计入{len(rows)}个 Page，也不因上游 Page 已完成而自动提升。尚未标记完成的关联流程需主线按对应报告继续核对；P2 入口若被上游提前消费，应随上游同批交付。\n\n| 流程 / 源码 | 优先级 / 状态 | 验收要求 |\n| --- | --- | --- |\n'
 for r in config['associatedFlows']:
     page+=f"| **{r['name']}**<br>[{r['source']}](../../{r['source']}) | {r['priority']} / {r['status']} | {r['acceptance']} |\n"
 page+='\n## 页面旁辅助文件\n\n'+''.join(f'- [{h}](../../{h})：随直接消费者迁移，不重复计为 Page。\n' for h in helpers)
@@ -204,6 +224,7 @@ python3 tool/v4/build_migration_inventory.py
 生成器会拒绝未登记的新页面，确保优先级和状态不会悄悄遗漏。
 """
 (public/'v4-page-migration.md').write_text(page)
-from build_migration_progress import build_progress_page
-progress_page = build_progress_page(root, config, rows, manifest)
+if not options.inventory_only:
+    from build_migration_progress import build_progress_page
+    progress_page = build_progress_page(root, config, rows, manifest)
 print(json.dumps({'pages':len(rows),'helpers':len(helpers),'mapped':sum(bool(r['designRoutes']) for r in rows),'priorityCounts':dict(sorted(priority_counts.items())),'plannedPages':len(config['plannedPages']),'backup':str(backup)},ensure_ascii=False))

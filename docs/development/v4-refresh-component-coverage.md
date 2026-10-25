@@ -32,10 +32,12 @@
 
 D 的规范快照源于已批准的 `boards/share-cards-task-d-review.html`，保留源 SHA。`scripts/build-refresh-poster-samples.cjs` 可以在 D 稿明确改变后重建 `refresh-poster-snapshots.json/.css`：只读取合成评审 DOM，默认头像，不读取用户头像，不请求外网。样式全部前缀隔离；全局主题色仍能传入纸面品牌色。
 
-主线合入其他 HTML 变动后统一运行原 `npm run guide` / `npm run index` 等重建流程即可。此次验证仅向私有报告目录写输出，没有覆盖主线生成物。
+主线合入其他 HTML 变动后统一运行原 `npm run guide` / `npm run index` 等重建流程即可。主线已统一重建本地 HTML 与 PNG/SVG；在线 Figma 仍是较早镜像。
 
 ## 验证范围
 
 系统栏修复单独提交，通过真实渲染后平台通道断言深浅切换、保留输入、内层覆盖和导航栏字段不被写入。组件目录通过新增组的 320 小屏/140% 大字/深浅渲染、关闭局部弹层、快速定位、七类海报放大和收入开关；原两页全部目录的四组尺寸也回归。HTML 在 1440 / 398 / 320 的深浅、定位、主题和局部交互中检查。
 
 这些是 Widget 与浏览器证据。设备正常入口仍由主任务复用统一隔离环境验收，不据此新增整页真机完成数。
+
+基础索引13另补真实 `BeeMultiSelect` 受控/禁用与 `BeeInlineLabel` 紧凑、省略/提示、局部点击样例，保持26/78目录不变，属于R117候选而非R116原生通过。当前精确清单与数据边界统一见 [组件包说明](v4-component-packages.md)，工具同时核对99个样例key、105张规范卡及57个基础Widget，避免重复维护另一套索引。

@@ -100,3 +100,4 @@ document.addEventListener('click',event=>{
   const open=event.target.closest('[data-r86-demo-open]');
   if(open)open.closest('.r86-guide').querySelector('[data-r86-demo-event]').textContent='示例编辑入口 · 实际页面由App导航';
 });
+document.addEventListener('click',event=>{const multi=event.target.closest('[data-local-multi]');if(multi&&!multi.disabled){const selected=multi.getAttribute('aria-pressed')!=='true';multi.setAttribute('aria-pressed',String(selected));multi.dataset.selected=String(selected);const host=multi.closest('[data-foundation-multi-select]');host.querySelector('[data-local-multi-result]').textContent='多选示例：'+host.querySelectorAll('[data-local-multi][aria-pressed="true"]').length+' 项';}const inline=event.target.closest('[data-local-inline]');if(inline)inline.closest('[data-foundation-inline-label]').querySelector('[data-local-inline-result]').textContent='点击紧凑标签，只更新示例';});

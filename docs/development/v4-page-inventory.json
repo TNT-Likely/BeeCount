@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-25T23:55:48.883991+08:00",
+  "date": "2026-10-26T03:14:51.926126+08:00",
   "branch": "v4",
   "pageFiles": 73,
   "helperFiles": [
@@ -231,7 +231,7 @@
       "classes": [
         "AccountsPage"
       ],
-      "lines": 125,
+      "lines": 135,
       "batch": "M3 资源管理与详情",
       "designRoutes": [
         "assets",
@@ -636,12 +636,20 @@
       ],
       "designMapping": "已定位",
       "components": "登录表单、安全输入、验证码与错误反馈",
-      "acceptance": "原账号/验证方式、合法输入、加载防重、取消、登录失败/恢复和实际鉴权。",
-      "status": "迁移中·R114关键原生与实服闭环通过，独立报告待封存",
+      "acceptance": "原账号/验证方式、合法输入、加载防重、取消、登录失败/恢复和实际鉴权。 R114整页封存：cloud-login-r114；原c7/R113视觉证据按源连续性复用，R114目标水合/加入退出与DAV真实恢复/重登/首建月8和共同正常入口单列。2本9笔/3附件refs两侧实际字节严格MATCH；全原71保护，最终仅新增0.41至72。Q24精度MISMATCH、旧附件order拒绝、DAVv6字段边界、未实服后端等继续保留。该报告不覆盖后续A–E新设计修订。",
+      "status": "已完成",
       "name": "云账号登录",
       "priority": "P1",
-      "reason": "同一QA已完成真实登录/配置、共享角色与数据保护、DAV差异取消及单条恢复、首次Cloud创建月日起8与正常入口；Root实际SQL/full及文件对照通过。独立报告封存后再计整页，S3/iCloud/Supabase实际连接范围不从DAV推定。",
-      "implementationStage": "implemented",
+      "reason": "Root已逐页审阅原功能/设计/组件/相关回归与实际原生实服闭环，R114固定版本独立HTML/ZIP解压hash/links与三宽检查通过并只读封存。",
+      "implementationStage": "accepted",
+      "report": {
+        "path": ".docs/acceptance/v4-migration/2026-10-26/cloud-r114-final/cloud-login-r114/index.html",
+        "zip": ".docs/acceptance/v4-migration/2026-10-26/cloud-r114-final/cloud-login-r114.zip",
+        "zipSHA256": "6bce62be76ea534ed3020999b3f816a0f33a5a3d30e69a8e63cd0eb39f4fed07",
+        "sourceCommit": "c21b378a0322a0b48da631a9ff438f69574474cc",
+        "artifactSHA256": "e37427b9f7f35ce70d357ee2db9126bd18bd351147aab1aff5f7334c4052d6f3",
+        "sealed": true
+      },
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-login",
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-login-webdav",
@@ -677,7 +685,7 @@
       "classes": [
         "SplashPage"
       ],
-      "lines": 73,
+      "lines": 46,
       "batch": "M7 初始化与数据",
       "designRoutes": [
         "flow-splash"
@@ -1052,12 +1060,20 @@
       ],
       "designMapping": "已定位",
       "components": "同步状态、配置、成员列表与权限操作",
-      "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。",
-      "status": "迁移中·R114关键原生与实服闭环通过，独立报告待封存",
+      "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。 R114整页封存：beecount-cloud-sync-r114；原c7/R113视觉证据按源连续性复用，R114目标水合/加入退出与DAV真实恢复/重登/首建月8和共同正常入口单列。2本9笔/3附件refs两侧实际字节严格MATCH；全原71保护，最终仅新增0.41至72。Q24精度MISMATCH、旧附件order拒绝、DAVv6字段边界、未实服后端等继续保留。该报告不覆盖后续A–E新设计修订。",
+      "status": "已完成",
       "name": "BeeCount Cloud 同步",
       "priority": "P1",
-      "reason": "同一QA已完成真实登录/配置、共享角色与数据保护、DAV差异取消及单条恢复、首次Cloud创建月日起8与正常入口；Root实际SQL/full及文件对照通过。独立报告封存后再计整页，S3/iCloud/Supabase实际连接范围不从DAV推定。",
-      "implementationStage": "implemented",
+      "reason": "Root已逐页审阅原功能/设计/组件/相关回归与实际原生实服闭环，R114固定版本独立HTML/ZIP解压hash/links与三宽检查通过并只读封存。",
+      "implementationStage": "accepted",
+      "report": {
+        "path": ".docs/acceptance/v4-migration/2026-10-26/cloud-r114-final/beecount-cloud-sync-r114/index.html",
+        "zip": ".docs/acceptance/v4-migration/2026-10-26/cloud-r114-final/beecount-cloud-sync-r114.zip",
+        "zipSHA256": "2c169162b9050d25fb7a0b46a06172170e8d32fe614b959bfbb83ec8d7a822cc",
+        "sourceCommit": "c21b378a0322a0b48da631a9ff438f69574474cc",
+        "artifactSHA256": "e37427b9f7f35ce70d357ee2db9126bd18bd351147aab1aff5f7334c4052d6f3",
+        "sealed": true
+      },
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-cloud-sync",
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-sync-health",
@@ -1081,12 +1097,20 @@
       ],
       "designMapping": "已定位",
       "components": "同步状态、配置、成员列表与权限操作",
-      "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。",
-      "status": "迁移中·R114关键原生与实服闭环通过，独立报告待封存",
+      "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。 R114整页封存：cloud-configuration-r114；原c7/R113视觉证据按源连续性复用，R114目标水合/加入退出与DAV真实恢复/重登/首建月8和共同正常入口单列。2本9笔/3附件refs两侧实际字节严格MATCH；全原71保护，最终仅新增0.41至72。Q24精度MISMATCH、旧附件order拒绝、DAVv6字段边界、未实服后端等继续保留。该报告不覆盖后续A–E新设计修订。",
+      "status": "已完成",
       "name": "云服务配置与账号",
       "priority": "P1",
-      "reason": "同一QA已完成真实登录/配置、共享角色与数据保护、DAV差异取消及单条恢复、首次Cloud创建月日起8与正常入口；Root实际SQL/full及文件对照通过。独立报告封存后再计整页，S3/iCloud/Supabase实际连接范围不从DAV推定。",
-      "implementationStage": "implemented",
+      "reason": "Root已逐页审阅原功能/设计/组件/相关回归与实际原生实服闭环，R114固定版本独立HTML/ZIP解压hash/links与三宽检查通过并只读封存。",
+      "implementationStage": "accepted",
+      "report": {
+        "path": ".docs/acceptance/v4-migration/2026-10-26/cloud-r114-final/cloud-configuration-r114/index.html",
+        "zip": ".docs/acceptance/v4-migration/2026-10-26/cloud-r114-final/cloud-configuration-r114.zip",
+        "zipSHA256": "622c1c87a64f6e8599115841321e9d5ee75ae25802963784bec9b0ec6e0fbe6f",
+        "sourceCommit": "c21b378a0322a0b48da631a9ff438f69574474cc",
+        "artifactSHA256": "e37427b9f7f35ce70d357ee2db9126bd18bd351147aab1aff5f7334c4052d6f3",
+        "sealed": true
+      },
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-cloud-config",
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-cloud-config-ios",
@@ -1120,12 +1144,20 @@
       ],
       "designMapping": "已定位",
       "components": "同步状态、配置、成员列表与权限操作",
-      "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。",
-      "status": "迁移中·R114关键原生与实服闭环通过，独立报告待封存",
+      "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。 R114整页封存：cloud-backup-r114；原c7/R113视觉证据按源连续性复用，R114目标水合/加入退出与DAV真实恢复/重登/首建月8和共同正常入口单列。2本9笔/3附件refs两侧实际字节严格MATCH；全原71保护，最终仅新增0.41至72。Q24精度MISMATCH、旧附件order拒绝、DAVv6字段边界、未实服后端等继续保留。该报告不覆盖后续A–E新设计修订。",
+      "status": "已完成",
       "name": "云端备份与同步",
       "priority": "P1",
-      "reason": "同一QA已完成真实登录/配置、共享角色与数据保护、DAV差异取消及单条恢复、首次Cloud创建月日起8与正常入口；Root实际SQL/full及文件对照通过。独立报告封存后再计整页，S3/iCloud/Supabase实际连接范围不从DAV推定。",
-      "implementationStage": "implemented",
+      "reason": "Root已逐页审阅原功能/设计/组件/相关回归与实际原生实服闭环，R114固定版本独立HTML/ZIP解压hash/links与三宽检查通过并只读封存。",
+      "implementationStage": "accepted",
+      "report": {
+        "path": ".docs/acceptance/v4-migration/2026-10-26/cloud-r114-final/cloud-backup-r114/index.html",
+        "zip": ".docs/acceptance/v4-migration/2026-10-26/cloud-r114-final/cloud-backup-r114.zip",
+        "zipSHA256": "f38cbbf93fe6cd8fbbeb7d4d1790582eadddf12dadf322ef975e075ed3d6cea2",
+        "sourceCommit": "c21b378a0322a0b48da631a9ff438f69574474cc",
+        "artifactSHA256": "e37427b9f7f35ce70d357ee2db9126bd18bd351147aab1aff5f7334c4052d6f3",
+        "sealed": true
+      },
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-backup",
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-failure",
@@ -1158,12 +1190,20 @@
       ],
       "designMapping": "已定位",
       "components": "同步状态、配置、成员列表与权限操作",
-      "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。",
-      "status": "迁移中·R114关键原生与实服闭环通过，独立报告待封存",
+      "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。 R114整页封存：shared-invite-r114；原c7/R113视觉证据按源连续性复用，R114目标水合/加入退出与DAV真实恢复/重登/首建月8和共同正常入口单列。2本9笔/3附件refs两侧实际字节严格MATCH；全原71保护，最终仅新增0.41至72。Q24精度MISMATCH、旧附件order拒绝、DAVv6字段边界、未实服后端等继续保留。该报告不覆盖后续A–E新设计修订。",
+      "status": "已完成",
       "name": "共享账本邀请",
       "priority": "P1",
-      "reason": "同一QA已完成真实登录/配置、共享角色与数据保护、DAV差异取消及单条恢复、首次Cloud创建月日起8与正常入口；Root实际SQL/full及文件对照通过。独立报告封存后再计整页，S3/iCloud/Supabase实际连接范围不从DAV推定。",
-      "implementationStage": "implemented",
+      "reason": "Root已逐页审阅原功能/设计/组件/相关回归与实际原生实服闭环，R114固定版本独立HTML/ZIP解压hash/links与三宽检查通过并只读封存。",
+      "implementationStage": "accepted",
+      "report": {
+        "path": ".docs/acceptance/v4-migration/2026-10-26/cloud-r114-final/shared-invite-r114/index.html",
+        "zip": ".docs/acceptance/v4-migration/2026-10-26/cloud-r114-final/shared-invite-r114.zip",
+        "zipSHA256": "c40776cfdd9cdc66f01e3c98bfa84005be8d0ca7ba09d0f222c9e6f22bd82c8e",
+        "sourceCommit": "c21b378a0322a0b48da631a9ff438f69574474cc",
+        "artifactSHA256": "e37427b9f7f35ce70d357ee2db9126bd18bd351147aab1aff5f7334c4052d6f3",
+        "sealed": true
+      },
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-invite",
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-shared-invite",
@@ -1184,12 +1224,20 @@
       ],
       "designMapping": "已定位",
       "components": "同步状态、配置、成员列表与权限操作",
-      "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。",
-      "status": "迁移中·R114关键原生与实服闭环通过，独立报告待封存",
+      "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。 R114整页封存：join-shared-ledger-r114；原c7/R113视觉证据按源连续性复用，R114目标水合/加入退出与DAV真实恢复/重登/首建月8和共同正常入口单列。2本9笔/3附件refs两侧实际字节严格MATCH；全原71保护，最终仅新增0.41至72。Q24精度MISMATCH、旧附件order拒绝、DAVv6字段边界、未实服后端等继续保留。该报告不覆盖后续A–E新设计修订。",
+      "status": "已完成",
       "name": "加入共享账本",
       "priority": "P1",
-      "reason": "同一QA已完成真实登录/配置、共享角色与数据保护、DAV差异取消及单条恢复、首次Cloud创建月日起8与正常入口；Root实际SQL/full及文件对照通过。独立报告封存后再计整页，S3/iCloud/Supabase实际连接范围不从DAV推定。",
-      "implementationStage": "implemented",
+      "reason": "Root已逐页审阅原功能/设计/组件/相关回归与实际原生实服闭环，R114固定版本独立HTML/ZIP解压hash/links与三宽检查通过并只读封存。",
+      "implementationStage": "accepted",
+      "report": {
+        "path": ".docs/acceptance/v4-migration/2026-10-26/cloud-r114-final/join-shared-ledger-r114/index.html",
+        "zip": ".docs/acceptance/v4-migration/2026-10-26/cloud-r114-final/join-shared-ledger-r114.zip",
+        "zipSHA256": "afab5ae0155cc45d975f86b333713cd007e9133961e61d5887ec6aab9bf15ee3",
+        "sourceCommit": "c21b378a0322a0b48da631a9ff438f69574474cc",
+        "artifactSHA256": "e37427b9f7f35ce70d357ee2db9126bd18bd351147aab1aff5f7334c4052d6f3",
+        "sealed": true
+      },
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-join",
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-shared-join",
@@ -1212,12 +1260,20 @@
       ],
       "designMapping": "已定位",
       "components": "同步状态、配置、成员列表与权限操作",
-      "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。",
-      "status": "迁移中·R114关键原生与实服闭环通过，独立报告待封存",
+      "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。 R114整页封存：member-list-r114；原c7/R113视觉证据按源连续性复用，R114目标水合/加入退出与DAV真实恢复/重登/首建月8和共同正常入口单列。2本9笔/3附件refs两侧实际字节严格MATCH；全原71保护，最终仅新增0.41至72。Q24精度MISMATCH、旧附件order拒绝、DAVv6字段边界、未实服后端等继续保留。该报告不覆盖后续A–E新设计修订。",
+      "status": "已完成",
       "name": "共享成员管理",
       "priority": "P1",
-      "reason": "同一QA已完成真实登录/配置、共享角色与数据保护、DAV差异取消及单条恢复、首次Cloud创建月日起8与正常入口；Root实际SQL/full及文件对照通过。独立报告封存后再计整页，S3/iCloud/Supabase实际连接范围不从DAV推定。",
-      "implementationStage": "implemented",
+      "reason": "Root已逐页审阅原功能/设计/组件/相关回归与实际原生实服闭环，R114固定版本独立HTML/ZIP解压hash/links与三宽检查通过并只读封存。",
+      "implementationStage": "accepted",
+      "report": {
+        "path": ".docs/acceptance/v4-migration/2026-10-26/cloud-r114-final/member-list-r114/index.html",
+        "zip": ".docs/acceptance/v4-migration/2026-10-26/cloud-r114-final/member-list-r114.zip",
+        "zipSHA256": "1a4398a1a47f3595981cdbe31f89c17d977ba6612e3943e4b9c4ecaeccc8c4bd",
+        "sourceCommit": "c21b378a0322a0b48da631a9ff438f69574474cc",
+        "artifactSHA256": "e37427b9f7f35ce70d357ee2db9126bd18bd351147aab1aff5f7334c4052d6f3",
+        "sealed": true
+      },
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-members",
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-shared-members-owner",
@@ -1241,12 +1297,20 @@
       ],
       "designMapping": "已定位",
       "components": "同步状态、配置、成员列表与权限操作",
-      "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。",
-      "status": "迁移中·R114关键原生与实服闭环通过，独立报告待封存",
+      "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。 R114整页封存：member-stats-r114；原c7/R113视觉证据按源连续性复用，R114目标水合/加入退出与DAV真实恢复/重登/首建月8和共同正常入口单列。2本9笔/3附件refs两侧实际字节严格MATCH；全原71保护，最终仅新增0.41至72。Q24精度MISMATCH、旧附件order拒绝、DAVv6字段边界、未实服后端等继续保留。该报告不覆盖后续A–E新设计修订。",
+      "status": "已完成",
       "name": "共享成员统计",
       "priority": "P2",
-      "reason": "同一QA已完成真实登录/配置、共享角色与数据保护、DAV差异取消及单条恢复、首次Cloud创建月日起8与正常入口；Root实际SQL/full及文件对照通过。独立报告封存后再计整页，S3/iCloud/Supabase实际连接范围不从DAV推定。",
-      "implementationStage": "implemented",
+      "reason": "Root已逐页审阅原功能/设计/组件/相关回归与实际原生实服闭环，R114固定版本独立HTML/ZIP解压hash/links与三宽检查通过并只读封存。",
+      "implementationStage": "accepted",
+      "report": {
+        "path": ".docs/acceptance/v4-migration/2026-10-26/cloud-r114-final/member-stats-r114/index.html",
+        "zip": ".docs/acceptance/v4-migration/2026-10-26/cloud-r114-final/member-stats-r114.zip",
+        "zipSHA256": "09cc4ea44ea5f43d3fadecc26e419158deeec58e491efeae0958390adb6a62d6",
+        "sourceCommit": "c21b378a0322a0b48da631a9ff438f69574474cc",
+        "artifactSHA256": "e37427b9f7f35ce70d357ee2db9126bd18bd351147aab1aff5f7334c4052d6f3",
+        "sealed": true
+      },
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-member-stats",
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-shared-stats",
@@ -1430,7 +1494,7 @@
       "classes": [
         "AnalyticsPage"
       ],
-      "lines": 144,
+      "lines": 124,
       "batch": "M4 统计与分享",
       "designRoutes": [
         "report",
@@ -2561,6 +2625,69 @@
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-foreign-editor",
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-recognition-result"
       ]
+    }
+  ],
+  "baselineCompletion": {
+    "completed": 73,
+    "total": 73,
+    "scope": "原迁移基线；后续设计修订独立记录，不据此宣称新修订已验收"
+  },
+  "approvedDesignRevisions": [
+    {
+      "id": "A",
+      "name": "洞察页",
+      "status": "R115主要实际流程、R116深色增量及Root源码连续性/数据/原图复核通过；新版报告待封存",
+      "url": "boards/insights-task-a-review.html",
+      "flutterCommit": "0c730777",
+      "flutterApproved": true
+    },
+    {
+      "id": "B",
+      "name": "资产页",
+      "status": "R116首次隐藏定位与深色实际增量、Root逐表/文件/视觉复核通过；独立新版报告待封存",
+      "url": "boards/assets-task-b-review.html",
+      "flutterCommit": "de25c879",
+      "flutterApproved": true,
+      "mainDemoCommit": "3f59b6d3"
+    },
+    {
+      "id": "C",
+      "name": "交易明细行",
+      "status": "R116主要实际流程与数据守卫通过，但最终USD转账行有1.3px真实溢出FAIL；最小修复回归中，待R117补验，不标新版通过",
+      "url": "boards/transaction-rows-task-c-review.html",
+      "designCommit": "e00a31e6",
+      "approvedHtmlSha256": "643833f7d50be973e5e08296ef84d01c096743a1086a02636de08b293f66177c",
+      "approval": "子任务 c 就按照这个版本推进吧。",
+      "flutterApproved": true,
+      "flutterCommit": "2fe64194",
+      "mainDemoCommit": "98f1942f",
+      "allConsumersDemoCommit": "765729d7"
+    },
+    {
+      "id": "D",
+      "name": "分享海报与应用卡片",
+      "status": "七类海报与应用卡片、主demo和组件目录已合入；R116实际数据/导出取消验收中",
+      "url": "boards/share-cards-task-d-review.html",
+      "designCommit": "c93457bf",
+      "approvedHtmlSha256": "8c039e5608b67add35cb8a9f66a83e1e85c20b35c91cc71013fb496ae43e4e5d",
+      "approval": "子任务 d 设计稿确认没问题，更新下 demo 然后开做吧。",
+      "flutterApproved": true,
+      "mainDemoCommit": "233d8f8a",
+      "flutterCommit": "5661828b"
+    },
+    {
+      "id": "E",
+      "name": "启动页 · 一笔成形",
+      "status": "R116原生安全局部层/真实深色系统栏与共同normal完成；冷启首帧未捕获、系统减弱动效未执行，Widget边界分列；基础目录两缺失样例补齐待R117",
+      "url": "boards/splash-task-e-review.html?concept=trail",
+      "designCommit": "c0eeb0e8",
+      "approvedHtmlSha256": "cb3b28761dd234ad803c6a5b54eb74be80fd1c02c1156d651f1ed0ee0f12f665",
+      "approval": "子任务 e 用方案 B",
+      "flutterApproved": true,
+      "flutterCommit": "40a7d193",
+      "mainDemoCommit": "3cb0a735",
+      "systemBarsCommit": "607bb5b2",
+      "componentGalleryCommit": "983f6180"
     }
   ]
 }

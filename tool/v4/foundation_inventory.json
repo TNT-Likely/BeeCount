@@ -1,5 +1,5 @@
 {
-  "scope": "Current v4 foundational primitives; does not imply all legacy pages migrated",
+  "scope": "Current foundational Widget inventory and source-reachable gallery declarations; no claim that every state has passed native acceptance",
   "components": [
     {
       "component": "BeeSurface",
@@ -638,6 +638,172 @@
         2
       ],
       "sampleCoverage": "3: editable/read-only multiline template and selectable wrapping code text; 13px/20px line grid and 13px radius"
+    },
+    {
+      "component": "BeeCompactTabs",
+      "cases": [
+        22
+      ],
+      "supportedStates": [
+        "selected",
+        "unselected",
+        "controlled"
+      ],
+      "sampleCoverage": "真实组件在原Flutter分区中声明并渲染；原生验收另列，不以此清单宣称通过。"
+    },
+    {
+      "component": "BeeUnderlineTabs",
+      "cases": [
+        22
+      ],
+      "supportedStates": [
+        "selected",
+        "unselected",
+        "controlled"
+      ],
+      "sampleCoverage": "真实组件在原Flutter分区中声明并渲染；原生验收另列，不以此清单宣称通过。"
+    },
+    {
+      "component": "BeeColumnChart",
+      "cases": [
+        22
+      ],
+      "supportedStates": [
+        "positive",
+        "negative",
+        "zero",
+        "selected-bar",
+        "average-line-action"
+      ],
+      "sampleCoverage": "真实组件在原Flutter分区中声明并渲染；原生验收另列，不以此清单宣称通过。"
+    },
+    {
+      "component": "BeePaper",
+      "cases": [
+        23
+      ],
+      "supportedStates": [
+        "plain",
+        "tear-edge",
+        "light-print-surface"
+      ],
+      "sampleCoverage": "真实组件在原Flutter分区中声明并渲染；原生验收另列，不以此清单宣称通过。"
+    },
+    {
+      "component": "BeePaperRule",
+      "cases": [
+        23
+      ],
+      "supportedStates": [
+        "solid",
+        "dashed"
+      ],
+      "sampleCoverage": "真实组件在原Flutter分区中声明并渲染；原生验收另列，不以此清单宣称通过。"
+    },
+    {
+      "component": "BeeCardFrame",
+      "cases": [
+        23
+      ],
+      "supportedStates": [
+        "outline",
+        "content-slot"
+      ],
+      "sampleCoverage": "真实组件在原Flutter分区中声明并渲染；原生验收另列，不以此清单宣称通过。"
+    },
+    {
+      "component": "BeeStatusPill",
+      "cases": [
+        23
+      ],
+      "supportedStates": [
+        "success",
+        "warning",
+        "error",
+        "neutral",
+        "busy-paused"
+      ],
+      "sampleCoverage": "真实组件在原Flutter分区中声明并渲染；原生验收另列，不以此清单宣称通过。"
+    },
+    {
+      "component": "BeeTrailBackdrop",
+      "cases": [
+        24
+      ],
+      "supportedStates": [
+        "replay",
+        "static",
+        "reduced-motion",
+        "paused"
+      ],
+      "sampleCoverage": "真实组件在原Flutter分区中声明并渲染；原生验收另列，不以此清单宣称通过。"
+    },
+    {
+      "component": "BeeActivityIndicator",
+      "cases": [
+        24
+      ],
+      "supportedStates": [
+        "indeterminate",
+        "reduced-motion-static",
+        "paused",
+        "light-dark"
+      ],
+      "sampleCoverage": "真实组件在原Flutter分区中声明并渲染；原生验收另列，不以此清单宣称通过。"
+    },
+    {
+      "component": "BeeLocalSheet",
+      "cases": [
+        24
+      ],
+      "supportedStates": [
+        "open",
+        "close",
+        "page-owned"
+      ],
+      "sampleCoverage": "真实组件在原Flutter分区中声明并渲染；原生验收另列，不以此清单宣称通过。"
+    },
+    {
+      "component": "BeeSystemBars",
+      "cases": [
+        25
+      ],
+      "supportedStates": [
+        "light",
+        "dark",
+        "nested-override",
+        "preserve-input"
+      ],
+      "sampleCoverage": "真实组件在原Flutter分区中声明并渲染；原生验收另列，不以此清单宣称通过。"
+    },
+    {
+      "component": "BeeInlineLabel",
+      "cases": [
+        13
+      ],
+      "supportedStates": [
+        "compact",
+        "long-ellipsis",
+        "full-tooltip",
+        "noninteractive",
+        "local-click",
+        "44-hit-area",
+        "light-dark"
+      ],
+      "sampleCoverage": "真实组件在原Flutter分区中声明并渲染；原生验收另列，不以此清单宣称通过。"
+    },
+    {
+      "component": "BeeMultiSelect",
+      "cases": [
+        13
+      ],
+      "supportedStates": [
+        "controlled-set",
+        "selected",
+        "unselected",
+        "disabled"
+      ],
+      "sampleCoverage": "真实组件在原Flutter分区中声明并渲染；原生验收另列，不以此清单宣称通过。"
     }
   ]
 }

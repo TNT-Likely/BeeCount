@@ -1,0 +1,2045 @@
+{
+  "scope": "Exact current HTML catalog to existing Flutter group and class declarations; not native acceptance",
+  "cards": [
+    {
+      "id": "spec-1",
+      "page": "foundation",
+      "case": 8,
+      "nativeLabel": "令牌与图标",
+      "kind": "catalog",
+      "design_keys": [],
+      "components": [
+        "BeeCardTheme"
+      ],
+      "supportedStates": [
+        "中性色构建层次；主题色作用于主操作、进度与选中态。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-2",
+      "page": "foundation",
+      "case": 8,
+      "nativeLabel": "令牌与图标",
+      "kind": "catalog",
+      "design_keys": [],
+      "components": [
+        "BeeColorPalette"
+      ],
+      "supportedStates": [
+        "主题色沿用原有预设；标签颜色与收支语义色独立。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-3",
+      "page": "foundation",
+      "case": 8,
+      "nativeLabel": "令牌与图标",
+      "kind": "catalog",
+      "design_keys": [],
+      "components": [
+        "BeeCardTheme"
+      ],
+      "supportedStates": [
+        "系统字体；金额使用等宽数字，正文保持清晰层级。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-4",
+      "page": "foundation",
+      "case": 8,
+      "nativeLabel": "令牌与图标",
+      "kind": "catalog",
+      "design_keys": [],
+      "components": [
+        "BeeSurface"
+      ],
+      "supportedStates": [
+        "页面内边距 17；卡片 22；主要触控目标至少 44。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-5",
+      "page": "foundation",
+      "case": 0,
+      "nativeLabel": "按钮",
+      "kind": "catalog",
+      "design_keys": [
+        "primary"
+      ],
+      "components": [
+        "BeeButton"
+      ],
+      "supportedStates": [
+        "主操作、次要操作、禁用、处理中及危险文字操作。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-6",
+      "page": "foundation",
+      "case": 1,
+      "nativeLabel": "切换与选择",
+      "kind": "catalog",
+      "design_keys": [
+        "segments"
+      ],
+      "components": [
+        "BeeSegmented"
+      ],
+      "supportedStates": [
+        "长标签可横向滚动；禁用项不参与选择。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-8",
+      "page": "foundation",
+      "case": 2,
+      "nativeLabel": "表单",
+      "kind": "catalog",
+      "design_keys": [
+        "fields"
+      ],
+      "components": [
+        "BeeField",
+        "BeeSearchField",
+        "BeeToggleRow",
+        "BeeCheckTile"
+      ],
+      "supportedStates": [
+        "标签、输入值、提示文字与错误信息分层显示。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-9",
+      "page": "foundation",
+      "case": 3,
+      "nativeLabel": "分组列表",
+      "kind": "catalog",
+      "design_keys": [
+        "menu"
+      ],
+      "components": [
+        "BeeMenuRow",
+        "BeeActionMenu"
+      ],
+      "supportedStates": [
+        "统一图标槽、主副标题、分隔线、尾部操作与开关。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-14",
+      "page": "foundation",
+      "case": 7,
+      "nativeLabel": "底部导航",
+      "kind": "catalog",
+      "design_keys": [
+        "nav"
+      ],
+      "components": [
+        "BeeBottomBar"
+      ],
+      "supportedStates": [
+        "五项胶囊布局、选中态与 44 点击区；业务快捷入口单独组合。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-17",
+      "page": "foundation",
+      "case": 5,
+      "nativeLabel": "滚轮",
+      "kind": "catalog",
+      "design_keys": [
+        "wheel"
+      ],
+      "components": [
+        "BeeWheel",
+        "BeeDateWheels"
+      ],
+      "supportedStates": [
+        "44 高行、五行可视区、居中选中带；取消不写入。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-26",
+      "page": "foundation",
+      "case": 4,
+      "nativeLabel": "反馈与空态",
+      "kind": "catalog",
+      "design_keys": [
+        "feedbackStatus",
+        "dismissibleStatus"
+      ],
+      "components": [
+        "BeeStatus",
+        "BeeIconButton"
+      ],
+      "supportedStates": [
+        "成功、警告、失败均使用图标和文字；失败原因与重试入口保留在页面。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-33",
+      "page": "foundation",
+      "case": 9,
+      "nativeLabel": "菜单与轻提示",
+      "kind": "catalog",
+      "design_keys": [
+        "feedbackToast"
+      ],
+      "components": [
+        "BeeToast"
+      ],
+      "supportedStates": [
+        "安全区下 12；最小高 44，最大宽 340；圆角 14；图标 20，正文 13 / 1.5；2 秒自动消失，新提示替换旧提示。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-34",
+      "page": "foundation",
+      "case": 12,
+      "nativeLabel": "图标按钮与角标",
+      "kind": "catalog",
+      "design_keys": [
+        "iconActions"
+      ],
+      "components": [
+        "BeeIconButton",
+        "BeeBadge"
+      ],
+      "supportedStates": [
+        "默认、选中、禁用、危险、处理中与角标；操作区至少 44。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-35",
+      "page": "foundation",
+      "case": 13,
+      "nativeLabel": "标签块与多选",
+      "kind": "catalog",
+      "design_keys": [
+        "choiceChips"
+      ],
+      "components": [
+        "BeeChoiceChip",
+        "BeeCheckTile",
+        "BeeLabel",
+        "BeeMultiSelect",
+        "BeeInlineLabel"
+      ],
+      "supportedStates": [
+        "自动换行、选择与禁用，复选半选和全选。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-36",
+      "page": "foundation",
+      "case": 14,
+      "nativeLabel": "搜索选择",
+      "kind": "catalog",
+      "design_keys": [
+        "searchChoice"
+      ],
+      "components": [
+        "BeeChoicePicker"
+      ],
+      "supportedStates": [
+        "通用数据模型；支持副标题、选中项、搜索、空态与重试。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-37",
+      "page": "foundation",
+      "case": 15,
+      "nativeLabel": "输入与校验状态",
+      "kind": "catalog",
+      "design_keys": [
+        "inputStates",
+        "codeEditor",
+        "codeBlock"
+      ],
+      "components": [
+        "BeeField",
+        "BeeSearchField",
+        "BeeDecimalInputFormatter",
+        "BeeCodeEditor",
+        "BeeCodeBlock"
+      ],
+      "supportedStates": [
+        "聚焦、只读、禁用、密码、校验、数字过滤、计数与IME组合输入。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-38",
+      "page": "foundation",
+      "case": 16,
+      "nativeLabel": "卡片、分隔与页头",
+      "kind": "catalog",
+      "design_keys": [
+        "layoutPrimitives"
+      ],
+      "components": [
+        "BeePageHeader",
+        "BeeSurface",
+        "BeeDivider",
+        "BeeAvatar"
+      ],
+      "supportedStates": [
+        "主页面与二级页头、分组、头像、普通及内缩分隔。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-39",
+      "page": "foundation",
+      "case": 17,
+      "nativeLabel": "底部操作栏",
+      "kind": "catalog",
+      "design_keys": [
+        "actionBar"
+      ],
+      "components": [
+        "BeeActionBar"
+      ],
+      "supportedStates": [
+        "主次操作、单操作、禁用和处理中，尊重安全区。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-40",
+      "page": "foundation",
+      "case": 18,
+      "nativeLabel": "加载与进度状态",
+      "kind": "catalog",
+      "design_keys": [
+        "loadingStates"
+      ],
+      "components": [
+        "BeeProgress",
+        "BeeStatus",
+        "BeeSkeleton"
+      ],
+      "supportedStates": [
+        "未知进度不显示百分比；占位、完成与刷新状态分别表达。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-42",
+      "page": "foundation",
+      "case": 6,
+      "nativeLabel": "弹窗与弹层",
+      "kind": "catalog",
+      "design_keys": [],
+      "components": [
+        "BeeDialog"
+      ],
+      "supportedStates": [
+        "确认、取消、关闭保留上下文；等宽操作与表单编辑。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-43",
+      "page": "foundation",
+      "case": 11,
+      "nativeLabel": "单选与滑杆",
+      "kind": "catalog",
+      "design_keys": [],
+      "components": [
+        "BeeRadioTile",
+        "BeeToggleRow",
+        "BeeSliderField"
+      ],
+      "supportedStates": [
+        "选中、未选、禁用；滑杆支持边界值和步进。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-44",
+      "page": "foundation",
+      "case": 10,
+      "nativeLabel": "折叠与筛选",
+      "kind": "catalog",
+      "design_keys": [],
+      "components": [
+        "BeeFilterBar",
+        "BeeAccordion",
+        "BeeSelectField"
+      ],
+      "supportedStates": [
+        "横向筛选与折叠字段保留选择；不隐藏主要操作。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-61",
+      "page": "foundation",
+      "case": 19,
+      "nativeLabel": "折线图",
+      "kind": "catalog",
+      "design_keys": [
+        "lineChart"
+      ],
+      "components": [
+        "BeeLineChart"
+      ],
+      "supportedStates": [
+        "保留主副线、负值和零值、金额隐藏与手势，纯展示组件不请求数据。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-62",
+      "page": "foundation",
+      "case": 20,
+      "nativeLabel": "时间滚轮",
+      "kind": "catalog",
+      "design_keys": [
+        "timeWheels"
+      ],
+      "components": [
+        "BeeTimeWheels",
+        "BeeWheel"
+      ],
+      "supportedStates": [
+        "小时0–23与分钟0–59，草稿与保存由宿主负责。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-65",
+      "page": "foundation",
+      "case": 21,
+      "nativeLabel": "HSV配色与命名色板",
+      "kind": "catalog",
+      "design_keys": [
+        "hsvPalette"
+      ],
+      "components": [
+        "BeeHsvColorPicker",
+        "BeeColorPalette"
+      ],
+      "supportedStates": [
+        "完整名称、选中与禁用、RGB字节预览，以及色相/饱和度/亮度草稿。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-2001",
+      "page": "foundation",
+      "case": 22,
+      "nativeLabel": "紧凑页签与柱状图",
+      "kind": "enhanced",
+      "design_keys": [],
+      "components": [
+        "BeeCompactTabs",
+        "BeeUnderlineTabs",
+        "BeeColumnChart"
+      ],
+      "supportedStates": [
+        "compact-tabs",
+        "underline-tabs",
+        "positive-negative-zero-bars",
+        "selection",
+        "average-action"
+      ],
+      "source": "docs/design/card-refresh/prototype/src/refresh-component-catalog.cjs"
+    },
+    {
+      "id": "spec-2002",
+      "page": "foundation",
+      "case": 23,
+      "nativeLabel": "纸面、卡框与状态胶囊",
+      "kind": "enhanced",
+      "design_keys": [],
+      "components": [
+        "BeePaper",
+        "BeePaperRule",
+        "BeeCardFrame",
+        "BeeStatusPill"
+      ],
+      "supportedStates": [
+        "paper",
+        "tear-edge",
+        "solid-dashed",
+        "outline",
+        "success-warning-error-neutral-busy"
+      ],
+      "source": "docs/design/card-refresh/prototype/src/refresh-component-catalog.cjs"
+    },
+    {
+      "id": "spec-2003",
+      "page": "foundation",
+      "case": 24,
+      "nativeLabel": "启动描线、活动与局部弹层",
+      "kind": "enhanced",
+      "design_keys": [],
+      "components": [
+        "BeeTrailBackdrop",
+        "BeeActivityIndicator",
+        "BeeLocalSheet"
+      ],
+      "supportedStates": [
+        "replay",
+        "reduced-motion-static",
+        "local-open-close"
+      ],
+      "source": "docs/design/card-refresh/prototype/src/refresh-component-catalog.cjs"
+    },
+    {
+      "id": "spec-2004",
+      "page": "foundation",
+      "case": 25,
+      "nativeLabel": "主题与系统状态栏",
+      "kind": "enhanced",
+      "design_keys": [],
+      "components": [
+        "BeeSystemBars"
+      ],
+      "supportedStates": [
+        "light-dark",
+        "inner-override",
+        "navigation-fields-preserved"
+      ],
+      "source": "docs/design/card-refresh/prototype/src/refresh-component-catalog.cjs"
+    },
+    {
+      "id": "spec-7",
+      "page": "business",
+      "case": 6,
+      "nativeLabel": "标签多选",
+      "kind": "catalog",
+      "design_keys": [
+        "tagPicker",
+        "tags"
+      ],
+      "components": [
+        "BeeTagPicker",
+        "BeeTag"
+      ],
+      "supportedStates": [
+        "语义色保持一致；选择器保留最近使用、横排多选、搜索与确认草稿。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-10",
+      "page": "business",
+      "case": 1,
+      "nativeLabel": "金额与预算",
+      "kind": "catalog",
+      "design_keys": [
+        "summary"
+      ],
+      "components": [
+        "BeeSummaryCard",
+        "BeeProgress",
+        "BeeBudgetStrip"
+      ],
+      "supportedStates": [
+        "首页收支、预算进度与账本切换共用视觉层次。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-11",
+      "page": "business",
+      "case": 2,
+      "nativeLabel": "账单行与批量操作",
+      "kind": "catalog",
+      "design_keys": [
+        "streamHeader",
+        "dayHeader",
+        "entry",
+        "entryForeign"
+      ],
+      "components": [
+        "BeeTransactionStreamHeader",
+        "BeeTransactionDayHeader",
+        "BeeTransactionRow",
+        "BeeMoney"
+      ],
+      "supportedStates": [
+        "原币为主，折算与标签为辅；分类图标与账单内容使用独立点击区。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-12",
+      "page": "business",
+      "case": 3,
+      "nativeLabel": "分类与自定义图标",
+      "kind": "catalog",
+      "design_keys": [
+        "categories"
+      ],
+      "components": [
+        "RecordingCategoryTile",
+        "RecordingSubcategoryChip",
+        "BeeCategoryRanking"
+      ],
+      "supportedStates": [
+        "一级、二级分类都展示图标；展开后仍保持选择上下文。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-13",
+      "page": "business",
+      "case": 3,
+      "nativeLabel": "分类与自定义图标",
+      "kind": "catalog",
+      "design_keys": [
+        "customIcons"
+      ],
+      "components": [
+        "BeeCategoryIcon"
+      ],
+      "supportedStates": [
+        "透明 PNG 完整显示；方形图片裁切；加载和失败有固定占位。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-15",
+      "page": "business",
+      "case": 5,
+      "nativeLabel": "计算器与记账表单",
+      "kind": "catalog",
+      "design_keys": [
+        "keypad"
+      ],
+      "components": [
+        "RecordingKeypad",
+        "RecordingAmountCard",
+        "RecordingHeader"
+      ],
+      "supportedStates": [
+        "加减乘除、退格、等号、再记一笔与保存。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-16",
+      "page": "business",
+      "case": 5,
+      "nativeLabel": "计算器与记账表单",
+      "kind": "catalog",
+      "design_keys": [
+        "metadata"
+      ],
+      "components": [
+        "RecordingDetailsCard",
+        "BeeTag"
+      ],
+      "supportedStates": [
+        "两行表单：备注直接编辑、附件右上角；账户 / 日期 / 紧凑标签在下。与键盘保留 8px 间距。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-18",
+      "page": "business",
+      "case": 16,
+      "nativeLabel": "AI 授权与配置",
+      "kind": "catalog",
+      "design_keys": [
+        "auth"
+      ],
+      "components": [
+        "BeeAuthorization",
+        "BeeField"
+      ],
+      "supportedStates": [
+        "写入前展示金额、分类、账户与备注，明确拒绝与允许范围。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-19",
+      "page": "business",
+      "case": 16,
+      "nativeLabel": "AI 授权与配置",
+      "kind": "catalog",
+      "design_keys": [
+        "fields"
+      ],
+      "components": [
+        "BeeField",
+        "BeeSearchField",
+        "BeeToggleRow",
+        "BeeCheckTile"
+      ],
+      "supportedStates": [
+        "原为弹窗的流程保持弹窗；测试连接后回到原草稿。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-20",
+      "page": "business",
+      "case": 9,
+      "nativeLabel": "账本与操作菜单",
+      "kind": "catalog",
+      "design_keys": [
+        "ledger"
+      ],
+      "components": [
+        "BeeLedgerCard",
+        "BeeLedgerEditorForm",
+        "BeeMonthStartDayGrid"
+      ],
+      "supportedStates": [
+        "边框、勾选和“当前账本”共同表达；不依赖颜色单独识别。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-21",
+      "page": "business",
+      "case": 9,
+      "nativeLabel": "账本与操作菜单",
+      "kind": "catalog",
+      "design_keys": [
+        "ledgerMenu"
+      ],
+      "components": [
+        "BeeLedgerActions",
+        "BeeActionMenu"
+      ],
+      "supportedStates": [
+        "卡片右下角与长按共用；区分本地/共享与创建者/成员。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-22",
+      "page": "business",
+      "case": 10,
+      "nativeLabel": "同步全部状态",
+      "kind": "catalog",
+      "design_keys": [
+        "sync"
+      ],
+      "components": [
+        "BeeSyncStatus"
+      ],
+      "supportedStates": [
+        "原有八种 SyncDiff + 检查中、同步中与离线细分。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-23",
+      "page": "business",
+      "case": 14,
+      "nativeLabel": "导入字段映射",
+      "kind": "catalog",
+      "design_keys": [
+        "mapping"
+      ],
+      "components": [
+        "BeeImportMapping"
+      ],
+      "supportedStates": [
+        "双列映射，核心字段和原始数据预览同屏，额外字段展开。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-24",
+      "page": "business",
+      "case": 15,
+      "nativeLabel": "初始化五步",
+      "kind": "catalog",
+      "design_keys": [
+        "onboarding"
+      ],
+      "components": [
+        "BeeOnboardingStep",
+        "BeeOnboardingChoice",
+        "BeeOnboardingModeCard",
+        "BeeBrandMark",
+        "BeeBackupFileCard"
+      ],
+      "supportedStates": [
+        "品牌、标题、说明居中；选择内容左对齐，选中态保持主题一致。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-25",
+      "page": "business",
+      "case": 18,
+      "nativeLabel": "小票与分享",
+      "kind": "catalog",
+      "design_keys": [
+        "receipt"
+      ],
+      "components": [
+        "BeeReceipt",
+        "BeeAnnualSummary"
+      ],
+      "supportedStates": [
+        "收支、分类、账户、标签和原始备注完整传递。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-27",
+      "page": "business",
+      "case": 0,
+      "nativeLabel": "首页品牌",
+      "kind": "catalog",
+      "design_keys": [
+        "brand",
+        "brandOff"
+      ],
+      "components": [
+        "BeeHomeIdentity",
+        "BeeHomeLayout"
+      ],
+      "supportedStates": [
+        "有品牌与无品牌两种状态；预览和个性化设置均可切换，其他功能共用。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-28",
+      "page": "business",
+      "case": 7,
+      "nativeLabel": "币种与账户选择",
+      "kind": "catalog",
+      "design_keys": [
+        "currency"
+      ],
+      "components": [
+        "BeeCurrencyPicker",
+        "BeeChoicePicker"
+      ],
+      "supportedStates": [
+        "常用币种、搜索、汇率提示与选中态；切换币种后清空不兼容账户。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-29",
+      "page": "business",
+      "case": 8,
+      "nativeLabel": "补充汇率",
+      "kind": "catalog",
+      "design_keys": [
+        "rate"
+      ],
+      "components": [
+        "BeeValidatedInput",
+        "BeeStatus",
+        "RecordingConversionSummary"
+      ],
+      "supportedStates": [
+        "保留账单上下文，正数校验；取消不写入，确认后恢复折算预览。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-30",
+      "page": "business",
+      "case": 11,
+      "nativeLabel": "资料与紧凑余额",
+      "kind": "catalog",
+      "design_keys": [
+        "mineProfile",
+        "ledgerBalance"
+      ],
+      "components": [
+        "BeeProfile",
+        "BeeLedgerBalance"
+      ],
+      "supportedStates": [
+        "昵称可点按编辑；当前账本累计余额、记账天数和账单笔数同卡展示，金额可隐藏。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-31",
+      "page": "business",
+      "case": 12,
+      "nativeLabel": "昵称编辑",
+      "kind": "catalog",
+      "design_keys": [
+        "nickname"
+      ],
+      "components": [
+        "BeeValidatedInput"
+      ],
+      "supportedStates": [
+        "保留页面上下文；最多 20 字，空白不可保存，取消不改动原昵称。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-32",
+      "page": "business",
+      "case": 13,
+      "nativeLabel": "附件平铺与预览",
+      "kind": "catalog",
+      "design_keys": [
+        "attachments",
+        "attachmentViewer"
+      ],
+      "components": [
+        "BeeAttachments",
+        "BeeAttachmentSources",
+        "BeeAttachmentViewer"
+      ],
+      "supportedStates": [
+        "拍照与相册沿用底部弹层；图片沿用全屏浏览，支持滑动、缩放与缩略图切换；来源选择不占用独立页面。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-41",
+      "page": "business",
+      "case": 20,
+      "nativeLabel": "快捷记账",
+      "kind": "catalog",
+      "design_keys": [
+        "quickAdd"
+      ],
+      "components": [
+        "BeeQuickAddTrigger",
+        "BeeQuickAddFan",
+        "BeeQuickAdd"
+      ],
+      "supportedStates": [
+        "长按记账后滑向拍照、相册或语音；命令由 App 执行。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-45",
+      "page": "business",
+      "case": 27,
+      "nativeLabel": "分类选择器",
+      "kind": "catalog",
+      "design_keys": [
+        "categoryPicker"
+      ],
+      "components": [
+        "BeeCategoryPicker"
+      ],
+      "supportedStates": [
+        "一级与二级图标、自定义图片、搜索、草稿确认，以及保留笔数/禁用规则的即时选择。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-46",
+      "page": "business",
+      "case": 28,
+      "nativeLabel": "账户选择器",
+      "kind": "catalog",
+      "design_keys": [
+        "accountPicker"
+      ],
+      "components": [
+        "BeeAccountPicker"
+      ],
+      "supportedStates": [
+        "当前记账币种、账户余额、暂不设置、搜索与选中。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-47",
+      "page": "business",
+      "case": 29,
+      "nativeLabel": "交易行状态全集",
+      "kind": "catalog",
+      "design_keys": [
+        "transactionStates"
+      ],
+      "components": [
+        "BeeTransactionRow"
+      ],
+      "supportedStates": [
+        "支出、收入、转账、外币、标签附件、统计标记、共享、隐私、批量、只读与长文本。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-48",
+      "page": "business",
+      "case": 30,
+      "nativeLabel": "真实账本联动",
+      "kind": "catalog",
+      "design_keys": [
+        "liveBinding"
+      ],
+      "components": [
+        "BeeLedgerBalance",
+        "BeeLedgerPicker",
+        "BeeCategoryPicker",
+        "BeeAccountPicker",
+        "BeeTransactionRow"
+      ],
+      "supportedStates": [
+        "真实数据绑定在 App；展示组件接收参数与回调，写入复用现有业务。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-49",
+      "page": "business",
+      "case": 31,
+      "nativeLabel": "账本选择器",
+      "kind": "catalog",
+      "design_keys": [
+        "ledgerPicker"
+      ],
+      "components": [
+        "BeeLedgerPicker"
+      ],
+      "supportedStates": [
+        "当前账本勾选、个人与共享信息、币种、搜索与切换；与账本管理分开展示。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-50",
+      "page": "business",
+      "case": 32,
+      "nativeLabel": "分类管理列表",
+      "kind": "catalog",
+      "design_keys": [
+        "categoryManagement"
+      ],
+      "components": [
+        "BeeCategoryManagementList",
+        "BeeManagedCategory",
+        "BeeCategoryChildrenGrid"
+      ],
+      "supportedStates": [
+        "一级二级图标预览、展开、编辑、子分类管理与拖动排序。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-51",
+      "page": "business",
+      "case": 33,
+      "nativeLabel": "转账账户对",
+      "kind": "catalog",
+      "design_keys": [
+        "transferAccounts"
+      ],
+      "components": [
+        "BeeTransferAccountPair"
+      ],
+      "supportedStates": [
+        "转出、转入独立选择；不在展示包中发起请求或改写余额。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-52",
+      "page": "business",
+      "case": 34,
+      "nativeLabel": "搜索汇总与批量操作",
+      "kind": "catalog",
+      "design_keys": [
+        "searchBatch"
+      ],
+      "components": [
+        "BeeSearchSummary",
+        "BeeBatchSelection",
+        "BeeBatchActionBar"
+      ],
+      "supportedStates": [
+        "真实结果合计、全选/反选、调整范围和固定底部操作栏；批量操作保留字段与关联。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-53",
+      "page": "business",
+      "case": 35,
+      "nativeLabel": "分类账户标签详情",
+      "kind": "catalog",
+      "design_keys": [
+        "resourceDetail"
+      ],
+      "components": [
+        "BeeResourceHero",
+        "BeeResourceBreakdown",
+        "BeeResourceTrend",
+        "BeeCreditCardTerms"
+      ],
+      "supportedStates": [
+        "统一身份、原币与本位币汇总、三项指标；分布行支持预设图标和自定义图片，趋势使用历史快照；信用卡保留额度估算、还款日期、溢缴款和无额度还款。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-54",
+      "page": "business",
+      "case": 36,
+      "nativeLabel": "配置选择与预览",
+      "kind": "catalog",
+      "design_keys": [
+        "configuration"
+      ],
+      "components": [
+        "BeeConfigurationOptions",
+        "BeeConfigurationPreview"
+      ],
+      "supportedStates": [
+        "导出八项范围；导入只显示文件实际包含的内容。YAML 可选中复制，确认与取消保持标准弹窗。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-55",
+      "page": "business",
+      "case": 26,
+      "nativeLabel": "安全输入",
+      "kind": "catalog",
+      "design_keys": [
+        "security"
+      ],
+      "components": [
+        "BeeSecurityPanel",
+        "BeePinPad"
+      ],
+      "supportedStates": [
+        "四位 PIN，修改先验证原密码；数字卡片与错误状态，短屏可滚动且保留完整按键。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-56",
+      "page": "business",
+      "case": 37,
+      "nativeLabel": "分类图标编辑",
+      "kind": "catalog",
+      "design_keys": [
+        "categoryIconEditor"
+      ],
+      "components": [
+        "BeeCategoryIconEditor",
+        "BeeCategoryIconGroup",
+        "BeeCategoryIconSource",
+        "BeeIconChoiceGrid"
+      ],
+      "supportedStates": [
+        "完整预设分组、紧凑图标网格、自定义图片原色预览与裁剪入口。选择只修改草稿，保存由 App binding 原子提交。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-57",
+      "page": "business",
+      "case": 38,
+      "nativeLabel": "账户类型选择",
+      "kind": "catalog",
+      "design_keys": [
+        "accountTypes"
+      ],
+      "components": [
+        "BeeAccountTypePicker",
+        "BeeIconChoiceGrid"
+      ],
+      "supportedStates": [
+        "日常与估值 12 种原有类型；编辑限制由 App 提供，浏览分组不改变账户草稿。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-58",
+      "page": "business",
+      "case": 39,
+      "nativeLabel": "账户余额调整",
+      "kind": "catalog",
+      "design_keys": [
+        "balanceAdjustment"
+      ],
+      "components": [
+        "BeeAccountBalanceAdjustment"
+      ],
+      "supportedStates": [
+        "当前值、目标值和差额；取消返回 null，只改余额返回 false，生成平账记录返回 true。真实写入由 App 执行。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-59",
+      "page": "business",
+      "case": 40,
+      "nativeLabel": "资产总览与账户设置",
+      "kind": "catalog",
+      "design_keys": [
+        "assetOverview"
+      ],
+      "components": [
+        "BeeAssetSummary",
+        "BeeAssetChartSection",
+        "BeeAccountPreferences",
+        "BeeAccountConversionRow",
+        "BeeAssetOverviewCard",
+        "BeeAssetTypeGroup",
+        "BeeCompactAccountRow",
+        "BeeAssetAllocation",
+        "BeeAssetComposition",
+        "BeeAssetTrendPreview",
+        "BeeAssetAccountToolbar"
+      ],
+      "supportedStates": [
+        "紧凑资产卡、只读原币 Tab、单色构成、完整类型筛选、欠款/溢缴款与默认账户；真实计算由 App 提供。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-60",
+      "page": "business",
+      "case": 41,
+      "nativeLabel": "标签管理库",
+      "kind": "catalog",
+      "design_keys": [
+        "tagLibrary"
+      ],
+      "components": [
+        "BeeTagLibrary",
+        "BeeTagLibraryItem"
+      ],
+      "supportedStates": [
+        "双色标签身份、真实关联笔数、详情和删除；工具菜单保留默认生成、合并/覆盖导入、清理和分享。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-63",
+      "page": "business",
+      "case": 42,
+      "nativeLabel": "记账提醒设置",
+      "kind": "catalog",
+      "design_keys": [
+        "reminderSettings"
+      ],
+      "components": [
+        "BeeReminderPreferences",
+        "BeeToggleRow",
+        "BeeMenuRow"
+      ],
+      "supportedStates": [
+        "真实偏好、启停与时间选择；系统调度由App负责。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-64",
+      "page": "business",
+      "case": 43,
+      "nativeLabel": "历史备注偏好",
+      "kind": "catalog",
+      "design_keys": [
+        "noteHistoryPreferences"
+      ],
+      "components": [
+        "BeeNoteHistoryPreferences",
+        "BeeRadioTile"
+      ],
+      "supportedStates": [
+        "范围、排序与数量的完整受控状态；有效值即时保存，查询与校验由App负责。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-66",
+      "page": "business",
+      "case": 44,
+      "nativeLabel": "皮肤预览与选择",
+      "kind": "catalog",
+      "design_keys": [
+        "skinCard"
+      ],
+      "components": [
+        "BeeSkinCard",
+        "BeeSkinChoice"
+      ],
+      "supportedStates": [
+        "实际预览、选中、动态与固定配色标记，长名称和只读状态。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-67",
+      "page": "business",
+      "case": 45,
+      "nativeLabel": "文件导入导出任务",
+      "kind": "catalog",
+      "design_keys": [
+        "fileTransfer"
+      ],
+      "components": [
+        "BeeFileTransferStatus",
+        "BeeArchiveSummary",
+        "BeeFileTaskState"
+      ],
+      "supportedStates": [
+        "就绪、处理中、成功、部分失败与失败；原归档信息与跳过/覆盖草稿。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-68",
+      "page": "business",
+      "case": 46,
+      "nativeLabel": "附件与图标预览库",
+      "kind": "catalog",
+      "design_keys": [
+        "attachmentLibrary"
+      ],
+      "components": [
+        "BeeAttachmentLibrary",
+        "BeeAttachmentFileMetadata",
+        "BeeAttachmentViewer"
+      ],
+      "supportedStates": [
+        "真实本地文件与归档字节、两个分组、实际尺寸大小、空错与只读缩放。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-69",
+      "page": "business",
+      "case": 47,
+      "nativeLabel": "分类迁移选择对",
+      "kind": "catalog",
+      "design_keys": [
+        "categoryMigration"
+      ],
+      "components": [
+        "BeeCategoryMigrationPair"
+      ],
+      "supportedStates": [
+        "原类型、来源和目标约束；一级与二级图标、自定义图片、禁用、长名称和只读预览。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-70",
+      "page": "business",
+      "case": 48,
+      "nativeLabel": "全局汇率与编辑",
+      "kind": "catalog",
+      "design_keys": [
+        "exchangeRates"
+      ],
+      "components": [
+        "BeeExchangeRateRow",
+        "BeeExchangeRateField"
+      ],
+      "supportedStates": [
+        "手动优先、自动/陈旧/缺失、反向参考、有效范围与恢复自动；精度及写入由App保留。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-71",
+      "page": "business",
+      "case": 49,
+      "nativeLabel": "预算概览与分类进度",
+      "kind": "catalog",
+      "design_keys": [
+        "budgetOverview"
+      ],
+      "components": [
+        "BeeBudgetTone",
+        "BeeBudgetProgress",
+        "BeeBudgetOverview",
+        "BeeBudgetCategoryRow"
+      ],
+      "supportedStates": [
+        "原70/90/100风险阈值；128环形、负剩余、自定义分类图标、账本周期及共享只读权限。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-72",
+      "page": "business",
+      "case": 50,
+      "nativeLabel": "预算编辑与分类草稿",
+      "kind": "catalog",
+      "design_keys": [
+        "budgetEditor"
+      ],
+      "components": [
+        "BeeBudgetEditorForm"
+      ],
+      "supportedStates": [
+        "原始金额精度回填、两位新输入、父分类底部选择和自定义图片；App保留原预算身份与保存/删除范围。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-73",
+      "page": "business",
+      "case": 51,
+      "nativeLabel": "账单日历与按日汇总",
+      "kind": "catalog",
+      "design_keys": [
+        "calendar"
+      ],
+      "components": [
+        "BeeCalendarMonthHeading",
+        "BeeCalendarDayCell",
+        "BeeCalendarDayHeading"
+      ],
+      "supportedStates": [
+        "年月滚轮、前后切月与今天；双收支、转账排除、原币换算和当天记账由App绑定原仓库。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-74",
+      "page": "business",
+      "case": 52,
+      "nativeLabel": "洞察汇总与分类排行",
+      "kind": "catalog",
+      "design_keys": [
+        "analytics"
+      ],
+      "components": [
+        "BeeAnalyticsSummary",
+        "BeeAnalyticsComposition",
+        "BeeAnalyticsProportion",
+        "BeeAnalyticsRankingList",
+        "BeeAnalyticsShare",
+        "BeeColumnChart"
+      ],
+      "supportedStates": [
+        "月/年/全部、原收支/结余、原年月滚轮、按层级聚合与环图；数据和隐私仍由App绑定。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-75",
+      "page": "business",
+      "case": 53,
+      "nativeLabel": "智能记账引导与语音偏好",
+      "kind": "catalog",
+      "design_keys": [
+        "billingGuide"
+      ],
+      "components": [
+        "BeeBillingGuide",
+        "BeeSliderField",
+        "BeeToggleRow"
+      ],
+      "supportedStates": [
+        "原图片/拍照/语音/分享使用说明保持弹窗，原文与前置能力不省略；语音触发与松手提交由App绑定原偏好。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-76",
+      "page": "business",
+      "case": 54,
+      "nativeLabel": "AI能力绑定与授权",
+      "kind": "catalog",
+      "design_keys": [
+        "aiSettings"
+      ],
+      "components": [
+        "BeeAICapabilityRow",
+        "BeeAIConsentContent",
+        "BeeRadioTile",
+        "BeeToggleRow"
+      ],
+      "supportedStates": [
+        "三种能力、只读与长名称，完整授权正文与短路径弹窗；实际保存与授权版本由App绑定。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-77",
+      "page": "business",
+      "case": 55,
+      "nativeLabel": "AI服务商与连接测试",
+      "kind": "catalog",
+      "design_keys": [
+        "aiProvider"
+      ],
+      "components": [
+        "BeeAIProviderCard",
+        "BeeAIModelTestField",
+        "BeeLabel",
+        "BeeField"
+      ],
+      "supportedStates": [
+        "紧凑只读能力标签、内置/自定义卡与六字段弹窗；逐项/并行请求、缓存和真实保存由App绑定。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-78",
+      "page": "business",
+      "case": 56,
+      "nativeLabel": "提示词草稿与变量",
+      "kind": "catalog",
+      "design_keys": [
+        "aiPrompt"
+      ],
+      "components": [
+        "BeePromptVariables",
+        "BeePromptDocument",
+        "BeeCodeEditor",
+        "BeeCodeBlock"
+      ],
+      "supportedStates": [
+        "原完整模板与登记表，缺失能力只提示和安全追加；编辑/粘贴/分享/预览/重置与真实保存由App绑定。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-79",
+      "page": "business",
+      "case": 57,
+      "nativeLabel": "助手执行深度",
+      "kind": "catalog",
+      "design_keys": [
+        "executionDepth"
+      ],
+      "components": [
+        "BeeExecutionDepthPicker",
+        "BeeRadioTile"
+      ],
+      "supportedStates": [
+        "保留原四档2/4/6/8选择，底部弹层即时保存/取消；运行时上限和真实Store留App。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-80",
+      "page": "business",
+      "case": 58,
+      "nativeLabel": "AI对话与记账卡",
+      "kind": "catalog",
+      "design_keys": [
+        "aiConversation"
+      ],
+      "components": [
+        "BeeConversationInput",
+        "BeeConversationUserMessage",
+        "BeeConversationNotice",
+        "BeeAssistantBillCard",
+        "BeeToolRequestDetails",
+        "BeeConversationStart",
+        "BeeConversationLedgerBrief"
+      ],
+      "supportedStates": [
+        "直接输入/停止、消息、原外币账单字段及撤销、授权弹窗；原真实请求与权限留App。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-81",
+      "page": "business",
+      "case": 59,
+      "nativeLabel": "周期账单卡与真实模板",
+      "kind": "catalog",
+      "design_keys": [
+        "recurringBills"
+      ],
+      "components": [
+        "BeeButton",
+        "BeeButtonKind",
+        "BeeLineIcon",
+        "BeeRecurringBillCard",
+        "BeeRecurringUsageNotice",
+        "BeeSurface"
+      ],
+      "supportedStates": [
+        "跨账本、分类图片、原币ISO码、频率/间隔、最近生成日和启停；真正生成及写入由App原服务负责。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-82",
+      "page": "business",
+      "case": 60,
+      "nativeLabel": "导入映射与任务状态",
+      "kind": "catalog",
+      "design_keys": [
+        "transactionImport"
+      ],
+      "components": [
+        "BeeButton",
+        "BeeButtonKind",
+        "BeeImportFileChoice",
+        "BeeImportMappingField",
+        "BeeImportOption",
+        "BeeImportPreviewTable",
+        "BeeImportSection",
+        "BeeImportSourcePicker",
+        "BeeImportStatusPanel",
+        "BeeImportSteps"
+      ],
+      "supportedStates": [
+        "原12项字段、分类映射、账户币种确认和结果；取消沿用原流程，不宣称事务撤销。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-83",
+      "page": "business",
+      "case": 61,
+      "nativeLabel": "CSV导出与固定字段",
+      "kind": "catalog",
+      "design_keys": [
+        "transactionExport"
+      ],
+      "components": [
+        "BeeButton",
+        "BeeButtonKind",
+        "BeeTransactionExport"
+      ],
+      "supportedStates": [
+        "当前账本全部交易、12列与UTF-8 BOM；文件写入及系统分享由App处理。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-84",
+      "page": "business",
+      "case": 62,
+      "nativeLabel": "周期编辑与完整频率",
+      "kind": "catalog",
+      "design_keys": [
+        "recurringEditor"
+      ],
+      "components": [
+        "BeeButton",
+        "BeeButtonKind",
+        "BeeRecurringEditorField",
+        "BeeRecurringEditorForm",
+        "BeeRecurringEditorValue",
+        "BeeSegment",
+        "BeeSurface"
+      ],
+      "supportedStates": [
+        "原四种频率、间隔、起止日期、151币种与账户；真实调度留在App原服务。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-85",
+      "page": "business",
+      "case": 63,
+      "nativeLabel": "年度账单七段内容",
+      "kind": "catalog",
+      "design_keys": [
+        "annualReport"
+      ],
+      "components": [
+        "BeeAnnualAchievement",
+        "BeeAnnualComparisonRow",
+        "BeeAnnualMoment",
+        "BeeAnnualOverview",
+        "BeeAnnualRank",
+        "BeeAnnualTrend",
+        "BeeAnnualTrendPoint",
+        "BeeButton",
+        "BeeLineIcon",
+        "BeeSurface"
+      ],
+      "supportedStates": [
+        "原年度数据、原币与历史折算、七段内容和海报入口。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-86",
+      "page": "business",
+      "case": 64,
+      "nativeLabel": "小票弹窗与字段选择",
+      "kind": "catalog",
+      "design_keys": [
+        "receiptOptions"
+      ],
+      "components": [
+        "BeeButton",
+        "BeeCardTheme",
+        "BeeReceiptComposer",
+        "BeeReceiptField",
+        "BeeSurface"
+      ],
+      "supportedStates": [
+        "保留原弹窗与字段默认值；截图和分享使用原服务。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-87",
+      "page": "business",
+      "case": 65,
+      "nativeLabel": "云配置与登录表单",
+      "kind": "catalog",
+      "design_keys": [
+        "cloudConfiguration"
+      ],
+      "components": [
+        "BeeCloudBackupWarning",
+        "BeeCloudConfigurationDialog",
+        "BeeCloudConnectionSummary",
+        "BeeCloudLoginForm",
+        "BeeCloudServiceCard",
+        "BeeField",
+        "BeeLineIcon",
+        "BeeTone"
+      ],
+      "supportedStates": [
+        "六类服务、四配置弹窗、原登录与记住账号；示例不初始化鉴权或发起网络。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-88",
+      "page": "business",
+      "case": 33,
+      "nativeLabel": "转账账户对",
+      "kind": "catalog",
+      "design_keys": [
+        "transferInline"
+      ],
+      "components": [
+        "BeeTransferAccountPair",
+        "BeeMenuRow",
+        "BeeChoicePicker"
+      ],
+      "supportedStates": [
+        "账户与金额同屏，新建同币种、异本位币账本同外币账户对，缺失汇率阻止提交，历史快照保留。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-89",
+      "page": "business",
+      "case": 66,
+      "nativeLabel": "账单详情与历史快照",
+      "kind": "catalog",
+      "design_keys": [
+        "transactionDetail"
+      ],
+      "components": [
+        "BeeAttachment",
+        "BeeButton",
+        "BeeButtonKind",
+        "BeeDetailItem",
+        "BeeLineIcon",
+        "BeeSurface",
+        "BeeTagData",
+        "BeeTransactionDetail",
+        "BeeTransactionKind"
+      ],
+      "supportedStates": [
+        "完整原币字段、历史折算、标记、附件与独立编辑入口；本地加载和动作由App绑定。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-90",
+      "page": "business",
+      "case": 67,
+      "nativeLabel": "备份同步与差异选择",
+      "kind": "catalog",
+      "design_keys": [
+        "cloudBackup"
+      ],
+      "components": [
+        "BeeButton",
+        "BeeButtonKind",
+        "BeeCloudBackupAction",
+        "BeeCloudBackupPreference",
+        "BeeCloudBackupSummary",
+        "BeeLineIcon"
+      ],
+      "supportedStates": [
+        "原缓存状态、自动同步、上传和预览确认；取消与错误恢复由App保留。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-91",
+      "page": "business",
+      "case": 68,
+      "nativeLabel": "两端自动记账与原引导",
+      "kind": "catalog",
+      "design_keys": [
+        "autoBilling"
+      ],
+      "components": [
+        "BeeAutoBillingActionCard",
+        "BeeAutoBillingBatteryCard",
+        "BeeAutoBillingBatteryDialog",
+        "BeeAutoBillingInfoCard",
+        "BeeAutoBillingManualGuide",
+        "BeeAutoBillingMonitorCard",
+        "BeeAutoBillingTutorialCard",
+        "BeeAutoBillingVersionNotice",
+        "BeeChoiceChip",
+        "BeeSurface",
+        "BeeToggleRow"
+      ],
+      "supportedStates": [
+        "Android监听/电池卡、iOS教程/旧版本/手动六步，全部组件平铺；权限与平台动作留App。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-92",
+      "page": "business",
+      "case": 69,
+      "nativeLabel": "汇总币种与缺失状态",
+      "kind": "catalog",
+      "design_keys": [
+        "detailCurrency"
+      ],
+      "components": [
+        "BeeChoiceChip",
+        "BeeDetailCurrencyNotice",
+        "BeeLineIcon",
+        "BeeResourceHero",
+        "BeeResourceMetric",
+        "BeeToggleRow"
+      ],
+      "supportedStates": [
+        "当前账本币种、原账本native、缺失和陈旧提示；完整/缺失/陈旧加隐私状态平铺。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-93",
+      "page": "business",
+      "case": 70,
+      "nativeLabel": "共享云与成员权限",
+      "kind": "catalog",
+      "design_keys": [
+        "cloudShared"
+      ],
+      "components": [
+        "BeeCloudSharedCard",
+        "BeeCloudSharedHealthRow",
+        "BeeCloudSharedInviteCode",
+        "BeeCloudSharedInviteForm",
+        "BeeCloudSharedMemberRow"
+      ],
+      "supportedStates": [
+        "原同步状态、邀请码、加入确认、成员与统计，保留owner/editor边界；只读目录不访问服务端。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-94",
+      "page": "business",
+      "case": 71,
+      "nativeLabel": "分享卡与原海报预览",
+      "kind": "catalog",
+      "design_keys": [
+        "shareCard"
+      ],
+      "components": [
+        "BeeShareCard",
+        "BeeShareCardTemplate",
+        "BeeSurface"
+      ],
+      "supportedStates": [
+        "保留档案/应用/月年/账本原海报；五种选择、隐私、加载错误与保存分享仍交原App服务。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-95",
+      "page": "business",
+      "case": 72,
+      "nativeLabel": "AI记忆权限与活动",
+      "kind": "catalog",
+      "design_keys": [
+        "aiAdvanced"
+      ],
+      "components": [
+        "BeeAIAdvancedActivityCard",
+        "BeeAIAdvancedMemoryCard",
+        "BeeAIAdvancedNotice",
+        "BeeAIAdvancedPermissionRow",
+        "BeeAIAdvancedPermissionSection",
+        "BeeAIAdvancedToolBadge",
+        "BeeLineIcon",
+        "BeeTone"
+      ],
+      "supportedStates": [
+        "本地记忆、逐工具权限和原活动/工具执行日志；真实只读预览由App注入，不主动执行模型或工具。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-96",
+      "page": "business",
+      "case": 73,
+      "nativeLabel": "关于帮助与支持",
+      "kind": "catalog",
+      "design_keys": [
+        "support"
+      ],
+      "components": [
+        "BeeDonationOption",
+        "BeeDonationOptions",
+        "BeeLineIcon",
+        "BeeSupportAction",
+        "BeeSupportActions",
+        "BeeSupportBrand",
+        "BeeSupportDocument",
+        "BeeSupportShortcut",
+        "BeeSupportText",
+        "BeeSurface"
+      ],
+      "supportedStates": [
+        "版本/故事/相关产品、帮助/隐私原文档、六快捷链接和赞助商品；受控示例不打开外链、复制或付款。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-97",
+      "page": "business",
+      "case": 74,
+      "nativeLabel": "日志存储与维护",
+      "kind": "catalog",
+      "design_keys": [
+        "maintenance"
+      ],
+      "components": [
+        "BeeCardTheme",
+        "BeeLineIcon",
+        "BeeMaintenanceAction",
+        "BeeMaintenanceFilterChoice",
+        "BeeMaintenanceLogCard",
+        "BeeMaintenanceLogFilters",
+        "BeeMaintenanceWidgetCard",
+        "BeeTone"
+      ],
+      "supportedStates": [
+        "日志筛选/详情/清空、模型/APK清理、平台组件引导和孤儿确认；目录真实预览只读本地，不扫描清理。"
+      ],
+      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+    },
+    {
+      "id": "spec-2005",
+      "page": "business",
+      "case": 75,
+      "nativeLabel": "启动品牌、状态与安全说明",
+      "kind": "enhanced",
+      "design_keys": [],
+      "components": [
+        "BeeSplashLayout",
+        "BeeSplashSecurityContent",
+        "BeeSplashSecurityFeature"
+      ],
+      "supportedStates": [
+        "brand",
+        "initialization-copy",
+        "security-features",
+        "local-sheet",
+        "static-motion"
+      ],
+      "source": "docs/design/card-refresh/prototype/src/refresh-component-catalog.cjs"
+    },
+    {
+      "id": "spec-2006",
+      "page": "business",
+      "case": 76,
+      "nativeLabel": "七类分享海报平铺",
+      "kind": "enhanced",
+      "design_keys": [],
+      "components": [
+        "BeeProfileSharePoster",
+        "BeeAppSharePoster",
+        "BeeFinancialSharePoster",
+        "BeeReceiptPoster",
+        "BeePosterCanvas",
+        "BeePosterBrand",
+        "BeePosterHeader",
+        "BeePosterFooter",
+        "BeePosterAmount",
+        "BeePosterMetricPair",
+        "BeePosterRanking",
+        "BeePosterChapter",
+        "BeePosterTrend",
+        "BeePosterMoment"
+      ],
+      "supportedStates": [
+        "profile",
+        "app",
+        "month",
+        "year",
+        "ledger",
+        "annual",
+        "receipt",
+        "enlarge",
+        "income-toggle"
+      ],
+      "source": "docs/design/card-refresh/prototype/src/refresh-component-catalog.cjs"
+    },
+    {
+      "id": "spec-2007",
+      "page": "business",
+      "case": 77,
+      "nativeLabel": "云同步健康状态",
+      "kind": "enhanced",
+      "design_keys": [],
+      "components": [
+        "BeeSyncHealthHeader"
+      ],
+      "supportedStates": [
+        "success",
+        "checking",
+        "difference",
+        "error"
+      ],
+      "source": "docs/design/card-refresh/prototype/src/refresh-component-catalog.cjs"
+    },
+    {
+      "id": "spec-2008",
+      "page": "business",
+      "case": 40,
+      "nativeLabel": "资产总览与账户设置",
+      "kind": "enhanced",
+      "design_keys": [],
+      "components": [
+        "BeeAssetAccountToolbar"
+      ],
+      "supportedStates": [
+        "controlled-filter",
+        "search-callback",
+        "order-callback"
+      ],
+      "source": "docs/design/card-refresh/prototype/src/refresh-component-catalog.cjs"
+    }
+  ]
+}

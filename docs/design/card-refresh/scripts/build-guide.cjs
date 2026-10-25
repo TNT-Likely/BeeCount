@@ -4,6 +4,7 @@ const adaptiveRows=require('../prototype/src/transaction-row-samples.cjs');
 samples.transactionStates=adaptiveRows.transactionStates;
 // Asset examples are rebuilt from their source module, independently of captured legacy samples.
 samples.assetOverview=require('../prototype/src/asset-overview-samples.cjs');
+samples.choiceChips=require('../prototype/src/foundation-samples.cjs').choiceChips;
 const brandSvg=fs.readFileSync(path.resolve(root,'../../../assets/bee.svg'),'utf8');
 const brandMarks='<div class="g-brand-marks">'+[[76,24,48,'品牌容器'],[38,13,27,'欢迎页头']].map(([size,corner,art,label])=>`<figure><div style="width:${size}px;height:${size}px;border-radius:${corner}px;${size===38?'background:var(--bc-paper)':''}"><span style="width:${art}px;height:${art}px">${brandSvg}</span></div><figcaption>${label} · ${size}</figcaption></figure>`).join('')+'</div>';
 const primary=samples.primary.replace('data-action="w-next"','data-action="spec"'),secondary='<button class="bc-secondary">次要操作</button>',tag=n=>`<span class="bc-tag" data-color="${n[1]}">${n[0]}</span>`;
