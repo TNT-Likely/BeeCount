@@ -226,6 +226,7 @@ class BeeSliderField extends StatelessWidget {
       required this.value,
       required this.valueLabel,
       required this.onChanged,
+      this.onChangeEnd,
       this.min = 0,
       this.max = 1,
       this.divisions});
@@ -233,11 +234,15 @@ class BeeSliderField extends StatelessWidget {
   final double value, min, max;
   final int? divisions;
   final ValueChanged<double>? onChanged;
+  final ValueChanged<double>? onChangeEnd;
   @override
   Widget build(BuildContext context) => Column(children: [
         Row(children: [
           Expanded(child: Text(label, style: const TextStyle(fontSize: 13))),
-          Text(valueLabel, style: const TextStyle(fontSize: 12))
+          Flexible(
+              child: Text(valueLabel,
+                  textAlign: TextAlign.end,
+                  style: const TextStyle(fontSize: 12)))
         ]),
         Slider(
             value: value.isFinite ? value.clamp(min, max) : min,
@@ -245,7 +250,8 @@ class BeeSliderField extends StatelessWidget {
             max: max,
             divisions: divisions,
             label: valueLabel,
-            onChanged: onChanged)
+            onChanged: onChanged,
+            onChangeEnd: onChangeEnd)
       ]);
 }
 

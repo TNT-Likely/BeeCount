@@ -259,7 +259,8 @@
         "steps",
         "zero",
         "max",
-        "disabled"
+        "disabled",
+        "commit_on_release"
       ],
       "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
     },

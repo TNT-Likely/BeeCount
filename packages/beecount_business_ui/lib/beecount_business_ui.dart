@@ -52,3 +52,4 @@ export 'src/budget_components.dart';
 
 export 'src/calendar_components.dart';
 export 'src/analytics_components.dart';
+export 'src/billing_guide.dart';

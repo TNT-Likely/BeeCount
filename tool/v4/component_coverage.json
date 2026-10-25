@@ -673,5 +673,15 @@
     ],
     "page": "business",
     "case": 52
+  },
+  {
+    "design_key": "billingGuide",
+    "components": [
+      "BeeBillingGuide",
+      "BeeSliderField",
+      "BeeToggleRow"
+    ],
+    "page": "business",
+    "case": 53
   }
 ]

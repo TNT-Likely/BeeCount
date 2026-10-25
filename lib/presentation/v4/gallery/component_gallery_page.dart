@@ -1,3 +1,4 @@
+import '../bindings/smart_billing_preview.dart';
 import '../bindings/analytics_preview.dart';
 import '../bindings/calendar_preview.dart';
 import '../bindings/budget_editor_preview.dart';
@@ -98,6 +99,9 @@ class _ComponentGalleryPageState extends State<ComponentGalleryPage> {
                                 key: const ValueKey('gallery-business-tickers'),
                                 enabled: tab == 1 && !motionPaused,
                                 child: BusinessAcceptancePage(
+                                    smartBillingData: widget.enableLiveData
+                                        ? const LiveSmartBillingPreview()
+                                        : null,
                                     analyticsData: widget.enableLiveData
                                         ? const LiveAnalyticsPreview()
                                         : null,

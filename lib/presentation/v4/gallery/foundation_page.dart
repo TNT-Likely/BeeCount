@@ -489,7 +489,8 @@ class _FoundationAcceptancePageState extends State<FoundationAcceptancePage> {
                 value: slider,
                 valueLabel: '${(slider * 100).round()}%',
                 divisions: 10,
-                onChanged: (v) => setState(() => slider = v))
+                onChanged: (v) => setState(() => slider = v),
+                onChangeEnd: (v) => record('滑杆松手提交 ${(v * 100).round()}%'))
           ])),
         12 => BeeSurface(
               child: Column(
