@@ -660,6 +660,7 @@ class BeeCountCloudProvider implements CloudProvider {
     String? ledgerId,
     required String ledgerName,
     String currency = 'CNY',
+    int? monthStartDay,
     String? idempotencyKey,
   }) async {
     final storage = _storage;
@@ -671,6 +672,7 @@ class BeeCountCloudProvider implements CloudProvider {
       ledgerId: ledgerId,
       ledgerName: ledgerName,
       currency: currency,
+      monthStartDay: monthStartDay,
       idempotencyKey: idempotencyKey,
     );
   }
@@ -2820,11 +2822,13 @@ class BeeCountCloudStorageService implements CloudStorageService {
     String? ledgerId,
     required String ledgerName,
     String currency = 'CNY',
+    int? monthStartDay,
     String? idempotencyKey,
   }) async {
     final body = <String, dynamic>{
       'ledger_name': ledgerName,
       'currency': currency,
+      if (monthStartDay != null) 'month_start_day': monthStartDay,
       if (ledgerId != null && ledgerId.trim().isNotEmpty)
         'ledger_id': ledgerId.trim(),
     };
