@@ -22,7 +22,6 @@ import 'package:beecount/models/assistant_follow_up_metadata.dart';
 import 'package:beecount/models/assistant_execution_metadata.dart';
 import 'package:beecount/models/assistant_prompt_suggestions.dart';
 import 'package:beecount/styles/tokens.dart';
-import 'package:beecount/utils/ui_scale_extensions.dart';
 import 'package:beecount/services/billing/post_processor.dart';
 import 'package:beecount/providers.dart';
 import 'package:beecount/providers/ai_chat_providers.dart';
@@ -269,8 +268,8 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
                           child: ListView.builder(
                             controller: _scrollController,
                             padding: EdgeInsets.symmetric(
-                              horizontal: 18.0.scaled(context, ref),
-                              vertical: 8.0.scaled(context, ref),
+                              horizontal: 17,
+                              vertical: 8,
                             ),
                             itemCount: displayMessages.length +
                                 (_hasLiveAgentMessage ? 1 : 0),
@@ -340,7 +339,7 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
                   Positioned(
                     left: 0,
                     right: 0,
-                    bottom: 16.0.scaled(context, ref),
+                    bottom: 16,
                     child: Center(
                         child: AgentScrollToLatestButton(
                       key: const ValueKey('agent-scroll-to-latest'),
@@ -440,9 +439,7 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
   Widget _answerText(String text) => AgentMarkdownText(
         data: text,
         style: TextStyle(
-            color: BeeTokens.textPrimary(context),
-            fontSize: 14.0.scaled(context, ref),
-            height: 1.6),
+            color: BeeTokens.textPrimary(context), fontSize: 14, height: 1.6),
       );
 
   Widget? _storedActivity(Message message) {
@@ -580,8 +577,8 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
   // 构建用户头像
   Widget _buildUserAvatar() {
     return Container(
-      width: 32.0.scaled(context, ref),
-      height: 32.0.scaled(context, ref),
+      width: 32,
+      height: 32,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         border: Border.all(

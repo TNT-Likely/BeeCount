@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'package:beecount/providers/font_scale_provider.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'dart:async';
 import 'dart:convert';
@@ -54,7 +56,7 @@ void main() {
 
   tearDown(() => database.close());
 
-  Widget host({core.AgentModel? model}) {
+  Widget host({core.AgentModel? model, double scale = 1}) {
     final memory = LocalAgentMemoryRepository(database);
     final bookkeeper = AiBookkeeper(
       repository: repository,
@@ -84,6 +86,7 @@ void main() {
     );
     return ProviderScope(
       overrides: [
+        customFontScaleProvider.overrideWith((ref) => scale),
         databaseProvider.overrideWithValue(database),
         repositoryProvider.overrideWithValue(repository),
         aiChatServiceProvider.overrideWithValue(chatService),
@@ -92,10 +95,46 @@ void main() {
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         locale: const Locale('zh'),
+        builder: (context, child) => MediaQuery(
+            data: MediaQuery.of(context)
+                .copyWith(textScaler: TextScaler.linear(scale)),
+            child: child!),
         home: const AIChatPage(),
       ),
     );
   }
+
+  testWidgets('回答字体只应用全局缩放一次，列表页边距对齐独立HTML', (tester) async {
+    await repository.createLedger(name: 'QA 字号');
+    final id = await repository.createConversation(
+        ConversationsCompanion.insert(title: const Value('QA 字号')));
+    await repository.createMessage(MessagesCompanion.insert(
+        conversationId: id,
+        role: 'assistant',
+        content: 'qa-font-scale',
+        messageType: 'text'));
+    await tester.pumpWidget(host(scale: .9));
+    await tester.pumpAndSettle();
+    final answer = find.byType(AgentMarkdownText);
+    expect(answer, findsOneWidget);
+    final style = tester.widget<AgentMarkdownText>(answer).style!;
+    expect(style.fontSize, 14);
+    expect(
+        MediaQuery.textScalerOf(tester.element(answer)).scale(style.fontSize!),
+        closeTo(12.6, .001));
+    expect(tester.widget<ListView>(find.byType(ListView).first).padding,
+        const EdgeInsets.symmetric(horizontal: 17, vertical: 8));
+    final css =
+        File('docs/design/card-refresh/prototype/src/ai-conversation.css')
+            .readAsStringSync();
+    expect(
+        css,
+        contains(
+            '.a85-messages .bc-chat-answer{font-size:14px;line-height:1.6}'));
+    await tester.pumpWidget(const SizedBox());
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+  });
 
   testWidgets('清除历史先确认，取消不变，确认只删当前会话消息', (tester) async {
     final ledgerId = await repository.createLedger(name: 'QA 当前账本');
@@ -658,7 +697,16 @@ void main() {
     final answer = find.byKey(ValueKey('agent-answer-$messageId'));
     final markdown =
         find.descendant(of: answer, matching: find.byType(AgentMarkdownText));
-    expect(tester.getSize(markdown).width, greaterThan(340));
+    final card =
+        find.ancestor(of: answer, matching: find.byType(BeeSurface)).first;
+    expect(tester.getSize(card).width, 390 - 17 * 2);
+    expect(tester.getSize(markdown).width, 390 - 17 * 2 - 16 * 2);
+    final css =
+        File('docs/design/card-refresh/prototype/src/ai-conversation.css')
+            .readAsStringSync();
+    expect(css, contains('padding:8px 17px'));
+    expect(css,
+        contains('.a85-messages>.bc-surface{margin:6px 0 12px;padding:16px}'));
     final copy = find.byKey(ValueKey('agent-answer-copy-$messageId'));
     expect(tester.getTopLeft(copy).dy,
         greaterThan(tester.getBottomLeft(markdown).dy));
