@@ -1,3 +1,15 @@
+import '../../../pages/ai/agent_memory_page.dart';
+import '../../../pages/ai/agent_permissions_page.dart';
+import '../../../pages/ai/agent_activity_page.dart';
+import '../../../pages/settings/about_page.dart';
+import '../../../pages/settings/help_center_page.dart';
+import '../../../pages/settings/privacy_policy_page.dart';
+import '../../../pages/settings/shortcuts_guide_page.dart';
+import '../../../pages/donation/donation_page.dart';
+import '../../../pages/settings/log_center_page.dart';
+import '../../../pages/settings/storage_management_page.dart';
+import '../../../pages/settings/widget_management_page.dart';
+import '../../../pages/maintenance/orphan_cleanup_page.dart';
 import '../../../pages/transaction/transaction_detail_page.dart';
 import '../../../pages/automation/auto_billing_settings_page.dart';
 import '../../../pages/cloud/cloud_sync_page.dart';
@@ -243,6 +255,66 @@ class _PageMigrationGalleryState extends ConsumerState<PageMigrationGallery> {
                         ledgerName: ledger.name)
                   ),
                 ],
+                (
+                  id: 'advanced-memory',
+                  title: 'AI本地记忆',
+                  open: () => AgentMemoryPage(ledgerId: ledgerId)
+                ),
+                (
+                  id: 'advanced-permissions',
+                  title: 'AI工具权限',
+                  open: () => const AgentPermissionsPage()
+                ),
+                (
+                  id: 'advanced-activity',
+                  title: 'AI最近活动',
+                  open: () => AgentActivityPage(ledgerId: ledgerId)
+                ),
+                (
+                  id: 'support-about',
+                  title: '关于与版本',
+                  open: () => const AboutPage()
+                ),
+                (
+                  id: 'support-help',
+                  title: '帮助中心',
+                  open: () => const HelpCenterPage()
+                ),
+                (
+                  id: 'support-privacy',
+                  title: '隐私政策',
+                  open: () => const PrivacyPolicyPage()
+                ),
+                (
+                  id: 'support-shortcuts',
+                  title: '快捷指令与链接',
+                  open: () => const ShortcutsGuidePage()
+                ),
+                (
+                  id: 'support-donation',
+                  title: '支持开发',
+                  open: () => const DonationPage()
+                ),
+                (
+                  id: 'maintenance-logs',
+                  title: '日志中心',
+                  open: () => const LogCenterPage()
+                ),
+                (
+                  id: 'maintenance-storage',
+                  title: '存储管理',
+                  open: () => const StorageManagementPage()
+                ),
+                (
+                  id: 'maintenance-widgets',
+                  title: '组件管理',
+                  open: () => const WidgetManagementPage()
+                ),
+                (
+                  id: 'maintenance-orphans',
+                  title: '孤儿数据清理',
+                  open: () => const OrphanCleanupPage()
+                ),
                 (id: 'splash', title: '启动状态', open: () => const SplashPage()),
                 (id: 'pin', title: '设置 PIN', open: () => const PinSetupPage()),
                 (id: 'lock', title: '应用锁', open: () => const AppLockScreen()),

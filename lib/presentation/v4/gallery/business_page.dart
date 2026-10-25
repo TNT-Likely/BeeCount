@@ -1,3 +1,6 @@
+import 'ai_advanced_sample.dart';
+import 'support_sample.dart';
+import 'maintenance_sample.dart';
 import '../../../l10n/app_localizations.dart';
 import 'share_card_sample.dart';
 import 'transaction_detail_sample.dart';
@@ -103,7 +106,10 @@ const businessCases = [
   '两端自动记账与原引导',
   '汇总币种与缺失状态',
   '共享云与成员权限',
-  '分享卡与原海报预览'
+  '分享卡与原海报预览',
+  'AI记忆权限与活动',
+  '关于帮助与支持',
+  '日志存储与维护'
 ];
 const demoTags = [
   BeeTagData('work', '工作日', Color(0xffaa8b29)),
@@ -147,7 +153,9 @@ class BusinessAcceptancePage extends StatefulWidget {
       this.autoBillingData,
       this.detailCurrencyData,
       this.cloudSharedData,
-      this.shareCardData});
+      this.shareCardData,
+      this.aiAdvancedData,
+      this.maintenanceData});
   final Widget? liveData,
       tagLibraryData,
       reminderData,
@@ -178,7 +186,9 @@ class BusinessAcceptancePage extends StatefulWidget {
       autoBillingData,
       detailCurrencyData,
       cloudSharedData,
-      shareCardData;
+      shareCardData,
+      aiAdvancedData,
+      maintenanceData;
   final int? isolatedCase;
   @override
   State<BusinessAcceptancePage> createState() => _BusinessAcceptancePageState();
@@ -1987,6 +1997,12 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
             context: context,
             delegates: const [AppLocalizations.delegate],
             child: ShareCardSample(liveData: widget.shareCardData)),
+        72 => AIAdvancedSample(liveData: widget.aiAdvancedData),
+        73 => Localizations.override(
+            context: context,
+            delegates: const [AppLocalizations.delegate],
+            child: const SupportSample()),
+        74 => MaintenanceSample(liveData: widget.maintenanceData),
         49 => BudgetSample(
             liveData: widget.budgetData, onEdit: () => record('选择预算编辑')),
         48 => ExchangeRateSample(liveData: widget.exchangeRateData),

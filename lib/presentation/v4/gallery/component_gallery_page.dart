@@ -1,3 +1,5 @@
+import '../bindings/ai_advanced_preview.dart';
+import '../bindings/maintenance_preview.dart';
 import '../bindings/share_card_preview.dart';
 import '../bindings/transaction_detail_preview.dart';
 import '../bindings/cloud_backup_preview.dart';
@@ -116,6 +118,12 @@ class _ComponentGalleryPageState extends State<ComponentGalleryPage> {
                                 key: const ValueKey('gallery-business-tickers'),
                                 enabled: tab == 1 && !motionPaused,
                                 child: BusinessAcceptancePage(
+                                    aiAdvancedData: widget.enableLiveData
+                                        ? const AIAdvancedPreview()
+                                        : null,
+                                    maintenanceData: widget.enableLiveData
+                                        ? const MaintenancePreview()
+                                        : null,
                                     shareCardData: widget.enableLiveData
                                         ? const ShareCardPreview()
                                         : null,
@@ -167,9 +175,8 @@ class _ComponentGalleryPageState extends State<ComponentGalleryPage> {
                                     aiSettingsData: widget.enableLiveData
                                         ? const LiveAISettingsPreview()
                                         : null,
-                                    smartBillingData: widget.enableLiveData
-                                        ? const LiveSmartBillingPreview()
-                                        : null,
+                                    smartBillingData:
+                                        widget.enableLiveData ? const LiveSmartBillingPreview() : null,
                                     analyticsData: widget.enableLiveData ? const LiveAnalyticsPreview() : null,
                                     calendarData: widget.enableLiveData ? const LiveCalendarPreview() : null,
                                     budgetEditorData: widget.enableLiveData ? const LiveBudgetEditorPreview() : null,
