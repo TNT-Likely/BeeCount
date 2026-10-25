@@ -27,6 +27,10 @@ void main() {
   }
 
   testWidgets('默认将记录交易工具设为每次询问', (tester) async {
+    addTearDown(() async {
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pump();
+    });
     await tester.pumpWidget(host());
     await tester.pumpAndSettle();
 
@@ -50,6 +54,10 @@ void main() {
   });
 
   testWidgets('权限说明使用中性信息卡而非主题渐变', (tester) async {
+    addTearDown(() async {
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pump();
+    });
     await tester.pumpWidget(host());
     await tester.pumpAndSettle();
 
@@ -66,6 +74,10 @@ void main() {
   });
 
   testWidgets('可将单个工具改为始终允许', (tester) async {
+    addTearDown(() async {
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pump();
+    });
     await tester.pumpWidget(host());
     await tester.pumpAndSettle();
 
@@ -75,6 +87,7 @@ void main() {
       ),
       160,
     );
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey(
       'permission-status-record_transaction_from_text',
     )));
@@ -89,6 +102,10 @@ void main() {
   });
 
   testWidgets('恢复默认会移除已保存的始终允许设置', (tester) async {
+    addTearDown(() async {
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pump();
+    });
     await store.setPermission(
       'record_transaction_from_text',
       AgentToolPermission.alwaysAllow,

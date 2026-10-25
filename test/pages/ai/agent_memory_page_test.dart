@@ -41,6 +41,10 @@ void main() {
 
   testWidgets('shows and removes local memories from the selected ledger',
       (tester) async {
+    addTearDown(() async {
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pump();
+    });
     await tester.pumpWidget(host());
     await tester.pumpAndSettle();
 
