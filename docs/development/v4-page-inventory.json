@@ -10,7 +10,7 @@
     "lib/pages/cloud/sync_preview_dialog.dart",
     "lib/pages/tag/widgets/tag_selector.dart"
   ],
-  "designSceneExports": 317,
+  "designSceneExports": 324,
   "flowDefinitions": 183,
   "priorityCounts": {
     "P0": 16,
@@ -1739,9 +1739,16 @@
       "batch": "M6 AI与自动化",
       "designRoutes": [
         "smart",
-        "flow-capture",
+        "flow-smart-direct",
+        "flow-smart-gp",
+        "flow-smart-ios",
         "flow-feature-guide",
-        "flow-voice-trigger"
+        "flow-voice-trigger",
+        "flow-smart-guide-image",
+        "flow-smart-guide-camera",
+        "flow-smart-guide-voice",
+        "flow-smart-guide-share",
+        "flow-capture"
       ],
       "designMapping": "已定位",
       "components": "智能记账入口、功能引导弹窗、默认行为开关与语音设置",
@@ -1752,9 +1759,16 @@
       "reason": "原526行和三个Provider已只读备份；薄页与App平台/偏好绑定、纯引导和基础滑杆松手提交已实现，7项真实偏好Widget通过。HTML草稿未接入最终构建，原生验收与完整规范尚未完成。",
       "designLinks": [
         "../../docs/design/card-refresh/prototype/demo.html?page=smart",
-        "../../docs/design/card-refresh/prototype/demo.html?page=flow-capture",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-smart-direct",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-smart-gp",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-smart-ios",
         "../../docs/design/card-refresh/prototype/demo.html?page=flow-feature-guide",
-        "../../docs/design/card-refresh/prototype/demo.html?page=flow-voice-trigger"
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-voice-trigger",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-smart-guide-image",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-smart-guide-camera",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-smart-guide-voice",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-smart-guide-share",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-capture"
       ]
     },
     {

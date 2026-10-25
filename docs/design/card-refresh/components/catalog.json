@@ -528,6 +528,13 @@
         "title": "洞察汇总与分类排行",
         "nativeCase": 52,
         "nativeLabel": "洞察汇总与分类排行"
+      },
+      {
+        "id": "spec-75",
+        "code": "B50",
+        "title": "智能记账引导与语音偏好",
+        "nativeCase": 53,
+        "nativeLabel": "智能记账引导与语音偏好"
       }
     ]
   }

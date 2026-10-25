@@ -201,10 +201,10 @@
   },
   {
     "route": "smart",
-    "slug": "smart",
     "title": "智能记账",
     "group": "设置与管理",
-    "fullHeight": 1377,
+    "slug": "smart",
+    "fullHeight": 1006,
     "viewport": "screens/viewport/smart.png",
     "full": "screens/full/smart.png",
     "svg": "figma/smart.svg"
@@ -911,9 +911,9 @@
   },
   {
     "route": "flow-feature-guide",
-    "slug": "flow-feature-guide",
     "title": "功能使用说明 · 弹窗",
     "group": "补齐 · 自动化与识别",
+    "slug": "flow-feature-guide",
     "fullHeight": 844,
     "viewport": "screens/viewport/flow-feature-guide.png",
     "full": "screens/full/flow-feature-guide.png",
@@ -921,9 +921,9 @@
   },
   {
     "route": "flow-voice-trigger",
-    "slug": "flow-voice-trigger",
     "title": "语音触发方式 · 弹窗",
     "group": "补齐 · 自动化与识别",
+    "slug": "flow-voice-trigger",
     "fullHeight": 844,
     "viewport": "screens/viewport/flow-voice-trigger.png",
     "full": "screens/full/flow-voice-trigger.png",
@@ -3192,5 +3192,75 @@
     "viewport": "screens/viewport/flow-analytics-foreign.png",
     "full": "screens/full/flow-analytics-foreign.png",
     "svg": "figma/flow-analytics-foreign.svg"
+  },
+  {
+    "route": "flow-smart-direct",
+    "title": "智能记账 · Android直装",
+    "group": "补齐 · 自动化与识别",
+    "slug": "flow-smart-direct",
+    "fullHeight": 1006,
+    "viewport": "screens/viewport/flow-smart-direct.png",
+    "full": "screens/full/flow-smart-direct.png",
+    "svg": "figma/flow-smart-direct.svg"
+  },
+  {
+    "route": "flow-smart-gp",
+    "title": "智能记账 · Google Play",
+    "group": "补齐 · 自动化与识别",
+    "slug": "flow-smart-gp",
+    "fullHeight": 946,
+    "viewport": "screens/viewport/flow-smart-gp.png",
+    "full": "screens/full/flow-smart-gp.png",
+    "svg": "figma/flow-smart-gp.svg"
+  },
+  {
+    "route": "flow-smart-ios",
+    "title": "智能记账 · iOS",
+    "group": "补齐 · 自动化与识别",
+    "slug": "flow-smart-ios",
+    "fullHeight": 946,
+    "viewport": "screens/viewport/flow-smart-ios.png",
+    "full": "screens/full/flow-smart-ios.png",
+    "svg": "figma/flow-smart-ios.svg"
+  },
+  {
+    "route": "flow-smart-guide-image",
+    "title": "图片记账 · 弹窗",
+    "group": "补齐 · 自动化与识别",
+    "slug": "flow-smart-guide-image",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-smart-guide-image.png",
+    "full": "screens/full/flow-smart-guide-image.png",
+    "svg": "figma/flow-smart-guide-image.svg"
+  },
+  {
+    "route": "flow-smart-guide-camera",
+    "title": "拍照记账 · 弹窗",
+    "group": "补齐 · 自动化与识别",
+    "slug": "flow-smart-guide-camera",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-smart-guide-camera.png",
+    "full": "screens/full/flow-smart-guide-camera.png",
+    "svg": "figma/flow-smart-guide-camera.svg"
+  },
+  {
+    "route": "flow-smart-guide-voice",
+    "title": "语音记账 · 弹窗",
+    "group": "补齐 · 自动化与识别",
+    "slug": "flow-smart-guide-voice",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-smart-guide-voice.png",
+    "full": "screens/full/flow-smart-guide-voice.png",
+    "svg": "figma/flow-smart-guide-voice.svg"
+  },
+  {
+    "route": "flow-smart-guide-share",
+    "title": "分享记账 · 弹窗",
+    "group": "补齐 · 自动化与识别",
+    "slug": "flow-smart-guide-share",
+    "fullHeight": 844,
+    "viewport": "screens/viewport/flow-smart-guide-share.png",
+    "full": "screens/full/flow-smart-guide-share.png",
+    "svg": "figma/flow-smart-guide-share.svg"
   }
 ]
