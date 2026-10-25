@@ -9035,6 +9035,75 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get v4ShareCardProfile => '我的档案';
+
+  @override
+  String get v4InsightsCategoryShare => '分类占比';
+
+  @override
+  String get v4InsightsShareHint => '点选分类，查看它在总额中的占比';
+
+  @override
+  String get v4InsightsTapBar => '点柱形，查看对应收支';
+
+  @override
+  String get v4InsightsAverageTitle => '平均值怎么算';
+
+  @override
+  String get v4InsightsAverageDays => '按本周期截至今天已发生的天数计算，没有记账的日期也计入；不包含未来日期。';
+
+  @override
+  String get v4InsightsAverageMonths => '按本年度截至今天已发生的月份计算，没有记账的月份也计入；不包含未来月份。';
+
+  @override
+  String get v4InsightsAverageYears => '按账本记录跨越的年份计算，没有记账的年份也计入；不包含未来年份。';
+
+  @override
+  String get v4InsightsDaysUnit => '天';
+
+  @override
+  String get v4InsightsMonthsUnit => '个月';
+
+  @override
+  String get v4InsightsYearsUnit => '年';
+
+  @override
+  String get v4InsightsBalanceComposition => '收支构成';
+
+  @override
+  String get v4InsightsBalanceEquation => '结余 = 收入 − 支出';
+
+  @override
+  String get v4InsightsPreviousPeriod => '上一期';
+
+  @override
+  String get v4InsightsNextPeriod => '下一期';
+
+  @override
+  String get v4InsightsOtherCategories => '其他分类';
+
+  @override
+  String get v4InsightsSortedByAmount => '按金额排序';
+
+  @override
+  String get v4InsightsNoData => '换个统计周期，或点上方 Tab 切换收支视角。';
+
+  @override
+  String v4InsightsTrendTitle(String type) {
+    return '$type趋势';
+  }
+
+  @override
+  String v4InsightsAmountUnit(String currency) {
+    return '单位：$currency';
+  }
+
+  @override
+  String get v4InsightsCollapseCategories => '收起分类';
+
+  @override
+  String v4InsightsAllCategories(int count) {
+    return '全部 $count 个分类';
+  }
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).

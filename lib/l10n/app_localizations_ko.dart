@@ -9043,4 +9043,73 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get v4ShareCardProfile => 'My profile';
+
+  @override
+  String get v4InsightsCategoryShare => 'Category share';
+
+  @override
+  String get v4InsightsShareHint => 'Tap a category to view its share of the total';
+
+  @override
+  String get v4InsightsTapBar => 'Tap a column to see its amount';
+
+  @override
+  String get v4InsightsAverageTitle => 'How the average is calculated';
+
+  @override
+  String get v4InsightsAverageDays => 'Uses elapsed days in this period, including days without entries. Future dates are excluded.';
+
+  @override
+  String get v4InsightsAverageMonths => 'Uses elapsed months in this year, including months without entries. Future months are excluded.';
+
+  @override
+  String get v4InsightsAverageYears => 'Uses the years spanned by the ledger, including years without entries. Future years are excluded.';
+
+  @override
+  String get v4InsightsDaysUnit => 'days';
+
+  @override
+  String get v4InsightsMonthsUnit => 'months';
+
+  @override
+  String get v4InsightsYearsUnit => 'years';
+
+  @override
+  String get v4InsightsBalanceComposition => 'Income and expenses';
+
+  @override
+  String get v4InsightsBalanceEquation => 'Balance = income − expenses';
+
+  @override
+  String get v4InsightsPreviousPeriod => 'Previous period';
+
+  @override
+  String get v4InsightsNextPeriod => 'Next period';
+
+  @override
+  String get v4InsightsOtherCategories => 'Other categories';
+
+  @override
+  String get v4InsightsSortedByAmount => 'Sorted by amount';
+
+  @override
+  String get v4InsightsNoData => 'Choose another period or use the tabs above to switch between expenses, income and balance.';
+
+  @override
+  String v4InsightsTrendTitle(String type) {
+    return '$type trend';
+  }
+
+  @override
+  String v4InsightsAmountUnit(String currency) {
+    return 'Unit: $currency';
+  }
+
+  @override
+  String get v4InsightsCollapseCategories => 'Collapse categories';
+
+  @override
+  String v4InsightsAllCategories(int count) {
+    return 'All $count categories';
+  }
 }

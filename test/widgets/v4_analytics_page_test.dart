@@ -155,19 +155,22 @@ void main() {
     expect(d.end,
         DateTime(now.year, now.month, now.day).add(const Duration(days: 1)));
   });
-  testWidgets('默认月支出/三视角弹窗/结余不显示排行且不写账单', (t) async {
+  testWidgets('默认月支出/三视角Tab/结余收支构成且不写账单', (t) async {
     await open(t);
     final content = t.widget<AnalyticsContent>(find.byType(AnalyticsContent));
     expect(content.type, 'expense');
     expect(content.data.total, closeTo(95.2, 1e-8));
-    await t.tap(find.widgetWithText(TextButton, '支出'));
-    await ready(t, find.byType(BeeDialog));
     await t.tap(find.text('结余'));
     await ready(t, find.byType(BeeAnalyticsSummary));
     final changed = t.widget<AnalyticsContent>(find.byType(AnalyticsContent));
     expect(changed.type, 'balance');
     expect(changed.data.total, closeTo(11904.8, 1e-8));
     expect(find.byType(AnalyticsRanking), findsNothing);
+    expect(find.byType(BeeAnalyticsComposition), findsOneWidget);
+    final composition =
+        t.widget<BeeAnalyticsComposition>(find.byType(BeeAnalyticsComposition));
+    expect(composition.income, '¥12,000');
+    expect(composition.expense, '¥95.2');
     expect((await db.select(db.transactions).get()).length, 5);
     await close(t);
   });
@@ -177,7 +180,7 @@ void main() {
     await ready(t, find.byType(BeeAnalyticsSummary));
     expect(t.widget<AnalyticsContent>(find.byType(AnalyticsContent)).scope,
         'year');
-    await t.tap(find.widgetWithText(TextButton, '${now.year}'));
+    await t.tap(find.widgetWithText(TextButton, '${now.year}年'));
     await t.pumpAndSettle();
     await t.tap(find.text('取消'));
     await t.pumpAndSettle();
@@ -191,22 +194,31 @@ void main() {
         isNull);
     await close(t);
   });
-  testWidgets('分类展开与占比/环图选择保留', (t) async {
+  testWidgets('占比与排行独立卡片且二级展开保留', (t) async {
     await open(t);
-    await t.scrollUntilVisible(find.text('统计餐饮'), 250,
+    await t.scrollUntilVisible(
+        find.byKey(ValueKey('analytics-category-expand-$parent')), 250,
         scrollable: find.byType(Scrollable).last);
-    await t.tap(find.text('统计餐饮'));
+    await t.tap(find.byKey(ValueKey('analytics-category-expand-$parent')));
     await t.pump();
     expect(find.text('统计午餐'), findsOneWidget);
-    expect(find.text('89.5%'), findsOneWidget);
-    await t.tap(find.byTooltip('显示分类环图'));
-    await t.pump();
-    expect(find.byType(BeeDonutChart), findsOneWidget);
-    final chart = t.widget<BeeDonutChart>(find.byType(BeeDonutChart));
-    expect(chart.items.single.value, closeTo(95.2, 1e-8));
-    await t.tap(find.byType(ActionChip).first);
-    await t.pump();
-    expect(t.widget<BeeDonutChart>(find.byType(BeeDonutChart)).selected, 0);
+    expect(
+        t
+            .widget<BeeAnalyticsRankingList>(
+                find.byType(BeeAnalyticsRankingList))
+            .items
+            .single
+            .children
+            .single
+            .description,
+        '89.5%');
+    expect(find.byType(BeeAnalyticsProportion), findsOneWidget);
+    expect(find.byType(BeeAnalyticsRankingList), findsOneWidget);
+    final chart =
+        t.widget<BeeAnalyticsProportion>(find.byType(BeeAnalyticsProportion));
+    expect(chart.items.single.fraction, 1);
+    expect(chart.items.single.valueLabel, '100.0%');
+    expect(chart.selected, 0);
     await close(t);
   });
   testWidgets('原始读取失败可重试不改金融数据', (t) async {
@@ -255,12 +267,147 @@ void main() {
             .widget<BeeAnalyticsSummary>(find.byType(BeeAnalyticsSummary))
             .onPeriod,
         isNotNull);
-    await t.tap(find.widgetWithText(TextButton, '支出'));
-    await ready(t, find.byType(BeeDialog));
     await t.tap(find.text('收入'));
     await t.pumpAndSettle();
     expect(t.widget<AnalyticsContent>(find.byType(AnalyticsContent)).type,
         'income');
+    await t.tap(find.text('切换到结余'));
+    await ready(t, find.byType(BeeAnalyticsSummary));
+    expect(t.widget<AnalyticsContent>(find.byType(AnalyticsContent)).type,
+        'balance');
+    await close(t);
+  });
+  testWidgets('横滑不改变视角或周期，均线与三项Tab保护原数据', (t) async {
+    final before =
+        (await db.customSelect('SELECT * FROM transactions ORDER BY id').get())
+            .map((e) => e.data)
+            .toList();
+    await open(t);
+    final original = c.read(selectedMonthProvider);
+    await t.drag(find.byType(BeeColumnChart), const Offset(-220, 0));
+    await t.pump();
+    expect(t.widget<AnalyticsContent>(find.byType(AnalyticsContent)).type,
+        'expense');
+    expect(c.read(selectedMonthProvider), original);
+    final column = t.widget<BeeColumnChart>(find.byType(BeeColumnChart));
+    final loaded =
+        t.widget<AnalyticsContent>(find.byType(AnalyticsContent)).data;
+    expect(column.average, loaded.average);
+    expect(column.average,
+        loaded.values.reduce((a, b) => a + b) / loaded.values.length);
+    await t.tap(find.byKey(const ValueKey('column-average-label')));
+    await ready(t, find.byType(BeeDialog));
+    await t.tap(find.text('知道了'));
+    await t.pumpAndSettle();
+    await t.tap(find.text('收入'));
+    await ready(t, find.byType(BeeAnalyticsSummary));
+    expect(t.widget<AnalyticsContent>(find.byType(AnalyticsContent)).data.total,
+        12000);
+    await t.tap(find.text('结余'));
+    await ready(t, find.byType(BeeAnalyticsComposition));
+    final balance =
+        t.widget<AnalyticsContent>(find.byType(AnalyticsContent)).data;
+    expect(balance.incomeTotal - balance.expenseTotal, balance.total);
+    expect(
+        (await db.customSelect('SELECT * FROM transactions ORDER BY id').get())
+            .map((e) => e.data)
+            .toList(),
+        before);
+    await close(t);
+  });
+  testWidgets('隐藏金额覆盖均线、点柱与占比文本，不泄露真实金额', (t) async {
+    c.read(hideAmountsProvider.notifier).state = true;
+    await open(t);
+    expect(
+        t.widget<BeeAnalyticsSummary>(find.byType(BeeAnalyticsSummary)).total,
+        '****');
+    expect(t.widget<BeeColumnChart>(find.byType(BeeColumnChart)).averageLabel,
+        contains('****'));
+    expect(
+        t
+            .widget<BeeColumnChart>(find.byType(BeeColumnChart))
+            .valueLabels
+            .every((s) => s == '****'),
+        true);
+    expect(
+        t
+            .widget<BeeAnalyticsProportion>(find.byType(BeeAnalyticsProportion))
+            .items
+            .every((s) => s.valueLabel == '****'),
+        true);
+    await t.tap(find.byKey(const ValueKey('column-average-label')));
+    await ready(t, find.byType(BeeDialog));
+    expect(find.textContaining('95.2', findRichText: true), findsNothing);
+    expect(find.textContaining('12,000', findRichText: true), findsNothing);
+    await close(t);
+  });
+  testWidgets('均线提示沿用实际趋势序列，不把旧汇总查询误作同口径', (t) async {
+    final future =
+        DateTime(now.year, now.month, 16, 12).millisecondsSinceEpoch ~/ 1000;
+    await db.customStatement(
+        "INSERT INTO transactions(ledger_id,type,amount,category_id,happened_at,note) VALUES(1,'expense',50,$parent,$future,'趋势原口径边界')");
+    final data = await loadAnalyticsData(repo,
+        ledgerId: 1,
+        scope: 'year',
+        type: 'expense',
+        selMonth: month,
+        startDay: 1,
+        clock: DateTime(now.year, now.month, 15));
+    expect(data.total, closeTo(95.2, 1e-8));
+    expect(data.values.reduce((a, b) => a + b), closeTo(145.2, 1e-8));
+    await t.pumpWidget(UncontrolledProviderScope(
+        container: c,
+        child: MaterialApp(
+            theme: beeTheme(),
+            locale: const Locale('zh'),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: Scaffold(
+                body: AnalyticsContent(
+                    data: data,
+                    scope: 'year',
+                    type: 'expense',
+                    month: month,
+                    onTypeChanged: (_) {},
+                    onAnnual: () {},
+                    onShare: () {},
+                    onRecalculate: (_) {})))));
+    await t.pump();
+    await t.tap(find.byKey(const ValueKey('column-average-label')));
+    await ready(t, find.byType(BeeDialog));
+    expect(find.textContaining('145.2 ÷'), findsOneWidget);
+    expect(find.textContaining('95.2 ÷'), findsNothing);
+    expect((await db.select(db.transactions).get()).length, 6);
+    await close(t);
+  });
+  testWidgets('320英文深色140%三范围三视角均无溢出且仍为真实数据', (t) async {
+    await open(t, narrow: true);
+    for (final scope in ['Month', 'Year', 'All']) {
+      await t.tap(find.descendant(
+          of: find.byType(BeeCompactTabs<String>).first,
+          matching: find.text(scope)));
+      await ready(t, find.byType(BeeAnalyticsSummary));
+      for (final label in ['Expense', 'Income', 'Balance']) {
+        await t.tap(find.descendant(
+            of: find.byType(BeeAnalyticsSummary), matching: find.text(label)));
+        await ready(t, find.byType(BeeAnalyticsSummary));
+        expect(t.takeException(), isNull, reason: '$scope $label');
+        final actual =
+            t.widget<AnalyticsContent>(find.byType(AnalyticsContent));
+        expect(
+            actual.data.count,
+            label == 'Expense'
+                ? 3
+                : label == 'Income'
+                    ? 1
+                    : 4);
+        if (label == 'Balance') {
+          expect(actual.data.incomeTotal, 12000);
+          expect(actual.data.expenseTotal, closeTo(95.2, 1e-8));
+          expect(find.byType(BeeAnalyticsComposition), findsOneWidget);
+        }
+      }
+    }
     await close(t);
   });
   testWidgets('320英文深色140%结构无溢出', (t) async {

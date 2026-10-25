@@ -17005,6 +17005,132 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'My profile'**
   String get v4ShareCardProfile;
+
+  /// No description provided for @v4InsightsCategoryShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Category share'**
+  String get v4InsightsCategoryShare;
+
+  /// No description provided for @v4InsightsShareHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a category to view its share of the total'**
+  String get v4InsightsShareHint;
+
+  /// No description provided for @v4InsightsTapBar.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a column to see its amount'**
+  String get v4InsightsTapBar;
+
+  /// No description provided for @v4InsightsAverageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How the average is calculated'**
+  String get v4InsightsAverageTitle;
+
+  /// No description provided for @v4InsightsAverageDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Uses elapsed days in this period, including days without entries. Future dates are excluded.'**
+  String get v4InsightsAverageDays;
+
+  /// No description provided for @v4InsightsAverageMonths.
+  ///
+  /// In en, this message translates to:
+  /// **'Uses elapsed months in this year, including months without entries. Future months are excluded.'**
+  String get v4InsightsAverageMonths;
+
+  /// No description provided for @v4InsightsAverageYears.
+  ///
+  /// In en, this message translates to:
+  /// **'Uses the years spanned by the ledger, including years without entries. Future years are excluded.'**
+  String get v4InsightsAverageYears;
+
+  /// No description provided for @v4InsightsDaysUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'days'**
+  String get v4InsightsDaysUnit;
+
+  /// No description provided for @v4InsightsMonthsUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'months'**
+  String get v4InsightsMonthsUnit;
+
+  /// No description provided for @v4InsightsYearsUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'years'**
+  String get v4InsightsYearsUnit;
+
+  /// No description provided for @v4InsightsBalanceComposition.
+  ///
+  /// In en, this message translates to:
+  /// **'Income and expenses'**
+  String get v4InsightsBalanceComposition;
+
+  /// No description provided for @v4InsightsBalanceEquation.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance = income − expenses'**
+  String get v4InsightsBalanceEquation;
+
+  /// No description provided for @v4InsightsPreviousPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous period'**
+  String get v4InsightsPreviousPeriod;
+
+  /// No description provided for @v4InsightsNextPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'Next period'**
+  String get v4InsightsNextPeriod;
+
+  /// No description provided for @v4InsightsOtherCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'Other categories'**
+  String get v4InsightsOtherCategories;
+
+  /// No description provided for @v4InsightsSortedByAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Sorted by amount'**
+  String get v4InsightsSortedByAmount;
+
+  /// No description provided for @v4InsightsNoData.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose another period or use the tabs above to switch between expenses, income and balance.'**
+  String get v4InsightsNoData;
+
+  /// No description provided for @v4InsightsTrendTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{type} trend'**
+  String v4InsightsTrendTitle(String type);
+
+  /// No description provided for @v4InsightsAmountUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'Unit: {currency}'**
+  String v4InsightsAmountUnit(String currency);
+
+  /// No description provided for @v4InsightsCollapseCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'Collapse categories'**
+  String get v4InsightsCollapseCategories;
+
+  /// No description provided for @v4InsightsAllCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'All {count} categories'**
+  String v4InsightsAllCategories(int count);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

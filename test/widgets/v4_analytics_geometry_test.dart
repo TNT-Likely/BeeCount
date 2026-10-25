@@ -6,43 +6,55 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  final f = jsonDecode(
-          File('test/fixtures/v4-analytics-geometry.json').readAsStringSync())
-      as Map;
-  for (final size in [const Size(398, 844), const Size(320, 568)]) {
-    testWidgets('统计汇总对齐独立HTML几何 $size', (t) async {
+  final f = jsonDecode(File('test/fixtures/v4-insights-card-geometry.json')
+      .readAsStringSync()) as Map;
+  for (final item in f['cases'] as List) {
+    // Review chrome is a 1px border. Native logical size uses the declared
+    // outer phone width; CSS padding/font/optical track values are independent.
+    final size = Size(
+        (item['width'] as num).toDouble() + 2, item['width'] > 350 ? 844 : 568);
+    testWidgets('用户批准A稿：汇总字体/内边距/紧凑Tab光学高度 $size', (t) async {
       t.view.physicalSize = size;
       t.view.devicePixelRatio = 1;
       addTearDown(t.view.resetPhysicalSize);
       addTearDown(t.view.resetDevicePixelRatio);
+      final side = (item['sideInset'] as num).toDouble();
       await t.pumpWidget(MaterialApp(
           theme: beeTheme(),
           home: Scaffold(
               body: Padding(
-                  padding: EdgeInsets.symmetric(
-                      horizontal: (f['sideInset'] as num).toDouble()),
+                  padding: EdgeInsets.symmetric(horizontal: side),
                   child: BeeAnalyticsSummary(
-                      period: '2026-10',
+                      period: '2026年10月',
                       viewLabel: '支出',
-                      totalLabel: '总支出：',
-                      total: '¥3,286.5',
+                      totalLabel: '总支出',
+                      total: '¥3,286.50',
                       countLabel: '记账笔数',
-                      count: '27',
-                      averageLabel: '日均',
-                      average: '¥164.33',
-                      onPeriod: () {},
-                      onView: () {})))));
+                      count: '26笔',
+                      averageLabel: '日均支出',
+                      average: '¥131.46',
+                      views: const [
+                        BeeSegment('expense', '支出'),
+                        BeeSegment('income', '收入'),
+                        BeeSegment('balance', '结余')
+                      ],
+                      selectedView: 'expense',
+                      onViewChanged: (_) {},
+                      onPeriod: () {})))));
+      final summary = find.byType(BeeAnalyticsSummary);
+      expect(t.getSize(summary).width, size.width - side * 2);
+      final hero = find.descendant(
+          of: summary,
+          matching: find.byWidgetPredicate(
+              (w) => w is Text && w.textSpan?.toPlainText() == '¥3,286.50'));
+      expect(t.widget<Text>(hero).style!.fontSize, item['heroFont']);
       expect(
-          t.getSize(find.byType(BeeAnalyticsSummary)).width, size.width - 34);
-      expect(
-          t.widget<Text>(find.text('¥3,286.5')).style!.fontSize, f['heroFont']);
-      expect(t.getSize(find.widgetWithText(TextButton, '2026-10')).height,
-          f['selectorHeight']);
-      final surface = t.widget<BeeSurface>(find.byType(BeeSurface));
-      expect(surface.padding,
-          EdgeInsets.all((f['summaryPadding'] as num).toDouble()));
-      expect(t.getBottomRight(find.widgetWithText(TextButton, '支出')).dx,
-          size.width - 17 - 18);
+          t.widget<BeeSurface>(find.byType(BeeSurface)).padding,
+          EdgeInsets.fromLTRB((item['summaryPadding'] as num).toDouble(), 16,
+              (item['summaryPadding'] as num).toDouble(), 17));
+      expect(t.getSize(find.byKey(const ValueKey('compact-tab-track'))).height,
+          item['metricTrackHeight']);
+      expect(t.getSize(find.byType(BeeCompactTabs<String>)).height, 40);
       expect(t.takeException(), isNull);
     });
   }
@@ -59,6 +71,6 @@ void main() {
             .widget<LinearProgressIndicator>(
                 find.byType(LinearProgressIndicator))
             .backgroundColor,
-        Color(f['progressTrackColor'] as int));
+        const Color(0xfff3f4f5));
   });
 }

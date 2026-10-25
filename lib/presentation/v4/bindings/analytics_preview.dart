@@ -58,8 +58,7 @@ class _LiveAnalyticsPreviewState extends ConsumerState<LiveAnalyticsPreview> {
                 countLabel: '记账笔数',
                 count: '${d.count}',
                 averageLabel: '日均',
-                average: money(d.average),
-                onView: () {});
+                average: money(d.average));
           }),
       const SizedBox(height: 12),
       BeeButton(

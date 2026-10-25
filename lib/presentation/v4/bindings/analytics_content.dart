@@ -2,11 +2,14 @@ import 'package:beecount_business_ui/beecount_business_ui.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../pages/category/category_manage_page.dart';
 import '../../../providers.dart';
 import '../../../widgets/biz/format_money.dart';
 import 'analytics_data.dart';
 import 'analytics_ranking.dart';
+import 'analytics_trend.dart';
 
 class AnalyticsContent extends ConsumerWidget {
   const AnalyticsContent(
@@ -15,93 +18,93 @@ class AnalyticsContent extends ConsumerWidget {
       required this.scope,
       required this.type,
       required this.month,
-      required this.viewLabel,
-      required this.showPie,
-      required this.headerDismissed,
-      required this.chartDismissed,
-      required this.onView,
+      required this.onTypeChanged,
       required this.onAnnual,
       required this.onShare,
-      required this.onSwitch,
-      required this.onTogglePie,
-      required this.onDismissHeader,
-      required this.onDismissChart,
       required this.onRecalculate,
-      required this.onPrevious,
-      required this.onNext,
-      required this.onChartSwipe,
-      required this.onBodySwipe,
-      this.onPeriod});
+      this.onPeriod,
+      this.onPrevious,
+      this.onNext});
   final AnalyticsResult data;
-  final String scope, type, viewLabel;
+  final String scope, type;
   final DateTime month;
-  final bool showPie, headerDismissed, chartDismissed;
-  final VoidCallback? onPeriod;
-  final VoidCallback onAnnual,
-      onShare,
-      onView,
-      onSwitch,
-      onTogglePie,
-      onDismissHeader,
-      onDismissChart,
-      onPrevious,
-      onNext;
+  final ValueChanged<String> onTypeChanged;
   final ValueChanged<int> onRecalculate;
-  final ValueChanged<bool> onChartSwipe, onBodySwipe;
+  final VoidCallback onAnnual, onShare;
+  final VoidCallback? onPeriod, onPrevious, onNext;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context),
-        t = Theme.of(context),
+        theme = Theme.of(context),
         hide = ref.watch(hideAmountsProvider),
         base = ref.watch(currentLedgerCurrencyProvider),
+        ledger = ref.watch(currentLedgerProvider).valueOrNull,
         unconverted =
             ref.watch(ledgerUnconvertedForeignTxCountProvider).valueOrNull ?? 0,
         foreign = ref.watch(ledgerForeignTxCountProvider).valueOrNull ?? 0;
     final period = scope == 'all'
         ? l.analyticsAllYears
         : scope == 'year'
-            ? '${month.year}'
-            : '${month.year}-${month.month.toString().padLeft(2, '0')}';
+            ? l.homeYear(month.year)
+            : DateFormat.yMMM(l.localeName).format(month);
+    final label = type == 'expense'
+        ? l.homeExpense
+        : type == 'income'
+            ? l.homeIncome
+            : l.homeBalance;
     String money(double v) => hide
         ? '****'
         : formatDisplayAmount(v,
             signed: false, showCurrency: true, currencyCode: base);
-    final avgLabel = scope == 'year'
+    final averageLabel = scope == 'year'
         ? l.analyticsMonthlyAvg
         : scope == 'all'
             ? l.analyticsOverallAvg
             : l.analyticsDailyAvg;
-    List<String> labels() {
-      final s = data.series;
-      if (s is List<({DateTime day, double total})>) {
-        return s.map((e) => '${e.day.day}').toList();
-      }
-      if (s is List<({DateTime month, double total})>) {
-        return s
-            .map((e) => l.homeMonth(e.month.month.toString().padLeft(2, '0')))
-            .toList();
-      }
-      if (s is List<({int year, double total})>) {
-        return s.map((e) => '${e.year}').toList();
-      }
-      return [];
-    }
-
-    final x = labels(), now = DateTime.now();
-    int? highlight;
-    if (scope == 'month' &&
-        data.series is List<({DateTime day, double total})> &&
-        month.year == now.year &&
-        month.month == now.month) {
-      highlight = now.day - 1;
-      if (highlight >= 0 && highlight < x.length) {
-        x[highlight] = l.analyticsToday;
-      }
-    }
-    final chartHint = chartDismissed
-        ? null
-        : BeeAnalyticsHint(
-            label: l.analyticsSwipeHint, onClose: onDismissChart);
+    void average() => showDialog<void>(
+        context: context,
+        builder: (ctx) => BeeDialog(
+                title: Text(l.v4InsightsAverageTitle),
+                content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      BeeSurface(
+                          child: Text(
+                              '${money(data.values.fold<double>(0, (sum, value) => sum + value))} ÷ ${data.values.length} '
+                              '${scope == 'month' ? l.v4InsightsDaysUnit : scope == 'year' ? l.v4InsightsMonthsUnit : l.v4InsightsYearsUnit}'
+                              ' = ${money(data.average)}',
+                              style: const TextStyle(fontSize: 14))),
+                      const SizedBox(height: 14),
+                      Text(
+                          scope == 'month'
+                              ? l.v4InsightsAverageDays
+                              : scope == 'year'
+                                  ? l.v4InsightsAverageMonths
+                                  : l.v4InsightsAverageYears,
+                          style: const TextStyle(fontSize: 12))
+                    ]),
+                actions: [
+                  TextButton(
+                      onPressed: () => Navigator.pop(ctx),
+                      child: Text(l.commonKnow))
+                ]));
+    Widget card(String title, Widget child, {Widget? action}) => BeeSurface(
+        padding: const EdgeInsets.all(18),
+        borderRadius: BorderRadius.circular(23),
+        child:
+            Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          Row(children: [
+            Expanded(
+                child: Text(title,
+                    style: const TextStyle(
+                        fontSize: 14, fontWeight: FontWeight.w600))),
+            if (action != null) Flexible(child: action)
+          ]),
+          const SizedBox(height: 16),
+          child
+        ]));
     final children = <Widget>[
       if (unconverted > 0)
         BeeSurface(
@@ -116,99 +119,115 @@ class AnalyticsContent extends ConsumerWidget {
                   onPressed: () => onRecalculate(unconverted),
                   child: Text(l.v4AnalyticsRecalculate))
             ])),
-      if (foreign > 0)
-        Text(l.statsConvertedFootnote(base),
-            style: TextStyle(fontSize: 11, color: t.hintColor)),
       BeeAnalyticsSummary(
           period: period,
-          viewLabel: viewLabel,
+          viewLabel: label,
           onPeriod: onPeriod,
-          onView: onView,
-          totalLabel: l.analyticsTotal(viewLabel).trim(),
+          views: [
+            BeeSegment('expense', l.homeExpense),
+            BeeSegment('income', l.homeIncome),
+            BeeSegment('balance', l.homeBalance)
+          ],
+          selectedView: type,
+          onViewChanged: onTypeChanged,
+          totalLabel: l
+              .analyticsTotal(label)
+              .trim()
+              .replaceAll(RegExp(r'[:：]\s*$'), ''),
+          ledgerLabel: ledger?.name,
           total: money(data.total),
           countLabel: l.sharePosterRecordCount,
           count: '${data.count}',
-          averageLabel: avgLabel,
-          average: money(data.average)),
-      if (data.empty) ...[
+          averageLabel: '$averageLabel$label',
+          average: money(data.average),
+          onAverage: average),
+      if (foreign > 0)
+        Text(l.statsConvertedFootnote(base),
+            style: TextStyle(fontSize: 10, color: theme.hintColor)),
+      if (data.empty)
         BeeSurface(
             child: BeeEmptyState(
                 title: l.commonEmpty,
-                message: l.analyticsNoDataSubtext,
+                message: l.v4InsightsNoData,
                 action: BeeButton(
                     label: l.analyticsSwitchTo(type == 'expense'
                         ? l.homeIncome
                         : type == 'income'
                             ? l.homeBalance
                             : l.homeExpense),
-                    onPressed: onSwitch))),
-        if (!headerDismissed) BeeAnalyticsHint(label: l.analyticsTipHeader)
-      ] else ...[
-        BeeSurface(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(l.v4AnalyticsTrend,
-                      style: const TextStyle(
-                          fontSize: 14, fontWeight: FontWeight.w600)),
-                  const SizedBox(height: 12),
-                  SizedBox(
-                      height: 240,
-                      child: BeeLineChart(
-                          values: data.values,
-                          xLabels: x,
-                          highlightIndex: highlight,
-                          onSwipeLeft: () => onChartSwipe(false),
-                          onSwipeRight: () => onChartSwipe(true),
-                          themeColor: t.colorScheme.primary,
-                          whiteBg: false,
-                          isDark: t.brightness == Brightness.dark,
-                          showGrid: false,
-                          showDots: true,
-                          annotate: true,
-                          hideAmounts: hide,
-                          averageColor: t.hintColor.withValues(alpha: .55),
-                          gridColor: t.dividerColor,
-                          backgroundColor: BeeCardTheme.of(context).surface,
-                          textColor: t.colorScheme.onSurface,
-                          mutedColor: t.hintColor)),
-                  if (chartHint != null) chartHint
-                ])),
-        if (type != 'balance')
-          BeeSurface(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Row(children: [
-                      Expanded(
-                          child: Text(l.analyticsCategoryRanking,
-                              style: const TextStyle(
-                                  fontSize: 14, fontWeight: FontWeight.w600))),
-                      if (data.categories.isNotEmpty && data.total > 0)
-                        BeeIconButton(
-                            label: showPie
-                                ? l.v4AnalyticsShowRanking
-                                : l.v4AnalyticsShowPie,
-                            onPressed: onTogglePie,
-                            icon: BeeLineIcon(showPie ? 'List' : 'ChartPie',
-                                size: 18))
-                    ]),
-                    if (!headerDismissed)
-                      BeeAnalyticsHint(
-                          label: l.analyticsSwipeToSwitch,
-                          onClose: onDismissHeader),
-                    const SizedBox(height: 8),
-                    if (showPie && data.total > 0)
-                      AnalyticsPie(data: data)
-                    else
-                      AnalyticsRanking(
-                          key: ValueKey((scope, month, type, data.total)),
-                          data: data,
-                          scope: scope,
-                          month: month)
-                  ]))
+                    onPressed: () => onTypeChanged(type == 'expense'
+                        ? 'income'
+                        : type == 'income'
+                            ? 'balance'
+                            : 'expense'))))
+      else ...[
+        AnalyticsTrend(
+            key: ValueKey((scope, month, type, data)),
+            data: data,
+            scope: scope,
+            title: l.v4InsightsTrendTitle(label),
+            unit: l.v4InsightsAmountUnit(base),
+            averageLabel: '$averageLabel ${money(data.average)}',
+            formatValue: money,
+            onAverage: average,
+            onPrevious: onPrevious,
+            onNext: onNext),
+        if (type == 'balance')
+          card(
+              l.v4InsightsBalanceComposition,
+              Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                BeeAnalyticsComposition(
+                    incomeLabel: l.homeIncome,
+                    expenseLabel: l.homeExpense,
+                    income: money(data.incomeTotal),
+                    expense: money(data.expenseTotal),
+                    onIncome: () => onTypeChanged('income'),
+                    onExpense: () => onTypeChanged('expense')),
+                const SizedBox(height: 11),
+                Text(l.v4InsightsBalanceEquation,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 10, color: theme.hintColor))
+              ]))
+        else ...[
+          if (data.total > 0)
+            card(
+                l.v4InsightsCategoryShare,
+                AnalyticsPie(
+                    key: ValueKey((scope, month, type, data)), data: data),
+                action: TextButton(
+                    style: TextButton.styleFrom(
+                        padding: EdgeInsets.zero,
+                        minimumSize: const Size(0, 24),
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        foregroundColor: theme.hintColor),
+                    onPressed: () async {
+                      await Navigator.push(
+                          context,
+                          MaterialPageRoute<void>(
+                              builder: (_) => CategoryManagePage(
+                                  initialTabIndex: type == 'income' ? 1 : 0)));
+                      if (context.mounted) {
+                        ref.read(statsRefreshProvider.notifier).state++;
+                      }
+                    },
+                    child: Row(mainAxisSize: MainAxisSize.min, children: [
+                      Flexible(
+                          child: Text(l.categoryTitle,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(fontSize: 10))),
+                      const BeeLineIcon('ChevronRight', size: 12)
+                    ]))),
+          card(
+              l.analyticsCategoryRanking,
+              AnalyticsRanking(
+                  key: ValueKey((scope, month, type, data.total)),
+                  data: data,
+                  scope: scope,
+                  month: month),
+              action: Text(l.v4InsightsSortedByAmount,
+                  style: TextStyle(fontSize: 10, color: theme.hintColor)))
+        ]
       ],
       BeeSurface(
           padding: EdgeInsets.zero,
@@ -216,31 +235,38 @@ class AnalyticsContent extends ConsumerWidget {
             ListTile(
                 leading: const BeeLineIcon('ChartNoAxesCombined', size: 20),
                 title: Text(l.annualReportTitle,
-                    style: const TextStyle(fontSize: 13)),
+                    style: const TextStyle(fontSize: 12)),
                 subtitle: Text(l.annualReportEntrySubtitle,
-                    style: const TextStyle(fontSize: 11)),
-                trailing: const BeeLineIcon('ChevronRight', size: 16),
+                    style: const TextStyle(fontSize: 10)),
+                trailing: const BeeLineIcon('ChevronRight', size: 14),
                 onTap: onAnnual),
             Divider(
-                height: 1, indent: 16, endIndent: 16, color: t.dividerColor),
+                height: 1,
+                indent: 17,
+                endIndent: 17,
+                color: BeeCardTheme.of(context).divider),
             ListTile(
                 leading: const BeeLineIcon('Image', size: 20),
                 title: Text(l.annualReportShareButton,
-                    style: const TextStyle(fontSize: 13)),
-                trailing: const BeeLineIcon('ChevronRight', size: 16),
+                    style: const TextStyle(fontSize: 12)),
+                trailing: const BeeLineIcon('ChevronRight', size: 14),
                 onTap: onShare)
-          ])),
+          ]))
     ];
-    return GestureDetector(
-        onHorizontalDragEnd: (d) {
-          if ((d.primaryVelocity ?? 0) == 0) return;
-          final previous = d.primaryVelocity! > 0;
-          if (data.empty) {
-            previous ? onPrevious() : onNext();
-          } else {
-            onBodySwipe(previous);
-          }
-        },
-        child: BeePageBody(eager: true, bottomInset: 84, children: children));
+    return LayoutBuilder(
+        builder: (context, bounds) => SingleChildScrollView(
+            padding: EdgeInsets.fromLTRB(
+                bounds.maxWidth < 350 ? 12 : 16,
+                1,
+                bounds.maxWidth < 350 ? 12 : 16,
+                84 + MediaQuery.paddingOf(context).bottom),
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (var i = 0; i < children.length; i++) ...[
+                    if (i > 0) const SizedBox(height: 12),
+                    children[i]
+                  ]
+                ])));
   }
 }

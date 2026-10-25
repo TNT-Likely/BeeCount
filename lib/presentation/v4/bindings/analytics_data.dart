@@ -20,12 +20,14 @@ class AnalyticsResult {
       required this.count,
       required this.total,
       required this.average,
-      required this.empty});
+      required this.empty,
+      this.incomeTotal = 0,
+      this.expenseTotal = 0});
   final List<AnalyticsCategory> categories;
   final dynamic series;
   final DateTime start, end;
   final int count;
-  final double total, average;
+  final double total, average, incomeTotal, expenseTotal;
   final bool empty;
   List<double> get values => analyticsSeriesValues(series);
 }
@@ -137,6 +139,16 @@ Future<AnalyticsResult> loadAnalyticsData(dynamic repo,
       count: txCount,
       total: sum,
       average: computeSeriesAverage(seriesRaw),
+      incomeTotal: type == 'balance'
+          ? _getSumFromSeries(list[3])
+          : type == 'income'
+              ? sum
+              : 0,
+      expenseTotal: type == 'balance'
+          ? _getSumFromSeries(list[4])
+          : type == 'expense'
+              ? sum
+              : 0,
       empty: empty);
 }
 

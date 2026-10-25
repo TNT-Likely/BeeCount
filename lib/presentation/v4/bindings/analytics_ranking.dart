@@ -25,11 +25,13 @@ class AnalyticsRanking extends ConsumerStatefulWidget {
 
 class _AnalyticsRankingState extends ConsumerState<AnalyticsRanking> {
   final expanded = <String>{};
+  bool showAll = false;
   @override
   Widget build(BuildContext context) {
-    final hide = ref.watch(hideAmountsProvider);
+    final l = AppLocalizations.of(context),
+        hide = ref.watch(hideAmountsProvider);
     String amount(double n) =>
-        hide ? '****' : formatMoneyCompact(n, signed: false, maxDecimals: 0);
+        hide ? '****' : formatMoneyCompact(n, signed: false);
     BeeRankItem item(int? id, String name, dynamic category, double total,
             [List<BeeRankItem> children = const []]) =>
         BeeRankItem(
@@ -90,13 +92,24 @@ class _AnalyticsRankingState extends ConsumerState<AnalyticsRanking> {
                           : '${widget.month.year}.${widget.month.month.toString().padLeft(2, '0')}')));
     }
 
-    return BeeCategoryRanking(
-        items: list,
-        expanded: expanded,
-        onExpand: (id) => setState(() {
-              expanded.contains(id) ? expanded.remove(id) : expanded.add(id);
-            }),
-        onDetail: detail);
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      BeeAnalyticsRankingList(
+          items: showAll ? list : list.take(4).toList(),
+          expanded: expanded,
+          onExpand: (id) => setState(() {
+                expanded.contains(id) ? expanded.remove(id) : expanded.add(id);
+              }),
+          onDetail: detail),
+      if (list.length > 4)
+        TextButton(
+            onPressed: () => setState(() => showAll = !showAll),
+            child: Text(
+                showAll
+                    ? l.v4InsightsCollapseCategories
+                    : l.v4InsightsAllCategories(list.length),
+                style: TextStyle(
+                    fontSize: 11, color: Theme.of(context).hintColor)))
+    ]);
   }
 }
 
@@ -108,68 +121,46 @@ class AnalyticsPie extends ConsumerStatefulWidget {
 }
 
 class _AnalyticsPieState extends ConsumerState<AnalyticsPie> {
-  int selected = -1;
+  int selected = 0;
   @override
   void didUpdateWidget(AnalyticsPie old) {
     super.didUpdateWidget(old);
-    if (old.data != widget.data) selected = -1;
+    if (old.data != widget.data) selected = 0;
   }
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context),
-        hide = ref.watch(hideAmountsProvider),
-        sorted = List<AnalyticsCategory>.of(widget.data.categories)
-          ..sort((a, b) => b.total.compareTo(a.total));
-    const colors = [
-      0xff5b8ff9,
-      0xff5ad8a6,
-      0xfff6bd16,
-      0xffe86452,
-      0xff6dc8ec,
-      0xff945fb9,
-      0xffff9845,
-      0xff1e9493
+        hide = ref.watch(hideAmountsProvider);
+    final sorted = List<AnalyticsCategory>.of(widget.data.categories)
+      ..sort((a, b) => b.total.compareTo(a.total));
+    final positive = sorted.where((c) => c.total > 0).toList();
+    if (positive.isEmpty || widget.data.total <= 0) {
+      return const SizedBox.shrink();
+    }
+    final entries = <({String name, double total})>[
+      for (final category in positive.take(3))
+        (
+          name: CategoryUtils.getDisplayName(category.name, context),
+          total: category.total
+        ),
+      if (positive.length > 3)
+        (
+          name: l.v4InsightsOtherCategories,
+          total: positive.skip(3).fold<double>(0, (sum, c) => sum + c.total)
+        )
     ];
-    final entries = <({String name, double total, Color color})>[];
-    double other = 0;
-    for (final e in sorted) {
-      if (e.total <= 0) continue;
-      if (entries.length < 8) {
-        entries.add((
-          name: CategoryUtils.getDisplayName(e.name, context),
-          total: e.total,
-          color: Color(colors[entries.length])
-        ));
-      } else {
-        other += e.total;
-      }
-    }
-    if (other > 0) {
-      entries.add((
-        name: l.commonOther,
-        total: other,
-        color: Theme.of(context).hintColor
-      ));
-    }
-    if (entries.isEmpty) return const SizedBox.shrink();
-    String value(double n) =>
-        hide ? '****' : formatMoneyCompact(n, maxDecimals: 0, signed: false);
-    final chosen =
-        selected >= 0 && selected < entries.length ? entries[selected] : null;
-    return BeeDonutChart(
+    return BeeAnalyticsProportion(
         items: entries
-            .map((e) => BeeChartSlice(
+            .map((e) => BeeAnalyticsShare(
                 label: e.name,
-                value: e.total,
+                fraction: e.total / widget.data.total,
                 valueLabel: hide
                     ? '****'
-                    : '${value(e.total)} (${(e.total / widget.data.total * 100).toStringAsFixed(1)}%)',
-                color: e.color))
+                    : '${(e.total / widget.data.total * 100).toStringAsFixed(1)}%'))
             .toList(),
-        centerLabel:
-            '${chosen?.name ?? l.analyticsTotalAmount}\n${value(chosen?.total ?? widget.data.total)}',
         selected: selected,
-        onSelected: (i) => setState(() => selected = i));
+        onSelected: (i) => setState(() => selected = i),
+        hint: l.v4InsightsShareHint);
   }
 }

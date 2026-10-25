@@ -14,22 +14,24 @@ void main() {
         theme: beeTheme(),
         home: const Scaffold(
             body: SingleChildScrollView(child: AnalyticsSample()))));
-    expect(find.text('¥3,286.5'), findsOneWidget);
+    expect(find.text('¥3,286.50'), findsOneWidget);
     await t.tap(find.text('结余'));
     await t.pumpAndSettle();
-    expect(find.text('¥8,713.5'), findsOneWidget);
-    expect(find.byType(BeeCategoryRanking), findsNothing);
+    expect(find.text('¥8,713.50'), findsOneWidget);
+    expect(find.byType(BeeAnalyticsRankingList), findsNothing);
     await t.tap(find.text('支出'));
     await t.pumpAndSettle();
-    await t.tap(find.text('餐饮'));
+    await t.tap(find.byKey(const ValueKey('analytics-category-expand-food')));
     await t.pump();
     expect(find.text('午餐'), findsOneWidget);
-    await t.tap(find.byTooltip('显示分类环图'));
+    expect(find.byType(BeeAnalyticsProportion), findsOneWidget);
+    await t.tap(find.byKey(const ValueKey('analytics-share-1')));
     await t.pump();
-    expect(find.byType(BeeDonutChart), findsOneWidget);
-    await t.tap(find.byType(ActionChip).first);
-    await t.pump();
-    expect(t.widget<BeeDonutChart>(find.byType(BeeDonutChart)).selected, 0);
+    expect(
+        t
+            .widget<BeeAnalyticsProportion>(find.byType(BeeAnalyticsProportion))
+            .selected,
+        1);
     expect(t.takeException(), isNull);
   });
 }

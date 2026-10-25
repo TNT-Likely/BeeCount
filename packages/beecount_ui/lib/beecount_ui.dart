@@ -3,6 +3,8 @@ library;
 import 'package:flutter/material.dart';
 export 'src/line_icon.dart';
 export 'src/line_chart.dart';
+export 'src/column_chart.dart';
+export 'src/compact_tabs.dart';
 export 'src/hsv_color_picker.dart';
 export 'src/foundations.dart';
 export 'src/dialogs.dart';

@@ -8,6 +8,7 @@ import '../../providers.dart';
 import '../../widgets/ui/wheel_date_picker.dart';
 import '../../widgets/ui/toast.dart';
 import '../../services/export/share_poster_service.dart';
+import '../../utils/month_range.dart';
 import '../../presentation/v4/bindings/analytics_data.dart';
 import '../../presentation/v4/bindings/analytics_content.dart';
 import '../../presentation/v4/bindings/page_scaffold.dart';
@@ -24,6 +25,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
     with _AnalyticsActions {
   @override
   Widget build(BuildContext context) {
+    final compact = MediaQuery.sizeOf(context).width < 350;
     final l = AppLocalizations.of(context),
         repo = ref.watch(repositoryProvider),
         id = ref.watch(currentLedgerIdProvider),
@@ -53,11 +55,14 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
         body: Column(children: [
       BeePageHeader(
           title: l.tabInsights,
+          compact: true,
+          padding:
+              EdgeInsets.symmetric(horizontal: compact ? 17 : 20, vertical: 8),
           leading: widget.showBack ? const BackButton() : null,
           actions: [
-            BeeIconButton(
-                label: l.aiChatTitle,
-                icon: const BeeLineIcon('Sparkles'),
+            TextButton.icon(
+                label: const Text('AI', style: TextStyle(fontSize: 13)),
+                icon: const BeeLineIcon('Sparkles', size: 17),
                 onPressed: () => Navigator.push(
                     context,
                     MaterialPageRoute<void>(
@@ -68,8 +73,11 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
                 onPressed: _share)
           ]),
       Padding(
-          padding: const EdgeInsets.fromLTRB(17, 0, 17, 8),
-          child: BeeSegmented<String>(
+          padding:
+              EdgeInsets.fromLTRB(compact ? 15 : 19, 0, compact ? 15 : 19, 2),
+          child: BeeCompactTabs<String>(
+              trackHeight: compact ? 29 : 31,
+              fontSize: compact ? 11 : 12,
               value: _scope,
               items: [
                 BeeSegment('month', l.analyticsMonth),
@@ -99,18 +107,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
                     scope: _scope,
                     type: _type,
                     month: month,
-                    viewLabel: _viewLabel(l),
-                    showPie: _showPieChart,
-                    headerDismissed: _localHeaderDismissed ||
-                        (ref
-                                .watch(analyticsHeaderHintDismissedProvider)
-                                .valueOrNull ??
-                            false),
-                    chartDismissed: _localChartDismissed ||
-                        (ref
-                                .watch(analyticsChartHintDismissedProvider)
-                                .valueOrNull ??
-                            false),
+                    onTypeChanged: _selectType,
                     onAnnual: () => Navigator.push(
                         context,
                         MaterialPageRoute<void>(
@@ -118,26 +115,9 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
                                 AnnualReportPage(initialYear: month.year))),
                     onShare: _share,
                     onPeriod: _scope == 'all' ? null : _showPeriodPicker,
-                    onView: _showTypeMenu,
-                    onSwitch: _cycleTypeForward,
-                    onTogglePie: () =>
-                        setState(() => _showPieChart = !_showPieChart),
-                    onDismissHeader: () => _dismissHint(false),
-                    onDismissChart: () => _dismissHint(true),
                     onRecalculate: _runRecalcForeignTx,
-                    onPrevious: _onChartSwipeRight,
-                    onNext: _onChartSwipeLeft,
-                    onChartSwipe: (previous) {
-                      previous ? _onChartSwipeRight() : _onChartSwipeLeft();
-                      _chartSwiped = true;
-                    },
-                    onBodySwipe: (previous) {
-                      if (_chartSwiped) {
-                        _chartSwiped = false;
-                        return;
-                      }
-                      previous ? _cycleTypeBackward() : _cycleTypeForward();
-                    });
+                    onPrevious: _scope == 'all' ? null : () => _movePeriod(-1),
+                    onNext: _canGoNext ? () => _movePeriod(1) : null);
               }))
     ]));
   }
