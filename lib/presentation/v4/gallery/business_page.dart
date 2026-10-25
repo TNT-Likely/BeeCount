@@ -1,3 +1,4 @@
+import 'transaction_fixture.dart';
 import 'ai_advanced_sample.dart';
 import 'support_sample.dart';
 import 'maintenance_sample.dart';
@@ -553,6 +554,9 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
             BeeSurface(
                 padding: EdgeInsets.zero,
                 child: BeeTransactionRow(
+                    labels: galleryTransactionLabels,
+                    categoryLabel: '午餐',
+                    accountName: '微信',
                     title: '午间食堂',
                     amount: foreign ? '−US\$12.00' : '−32.00',
                     converted: foreign ? '≈ ¥86.40' : null,
@@ -563,11 +567,15 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
                     selected: batch ? selected : null,
                     onSelected: (v) => setState(() => selected = v),
                     onCategoryTap: () => record('进入分类详情'),
-                    onTap: () => record('进入账单详情'),
+                    onTap: () => record('编辑账单'),
                     onMenu: () => showBeeSheet<void>(context,
                         title: '账单操作',
                         child: BeeActionMenu(
                             actions: const [
+                              BeeAction(
+                                  id: 'detail',
+                                  label: '查看详情',
+                                  icon: BeeLineIcon('FileText')),
                               BeeAction(
                                   id: 'copy',
                                   label: '复制账单',

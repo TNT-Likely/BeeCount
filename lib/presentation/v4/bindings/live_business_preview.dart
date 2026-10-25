@@ -1,3 +1,4 @@
+import 'transaction_row_labels.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:beecount_ui/beecount_ui.dart';
@@ -319,6 +320,9 @@ class _LiveBusinessPreviewState extends ConsumerState<LiveBusinessPreview> {
                         key: ValueKey('live-tx-${tx.id}'),
                         title: composed.primary,
                         note: composed.parenNote,
+                        detailsNote: tx.note,
+                        categoryLabel: r.category?.name,
+                        labels: transactionRowLabels(context),
                         amount:
                             '$sign${getCurrencySymbol(code)}${tx.amount.toStringAsFixed(2)}',
                         converted: code != d.ledger.currency &&

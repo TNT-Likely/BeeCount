@@ -9177,4 +9177,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get v4AssetsComposition => 'Mix';
+
+  @override
+  String get v4TransactionRowFieldsTitle => 'Transaction fields';
+
+  @override
+  String v4TransactionRowMoreFields(int count) {
+    return '$count more fields';
+  }
+
+  @override
+  String get v4TransactionRowReadOnly => 'Read only';
+
+  @override
+  String get v4TransactionRowAccess => 'Access';
 }

@@ -9169,6 +9169,20 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get v4AssetsComposition => '构成';
+
+  @override
+  String get v4TransactionRowFieldsTitle => '完整账单字段';
+
+  @override
+  String v4TransactionRowMoreFields(int count) {
+    return '更多$count项';
+  }
+
+  @override
+  String get v4TransactionRowReadOnly => '只读';
+
+  @override
+  String get v4TransactionRowAccess => '访问状态';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).

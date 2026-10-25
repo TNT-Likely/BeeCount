@@ -3,10 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:beecount_business_ui/beecount_business_ui.dart';
+import 'transaction_fixture.dart';
 
-final transactionStateFixtures = rootBundle
-    .loadString('assets/v4_gallery/transaction-states.json')
-    .then((s) => (jsonDecode(s) as List).cast<Map<String, dynamic>>());
+final transactionStateFixtures = Future.wait([
+  'assets/v4_gallery/transaction-states.json',
+  'assets/v4_gallery/transaction-c3-cases.json',
+].map((path) => rootBundle
+        .loadString(path)
+        .then((s) => (jsonDecode(s) as List).cast<Map<String, dynamic>>())))
+    .then((groups) => groups.expand((g) => g).toList());
 
 /// Shared visual fixtures with the HTML guide. Real ledger data has a separate binding.
 class TransactionRowStates extends StatelessWidget {
@@ -29,7 +34,7 @@ class TransactionRowStates extends StatelessWidget {
               const Padding(
                   padding: EdgeInsets.only(bottom: 16),
                   child: Text(
-                      '时间规则与原组件一致：普通列表 HH:mm:ss；完整日期 yyyy-MM-dd HH:mm；普通零点隐藏，完整日期模式不受时间开关影响。',
+                      'C3：简单两行，复杂最多三行；账本保留标签，排除规则保留文字。原48状态＋4重点＋8交叉用例；时间偏好沿用原组件，更多项可只读查看完整字段。',
                       style: TextStyle(fontSize: 12))),
               ...snapshot.data!.map((s) => Padding(
                   padding: const EdgeInsets.only(bottom: 16),
@@ -46,17 +51,20 @@ class TransactionRowStates extends StatelessWidget {
                             padding: EdgeInsets.zero,
                             child: BeeTransactionRow(
                               key: ValueKey('state-${s['id']}'),
-                              title: s['title'] as String,
+                              title: TransactionRowFixture(s).title,
+                              labels: galleryTransactionLabels,
+                              categoryLabel: TransactionRowFixture(s).category,
+                              detailsNote: s['note'] as String?,
                               happenedAt: s['happenedAt'] == null
                                   ? null
                                   : DateTime.parse(s['happenedAt'] as String),
                               showTime: s['showTime'] == true,
                               showFullDate: s['showFullDate'] == true,
-                              accountName: s['accountName'] as String?,
+                              accountName: TransactionRowFixture(s).account,
                               ledgerName: s['ledgerName'] as String?,
-                              note: s['note'] as String?,
+                              note: TransactionRowFixture(s).note,
                               onTagTap: (t) => onEvent('样式样例：标签 ${t.label}'),
-                              onMoreTagsTap: () => onEvent('样式样例：查看全部标签'),
+                              // No override: the component opens its complete read-only tag list.
                               onAttachmentTap: () => onEvent('样式样例：查看附件'),
                               amount: s['amount'] as String,
                               subtitle: s['subtitle'] as String?,
@@ -68,14 +76,7 @@ class TransactionRowStates extends StatelessWidget {
                                   image: s['image'] == null
                                       ? null
                                       : AssetImage(s['image'] as String)),
-                              tags: ((s['tags'] as List?) ?? [])
-                                  .map((t) => BeeTagData(
-                                      t as String,
-                                      t,
-                                      t == '工作日'
-                                          ? const Color(0xffaa8b29)
-                                          : const Color(0xff219c9c)))
-                                  .toList(),
+                              tags: TransactionRowFixture(s).tags,
                               statusLabels:
                                   ((s['status'] as List?) ?? []).cast<String>(),
                               attachmentCount: (s['attachments'] as int?) ?? 0,
@@ -84,11 +85,17 @@ class TransactionRowStates extends StatelessWidget {
                               selected: s['selected'] as bool?,
                               onSelected: (v) => onEvent('样式样例勾选 $v'),
                               onCategoryTap: () => onEvent('样式样例：分类详情'),
-                              onTap: () => onEvent('样式样例：账单详情'),
+                              onTap: () => onEvent(s['readOnly'] == true
+                                  ? '样式样例：账单详情'
+                                  : '样式样例：编辑账单'),
                               onMenu: () => showBeeSheet<void>(context,
                                   title: '交易行操作样例',
                                   child: BeeActionMenu(
                                       actions: const [
+                                        BeeAction(
+                                            id: 'detail',
+                                            label: '查看详情',
+                                            icon: BeeLineIcon('FileText')),
                                         BeeAction(
                                             id: 'edit',
                                             label: '编辑账单',

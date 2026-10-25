@@ -19,6 +19,25 @@ void main() {
   late int transactionFixtureCount;
   setUpAll(() async {
     transactionFixtureCount = (await transactionStateFixtures).length;
+    var sdk = File(Platform.resolvedExecutable).parent;
+    while (!Directory('${sdk.path}/material_fonts').existsSync() &&
+        sdk.parent.path != sdk.path) {
+      sdk = sdk.parent;
+    }
+    final loader = FontLoader('GalleryLayoutRoboto');
+    for (final weight in ['Regular', 'Bold']) {
+      loader.addFont(Future.value(ByteData.sublistView(
+          await File('${sdk.path}/material_fonts/Roboto-$weight.ttf')
+              .readAsBytes())));
+    }
+    await loader.load();
+    final cjk = File('/System/Library/Fonts/STHeiti Light.ttc');
+    if (cjk.existsSync()) {
+      final cjkLoader = FontLoader('GalleryLayoutCJK');
+      cjkLoader
+          .addFont(Future.value(ByteData.sublistView(await cjk.readAsBytes())));
+      await cjkLoader.load();
+    }
   });
   final boundary = GlobalKey();
   Future<void> open(WidgetTester tester, Widget child,
@@ -31,6 +50,13 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
     var theme = beeTheme(brightness: brightness);
+    theme = theme.copyWith(
+        textTheme: theme.textTheme
+            .apply(fontFamily: 'GalleryLayoutRoboto')
+            .copyWith(
+                bodyMedium: theme.textTheme.bodyMedium!.copyWith(
+                    fontFamily: 'GalleryLayoutRoboto',
+                    fontFamilyFallback: const ['GalleryLayoutCJK'])));
     if (capture) {
       final font = File('build/v4-recording-fonts/NotoSansSC-400.ttf');
       if (font.existsSync()) {
@@ -515,10 +541,11 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('已确认分类 dinner'), findsOneWidget);
     final confirmRect = tester.getRect(find.text('使用分类'));
-    final draftPicker = find.byWidgetPredicate(
-        (w) => w is BeeCategoryPicker && !w.immediate);
-    await tester.enterText(find.descendant(
-        of: draftPicker, matching: find.byType(TextField)), '奶茶');
+    final draftPicker =
+        find.byWidgetPredicate((w) => w is BeeCategoryPicker && !w.immediate);
+    await tester.enterText(
+        find.descendant(of: draftPicker, matching: find.byType(TextField)),
+        '奶茶');
     await tester.pumpAndSettle();
     expect(tester.getRect(find.text('使用分类')), confirmRect);
     expect(find.widgetWithText(RecordingSubcategoryChip, '奶茶'), findsOneWidget);
@@ -611,15 +638,18 @@ void main() {
     expect(tester.takeException(), isNull);
     await shot(tester, 'dialog-cancelled');
   });
-  testWidgets('账单标签在金额右侧下方，隐私开关同时隐藏原币折算和余额', (tester) async {
+  testWidgets('账单标签按C3置于金额下方，隐私开关同时隐藏原币折算和余额', (tester) async {
     await open(tester, const BusinessAcceptancePage(isolatedCase: 2));
     await tester.tap(find.text('显示外币折算'));
     await tester.pumpAndSettle();
-    final tag = find.widgetWithText(BeeTag, '工作日');
-    final title = find.text('午间食堂');
-    final money = find.byType(BeeMoney);
-    expect(tester.getCenter(tag).dx, greaterThan(tester.getCenter(title).dx));
-    expect(tester.getRect(tag).top, greaterThan(tester.getRect(money).top));
+    final tag = find.widgetWithText(BeeInlineLabel, '工作日');
+    final money = find.byKey(const ValueKey('transaction-amount'));
+    expect(tester.getRect(tag).top,
+        greaterThanOrEqualTo(tester.getRect(money).bottom));
+    expect(
+        tester.getRect(tag).right,
+        lessThanOrEqualTo(
+            tester.getRect(find.byType(BeeTransactionRow)).right));
     expect(find.text('≈ ¥86.40'), findsOneWidget);
     await open(
         tester,
@@ -650,11 +680,12 @@ void main() {
               tag: const BeeTagData('choice', '选择器标签', Color(0xffaa8b29)),
               onTap: () {}),
         ]));
-    final inline = find.widgetWithText(BeeTag, '工作日');
+    final inline = find.widgetWithText(BeeInlineLabel, '工作日');
     final pill = find.descendant(
-        of: inline, matching: find.byKey(const ValueKey('bee-tag-pill')));
-    expect(tester.getSize(pill).height, closeTo(21, .1));
-    expect(tester.getSize(inline).height, 28);
+        of: inline,
+        matching: find.byKey(const ValueKey('bee-inline-label-visual')));
+    expect(tester.getSize(pill).height, closeTo(16, .1));
+    expect(tester.getSize(inline).height, closeTo(22, .1));
     expect(tester.getSize(find.byType(BeeTransactionRow)).height,
         lessThanOrEqualTo(73));
     await tester.tapAt(tester.getTopLeft(inline) +
@@ -694,7 +725,7 @@ void main() {
     expect(find.text('进入分类详情'), findsOneWidget);
     await tester.tap(find.text('午间食堂'));
     await tester.pumpAndSettle();
-    expect(find.text('进入账单详情'), findsOneWidget);
+    expect(find.text('编辑账单'), findsOneWidget);
     await tester.tap(find.text('批量操作'));
     await tester.pumpAndSettle();
     await tester.tap(find.byType(Checkbox));

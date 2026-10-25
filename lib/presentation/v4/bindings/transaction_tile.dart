@@ -89,14 +89,10 @@ class TransactionTileBinding extends ConsumerWidget {
             .map((tag) => (id: tag.id, name: tag.name, color: tag.color))
             .toList(),
         attachmentCount: attachmentCount,
-        onAttachmentTap: batch
-            ? null
-            : () => open(AttachmentPreviewPage.fromTransaction(
-                transactionId: t.id, allowDelete: false)),
-        onTagTap: batch
-            ? null
-            : (id, name) => open(TagDetailPage(
-                tagId: id, tagName: name, allLedgers: allLedgers)),
+        onAttachmentTap: () => open(AttachmentPreviewPage.fromTransaction(
+            transactionId: t.id, allowDelete: false)),
+        onTagTap: (id, name) => open(
+            TagDetailPage(tagId: id, tagName: name, allLedgers: allLedgers)),
         isSelectionMode: batch,
         isSelected: selected,
         onSelectionChanged: onSelect,

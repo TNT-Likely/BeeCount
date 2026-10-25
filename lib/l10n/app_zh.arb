@@ -3790,5 +3790,10 @@
         "type": "int"
       }
     }
-  }
+  },
+  "v4TransactionRowFieldsTitle": "完整账单字段",
+  "v4TransactionRowMoreFields": "更多{count}项",
+  "@v4TransactionRowMoreFields": {"placeholders":{"count":{"type":"int"}}},
+  "v4TransactionRowReadOnly": "只读",
+  "v4TransactionRowAccess": "访问状态"
 }

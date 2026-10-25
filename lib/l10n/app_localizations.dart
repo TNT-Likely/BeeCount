@@ -17257,6 +17257,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Mix'**
   String get v4AssetsComposition;
+
+  /// No description provided for @v4TransactionRowFieldsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction fields'**
+  String get v4TransactionRowFieldsTitle;
+
+  /// No description provided for @v4TransactionRowMoreFields.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} more fields'**
+  String v4TransactionRowMoreFields(int count);
+
+  /// No description provided for @v4TransactionRowReadOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Read only'**
+  String get v4TransactionRowReadOnly;
+
+  /// No description provided for @v4TransactionRowAccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Access'**
+  String get v4TransactionRowAccess;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

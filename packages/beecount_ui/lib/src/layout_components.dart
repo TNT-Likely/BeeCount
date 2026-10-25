@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../beecount_ui.dart';
 
+export 'inline_label.dart';
+
 /// Consistent 44+ touch area, tooltip, selection and in-progress/disabled states.
 class BeeIconButton extends StatelessWidget {
   const BeeIconButton(

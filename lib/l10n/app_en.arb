@@ -4083,5 +4083,10 @@
         "type": "int"
       }
     }
-  }
+  },
+  "v4TransactionRowFieldsTitle": "Transaction fields",
+  "v4TransactionRowMoreFields": "{count} more fields",
+  "@v4TransactionRowMoreFields": {"placeholders":{"count":{"type":"int"}}},
+  "v4TransactionRowReadOnly": "Read only",
+  "v4TransactionRowAccess": "Access"
 }

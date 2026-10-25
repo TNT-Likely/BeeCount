@@ -12,6 +12,7 @@ import '../../providers/database_providers.dart';
 import '../../providers/theme_providers.dart';
 import 'format_money.dart';
 import 'transaction_row_title.dart';
+import '../../presentation/v4/bindings/transaction_row_labels.dart';
 
 class TransactionListItem extends ConsumerWidget {
   final IconData icon;
@@ -130,6 +131,8 @@ class TransactionListItem extends ConsumerWidget {
     final row = BeeTransactionRow(
       title: composed.primary,
       note: composed.parenNote,
+      detailsNote: title.isEmpty ? null : title,
+      labels: transactionRowLabels(context),
       amount: money,
       hidden: hidden,
       incomeIsRed: ref.watch(incomeExpenseColorSchemeProvider),
@@ -156,7 +159,7 @@ class TransactionListItem extends ConsumerWidget {
               ? BeeTransactionKind.expense
               : BeeTransactionKind.income,
       accountName: accountName,
-      categoryLabel: composed.primary != categoryName ? categoryName : null,
+      categoryLabel: categoryName,
       categoryActionLabel: categoryName,
       ledgerName: ledgerName,
       happenedAt: happenedAt,
@@ -168,7 +171,8 @@ class TransactionListItem extends ConsumerWidget {
           .map(
               (t) => BeeTagData('${t.id}', t.name, _tagColor(t.color, context)))
           .toList(),
-      onTagTap: (t) => onTagTap?.call(int.parse(t.id), t.label),
+      onTagTap:
+          onTagTap == null ? null : (t) => onTagTap!(int.parse(t.id), t.label),
       onMoreTagsTap: () => showBeeSheet<void>(context,
           title: l10n.tagSelectAllTags,
           child: Wrap(
@@ -207,7 +211,7 @@ class TransactionListItem extends ConsumerWidget {
       // Consume a held press without turning its release into a selection tap.
       excludeFromSemantics: isSelectionMode,
       onLongPressStart: isSelectionMode ? (_) {} : onLongPressStart,
-      child: Padding(padding: const EdgeInsets.only(right: 12), child: row),
+      child: row,
     );
   }
 }
