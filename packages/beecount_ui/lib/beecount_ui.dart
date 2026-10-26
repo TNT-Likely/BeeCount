@@ -73,15 +73,29 @@ class BeeSurface extends StatelessWidget {
       {super.key,
       required this.child,
       this.padding = const EdgeInsets.all(16),
-      this.borderRadius = const BorderRadius.all(Radius.circular(22))});
+      this.borderRadius = const BorderRadius.all(Radius.circular(22)),
+      this.background});
   final Widget child;
   final EdgeInsetsGeometry padding;
   final BorderRadius borderRadius;
 
+  /// Optional controlled decoration; the content keeps its layout and hit targets.
+  final Widget? background;
+
   @override
   Widget build(BuildContext context) => Material(
-        color: BeeCardTheme.of(context).surface,
+        color: background == null
+            ? BeeCardTheme.of(context).surface
+            : Colors.transparent,
         borderRadius: borderRadius,
-        child: Padding(padding: padding, child: child),
+        clipBehavior: background == null ? Clip.none : Clip.antiAlias,
+        child: background == null
+            ? Padding(padding: padding, child: child)
+            : Stack(children: [
+                Positioned.fill(
+                    child: IgnorePointer(
+                        child: ExcludeSemantics(child: background!))),
+                Padding(padding: padding, child: child)
+              ]),
       );
 }

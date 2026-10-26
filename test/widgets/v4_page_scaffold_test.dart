@@ -1,4 +1,5 @@
 import 'package:beecount/presentation/v4/bindings/page_scaffold.dart';
+import 'package:beecount/presentation/v4/bindings/page_skin_composition.dart';
 import 'package:beecount/providers/theme_providers.dart';
 import 'package:beecount/widgets/ui/skin_animation_scope.dart';
 import 'package:beecount/widgets/ui/primary_header.dart';
@@ -99,11 +100,7 @@ void main() {
               of: find.byType(V4PageScaffold),
               matching: find.byType(ColoredBox))
           .first);
-      expect(
-          base.color,
-          skin == 'none'
-              ? const Color(0xfff5f6f7)
-              : beeTheme().colorScheme.primary);
+      expect(base.color, const Color(0xfff5f6f7));
       if (skin != 'none') {
         expect(find.byType(SkinAnimationScope), findsOneWidget);
         final scopedQuery = find.descendant(
@@ -126,4 +123,30 @@ void main() {
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox.shrink());
   });
+  for (final dark in [false, true]) {
+    testWidgets('我的页浅首卡深顶部，原画保持有界 $dark', (t) async {
+      final c = ProviderContainer(overrides: [
+        headerSkinProvider.overrideWith((ref) => 'anniv_cake'),
+        skinAnimationEnabledProvider.overrideWith((ref) => false),
+      ]);
+      addTearDown(c.dispose);
+      await t.pumpWidget(UncontrolledProviderScope(
+          container: c,
+          child: MaterialApp(
+              theme: beeTheme(
+                  brightness: dark ? Brightness.dark : Brightness.light),
+              home: const V4PageScaffold(
+                  profileHeaderSkin: true, body: Text('原有资料和账本')))));
+      await t.pumpAndSettle();
+      final scene =
+          t.widget<V4OriginalSkinScene>(find.byType(V4OriginalSkinScene));
+      expect(scene.inCard, !dark);
+      expect(t.getSize(find.byType(V4OriginalSkinScene)).height, 140);
+      expect(t.getSize(find.byKey(const ValueKey('v4-original-skin-canvas'))),
+          const Size(398, 208));
+      expect(find.text('原有资料和账本'), findsOneWidget);
+      expect(t.takeException(), isNull);
+      await t.pumpWidget(const SizedBox());
+    });
+  }
 }

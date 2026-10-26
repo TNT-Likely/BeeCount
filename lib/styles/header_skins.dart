@@ -95,7 +95,7 @@ class HeaderSkin {
   /// 返回铺满 header 的装饰层(放进 Positioned.fill)。
   final Widget Function(Color primary, bool isDark) builder;
 
-  /// Optional full-page composition; header-only artwork stays in [builder].
+  /// Reserved legacy adapter hook. V4 paints the unchanged [builder] in a bounded slot.
   final Widget Function(Color primary, bool isDark)? pageBuilder;
 
   /// 可选:悬浮 tab 胶囊内的装饰层(垫在图标之下,见 app.dart _BeeBottomBar)。
@@ -160,7 +160,6 @@ final List<HeaderSkin> kHeaderSkins = [
       group: HeaderSkinGroup.anniversary,
       nameOf: (l) => l.headerSkinAnniversary,
       builder: (p, d) => _AnniversarySkin(p, d),
-      pageBuilder: (p, d) => _AnniversarySkin(p, d, showInscription: false),
       tabBarBuilder: (p, d) => _AnniversaryTabDeco(p, d),
       isAnimated: true,
       // 绑定蜜金,不再跟随主题色。星空的星光只有暖白/金是「真的」,主题色
@@ -174,7 +173,6 @@ final List<HeaderSkin> kHeaderSkins = [
       group: HeaderSkinGroup.anniversary,
       nameOf: (l) => l.headerSkinAnnivCake,
       builder: (p, d) => _AnnivCakeSkin(d),
-      pageBuilder: (p, d) => _AnnivCakeSkin(d, showInscription: false),
       tabBarBuilder: (p, d) => _AnnivCakeTabDeco(d),
       isAnimated: true,
       boundPrimary: _kCakeCandleL,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'page_skin_composition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../providers/budget_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -50,21 +51,23 @@ class HomeOverview extends ConsumerWidget {
     final hidden = ref.watch(hideAmountsProvider);
     final currency = ledger?.currency ?? 'CNY';
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      SizedBox(
-          height: 64,
-          child: BeeHomeIdentity(
-              name: l10n.homeAppTitle,
-              pageTitle: l10n.tabHome,
-              ledger: ledger == null
-                  ? l10n.ledgersNew
-                  : translateLedgerName(context, ledger.name),
-              logo: BeeIcon(
-                  size: 28, color: Theme.of(context).colorScheme.primary),
-              onLedgerTap: onLedgerTap,
-              actions: actions,
-              showBrand: ref.watch(homeBrandVisibleProvider))),
+      V4HomeSkinHeader(
+          child: SizedBox(
+              height: 64,
+              child: BeeHomeIdentity(
+                  name: l10n.homeAppTitle,
+                  pageTitle: l10n.tabHome,
+                  ledger: ledger == null
+                      ? l10n.ledgersNew
+                      : translateLedgerName(context, ledger.name),
+                  logo: BeeIcon(
+                      size: 28, color: Theme.of(context).colorScheme.primary),
+                  onLedgerTap: onLedgerTap,
+                  actions: actions,
+                  showBrand: ref.watch(homeBrandVisibleProvider)))),
       const SizedBox(height: 5),
       BeeSummaryCard(
+        background: homeSkinCardBackground(context, ref),
         title:
             '${l10n.homeYear(month.year)} ${l10n.homeMonth('${month.month}')}${jumping ? ' …' : ''}',
         amountLabel: l10n.v4HomeMonthExpense,

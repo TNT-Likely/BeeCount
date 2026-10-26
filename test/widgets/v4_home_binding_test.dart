@@ -1,5 +1,6 @@
 import 'dart:ui' show SemanticsFlag;
 import 'package:beecount/widgets/biz/transaction_list.dart';
+import 'package:beecount/presentation/v4/bindings/page_skin_composition.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import 'package:beecount/pages/main/home_page.dart';
 import 'package:beecount/widgets/biz/transaction_list_item.dart';
@@ -199,6 +200,49 @@ void main() {
     expect(tester.takeException(), isNull);
     await close(tester);
   });
+
+  for (final skin in ['anniversary', 'anniv_cake']) {
+    for (final dark in [false, true]) {
+      testWidgets('首页原画落在正确承载区 $skin dark=$dark', (tester) async {
+        tester.view.physicalSize = const Size(320, 568);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+        container.read(headerSkinProvider.notifier).state = skin;
+        container.read(skinAnimationEnabledProvider.notifier).state = false;
+        await tester.pumpWidget(UncontrolledProviderScope(
+            container: container,
+            child: MaterialApp(
+                builder: (context, child) => MediaQuery(
+                    data: MediaQuery.of(context)
+                        .copyWith(padding: const EdgeInsets.only(top: 37)),
+                    child: child!),
+                theme: beeTheme(
+                    brightness: dark ? Brightness.dark : Brightness.light),
+                locale: const Locale('zh'),
+                localizationsDelegates: AppLocalizations.localizationsDelegates,
+                supportedLocales: AppLocalizations.supportedLocales,
+                home: const HomePage())));
+        await tester.pumpAndSettle();
+        final scene = tester
+            .widget<V4OriginalSkinScene>(find.byType(V4OriginalSkinScene));
+        expect(scene.inCard, !dark);
+        if (dark) {
+          expect(tester.getSize(find.byType(V4OriginalSkinScene)).height, 112);
+        }
+        expect(
+            tester
+                .getSize(find.byKey(const ValueKey('v4-original-skin-canvas'))),
+            const Size(398, 208));
+        final summary = find.byType(BeeSummaryCard);
+        expect(
+            tester.widget<BeeSummaryCard>(summary).background != null, !dark);
+        expect(find.byType(V4OriginalSkinScene), findsOneWidget);
+        expect(tester.takeException(), isNull);
+        await close(tester);
+      });
+    }
+  }
 
   testWidgets('首页隐私同时隐藏月汇总与预算金额，保留笔数', (tester) async {
     await open(tester);

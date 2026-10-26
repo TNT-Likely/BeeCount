@@ -263,6 +263,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     });
 
     return V4PageScaffold(
+      locallyComposedSkin: true,
       backgroundColor: Theme.of(context).scaffoldBackgroundColor, // ⭐ 自适应背景色
       body: BeeHomeLayout(
         controller: _pageScrollController,

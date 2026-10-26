@@ -180,17 +180,19 @@ class BeeSummaryCard extends StatelessWidget {
       this.currencyLabel,
       this.prefix,
       this.budget,
+      this.background,
       this.hidden = false,
       this.onContextTap,
       this.onPrivacyTap,
       this.privacyLabel});
   final String title, amount, incomeLabel, income, expenseLabel, expense;
   final String? amountLabel, currencyLabel, prefix, privacyLabel;
-  final Widget? budget;
+  final Widget? budget, background;
   final bool hidden;
   final VoidCallback? onContextTap, onPrivacyTap;
   @override
   Widget build(BuildContext context) => BeeSurface(
+      background: background,
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 17),
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         ConstrainedBox(

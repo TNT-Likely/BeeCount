@@ -140,11 +140,9 @@ void _drawAnnivCross(
 }
 
 class _AnniversarySkin extends StatefulWidget {
-  const _AnniversarySkin(this.primary, this.isDark,
-      {this.showInscription = true});
+  const _AnniversarySkin(this.primary, this.isDark);
   final Color primary;
   final bool isDark;
-  final bool showInscription;
 
   @override
   State<_AnniversarySkin> createState() => _AnniversarySkinState();
@@ -178,8 +176,7 @@ class _AnniversarySkinState extends State<_AnniversarySkin>
     return RepaintBoundary(
       child: CustomPaint(
         painter: _ConstellationPainter(widget.primary, widget.isDark, _controller,
-            MediaQuery.paddingOf(context).top,
-            showInscription: widget.showInscription),
+            MediaQuery.paddingOf(context).top),
         child: const SizedBox.expand(),
       ),
     );
@@ -187,13 +184,11 @@ class _AnniversarySkinState extends State<_AnniversarySkin>
 }
 
 class _ConstellationPainter extends CustomPainter {
-  _ConstellationPainter(this.primary, this.isDark, this.anim, this.topInset,
-      {this.showInscription = true})
+  _ConstellationPainter(this.primary, this.isDark, this.anim, this.topInset)
       : super(repaint: anim);
   final Color primary;
   final bool isDark;
   final Animation<double> anim;
-  final bool showInscription;
 
   /// 状态栏高度,铭文靠它对齐标题行。
   final double topInset;
@@ -267,9 +262,7 @@ class _ConstellationPainter extends CustomPainter {
     _paintBee(canvas, size, anchor, constH, scale, t);
     _paintBee(canvas, size, anchor, constH, scale * 0.62, t,
         lag: 0.055, alphaFactor: 0.72);
-    if (showInscription) {
-      _paintAnnivInscription(canvas, size, _inscription, topInset);
-    }
+    _paintAnnivInscription(canvas, size, _inscription, topInset);
   }
 
   /// 银河光带:135° 斜贯的淡光雾带 + 带内密集微星,填补左侧空区。
@@ -640,8 +633,7 @@ class _ConstellationPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _ConstellationPainter old) =>
-      old.primary != primary || old.isDark != isDark ||
-      old.showInscription != showInscription;
+      old.primary != primary || old.isDark != isDark;
 }
 
 /// 悬浮 tab 装饰:一颗流星每 7 秒从胶囊左侧划到右侧,其余时间无痕。

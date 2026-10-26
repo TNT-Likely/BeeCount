@@ -58,6 +58,7 @@ class MinePage extends ConsumerWidget {
     final stars = ref.watch(githubStarCountProvider).valueOrNull ??
         githubStarFallbackCount;
     return V4PageScaffold(
+        profileHeaderSkin: true,
         backgroundColor: BeeCardTheme.of(context).canvas,
         body: Column(children: [
           BeePageHeader(title: l.mineTitle, actions: [

@@ -22,9 +22,8 @@ const Color _kCakeCandleL = Color(0xFFFF7A45);
 const Color _kCakeCandleD = Color(0xFFF8C91C);
 
 class _AnnivCakeSkin extends StatelessWidget {
-  const _AnnivCakeSkin(this.isDark, {this.showInscription = true});
+  const _AnnivCakeSkin(this.isDark);
   final bool isDark;
-  final bool showInscription;
 
   @override
   Widget build(BuildContext context) {
@@ -33,19 +32,16 @@ class _AnnivCakeSkin extends StatelessWidget {
     final topInset = MediaQuery.paddingOf(context).top;
     return _AnimSkinShell(
       seconds: 10,
-      painterFor: (a) => _AnnivCakePainter(isDark, a, topInset,
-          showInscription: showInscription),
+      painterFor: (a) => _AnnivCakePainter(isDark, a, topInset),
     );
   }
 }
 
 class _AnnivCakePainter extends CustomPainter {
-  _AnnivCakePainter(this.isDark, this.anim, this.topInset,
-      {this.showInscription = true})
+  _AnnivCakePainter(this.isDark, this.anim, this.topInset)
       : super(repaint: anim);
   final bool isDark;
   final Animation<double> anim;
-  final bool showInscription;
 
   /// 状态栏高度,铭文靠它对齐标题行。
   final double topInset;
@@ -78,7 +74,7 @@ class _AnnivCakePainter extends CustomPainter {
     _paintRibbons(canvas, size, t, u);
     _paintCake(canvas, size, t, u);
     _paintSprinkles(canvas, size, t);
-    if (showInscription) _paintAnnivInscription(canvas, size, _mark, topInset);
+    _paintAnnivInscription(canvas, size, _mark, topInset);
   }
 
   /// 顶部两条彩带,一上一下地飘。
@@ -277,8 +273,7 @@ class _AnnivCakePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _AnnivCakePainter old) =>
-      old.isDark != isDark || old.showInscription != showInscription;
+  bool shouldRepaint(covariant _AnnivCakePainter old) => old.isDark != isDark;
 }
 
 class _AnnivCakeTabDeco extends StatelessWidget {
