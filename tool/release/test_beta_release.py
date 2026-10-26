@@ -302,6 +302,7 @@ class Arm64ContractTests(unittest.TestCase):
     def test_flutter_target_is_single_arm64_and_default_is_unchanged(self):
         args = (Path("flutter"), "a" * 40, "4.0.0-beta.2", 227, "now")
         self.assertIn("--target-platform=android-arm64", gate.build_command(*args, arm64_only=True))
+        self.assertIn("--split-per-abi", gate.build_command(*args, arm64_only=True))
         self.assertIn("--target-platform=android-arm,android-arm64,android-x64", gate.build_command(*args))
 
     def test_arm64_only_metadata_rejects_additional_artifacts(self):

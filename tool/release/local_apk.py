@@ -524,6 +524,7 @@ def build_command(flutter, source_sha, version, code, build_time, *, arm64_only=
     return [str(flutter), "--suppress-analytics", "build", "apk", "--release", "--flavor", "prod", "--no-pub", "--target=lib/main.dart",
             "--build-name=" + version, "--build-number=" + str(code),
             "--target-platform=" + ("android-arm64" if arm64_only else "android-arm,android-arm64,android-x64"),
+            *(["--split-per-abi"] if arm64_only else []),
             "--dart-define=CI_VERSION=" + version, "--dart-define=GIT_COMMIT=" + source_sha,
             "--dart-define=BUILD_TIME=" + build_time, "--dart-define=GOOGLE_PLAY=false",
             "--dart-define=BEECOUNT_V4_RECORDING=false", "--dart-define=BEECOUNT_V4_GALLERY=false",
