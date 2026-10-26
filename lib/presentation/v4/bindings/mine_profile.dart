@@ -311,13 +311,10 @@ class MineProfileBindingState extends ConsumerState<MineProfileBinding> {
               ? const CircularProgressIndicator(strokeWidth: 2)
               : avatar == null
                   ? const MineDefaultAvatar()
-                  : ClipRRect(
-                      borderRadius: BorderRadius.circular(14),
-                      child: Image.file(File(avatar),
-                          key: ValueKey(avatar),
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) =>
-                              const MineDefaultAvatar())),
+                  : Image.file(File(avatar),
+                      key: ValueKey(avatar),
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => const MineDefaultAvatar()),
           onEdit: _showEditDisplayName,
           onTap: _showProfileOptions),
       const SizedBox(height: 12),

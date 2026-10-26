@@ -44,11 +44,7 @@ void main() {
                                   greeting: '早上好',
                                   subtitle: '简单记录，安心生活',
                                   avatar: photo
-                                      ? ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(14),
-                                          child: Image.memory(_photo,
-                                              fit: BoxFit.cover))
+                                      ? Image.memory(_photo, fit: BoxFit.cover)
                                       : const MineDefaultAvatar(),
                                   onEdit: () {},
                                   onTap: () {}),
@@ -75,10 +71,7 @@ void main() {
                 of: profile,
                 matching: find.byWidgetPredicate((widget) =>
                     widget is SizedBox &&
-                    widget.width == 48 &&
-                    widget.height == 48 &&
-                    (widget.child is MineDefaultAvatar ||
-                        widget.child is ClipRRect)));
+                    widget.key == const ValueKey('profile-avatar')));
             expect(avatar, findsOneWidget);
             expect(tester.getSize(avatar), const Size(48, 48));
             expect(
@@ -91,11 +84,11 @@ void main() {
               expect(tester.getSize(image), const Size(48, 48));
               expect(tester.widget<Image>(image).fit, BoxFit.cover);
               expect(
-                  tester
-                      .widget<ClipRRect>(find.descendant(
-                          of: avatar, matching: find.byType(ClipRRect)))
-                      .borderRadius,
-                  BorderRadius.circular(14));
+                  find.descendant(of: avatar, matching: find.byType(ClipOval)),
+                  findsOneWidget);
+              expect(
+                  find.descendant(of: avatar, matching: find.byType(ClipRRect)),
+                  findsNothing);
             } else {
               final svg = tester.widget<SvgPicture>(find.descendant(
                   of: avatar, matching: find.byType(SvgPicture)));

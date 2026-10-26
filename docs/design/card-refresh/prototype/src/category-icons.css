@@ -20,3 +20,9 @@
 #bee-immersive-suite .j-icon-tabs { margin:15px 0; }
 #bee-immersive-suite .j-icon-sample-options { display:flex; gap:16px; margin-top:9px; }
 @media(pointer:coarse) { #bee-immersive-suite .j-subcategories button, #bee-immersive-suite .w-picker-child-grid button { min-height:44px; } }
+
+/* Custom artwork fills its icon box; transparent source pixels stay transparent. */
+#bee-immersive-suite .bc-entry-icon:has(>.j-category-image){padding:0;overflow:hidden}
+#bee-immersive-suite .bc-entry-icon>.j-category-image,#bee-immersive-suite .p-category .bc-entry-icon>.j-category-image,#bee-immersive-suite .j-icon-preview>img{width:100%;height:100%;object-fit:contain;border-radius:inherit}
+#bee-immersive-suite .tx3 .category-target:has(>img){padding:0;overflow:hidden}
+#bee-immersive-suite .tx3 .category-target>img{width:100%;height:100%;object-fit:contain;border-radius:inherit}

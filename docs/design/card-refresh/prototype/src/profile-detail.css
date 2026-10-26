@@ -1,9 +1,9 @@
 /* Approved task F / A: identity stays light, the current ledger is separate. */
 #bee-immersive-suite .bc-profile.u-profile{gap:11px;padding:2px 0 3px;margin-bottom:12px;min-height:64px}
 #bee-immersive-suite .u-profile-copy{flex:1;min-width:0}
-#bee-immersive-suite .u-profile .u-avatar{display:grid;place-items:center;flex:none;width:48px;height:48px;padding:0;border:0;background:none;box-shadow:none;border-radius:0;color:var(--bc-accent)}
+#bee-immersive-suite .u-profile .u-avatar{display:grid;place-items:center;flex:none;width:48px;height:48px;padding:0;border:0;background:none;box-shadow:none;border-radius:50%;overflow:hidden;color:var(--bc-accent)}
 #bee-immersive-suite .u-profile .u-avatar>svg{display:block;width:48px;height:48px}
-#bee-immersive-suite .u-profile .u-avatar-photo{border-radius:14px;overflow:hidden}
+#bee-immersive-suite .u-profile .u-avatar-photo{border-radius:50%;overflow:hidden}
 #bee-immersive-suite .u-profile .u-avatar>img{display:block;width:100%;height:100%;object-fit:cover;border-radius:inherit}
 #bee-immersive-suite .u-avatar-bee [stroke="#000"],#bee-immersive-suite .u-avatar-bee [stroke="#000000"]{stroke:var(--bc-ink)}
 #bee-immersive-suite .u-avatar-bee circle:first-child{fill:var(--bc-ink)}

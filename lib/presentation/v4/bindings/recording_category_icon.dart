@@ -1,5 +1,6 @@
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';
+import 'dart:math' as math;
 import '../../../data/db.dart';
 import '../../../widgets/category_icon.dart';
 import 'category_line_icon_names.dart';
@@ -16,12 +17,23 @@ class RecordingCategoryIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     final line = categoryLineIconNames[category.icon];
     if (category.iconType == 'custom') {
-      return ExcludeSemantics(
-          child: CategoryIconWidget(
-              category: category,
-              size: size,
-              color: color,
-              fallback: BeeLineIcon('Shapes', size: size, color: color)));
+      return LayoutBuilder(builder: (context, constraints) {
+        // A square icon tile gives both dimensions; inline rows stay at the
+        // requested glyph size instead of growing to the row's full height.
+        final extent =
+            constraints.hasBoundedWidth && constraints.hasBoundedHeight
+                ? math.min(constraints.maxWidth, constraints.maxHeight)
+                : size;
+        return ExcludeSemantics(
+            child: ClipRRect(
+                borderRadius: BorderRadius.circular(extent * .32),
+                child: CategoryIconWidget(
+                    category: category,
+                    size: extent,
+                    color: color,
+                    fallback:
+                        BeeLineIcon('Shapes', size: size, color: color))));
+      });
     }
     return BeeLineIcon(line ?? 'Shapes', size: size, color: color);
   }

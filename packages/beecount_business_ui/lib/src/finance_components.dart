@@ -30,7 +30,8 @@ class BeeCategoryIcon extends StatelessWidget {
         child: Container(
             width: size,
             height: size,
-            padding: EdgeInsets.all(size * .16),
+            padding:
+                image == null ? EdgeInsets.all(size * .16) : EdgeInsets.zero,
             decoration: BoxDecoration(
                 color: selected
                     ? Theme.of(context).colorScheme.primary
@@ -39,7 +40,7 @@ class BeeCategoryIcon extends StatelessWidget {
             child: image == null
                 ? fallback()
                 : ClipRRect(
-                    borderRadius: BorderRadius.circular(4),
+                    borderRadius: BorderRadius.circular(size * .32),
                     child: Image(
                         image: image!,
                         fit: crop ? BoxFit.cover : BoxFit.contain,
@@ -797,8 +798,12 @@ class BeeProfile extends StatelessWidget {
                 onTap: onTap,
                 child: InkWell(
                     onTap: onTap,
-                    borderRadius: BorderRadius.circular(14),
-                    child: SizedBox(width: 48, height: 48, child: avatar))),
+                    customBorder: const CircleBorder(),
+                    child: SizedBox(
+                        key: const ValueKey('profile-avatar'),
+                        width: 48,
+                        height: 48,
+                        child: ClipOval(child: avatar)))),
             const SizedBox(width: 11),
             Expanded(
                 child: Column(
