@@ -4,6 +4,9 @@ on:
   push:
     tags:
       - "*"
+      - "!*beta*"
+      - "!*Beta*"
+      - "!*BETA*"
   workflow_dispatch:
     inputs:
       tag_name:
@@ -27,10 +30,10 @@ on:
         required: false
         default: ""
 
-# 允许取消正在运行的workflow
+# 与独立 Beta 共用串行水位；发布不相互取消。
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  group: beecount-android-delivery
+  cancel-in-progress: false
 
 permissions:
   contents: write
@@ -40,24 +43,35 @@ env:
 
 jobs:
   check-branch:
-    name: Check if main branch
+    name: Reject Beta and check stable source
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch'
     steps:
       - name: Check branch
+        env:
+          INPUT_TAG: ${{ inputs.tag_name }}
         run: |
-          if [ "${{ github.ref_name }}" != "main" ]; then
-            echo "❌ Release workflow can only be triggered from main branch"
-            echo "Current branch: ${{ github.ref_name }}"
+          set -euo pipefail
+          TARGET_TAG="${INPUT_TAG:-${GITHUB_REF_NAME}}"
+          if [[ "${TARGET_TAG,,}" == *beta* ]]; then
+            echo "::error::Beta 必须使用 beta-release.yml，禁止进入商店发布流程。"
             exit 1
           fi
-          echo "✅ Branch check passed: ${{ github.ref_name }}"
+          if [[ ! "$TARGET_TAG" =~ ^[A-Za-z0-9._-]+$ ]]; then
+            echo "::error::Invalid release tag."
+            exit 1
+          fi
+          if [[ "$GITHUB_EVENT_NAME" == workflow_dispatch && "$GITHUB_REF_NAME" != main ]]; then
+            echo "❌ Release workflow can only be triggered from main branch"
+            echo "Current branch: $GITHUB_REF_NAME"
+            exit 1
+          fi
+          echo "✅ Branch check passed: $GITHUB_REF_NAME"
 
   android:
     name: Android (APK + AAB)
     runs-on: ubuntu-latest
     needs: [check-branch]
-    if: always() && (needs.check-branch.result == 'success' || github.event_name == 'push')
+    if: needs.check-branch.result == 'success'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -365,7 +379,7 @@ jobs:
     name: iOS (app.zip + unsigned .ipa)
     runs-on: macos-latest
     needs: [check-branch]
-    if: always() && (needs.check-branch.result == 'success' || github.event_name == 'push')
+    if: needs.check-branch.result == 'success'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -777,7 +791,7 @@ jobs:
       - check-branch
       - android
       - ios
-    if: always() && (needs.check-branch.result == 'success' || github.event_name == 'push') && needs.android.result == 'success' && needs.ios.result == 'success'
+    if: always() && needs.check-branch.result == 'success' && needs.android.result == 'success' && needs.ios.result == 'success'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

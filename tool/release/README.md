@@ -87,7 +87,9 @@ python3 tool/release/local_apk.py prepare \
 
 wrapper 在冻结副本执行离线 `flutter pub get --offline --enforce-lockfile`，要求锁文件和已冻结生产源码不漂移，再用正常 `lib/main.dart`、`--release --flavor prod --no-pub` 构建。唯一允许的源码新增是Flutter正常生成的精确路径 `android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java`，单列为`generated-source-overlay.json`并记录SHA；不会放开其他`.java`新增，也不允许已提交文件变化。build后包括这份生成文件在内的生产源码必须逐字节相同。
 
-显式注入 `CI_VERSION`、Git SHA、UTC构建时间、`GOOGLE_PLAY=false`与false QA/recording/gallery标志，不继承宿主tokens或`DART_DEFINES`；Flutter/Dart analytics显式抑制。Gradle仍按项目既定三ABI与universal输出；wrapper不叠加`--split-per-abi`，只根据 `prodRelease/output-metadata.json` 唯一arm64项选择候选。Gradle自身的缓存/依赖解析仍遵守项目配置；工具没有把“本地构建”冒称为完整网络沙箱。
+显式注入 `CI_VERSION`、Git SHA、UTC构建时间、`GOOGLE_PLAY=false`与false QA/recording/gallery标志，不继承宿主tokens或`DART_DEFINES`；Flutter/Dart analytics显式抑制。默认仍按项目既定三ABI与universal输出；wrapper不叠加`--split-per-abi`，只根据 `prodRelease/output-metadata.json` 唯一arm64项选择候选。可加 `--arm64-only`，同时使用 Flutter 单 `android-arm64` target 和受控 Gradle `BEECOUNT_APK_ABI=arm64-v8a` 开关（只允许此值），限制 NDK ABI、禁用 universal 输出，并拒绝 metadata/目录中出现额外 APK。冻结提交必须包含此 Gradle 开关。所有 wrapper 构建显式要求正式签名，不能触发 Gradle 的开发 fallback。
+
+默认依赖读取仍为 `--offline --enforce-lockfile`；CI 可显式加 `--allow-pub-network` 下载锁定依赖，但仍保持 `--enforce-lockfile` 和源码、锁文件逐字节校验。Gradle自身的缓存/依赖解析仍遵守项目配置；工具没有把“本地构建”冒称为完整网络沙箱。
 
 开发gallery仅在已审查的两个`kDebugMode`入口使用。发布专用副本剔除 `assets/v4_gallery/` 声明/文件，移除gallery样例导入图并保留不可用stub；不改工作区。新增生产素材依赖或未知gallery入口会拒绝。`release-overlay.json`记录每个文件修改前后SHA、删除清单、pubspec精确diff和stub完整替换内容；构建清单明确包含overlay，不能宣称产物与原提交所有字节相同。
 
@@ -122,3 +124,21 @@ python3 -m unittest discover -s tool/release -p 'test_*.py' -v
 ```
 
 额外设置本机`JAVA_HOME`可运行真实Java Properties Unicode往返检查。设置`ANDROID_SDK_ROOT`及`BEECOUNT_FLUTTER_FOR_PREFLIGHT_TEST`可运行“无任何真实密钥的损坏keystore”真实Java拒绝测试，确认临时文件清理，绝不执行Flutter。设置`BEECOUNT_PUBLIC_APK_FIXTURE`为已核SHA的公开3.9.0 APK可用实际aapt/apksigner/zipalign只读核验产物；没有提供时明确skip，不下载也不伪造成功APK。单元测试中的subprocess替身仅验证签名口令/证书错误分支，不能冒称真实签名构建已通过。
+
+## 独立 Android Beta CI
+
+工作流 `.github/workflows/beta-release.yml` 仅接受 `workflow_dispatch`，只创建 GitHub prerelease 并提供一份正式签名 ARM64 APK。它不构建 AAB/iOS，不上传 Play 或 TestFlight。旧 `release.yml` 在触发过滤和前置 job 两层拒绝 Beta；两条流程共用 `beecount-android-delivery` 串行组，运行中不互相取消。
+
+启用前将 workflow 注册到默认分支，并确保 v4 包含这一套已审核工具及目标发布说明。运行时：
+
+- `source_ref` 为 `v4` 或其历史内的完整 40 位 SHA；默认 `v4` 会立即解析并冻结。未提交文件不会进入构建。
+- `version` 默认 `4.0.0-beta.2`；所选提交必须包含 `docs/releases/<version>.md`，正文须有正常变更说明、升级注意及固定反馈 issue 580。
+- `android_version_code_floor` 或仓库变量 `ANDROID_VERSION_CODE_FLOOR` 必须提供全部渠道最高已交付 code。Beta1 已实际本地交付 226，因此有效下界至少 226，下一包为 227。流程还取所有已有 Release/失败草稿的机器回执最大 code；版本名不允许倒退。正式版仍由共用计算器从至少 300 开始。
+- 必填公开仓库变量 `ANDROID_RELEASE_CERT_SHA256`，必须为已核生产证书指纹；缺失或与已核指纹不同会拒绝，不自动接受证书轮换。
+- 必填四项签名 secrets：`ANDROID_KEYSTORE_BASE64`、`ANDROID_KEYSTORE_PASSWORD`、`ANDROID_KEY_ALIAS`、`ANDROID_KEY_PASSWORD`。沿用现有 `TELEGRAM_BOT_TOKEN`、`TELEGRAM_CHAT_ID`，成功发布后发送下载页和反馈链接；缺失或发送失败会明确报错，已发布 Release 不回滚。
+
+GitHub 的 `GITHUB_TOKEN` 只用于读取版本、创建新 tag/Release 和上传验证过的产物，无需新增私密 PAT。输入全部经环境变量和 Python 校验传递，不插入 shell。签名四字段只写入本次临时私有文件，签名探针、Flutter、验包共享原门禁，正常/失败退出都清理，最后还有 `always()` 清理步骤。不上传构建日志或临时源码/签名资料。
+
+产物验证通过后再次核对水位，原子创建新 tag 指向冻结 SHA，再建 draft prerelease。先上传 `android-version-reservation.json`，再上传 APK、SHA256 和 `android-release.json`，最后公开 Release；回执记录源 SHA、版本/code、APK hash、证书及 ABI。它表示静态门禁通过，不冒称完整功能验收。成功后回执成为后续自动水位，同时应将仓库 floor 变量同步为该 code，供本地及旧正式发布流程使用。
+
+同名 tag/Release（含失败草稿）绝不覆盖。发布中断后的 tag、draft 与版本回执保留供排查；有回执的 code 会被后续流程计入，下一次使用新 Beta 名称/code。若中断在回执上传之前，不得自行删除资料重试：先核对是否已对外交付任何 APK，再由维护者处理。全渠道/本地发布不受 GitHub 并发锁控制，必须在下一次运行前更新 floor；机器回执不能替代这个外部确认。此变更只实现流程，未设置远端变量/secrets，也未触发或发布。

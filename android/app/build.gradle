@@ -7,6 +7,16 @@ plugins {
 
 // Google Play 自动保护要求 AAB 至少 API 24；APK 继续支持 API 23。
 def buildingAppBundle = gradle.startParameter.taskNames.any { it.toLowerCase().contains("bundle") }
+// Explicit APK-only switch used by the audited Beta/local wrapper. Normal
+// release builds retain the established multi-ABI outputs.
+def requestedApkAbi = System.getenv('BEECOUNT_APK_ABI') ?: ''
+if (requestedApkAbi && requestedApkAbi != 'arm64-v8a') {
+    throw new GradleException('Unsupported BEECOUNT_APK_ABI')
+}
+def arm64OnlyApk = requestedApkAbi == 'arm64-v8a'
+if (arm64OnlyApk && buildingAppBundle) {
+    throw new GradleException('BEECOUNT_APK_ABI is for APK builds only')
+}
 
 // Load signing credentials from key.properties (not committed to VCS)
 def keystoreProperties = new Properties()
@@ -47,6 +57,9 @@ android {
         versionName = flutter.versionName
         manifestPlaceholders += [appName: "@string/app_name"]
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        if (arm64OnlyApk) {
+            ndk { abiFilters 'arm64-v8a' }
+        }
     // 当未在命令行指定 --flavor 时，默认选择 dev 风味，避免 Flutter 调试找不到 APK。
     missingDimensionStrategy "env", "dev"
     }
@@ -81,8 +94,12 @@ android {
         abi {
             enable = !buildingAppBundle
             reset()
-            include 'arm64-v8a', 'armeabi-v7a', 'x86_64'
-            universalApk true
+            if (arm64OnlyApk) {
+                include 'arm64-v8a'
+            } else {
+                include 'arm64-v8a', 'armeabi-v7a', 'x86_64'
+            }
+            universalApk !arm64OnlyApk
         }
     }
 
@@ -94,6 +111,9 @@ android {
                 keyAlias keystoreProperties['keyAlias']
                 keyPassword keystoreProperties['keyPassword']
             } else {
+                if (System.getenv('BEECOUNT_REQUIRE_PRODUCTION_SIGNING') == 'true') {
+                    throw new GradleException('Production signing credentials are required')
+                }
                 // CI/Local fallback: if no key.properties, ensure a temporary debug keystore exists
                 // and sign release with it so the build doesn't fail. Artifacts will be installable
                 // but NOT suitable for Play upload. Provide real key.properties for production.

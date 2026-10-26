@@ -498,7 +498,7 @@ def verify_apk(path, *, expected_version, expected_code, expected_certificate, t
     return dict(identity, **zipped, certificateSha256=expected_certificate, apkSha256=sha256(path), bytes=path.stat().st_size)
 
 
-def select_arm64(source: Path, version, code):
+def select_arm64(source: Path, version, code, *, arm64_only=False):
     directory = source / "build/app/outputs/apk/prod/release"
     metadata = directory / "output-metadata.json"
     require(metadata.is_file(), "缺少正式 prod release 的 output-metadata.json")
@@ -513,13 +513,17 @@ def select_arm64(source: Path, version, code):
             require(not relative.is_absolute() and ".." not in relative.parts, "ABI metadata 文件路径越界")
             selected.append(directory.joinpath(*relative.parts))
     require(len(selected) == 1, "ABI metadata 缺少或重复 arm64 产物")
+    if arm64_only:
+        require(len(data.get("elements", [])) == 1 and
+                set(directory.glob("*.apk")) == {selected[0]},
+                "ARM64-only 构建仍产出额外 ABI/universal APK")
     return selected[0]
 
 
-def build_command(flutter, source_sha, version, code, build_time):
+def build_command(flutter, source_sha, version, code, build_time, *, arm64_only=False):
     return [str(flutter), "--suppress-analytics", "build", "apk", "--release", "--flavor", "prod", "--no-pub", "--target=lib/main.dart",
             "--build-name=" + version, "--build-number=" + str(code),
-            "--target-platform=android-arm,android-arm64,android-x64",
+            "--target-platform=" + ("android-arm64" if arm64_only else "android-arm,android-arm64,android-x64"),
             "--dart-define=CI_VERSION=" + version, "--dart-define=GIT_COMMIT=" + source_sha,
             "--dart-define=BUILD_TIME=" + build_time, "--dart-define=GOOGLE_PLAY=false",
             "--dart-define=BEECOUNT_V4_RECORDING=false", "--dart-define=BEECOUNT_V4_GALLERY=false",
@@ -556,6 +560,12 @@ def prepare_or_build(args):
         require(re.search(r'version "17(?:\.|\")', java_log), "本地构建要求 Java17")
         signing = verify_signing(credentials, expected, java_home, runner, run)
         source, archive_hash = freeze_source(args.repo.resolve(), args.source_sha, run, runner)
+        arm64_only = getattr(args, "arm64_only", False)
+        if arm64_only:
+            require("BEECOUNT_APK_ABI" in (source / "android/app/build.gradle").read_text(),
+                    "冻结源码不支持 ARM64-only Gradle 开关")
+            runner.environment["BEECOUNT_APK_ABI"] = ABI
+        runner.environment["BEECOUNT_REQUIRE_PRODUCTION_SIGNING"] = "true"
         lock_hash = sha256(source / "pubspec.lock")
         overlay = release_overlay(source)
         write_json(run / "release-overlay.json", overlay)
@@ -564,14 +574,17 @@ def prepare_or_build(args):
         manifest.update(sourceArchiveSha256=archive_hash, pubspecLockSha256=lock_hash,
                         overlaySha256=overlay["overlaySha256"], signingPrivateKeyPreflight="PASS",
                         productionSourceSha256=hashlib.sha256(canonical(source_hashes)).hexdigest())
-        command = build_command(flutter, args.source_sha, version.name, version.code, manifest["createdAtUtc"])
+        command = build_command(flutter, args.source_sha, version.name, version.code,
+                                manifest["createdAtUtc"], arm64_only=arm64_only)
+        manifest["arm64OnlyBuild"] = arm64_only
         manifest["flutterBuildArguments"] = command[1:]
         manifest["status"] = "prepared-no-flutter-executed"
         if args.execute:
             key_properties = source / "android/key.properties"
             write_private(key_properties, signing.read_bytes())
             require(sha256(key_properties) == sha256(signing), "发布副本签名四字段与预检不一致")
-            runner.run([flutter, "--suppress-analytics", "pub", "get", "--offline", "--enforce-lockfile"], label="flutter-pub-get", cwd=source)
+            pub_mode = [] if getattr(args, "allow_pub_network", False) else ["--offline"]
+            runner.run([flutter, "--suppress-analytics", "pub", "get", *pub_mode, "--enforce-lockfile"], label="flutter-pub-get", cwd=source)
             require(sha256(source / "pubspec.lock") == lock_hash, "pub get 改写锁文件，拒绝构建")
             compile_sources = production_source_hashes(source)
             generated = generated_source_overlay(source_hashes, compile_sources)
@@ -583,7 +596,7 @@ def prepare_or_build(args):
             require(not any(marker in build_log for marker in FALLBACK_MARKERS), "构建触发签名 fallback，拒绝交付")
             require(sha256(source / "pubspec.lock") == lock_hash, "构建期间锁文件发生漂移")
             require(production_source_hashes(source) == compile_sources, "构建期间生产源码或生成插件注册文件发生漂移")
-            selected = select_arm64(source, version.name, version.code)
+            selected = select_arm64(source, version.name, version.code, arm64_only=arm64_only)
             result = verify_apk(selected, expected_version=version.name, expected_code=version.code,
                                 expected_certificate=expected, tools=tools, runner=runner)
             latest = registry_snapshot(args.registry)
@@ -665,6 +678,8 @@ def parser():
     build.add_argument("--build-tools", default="36.0.0")
     build.add_argument("--run-parent", type=Path)
     build.add_argument("--execute", action="store_true")
+    build.add_argument("--arm64-only", action="store_true", help="Flutter和Gradle均只构建ARM64，拒绝额外APK")
+    build.add_argument("--allow-pub-network", action="store_true", help="CI显式允许下载锁定依赖，仍强制lockfile与源码不变")
     record = sub.add_parser("record-delivery", help="人工验收且确实交付后追加记录，不签名、不安装")
     record.add_argument("--manifest", type=Path, required=True)
     record.add_argument("--acceptance-report", type=Path, required=True)
