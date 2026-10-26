@@ -1,0 +1,47 @@
+/* Study-only: injected into the review iframe, never the shipped prototype file. */
+#bee-immersive-phone[data-review-skin]{isolation:isolate;border-color:color-mix(in srgb,var(--bc-ink) 12%,var(--bc-bg))!important;background:linear-gradient(180deg,color-mix(in srgb,var(--sr-top) var(--sr-mix),var(--bc-bg)) 0%,color-mix(in srgb,var(--sr-middle) var(--sr-mid-mix),var(--bc-bg)) 25%,color-mix(in srgb,var(--sr-bottom) var(--sr-bottom-mix),var(--bc-bg)) 61%,var(--bc-bg) 100%)!important}
+#bee-immersive-phone[data-review-skin] .bc-main{background:transparent!important;position:relative;z-index:1}
+#bee-immersive-phone[data-review-skin]>.bc-status,#bee-immersive-phone[data-review-skin]>.bc-statusbar,#bee-immersive-phone[data-review-skin] .bc-topbar{position:relative;z-index:2}
+#bee-immersive-phone[data-review-skin] .bc-nav{z-index:12}
+#bee-immersive-phone[data-review-skin]:not([data-review-skin=none]) .bc-surface{background:color-mix(in srgb,var(--bc-paper) 96%,transparent)!important}
+#bee-immersive-phone[data-review-skin=none]{background:var(--bc-bg)!important}
+#bee-immersive-phone .sr-art{position:absolute;left:0;right:0;top:0;height:min(34%,280px);pointer-events:none!important;overflow:hidden;z-index:0;opacity:var(--sr-art-opacity);mask-image:linear-gradient(#000 0%,#000 68%,transparent 100%);-webkit-mask-image:linear-gradient(#000 0%,#000 68%,transparent 100%);contain:paint}
+#bee-immersive-phone .sr-art *{pointer-events:none!important}
+#bee-immersive-phone .sr-art svg{display:block;width:100%!important;height:100%!important;overflow:visible;fill:none;stroke-width:1.5}
+#bee-immersive-phone[data-review-skin=none] .sr-art{display:none}
+#bee-immersive-phone .sr-twinkle{animation:sr-twinkle 4.8s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:center;fill:var(--sr-line);stroke:none;opacity:.72}
+#bee-immersive-phone .sr-twinkle:nth-child(3n){animation-delay:-2.2s;animation-duration:6.7s}
+#bee-immersive-phone .sr-constellation{stroke:var(--sr-line);stroke-width:1.05;opacity:.52}
+#bee-immersive-phone .sr-guide-arc{stroke:var(--sr-line);stroke-width:.8;opacity:.2}
+#bee-immersive-phone .sr-bee-motion{animation:sr-bee 14s ease-in-out infinite}
+#bee-immersive-phone .sr-bee-head{fill:var(--sr-line);stroke:none}
+#bee-immersive-phone .sr-bee-body{fill:var(--sr-gold);stroke:var(--sr-line);stroke-width:1}
+#bee-immersive-phone .sr-wing{fill:#d6edf1;stroke:none;opacity:.82}
+#bee-immersive-phone .sr-bee-stripe{stroke:var(--sr-line);stroke-width:1.4}
+#bee-immersive-phone .sr-constellation-base{fill:var(--sr-line);stroke:none;opacity:.3}
+#bee-immersive-phone .sr-ribbon{stroke:var(--sr-line);stroke-width:1.1;opacity:.38;animation:sr-ribbon 12s ease-in-out infinite alternate}
+#bee-immersive-phone .sr-cake-body{fill:var(--sr-cake);stroke:var(--sr-line);stroke-width:.7;opacity:.88}
+#bee-immersive-phone .sr-cake-cream{fill:var(--sr-cream);stroke:none}
+#bee-immersive-phone .sr-candle{stroke:var(--sr-candle);stroke-width:4;stroke-linecap:round}
+#bee-immersive-phone .sr-flame{fill:#f6ba56;stroke:none;animation:sr-flame 3.6s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:bottom center}
+#bee-immersive-phone .sr-glow{fill:url(#sr-warm);stroke:none;opacity:.4}
+#bee-immersive-phone .sr-curtain-a{fill:url(#sr-cool-a);stroke:none;animation:sr-curtain 24s ease-in-out infinite alternate;transform-origin:50% 0}
+#bee-immersive-phone .sr-curtain-b{fill:url(#sr-cool-b);stroke:none;animation:sr-curtain-b 30s ease-in-out infinite alternate;transform-origin:65% 0}
+#bee-immersive-phone .sr-curtain-edge{stroke:var(--sr-line);stroke-width:.8;opacity:.23;animation:sr-curtain 24s ease-in-out infinite alternate}
+#bee-immersive-phone .sr-hill-back{fill:var(--sr-hill-back);stroke:none;opacity:.48}
+#bee-immersive-phone .sr-hill-front{fill:var(--sr-hill-front);stroke:none;opacity:.42;animation:sr-hills 32s ease-in-out infinite alternate}
+#bee-immersive-phone .sr-contour{stroke:var(--sr-line);stroke-width:.65;opacity:.23;animation:sr-hills 32s ease-in-out infinite alternate}
+#bee-immersive-phone .sr-paper{fill:url(#sr-paper-lines);stroke:none;opacity:.18}
+#bee-immersive-phone[data-review-motion=paused] .sr-art *{animation-play-state:paused!important}
+#bee-immersive-phone[data-review-motion=reduced] .sr-art *{animation:none!important}
+#bee-immersive-phone[data-review-motion=reduced] .sr-twinkle{opacity:.55}
+@keyframes sr-twinkle{from{opacity:.4;transform:scale(.94)}to{opacity:.85;transform:scale(1.04)}}
+@keyframes sr-bee{0%,100%{transform:translate(0,0)}30%{transform:translate(-8px,-4px)}60%{transform:translate(-3px,4px)}}
+@keyframes sr-ribbon{from{transform:translateY(-1px)}to{transform:translateY(3px)}}
+@keyframes sr-flame{from{transform:rotate(-4deg) scale(.96)}to{transform:rotate(3deg) scale(1.04)}}
+@keyframes sr-curtain{from{transform:translate(-4px,-2px) skewX(-1deg)}to{transform:translate(6px,4px) skewX(2deg)}}
+@keyframes sr-curtain-b{from{transform:translate(2px,1px)}to{transform:translate(-5px,5px)}}
+@keyframes sr-hills{from{transform:translateX(-3px)}to{transform:translateX(4px)}}
+@media(prefers-reduced-motion:reduce){#bee-immersive-phone .sr-art *{animation:none!important}#bee-immersive-phone .sr-twinkle{opacity:.55}}
+
+#bee-immersive-phone[data-page=home][data-review-skin=constellation] .sr-art>svg,#bee-immersive-phone[data-page=home][data-review-skin=cake] .sr-art>svg{transform:translateX(-62px)}
