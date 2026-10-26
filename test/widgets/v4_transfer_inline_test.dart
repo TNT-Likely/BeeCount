@@ -214,8 +214,12 @@ void main() {
   inlineTransferTest('暂无账户可连续新增同币种账户并回到原转账草稿', (tester) async {
     await db.customStatement('DELETE FROM accounts');
     await open(tester,
-        page: const TransactionEditorPage(
-            initialKind: 'transfer', initialNote: 'QA 保留转账草稿'));
+        page: const TransactionEditorPage(initialKind: 'transfer'));
+    await typeTen(tester);
+    await tester.enterText(
+        find.byKey(const ValueKey('recording-note')), 'QA 保留转账草稿');
+    FocusManager.instance.primaryFocus?.unfocus();
+    await tester.pumpAndSettle();
     for (final name in ['QA 新现金', 'QA 新银行']) {
       final add = find.byKey(const ValueKey('transfer-add-account'));
       await tester.ensureVisible(add);
@@ -233,6 +237,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byType(TransactionEditorPage), findsOneWidget);
       expect(find.text('QA 保留转账草稿'), findsOneWidget);
+      expect(find.text('10.00'), findsOneWidget);
     }
     expect(find.text('暂无账户'), findsNothing);
     expect(find.byKey(const ValueKey('transfer-add-account')), findsNothing);
