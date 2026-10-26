@@ -126,6 +126,52 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  for (final width in [320.0, 398.0]) {
+    testWidgets('首页分类图标与星期表头共用左边界 $width', (tester) async {
+      tester.view.physicalSize = Size(width, 900);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      final interval = VisibilityDetectorController.instance.updateInterval;
+      VisibilityDetectorController.instance.updateInterval = Duration.zero;
+      addTearDown(() =>
+          VisibilityDetectorController.instance.updateInterval = interval);
+      await tester.pumpWidget(UncontrolledProviderScope(
+          container: container,
+          child: MaterialApp(
+              theme: beeTheme(),
+              locale: const Locale('zh'),
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              supportedLocales: AppLocalizations.supportedLocales,
+              home: const HomePage())));
+      await tester.pumpAndSettle();
+      for (var i = 0;
+          i < 40 &&
+              find
+                  .byType(BeeTransactionRow, skipOffstage: false)
+                  .evaluate()
+                  .isEmpty;
+          i++) {
+        await tester.runAsync(
+            () => Future<void>.delayed(const Duration(milliseconds: 10)));
+        await tester.pump(const Duration(milliseconds: 16));
+      }
+      final header =
+          find.byType(BeeTransactionDayHeader, skipOffstage: false).first;
+      final title = tester.widget<BeeTransactionDayHeader>(header).title;
+      final titleBox = tester.getRect(find.descendant(
+          of: header, matching: find.text(title, skipOffstage: false)));
+      final row = tester.widget<BeeTransactionRow>(
+          find.byType(BeeTransactionRow, skipOffstage: false).first);
+      final icon = tester.getRect(find.byWidget(row.icon, skipOffstage: false));
+      // A 34px icon is centered in its unchanged 36px category tap target.
+      expect(icon.left, closeTo(titleBox.left + 1, .1));
+      expect(icon.width, 34);
+      expect(tester.takeException(), isNull);
+      await close(tester);
+    });
+  }
+
   testWidgets('首页真实汇总与 HTML 区域对齐，默认无品牌且入口独立', (tester) async {
     await open(tester);
     final identity = tester.getRect(find.byType(BeeHomeIdentity));

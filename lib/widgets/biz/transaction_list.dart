@@ -590,6 +590,9 @@ class TransactionListState extends ConsumerState<TransactionList> {
                           _getAttachmentCountForTransaction(it.t.id);
 
                       return TransactionListItem(
+                        // Flat lists inherit the frame's 15px gutter. Standalone
+                        // cards start at 17px, so add 4px to match the 21px header.
+                        horizontalInset: widget.flatSurface ? 0 : 4,
                         onDelete: () async {
                           final repo = ref.read(repositoryProvider);
                           await repo.deleteTransaction(it.t.id);

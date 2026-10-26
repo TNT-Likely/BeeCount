@@ -46,7 +46,8 @@ class TransactionRowPlan {
 /// C3: ordinary rows use two baselines, complex rows at most three.
 /// Priority text is never replaced with icons or silently removed. Secondary
 /// fields may enter an explicit, readable disclosure; their values stay in data.
-TransactionRowPlan planTransactionRow(double width, TransactionRowMetrics m) {
+TransactionRowPlan planTransactionRow(double width, TransactionRowMetrics m,
+    {double? horizontalInset}) {
   const gap = 5.0;
   final sizes = <String, double>{
     'amount': m.amount,
@@ -70,14 +71,14 @@ TransactionRowPlan planTransactionRow(double width, TransactionRowMetrics m) {
     ...status,
     if (m.timestamp > 0) 'time'
   ];
-  final standard = math.max(0.0, width - 26 - 46);
+  final standard = math.max(0.0, width - (horizontalInset ?? 13) * 2 - 46);
   // A long ledger can still use its useful ellipsis width. It must not move
   // the entire row into the three-line wide layout just because of its name.
   final hardMinimum = occupied(hard) -
       (m.ledger > 0 ? sizes['ledger']! - math.min(42, sizes['ledger']!) : 0);
   final wide =
       m.amount + m.minimumTitle + gap > standard || hardMinimum > standard;
-  final inset = wide ? (width < 330 ? 6.0 : 9.0) : 13.0;
+  final inset = horizontalInset ?? (wide ? (width < 330 ? 6.0 : 9.0) : 13.0);
   final available = math.max(0.0, width - inset * 2 - (wide ? 0 : 46));
   final lines = <List<String>>[
     wide ? ['amount'] : ['title', 'amount'],

@@ -80,6 +80,7 @@
 /* The row owns its inset. Avoid paying both the card and the row padding. */
 #bee-immersive-suite .bc-phone .bc-stream:has(.tx3){margin-inline:-5px;padding-inline:15px}
 #bee-immersive-suite .bc-phone .bc-stream .x-swipe:has(.tx3){margin-inline:-15px;border-radius:0}
+#bee-immersive-suite .bc-phone .bc-stream .tx-row.tx3{padding-inline:15px}
 @media(max-width:440px){
  #bee-immersive-suite .spec-card:has(.tx3){padding-inline:0;margin-inline:-4px}
  #bee-immersive-suite .spec-card:has(.tx3)>header{padding-inline:16px}

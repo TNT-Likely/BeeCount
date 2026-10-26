@@ -28,6 +28,7 @@ class TransactionListItem extends ConsumerWidget {
 
   /// v30 多币种:折账本本位币快照。外币交易在金额右下角显示 ≈ 折算小字(反馈13)。
   final double? nativeAmount;
+  final double? horizontalInset;
   final bool isExpense; // 决定正负号
   final bool isTransfer; // 是否为转账（转账不显示正负号）
   /// Account history: -1 out, 1 in, 0 same account. Other lists stay neutral.
@@ -69,6 +70,7 @@ class TransactionListItem extends ConsumerWidget {
     this.baseCurrencyCode,
     this.alwaysShowCurrency = false,
     this.nativeAmount,
+    this.horizontalInset,
     required this.isExpense,
     this.isTransfer = false,
     this.transferDirection,
@@ -129,6 +131,7 @@ class TransactionListItem extends ConsumerWidget {
     final hasConversion =
         foreign && nativeAmount != null && nativeAmount != amount;
     final row = BeeTransactionRow(
+      horizontalInset: horizontalInset,
       title: composed.primary,
       note: composed.parenNote,
       detailsNote: title.isEmpty ? null : title,

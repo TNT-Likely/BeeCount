@@ -22,6 +22,7 @@ class BeeTransactionRow extends StatelessWidget {
       this.happenedAt,
       this.showTime = false,
       this.amountColor,
+      this.horizontalInset,
       this.incomeIsRed = true,
       this.showFullDate = false,
       this.accountName,
@@ -60,6 +61,9 @@ class BeeTransactionRow extends StatelessWidget {
       ledgerName;
   final DateTime? happenedAt;
   final Color? amountColor;
+
+  /// Containers that already provide list gutters can align rows to headers.
+  final double? horizontalInset;
   final bool showTime, showFullDate, incomeIsRed;
   final ValueChanged<BeeTagData>? onTagTap;
   final VoidCallback? onMoreTagsTap, onAttachmentTap, onMoreFieldsTap;
@@ -258,7 +262,8 @@ class BeeTransactionRow extends StatelessWidget {
       moreLabelWidth: (count) => measure(labels.more(count), smallStyle),
     );
     final content = LayoutBuilder(builder: (context, constraints) {
-      final plan = planTransactionRow(constraints.maxWidth, metrics);
+      final plan = planTransactionRow(constraints.maxWidth, metrics,
+          horizontalInset: horizontalInset);
       Widget tap(Widget child, VoidCallback? action, {String? tooltip}) {
         Widget result = InkWell(
             onTap: action,
