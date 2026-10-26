@@ -1376,8 +1376,8 @@
     {
       "id": "M07",
       "name": "15000笔导入与首页稳定性",
-      "status": "恢复首20渐进加载，原版同机对照中",
-      "detail": "真实15000导入/逐笔关系及R120六组首帧后稳定证据保留。用户取消切本2秒硬门槛，重点首屏不下降；已确认当前全量屏障抑制原先20条快速首屏，正恢复“完整前20＋独立全量日汇总/COUNT→后台完整数据无闪接替”，测试滚动/错误重试/快速切本中。官方3.9同数据副本AOT对照包已核、正在同一真机部署。用户确认手动补折算9282笔；只改新压力记录native，原72不变，该人工增量作为新基线保留。"
+      "status": "首20策略已恢复并完成同机对照；SVG首用绘制列后续",
+      "detail": "R122恢复完整前20条、真实全量日汇总与COUNT，后台全量保持滚动及字段稳定。同机同数据官方3.9对照，完整首屏冷启中位3.213秒→2.731秒、切本2.972秒→0.672秒；原版较早的部分帧含不完整汇总或标签，不冒称所有指标均更快。15000笔及原72笔、用户确认的9282笔补折算和21条rates保留；6组稳定帧核对通过。冷启Shapes/Wallet两枚SVG首用曾晚约0.10秒绘制，证据保留，列Beta2非阻塞项，不能写为所有首帧资源完全同步。"
     },
     {
       "id": "M08",
@@ -1389,31 +1389,46 @@
     {
       "id": "M09",
       "name": "本地Beta APK与3.9.0真实数据升级",
-      "status": "3.9.0真实基线就绪，Beta待构建",
-      "detail": "专用私有Cloud及Android已通过3.9.0正常UI恢复；10359笔交易16项规范化字段及关系、2个附件元数据与原字节核对一致，原8个备份文件不变。旧版首次恢复丢关联的失败与正常UI重试过程保留。正式签名已匹配，Beta4000001/正式4000099共用计算器并拒退码；最终Beta尚未构建或覆盖升级，未碰原手机App。 既有Cloud首次恢复关联后到风险列入Q28，未冒称修复。 本地wrapper已提交，37项相关检查及提供私钥的实际解锁/可信证书预检通过，仅准备未调用Flutter；交付registry仍0条。"
+      "status": "已交付正式签名Beta226，真实3.9.0覆盖升级通过",
+      "detail": "4.0.0-beta.1(226)正式签名prod release ARM64 APK已交付，20740011字节，SHA256 c864ef78c993da253080cfb5f6dac9a0b59fac0d3dd66f3c513efb8dcc7e503f；后续Beta227–299、4.0正式从300开始。专用环境同prod包/同签名install-r，UID和firstInstallTime保持；Root直接读取未启动/首次正常MAIN/重启后三份副本，31表全字段及10359笔均与3.9基线精确一致，附件/业务偏好保持，原8备份重哈希未变。仅13索引新增、日志/私有会话token刷新及已归类运行文件变化；未触原手机App，未触发布CI/tag。真实升级和本地App295/离线77等通过，交付registry已登记226；Q28旧Cloud首次恢复边界及SVG首用晚绘仍如实保留。"
     },
     {
       "id": "M10",
       "name": "明细图标与星期表头对齐",
-      "status": "源码与HTML已修正，待新包装机",
-      "detail": "去掉容器与行重复的左右留白；首页继承外层15px，独立日卡按21px表头对齐。点击范围保持，新增320/398实际父子几何回归及相关21项通过、5文件静态无问题；HTML目标和表头同x。R121候选正构建，尚不称当前手机已看到新对齐。",
+      "status": "已修正并在R122真机确认",
+      "detail": "去掉容器与行重复左右留白，图标盒与星期表头对齐，点击范围保持。21项相关回归、HTML和静态检查通过；Root已在R122正常MAIN的15000笔首页亲看对齐。R121未安装的历史记录保留，实际当前是R122。",
       "url": "prototype/demo.html?page=home"
     }
   ],
   "manualAcceptanceProgress": {
-    "updatedAt": "2026-10-26T10:57:49.291576+08:00",
-    "engineeringEstimatePercent": 70,
+    "updatedAt": "2026-10-26T12:47:51.436007+08:00",
+    "engineeringEstimatePercent": 95,
     "engineeringEstimateRange": [
-      65,
-      75
+      92,
+      98
     ],
     "remainingEffortEstimateHours": [
-      3,
-      5
+      0.25,
+      0.75
     ],
-    "estimateKind": "实际工作小时，不含等待用户选皮肤",
-    "basis": "本轮追加范围，不计当前明确暂缓的皮肤设计。已确认UI/资源、签名工具与3.9真实基线就绪；首20渐进显示策略正在恢复并测试，原版3.9同机对照部署中。手动补折算人工增量保留，原72精确；新候选与最终Beta尚未通过全部装机/升级，不按卡片数量或原73页比例估算。",
+    "estimateKind": "后续SVG显示细节的工作量估计；本次Beta交付剩余0小时，皮肤暂缓",
+    "basis": "本次Beta必要收口已经完成并交付226：R122首20完整元数据、官方3.9同机对照、签名验包、真实原位升级与Root31表直读核对、本地CI及交付记录全部完成。原73页不重计，皮肤已暂缓；唯一明确保留的显示细节为约0.10秒SVG首用晚绘，列后续Beta项，不把本次包宣称无任何已知问题。",
     "scopeComplete": false,
-    "estimateChangeReason": "较先前2–4小时调整为3–5：完整首屏需实际原版对照，线上皮肤要求原Painter复用而非重绘。取消2秒门槛后不继续为该数字扩大改动，但这些必要验证尚未完成。"
+    "estimateChangeReason": "生产包已真实覆盖升级、重启核对并交付，取消上一快照中的升级等待；当前剩余仅已披露的后续显示细节。",
+    "betaDeliveryComplete": true,
+    "betaDeliveryRemainingHours": 0
+  },
+  "latestLocalBetaDelivery": {
+    "versionName": "4.0.0-beta.1",
+    "versionCode": 226,
+    "sourceCommit": "dce8b5dc613fba8d6fb599b23c1e461dbe87ec33",
+    "apkSha256": "c864ef78c993da253080cfb5f6dac9a0b59fac0d3dd66f3c513efb8dcc7e503f",
+    "bytes": 20740011,
+    "abi": "arm64-v8a",
+    "actualProductionSignedUpgradeFrom225": "PASS",
+    "root31TableDirectReadAudit": "PASS",
+    "delivered": true,
+    "stable4StartsAtCode": 300,
+    "noReleaseCIOrTag": true
   }
 }
