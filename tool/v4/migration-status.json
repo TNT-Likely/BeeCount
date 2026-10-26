@@ -1167,12 +1167,12 @@
   ],
   "latestInstalledCandidate": {
     "platform": "Android",
-    "sourceCommit": "983d2d588f7904be392cd1263f2e0af20a117694",
-    "androidApkSha256": "a3a58182bfdb87e8c3fe25b7050d37e9c1fc8711582f8733c93434f17e9809eb",
+    "sourceCommit": "cdda016919d7e735cbf89615de4fb750172a27a5",
+    "androidApkSha256": "21fc32a20abadac297afd50d85cacd2dda6e3780a589ce066c09ef0ec5af519d",
     "verifiedCommittedProductFiles": 1065,
     "sameRetainedQA": true,
     "qaDataPreservedDuringReplacement": true,
-    "nativeStatus": "R119已完成15000笔真实导入，逐笔及原数据守卫通过；暖回首页0.80秒且内容稳定，账本切换11.34秒、冷启27.78秒未达标。索引及资产构建依赖修复已提交，R120 AOT构建中，未记性能通过",
+    "nativeStatus": "R120同包同证书profile/AOT已装机且31表15072/持久文件守卫通过。暖回首屏0.908s；3次切本4.884/4.188/4.417s，2次普通冷启6.200/6.244s，仍未达2s目标。正做独立时序采样与标签读取优化；旧R119完整失败证据保留，不称最终release Beta通过",
     "approvedDesignRevisionsInstalled": [
       "A",
       "B",
@@ -1182,7 +1182,9 @@
       "F-A"
     ],
     "originalReportsRemainFixed": true,
-    "additionalWorkInProgress": true
+    "additionalWorkInProgress": true,
+    "flutterBuildMode": "profile/AOT",
+    "qaAndroidDebuggable": true
   },
   "latestInstalledIOSCandidate": {
     "platform": "iOS",
@@ -1375,7 +1377,7 @@
       "id": "M07",
       "name": "15000笔导入与首页稳定性",
       "status": "导入通过，加载性能修复复测中",
-      "detail": "同一真机实际导入15000笔，交易写入24.45秒、相关服务跨度28.11秒；整次确认至结果未独立计时，不冒称完整导入≤30秒。15000逐笔/63038标签关系校验及原数据守卫通过。暖回首页0.80秒且稳定，但切账本11.34秒、冷启27.78秒FAIL保留；索引和资产页依赖修复已提交，正构建R120 AOT复测，不重导入。"
+      "detail": "同一真机一次导入15000笔，交易写入24.45秒，整次UI确认到结果未独立计时；逐笔/63038标签关系与原数据守卫通过。R120 profile/AOT实测暖回0.908秒，切本三轮4.884/4.188/4.417秒、冷启两轮6.200/6.244秒，均仍未达2秒目标。当前继续独立采样与标签解码优化，不重导入、不删字段；R119旧FAIL原件保留。"
     },
     {
       "id": "M08",
@@ -1388,7 +1390,7 @@
       "id": "M09",
       "name": "本地Beta APK与3.9.0真实数据升级",
       "status": "3.9.0真实基线就绪，Beta待构建",
-      "detail": "专用私有Cloud及Android已通过3.9.0正常UI恢复；10359笔交易16项规范化字段及关系、2个附件元数据与原字节核对一致，原8个备份文件不变。旧版首次恢复丢关联的失败与正常UI重试过程保留。正式签名已匹配，Beta4000001/正式4000099共用计算器并拒退码；最终Beta尚未构建或覆盖升级，未碰原手机App。"
+      "detail": "专用私有Cloud及Android已通过3.9.0正常UI恢复；10359笔交易16项规范化字段及关系、2个附件元数据与原字节核对一致，原8个备份文件不变。旧版首次恢复丢关联的失败与正常UI重试过程保留。正式签名已匹配，Beta4000001/正式4000099共用计算器并拒退码；最终Beta尚未构建或覆盖升级，未碰原手机App。 既有Cloud首次恢复关联后到风险列入Q28，未冒称修复。 本地wrapper已提交，37项相关检查及提供私钥的实际解锁/可信证书预检通过，仅准备未调用Flutter；交付registry仍0条。"
     }
   ],
   "manualAcceptanceProgress": {
