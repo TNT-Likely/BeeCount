@@ -4,22 +4,61 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../providers.dart';
+import '../../../models/home_transaction_preview.dart';
 
-class HomeJournalFrame extends ConsumerWidget {
+class HomeJournalFrame extends ConsumerStatefulWidget {
   const HomeJournalFrame(
       {super.key,
-      required this.child,
+      this.child,
+      this.childBuilder,
       required this.onCalendar,
       required this.onFilter,
-      required this.onBatch});
-  final Widget child;
+      required this.onBatch})
+      : assert(child != null || childBuilder != null);
+  final Widget? child;
+  final Widget Function(ValueChanged<HomeTransactionPreview> onPreviewReady)?
+      childBuilder;
   final VoidCallback onCalendar, onFilter, onBatch;
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomeJournalFrame> createState() => _HomeJournalFrameState();
+}
+
+class _HomeJournalFrameState extends ConsumerState<HomeJournalFrame> {
+  int? _countLedger, _displayCount;
+  AsyncValue<({int dayCount, int txCount})>? _observedCounts;
+
+  void _onPreviewReady(HomeTransactionPreview preview) {
+    if (!mounted || preview.ledgerId != ref.read(currentLedgerIdProvider)) {
+      return;
+    }
+    setState(() {
+      _countLedger = preview.ledgerId;
+      _displayCount = preview.totalCount;
+    });
+    // A count query started before the preview may complete afterwards with
+    // an older snapshot. Replace that pending generation with a fresh COUNT;
+    // the preview count covers the header while it runs.
+    ref.invalidate(countsForLedgerProvider(preview.ledgerId));
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final id = ref.watch(currentLedgerIdProvider);
-    final count =
-        ref.watch(countsForLedgerProvider(id)).valueOrNull?.txCount ?? 0;
+    if (_countLedger != id) {
+      _countLedger = id;
+      _displayCount = null;
+      _observedCounts = null;
+    }
+    final counts = ref.watch(countsForLedgerProvider(id));
+    if (!identical(counts, _observedCounts)) {
+      _observedCounts = counts;
+      if (!counts.isLoading &&
+          counts is AsyncData<({int dayCount, int txCount})>) {
+        _displayCount = counts.value.txCount;
+      }
+    }
+    final count = _displayCount ?? 0;
     return Padding(
         padding: const EdgeInsets.fromLTRB(17, 5, 17, 0),
         child: BeeSurface(
@@ -32,13 +71,13 @@ class HomeJournalFrame extends ConsumerWidget {
                     BeeIconButton(
                         label: l10n.calendarTitle,
                         icon: const BeeLineIcon('CalendarDays', size: 17),
-                        onPressed: onCalendar),
+                        onPressed: widget.onCalendar),
                     BeeIconButton(
                         label: l10n.searchFilterTitle,
                         icon: const BeeLineIcon('SlidersHorizontal', size: 17),
-                        onPressed: onFilter),
+                        onPressed: widget.onFilter),
                     TextButton(
-                        onPressed: onBatch,
+                        onPressed: widget.onBatch,
                         style: TextButton.styleFrom(
                             minimumSize: const Size(36, 44),
                             padding: EdgeInsets.zero),
@@ -47,7 +86,9 @@ class HomeJournalFrame extends ConsumerWidget {
                                 fontSize: 11,
                                 color: Theme.of(context).hintColor))),
                   ]),
-              Expanded(child: child),
+              Expanded(
+                  child: widget.childBuilder?.call(_onPreviewReady) ??
+                      widget.child!),
             ])));
   }
 }

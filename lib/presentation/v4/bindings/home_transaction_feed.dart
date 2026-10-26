@@ -21,6 +21,7 @@ class HomeTransactionFeed extends ConsumerStatefulWidget {
     required this.controller,
     this.onDateVisibilityChanged,
     this.emptyWidget,
+    this.onPreviewReady,
   });
 
   final int ledgerId;
@@ -29,6 +30,7 @@ class HomeTransactionFeed extends ConsumerStatefulWidget {
   final FlutterListViewController controller;
   final void Function(String, bool)? onDateVisibilityChanged;
   final Widget? emptyWidget;
+  final ValueChanged<HomeTransactionPreview>? onPreviewReady;
 
   @override
   ConsumerState<HomeTransactionFeed> createState() =>
@@ -66,6 +68,7 @@ class _HomeTransactionFeedState extends ConsumerState<HomeTransactionFeed> {
       final preview =
           await repository.getHomeTransactionPreview(ledgerId: ledger);
       if (!mounted || generation != _generation) return;
+      widget.onPreviewReady?.call(preview);
       setState(() => _preview = preview);
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted && generation == _generation) {

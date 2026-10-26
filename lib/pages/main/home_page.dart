@@ -285,17 +285,18 @@ class _HomePageState extends ConsumerState<HomePage> {
             onCalendar: () => _openHomeTool('calendar'),
             onFilter: () => _openJournalSearch(filters: true),
             onBatch: () => _openJournalSearch(batch: true),
-            child: HomeTransactionFeed(
-              ledgerId: ledgerId,
-              hideAmounts: hide,
-              listKey: _transactionListKey,
-              controller: _listController,
-              onDateVisibilityChanged: _onHeaderVisibilityChanged,
-              emptyWidget: BeeEmptyState(
-                title: AppLocalizations.of(context).homeNoRecords,
-                message: AppLocalizations.of(context).homeNoRecordsSubtext,
-              ),
-            )),
+            childBuilder: (onPreviewReady) => HomeTransactionFeed(
+                  onPreviewReady: onPreviewReady,
+                  ledgerId: ledgerId,
+                  hideAmounts: hide,
+                  listKey: _transactionListKey,
+                  controller: _listController,
+                  onDateVisibilityChanged: _onHeaderVisibilityChanged,
+                  emptyWidget: BeeEmptyState(
+                    title: AppLocalizations.of(context).homeNoRecords,
+                    message: AppLocalizations.of(context).homeNoRecordsSubtext,
+                  ),
+                )),
       ),
     );
   }
