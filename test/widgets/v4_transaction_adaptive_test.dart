@@ -186,6 +186,81 @@ void main() {
     });
   }
 
+  testWidgets('普通账单含账本、文字状态或只读时先合并为两行', (tester) async {
+    const base = <String, dynamic>{
+      'title': '午餐',
+      'amount': '−32.00',
+      'icon': 'Utensils',
+      'kind': 'expense',
+      'accountName': '微信',
+      'ledgerName': '日常',
+    };
+    final samples = [
+      {
+        ...base,
+        'id': 'compact-ledger-attachment-tags',
+        'tags': ['工作日', '旅行'],
+        'attachments': 1,
+      },
+      {
+        ...base,
+        'id': 'compact-ledger-statuses',
+        'status': ['不计收支', '不计预算'],
+      },
+      {
+        ...base,
+        'id': 'compact-ledger-readonly-time',
+        'readOnly': true,
+        'happenedAt': '2026-10-20T12:34:56',
+        'showTime': true,
+      },
+    ];
+    for (final width in [320.0, 398.0, 480.0]) {
+      for (final scale in [1.0, 1.4]) {
+        for (final s in samples) {
+          await open(tester, fixture(s), width: width, scale: scale);
+          geometry(tester, s);
+          expect(find.byKey(const ValueKey('transaction-line-3')), findsNothing,
+              reason: '${s['id']} $width/$scale: short metadata fits line two');
+          expect(find.byKey(const ValueKey('transaction-more-fields')),
+              findsNothing,
+              reason: 'compact rows must not hide ordinary fields');
+          expect(find.text('微信'), findsOneWidget);
+          expect(
+              find.byKey(const ValueKey('transaction-ledger')), findsOneWidget);
+          if (s['readOnly'] == true) expect(find.text('只读'), findsOneWidget);
+        }
+      }
+    }
+  });
+
+  testWidgets('真机常规账本加多标签在标准屏保留两行及可读名称', (tester) async {
+    const s = <String, dynamic>{
+      'id': 'native-cny-ledger-tags',
+      'title': 'QA-RP-午餐',
+      'amount': '−0.37',
+      'kind': 'expense',
+      'icon': 'Shapes',
+      'accountName': '测试·人民币现金',
+      'ledgerName': 'QA4R102 CNY 汇总',
+      'tags': ['QA-RP-午餐', 'QA4R102 汇总标签'],
+      'attachments': 1,
+    };
+    for (final width in [382.745, 398.0, 480.0]) {
+      await open(tester, fixture(s), width: width);
+      geometry(tester, s);
+      expect(find.byKey(const ValueKey('transaction-line-3')), findsNothing);
+      expect(
+          find.byKey(const ValueKey('transaction-more-fields')), findsNothing);
+      expect(find.byKey(const ValueKey('transaction-ledger')), findsOneWidget);
+      expect(find.text('1'), findsOneWidget,
+          reason: 'attachment stays reachable');
+      expect(find.byType(BeeInlineLabel), findsAtLeastNWidgets(2),
+          reason: 'ledger and at least one actual tag remain visible');
+      await capture(tester, 'native-cny-two-lines-${width.toInt()}');
+    }
+  });
+
   testWidgets('R116真实美元转账在继承字距与紧邻换行阈值时不溢出', (tester) async {
     // Exact existing QA transaction74 display values, without a device/data write.
     // Material body text supplies letterSpacing=.25 and weight500; labels must
@@ -255,6 +330,10 @@ void main() {
                   'native-s25-${width.toInt()}-${(scale * 100).toInt()}-${dark ? 'dark' : 'light'}');
             }
             if (s['id'] == 'cross-big-all') {
+              expect(find.byKey(const ValueKey('transaction-line-3')),
+                  findsOneWidget,
+                  reason:
+                      'critical text in a genuinely dense row keeps line three');
               await capture(tester,
                   'native-worst-${width.toInt()}-${(scale * 100).toInt()}-${dark ? 'dark' : 'light'}');
             }

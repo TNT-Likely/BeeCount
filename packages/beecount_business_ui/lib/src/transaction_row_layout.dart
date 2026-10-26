@@ -71,8 +71,12 @@ TransactionRowPlan planTransactionRow(double width, TransactionRowMetrics m) {
     if (m.timestamp > 0) 'time'
   ];
   final standard = math.max(0.0, width - 26 - 46);
+  // A long ledger can still use its useful ellipsis width. It must not move
+  // the entire row into the three-line wide layout just because of its name.
+  final hardMinimum = occupied(hard) -
+      (m.ledger > 0 ? sizes['ledger']! - math.min(42, sizes['ledger']!) : 0);
   final wide =
-      m.amount + m.minimumTitle + gap > standard || occupied(hard) > standard;
+      m.amount + m.minimumTitle + gap > standard || hardMinimum > standard;
   final inset = wide ? (width < 330 ? 6.0 : 9.0) : 13.0;
   final available = math.max(0.0, width - inset * 2 - (wide ? 0 : 46));
   final lines = <List<String>>[
@@ -100,26 +104,56 @@ TransactionRowPlan planTransactionRow(double width, TransactionRowMetrics m) {
     sizes['ledger'] = math.min(sizes['ledger']!,
         math.max(42, available - occupied(rest) - (rest.isEmpty ? 0 : gap)));
   }
-  // Reclaim a single second line for ordinary metadata, tags and preferred time.
+  // Try all ordinary metadata on the second baseline before introducing a
+  // third. A ledger, text status or read-only state is not itself complex.
   final hasTags = m.tags.any((w) => w > 0);
   var visibleTags = hasTags ? 2 : 0;
-  if (!wide && m.ledger == 0 && status.isEmpty && m.readOnly == 0) {
+  if (!wide) {
     final candidates = [
       if (m.account > 0) 'account',
       if (m.attachment > 0) 'attachment',
+      if (m.ledger > 0) 'ledger',
+      ...status,
+      if (m.readOnly > 0) 'readonly',
       if (hasTags) 'tags',
       if (m.converted > 0) 'converted',
       if (m.timestamp > 0) 'time',
     ];
-    sizes['tags'] = hasTags ? m.tags[2] : 0;
-    if (occupied(candidates) <= available) {
-      return TransactionRowPlan(
-          wide: false,
-          inset: inset,
-          lines: [lines[0], candidates],
-          widths: sizes,
-          folded: const [],
-          visibleTags: visibleTags);
+    // Keep at least one real tag in a compact row. If even one tag cannot fit,
+    // use the existing third line rather than disguising every tag as +N.
+    for (final count in hasTags ? [2, 1] : [0]) {
+      final compact = <String, double>{
+        ...sizes,
+        'tags': hasTags ? m.tags[count] : 0,
+      };
+      double used() =>
+          candidates.fold(0.0, (sum, id) => sum + compact[id]!) +
+          math.max(0, candidates.length - 1) * gap;
+      final needed = used() - available;
+      if (needed > 0) {
+        final flexible = <String, double>{
+          for (final id in ['account', 'ledger'])
+            if (candidates.contains(id)) id: math.max(0, compact[id]! - 60),
+        };
+        final capacity = flexible.values.fold(0.0, (sum, room) => sum + room);
+        if (needed > capacity || capacity == 0) continue;
+        // Share the reduction so neither name collapses into a tiny stub.
+        // A subpixel reserve avoids a render-rounding overflow at exact fits.
+        final reduction = math.min(capacity, needed + .1);
+        for (final entry in flexible.entries) {
+          compact[entry.key] =
+              compact[entry.key]! - reduction * entry.value / capacity;
+        }
+      }
+      if (used() <= available) {
+        return TransactionRowPlan(
+            wide: false,
+            inset: inset,
+            lines: [lines[0], candidates],
+            widths: compact,
+            folded: const [],
+            visibleTags: count);
+      }
     }
   }
   // Account name may truncate normally; below a useful name width, disclose it.
