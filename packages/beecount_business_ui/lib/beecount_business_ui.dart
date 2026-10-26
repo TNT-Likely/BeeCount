@@ -9,6 +9,9 @@ export 'src/brand_mark.dart';
 export 'src/splash_layout.dart';
 
 export 'src/recording_components.dart';
+export 'src/recording_fields.dart';
+export 'src/recording_frame.dart';
+export 'src/account_strip.dart';
 
 export 'src/finance_components.dart';
 export 'src/picker_components.dart';
