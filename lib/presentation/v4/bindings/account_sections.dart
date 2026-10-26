@@ -96,12 +96,41 @@ void showAccountConversionDetailSheet(
       ])));
 }
 
+/// Subscribe in the owning page build before lazily laid-out child rows can
+/// flush a derived provider and synchronously notify their ancestor consumer.
+class AccountCardDisplayData {
+  const AccountCardDisplayData({
+    required this.hidden,
+    required this.compactMoney,
+    required this.multiCurrencyActive,
+    required this.base,
+    required this.rates,
+    required this.defaultExpense,
+    required this.defaultIncome,
+  });
+
+  factory AccountCardDisplayData.watch(WidgetRef ref) => AccountCardDisplayData(
+      hidden: ref.watch(hideAmountsProvider),
+      compactMoney: ref.watch(compactAmountProvider),
+      multiCurrencyActive: ref.watch(multiCurrencyActiveProvider),
+      base: ref.watch(baseCurrencyProvider).toUpperCase(),
+      rates: ref.watch(effectiveRatesProvider).valueOrNull,
+      defaultExpense: ref.watch(defaultExpenseAccountIdProvider).valueOrNull,
+      defaultIncome: ref.watch(defaultIncomeAccountIdProvider).valueOrNull);
+
+  final bool hidden, compactMoney, multiCurrencyActive;
+  final String base;
+  final Map<String, EffectiveRate>? rates;
+  final int? defaultExpense, defaultIncome;
+}
+
 class AccountTypeGroupBinding extends ConsumerStatefulWidget {
   final String type;
   final List<db.Account> accounts;
   final bool compact;
   final Color primaryColor;
   final Map<int, ({double balance, double expense, double income})>? allStats;
+  final AccountCardDisplayData? display;
   final void Function(int oldIndex, int newIndex) onReorder;
   final void Function(db.Account account) onTap;
   final void Function(db.Account account) onEdit;
@@ -113,6 +142,7 @@ class AccountTypeGroupBinding extends ConsumerStatefulWidget {
     required this.accounts,
     required this.primaryColor,
     this.allStats,
+    this.display,
     required this.onReorder,
     required this.onTap,
     required this.onEdit,
@@ -145,6 +175,7 @@ class _AccountTypeGroupState extends ConsumerState<AccountTypeGroupBinding> {
                   primaryColor: widget.primaryColor,
                   typeColor: typeColor,
                   stats: widget.allStats?[account.id],
+                  display: widget.display,
                   onTap: () => widget.onTap(account),
                   onEdit: () => widget.onEdit(account))
           ]);
@@ -172,6 +203,7 @@ class _AccountTypeGroupState extends ConsumerState<AccountTypeGroupBinding> {
               primaryColor: widget.primaryColor,
               typeColor: typeColor,
               stats: widget.allStats?[account.id],
+              display: widget.display,
               onTap: () => widget.onTap(account),
               onEdit: () => widget.onEdit(account),
             );
@@ -189,6 +221,7 @@ class _AccountTypeGroupState extends ConsumerState<AccountTypeGroupBinding> {
 class HiddenAccountsSectionBinding extends ConsumerStatefulWidget {
   final List<db.Account> accounts;
   final Map<int, ({double balance, double expense, double income})>? allStats;
+  final AccountCardDisplayData? display;
   final bool compact;
   final Color primaryColor;
   final void Function(db.Account account) onTap;
@@ -200,6 +233,7 @@ class HiddenAccountsSectionBinding extends ConsumerStatefulWidget {
     this.compact = false,
     required this.accounts,
     required this.allStats,
+    this.display,
     required this.primaryColor,
     required this.onTap,
     required this.onEdit,
@@ -236,10 +270,11 @@ class _HiddenAccountsSectionState
         ifAbsent: () => balance,
       );
     }
-    final multiCurrencyActive = ref.watch(multiCurrencyActiveProvider);
-    final rates = ref.watch(effectiveRatesProvider).valueOrNull;
-    final base = ref.watch(baseCurrencyProvider).toUpperCase();
-    final hide = ref.watch(hideAmountsProvider);
+    final display = widget.display ?? AccountCardDisplayData.watch(ref);
+    final multiCurrencyActive = display.multiCurrencyActive;
+    final rates = display.rates;
+    final base = display.base;
+    final hide = display.hidden;
 
     final totalText = hide
         ? '****'
@@ -268,6 +303,7 @@ class _HiddenAccountsSectionState
                       primaryColor: widget.primaryColor,
                       typeColor: mutedColor,
                       stats: widget.allStats?[account.id],
+                      display: display,
                       onTap: () => widget.onTap(account),
                       onEdit: () => widget.onEdit(account),
                       onRestore: () => widget.onRestore(account))
@@ -290,6 +326,7 @@ class _HiddenAccountsSectionState
                 primaryColor: widget.primaryColor,
                 typeColor: mutedColor,
                 stats: widget.allStats?[account.id],
+                display: display,
                 onTap: () => widget.onTap(account),
                 onEdit: () => widget.onEdit(account),
                 onRestore: () => widget.onRestore(account),
@@ -328,6 +365,7 @@ class AccountCardBinding extends ConsumerWidget {
   final Color primaryColor;
   final Color typeColor;
   final ({double balance, double expense, double income})? stats;
+  final AccountCardDisplayData? display;
   final VoidCallback onTap;
   final VoidCallback onEdit;
 
@@ -342,6 +380,7 @@ class AccountCardBinding extends ConsumerWidget {
     required this.primaryColor,
     required this.typeColor,
     this.stats,
+    this.display,
     required this.onTap,
     required this.onEdit,
     this.onRestore,
@@ -352,8 +391,11 @@ class AccountCardBinding extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final isDark = BeeTokens.isDark(context);
 
+    if (compact) {
+      return _compactRow(
+          context, display ?? AccountCardDisplayData.watch(ref), l10n);
+    }
     final hidden = ref.watch(hideAmountsProvider);
-    if (compact) return _compactRow(context, ref, l10n);
     return Padding(
         padding: const EdgeInsets.only(bottom: 10),
         child: GestureDetector(
@@ -421,11 +463,12 @@ class AccountCardBinding extends ConsumerWidget {
             )));
   }
 
-  Widget _compactRow(BuildContext context, WidgetRef ref, AppLocalizations l) {
-    final hidden = ref.watch(hideAmountsProvider);
-    final compactMoney = ref.watch(compactAmountProvider);
-    final base = ref.watch(baseCurrencyProvider).toUpperCase();
-    final rates = ref.watch(effectiveRatesProvider).valueOrNull;
+  Widget _compactRow(BuildContext context, AccountCardDisplayData display,
+      AppLocalizations l) {
+    final hidden = display.hidden;
+    final compactMoney = display.compactMoney;
+    final base = display.base;
+    final rates = display.rates;
     final balance = stats?.balance;
     String amount(double value) => formatDisplayAmount(value,
         currencyCode: account.currency,
@@ -433,8 +476,8 @@ class AccountCardBinding extends ConsumerWidget {
         signed: false,
         useCompactFormat: compactMoney,
         isChineseLocale: Localizations.localeOf(context).languageCode == 'zh');
-    final foreign = ref.watch(multiCurrencyActiveProvider) &&
-        account.currency.toUpperCase() != base;
+    final foreign =
+        display.multiCurrencyActive && account.currency.toUpperCase() != base;
     final converted = balance == null || rates == null
         ? null
         : computeNativeAmount(
@@ -442,8 +485,8 @@ class AccountCardBinding extends ConsumerWidget {
             accountCurrency: account.currency,
             ledgerBase: base,
             rates: rates);
-    final expense = ref.watch(defaultExpenseAccountIdProvider).valueOrNull;
-    final income = ref.watch(defaultIncomeAccountIdProvider).valueOrNull;
+    final expense = display.defaultExpense;
+    final income = display.defaultIncome;
     final badge = account.id == expense
         ? l.v4AssetsDefaultExpense
         : account.id == income

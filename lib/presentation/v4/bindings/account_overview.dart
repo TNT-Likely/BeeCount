@@ -17,6 +17,7 @@ mixin _AccountsOverviewBindings on ConsumerState<AccountsPage> {
 
   Widget _buildAccountsBody(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final accountDisplay = AccountCardDisplayData.watch(ref);
     final ledgerId = ref.watch(currentLedgerIdProvider);
     final accountsAsync = ref.watch(allAccountsStreamProvider);
     final primaryColor = ref.watch(primaryColorProvider);
@@ -96,6 +97,7 @@ mixin _AccountsOverviewBindings on ConsumerState<AccountsPage> {
                   allStats: allStatsAsync.valueOrNull,
                   primaryColor: primaryColor,
                   ledgerId: ledgerId,
+                  accountDisplay: accountDisplay,
                 ),
 
               // 3. 负债账户分组
@@ -111,6 +113,7 @@ mixin _AccountsOverviewBindings on ConsumerState<AccountsPage> {
                   allStats: allStatsAsync.valueOrNull,
                   primaryColor: primaryColor,
                   ledgerId: ledgerId,
+                  accountDisplay: accountDisplay,
                 ),
 
               // 4. 其他未知类型(排除隐藏账户,账户隐藏 #240)
@@ -129,6 +132,7 @@ mixin _AccountsOverviewBindings on ConsumerState<AccountsPage> {
                   accounts: groupList,
                   primaryColor: primaryColor,
                   allStats: allStatsAsync.valueOrNull,
+                  display: accountDisplay,
                   onReorder: (oldIndex, newIndex) =>
                       _onReorder(type, groupList, oldIndex, newIndex),
                   onTap: (account) => _viewAccountDetail(context, ref, account),
@@ -144,6 +148,7 @@ mixin _AccountsOverviewBindings on ConsumerState<AccountsPage> {
                 compact: true,
                 accounts: accounts.where((a) => a.hidden).toList(),
                 allStats: allStatsAsync.valueOrNull,
+                display: accountDisplay,
                 primaryColor: primaryColor,
                 onTap: (account) => _viewAccountDetail(context, ref, account),
                 onEdit: (account) =>
@@ -505,6 +510,7 @@ mixin _AccountsOverviewBindings on ConsumerState<AccountsPage> {
         allStats,
     required Color primaryColor,
     required int ledgerId,
+    required AccountCardDisplayData accountDisplay,
   }) {
     // 检查此分类下是否有在用(非隐藏)账户 —— 账户隐藏 #240:隐藏账户移入
     // 底部「已隐藏」分区(HiddenAccountsSectionBinding),此处只看在用账户。
@@ -526,6 +532,7 @@ mixin _AccountsOverviewBindings on ConsumerState<AccountsPage> {
           accounts: groupList,
           primaryColor: primaryColor,
           allStats: allStats,
+          display: accountDisplay,
           onReorder: (oldIndex, newIndex) =>
               _onReorder(type, groupList, oldIndex, newIndex),
           onTap: (account) => _viewAccountDetail(context, ref, account),
