@@ -1,3 +1,4 @@
+import 'editor_presentation_sample.dart';
 import 'refresh_business_samples.dart';
 import 'resource_period_sample.dart';
 import '../bindings/mine_avatar.dart';
@@ -247,9 +248,7 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
       ledger = '日常生活',
       event = '等待操作',
       currency = 'CNY',
-      calc = '0',
       rate = '7.20';
-  String recordingNote = '午餐';
   Set<String> configScopes = {'ledgers', 'accounts', 'categories', 'tags'};
   String pin = '';
   bool balanceAdjustmentRecord = false;
@@ -717,60 +716,7 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
                       ? expanded.remove(id)
                       : expanded.add(id)),
                   onDetail: (v) => record('分类详情 $v'))),
-        5 => Column(children: [
-            RecordingHeader(
-                labels: const ['支出', '收入', '转账'],
-                selectedIndex: recordingType,
-                onChanged: (v) => setState(() => recordingType = v),
-                backLabel: '返回',
-                onBack: () => record('返回'),
-                moreLabel: '更多选项',
-                onMore: () => record('记账选项')),
-            RecordingAmountCard(
-                currency: Text(currency),
-                ledger: Text(ledger),
-                amount: calc,
-                hint: '支持 + − × ÷ 四则运算',
-                symbol: '¥'),
-            const SizedBox(height: 12),
-            RecordingDetailsCard(
-                note: TextFormField(
-                    initialValue: recordingNote,
-                    decoration: const InputDecoration(
-                        prefixIcon: BeeLineIcon('PencilLine', size: 16),
-                        border: InputBorder.none,
-                        isDense: true),
-                    style: const TextStyle(fontSize: 12),
-                    onChanged: (v) => recordingNote = v),
-                account: TextButton.icon(
-                    onPressed: () => record('选择账户'),
-                    icon: const AccountTypeIcon(type: 'wechat', size: 18),
-                    label: const Text('微信', style: TextStyle(fontSize: 11))),
-                date: TextButton.icon(
-                    onPressed: () => record('选择日期'),
-                    icon: const BeeLineIcon('CalendarDays', size: 16),
-                    label:
-                        const Text('10月20日', style: TextStyle(fontSize: 11))),
-                tags: Align(
-                    alignment: Alignment.centerRight,
-                    child: BeeTag(
-                        tag: demoTags.first,
-                        compact: true,
-                        onTap: () => record('选择标签'))),
-                attachment: IconButton(
-                    tooltip: '添加附件',
-                    onPressed: () => record('添加附件'),
-                    icon: const BeeLineIcon('ImagePlus', size: 18))),
-            const SizedBox(height: 8),
-            RecordingKeypad(
-                deleteLabel: '退格，长按清空',
-                onDigit: (v) =>
-                    setState(() => calc = calc == '0' ? v : '$calc$v'),
-                onOperator: (v) => record('运算 $v，由页面控制器计算'),
-                onBackspace: () => setState(() => calc =
-                    calc.length > 1 ? calc.substring(0, calc.length - 1) : '0'),
-                onClear: () => setState(() => calc = '0'))
-          ]),
+        5 => EditorPresentationSample(onEvent: record),
         6 => BeeSurface(
               child: Column(children: [
             Wrap(

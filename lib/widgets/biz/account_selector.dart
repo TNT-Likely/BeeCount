@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:collection/collection.dart';
 import '../../data/db.dart';
 import '../../data/repositories/local/local_repository.dart';
-import '../../styles/tokens.dart';
 import '../../utils/lru_cache.dart';
 import '../../utils/account_type_utils.dart';
 import '../../utils/shared_ledger_picker_filter.dart';
@@ -202,16 +201,15 @@ class _AccountSelectorState extends ConsumerState<AccountSelector> {
       if (prev != next) _loadAccounts();
     });
     if (_isLoading) {
-      return const SizedBox(
-        height: 32,
-        child: Center(
-          child: SizedBox(
-            width: 16,
-            height: 16,
-            child: CircularProgressIndicator(strokeWidth: 2),
-          ),
-        ),
-      );
+      final l10n = AppLocalizations.of(context);
+      return BeeAccountStrip(
+          items: const [],
+          selected: null,
+          loading: true,
+          unsetLabel: l10n.accountNone,
+          emptyLabel: l10n.accountsEmptyMessage,
+          hiddenLabel: l10n.accountHiddenTag,
+          onSelected: (_) {});
     }
 
     final sortedAccounts = _getSortedAccounts();
@@ -240,93 +238,20 @@ class _AccountSelectorState extends ConsumerState<AccountSelector> {
           unsetLabel: l10n.accountNone,
           onSelected: (id) => _onAccountTap(id == null ? null : int.parse(id)));
     }
-    return SizedBox(
-      height: 32,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 2),
-        itemCount: sortedAccounts.length + 1, // +1 for "no account" option
-        separatorBuilder: (_, __) => const SizedBox(width: 6),
-        itemBuilder: (context, index) {
-          // "无账户"永远在第一位
-          if (index == 0) {
-            final isSelected = widget.selectedAccountId == null;
-            return _buildAccountChip(
-              label: AppLocalizations.of(context).accountNone,
-              isSelected: isSelected,
-              onTap: () => _onAccountTap(null),
-            );
-          }
-
-          // 其他账户从索引 1 开始
-          final accountIndex = index - 1;
-          final account = sortedAccounts[accountIndex];
-          final isSelected = widget.selectedAccountId == account.id;
-
-          return _buildAccountChip(
-            label: account.name,
-            accountType: account.type,
-            isSelected: isSelected,
-            // account.hidden 只可能在 E1 钉住场景为 true(其余隐藏账户已被
-            // 过滤,不会出现在 sortedAccounts 里),借该字段直接打灰标。
-            isHidden: account.hidden,
-            onTap: () => _onAccountTap(account.id),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildAccountChip({
-    required String label,
-    required bool isSelected,
-    required VoidCallback onTap,
-    bool isHidden = false,
-    String? accountType,
-  }) {
-    final primaryColor = ref.watch(primaryColorProvider);
-
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-        decoration: BoxDecoration(
-          color: isSelected ? primaryColor : BeeTokens.surfaceChip(context),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Center(
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (accountType != null) ...[
-                AccountTypeIcon(type: accountType, size: 18),
-                const SizedBox(width: 5),
-              ],
-              if (isHidden) ...[
-                Icon(
-                  Icons.visibility_off,
-                  size: 12,
-                  color: isSelected
-                      ? Colors.white70
-                      : BeeTokens.textTertiary(context),
-                ),
-                const SizedBox(width: 4),
-              ],
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                  color: isSelected
-                      ? Colors.white
-                      : BeeTokens.textSecondary(context),
-                  height: 1.2,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+    final l10n = AppLocalizations.of(context);
+    return BeeAccountStrip(
+      items: sortedAccounts
+          .map((a) => BeeAccountStripItem(
+              id: '${a.id}',
+              label: a.name,
+              hidden: a.hidden,
+              icon: AccountTypeIcon(type: a.type, size: 18)))
+          .toList(),
+      selected: widget.selectedAccountId?.toString(),
+      unsetLabel: l10n.accountNone,
+      emptyLabel: l10n.accountsEmptyMessage,
+      hiddenLabel: l10n.accountHiddenTag,
+      onSelected: (id) => _onAccountTap(id == null ? null : int.parse(id)),
     );
   }
 }
