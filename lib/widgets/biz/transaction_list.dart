@@ -23,6 +23,7 @@ import '../../widgets/biz/transaction_receipt_dialog.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/attachment_service.dart';
 import '../../utils/month_range.dart';
+import '../../presentation/v4/bindings/transaction_list_metadata.dart';
 
 /// 可复用的交易列表组件
 /// 支持显示分组的交易列表，包含日期头部和交易项
@@ -55,6 +56,11 @@ class TransactionList extends ConsumerStatefulWidget {
   final FlutterListViewController? controller;
   final bool flatSurface;
 
+  /// False while the home stream is still represented by the limited splash
+  /// cache. That cache is metadata, not the complete day/count collection.
+  final bool sourceReady;
+  final int? ledgerId;
+
   const TransactionList({
     super.key,
     this.transactionsWithDetails,
@@ -65,6 +71,8 @@ class TransactionList extends ConsumerStatefulWidget {
     this.emptyWidget,
     this.controller,
     this.flatSurface = false,
+    this.sourceReady = true,
+    this.ledgerId,
   }) : assert(transactionsWithDetails != null || transactions != null,
             'Either transactionsWithDetails or transactions must be provided');
 
@@ -79,12 +87,29 @@ class TransactionListState extends ConsumerState<TransactionList> {
 
   // 缓存标签数据（仅用于非预加载模式）
   Map<int, List<Tag>> _cachedTagsMap = {};
-  List<int> _cachedTransactionIds = [];
   int _lastTagRefreshVersion = 0;
 
   // 缓存附件数量（仅用于非预加载模式）
   Map<int, int> _cachedAttachmentCounts = {};
   int _lastAttachmentRefreshVersion = 0;
+  List<
+      ({
+        Transaction t,
+        Category? category,
+        Account? account,
+        Account? toAccount
+      })> _publishedTransactions = const [];
+  List<
+      ({
+        Transaction t,
+        Category? category,
+        Account? account,
+        Account? toAccount
+      })>? _flatSource;
+  int _detailsGeneration = 0;
+  int? _activeLedgerId;
+  bool _loadingDetails = false;
+  Object? _detailsError;
 
   // D 方案后:不再需要 _cachedAccountNames / _cachedToAccountNames /
   // _lastSharedResourceRefreshVersion — 账户对象由 watchTransactionsWith*
@@ -103,7 +128,7 @@ class TransactionListState extends ConsumerState<TransactionList> {
         Account? account,
         Account? toAccount
       })> get _transactionsList {
-    return widget.transactions ?? [];
+    return _publishedTransactions;
   }
 
   bool _showingTransactionActions = false;
@@ -168,126 +193,115 @@ class TransactionListState extends ConsumerState<TransactionList> {
     }
   }
 
-  /// 预加载数据的 ID 集合（用于快速判断某条交易是否有预加载详情）
-  Set<int>? _preloadedIds;
-  Set<int> get _preloadedIdSet {
-    if (_preloadedIds == null && widget.transactionsWithDetails != null) {
-      _preloadedIds =
-          widget.transactionsWithDetails!.map((t) => t.t.id).toSet();
-    }
-    return _preloadedIds ?? {};
-  }
-
   @override
   void initState() {
     super.initState();
     _controller = widget.controller ?? FlutterListViewController();
-    // 始终加载标签和附件（用于非预加载范围的交易）
-    _loadTags();
-    _loadAttachmentCounts();
+    _refreshDetails();
   }
+
+  List<({Transaction t, Category? category, Account? account, Account? toAccount})>
+      get _incomingTransactions =>
+          widget.transactions ??
+          widget.transactionsWithDetails
+              ?.map((item) => (
+                    t: item.t,
+                    category: item.category,
+                    account: item.account,
+                    toAccount: item.toAccount,
+                  ))
+              .toList(growable: false) ??
+          const [];
 
   @override
   void didUpdateWidget(covariant TransactionList oldWidget) {
     super.didUpdateWidget(oldWidget);
-
-    // 检测预加载数据是否变化（如账本切换），重置状态
-    if (widget.transactionsWithDetails != oldWidget.transactionsWithDetails) {
-      _preloadedIds = null; // 重置预加载 ID 缓存
-      if (widget.transactionsWithDetails != null) {
-        _usePreloadedData = true; // 重置为预加载模式
-      }
-    }
-
-    // 检查 transactions 数据变化，重新加载标签和附件
-    if (widget.transactions != null) {
-      final newIds = widget.transactions!.map((t) => t.t.id).toList();
-      if (!_listEquals(newIds, _cachedTransactionIds)) {
-        _loadTags();
-        _loadAttachmentCounts();
-      }
+    if (oldWidget.sourceReady != widget.sourceReady ||
+        oldWidget.ledgerId != widget.ledgerId ||
+        oldWidget.transactionsWithDetails != widget.transactionsWithDetails ||
+        !_sameRows(oldWidget.transactions, widget.transactions)) {
+      _refreshDetails();
     }
   }
 
-  bool _listEquals(List<int> a, List<int> b) {
-    if (a.length != b.length) return false;
-    for (int i = 0; i < a.length; i++) {
-      if (a[i] != b[i]) return false;
+  bool _sameRows(List<dynamic>? previous, List<dynamic>? current) {
+    if (identical(previous, current)) return true;
+    if (previous == null ||
+        current == null ||
+        previous.length != current.length) {
+      return false;
+    }
+    for (var i = 0; i < previous.length; i++) {
+      if (previous[i] != current[i]) return false;
     }
     return true;
   }
 
-  Future<void> _loadTags() async {
-    final transactionIds = _transactionsList.map((t) => t.t.id).toList();
-    if (transactionIds.isEmpty) {
+  /// Keep a same-ledger complete snapshot visible during refresh. A new ledger
+  /// can never receive the old ledger's data or a late metadata response.
+  Future<void> _refreshDetails({bool force = false}) async {
+    final generation = ++_detailsGeneration;
+    final incoming = List.of(_incomingTransactions, growable: false);
+    final ledger = widget.ledgerId ?? incoming.firstOrNull?.t.ledgerId;
+    if (_activeLedgerId != ledger) {
+      _activeLedgerId = ledger;
+      _publishedTransactions = const [];
+      _cachedTagsMap = {};
+      _cachedAttachmentCounts = {};
+    }
+    _detailsError = null;
+    _loadingDetails = true;
+    if (mounted) setState(() {});
+    if (!widget.sourceReady) return;
+    final tags = <int, List<Tag>>{};
+    final counts = <int, int>{};
+    final missing = incoming.map((row) => row.t.id).toSet();
+    // A splash cache can avoid reads, but it must cover the entire incoming
+    // collection before it is allowed to determine day totals or row counts.
+    if (_usePreloadedData && !force && _publishedTransactions.isEmpty) {
+      final current = {for (final row in incoming) row.t.id: row.t};
+      for (final cached in widget.transactionsWithDetails ??
+          const <TransactionDisplayItem>[]) {
+        if (current[cached.t.id] == cached.t && missing.remove(cached.t.id)) {
+          tags[cached.t.id] = cached.tags;
+          counts[cached.t.id] = cached.attachmentCount;
+        }
+      }
+    }
+    try {
+      if (missing.isNotEmpty) {
+        final repo = ref.read(repositoryProvider);
+        final result = await readTransactionListMetadata(
+            transactionIds: missing.toList(growable: false),
+            isCurrent: () => mounted && generation == _detailsGeneration,
+            readTags: repo.getTagsForTransactions,
+            readAttachmentCounts: repo.getAttachmentCountsForTransactions);
+        tags.addAll(result.tags);
+        counts.addAll(result.attachments);
+      }
+      if (!mounted || generation != _detailsGeneration) return;
       setState(() {
-        _cachedTagsMap = {};
-        _cachedTransactionIds = [];
+        _publishedTransactions = List.unmodifiable(incoming);
+        _cachedTagsMap = tags;
+        _cachedAttachmentCounts = counts;
+        _loadingDetails = false;
+        _detailsError = null;
       });
-      return;
-    }
-
-    final repo = ref.read(repositoryProvider);
-    final tagsMap = await repo.getTagsForTransactions(transactionIds);
-
-    if (mounted) {
+    } catch (error, stack) {
+      if (!mounted || generation != _detailsGeneration) return;
+      logger.error('TransactionList', '加载完整交易信息失败', error, stack);
       setState(() {
-        _cachedTagsMap = tagsMap;
-        _cachedTransactionIds = transactionIds;
+        _loadingDetails = false;
+        _detailsError = error;
       });
     }
   }
 
-  Future<void> _loadAttachmentCounts() async {
-    final transactionIds = _transactionsList.map((t) => t.t.id).toList();
-    if (transactionIds.isEmpty) {
-      setState(() {
-        _cachedAttachmentCounts = {};
-      });
-      return;
-    }
+  List<Tag> _getTagsForTransaction(int transactionId) =>
+      _cachedTagsMap[transactionId] ?? const [];
 
-    final repo = ref.read(repositoryProvider);
-    final countsMap =
-        await repo.getAttachmentCountsForTransactions(transactionIds);
-
-    if (mounted) {
-      setState(() {
-        _cachedAttachmentCounts = countsMap;
-      });
-    }
-  }
-
-  /// 检查某条交易是否有预加载详情
-  bool _hasPreloadedDetails(int transactionId) {
-    return _usePreloadedData && _preloadedIdSet.contains(transactionId);
-  }
-
-  /// 获取预加载的交易详情
-  TransactionDisplayItem? _getPreloadedItem(int transactionId) {
-    if (!_hasPreloadedDetails(transactionId)) return null;
-    return widget.transactionsWithDetails!
-        .where((item) => item.t.id == transactionId)
-        .firstOrNull;
-  }
-
-  /// 获取交易的标签列表（优先使用预加载数据）
-  List<Tag> _getTagsForTransaction(int transactionId) {
-    final preloaded = _getPreloadedItem(transactionId);
-    if (preloaded != null) {
-      return preloaded.tags;
-    }
-    return _cachedTagsMap[transactionId] ?? [];
-  }
-
-  /// 获取交易的附件数量（优先使用预加载数据）
-  int _getAttachmentCountForTransaction(int transactionId) {
-    final preloaded = _getPreloadedItem(transactionId);
-    if (preloaded != null) {
-      return preloaded.attachmentCount;
-    }
-    return _cachedAttachmentCounts[transactionId] ?? 0;
-  }
+  int _getAttachmentCountForTransaction(int transactionId) =>
+      _cachedAttachmentCounts[transactionId] ?? 0;
 
   @override
   void dispose() {
@@ -306,41 +320,18 @@ class TransactionListState extends ConsumerState<TransactionList> {
     }
   }
 
-  /// 切换到 Stream 模式（在用户离开首页时调用）
-  /// 这样后续数据变化能正常刷新，且用户看不到切换过程
+  /// Leaving the page permits revalidation, but never makes a visible row
+  /// temporarily lose its tags/attachments while the fresh reads are pending.
   void switchToStreamMode() {
-    if (_usePreloadedData) {
-      // 延迟 100ms 再切换，等导航动画开始后用户看不到
-      Future.delayed(const Duration(milliseconds: 100), () {
-        if (mounted && _usePreloadedData) {
-          logger.info('TransactionList', '用户交互，切换到Stream模式');
-          // 用 setState 改 _usePreloadedData,否则后续 build 还在跑
-          // preloaded 路径,共享账本 WS 推送下来的新账户名永远不会显示
-          // (preloaded.accountName 是 Splash 阶段的快照)。
-          setState(() {
-            _usePreloadedData = false;
-          });
-          // 开始加载标签和附件（异步，不阻塞）
-          _loadTags();
-          _loadAttachmentCounts();
-        }
-      });
-    }
+    if (!_usePreloadedData) return;
+    _usePreloadedData = false;
+    _refreshDetails(force: true);
   }
 
-  /// 共享账本 WS 推送强制切到 Stream 模式 — 没有导航动画顾虑,立即切。
-  /// 用于 sharedResourceRefreshProvider tick 触发的场景:Owner 改 tx 引用的
-  /// account/category/tag,Editor 这边需要立即丢掉 preloaded(里面挂的是
-  /// Splash 阶段的旧 accountName)走 provider 拉新值。
   void forceStreamModeImmediate() {
     if (!mounted) return;
-    if (!_usePreloadedData) return;
-    logger.info('TransactionList', 'WS 推送强制切 Stream 模式 (immediate)');
-    setState(() {
-      _usePreloadedData = false;
-    });
-    _loadTags();
-    _loadAttachmentCounts();
+    _usePreloadedData = false;
+    _refreshDetails(force: true);
   }
 
   /// 跳转到指定周期标签月(按账本起始日的周期范围匹配,而非 yyyy-MM 前缀)
@@ -370,6 +361,8 @@ class TransactionListState extends ConsumerState<TransactionList> {
   /// 构建扁平化的项目列表
   void _buildFlatItems() {
     final transactions = _transactionsList;
+    if (identical(_flatSource, transactions)) return;
+    _flatSource = transactions;
 
     // 按天分组
     final dateFmt = DateFormat('yyyy-MM-dd');
@@ -412,19 +405,16 @@ class TransactionListState extends ConsumerState<TransactionList> {
 
   @override
   Widget build(BuildContext context) {
-    // 监听标签刷新信号，当标签变化时重新加载
-    final tagRefreshVersion = ref.watch(tagListRefreshProvider);
-    if (tagRefreshVersion != _lastTagRefreshVersion) {
-      _lastTagRefreshVersion = tagRefreshVersion;
-      // 延迟加载以避免在build中setState
-      Future.microtask(() => _loadTags());
-    }
-
-    // 监听附件刷新信号，当附件变化时重新加载
-    final attachmentRefreshVersion = ref.watch(attachmentListRefreshProvider);
-    if (attachmentRefreshVersion != _lastAttachmentRefreshVersion) {
-      _lastAttachmentRefreshVersion = attachmentRefreshVersion;
-      Future.microtask(() => _loadAttachmentCounts());
+    // A relationship refresh is one snapshot, never two independent paints.
+    final tagVersion = ref.watch(tagListRefreshProvider);
+    final attachmentVersion = ref.watch(attachmentListRefreshProvider);
+    if (tagVersion != _lastTagRefreshVersion ||
+        attachmentVersion != _lastAttachmentRefreshVersion) {
+      _lastTagRefreshVersion = tagVersion;
+      _lastAttachmentRefreshVersion = attachmentVersion;
+      Future.microtask(() {
+        if (mounted) _refreshDetails(force: true);
+      });
     }
 
     // D 方案后:不再 watch sharedResourceRefreshProvider 触发 _loadAccountNames
@@ -433,6 +423,21 @@ class TransactionListState extends ConsumerState<TransactionList> {
 
     _buildFlatItems();
 
+    if (_flatItems.isEmpty && _detailsError != null) {
+      final l = AppLocalizations.of(context);
+      return Center(
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+        Text(l.commonError),
+        TextButton(
+            onPressed: () => _refreshDetails(force: true),
+            child: Text(l.v4RecordingRetry)),
+      ]));
+    }
+    if (_flatItems.isEmpty && _loadingDetails) {
+      return const Center(
+          child: SizedBox.square(
+              dimension: 22, child: CircularProgressIndicator(strokeWidth: 2)));
+    }
     // 无数据时展示空状态
     if (_flatItems.isEmpty) {
       return widget.emptyWidget ??
@@ -443,7 +448,7 @@ class TransactionListState extends ConsumerState<TransactionList> {
     }
 
     // 使用FlutterListView渲染列表
-    return FlutterListView(
+    final list = FlutterListView(
       controller: _controller,
       physics: const BouncingScrollPhysics(),
       delegate: FlutterListViewDelegate(
@@ -685,5 +690,16 @@ class TransactionListState extends ConsumerState<TransactionList> {
         childCount: _flatItems.length,
       ),
     );
+    if (_detailsError == null) return list;
+    final l = AppLocalizations.of(context);
+    return Column(children: [
+      Row(children: [
+        Expanded(child: Text(l.commonError)),
+        TextButton(
+            onPressed: () => _refreshDetails(force: true),
+            child: Text(l.v4RecordingRetry)),
+      ]),
+      Expanded(child: list),
+    ]);
   }
 }

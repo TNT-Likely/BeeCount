@@ -364,6 +364,8 @@ class _HomePageState extends ConsumerState<HomePage> {
                 return TransactionList(
                   key: _transactionListKey,
                   transactions: transactions,
+                  ledgerId: ledgerId,
+                  sourceReady: hasStreamData,
                   // 传入预加载数据供详情使用（标签、附件、账户）
                   transactionsWithDetails: cachedFullData,
                   hideAmounts: hide,
