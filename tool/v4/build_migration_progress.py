@@ -149,10 +149,41 @@ def build_progress_page(root, config, inventory_rows, scenes):
                  '不能用旧版整页通过或局部测试代替新版通过。</p>'
                  '<div class="revision-grid">' + ''.join(revision_cards) + '</div></section>') if revision_cards else ''
 
+    followup_cards = []
+    for task in config.get('manualAcceptanceTasks', []):
+        url = task.get('url', '')
+        link = ('<a class="design-link" href="' + esc(url)
+                + '" target="_blank" rel="noopener">查看预览 ↗</a>') if url else ''
+        followup_cards.append('<article class="summary-card"><strong>'
+                              + esc(task['id'] + ' · ' + task['name'])
+                              + '</strong><p><b>' + esc(task['status'])
+                              + '</b></p><p>' + esc(task['detail']) + '</p>'
+                              + link + '</article>')
+    followup_progress = config.get('manualAcceptanceProgress', {})
+    followup_estimate = ''
+    if followup_progress:
+        hours = followup_progress['remainingEffortEstimateHours']
+        interval = followup_progress['engineeringEstimateRange']
+        followup_estimate = ('<div class="estimate"><p><strong>追加范围预估 '
+                             + esc(followup_progress['engineeringEstimatePercent'])
+                             + '%</strong>（' + esc(interval[0]) + '–'
+                             + esc(interval[1]) + '%）</p><p>剩余 '
+                             + esc(hours[0]) + '–' + esc(hours[1])
+                             + ' ' + esc(followup_progress['estimateKind'])
+                             + '</p></div><p class="muted">'
+                             + esc(followup_progress['basis']) + '</p>')
+    followups = ('<section id="manual-acceptance" aria-label="人工验收追加任务">'
+                 '<h2>人工验收追加任务</h2><p class="muted">原73页封存记录保持原版本。'
+                 '本轮补充修正、压力测试、皮肤选择和Beta升级独立跟踪；原迁移100%'
+                 '不表示下列新增任务已全部完成。</p>' + followup_estimate
+                 + '<div class="revision-grid">'
+                 + ''.join(followup_cards) + '</div></section>') if followup_cards else ''
+
     css = """
 *{box-sizing:border-box}html{color-scheme:light}body{margin:0;background:#f5f6f7;color:#25282c;font:14px/1.6 -apple-system,BlinkMacSystemFont,'PingFang SC',system-ui,sans-serif}button,input,select{font:inherit}button,a,input,select,summary{-webkit-tap-highlight-color:transparent}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid #a37f00;outline-offset:3px}main{max-width:1180px;margin:auto;padding:32px 22px 64px}h1{font-size:29px;line-height:1.25;letter-spacing:-.7px;margin:8px 0 12px}h2{margin:0;font-size:20px}h2 span{font-size:14px;font-weight:500;margin-left:6px}.eyebrow{color:#777c82;font-size:12px;letter-spacing:1px}.intro,.muted{color:#777c82}.intro{max-width:790px;margin:0}.top{display:flex;justify-content:space-between;gap:20px;align-items:start}.tools{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.button,.tools a,.design-link{display:inline-flex;align-items:center;justify-content:center;min-height:44px;border-radius:13px;padding:8px 13px;background:white;border:1px solid #e4e7e9;color:inherit;text-decoration:none;cursor:pointer}.button.primary{background:#f8c91c;border-color:#f8c91c}.summary-grid{display:grid;grid-template-columns:1.55fr repeat(3,1fr);gap:12px;margin:24px 0 14px}.summary-card{background:white;border-radius:22px;padding:20px;min-width:0}.summary-card .label{display:block;color:#777c82;font-size:12px}.number{font-size:34px;line-height:1.3;font-weight:700;font-variant-numeric:tabular-nums;margin:9px 0 5px}.number small{font-size:17px;font-weight:500;color:#777c82}.caption{font-size:12px;color:#777c82}.summary-card.done-card .number{color:#25856d}.estimate{display:flex;gap:12px 22px;align-items:center;justify-content:space-between;background:#fff9e5;border-radius:16px;padding:14px 18px;font-size:12px}.estimate strong{font-size:14px}.estimate p{margin:0}.meta{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:#777c82;margin:13px 0 20px}.filters{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#f5f6f7ed;backdrop-filter:blur(12px);padding:12px 0}.tabs{display:flex;gap:5px;background:#eceeef;padding:4px;border-radius:14px}.tabs button{border:0;border-radius:10px;padding:9px 12px;min-height:38px;cursor:pointer;background:transparent;color:inherit;white-space:nowrap}.tabs button[aria-pressed=true]{background:white;box-shadow:0 1px 4px #0000000a}.filters input[type=search],.filters select{border:1px solid #e2e5e8;background:white;border-radius:13px;min-height:44px;padding:9px 12px;color:inherit;max-width:100%;min-width:0}.filters input[type=search]{flex:1;min-width:180px}.unfinished{display:flex;align-items:center;gap:7px;font-size:12px;min-height:44px;cursor:pointer}.unfinished input{accent-color:#c39c00}.result{font-size:12px;color:#777c82;margin:0 0 12px}.priority-section{border-radius:22px;background:white;overflow:hidden;margin:0 0 18px}.section-header{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:20px 22px;border-bottom:1px solid #eceeef}.section-header p{margin:4px 0 0;color:#777c82;font-size:12px}progress{appearance:none;height:7px;width:170px;border:0;border-radius:8px;overflow:hidden;background:#eceeef;accent-color:#25856d}progress::-webkit-progress-bar{background:#eceeef}progress::-webkit-progress-value{background:#25856d;border-radius:8px}progress::-moz-progress-bar{background:#25856d}.done-card progress{width:100%;margin-top:10px}table{border-collapse:collapse;width:100%;table-layout:fixed}th{font-size:11px;color:#777c82;text-align:left;font-weight:500;padding:11px 22px;background:#fbfcfc}th:first-child{width:55%}th:nth-child(2){width:29%}th:last-child{width:16%}td{padding:15px 22px;vertical-align:top;border-top:1px solid #eceeef}.page-name{font-weight:600;overflow-wrap:anywhere}.status-cell small{display:block;color:#777c82;font-size:11px;margin-top:5px}.badge{display:inline-flex;align-items:center;gap:7px;font-size:12px;border-radius:8px;padding:4px 8px;white-space:nowrap}.badge i{width:6px;height:6px;border-radius:50%;background:currentColor}.done{color:#25856d;background:#edf7f3}.active{color:#8c7000;background:#fff7d7}.partial{color:#ae574a;background:#fcf0eb}.todo{color:#777c82;background:#f3f4f5}.question,.new-page{display:inline-block;background:#f3f4f5;color:#777c82;border-radius:6px;font-size:10px;padding:1px 6px;margin:6px 4px 0 0}.new-page{margin-left:8px;vertical-align:middle}.design-link{font-size:12px;min-height:36px;background:#fff9e5;border-color:transparent;white-space:nowrap}details{margin-top:6px;font-size:12px;color:#777c82}summary{cursor:pointer;min-height:24px;line-height:24px}.evidence{padding:9px 12px;margin-top:8px;background:#f8f9fa;border-radius:12px;color:#53585d;overflow-wrap:anywhere}.evidence p{margin:7px 0;white-space:pre-line}.source{font:10px/1.6 ui-monospace,SFMono-Regular,monospace;color:#777c82}.state-links{display:flex;flex-direction:column;gap:5px;margin:12px 0}.state-links a{color:#8b6d00;text-decoration:none;min-height:26px}.empty{padding:40px;text-align:center;color:#777c82;border-radius:22px;background:white}.footer{color:#777c82;font-size:12px;line-height:1.8;margin-top:24px}.footer a{color:#826505}.footer code{overflow-wrap:anywhere}.page-row[hidden],.priority-section[hidden],[hidden]{display:none!important}@media(max-width:760px){main{padding:24px 14px 48px}.top{display:block}.tools{justify-content:flex-start;margin-top:18px}h1{font-size:25px}.summary-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.summary-card{padding:16px}.summary-card:first-child{grid-column:1/-1}.summary-card:nth-child(4){grid-column:1/-1}.estimate{display:block}.estimate p+p{margin-top:8px}.filters{gap:8px}.tabs{width:100%;justify-content:space-between}.tabs button{padding:8px 9px}.filters input[type=search]{width:100%;flex-basis:100%}.filters select{flex:1}.section-header{padding:17px;align-items:flex-start}.section-header progress{width:82px;margin-top:13px;flex:0 0 82px}thead{display:none}table,tbody{display:block}.page-row{display:grid;grid-template-columns:minmax(0,1fr) auto;padding:15px 17px;border-top:1px solid #eceeef;gap:9px}.page-row:first-child{border-top:0}td{padding:0;border:0;display:block;min-width:0}.page-cell{grid-column:1/-1}.status-cell{grid-column:1;align-self:center}.action-cell{grid-column:2;align-self:start}.badge{font-size:11px}.page-name{font-size:14px}.evidence{font-size:12px}.tools a,.tools button{font-size:12px}.number{font-size:32px}}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
 """
     css += '#design-revisions{margin:24px 0}.revision-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:12px}.revision-grid p{font-size:12px;color:#777c82;overflow-wrap:anywhere}'
+    css += '#manual-acceptance{margin:24px 0;scroll-margin-top:16px}#manual-acceptance .summary-card{border:1px solid #e4e7e9}'
     css += questions['css']
     script = """
 const search=document.getElementById('search'),status=document.getElementById('status'),unfinished=document.getElementById('unfinished');let priority='';
@@ -174,8 +205,9 @@ search.oninput=filter;status.onchange=filter;unfinished.onchange=filter;document
             '按整页隔离验收统计，组件、设计稿和局部测试通过不算页面完成。</p></div>'
             '<nav class="tools"><a href="index.html">设计总览 ↗</a>'
             '<a href="components/ui-components.html#business">组件规范 ↗</a>'
-            '<a href="#questions">待确认问题 ' + str(questions['pending']) + '</a>'
-            '<button class="button primary" id="refresh">刷新进度</button></nav></header>'
+            '<a href="#questions">原迁移待确认 ' + str(questions['pending']) + '</a>'
+            + ('<a href="#manual-acceptance">人工验收追加任务</a>' if followup_cards else '')
+            + '<button class="button primary" id="refresh">刷新进度</button></nav></header>'
             '<div class="summary-grid"><article class="summary-card done-card">'
             '<span class="label">原迁移基线验收完成</span><div class="number">' + str(done)
             + '<small> / ' + str(total) + ' 页</small></div><span class="caption">'
@@ -188,7 +220,7 @@ search.oninput=filter;status.onchange=filter;unfinished.onchange=filter;document
                                      ('active', '正在迁移', '实现或验收尚未收口'),
                                      ('partial', '部分完成 · 待确认', '保留已完成工作，待集中回答'),
                                      ('todo', '尚未开始', '包含待新增页面')]) + '</div>'
-            '<aside class="estimate"><p><strong>整体工程估计 ' + str(engineering)
+            '<aside class="estimate"><p><strong>' + esc(current.get('scopeLabel', '整体工程估计')) + ' ' + str(engineering)
             + '%</strong>（' + str(estimate_range[0]) + '%–' + str(estimate_range[1])
             + '%） · 与整页验收完成率分开记录。</p><p>剩余实现与验收工作：<strong>'
             + str(hours[0]) + '–' + str(hours[1]) + ' 个' + esc(time_kind) + '</strong><br>'
@@ -202,7 +234,7 @@ search.oninput=filter;status.onchange=filter;unfinished.onchange=filter;document
             '<option value="partial">部分完成 · 待确认</option><option value="todo">未开始 / 待新增</option></select>'
             '<label class="unfinished"><input id="unfinished" type="checkbox">只看未完成</label></section>'
             '<p class="result" id="result" role="status" aria-live="polite"></p>'
-            + revisions + questions['html'] + ''.join(sections) + '<div class="empty" id="empty" hidden>没有匹配页面，试试其他筛选条件。</div>'
+            + followups + revisions + questions['html'] + ''.join(sections) + '<div class="empty" id="empty" hidden>没有匹配页面，试试其他筛选条件。</div>'
             '<footer class="footer">数据来源：<code>tool/v4/migration-status.json</code>。'
             '每次更新迁移清单后自动重建此看板，打开“进度依据”可核对实现与验收范围。'
             '<br>页面名使用中文；每页的“交互设计”进入对应可操作设计稿。'

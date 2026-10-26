@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-26T04:12:19.911638+08:00",
+  "date": "2026-10-26T08:49:55.523434+08:00",
   "branch": "v4",
   "pageFiles": 73,
   "helperFiles": [
@@ -1533,7 +1533,7 @@
       "classes": [
         "HomePage"
       ],
-      "lines": 384,
+      "lines": 386,
       "batch": "M2 首页与列表",
       "designRoutes": [
         "home",

@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26T04:12:19.911638+08:00",
+  "updated": "2026-10-26T08:49:55.523434+08:00",
   "branch": "v4",
   "baselineCommit": "6616066247a8738a42996c496e1b99106820e59f",
   "pages": {
@@ -1061,7 +1061,9 @@
       0
     ],
     "remainingEffortEstimateKind": "并行连续工作小时",
-    "implementationAndAcceptedScopeComplete": true
+    "implementationAndAcceptedScopeComplete": true,
+    "scopeLabel": "原P0–P2与A–E迁移基线",
+    "additionalWorkInProgress": true
   },
   "lastImplementationDelivery": {
     "at": "2026-10-25T15:30:48+08:00",
@@ -1165,46 +1167,22 @@
   ],
   "latestInstalledCandidate": {
     "platform": "Android",
-    "sourceCommit": "a2c531246b41637b4abf7e59f6f777527a31748d",
-    "androidApkSha256": "efe9c79f3724734bb42bca7c03e1345e66ace706c89785873802202dd4a85308",
-    "verifiedCommittedProductFiles": 1062,
-    "verifiedSdkDartFiles": 18,
+    "sourceCommit": "983d2d588f7904be392cd1263f2e0af20a117694",
+    "androidApkSha256": "a3a58182bfdb87e8c3fe25b7050d37e9c1fc8711582f8733c93434f17e9809eb",
+    "verifiedCommittedProductFiles": 1065,
     "sameRetainedQA": true,
-    "qaDataPreserved": true,
-    "qaTransactionsBeforeAndAfterInstall": 72,
-    "allPersistentFilesAndPreferencesBeforeNormalLaunchExact": true,
-    "protectedUserAppUnchanged": true,
+    "qaDataPreservedDuringReplacement": true,
+    "nativeStatus": "R119已完成15000笔真实导入，逐笔及原数据守卫通过；暖回首页0.80秒且内容稳定，账本切换11.34秒、冷启27.78秒未达标。索引及资产构建依赖修复已提交，R120 AOT构建中，未记性能通过",
     "approvedDesignRevisionsInstalled": [
       "A",
       "B",
       "C",
       "D",
-      "E"
+      "E",
+      "F-A"
     ],
-    "approvedDesignRevisionsNativePassed": true,
-    "nativeStatus": "当前R117按固定原基线与确认改版增量合并接受，独立报告已封存；实际边界保留",
-    "acceptedEvidenceStages": {
-      "A": [
-        "R115",
-        "R116"
-      ],
-      "B": [
-        "R115",
-        "R116"
-      ],
-      "C": [
-        "R116",
-        "R117"
-      ],
-      "D": [
-        "R116"
-      ],
-      "E": [
-        "R116",
-        "R117"
-      ]
-    },
-    "rootIndependentDataVisualReviewed": true
+    "originalReportsRemainFixed": true,
+    "additionalWorkInProgress": true
   },
   "latestInstalledIOSCandidate": {
     "platform": "iOS",
@@ -1350,5 +1328,82 @@
     "finalReportsReadOnly": true,
     "sameRetainedQAPreserved": true,
     "fullAllPlatformReplayClaimed": false
+  },
+  "manualAcceptanceTasks": [
+    {
+      "id": "M01",
+      "name": "明细行优先两行",
+      "status": "已修正并装机",
+      "detail": "去掉有账本/文字状态就强制第三行的条件；实际宽度先尝试两行，复杂最多三行。R118正常首页已亲看，原失败保留；R119继续包含该修复。",
+      "url": "boards/transaction-rows-task-c-review.html"
+    },
+    {
+      "id": "M02",
+      "name": "我的顶部 · F方案A",
+      "status": "已确认并实现",
+      "detail": "用户选择轻量个人行＋独立账本条；默认/图片头像去掉多层包边。28项Widget与17组HTML通过，R118原生已看自定义头像与当前账本；深色默认蜂等其余组合的平台证据单列。",
+      "url": "boards/profile-task-f-review.html"
+    },
+    {
+      "id": "M03",
+      "name": "设计资源分组与记忆",
+      "status": "已完成",
+      "detail": "平铺/12个中文业务大组切换，localStorage持久化；567场景、原链接/筛选保持。HTTP/file、存储受限及三宽检查通过。",
+      "url": "index.html"
+    },
+    {
+      "id": "M04",
+      "name": "首页收支与预算右对齐",
+      "status": "已修正并装机",
+      "detail": "日期收支、汇总右侧指标与预算剩余尾部对齐；13项相关回归通过。R118实际首页已亲看日期与结余，预算可见组合的Widget证据与后续原生范围分别记录。",
+      "url": "boards/home-responsive.html"
+    },
+    {
+      "id": "M05",
+      "name": "键盘唤起检查",
+      "status": "真机已恢复并获用户确认",
+      "detail": "备注文字区和预算金额区实际弹出微信文字/数字键盘；系统设置未改。生产Widget真实点击回归保护，用户已答“现在可以正常弹出”，未伪称发现或修复了全局产品缺陷。"
+    },
+    {
+      "id": "M06",
+      "name": "转账账户与日期空槽",
+      "status": "已修正并装机",
+      "detail": "移除隐藏单账户时仍占宽的空Widget，日期贴左/标签靠右；无账户使用紧凑提示和添加入口。78项Widget与16个HTML布局通过，R118实际未选账户页面已看；真实零账户新增路径按Widget证据单列。",
+      "url": "boards/transfer-responsive.html"
+    },
+    {
+      "id": "M07",
+      "name": "15000笔导入与首页稳定性",
+      "status": "导入通过，加载性能修复复测中",
+      "detail": "同一真机实际导入15000笔，交易写入24.45秒、相关服务跨度28.11秒；整次确认至结果未独立计时，不冒称完整导入≤30秒。15000逐笔/63038标签关系校验及原数据守卫通过。暖回首页0.80秒且稳定，但切账本11.34秒、冷启27.78秒FAIL保留；索引和资产页依赖修复已提交，正构建R120 AOT复测，不重导入。"
+    },
+    {
+      "id": "M08",
+      "name": "顶部皮肤重新设计",
+      "status": "待用户选择",
+      "detail": "A蜜色星光、B生日烛光精修旧皮肤，C静夜光幕、D纸感山丘为新方向。纯HTML36组及加载补测通过；正式皮肤和Flutter尚未按新方向替换，默认无皮肤保留。",
+      "url": "boards/skins-refresh-review.html"
+    },
+    {
+      "id": "M09",
+      "name": "本地Beta APK与3.9.0真实数据升级",
+      "status": "3.9.0真实基线就绪，Beta待构建",
+      "detail": "专用私有Cloud及Android已通过3.9.0正常UI恢复；10359笔交易16项规范化字段及关系、2个附件元数据与原字节核对一致，原8个备份文件不变。旧版首次恢复丢关联的失败与正常UI重试过程保留。正式签名已匹配，Beta4000001/正式4000099共用计算器并拒退码；最终Beta尚未构建或覆盖升级，未碰原手机App。"
+    }
+  ],
+  "manualAcceptanceProgress": {
+    "updatedAt": "2026-10-26T09:26:57.047796+08:00",
+    "engineeringEstimatePercent": 65,
+    "engineeringEstimateRange": [
+      55,
+      70
+    ],
+    "remainingEffortEstimateHours": [
+      2,
+      4
+    ],
+    "estimateKind": "实际工作小时，不含等待用户选皮肤",
+    "basis": "本轮人工验收追加范围；UI及设计资源已实现并有对应装机/HTML/Widget证据，压力加载实际FAIL正复测，皮肤尚待选择，生产Beta与真实数据原位升级尚未执行；不按任务卡或页面数量线性计算。",
+    "scopeComplete": false
   }
 }
