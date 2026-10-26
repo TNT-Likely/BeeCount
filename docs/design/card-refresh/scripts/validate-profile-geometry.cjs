@@ -31,7 +31,7 @@ const root = path.resolve(__dirname, '..');
       geometry.push({ viewport: `${width}x${height}`, ...values });
       await page.close();
     }
-    const result = { source: 'docs/design/card-refresh/prototype/demo.html?page=mine', measuredWith: 'Chromium computed styles, default skin, 2026-10-24', geometry };
+    const result = { source: 'docs/design/card-refresh/prototype/demo.html?page=mine', measuredWith: 'Chromium computed styles, default skin, approved task F/A, 2026-10-26', geometry };
     if (process.argv.includes('--freeze')) {
       fs.writeFileSync(path.resolve(root, '../../../test/fixtures/v4-profile-geometry.json'), JSON.stringify(result, null, 2) + '\n');
     }

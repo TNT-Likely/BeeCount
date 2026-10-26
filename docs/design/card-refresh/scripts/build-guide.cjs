@@ -5,6 +5,7 @@ samples.transactionStates=adaptiveRows.transactionStates;
 // Asset examples are rebuilt from their source module, independently of captured legacy samples.
 samples.assetOverview=require('../prototype/src/asset-overview-samples.cjs');
 samples.choiceChips=require('../prototype/src/foundation-samples.cjs').choiceChips;
+Object.assign(samples,require('../prototype/src/profile-samples.cjs'));
 const brandSvg=fs.readFileSync(path.resolve(root,'../../../assets/bee.svg'),'utf8');
 const brandMarks='<div class="g-brand-marks">'+[[76,24,48,'品牌容器'],[38,13,27,'欢迎页头']].map(([size,corner,art,label])=>`<figure><div style="width:${size}px;height:${size}px;border-radius:${corner}px;${size===38?'background:var(--bc-paper)':''}"><span style="width:${art}px;height:${art}px">${brandSvg}</span></div><figcaption>${label} · ${size}</figcaption></figure>`).join('')+'</div>';
 const primary=samples.primary.replace('data-action="w-next"','data-action="spec"'),secondary='<button class="bc-secondary">次要操作</button>',tag=n=>`<span class="bc-tag" data-color="${n[1]}">${n[0]}</span>`;
@@ -38,7 +39,7 @@ const sections=[
  card('27 · 首页品牌','有品牌与无品牌两种状态；预览和个性化设置均可切换，其他功能共用。',samples.brand+samples.brandOff),
  card('28 · 币种选择','常用币种、搜索、汇率提示与选中态；切换币种后清空不兼容账户。',samples.currency),
  card('29 · 汇率缺失弹窗','保留账单上下文，正数校验；取消不写入，确认后恢复折算预览。',samples.rate),
- card('30 · 昵称与当前账本','昵称可点按编辑；当前账本累计余额、记账天数和账单笔数同卡展示，金额可隐藏。',samples.mineProfile+samples.ledgerBalance),
+ card('30 · 昵称与当前账本','方案A：48px头像直接展示，昵称独立编辑；当前账本用紧凑余额条，币种和隐私在右上，余额和统计在下。',samples.mineProfile+samples.ledgerBalance+'<p class="bc-small" style="margin:17px 0 7px">自定义图片头像 · 单层裁切</p>'+samples.profilePhoto),
  card('31 · 昵称编辑弹窗','保留页面上下文；最多 20 字，空白不可保存，取消不改动原昵称。',samples.nickname),
  card('32 · 附件图片与来源选择','拍照与相册沿用底部弹层；图片沿用全屏浏览，支持滑动、缩放与缩略图切换；来源选择不占用独立页面。',samples.attachments+`<div class="u-viewer-full"><header class="u-viewer-toolbar"><button aria-label="关闭预览">${icon('x')}</button><div class="u-viewer-title"><span class="u-viewer-filename">付款凭证</span><span>1 / 2</span></div><button aria-label="添加图片">${icon('image-plus')}</button><button aria-label="删除图片">${icon('trash-2')}</button></header><div class="u-attachment-stage"><img src="../prototype/assets/attachment-payment.png" alt="合成付款凭证"></div><footer class="u-viewer-footer"><div class="u-viewer-meta">128 KB · 500×660</div><div class="u-viewer-thumbs"><button aria-pressed="true"><img src="../prototype/assets/attachment-payment.png" alt="合成凭证 1"></button><button><img src="../prototype/assets/attachment-receipt.png" alt="合成凭证 2"></button></div></footer></div>`+`<section class="bc-surface"><h3>添加图片</h3>${[['camera','拍照','capture="environment"'],['image-plus','从相册选择','multiple']].map(([i,t,a])=>`<label class="bc-menu-row"><span class="bc-menu-symbol">${icon(i)}</span><span class="bc-menu-copy"><b>${t}</b></span><span class="bc-menu-arrow">${icon('chevron-right')}</span><input type="file" accept="image/*" ${a} hidden aria-label="${t}"></label>`).join('')}</section>`),
  card('33 · 成功与失败轻提示','安全区下 12；最小高 44，最大宽 340；圆角 14；图标 20，正文 13 / 1.5；2 秒自动消失，新提示替换旧提示。',samples.feedbackToast),

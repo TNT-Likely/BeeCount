@@ -8,3 +8,6 @@ Object.assign(samples,require('../prototype/src/migrated-page-modules.cjs').samp
 
 // Every registered feature contributes both pure states and its page links.
 for(const key of ['transactionDetail','cloudBackup','autoBilling','detailCurrency','cloudShared','shareCard','aiAdvanced','support','maintenance'])if(!samples[key])throw Error('Missing integrated feature sample '+key);
+
+// The approved profile A samples come from their source, not captured old avatars.
+Object.assign(samples,require('../prototype/src/profile-samples.cjs'));fs.writeFileSync(path.join(root,'components/samples.json'),JSON.stringify(samples,null,2));
