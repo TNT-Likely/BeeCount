@@ -1835,7 +1835,7 @@ class AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
                 const SizedBox(width: 3),
                 const BeeLineIcon('ChevronDown', size: 12),
               ]))
-          : const SizedBox.shrink(),
+          : null,
       date: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: narrow ? 83 : 115),
           child: meta('recording-date', narrow ? '' : 'CalendarDays', dateLabel,

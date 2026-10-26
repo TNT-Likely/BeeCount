@@ -4,6 +4,7 @@ import 'package:beecount/data/db.dart';
 import 'package:beecount/data/repositories/local/local_repository.dart';
 import 'package:beecount/l10n/app_localizations.dart';
 import 'package:beecount/pages/transaction/transaction_editor_page.dart';
+import 'package:beecount/pages/account/account_edit_page.dart';
 import 'package:beecount/presentation/v4/bindings/recording_save.dart';
 import 'package:beecount/providers.dart';
 import 'package:beecount/services/currency/exchange_rate_service.dart';
@@ -150,6 +151,103 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('recording-key-0')));
     await tester.pumpAndSettle();
   }
+
+  for (final state in ['empty', 'unselected', 'selected']) {
+    for (final small in [false, true]) {
+      inlineTransferTest('转账日期左侧不保留单账户空槽 $state ${small ? '320大字' : '标准屏'}',
+          (tester) async {
+        if (state == 'empty') {
+          await db.customStatement('DELETE FROM accounts');
+        }
+        await open(tester,
+            page: TransactionEditorPage(
+                initialKind: 'transfer',
+                initialAccountId: state == 'selected' ? cnyFrom : null,
+                initialToAccountId: state == 'selected' ? cnyTo : null),
+            size: small ? const Size(320, 568) : const Size(398, 844),
+            scale: 1.4);
+        final details = tester
+            .widget<RecordingDetailsCard>(find.byType(RecordingDetailsCard));
+        expect(details.account, isNull,
+            reason:
+                'transfer accounts are selected above, not a blank Expanded');
+        final card =
+            tester.getRect(find.byKey(const ValueKey('recording-details')));
+        final date =
+            tester.getRect(find.byKey(const ValueKey('recording-date')));
+        final toggle = find.byKey(const ValueKey('recording-note-compact'));
+        final expectedLeft = details.noteExpanded
+            ? card.left + 12
+            : tester.getRect(toggle).right + 4;
+        expect(date.left, closeTo(expectedLeft, .1),
+            reason:
+                'date is flush with padding or the real compact note target');
+        expect(date.right, lessThanOrEqualTo(card.right));
+        expect(find.byKey(const ValueKey('recording-tags')), findsOneWidget);
+        expect(find.byType(RecordingKeypad), findsOneWidget);
+        if (state == 'empty') {
+          expect(find.text('暂无账户'), findsOneWidget);
+          final add = find.byKey(const ValueKey('transfer-add-account'));
+          await tester.ensureVisible(add);
+          await tester.tap(add);
+          await tester.pumpAndSettle();
+          expect(find.byType(AccountEditPage), findsOneWidget);
+          await tester.tap(find.byType(BackButton).last);
+          await tester.pumpAndSettle();
+          expect(find.byType(TransactionEditorPage), findsOneWidget);
+          expect(find.text('暂无账户'), findsOneWidget);
+        } else {
+          expect(find.byType(BeeTransferAccountPair), findsOneWidget);
+          if (state == 'selected') {
+            expect(find.text('QA 人民币现金'), findsOneWidget);
+            expect(find.text('QA 人民币银行'), findsOneWidget);
+          } else {
+            expect(find.text('选择账户'), findsWidgets);
+          }
+        }
+        expect(await db.select(db.transactions).get(), isEmpty);
+        expect(tester.takeException(), isNull);
+      });
+    }
+  }
+
+  inlineTransferTest('暂无账户可连续新增同币种账户并回到原转账草稿', (tester) async {
+    await db.customStatement('DELETE FROM accounts');
+    await open(tester,
+        page: const TransactionEditorPage(
+            initialKind: 'transfer', initialNote: 'QA 保留转账草稿'));
+    for (final name in ['QA 新现金', 'QA 新银行']) {
+      final add = find.byKey(const ValueKey('transfer-add-account'));
+      await tester.ensureVisible(add);
+      await tester.tap(add);
+      await tester.pumpAndSettle();
+      expect(find.byType(AccountEditPage), findsOneWidget);
+      await tester.enterText(
+          find.descendant(
+              of: find.byKey(const ValueKey('account-name')),
+              matching: find.byType(TextFormField)),
+          name);
+      FocusManager.instance.primaryFocus?.unfocus();
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(BeeButton, '保存'));
+      await tester.pumpAndSettle();
+      expect(find.byType(TransactionEditorPage), findsOneWidget);
+      expect(find.text('QA 保留转账草稿'), findsOneWidget);
+    }
+    expect(find.text('暂无账户'), findsNothing);
+    expect(find.byKey(const ValueKey('transfer-add-account')), findsNothing);
+    await select(tester, true, 'QA 新现金');
+    await select(tester, false, 'QA 新银行');
+    expect(
+        tester
+            .widget<AmountEditorSheet>(find.byType(AmountEditorSheet))
+            .canSubmit,
+        isTrue);
+    expect(
+        (await repo.getAllAccounts()).map((a) => a.name), ['QA 新现金', 'QA 新银行']);
+    expect(await db.select(db.transactions).get(), isEmpty);
+    expect(tester.takeException(), isNull);
+  });
 
   for (final foreign in [false, true]) {
     inlineTransferTest(

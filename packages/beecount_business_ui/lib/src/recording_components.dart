@@ -231,10 +231,14 @@ class RecordingDetailsCard extends StatelessWidget {
             child: Row(children: [
               if (!noteExpanded && noteToggle != null) noteToggle!,
               if (account != null) Expanded(child: account!),
-              const SizedBox(width: 4),
+              if (account != null || (!noteExpanded && noteToggle != null))
+                const SizedBox(width: 4),
               date,
               const SizedBox(width: 4),
-              if (noteExpanded) Expanded(child: tags) else tags,
+              if (noteExpanded || account == null)
+                Expanded(child: tags)
+              else
+                tags,
               if (!noteExpanded) attachment,
             ])),
       ]));

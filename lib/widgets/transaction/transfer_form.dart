@@ -8,6 +8,7 @@ import '../../providers.dart';
 import '../../presentation/v4/bindings/recording_save.dart';
 import '../../presentation/v4/bindings/transfer_inline_accounts.dart';
 import '../../l10n/app_localizations.dart';
+import '../../pages/account/account_edit_page.dart';
 import '../biz/amount_editor_sheet.dart';
 import '../../utils/account_type_utils.dart';
 import '../ui/ui.dart';
@@ -146,7 +147,7 @@ class TransferFormState extends ConsumerState<TransferForm> {
                       .toList(),
                   selected: '${isFrom ? _fromAccountId : _toAccountId}',
                   searchLabel: l.transferSelectAccount,
-                  emptyLabel: l.accountsEmptyMessage,
+                  emptyLabel: l.widgetNoAccounts,
                   onSelected: (id) => Navigator.pop(context, id)));
           if (selected == null || !mounted) return;
           final id = int.parse(selected);
@@ -168,25 +169,58 @@ class TransferFormState extends ConsumerState<TransferForm> {
           });
         }
 
+        Future<void> addAccount() async {
+          if (_saving) return;
+          FocusManager.instance.primaryFocus?.unfocus();
+          await Navigator.of(context).push(MaterialPageRoute<void>(
+              builder: (_) => AccountEditPage(ledgerId: _ledgerId)));
+          if (mounted) ref.invalidate(transferInlineAccountsProvider(query));
+        }
+
+        final hasEligiblePair = validPair ||
+            accounts.map((item) => item.currency.toUpperCase()).toSet().length <
+                accounts.length;
+        final addAccountButton = BeeButton(
+            key: const ValueKey('transfer-add-account'),
+            label: l.accountAddButton,
+            kind: BeeButtonKind.secondary,
+            compact: true,
+            onPressed: addAccount);
         return AmountEditorSheet(
           key: _editorKey,
           cardLayout: true,
           systemKeyboardVisible: widget.systemKeyboardVisible,
-          categorySection: BeeTransferAccountPair(
-              fromLabel: l.transferFromAccount,
-              toLabel: l.transferToAccount,
-              fromName: from?.name ?? l.transferSelectAccount,
-              toName: to?.name ?? l.transferSelectAccount,
-              fromDetail:
-                  from?.hidden == true ? l.accountHiddenTag : from?.currency,
-              toDetail: to?.hidden == true ? l.accountHiddenTag : to?.currency,
-              fromIcon: from == null
-                  ? null
-                  : AccountTypeIcon(type: from.type, size: 24),
-              toIcon:
-                  to == null ? null : AccountTypeIcon(type: to.type, size: 24),
-              onFrom: () => select(true),
-              onTo: () => select(false)),
+          categorySection: accounts.isEmpty
+              ? BeeMenuRow(
+                  key: const ValueKey('transfer-empty-accounts'),
+                  title: l.widgetNoAccounts,
+                  leading: const BeeLineIcon('Wallet', size: 24),
+                  trailing: addAccountButton)
+              : Column(mainAxisSize: MainAxisSize.min, children: [
+                  BeeTransferAccountPair(
+                      fromLabel: l.transferFromAccount,
+                      toLabel: l.transferToAccount,
+                      fromName: from?.name ?? l.transferSelectAccount,
+                      toName: to?.name ?? l.transferSelectAccount,
+                      fromDetail: from?.hidden == true
+                          ? l.accountHiddenTag
+                          : from?.currency,
+                      toDetail: to?.hidden == true
+                          ? l.accountHiddenTag
+                          : to?.currency,
+                      fromIcon: from == null
+                          ? null
+                          : AccountTypeIcon(type: from.type, size: 24),
+                      toIcon: to == null
+                          ? null
+                          : AccountTypeIcon(type: to.type, size: 24),
+                      onFrom: () => select(true),
+                      onTo: () => select(false)),
+                  if (!hasEligiblePair)
+                    Padding(
+                        padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                        child: addAccountButton),
+                ]),
           categoryName: l.transferTitle,
           canSubmit: validPair,
           blockedSubmitLabel: l.transferSelectAccount,
