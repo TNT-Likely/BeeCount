@@ -124,7 +124,7 @@ class BeeTransactionDayHeader extends StatelessWidget {
                           fontSize: 11, color: Theme.of(context).hintColor)),
                 ])),
             const SizedBox(width: 10),
-            Flexible(
+            Expanded(
                 child: Wrap(
                     spacing: 8,
                     runSpacing: 2,

@@ -251,7 +251,11 @@ class BeeSummaryCard extends StatelessWidget {
           const SizedBox(width: 10),
           Expanded(
               child: _Metric(expenseLabel, hidden ? '••••' : expense,
-                  size: 15, labelSize: 11, gap: 4, lineHeight: 1.5))
+                  size: 15,
+                  labelSize: 11,
+                  gap: 4,
+                  lineHeight: 1.5,
+                  alignEnd: true))
         ]),
         if (budget != null) ...[
           const SizedBox(height: 17),
@@ -265,25 +269,34 @@ class BeeSummaryCard extends StatelessWidget {
 
 class _Metric extends StatelessWidget {
   const _Metric(this.label, this.value,
-      {this.size = 12, this.labelSize = 10, this.gap = 3, this.lineHeight});
+      {this.size = 12,
+      this.labelSize = 10,
+      this.gap = 3,
+      this.lineHeight,
+      this.alignEnd = false});
   final String label, value;
   final double size, labelSize, gap;
   final double? lineHeight;
+  final bool alignEnd;
   @override
-  Widget build(BuildContext context) =>
-      Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(label,
-            style: TextStyle(
-                fontSize: labelSize,
-                height: lineHeight,
-                color: Theme.of(context).hintColor)),
-        SizedBox(height: gap),
-        Text(value,
-            style: TextStyle(
-                fontSize: size,
-                height: lineHeight,
-                fontWeight: FontWeight.w600))
-      ]);
+  Widget build(BuildContext context) => Column(
+          crossAxisAlignment:
+              alignEnd ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          children: [
+            Text(label,
+                textAlign: alignEnd ? TextAlign.end : TextAlign.start,
+                style: TextStyle(
+                    fontSize: labelSize,
+                    height: lineHeight,
+                    color: Theme.of(context).hintColor)),
+            SizedBox(height: gap),
+            Text(value,
+                textAlign: alignEnd ? TextAlign.end : TextAlign.start,
+                style: TextStyle(
+                    fontSize: size,
+                    height: lineHeight,
+                    fontWeight: FontWeight.w600))
+          ]);
 }
 
 class BeeLedgerCard extends StatelessWidget {
