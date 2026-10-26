@@ -172,7 +172,7 @@ void main() {
     });
   }
 
-  testWidgets('首页真实汇总与 HTML 区域对齐，默认无品牌且入口独立', (tester) async {
+  testWidgets('首页真实汇总与 HTML 区域对齐，默认显示品牌且入口独立', (tester) async {
     await open(tester);
     final identity = tester.getRect(find.byType(BeeHomeIdentity));
     final summary = tester.getRect(find.byType(BeeSummaryCard));
@@ -185,8 +185,8 @@ void main() {
     expect(summary.width, expected['summary']['width']);
     expect(summary.height, closeTo(expected['summary']['height'] as num, 1.5));
     expect(header.top, closeTo(expected['streamHeader']['y'] as num, 1.5));
-    expect(find.byType(BeeIcon), findsNothing);
-    expect(find.text('明细'), findsOneWidget);
+    expect(find.byType(BeeIcon), findsOneWidget);
+    expect(find.text('蜜蜂记账'), findsOneWidget);
     expect(find.text('2笔'), findsOneWidget);
     expect(find.text('12,000.00'), findsOneWidget);
     expect(find.textContaining('5,000.00'), findsOneWidget);
@@ -224,15 +224,19 @@ void main() {
 
   testWidgets('首页品牌选择写入偏好，重新读取后仍可切换', (tester) async {
     await open(tester, brandControl: true);
+    expect(find.byType(BeeIcon), findsOneWidget);
+    await tester.tap(find.text('切换品牌'));
+    await tester.pumpAndSettle();
+    expect(find.byType(BeeIcon), findsNothing);
+    final prefs = await SharedPreferences.getInstance();
+    expect(prefs.getBool('v4_home_show_brand'), isFalse);
+    container.read(homeBrandVisibleProvider.notifier).state = true;
+    container.invalidate(homeBrandPreferenceInitProvider);
+    await tester.pumpAndSettle();
     expect(find.byType(BeeIcon), findsNothing);
     await tester.tap(find.text('切换品牌'));
     await tester.pumpAndSettle();
-    expect(find.byType(BeeIcon), findsOneWidget);
-    final prefs = await SharedPreferences.getInstance();
     expect(prefs.getBool('v4_home_show_brand'), isTrue);
-    container.read(homeBrandVisibleProvider.notifier).state = false;
-    container.invalidate(homeBrandPreferenceInitProvider);
-    await tester.pumpAndSettle();
     expect(find.byType(BeeIcon), findsOneWidget);
     expect(tester.takeException(), isNull);
     await close(tester);
@@ -412,29 +416,29 @@ void main() {
           l.v4HomeMonthShare,
           l.annualReportTitle,
           l.homeManageLedgers,
-          l.v4HomeBrandShow
+          l.v4HomeBrandHide
         ]) {
           expect(find.text(title), findsOneWidget);
         }
-        await tester.tap(find.text(l.v4HomeBrandShow));
-        await tester.pumpAndSettle();
-        expect(
-            (await SharedPreferences.getInstance())
-                .getBool('v4_home_show_brand'),
-            isTrue);
-        expect(
-            tester
-                .widget<BeeHomeIdentity>(find.byType(BeeHomeIdentity))
-                .showBrand,
-            isTrue);
-        await tester.tap(menu);
-        await tester.pumpAndSettle();
         await tester.tap(find.text(l.v4HomeBrandHide));
         await tester.pumpAndSettle();
         expect(
             (await SharedPreferences.getInstance())
                 .getBool('v4_home_show_brand'),
             isFalse);
+        expect(
+            tester
+                .widget<BeeHomeIdentity>(find.byType(BeeHomeIdentity))
+                .showBrand,
+            isFalse);
+        await tester.tap(menu);
+        await tester.pumpAndSettle();
+        await tester.tap(find.text(l.v4HomeBrandShow));
+        await tester.pumpAndSettle();
+        expect(
+            (await SharedPreferences.getInstance())
+                .getBool('v4_home_show_brand'),
+            isTrue);
         if (small) {
           final layout =
               tester.widget<BeeHomeLayout>(find.byType(BeeHomeLayout));

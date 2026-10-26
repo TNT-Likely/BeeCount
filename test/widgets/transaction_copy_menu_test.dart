@@ -54,6 +54,9 @@ void main() {
     final row = find.byType(TransactionListItem, skipOffstage: false);
     await tester.longPress(row);
     await tester.pumpAndSettle();
+    expect(find.byType(PopupMenuItem<String>), findsNWidgets(3));
+    expect(find.text('账单详情'), findsOneWidget);
+    expect(find.text('生成小票'), findsOneWidget);
     await tester.runAsync(() async {
       await tester.tap(find.text('复制为新交易'));
       await Future<void>.delayed(const Duration(milliseconds: 100));

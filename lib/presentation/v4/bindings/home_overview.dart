@@ -11,11 +11,11 @@ import '../../../widgets/biz/home_budget_summary.dart';
 import '../../../utils/format_utils.dart';
 import '../../../utils/currencies.dart';
 
-final homeBrandVisibleProvider = StateProvider<bool>((ref) => false);
+final homeBrandVisibleProvider = StateProvider<bool>((ref) => true);
 final homeBrandPreferenceInitProvider = FutureProvider<void>((ref) async {
   final prefs = await SharedPreferences.getInstance();
   ref.read(homeBrandVisibleProvider.notifier).state =
-      prefs.getBool('v4_home_show_brand') ?? false;
+      prefs.getBool('v4_home_show_brand') ?? true;
 });
 Future<void> setHomeBrandVisible(WidgetRef ref, bool value) async {
   await ref.read(homeBrandPreferenceInitProvider.future);

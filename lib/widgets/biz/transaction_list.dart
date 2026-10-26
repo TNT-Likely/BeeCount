@@ -1,4 +1,5 @@
-import 'package:beecount_ui/beecount_ui.dart' show BeeCardTheme;
+import 'package:beecount_ui/beecount_ui.dart'
+    show BeeCardTheme, BeeMenuAction, BeeLineIcon, showBeeContextMenu;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -180,30 +181,24 @@ class TransactionListState extends ConsumerState<TransactionList> {
 
   Future<String?> _pickTransactionAction(BuildContext rowContext) async {
     try {
-      final overlay =
-          Overlay.of(context).context.findRenderObject() as RenderBox;
       final row = rowContext.findRenderObject() as RenderBox;
-      return await BeePopupMenu.showForAnchor(
-        context: context,
-        anchor: row.localToGlobal(Offset.zero, ancestor: overlay) & row.size,
-        items: [
-          BeeMenuItem.action(
-            value: 'detail',
-            icon: Icons.description_outlined,
-            label: AppLocalizations.of(context).v4TransactionDetailTitle,
-          ),
-          BeeMenuItem.action(
-            value: 'copy',
-            icon: Icons.copy_outlined,
-            label: AppLocalizations.of(context).transactionCopyAction,
-          ),
-          BeeMenuItem.action(
-            value: 'receipt',
-            icon: Icons.receipt_long_outlined,
-            label: AppLocalizations.of(context).transactionReceiptAction,
-          ),
-        ],
-      );
+      final l = AppLocalizations.of(context);
+      return await showBeeContextMenu<String>(context,
+          anchor: row.localToGlobal(Offset(row.size.width, row.size.height)),
+          items: [
+            BeeMenuAction(
+                value: 'detail',
+                label: l.v4TransactionDetailTitle,
+                icon: const BeeLineIcon('FileText', size: 18)),
+            BeeMenuAction(
+                value: 'copy',
+                label: l.transactionCopyAction,
+                icon: const BeeLineIcon('Copy', size: 18)),
+            BeeMenuAction(
+                value: 'receipt',
+                label: l.transactionReceiptAction,
+                icon: const BeeLineIcon('Receipt', size: 18)),
+          ]);
     } finally {
       _showingTransactionActions = false;
     }
