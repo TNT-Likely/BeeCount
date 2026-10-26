@@ -5,3 +5,15 @@
 #bee-immersive-suite .ps102-socials button{width:64px;min-width:64px;height:auto;grid-template-columns:1fr}#bee-immersive-suite .ps102-brand .ps102-story{width:auto;height:auto;min-height:80px}#bee-immersive-suite .ps102-footer button{width:auto;height:auto;padding:0 8px}
 
 #bee-immersive-suite .ps102-brand-icon{width:23px;height:23px;display:block;background:currentColor;mask-size:contain;mask-position:center;mask-repeat:no-repeat;-webkit-mask-size:contain;-webkit-mask-position:center;-webkit-mask-repeat:no-repeat}.ps102-guide .ps102-card{background:var(--bc-paper,#fff);border-radius:22px;padding:17px;overflow-wrap:anywhere}.ps102-guide h3{font-size:16px;margin:0 0 10px}.ps102-guide p{font-size:12px;line-height:1.6}.ps102-guide a{font-size:12px}
+
+#bee-immersive-suite .b2-about-brand{padding:22px 20px 20px;text-align:center}
+#bee-immersive-suite .b2-about-brand .ps102-story{display:flex;align-items:center;justify-content:center;width:64px;height:64px;min-height:64px;margin:0 auto}
+#bee-immersive-suite .b2-about-brand .ps102-story>img{width:64px;height:64px}
+#bee-immersive-suite .b2-about-brand h2{font-size:22px;font-weight:700;margin:12px 0 8px}
+#bee-immersive-suite .b2-about-version{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap}
+#bee-immersive-suite .b2-about-version small{font-size:11px}
+#bee-immersive-suite .b2-about-version .d104-brand-pill{font-size:10px;padding:3px 8px}
+#bee-immersive-suite .b2-about-brand p{font-size:12px;line-height:1.7;margin:14px 0 18px}
+#bee-immersive-suite .b2-about-brand .bc-inline-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+#bee-immersive-suite .b2-about-brand .bc-inline-actions>button{min-width:0;font-size:12px}
+#bee-immersive-suite .b2-about-brand>h2,#bee-immersive-suite .b2-about-brand>p{text-align:center}

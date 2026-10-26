@@ -93,74 +93,74 @@ class BeeSupportBrand extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Column(children: [
         BeeCardFrame(
+            padding: const EdgeInsets.fromLTRB(20, 22, 20, 20),
             child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-              Row(children: [
-                InkWell(
-                    key: const ValueKey('support-story'),
-                    onTap: onStory,
-                    borderRadius: BorderRadius.circular(12),
-                    child: SizedBox(
-                        width: 44,
-                        height: 44,
-                        child: Center(
-                            child:
-                                SizedBox(width: 34, height: 34, child: logo)))),
-                const SizedBox(width: 10),
-                Expanded(
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                      Text(title,
-                          style: const TextStyle(
-                              fontSize: 15, fontWeight: FontWeight.w600)),
-                      const SizedBox(height: 5),
-                      Text(version,
-                          style: TextStyle(
-                              fontSize: 10, color: Theme.of(context).hintColor))
-                    ])),
-                if (tag != null) ...[
-                  const SizedBox(width: 10),
-                  ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 96),
-                      child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 5),
-                          decoration: BoxDecoration(
-                              color: BeeCardTheme.of(context).soft,
-                              borderRadius: BorderRadius.circular(99)),
-                          child: Text(tag!,
-                              style: TextStyle(
-                                  fontSize: 10,
-                                  color: Theme.of(context).hintColor))))
-                ]
-              ]),
-              if (description != null) ...[
-                const SizedBox(height: 18),
-                Text(description!,
-                    style: TextStyle(
-                        fontSize: 12,
-                        height: 1.9,
-                        color: Theme.of(context).hintColor))
-              ],
-              if (sourceLabel != null || recommendLabel != null) ...[
-                const SizedBox(height: 18),
-                Wrap(spacing: 8, runSpacing: 8, children: [
-                  if (sourceLabel != null)
-                    BeeButton(
-                        label: sourceLabel!,
-                        kind: BeeButtonKind.secondary,
-                        icon: const BeeLineIcon('Code', size: 17),
-                        onPressed: onSource),
-                  if (recommendLabel != null)
-                    BeeButton(
-                        label: recommendLabel!,
-                        icon: const BeeLineIcon('Share', size: 17),
-                        onPressed: onRecommend)
-                ])
-              ]
-            ])),
+                  Center(
+                      child: InkResponse(
+                          key: const ValueKey('support-story'),
+                          onTap: onStory,
+                          radius: 38,
+                          child: SizedBox(width: 64, height: 64, child: logo))),
+                  const SizedBox(height: 12),
+                  Text(title,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                          fontSize: 22, fontWeight: FontWeight.w700)),
+                  const SizedBox(height: 8),
+                  Wrap(
+                      alignment: WrapAlignment.center,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      spacing: 8,
+                      runSpacing: 6,
+                      children: [
+                        Text(version,
+                            style: TextStyle(
+                                fontSize: 11,
+                                color: Theme.of(context).hintColor)),
+                        if (tag != null)
+                          Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                  color: BeeCardTheme.of(context).soft,
+                                  borderRadius: BorderRadius.circular(99)),
+                              child: Text(tag!,
+                                  style: TextStyle(
+                                      fontSize: 10,
+                                      color: Theme.of(context).hintColor)))
+                      ]),
+                  if (description != null) ...[
+                    const SizedBox(height: 14),
+                    Text(description!,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontSize: 12,
+                            height: 1.7,
+                            color: Theme.of(context).hintColor))
+                  ],
+                  if (sourceLabel != null || recommendLabel != null) ...[
+                    const SizedBox(height: 18),
+                    Row(children: [
+                      if (sourceLabel != null)
+                        Expanded(
+                            child: BeeButton(
+                                label: sourceLabel!,
+                                kind: BeeButtonKind.secondary,
+                                icon: const BeeLineIcon('Code', size: 17),
+                                onPressed: onSource)),
+                      if (sourceLabel != null && recommendLabel != null)
+                        const SizedBox(width: 8),
+                      if (recommendLabel != null)
+                        Expanded(
+                            child: BeeButton(
+                                label: recommendLabel!,
+                                icon: const BeeLineIcon('Share', size: 17),
+                                onPressed: onRecommend))
+                    ])
+                  ]
+                ])),
         const SizedBox(height: 15),
         Wrap(
             alignment: WrapAlignment.center,
