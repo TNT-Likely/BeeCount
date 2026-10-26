@@ -69,6 +69,10 @@ void main() {
           expect(label.right, closeTo(width - 18, .1),
               reason: '$width / $scale / budget=$withBudget');
           expect(tester.getRect(find.text('本月收入')).left, closeTo(18, .1));
+          if (withBudget) {
+            expect(tester.getRect(find.text('剩余 ¥1,713.50')).right,
+                closeTo(width - 18 - 17, .1));
+          }
           expect(tester.takeException(), isNull);
         }
       }

@@ -28,8 +28,9 @@ class BeeBudgetStrip extends StatelessWidget {
                       style: TextStyle(
                           fontSize: 11, color: Theme.of(context).hintColor))),
               const SizedBox(width: 8),
-              Flexible(
+              Expanded(
                   child: Text(remaining,
+                      textAlign: TextAlign.end,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
