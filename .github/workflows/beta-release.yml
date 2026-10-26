@@ -45,7 +45,6 @@ jobs:
       BETA_VERSION: ${{ inputs.version }}
       BETA_CHANNEL_FLOOR: ${{ inputs.android_version_code_floor || vars.ANDROID_VERSION_CODE_FLOOR }}
       BETA_EXPECTED_CERTIFICATE: ${{ vars.ANDROID_RELEASE_CERT_SHA256 }}
-      BETA_CONTEXT: ${{ runner.temp }}/beecount-beta-context.json
     steps:
       - name: Checkout trusted v4 release tooling
         uses: actions/checkout@v4
@@ -54,6 +53,8 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
           persist-credentials: false
+      - name: Set private build context path
+        run: echo "BETA_CONTEXT=$RUNNER_TEMP/beecount-beta-context.json" >> "$GITHUB_ENV"
       - name: Test release gates
         run: python3 -m unittest discover -s tool/release -p 'test_*.py' -v
       - name: Check mandatory signing inputs before SDK setup
@@ -112,13 +113,14 @@ jobs:
     env:
       BETA_VERSION: ${{ inputs.version }}
       BETA_EXPECTED_CERTIFICATE: ${{ vars.ANDROID_RELEASE_CERT_SHA256 }}
-      BETA_CONTEXT: ${{ runner.temp }}/beecount-beta-notification.json
     steps:
       - name: Checkout reviewed notification tool
         uses: actions/checkout@v4
         with:
           ref: v4
           persist-credentials: false
+      - name: Set private notification context path
+        run: echo "BETA_CONTEXT=$RUNNER_TEMP/beecount-beta-notification.json" >> "$GITHUB_ENV"
       - name: Verify published prerelease and receipt identity without writes
         env:
           GH_TOKEN: ${{ github.token }}
