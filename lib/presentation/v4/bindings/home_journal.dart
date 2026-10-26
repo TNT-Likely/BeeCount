@@ -11,11 +11,13 @@ class HomeJournalFrame extends ConsumerStatefulWidget {
       {super.key,
       this.child,
       this.childBuilder,
+      this.initialPreview,
       required this.onCalendar,
       required this.onFilter,
       required this.onBatch})
       : assert(child != null || childBuilder != null);
   final Widget? child;
+  final HomeTransactionPreview? initialPreview;
   final Widget Function(ValueChanged<HomeTransactionPreview> onPreviewReady)?
       childBuilder;
   final VoidCallback onCalendar, onFilter, onBatch;
@@ -26,6 +28,20 @@ class HomeJournalFrame extends ConsumerStatefulWidget {
 class _HomeJournalFrameState extends ConsumerState<HomeJournalFrame> {
   int? _countLedger, _displayCount;
   AsyncValue<({int dayCount, int txCount})>? _observedCounts;
+
+  @override
+  void initState() {
+    super.initState();
+    final initial = widget.initialPreview;
+    if (initial != null &&
+        initial.ledgerId == ref.read(currentLedgerIdProvider)) {
+      _countLedger = initial.ledgerId;
+      _displayCount = initial.totalCount;
+      // A cached/in-flight count must not replace the transactional startup
+      // total before onPreviewReady invalidates that older generation.
+      _observedCounts = ref.read(countsForLedgerProvider(initial.ledgerId));
+    }
+  }
 
   void _onPreviewReady(HomeTransactionPreview preview) {
     if (!mounted || preview.ledgerId != ref.read(currentLedgerIdProvider)) {

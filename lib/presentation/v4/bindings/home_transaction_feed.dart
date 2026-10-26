@@ -8,6 +8,7 @@ import '../../../data/repositories/base_repository.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../models/home_transaction_preview.dart';
 import '../../../providers/database_providers.dart';
+import '../../../providers/home_startup_preview_provider.dart';
 import '../../../widgets/biz/transaction_list.dart';
 
 /// First publish a bounded, complete preview. Only then start the full query,
@@ -22,6 +23,7 @@ class HomeTransactionFeed extends ConsumerStatefulWidget {
     this.onDateVisibilityChanged,
     this.emptyWidget,
     this.onPreviewReady,
+    this.startupPreview,
   });
 
   final int ledgerId;
@@ -31,6 +33,7 @@ class HomeTransactionFeed extends ConsumerStatefulWidget {
   final void Function(String, bool)? onDateVisibilityChanged;
   final Widget? emptyWidget;
   final ValueChanged<HomeTransactionPreview>? onPreviewReady;
+  final HomeStartupPreview? startupPreview;
 
   @override
   ConsumerState<HomeTransactionFeed> createState() =>
@@ -48,6 +51,7 @@ class _HomeTransactionFeedState extends ConsumerState<HomeTransactionFeed> {
   bool _sourceLoading = false;
 
   void _bind(BaseRepository repository, int ledger) {
+    final firstBind = _repository == null;
     _repository = repository;
     _ledger = ledger;
     final generation = ++_generation;
@@ -57,6 +61,18 @@ class _HomeTransactionFeedState extends ConsumerState<HomeTransactionFeed> {
     _fullRows = null;
     _error = null;
     _sourceLoading = true;
+    final startup = firstBind ? widget.startupPreview : null;
+    if (startup?.matches(repository, ledger) == true) {
+      _preview = startup!.preview;
+      // The first build paints the already complete startup snapshot. Do not
+      // run a second preview query or notify the parent during its build.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted || generation != _generation) return;
+        widget.onPreviewReady?.call(startup.preview);
+        _watchFull(repository, ledger, generation);
+      });
+      return;
+    }
     unawaited(_readPreview(repository, ledger, generation));
   }
 
@@ -172,10 +188,11 @@ class _HomeTransactionFeedState extends ConsumerState<HomeTransactionFeed> {
     return TransactionList(
         key: widget.listKey,
         ledgerId: widget.ledgerId,
-        transactions: _fullRows,
+        transactions: _fullRows ??
+            (preview.totalCount == 0 ? const <TransactionRowData>[] : null),
         transactionsWithDetails: preview.rows,
         previewDayTotals: preview.dayTotals,
-        sourceReady: _fullRows != null,
+        sourceReady: _fullRows != null || preview.totalCount == 0,
         sourceLoading: _sourceLoading,
         sourceError: _error,
         onRetrySource: _retry,

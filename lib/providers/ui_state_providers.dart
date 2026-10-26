@@ -20,6 +20,7 @@ import '../ai/providers/ai_constants.dart';
 import '../services/platform/app_link_service.dart';
 import 'security_providers.dart';
 import '../models/home_transaction_preview.dart';
+import 'home_startup_preview_provider.dart';
 export '../models/home_transaction_preview.dart' show TransactionDisplayItem;
 
 // 底部导航索引（0: 明细, 1: 图表, 2: 账本, 3: 我的）
@@ -166,8 +167,8 @@ final accountFeatureSetterProvider = Provider<AccountFeatureSetter>((ref) {
   return AccountFeatureSetter();
 });
 
-// Splash compatibility cache. Home validates a fresh bounded repository snapshot
-// instead of assuming this cache survived sync/FX/relationship changes unchanged.
+// Legacy compatibility cache. The first Home receives the full, one-shot
+// startup snapshot instead; later navigation always reads current data.
 final cachedTransactionsProvider =
     StateProvider<List<TransactionDisplayItem>?>((ref) => null);
 
@@ -187,6 +188,9 @@ final appSplashInitProvider = FutureProvider<void>((ref) async {
   logger.info(tag, '开始启屏页预加载');
   final startTime = DateTime.now();
   var stepTime = startTime;
+  final handoff = ref.read(homeStartupPreviewHandoffProvider)..clear();
+  var disposed = false;
+  ref.onDispose(() => disposed = true);
 
   try {
     // 确保基础providers已初始化
@@ -215,87 +219,112 @@ final appSplashInitProvider = FutureProvider<void>((ref) async {
         '基础配置初始化完成: ${DateTime.now().difference(stepTime).inMilliseconds}ms');
     stepTime = DateTime.now();
 
-    // 获取 repository
-    final repo = ref.read(repositoryProvider);
+    if (disposed) return;
 
-    // 预加载当前账本的关键数据
-    final ledgerId = ref.read(currentLedgerIdProvider);
-    final now = DateTime.now();
-    // 月份周期标签:startDay>1 时今天可能属于「上个标签月」(如 6月5日属 5月周期)
-    final ledgerRow = await repo.getLedgerById(ledgerId);
-    final startDay = (ledgerRow?.monthStartDay ?? 1).clamp(1, 28);
-    final currentMonth = labelForDate(now, startDay);
-    ref.read(selectedMonthProvider.notifier).state = currentMonth;
-
-    // 并行预加载：月度统计 + 交易列表（分别计时）
-    final monthlyParams = (ledgerId: ledgerId, month: currentMonth);
-
-    // 包装每个任务以记录各自耗时
-    Future<T> timed<T>(String name, Future<T> future) async {
-      final start = DateTime.now();
-      final result = await future;
-      logger.info(
-          tag, '$name: ${DateTime.now().difference(start).inMilliseconds}ms');
-      return result;
-    }
-
-    // 首屏预加载条数限制（只加载前 N 条，加快启动速度）
-    const preloadLimit = 20;
-
-    final results = await Future.wait([
-      timed('月度统计', ref.read(monthlyTotalsProvider(monthlyParams).future)),
-      // 只查询前 N 条，而非全部
-      timed(
-          '完整首屏(前$preloadLimit条)',
-          repo.getHomeTransactionPreview(
-              ledgerId: ledgerId, limit: preloadLimit)),
-      // 预加载预算概览，避免首页进度条闪现
-      timed('预算概览', ref.read(budgetOverviewProvider.future)),
-    ]);
-
-    final monthlyResult = results[0] as (double, double);
-    final preview = results[1] as HomeTransactionPreview;
-
-    ref.read(lastMonthlyTotalsProvider(monthlyParams).notifier).state =
-        monthlyResult;
-    ref.read(cachedTransactionsProvider.notifier).state = preview.rows;
-    logger.info(tag,
-        '并行预加载完成: ${DateTime.now().difference(stepTime).inMilliseconds}ms, 完整首屏${preview.rows.length}条');
-    stepTime = DateTime.now();
-
-    // 账本统计异步加载（不阻塞启动）
-    Future.microtask(() async {
-      final start = DateTime.now();
-      await ref.read(countsForLedgerProvider(ledgerId).future);
-      logger.info(tag,
-          '账本统计(异步): ${DateTime.now().difference(start).inMilliseconds}ms');
-    });
-
-    // 生成待处理的周期交易
+    // Finish startup writes before preparing the snapshot that Home will use.
+    // Publishing the earlier rows would omit newly generated recurring bills.
     try {
       final generatedLedgerIds =
           await RecurringTransactionService.generatePendingTransactionsStatic(
-        repository: repo,
+        repository: ref.read(repositoryProvider),
         verbose: false,
       );
+      if (disposed) return;
+      for (final ledgerId in generatedLedgerIds) {
+        await PostProcessor.runR(ref, ledgerId: ledgerId);
+        if (disposed) return;
+      }
       logger.info(tag,
           '周期交易生成完成: ${DateTime.now().difference(stepTime).inMilliseconds}ms');
-
-      // 统一后处理：刷新UI + 触发云同步（如果有生成交易）
-      for (final genLedgerId in generatedLedgerIds) {
-        await PostProcessor.runR(ref, ledgerId: genLedgerId);
-      }
     } catch (e, stackTrace) {
       logger.error(tag, '周期交易生成失败', e, stackTrace);
     }
+
+    if (disposed) return;
+    // Configuration can replace the repository or selected ledger while an
+    // async read is running. Only publish the final, still-current scope.
+    while (true) {
+      final repo = ref.read(repositoryProvider);
+
+      // 预加载当前账本的关键数据
+      final ledgerId = ref.read(currentLedgerIdProvider);
+      final now = DateTime.now();
+      // 月份周期标签:startDay>1 时今天可能属于「上个标签月」(如 6月5日属 5月周期)
+      final ledgerRow = await repo.getLedgerById(ledgerId);
+      final startDay = (ledgerRow?.monthStartDay ?? 1).clamp(1, 28);
+      final currentMonth = labelForDate(now, startDay);
+      ref.read(selectedMonthProvider.notifier).state = currentMonth;
+
+      // 并行预加载：月度统计 + 交易列表（分别计时）
+      final monthlyParams = (ledgerId: ledgerId, month: currentMonth);
+      ref.invalidate(monthlyTotalsProvider(monthlyParams));
+      ref.invalidate(budgetOverviewProvider);
+
+      // 包装每个任务以记录各自耗时
+      Future<T> timed<T>(String name, Future<T> future) async {
+        final start = DateTime.now();
+        final result = await future;
+        logger.info(
+            tag, '$name: ${DateTime.now().difference(start).inMilliseconds}ms');
+        return result;
+      }
+
+      // 首屏预加载条数限制（只加载前 N 条，加快启动速度）
+      const preloadLimit = 20;
+
+      final results = await Future.wait([
+        timed('月度统计', ref.read(monthlyTotalsProvider(monthlyParams).future)),
+        // 只查询前 N 条，而非全部
+        timed('完整首屏(前$preloadLimit条)',
+            handoff.prepare(repo, ledgerId, ref.read(databaseProvider))),
+        // 预加载预算概览，避免首页进度条闪现
+        timed('预算概览', ref.read(budgetOverviewProvider.future)),
+        timed('账本信息', ref.read(currentLedgerProvider.future)),
+      ]);
+
+      final monthlyResult = results[0] as (double, double);
+      final preview = results[1] as HomeTransactionPreview;
+      if (disposed) return;
+      if (!identical(repo, ref.read(repositoryProvider)) ||
+          ledgerId != ref.read(currentLedgerIdProvider) ||
+          !identical(handoff.peek(repo, ledgerId)?.preview, preview)) {
+        continue;
+      }
+
+      ref.read(lastMonthlyTotalsProvider(monthlyParams).notifier).state =
+          monthlyResult;
+      ref.read(cachedTransactionsProvider.notifier).state = preview.rows;
+      logger.info(tag,
+          '并行预加载完成: ${DateTime.now().difference(stepTime).inMilliseconds}ms, 完整首屏${preview.rows.length}条');
+      stepTime = DateTime.now();
+
+      // 账本统计异步加载（不阻塞启动）
+      Future.microtask(() async {
+        if (disposed) return;
+        final start = DateTime.now();
+        await ref.read(countsForLedgerProvider(ledgerId).future);
+        if (disposed) return;
+        logger.info(tag,
+            '账本统计(异步): ${DateTime.now().difference(start).inMilliseconds}ms');
+      });
+
+      break;
+    }
   } catch (e, stackTrace) {
+    if (disposed) return;
+    handoff.clear();
     logger.error(tag, '预加载数据失败', e, stackTrace);
+    // Keep the startup boundary retryable. A failed read must not become a
+    // "ready" Home with an empty list, a second spinner or stale cache.
+    rethrow;
   }
 
   // 计算数据预加载耗时
   final dataLoadTime = DateTime.now().difference(startTime);
   logger.info(tag, '预加载总耗时: ${dataLoadTime.inMilliseconds}ms，切换到主应用');
-  ref.read(appInitStateProvider.notifier).state = AppInitState.ready;
+  if (!disposed) {
+    ref.read(appInitStateProvider.notifier).state = AppInitState.ready;
+  }
 });
 
 // 是否应该显示欢迎页面的Provider

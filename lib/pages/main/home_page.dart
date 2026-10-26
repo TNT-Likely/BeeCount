@@ -26,6 +26,7 @@ import '../calendar/calendar_page.dart';
 import '../../widgets/biz/ledger_picker_sheet.dart';
 import 'ledgers_page_new.dart';
 import '../../providers/shared_ledger_providers.dart';
+import '../../providers/home_startup_preview_provider.dart';
 
 // 优化版首页 - 使用FlutterListView实现精准定位和丝滑跳转
 class HomePage extends ConsumerStatefulWidget {
@@ -37,6 +38,7 @@ class HomePage extends ConsumerStatefulWidget {
 
 class _HomePageState extends ConsumerState<HomePage> {
   late FlutterListViewController _listController;
+  HomeStartupPreview? _startupPreview;
   final _pageScrollController = ScrollController();
   // The note keyboard can move Home across BeeHomeLayout's compact boundary.
   // Keep the journal subtree (and its single-subscription stream) mounted when
@@ -54,6 +56,14 @@ class _HomePageState extends ConsumerState<HomePage> {
   void initState() {
     super.initState();
     _listController = FlutterListViewController();
+    _startupPreview = ref
+        .read(homeStartupPreviewHandoffProvider)
+        .take(ref.read(repositoryProvider), ref.read(currentLedgerIdProvider));
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // The first child build has received the handoff. A later subtree
+      // remount must read fresh data instead of replaying these startup rows.
+      _startupPreview = null;
+    });
   }
 
   void _openAIChat() {
@@ -99,7 +109,7 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   // 日期头部可见性变化
   void _onHeaderVisibilityChanged(String dateKey, bool isVisible) {
-    if (_isJumping) return;
+    if (!mounted || _isJumping) return;
 
     if (isVisible) {
       _visibleHeaders.add(dateKey);
@@ -214,6 +224,11 @@ class _HomePageState extends ConsumerState<HomePage> {
   Widget build(BuildContext context) {
     final ledgerId = ref.watch(currentLedgerIdProvider);
     final hide = ref.watch(hideAmountsProvider);
+    final initialPreview =
+        _startupPreview?.matches(ref.watch(repositoryProvider), ledgerId) ==
+                true
+            ? _startupPreview
+            : null;
 
     // 监听滚动到顶部的信号
     ref.listen<int>(homeScrollToTopProvider, (previous, next) {
@@ -282,10 +297,12 @@ class _HomePageState extends ConsumerState<HomePage> {
                 MaterialPageRoute(builder: (_) => const BudgetPage()))),
         journal: HomeJournalFrame(
             key: _journalFrameKey,
+            initialPreview: initialPreview?.preview,
             onCalendar: () => _openHomeTool('calendar'),
             onFilter: () => _openJournalSearch(filters: true),
             onBatch: () => _openJournalSearch(batch: true),
             childBuilder: (onPreviewReady) => HomeTransactionFeed(
+                  startupPreview: initialPreview,
                   onPreviewReady: onPreviewReady,
                   ledgerId: ledgerId,
                   hideAmounts: hide,

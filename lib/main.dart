@@ -18,6 +18,7 @@ import 'providers/cloud_mode_providers.dart';
 import 'providers/ui_state_providers.dart';
 import 'utils/notification_factory.dart';
 import 'pages/auth/splash_page.dart';
+import 'presentation/v4/bindings/home_startup_gate.dart';
 import 'pages/auth/welcome_page.dart';
 import 'pages/auth/app_lock_screen.dart';
 import 'providers/security_providers.dart';
@@ -466,6 +467,9 @@ class MainApp extends ConsumerWidget {
 
   // 根据初始化状态和欢迎页面状态决定显示哪个页面
   Widget _getHomePage(AppInitState initState, WidgetRef ref) {
+    // Resolve first-launch routing before starting a data snapshot. Otherwise
+    // an empty pre-onboarding cache could survive until setup creates a ledger.
+    if (ref.watch(welcomeCheckProvider).isLoading) return const SplashPage();
     // 首先检查是否需要显示欢迎页面
     final shouldShowWelcome = ref.watch(shouldShowWelcomeProvider);
     if (shouldShowWelcome) {
@@ -474,7 +478,7 @@ class MainApp extends ConsumerWidget {
 
     // 欢迎页面完成后，根据初始化状态显示对应页面
     if (initState != AppInitState.ready) {
-      return const SplashPage();
+      return const AppStartupGate(child: SizedBox.shrink());
     }
 
     // 检查是否需要显示锁屏
@@ -483,7 +487,7 @@ class MainApp extends ConsumerWidget {
       return const AppLockScreen();
     }
 
-    return const BeeApp();
+    return const HomeStartupGate(child: BeeApp());
   }
 
   @override
@@ -495,10 +499,7 @@ class MainApp extends ConsumerWidget {
     final initState = ref.watch(appInitStateProvider);
     final selectedLanguage = ref.watch(languageProvider);
 
-    // 如果是启屏状态，启动初始化
-    if (initState == AppInitState.splash) {
-      ref.watch(appSplashInitProvider);
-    }
+    // AppStartupGate starts initialization after first-launch routing settles.
 
     // 周期交易生成已统一在 appSplashInitProvider 中处理
 
@@ -597,7 +598,8 @@ class MainApp extends ConsumerWidget {
         locale: selectedLanguage,
         builder: (context, child) {
           final showPrivacy = ref.watch(showPrivacyScreenProvider);
-          return BeeSystemBars(child: Stack(
+          return BeeSystemBars(
+              child: Stack(
             children: [
               child ?? const SizedBox.shrink(),
               if (showPrivacy)
