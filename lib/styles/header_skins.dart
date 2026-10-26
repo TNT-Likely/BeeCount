@@ -79,6 +79,7 @@ class HeaderSkin {
     required this.nameOf,
     required this.builder,
     required this.group,
+    this.pageBuilder,
     this.tabBarBuilder,
     this.isAnimated = false,
     this.boundPrimary,
@@ -93,6 +94,9 @@ class HeaderSkin {
 
   /// 返回铺满 header 的装饰层(放进 Positioned.fill)。
   final Widget Function(Color primary, bool isDark) builder;
+
+  /// Reserved legacy adapter hook. V4 paints the unchanged [builder] in a bounded slot.
+  final Widget Function(Color primary, bool isDark)? pageBuilder;
 
   /// 可选:悬浮 tab 胶囊内的装饰层(垫在图标之下,见 app.dart _BeeBottomBar)。
   /// 不实现则 tab 无装饰,现有皮肤行为零变化。
@@ -278,7 +282,7 @@ final List<HeaderSkin> kHeaderSkins = [
   if (kDebugMode)
     HeaderSkin(
         id: 'example',
-      group: HeaderSkinGroup.geometric,
+        group: HeaderSkinGroup.geometric,
         nameOf: (l) => l.headerSkinExample,
         builder: (p, d) => _ImageSkin(
             'assets/header_skins/example_skin.svg', p, d,

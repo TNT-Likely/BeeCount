@@ -1,308 +1,137 @@
 import 'dart:async';
-
+import 'package:beecount_business_ui/beecount_business_ui.dart';
+import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/db.dart';
 import '../../l10n/app_localizations.dart';
-import '../../providers/tag_providers.dart';
-import '../../providers/database_providers.dart';
+import '../../presentation/v4/bindings/page_scaffold.dart';
+import '../../presentation/v4/bindings/tag_detail.dart' show tagDetailColor;
+import '../../presentation/v4/bindings/tag_editor.dart';
+import '../../providers.dart';
 import '../../services/billing/post_processor.dart';
 import '../../services/data/tag_seed_service.dart';
-import '../../styles/tokens.dart';
-import '../../widgets/ui/ui.dart';
-import '../../widgets/biz/section_card.dart';
-import '../../widgets/biz/tag_chip.dart';
 
-/// 标签编辑页面
-/// 用于新增或编辑标签
 class TagEditPage extends ConsumerStatefulWidget {
-  /// 要编辑的标签，为空表示新增
-  final Tag? tag;
-
   const TagEditPage({super.key, this.tag});
-
+  final Tag? tag;
   @override
   ConsumerState<TagEditPage> createState() => _TagEditPageState();
 }
 
 class _TagEditPageState extends ConsumerState<TagEditPage> {
-  final _formKey = GlobalKey<FormState>();
-  late TextEditingController _nameController;
-  late String _selectedColor;
-  bool _isSubmitting = false;
-
-  bool get _isEditing => widget.tag != null;
-
-  @override
-  void initState() {
-    super.initState();
-    _nameController = TextEditingController(text: widget.tag?.name ?? '');
-    _selectedColor = widget.tag?.color ?? TagSeedService.getRandomColor();
-  }
-
+  final _form = GlobalKey<FormState>();
+  late final _name = TextEditingController(text: widget.tag?.name ?? '');
+  late String _color = widget.tag?.color ?? TagSeedService.getRandomColor();
+  bool _saving = false;
   @override
   void dispose() {
-    _nameController.dispose();
+    _name.dispose();
     super.dispose();
+  }
+
+  Future<void> _save() async {
+    if (_saving || !_form.currentState!.validate()) return;
+    setState(() => _saving = true);
+    final l = AppLocalizations.of(context);
+    try {
+      final saved = await saveTagDraft(ref.read(repositoryProvider),
+          name: _name.text, color: _color, existing: widget.tag);
+      if (!mounted) return;
+      ref.read(tagListRefreshProvider.notifier).state++;
+      final ledger = ref.read(currentLedgerIdProvider);
+      if (ledger > 0) unawaited(PostProcessor.sync(ref, ledgerId: ledger));
+      if (mounted) {
+        showBeeToast(context,
+            widget.tag == null ? l.tagCreateSuccess : l.tagUpdateSuccess,
+            tone: BeeTone.success);
+        Navigator.pop(context, saved);
+      }
+    } on DuplicateTagName {
+      if (mounted) {
+        showBeeToast(context, l.tagNameDuplicate, tone: BeeTone.error);
+      }
+    } catch (e) {
+      if (mounted) {
+        showBeeToast(context, '${l.commonError}: $e', tone: BeeTone.error);
+      }
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-
-    return Scaffold(
-      backgroundColor: BeeTokens.scaffoldBackground(context),
-      body: Column(
-        children: [
-          PrimaryHeader(
-            title: _isEditing ? l10n.tagEditTitle : l10n.tagAddTitle,
-            showBack: true,
-            actions: [
-              TextButton(
-                onPressed: _isSubmitting ? null : _submit,
-                child: Text(
-                  l10n.commonSave,
-                  style: TextStyle(
-                    color: _isSubmitting
-                        ? BeeTokens.textTertiary(context)
-                        : BeeTokens.textPrimary(context),
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          Expanded(
-            child: Form(
-              key: _formKey,
-              child: ListView(
-                padding: const EdgeInsets.all(16),
-                children: [
-                  // 预览
-                  _buildPreview(),
-                  const SizedBox(height: 24),
-
-                  // 标签名称
-                  SectionCard(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(left: 4, bottom: 8),
-                          child: Text(
-                            l10n.tagNameLabel,
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              color: BeeTokens.textSecondary(context),
-                            ),
-                          ),
-                        ),
-                        TextFormField(
-                          controller: _nameController,
-                          decoration: InputDecoration(
-                            hintText: l10n.tagNameHint,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 12,
-                            ),
-                          ),
-                          maxLength: 20,
-                          validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return l10n.tagNameRequired;
-                            }
-                            return null;
-                          },
-                          onChanged: (_) => setState(() {}),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // 颜色选择
-                  SectionCard(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(left: 4, bottom: 12),
-                          child: Text(
-                            l10n.tagColorLabel,
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              color: BeeTokens.textSecondary(context),
-                            ),
-                          ),
-                        ),
-                        _buildColorPicker(),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPreview() {
-    return Center(
-      child: TagChip(
-        name: _nameController.text.isEmpty ? '标签预览' : _nameController.text,
-        color: _selectedColor,
-        size: TagChipSize.large,
-      ),
-    );
-  }
-
-  Widget _buildColorPicker() {
+    final l = AppLocalizations.of(context);
     final colors = TagSeedService.getColorPalette();
-
-    return Wrap(
-      spacing: 12,
-      runSpacing: 12,
-      children: colors.map((colorHex) {
-        final isSelected = _selectedColor == colorHex;
-        final color = _parseColor(colorHex);
-
-        return GestureDetector(
-          onTap: () => setState(() => _selectedColor = colorHex),
-          child: Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: color,
-              shape: BoxShape.circle,
-              border: isSelected
-                  ? Border.all(
-                      color: BeeTokens.isDark(context)
-                          ? Colors.white
-                          : Colors.black,
-                      width: 3,
-                    )
-                  : null,
-              boxShadow: isSelected
-                  ? [
-                      BoxShadow(
-                        color: color.withValues(alpha: 0.4),
-                        blurRadius: 8,
-                        spreadRadius: 2,
-                      ),
-                    ]
-                  : null,
-            ),
-            child: isSelected
-                ? Icon(
-                    Icons.check,
-                    color: _isLightColor(color) ? Colors.black : Colors.white,
-                    size: 20,
-                  )
-                : null,
-          ),
-        );
-      }).toList(),
-    );
-  }
-
-  Color _parseColor(String hex) {
-    try {
-      String h = hex;
-      if (h.startsWith('#')) {
-        h = h.substring(1);
-      }
-      if (h.length == 6) {
-        h = 'FF$h';
-      }
-      return Color(int.parse(h, radix: 16));
-    } catch (e) {
-      return Colors.grey;
-    }
-  }
-
-  bool _isLightColor(Color color) {
-    final luminance = color.computeLuminance();
-    return luminance > 0.5;
-  }
-
-  Future<void> _submit() async {
-    if (!_formKey.currentState!.validate()) {
-      return;
-    }
-
-    final name = _nameController.text.trim();
-    final l10n = AppLocalizations.of(context);
-    final repo = ref.read(repositoryProvider);
-
-    // 检查名称是否重复
-    final isDuplicate = await repo.isTagNameDuplicate(
-      name: name,
-      excludeId: widget.tag?.id,
-    );
-
-    if (isDuplicate) {
-      if (mounted) {
-        showToast(context, l10n.tagNameDuplicate);
-      }
-      return;
-    }
-
-    setState(() => _isSubmitting = true);
-
-    try {
-      Tag? savedTag;
-      if (_isEditing) {
-        // 更新标签
-        await repo.updateTag(
-          widget.tag!.id,
-          name: name,
-          color: _selectedColor,
-        );
-        savedTag = await repo.getTagById(widget.tag!.id);
-        if (mounted) {
-          showToast(context, l10n.tagUpdateSuccess);
-        }
-      } else {
-        // 创建标签
-        final id = await repo.createTag(
-          name: name,
-          color: _selectedColor,
-        );
-        savedTag = await repo.getTagById(id);
-        if (mounted) {
-          showToast(context, l10n.tagCreateSuccess);
-        }
-      }
-
-      ref.read(tagListRefreshProvider.notifier).state++;
-
-      // 标签是 user-scoped，但 ChangeTracker 记在 ledgerId=0；_push(ledger) 会
-      // 顺便把 ledgerId=0 的未推变更一起捎走。用当前激活的 ledgerId 触发 sync
-      // 就能把这次重命名实时推到服务端，web 端 WS 收到后 2 秒内就能刷新。
-      final activeLedgerId = ref.read(currentLedgerIdProvider);
-      if (activeLedgerId > 0) {
-        // 不 await：后台异步推送，不阻塞 UI 关闭。
-        unawaited(PostProcessor.sync(ref, ledgerId: activeLedgerId));
-      }
-
-      if (mounted) {
-        Navigator.of(context).pop(savedTag);
-      }
-    } catch (e) {
-      if (mounted) {
-        showToast(context, '${l10n.commonError}: $e');
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isSubmitting = false);
-      }
-    }
+    return V4PageScaffold(
+        body: Column(children: [
+      BeePageHeader(
+          title: widget.tag == null ? l.tagAddTitle : l.tagEditTitle,
+          leading: const BackButton(),
+          actions: [
+            TextButton(
+                onPressed: _saving ? null : _save,
+                style: TextButton.styleFrom(
+                    foregroundColor: Theme.of(context).colorScheme.onSurface),
+                child: Text(l.commonSave))
+          ]),
+      Expanded(
+          child: Form(
+              key: _form,
+              child: ListView(
+                  padding: const EdgeInsets.fromLTRB(17, 4, 17, 28),
+                  children: [
+                    BeeSurface(
+                        child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            child: Center(
+                                child: BeeTag(
+                                    tag: BeeTagData(
+                                        'preview',
+                                        _name.text.trim().isEmpty
+                                            ? l.tagNameLabel
+                                            : _name.text.trim(),
+                                        tagDetailColor(
+                                            _color,
+                                            Theme.of(context)
+                                                .colorScheme
+                                                .primary)))))),
+                    const SizedBox(height: 12),
+                    BeeSurface(
+                        child: BeeField(
+                            label: l.tagNameLabel,
+                            hint: l.tagNameHint,
+                            controller: _name,
+                            maxLength: 20,
+                            onChanged: (_) => setState(() {}),
+                            validator: (value) =>
+                                value == null || value.trim().isEmpty
+                                    ? l.tagNameRequired
+                                    : null)),
+                    const SizedBox(height: 12),
+                    BeeSurface(
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                          Text(l.tagColorLabel,
+                              style: const TextStyle(
+                                  fontSize: 14, fontWeight: FontWeight.w600)),
+                          const SizedBox(height: 12),
+                          BeeColorPalette<String>(
+                              value: _color,
+                              items: [
+                                for (final hex in colors)
+                                  BeeColorOption(
+                                      value: hex,
+                                      color: tagDetailColor(hex, Colors.grey),
+                                      label: '${l.tagColorLabel} $hex')
+                              ],
+                              onChanged: _saving
+                                  ? null
+                                  : (value) => setState(() => _color = value))
+                        ])),
+                  ]))),
+    ]));
   }
 }

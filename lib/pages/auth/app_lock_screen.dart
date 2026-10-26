@@ -1,13 +1,12 @@
+import '../../presentation/v4/bindings/page_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../styles/tokens.dart';
-import '../../utils/ui_scale_extensions.dart';
+import 'package:beecount_ui/beecount_ui.dart';
 import '../../providers/security_providers.dart';
-import '../../providers/theme_providers.dart';
 import '../../services/security/app_lock_service.dart';
-import '../../widgets/biz/pin_entry_pad.dart';
-import '../../widgets/biz/bee_icon.dart';
+import 'package:beecount_business_ui/beecount_business_ui.dart';
+import 'package:flutter/services.dart';
 import '../../l10n/app_localizations.dart';
 
 class AppLockScreen extends ConsumerStatefulWidget {
@@ -74,6 +73,7 @@ class _AppLockScreenState extends ConsumerState<AppLockScreen> {
 
   Future<void> _verifyPin() async {
     final success = await AppLockService.verifyPin(_pin);
+    if (!mounted) return;
     if (success) {
       _unlock();
     } else {
@@ -97,54 +97,39 @@ class _AppLockScreenState extends ConsumerState<AppLockScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final primaryColor = ref.watch(primaryColorProvider);
+    final l = AppLocalizations.of(context);
     final showBiometric = _biometricAvailable && _biometricEnabled;
-
-    return Scaffold(
-      backgroundColor: BeeTokens.scaffoldBackground(context),
-      body: SafeArea(
-        child: Column(
-          children: [
-            const Spacer(flex: 2),
-            // Logo
-            BeeIcon(
-              color: primaryColor,
-              size: 64.0.scaled(context, ref),
-            ),
-            SizedBox(height: 24.0.scaled(context, ref)),
-            // 标题
-            Text(
-              l10n.appLockEnterPin,
-              style: TextStyle(
-                fontSize: 18.0.scaled(context, ref),
-                fontWeight: FontWeight.w600,
-                color: BeeTokens.textPrimary(context),
-              ),
-            ),
-            SizedBox(height: 32.0.scaled(context, ref)),
-            // PIN 圆点
-            PinDotIndicator(
-              filledCount: _pin.length,
-              isError: _isError,
-            ),
-            const Spacer(flex: 1),
-            // 数字键盘
-            Padding(
-              padding: EdgeInsets.symmetric(
-                  horizontal: 40.0.scaled(context, ref)),
-              child: NumberPad(
-                onNumberTap: _onNumberTap,
-                onDelete: _onDelete,
-                showBiometric: showBiometric,
-                onBiometric:
-                    showBiometric ? _authenticateWithBiometrics : null,
-              ),
-            ),
-            SizedBox(height: 32.0.scaled(context, ref)),
-          ],
-        ),
-      ),
-    );
+    return V4PageScaffold(
+        backgroundColor: BeeCardTheme.of(context).canvas,
+        body: Column(children: [
+          BeePageHeader(title: l.appLockTitle),
+          Expanded(
+              child: SafeArea(
+                  top: false,
+                  child: BeeSecurityPanel(
+                      title: l.appLockEnterPin,
+                      subtitle: l.appLockDesc,
+                      inputBuilder: (compact) => BeePinPad(
+                          length: 4,
+                          filled: _pin.length,
+                          invalid: _isError,
+                          enabled: !_isError,
+                          cardKeys: true,
+                          compact: compact,
+                          deleteLabel: l.commonDelete,
+                          onDigit: (value) {
+                            HapticFeedback.lightImpact();
+                            _onNumberTap(value);
+                          },
+                          onDelete: _onDelete,
+                          auxiliaryKey: showBiometric
+                              ? SizedBox(
+                                  height: compact ? 48 : 57,
+                                  child: IconButton(
+                                      tooltip: l.appLockBiometric,
+                                      icon: const Icon(Icons.fingerprint),
+                                      onPressed: _authenticateWithBiometrics))
+                              : null))))
+        ]));
   }
 }

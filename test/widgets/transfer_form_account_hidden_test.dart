@@ -1,9 +1,11 @@
-/// 账户隐藏(#240)E1 钉住 —— 转账表单编辑态(.docs/account-archive/01-product-design.md
-/// §五 边界表第 5 行 + §4.2):
-///   - 编辑历史转账(有 editingTransactionId)时,若转出/转入账户当前已被隐藏,
-///     选择器补回该账户候选并打「已隐藏」灰标,让用户能原样保存
-///   - 新建转账(无 editingTransactionId)不钉住,隐藏账户不出现
+// 账户隐藏(#240)E1 钉住 —— 转账表单编辑态(.docs/account-archive/01-product-design.md
+// §五 边界表第 5 行 + §4.2):
+//   - 编辑历史转账(有 editingTransactionId)时,若转出/转入账户当前已被隐藏,
+//     选择器补回该账户候选并打「已隐藏」灰标,让用户能原样保存
+//   - 新建转账(无 editingTransactionId)不钉住,隐藏账户不出现
 import 'package:drift/native.dart';
+import 'package:beecount_ui/beecount_ui.dart';
+import 'package:beecount_business_ui/beecount_business_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -14,6 +16,18 @@ import 'package:beecount/data/repositories/local/local_repository.dart';
 import 'package:beecount/l10n/app_localizations.dart';
 import 'package:beecount/providers/database_providers.dart';
 import 'package:beecount/widgets/transaction/transfer_form.dart';
+
+void hiddenTransferTest(String name, Future<void> Function(WidgetTester) body) {
+  testWidgets(name, (tester) async {
+    try {
+      await body(tester);
+    } finally {
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pump(const Duration(seconds: 3));
+      await tester.pumpAndSettle();
+    }
+  });
+}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -74,32 +88,53 @@ void main() {
     );
   }
 
-  testWidgets('编辑历史转账:转出账户已隐藏 → 钉住显示 + 已隐藏灰标', (tester) async {
-    // 只传 initialFromAccountId(不传 to),避免两个账户都非空触发自动打开
-    // 金额弹窗(那条路径依赖 transferCategoryProvider 等更多基础设施,不是本
-    // 用例要验证的东西)。
-    await tester.pumpWidget(host(
-      editingTransactionId: 999,
-      initialFromAccountId: 2, // 已隐藏账户
-    ));
+  for (final from in [true, false]) {
+    hiddenTransferTest('历史转账${from ? '转出' : '转入'}隐藏账户保持选中、灰标与候选',
+        (tester) async {
+      await tester.pumpWidget(host(
+        editingTransactionId: 999,
+        initialFromAccountId: from ? 2 : null,
+        initialToAccountId: from ? null : 2,
+      ));
+      await tester.pumpAndSettle();
+      final pair = find.byType(BeeTransferAccountPair);
+      expect(find.text('旧钱包'), findsOneWidget);
+      expect(find.text('${from ? '转出账户' : '转入账户'} · 已隐藏'), findsOneWidget);
+      final rows = find.descendant(of: pair, matching: find.byType(BeeMenuRow));
+      await tester.tap(from ? rows.first : rows.last);
+      await tester.pumpAndSettle();
+      expect(find.byType(BeeAccountPicker), findsOneWidget);
+      expect(find.text('CNY · 已隐藏'), findsOneWidget);
+      expect(find.text('现金'), findsOneWidget);
+      await tester.tap(find.text('现金'));
+      await tester.pumpAndSettle();
+      expect(find.byType(BeeAccountPicker), findsNothing);
+      expect(find.text('现金'), findsOneWidget);
+      expect(find.text('旧钱包'), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+  }
+
+  hiddenTransferTest('新建转账选择器不列出隐藏账户，也不能选择同一个转入账户', (tester) async {
+    await tester.pumpWidget(host());
     await tester.pumpAndSettle();
-
-    // 旧钱包(id=2)被钉住为初始转出账户 → 转入网格按 `id != fromAccountId`
-    // 排除它,只会出现在转出网格里,合计 1 处;打了「已隐藏」灰标。
-    expect(find.text('旧钱包'), findsOneWidget);
-    expect(find.byIcon(Icons.visibility_off), findsOneWidget);
-    // 现金(id=1)未被排除,转出/转入两个网格都会出现,合计 2 处。
-    expect(find.text('现金'), findsNWidgets(2));
-  });
-
-  testWidgets('新建转账:隐藏账户不出现,也没有已隐藏灰标', (tester) async {
-    await tester.pumpWidget(host()); // 无 editingTransactionId → 不钉住
-
+    final rows = find.descendant(
+        of: find.byType(BeeTransferAccountPair),
+        matching: find.byType(BeeMenuRow));
+    await tester.tap(rows.first);
     await tester.pumpAndSettle();
-
     expect(find.text('旧钱包'), findsNothing);
-    expect(find.byIcon(Icons.visibility_off), findsNothing);
-    // 未选转出账户时,转入网格 = 转出网格(都是全量候选),现金两处都会出现。
-    expect(find.text('现金'), findsNWidgets(2));
+    expect(find.text('CNY · 已隐藏'), findsNothing);
+    expect(find.text('现金'), findsOneWidget);
+    await tester.tap(find.text('现金'));
+    await tester.pumpAndSettle();
+    await tester.tap(rows.last);
+    await tester.pumpAndSettle();
+    expect(find.byType(BeeAccountPicker), findsOneWidget);
+    final picker =
+        tester.widget<BeeAccountPicker>(find.byType(BeeAccountPicker));
+    expect(picker.accounts, isEmpty);
+    expect(find.text('旧钱包'), findsNothing);
+    expect(tester.takeException(), isNull);
   });
 }

@@ -1,0 +1,1755 @@
+[
+  {
+    "design_key": "primary",
+    "components": [
+      "BeeButton"
+    ],
+    "page": "foundation",
+    "case": 0,
+    "catalog_ids": [
+      "spec-5"
+    ],
+    "supportedStates": [
+      "主操作、次要操作、禁用、处理中及危险文字操作。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "nav",
+    "components": [
+      "BeeBottomBar"
+    ],
+    "page": "foundation",
+    "case": 7,
+    "catalog_ids": [
+      "spec-14"
+    ],
+    "supportedStates": [
+      "五项胶囊布局、选中态与 44 点击区；业务快捷入口单独组合。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "entry",
+    "components": [
+      "BeeTransactionRow"
+    ],
+    "page": "business",
+    "case": 2,
+    "catalog_ids": [
+      "spec-11"
+    ],
+    "supportedStates": [
+      "two-lines-preferred",
+      "three-lines-maximum",
+      "independent-category-action",
+      "direct-edit",
+      "long-press-menu",
+      "swipe-delete-confirm"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "entryForeign",
+    "components": [
+      "BeeTransactionRow",
+      "BeeMoney"
+    ],
+    "page": "business",
+    "case": 2,
+    "catalog_ids": [
+      "spec-11"
+    ],
+    "supportedStates": [
+      "original-amount",
+      "historical-conversion",
+      "two-lines-preferred",
+      "tags-and-ledger-chip",
+      "more-fields",
+      "privacy"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "brand",
+    "components": [
+      "BeeHomeIdentity",
+      "BeeHomeLayout"
+    ],
+    "page": "business",
+    "case": 0,
+    "catalog_ids": [
+      "spec-27"
+    ],
+    "supportedStates": [
+      "有品牌与无品牌两种状态；预览和个性化设置均可切换，其他功能共用。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "brandOff",
+    "components": [
+      "BeeHomeIdentity",
+      "BeeHomeLayout"
+    ],
+    "page": "business",
+    "case": 0,
+    "catalog_ids": [
+      "spec-27"
+    ],
+    "supportedStates": [
+      "有品牌与无品牌两种状态；预览和个性化设置均可切换，其他功能共用。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "summary",
+    "components": [
+      "BeeSummaryCard",
+      "BeeProgress",
+      "BeeBudgetStrip"
+    ],
+    "page": "business",
+    "case": 1,
+    "catalog_ids": [
+      "spec-10"
+    ],
+    "supportedStates": [
+      "首页收支、预算进度与账本切换共用视觉层次。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "categories",
+    "components": [
+      "RecordingCategoryTile",
+      "RecordingSubcategoryChip",
+      "BeeCategoryRanking"
+    ],
+    "page": "business",
+    "case": 3,
+    "catalog_ids": [
+      "spec-12"
+    ],
+    "supportedStates": [
+      "一级、二级分类都展示图标；展开后仍保持选择上下文。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "keypad",
+    "components": [
+      "RecordingKeypad",
+      "RecordingAmountCard",
+      "RecordingHeader"
+    ],
+    "page": "business",
+    "case": 5,
+    "catalog_ids": [
+      "spec-15"
+    ],
+    "supportedStates": [
+      "加减乘除、退格、等号、再记一笔与保存。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "metadata",
+    "components": [
+      "RecordingDetailsCard",
+      "BeeTag"
+    ],
+    "page": "business",
+    "case": 5,
+    "catalog_ids": [
+      "spec-16"
+    ],
+    "supportedStates": [
+      "两行表单：备注直接编辑、附件右上角；账户 / 日期 / 紧凑标签在下。与键盘保留 8px 间距。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "menu",
+    "components": [
+      "BeeMenuRow",
+      "BeeActionMenu"
+    ],
+    "page": "foundation",
+    "case": 3,
+    "catalog_ids": [
+      "spec-9"
+    ],
+    "supportedStates": [
+      "统一图标槽、主副标题、分隔线、尾部操作与开关。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "segments",
+    "components": [
+      "BeeSegmented"
+    ],
+    "page": "foundation",
+    "case": 1,
+    "catalog_ids": [
+      "spec-6"
+    ],
+    "supportedStates": [
+      "长标签可横向滚动；禁用项不参与选择。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "mapping",
+    "components": [
+      "BeeImportMapping"
+    ],
+    "page": "business",
+    "case": 14,
+    "catalog_ids": [
+      "spec-23"
+    ],
+    "supportedStates": [
+      "双列映射，核心字段和原始数据预览同屏，额外字段展开。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "auth",
+    "components": [
+      "BeeAuthorization",
+      "BeeField"
+    ],
+    "page": "business",
+    "case": 16,
+    "catalog_ids": [
+      "spec-18"
+    ],
+    "supportedStates": [
+      "写入前展示金额、分类、账户与备注，明确拒绝与允许范围。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "wheel",
+    "components": [
+      "BeeWheel",
+      "BeeDateWheels"
+    ],
+    "page": "business",
+    "case": 17,
+    "catalog_ids": [
+      "spec-17"
+    ],
+    "supportedStates": [
+      "44 高行、五行可视区、居中选中带；取消不写入。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "fields",
+    "components": [
+      "BeeField",
+      "BeeSearchField",
+      "BeeToggleRow",
+      "BeeCheckTile"
+    ],
+    "page": "foundation",
+    "case": 2,
+    "catalog_ids": [
+      "spec-8",
+      "spec-19"
+    ],
+    "supportedStates": [
+      "标签、输入值、提示文字与错误信息分层显示。",
+      "原为弹窗的流程保持弹窗；测试连接后回到原草稿。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "receipt",
+    "components": [
+      "BeeReceipt",
+      "BeeAnnualSummary"
+    ],
+    "page": "business",
+    "case": 18,
+    "catalog_ids": [
+      "spec-25"
+    ],
+    "supportedStates": [
+      "收支、分类、账户、标签和原始备注完整传递。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "onboarding",
+    "components": [
+      "BeeOnboardingStep",
+      "BeeOnboardingChoice",
+      "BeeOnboardingModeCard",
+      "BeeBrandMark",
+      "BeeBackupFileCard"
+    ],
+    "page": "business",
+    "case": 15,
+    "catalog_ids": [
+      "spec-24"
+    ],
+    "supportedStates": [
+      "品牌、标题、说明居中；选择内容左对齐，选中态保持主题一致。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "tags",
+    "components": [
+      "BeeTagPicker",
+      "BeeTag"
+    ],
+    "page": "business",
+    "case": 6,
+    "catalog_ids": [
+      "spec-7"
+    ],
+    "supportedStates": [
+      "wrap",
+      "search",
+      "multi-select",
+      "cancel-confirm"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "ledger",
+    "components": [
+      "BeeLedgerCard",
+      "BeeLedgerEditorForm",
+      "BeeMonthStartDayGrid"
+    ],
+    "page": "business",
+    "case": 9,
+    "catalog_ids": [
+      "spec-20"
+    ],
+    "supportedStates": [
+      "边框、勾选和“当前账本”共同表达；不依赖颜色单独识别。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "ledgerMenu",
+    "components": [
+      "BeeLedgerActions",
+      "BeeActionMenu"
+    ],
+    "page": "business",
+    "case": 9,
+    "catalog_ids": [
+      "spec-21"
+    ],
+    "supportedStates": [
+      "卡片右下角与长按共用；区分本地/共享与创建者/成员。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "sync",
+    "components": [
+      "BeeSyncStatus"
+    ],
+    "page": "business",
+    "case": 10,
+    "catalog_ids": [
+      "spec-22"
+    ],
+    "supportedStates": [
+      "原有八种 SyncDiff + 检查中、同步中与离线细分。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "customIcons",
+    "components": [
+      "BeeCategoryIcon"
+    ],
+    "page": "business",
+    "case": 3,
+    "catalog_ids": [
+      "spec-13"
+    ],
+    "supportedStates": [
+      "透明 PNG 完整显示；方形图片裁切；加载和失败有固定占位。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "quickAdd",
+    "components": [
+      "BeeQuickAddTrigger",
+      "BeeQuickAddFan",
+      "BeeQuickAdd"
+    ],
+    "page": "business",
+    "case": 20,
+    "catalog_ids": [
+      "spec-41"
+    ],
+    "supportedStates": [
+      "长按记账后滑向拍照、相册或语音；命令由 App 执行。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "currency",
+    "components": [
+      "BeeCurrencyPicker",
+      "BeeChoicePicker"
+    ],
+    "page": "business",
+    "case": 7,
+    "catalog_ids": [
+      "spec-28"
+    ],
+    "supportedStates": [
+      "常用币种、搜索、汇率提示与选中态；切换币种后清空不兼容账户。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "rate",
+    "components": [
+      "BeeValidatedInput",
+      "BeeStatus",
+      "RecordingConversionSummary"
+    ],
+    "page": "business",
+    "case": 8,
+    "catalog_ids": [
+      "spec-29"
+    ],
+    "supportedStates": [
+      "保留账单上下文，正数校验；取消不写入，确认后恢复折算预览。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "mineProfile",
+    "components": [
+      "BeeProfile"
+    ],
+    "page": "business",
+    "case": 11,
+    "catalog_ids": [
+      "spec-30"
+    ],
+    "supportedStates": [
+      "昵称可点按编辑；当前账本累计余额、记账天数和账单笔数同卡展示，金额可隐藏。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "ledgerBalance",
+    "components": [
+      "BeeLedgerBalance"
+    ],
+    "page": "business",
+    "case": 11,
+    "catalog_ids": [
+      "spec-30"
+    ],
+    "supportedStates": [
+      "昵称可点按编辑；当前账本累计余额、记账天数和账单笔数同卡展示，金额可隐藏。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "nickname",
+    "components": [
+      "BeeValidatedInput"
+    ],
+    "page": "business",
+    "case": 12,
+    "catalog_ids": [
+      "spec-31"
+    ],
+    "supportedStates": [
+      "保留页面上下文；最多 20 字，空白不可保存，取消不改动原昵称。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "attachments",
+    "components": [
+      "BeeAttachments",
+      "BeeAttachmentSources"
+    ],
+    "page": "business",
+    "case": 13,
+    "catalog_ids": [
+      "spec-32"
+    ],
+    "supportedStates": [
+      "拍照与相册沿用底部弹层；图片沿用全屏浏览，支持滑动、缩放与缩略图切换；来源选择不占用独立页面。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "attachmentViewer",
+    "components": [
+      "BeeAttachmentViewer"
+    ],
+    "page": "business",
+    "case": 13,
+    "catalog_ids": [
+      "spec-32"
+    ],
+    "supportedStates": [
+      "preview",
+      "zoom",
+      "thumbnail-switch",
+      "close"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "feedbackToast",
+    "components": [
+      "BeeToast"
+    ],
+    "page": "foundation",
+    "case": 9,
+    "catalog_ids": [
+      "spec-33"
+    ],
+    "supportedStates": [
+      "安全区下 12；最小高 44，最大宽 340；圆角 14；图标 20，正文 13 / 1.5；2 秒自动消失，新提示替换旧提示。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "feedbackStatus",
+    "components": [
+      "BeeStatus"
+    ],
+    "page": "foundation",
+    "case": 4,
+    "catalog_ids": [
+      "spec-26"
+    ],
+    "supportedStates": [
+      "成功、警告、失败均使用图标和文字；失败原因与重试入口保留在页面。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "iconActions",
+    "components": [
+      "BeeIconButton",
+      "BeeBadge"
+    ],
+    "page": "foundation",
+    "case": 12,
+    "catalog_ids": [
+      "spec-34"
+    ],
+    "supportedStates": [
+      "默认、选中、禁用、危险、处理中与角标；操作区至少 44。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "choiceChips",
+    "components": [
+      "BeeChoiceChip",
+      "BeeCheckTile",
+      "BeeLabel",
+      "BeeMultiSelect",
+      "BeeInlineLabel"
+    ],
+    "page": "foundation",
+    "case": 13,
+    "catalog_ids": [
+      "spec-35"
+    ],
+    "supportedStates": [
+      "selected",
+      "unselected",
+      "disabled",
+      "mixed",
+      "all",
+      "controlled-set",
+      "compact-inline-label",
+      "ellipsis-and-tooltip",
+      "local-label-action"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "searchChoice",
+    "components": [
+      "BeeChoicePicker"
+    ],
+    "page": "foundation",
+    "case": 14,
+    "catalog_ids": [
+      "spec-36"
+    ],
+    "supportedStates": [
+      "通用数据模型；支持副标题、选中项、搜索、空态与重试。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "inputStates",
+    "components": [
+      "BeeField",
+      "BeeSearchField",
+      "BeeDecimalInputFormatter"
+    ],
+    "page": "foundation",
+    "case": 15,
+    "catalog_ids": [
+      "spec-37"
+    ],
+    "supportedStates": [
+      "聚焦、只读、禁用、密码、校验、数字过滤、计数与IME组合输入。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "layoutPrimitives",
+    "components": [
+      "BeePageHeader",
+      "BeeSurface",
+      "BeeDivider",
+      "BeeAvatar"
+    ],
+    "page": "foundation",
+    "case": 16,
+    "catalog_ids": [
+      "spec-38"
+    ],
+    "supportedStates": [
+      "主页面与二级页头、分组、头像、普通及内缩分隔。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "actionBar",
+    "components": [
+      "BeeActionBar"
+    ],
+    "page": "foundation",
+    "case": 17,
+    "catalog_ids": [
+      "spec-39"
+    ],
+    "supportedStates": [
+      "主次操作、单操作、禁用和处理中，尊重安全区。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "loadingStates",
+    "components": [
+      "BeeProgress",
+      "BeeStatus",
+      "BeeSkeleton"
+    ],
+    "page": "foundation",
+    "case": 18,
+    "catalog_ids": [
+      "spec-40"
+    ],
+    "supportedStates": [
+      "未知进度不显示百分比；占位、完成与刷新状态分别表达。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "categoryPicker",
+    "components": [
+      "BeeCategoryPicker"
+    ],
+    "page": "business",
+    "case": 27,
+    "catalog_ids": [
+      "spec-45"
+    ],
+    "supportedStates": [
+      "一级与二级图标、自定义图片、搜索、草稿确认，以及保留笔数/禁用规则的即时选择。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "accountPicker",
+    "components": [
+      "BeeAccountPicker"
+    ],
+    "page": "business",
+    "case": 28,
+    "catalog_ids": [
+      "spec-46"
+    ],
+    "supportedStates": [
+      "当前记账币种、账户余额、暂不设置、搜索与选中。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "transactionStates",
+    "components": [
+      "BeeTransactionRow"
+    ],
+    "page": "business",
+    "case": 29,
+    "catalog_ids": [
+      "spec-47"
+    ],
+    "supportedStates": [
+      "60 shared fixtures",
+      "two-lines-preferred",
+      "at-most-three-lines",
+      "text-exclusion-flags",
+      "ledger-chip",
+      "note-priority",
+      "time-format",
+      "foreign-conversion",
+      "privacy",
+      "batch",
+      "readonly",
+      "more-fields"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "liveBinding",
+    "components": [
+      "BeeLedgerBalance",
+      "BeeLedgerPicker",
+      "BeeCategoryPicker",
+      "BeeAccountPicker",
+      "BeeTransactionRow"
+    ],
+    "page": "business",
+    "case": 30,
+    "catalog_ids": [
+      "spec-48"
+    ],
+    "supportedStates": [
+      "真实数据绑定在 App；展示组件接收参数与回调，写入复用现有业务。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "ledgerPicker",
+    "components": [
+      "BeeLedgerPicker"
+    ],
+    "page": "business",
+    "case": 31,
+    "catalog_ids": [
+      "spec-49"
+    ],
+    "supportedStates": [
+      "当前账本勾选、个人与共享信息、币种、搜索与切换；与账本管理分开展示。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "categoryManagement",
+    "components": [
+      "BeeCategoryManagementList",
+      "BeeManagedCategory",
+      "BeeCategoryChildrenGrid"
+    ],
+    "page": "business",
+    "case": 32,
+    "catalog_ids": [
+      "spec-50"
+    ],
+    "supportedStates": [
+      "一级二级图标预览、展开、编辑、子分类管理与拖动排序。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "transferAccounts",
+    "components": [
+      "BeeTransferAccountPair"
+    ],
+    "page": "business",
+    "case": 33,
+    "catalog_ids": [
+      "spec-51"
+    ],
+    "supportedStates": [
+      "转出、转入独立选择；不在展示包中发起请求或改写余额。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "tagPicker",
+    "components": [
+      "BeeTagPicker",
+      "BeeTag"
+    ],
+    "page": "business",
+    "case": 6,
+    "catalog_ids": [
+      "spec-7"
+    ],
+    "supportedStates": [
+      "语义色保持一致；选择器保留最近使用、横排多选、搜索与确认草稿。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "streamHeader",
+    "components": [
+      "BeeTransactionStreamHeader"
+    ],
+    "page": "business",
+    "case": 2,
+    "catalog_ids": [
+      "spec-11"
+    ],
+    "supportedStates": [
+      "原币为主，折算与标签为辅；分类图标与账单内容使用独立点击区。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "dayHeader",
+    "components": [
+      "BeeTransactionDayHeader"
+    ],
+    "page": "business",
+    "case": 2,
+    "catalog_ids": [
+      "spec-11"
+    ],
+    "supportedStates": [
+      "原币为主，折算与标签为辅；分类图标与账单内容使用独立点击区。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "dismissibleStatus",
+    "components": [
+      "BeeStatus",
+      "BeeIconButton"
+    ],
+    "page": "foundation",
+    "case": 4,
+    "catalog_ids": [
+      "spec-26"
+    ],
+    "supportedStates": [
+      "成功、警告、失败均使用图标和文字；失败原因与重试入口保留在页面。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "searchBatch",
+    "components": [
+      "BeeSearchSummary",
+      "BeeBatchSelection",
+      "BeeBatchActionBar"
+    ],
+    "page": "business",
+    "case": 34,
+    "catalog_ids": [
+      "spec-52"
+    ],
+    "supportedStates": [
+      "真实结果合计、全选/反选、调整范围和固定底部操作栏；批量操作保留字段与关联。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "categoryIconEditor",
+    "components": [
+      "BeeCategoryIconEditor",
+      "BeeCategoryIconGroup",
+      "BeeCategoryIconSource",
+      "BeeIconChoiceGrid"
+    ],
+    "page": "business",
+    "case": 37,
+    "catalog_ids": [
+      "spec-56"
+    ],
+    "supportedStates": [
+      "完整预设分组、紧凑图标网格、自定义图片原色预览与裁剪入口。选择只修改草稿，保存由 App binding 原子提交。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "resourceDetail",
+    "components": [
+      "BeeResourceHero",
+      "BeeResourceBreakdown",
+      "BeeResourceTrend",
+      "BeeCreditCardTerms"
+    ],
+    "page": "business",
+    "case": 35,
+    "catalog_ids": [
+      "spec-53"
+    ],
+    "supportedStates": [
+      "统一身份、原币与本位币汇总、三项指标；分布行支持预设图标和自定义图片，趋势使用历史快照；信用卡保留额度估算、还款日期、溢缴款和无额度还款。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "configuration",
+    "components": [
+      "BeeConfigurationOptions",
+      "BeeConfigurationPreview"
+    ],
+    "page": "business",
+    "case": 36,
+    "catalog_ids": [
+      "spec-54"
+    ],
+    "supportedStates": [
+      "导出八项范围；导入只显示文件实际包含的内容。YAML 可选中复制，确认与取消保持标准弹窗。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "security",
+    "components": [
+      "BeeSecurityPanel",
+      "BeePinPad"
+    ],
+    "page": "business",
+    "case": 26,
+    "catalog_ids": [
+      "spec-55"
+    ],
+    "supportedStates": [
+      "四位 PIN，修改先验证原密码；数字卡片与错误状态，短屏可滚动且保留完整按键。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "accountTypes",
+    "components": [
+      "BeeAccountTypePicker",
+      "BeeIconChoiceGrid"
+    ],
+    "page": "business",
+    "case": 38,
+    "catalog_ids": [
+      "spec-57"
+    ],
+    "supportedStates": [
+      "日常与估值 12 种原有类型；编辑限制由 App 提供，浏览分组不改变账户草稿。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "balanceAdjustment",
+    "components": [
+      "BeeAccountBalanceAdjustment"
+    ],
+    "page": "business",
+    "case": 39,
+    "catalog_ids": [
+      "spec-58"
+    ],
+    "supportedStates": [
+      "当前值、目标值和差额；取消返回 null，只改余额返回 false，生成平账记录返回 true。真实写入由 App 执行。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "assetOverview",
+    "components": [
+      "BeeAssetSummary",
+      "BeeAssetChartSection",
+      "BeeAccountPreferences",
+      "BeeAccountConversionRow",
+      "BeeAssetOverviewCard",
+      "BeeAssetTypeGroup",
+      "BeeCompactAccountRow",
+      "BeeAssetAllocation",
+      "BeeAssetComposition",
+      "BeeAssetTrendPreview",
+      "BeeAssetAccountToolbar"
+    ],
+    "page": "business",
+    "case": 40,
+    "catalog_ids": [
+      "spec-59"
+    ],
+    "supportedStates": [
+      "紧凑资产卡、只读原币 Tab、单色构成、完整类型筛选、欠款/溢缴款与默认账户；真实计算由 App 提供。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "tagLibrary",
+    "components": [
+      "BeeTagLibrary",
+      "BeeTagLibraryItem"
+    ],
+    "page": "business",
+    "case": 41,
+    "catalog_ids": [
+      "spec-60"
+    ],
+    "supportedStates": [
+      "双色标签身份、真实关联笔数、详情和删除；工具菜单保留默认生成、合并/覆盖导入、清理和分享。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "lineChart",
+    "components": [
+      "BeeLineChart"
+    ],
+    "page": "foundation",
+    "case": 19,
+    "catalog_ids": [
+      "spec-61"
+    ],
+    "supportedStates": [
+      "保留主副线、负值和零值、金额隐藏与手势，纯展示组件不请求数据。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "timeWheels",
+    "components": [
+      "BeeTimeWheels",
+      "BeeWheel"
+    ],
+    "page": "foundation",
+    "case": 20,
+    "catalog_ids": [
+      "spec-62"
+    ],
+    "supportedStates": [
+      "小时0–23与分钟0–59，草稿与保存由宿主负责。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "reminderSettings",
+    "components": [
+      "BeeReminderPreferences",
+      "BeeToggleRow",
+      "BeeMenuRow"
+    ],
+    "page": "business",
+    "case": 42,
+    "catalog_ids": [
+      "spec-63"
+    ],
+    "supportedStates": [
+      "真实偏好、启停与时间选择；系统调度由App负责。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "noteHistoryPreferences",
+    "components": [
+      "BeeNoteHistoryPreferences",
+      "BeeRadioTile"
+    ],
+    "page": "business",
+    "case": 43,
+    "catalog_ids": [
+      "spec-64"
+    ],
+    "supportedStates": [
+      "范围、排序与数量的完整受控状态；有效值即时保存，查询与校验由App负责。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "hsvPalette",
+    "components": [
+      "BeeHsvColorPicker",
+      "BeeColorPalette"
+    ],
+    "page": "foundation",
+    "case": 21,
+    "catalog_ids": [
+      "spec-65"
+    ],
+    "supportedStates": [
+      "完整名称、选中与禁用、RGB字节预览，以及色相/饱和度/亮度草稿。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "skinCard",
+    "components": [
+      "BeeSkinCard",
+      "BeeSkinChoice"
+    ],
+    "page": "business",
+    "case": 44,
+    "catalog_ids": [
+      "spec-66"
+    ],
+    "supportedStates": [
+      "实际预览、选中、动态与固定配色标记，长名称和只读状态。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "fileTransfer",
+    "components": [
+      "BeeFileTransferStatus",
+      "BeeArchiveSummary",
+      "BeeFileTaskState"
+    ],
+    "page": "business",
+    "case": 45,
+    "catalog_ids": [
+      "spec-67"
+    ],
+    "supportedStates": [
+      "就绪、处理中、成功、部分失败与失败；原归档信息与跳过/覆盖草稿。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "attachmentLibrary",
+    "components": [
+      "BeeAttachmentLibrary",
+      "BeeAttachmentFileMetadata",
+      "BeeAttachmentViewer"
+    ],
+    "page": "business",
+    "case": 46,
+    "catalog_ids": [
+      "spec-68"
+    ],
+    "supportedStates": [
+      "真实本地文件与归档字节、两个分组、实际尺寸大小、空错与只读缩放。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "categoryMigration",
+    "components": [
+      "BeeCategoryMigrationPair"
+    ],
+    "page": "business",
+    "case": 47,
+    "catalog_ids": [
+      "spec-69"
+    ],
+    "supportedStates": [
+      "原类型、来源和目标约束；一级与二级图标、自定义图片、禁用、长名称和只读预览。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "exchangeRates",
+    "components": [
+      "BeeExchangeRateRow",
+      "BeeExchangeRateField"
+    ],
+    "page": "business",
+    "case": 48,
+    "catalog_ids": [
+      "spec-70"
+    ],
+    "supportedStates": [
+      "手动优先、自动/陈旧/缺失、反向参考、有效范围与恢复自动；精度及写入由App保留。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "budgetOverview",
+    "components": [
+      "BeeBudgetTone",
+      "BeeBudgetProgress",
+      "BeeBudgetOverview",
+      "BeeBudgetCategoryRow"
+    ],
+    "page": "business",
+    "case": 49,
+    "catalog_ids": [
+      "spec-71"
+    ],
+    "supportedStates": [
+      "原70/90/100风险阈值；128环形、负剩余、自定义分类图标、账本周期及共享只读权限。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "budgetEditor",
+    "components": [
+      "BeeBudgetEditorForm"
+    ],
+    "page": "business",
+    "case": 50,
+    "catalog_ids": [
+      "spec-72"
+    ],
+    "supportedStates": [
+      "原始金额精度回填、两位新输入、父分类底部选择和自定义图片；App保留原预算身份与保存/删除范围。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "calendar",
+    "components": [
+      "BeeCalendarMonthHeading",
+      "BeeCalendarDayCell",
+      "BeeCalendarDayHeading"
+    ],
+    "page": "business",
+    "case": 51,
+    "catalog_ids": [
+      "spec-73"
+    ],
+    "supportedStates": [
+      "年月滚轮、前后切月与今天；双收支、转账排除、原币换算和当天记账由App绑定原仓库。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "analytics",
+    "components": [
+      "BeeAnalyticsSummary",
+      "BeeAnalyticsComposition",
+      "BeeAnalyticsProportion",
+      "BeeAnalyticsRankingList",
+      "BeeAnalyticsShare",
+      "BeeColumnChart"
+    ],
+    "page": "business",
+    "case": 52,
+    "catalog_ids": [
+      "spec-74"
+    ],
+    "supportedStates": [
+      "月/年/全部、原收支/结余、原年月滚轮、按层级聚合与环图；数据和隐私仍由App绑定。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "billingGuide",
+    "components": [
+      "BeeBillingGuide",
+      "BeeSliderField",
+      "BeeToggleRow"
+    ],
+    "page": "business",
+    "case": 53,
+    "catalog_ids": [
+      "spec-75"
+    ],
+    "supportedStates": [
+      "原图片/拍照/语音/分享使用说明保持弹窗，原文与前置能力不省略；语音触发与松手提交由App绑定原偏好。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "aiSettings",
+    "components": [
+      "BeeAICapabilityRow",
+      "BeeAIConsentContent",
+      "BeeRadioTile",
+      "BeeToggleRow"
+    ],
+    "page": "business",
+    "case": 54,
+    "catalog_ids": [
+      "spec-76"
+    ],
+    "supportedStates": [
+      "三种能力、只读与长名称，完整授权正文与短路径弹窗；实际保存与授权版本由App绑定。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "aiProvider",
+    "components": [
+      "BeeAIProviderCard",
+      "BeeAIModelTestField",
+      "BeeLabel",
+      "BeeField"
+    ],
+    "page": "business",
+    "case": 55,
+    "catalog_ids": [
+      "spec-77"
+    ],
+    "supportedStates": [
+      "紧凑只读能力标签、内置/自定义卡与六字段弹窗；逐项/并行请求、缓存和真实保存由App绑定。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "codeEditor",
+    "components": [
+      "BeeCodeEditor",
+      "BeeField"
+    ],
+    "page": "foundation",
+    "case": 2,
+    "catalog_ids": [
+      "spec-37"
+    ],
+    "supportedStates": [
+      "聚焦、只读、禁用、密码、校验、数字过滤、计数与IME组合输入。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "codeBlock",
+    "components": [
+      "BeeCodeBlock"
+    ],
+    "page": "foundation",
+    "case": 2,
+    "catalog_ids": [
+      "spec-37"
+    ],
+    "supportedStates": [
+      "聚焦、只读、禁用、密码、校验、数字过滤、计数与IME组合输入。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "aiPrompt",
+    "components": [
+      "BeePromptVariables",
+      "BeePromptDocument",
+      "BeeCodeEditor",
+      "BeeCodeBlock"
+    ],
+    "page": "business",
+    "case": 56,
+    "catalog_ids": [
+      "spec-78"
+    ],
+    "supportedStates": [
+      "原完整模板与登记表，缺失能力只提示和安全追加；编辑/粘贴/分享/预览/重置与真实保存由App绑定。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "executionDepth",
+    "components": [
+      "BeeExecutionDepthPicker",
+      "BeeRadioTile"
+    ],
+    "page": "business",
+    "case": 57,
+    "catalog_ids": [
+      "spec-79"
+    ],
+    "supportedStates": [
+      "保留原四档2/4/6/8选择，底部弹层即时保存/取消；运行时上限和真实Store留App。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "aiConversation",
+    "components": [
+      "BeeConversationInput",
+      "BeeConversationUserMessage",
+      "BeeConversationNotice",
+      "BeeAssistantBillCard",
+      "BeeToolRequestDetails",
+      "BeeConversationStart",
+      "BeeConversationLedgerBrief"
+    ],
+    "page": "business",
+    "case": 58,
+    "catalog_ids": [
+      "spec-80"
+    ],
+    "supportedStates": [
+      "直接输入/停止、消息、原外币账单字段及撤销、授权弹窗；原真实请求与权限留App。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "recurringBills",
+    "components": [
+      "BeeButton",
+      "BeeButtonKind",
+      "BeeLineIcon",
+      "BeeRecurringBillCard",
+      "BeeRecurringUsageNotice",
+      "BeeSurface"
+    ],
+    "page": "business",
+    "case": 59,
+    "gallery_source": "lib/presentation/v4/gallery/recurring_bills_sample.dart",
+    "catalog_ids": [
+      "spec-81"
+    ],
+    "supportedStates": [
+      "跨账本、分类图片、原币ISO码、频率/间隔、最近生成日和启停；真正生成及写入由App原服务负责。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "transactionImport",
+    "components": [
+      "BeeButton",
+      "BeeButtonKind",
+      "BeeImportFileChoice",
+      "BeeImportMappingField",
+      "BeeImportOption",
+      "BeeImportPreviewTable",
+      "BeeImportSection",
+      "BeeImportSourcePicker",
+      "BeeImportStatusPanel",
+      "BeeImportSteps"
+    ],
+    "page": "business",
+    "case": 60,
+    "gallery_source": "lib/presentation/v4/gallery/import_flow_sample.dart",
+    "catalog_ids": [
+      "spec-82"
+    ],
+    "supportedStates": [
+      "原12项字段、分类映射、账户币种确认和结果；取消沿用原流程，不宣称事务撤销。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "transactionExport",
+    "components": [
+      "BeeButton",
+      "BeeButtonKind",
+      "BeeTransactionExport"
+    ],
+    "page": "business",
+    "case": 61,
+    "gallery_source": "lib/presentation/v4/gallery/export_sample.dart",
+    "catalog_ids": [
+      "spec-83"
+    ],
+    "supportedStates": [
+      "当前账本全部交易、12列与UTF-8 BOM；文件写入及系统分享由App处理。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "recurringEditor",
+    "components": [
+      "BeeButton",
+      "BeeButtonKind",
+      "BeeRecurringEditorField",
+      "BeeRecurringEditorForm",
+      "BeeRecurringEditorValue",
+      "BeeSegment",
+      "BeeSurface"
+    ],
+    "page": "business",
+    "case": 62,
+    "gallery_source": "lib/presentation/v4/gallery/recurring_editor_sample.dart",
+    "catalog_ids": [
+      "spec-84"
+    ],
+    "supportedStates": [
+      "原四种频率、间隔、起止日期、151币种与账户；真实调度留在App原服务。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "annualReport",
+    "components": [
+      "BeeAnnualAchievement",
+      "BeeAnnualComparisonRow",
+      "BeeAnnualMoment",
+      "BeeAnnualOverview",
+      "BeeAnnualRank",
+      "BeeAnnualTrend",
+      "BeeAnnualTrendPoint",
+      "BeeButton",
+      "BeeLineIcon",
+      "BeeSurface"
+    ],
+    "page": "business",
+    "case": 63,
+    "gallery_source": "lib/presentation/v4/gallery/annual_report_sample.dart",
+    "catalog_ids": [
+      "spec-85"
+    ],
+    "supportedStates": [
+      "原年度数据、原币与历史折算、七段内容和海报入口。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "receiptOptions",
+    "components": [
+      "BeeButton",
+      "BeeCardTheme",
+      "BeeReceiptComposer",
+      "BeeReceiptField",
+      "BeeSurface"
+    ],
+    "page": "business",
+    "case": 64,
+    "gallery_source": "lib/presentation/v4/gallery/receipt_sample.dart",
+    "catalog_ids": [
+      "spec-86"
+    ],
+    "supportedStates": [
+      "保留原弹窗与字段默认值；截图和分享使用原服务。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "cloudConfiguration",
+    "components": [
+      "BeeCloudBackupWarning",
+      "BeeCloudConfigurationDialog",
+      "BeeCloudConnectionSummary",
+      "BeeCloudLoginForm",
+      "BeeCloudServiceCard",
+      "BeeField",
+      "BeeLineIcon",
+      "BeeTone"
+    ],
+    "page": "business",
+    "case": 65,
+    "gallery_source": "lib/presentation/v4/gallery/cloud_configuration_sample.dart",
+    "catalog_ids": [
+      "spec-87"
+    ],
+    "supportedStates": [
+      "六类服务、四配置弹窗、原登录与记住账号；示例不初始化鉴权或发起网络。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "transactionDetail",
+    "components": [
+      "BeeAttachment",
+      "BeeButton",
+      "BeeButtonKind",
+      "BeeDetailItem",
+      "BeeLineIcon",
+      "BeeSurface",
+      "BeeTagData",
+      "BeeTransactionDetail",
+      "BeeTransactionKind"
+    ],
+    "page": "business",
+    "case": 66,
+    "gallery_source": "lib/presentation/v4/gallery/transaction_detail_sample.dart",
+    "catalog_ids": [
+      "spec-89"
+    ],
+    "supportedStates": [
+      "完整原币字段、历史折算、标记、附件与独立编辑入口；本地加载和动作由App绑定。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "cloudBackup",
+    "components": [
+      "BeeButton",
+      "BeeButtonKind",
+      "BeeCloudBackupAction",
+      "BeeCloudBackupPreference",
+      "BeeCloudBackupSummary",
+      "BeeLineIcon"
+    ],
+    "page": "business",
+    "case": 67,
+    "gallery_source": "lib/presentation/v4/gallery/cloud_backup_sample.dart",
+    "catalog_ids": [
+      "spec-90"
+    ],
+    "supportedStates": [
+      "原缓存状态、自动同步、上传和预览确认；取消与错误恢复由App保留。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "autoBilling",
+    "components": [
+      "BeeAutoBillingActionCard",
+      "BeeAutoBillingBatteryCard",
+      "BeeAutoBillingBatteryDialog",
+      "BeeAutoBillingInfoCard",
+      "BeeAutoBillingManualGuide",
+      "BeeAutoBillingMonitorCard",
+      "BeeAutoBillingTutorialCard",
+      "BeeAutoBillingVersionNotice",
+      "BeeChoiceChip",
+      "BeeSurface",
+      "BeeToggleRow"
+    ],
+    "page": "business",
+    "case": 68,
+    "gallery_source": "lib/presentation/v4/gallery/auto_billing_sample.dart",
+    "catalog_ids": [
+      "spec-91"
+    ],
+    "supportedStates": [
+      "Android监听/电池卡、iOS教程/旧版本/手动六步，全部组件平铺；权限与平台动作留App。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "detailCurrency",
+    "components": [
+      "BeeChoiceChip",
+      "BeeDetailCurrencyNotice",
+      "BeeLineIcon",
+      "BeeResourceHero",
+      "BeeResourceMetric",
+      "BeeToggleRow"
+    ],
+    "page": "business",
+    "case": 69,
+    "gallery_source": "lib/presentation/v4/gallery/detail_currency_sample.dart",
+    "catalog_ids": [
+      "spec-92"
+    ],
+    "supportedStates": [
+      "当前账本币种、原账本native、缺失和陈旧提示；完整/缺失/陈旧加隐私状态平铺。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "cloudShared",
+    "components": [
+      "BeeCloudSharedCard",
+      "BeeCloudSharedHealthRow",
+      "BeeCloudSharedInviteCode",
+      "BeeCloudSharedInviteForm",
+      "BeeCloudSharedMemberRow"
+    ],
+    "page": "business",
+    "case": 70,
+    "gallery_source": "lib/presentation/v4/gallery/cloud_shared_sample.dart",
+    "catalog_ids": [
+      "spec-93"
+    ],
+    "supportedStates": [
+      "原同步状态、邀请码、加入确认、成员与统计，保留owner/editor边界；只读目录不访问服务端。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "shareCard",
+    "components": [
+      "BeeShareCard",
+      "BeeShareCardTemplate",
+      "BeeSurface"
+    ],
+    "page": "business",
+    "case": 71,
+    "gallery_source": "lib/presentation/v4/gallery/share_card_sample.dart",
+    "catalog_ids": [
+      "spec-94"
+    ],
+    "supportedStates": [
+      "保留档案/应用/月年/账本原海报；五种选择、隐私、加载错误与保存分享仍交原App服务。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "aiAdvanced",
+    "components": [
+      "BeeAIAdvancedActivityCard",
+      "BeeAIAdvancedMemoryCard",
+      "BeeAIAdvancedNotice",
+      "BeeAIAdvancedPermissionRow",
+      "BeeAIAdvancedPermissionSection",
+      "BeeAIAdvancedToolBadge",
+      "BeeLineIcon",
+      "BeeTone"
+    ],
+    "page": "business",
+    "case": 72,
+    "gallery_source": "lib/presentation/v4/gallery/ai_advanced_sample.dart",
+    "catalog_ids": [
+      "spec-95"
+    ],
+    "supportedStates": [
+      "本地记忆、逐工具权限和原活动/工具执行日志；真实只读预览由App注入，不主动执行模型或工具。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "support",
+    "components": [
+      "BeeDonationOption",
+      "BeeDonationOptions",
+      "BeeLineIcon",
+      "BeeSupportAction",
+      "BeeSupportActions",
+      "BeeSupportBrand",
+      "BeeSupportDocument",
+      "BeeSupportShortcut",
+      "BeeSupportText",
+      "BeeSurface"
+    ],
+    "page": "business",
+    "case": 73,
+    "gallery_source": "lib/presentation/v4/gallery/support_sample.dart",
+    "catalog_ids": [
+      "spec-96"
+    ],
+    "supportedStates": [
+      "版本/故事/相关产品、帮助/隐私原文档、六快捷链接和赞助商品；受控示例不打开外链、复制或付款。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "maintenance",
+    "components": [
+      "BeeCardTheme",
+      "BeeLineIcon",
+      "BeeMaintenanceAction",
+      "BeeMaintenanceFilterChoice",
+      "BeeMaintenanceLogCard",
+      "BeeMaintenanceLogFilters",
+      "BeeMaintenanceWidgetCard",
+      "BeeTone"
+    ],
+    "page": "business",
+    "case": 74,
+    "gallery_source": "lib/presentation/v4/gallery/maintenance_sample.dart",
+    "catalog_ids": [
+      "spec-97"
+    ],
+    "supportedStates": [
+      "日志筛选/详情/清空、模型/APK清理、平台组件引导和孤儿确认；目录真实预览只读本地，不扫描清理。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "transferInline",
+    "components": [
+      "BeeTransferAccountPair",
+      "BeeMenuRow",
+      "BeeChoicePicker"
+    ],
+    "page": "business",
+    "case": 33,
+    "gallery_source": "lib/presentation/v4/gallery/business_page.dart",
+    "catalog_ids": [
+      "spec-88"
+    ],
+    "supportedStates": [
+      "账户与金额同屏，新建同币种、异本位币账本同外币账户对，缺失汇率阻止提交，历史快照保留。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  }
+]

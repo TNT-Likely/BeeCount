@@ -28,11 +28,15 @@ class CategoryUtils {
   /// - 如果是key格式（新系统），通过 l10n 翻译
   /// - 否则直接返回分类名称（老用户或自定义分类）
   static String getDisplayName(String? categoryName, BuildContext context, {String kind = 'expense'}) {
-    if (categoryName == null || categoryName.isEmpty) {
-      return AppLocalizations.of(context).categoryDefaultTitle;
-    }
+    return displayName(categoryName, AppLocalizations.of(context), kind: kind);
+  }
 
-    final l10n = AppLocalizations.of(context);
+  /// Data bindings can localize keys without retaining a page's BuildContext.
+  static String displayName(String? categoryName, AppLocalizations l10n,
+      {String kind = 'expense'}) {
+    if (categoryName == null || categoryName.isEmpty) {
+      return l10n.categoryDefaultTitle;
+    }
 
     // 如果是key格式（新系统），进行翻译
     if (isCategoryKey(categoryName)) {

@@ -1,144 +1,66 @@
+import 'dart:async';
+import 'package:beecount_business_ui/beecount_business_ui.dart';
+import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../l10n/app_localizations.dart';
+import '../../presentation/v4/bindings/page_scaffold.dart';
 import '../../providers/language_provider.dart';
 import '../../providers/widget_provider.dart';
-import '../../widgets/ui/ui.dart';
-import '../../l10n/app_localizations.dart';
-import '../../styles/tokens.dart';
 
-class LanguageSettingsPage extends ConsumerWidget {
+class LanguageSettingsPage extends ConsumerStatefulWidget {
   const LanguageSettingsPage({super.key});
-
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final currentLanguage = ref.watch(languageProvider);
-    final l10n = AppLocalizations.of(context);
-
-    return Scaffold(
-      backgroundColor: BeeTokens.scaffoldBackground(context),
-      body: Column(
-        children: [
-          PrimaryHeader(
-            title: l10n.languageTitle,
-            showBack: true,
-          ),
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                // 跟随系统
-                _LanguageOption(
-                  title: l10n.languageSystemDefault,
-                  locale: null,
-                  currentLanguage: currentLanguage,
-                  onTap: () {
-                    ref.read(languageProvider.notifier).setLanguage(null);
-                    // 延迟更新widget,等待locale变化生效
-                    Future.delayed(const Duration(milliseconds: 100), () {
-                      updateAppWidget(ref, context);
-                    });
-                  },
-                ),
-                const SizedBox(height: 8),
-
-                // 简体中文
-                _LanguageOption(
-                  title: l10n.languageChinese,
-                  locale: const Locale('zh'),
-                  currentLanguage: currentLanguage,
-                  onTap: () {
-                    ref.read(languageProvider.notifier).setLanguage(const Locale('zh'));
-                    Future.delayed(const Duration(milliseconds: 100), () {
-                      updateAppWidget(ref, context);
-                    });
-                  },
-                ),
-                const SizedBox(height: 8),
-
-                // 繁體中文
-                _LanguageOption(
-                  title: '繁體中文',
-                  locale: const Locale('zh', 'TW'),
-                  currentLanguage: currentLanguage,
-                  onTap: () {
-                    ref.read(languageProvider.notifier).setLanguage(const Locale('zh', 'TW'));
-                    Future.delayed(const Duration(milliseconds: 100), () {
-                      updateAppWidget(ref, context);
-                    });
-                  },
-                ),
-                const SizedBox(height: 8),
-
-                // English
-                _LanguageOption(
-                  title: l10n.languageEnglish,
-                  locale: const Locale('en'),
-                  currentLanguage: currentLanguage,
-                  onTap: () {
-                    ref.read(languageProvider.notifier).setLanguage(const Locale('en'));
-                    Future.delayed(const Duration(milliseconds: 100), () {
-                      updateAppWidget(ref, context);
-                    });
-                  },
-                ),
-                const SizedBox(height: 8),
-
-                // 한국어
-                _LanguageOption(
-                  title: '한국어',
-                  locale: const Locale('ko'),
-                  currentLanguage: currentLanguage,
-                  onTap: () {
-                    ref.read(languageProvider.notifier).setLanguage(const Locale('ko'));
-                    Future.delayed(const Duration(milliseconds: 100), () {
-                      updateAppWidget(ref, context);
-                    });
-                  },
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  ConsumerState<LanguageSettingsPage> createState() =>
+      _LanguageSettingsPageState();
 }
 
-class _LanguageOption extends StatelessWidget {
-  final String title;
-  final Locale? locale;
-  final Locale? currentLanguage;
-  final VoidCallback onTap;
+class _LanguageSettingsPageState extends ConsumerState<LanguageSettingsPage> {
+  bool _saving = false;
 
-  const _LanguageOption({
-    required this.title,
-    required this.locale,
-    required this.currentLanguage,
-    required this.onTap,
-  });
+  Future<void> _select(Locale? locale) async {
+    if (_saving) return;
+    setState(() => _saving = true);
+    try {
+      await ref.read(languageProvider.notifier).setLanguage(locale);
+      // Keep the original delayed widget refresh so it sees the new locale.
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+      if (mounted) unawaited(updateAppWidget(ref, context));
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final isSelected = (locale == null && currentLanguage == null) ||
-        (locale != null && currentLanguage != null &&
-         locale!.languageCode == currentLanguage!.languageCode &&
-         locale!.countryCode == currentLanguage!.countryCode);
-
-    return ListTile(
-      title: Text(
-        title,
-        style: TextStyle(
-          fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-          color: BeeTokens.textPrimary(context),
-        ),
-      ),
-      trailing: isSelected
-          ? Icon(
-              Icons.check_circle,
-              color: Theme.of(context).colorScheme.primary,
-            )
-          : null,
-      onTap: onTap,
-    );
+    final l = AppLocalizations.of(context),
+        selected = ref.watch(languageProvider);
+    final notifier = ref.read(languageProvider.notifier);
+    const options = [
+      (locale: null, detail: 'System default'),
+      (locale: Locale('zh'), detail: 'Chinese · Simplified'),
+      (locale: Locale('zh', 'TW'), detail: 'Chinese · Traditional'),
+      (locale: Locale('en'), detail: 'English'),
+      (locale: Locale('ko'), detail: 'Korean'),
+    ];
+    return V4PageScaffold(
+        body: Column(children: [
+      BeePageHeader(title: l.languageTitle, leading: const BackButton()),
+      Expanded(
+          child: ListView(padding: const EdgeInsets.all(17), children: [
+        BeeSurface(
+            padding: const EdgeInsets.all(7),
+            child: Column(children: [
+              for (final option in options)
+                BeeOnboardingChoice(
+                  title:
+                      notifier.getLanguageDisplayName(context, option.locale),
+                  subtitle: option.detail,
+                  selected: selected == option.locale,
+                  onTap: _saving ? null : () => _select(option.locale),
+                ),
+            ])),
+      ])),
+    ]));
   }
 }

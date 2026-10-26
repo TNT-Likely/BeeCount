@@ -5,6 +5,7 @@ import 'package:beecount/l10n/app_localizations.dart';
 import 'package:beecount/pages/ai/agent_memory_page.dart';
 import 'package:beecount/providers/ai_chat_providers.dart';
 import 'package:drift/native.dart';
+import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -41,12 +42,23 @@ void main() {
 
   testWidgets('shows and removes local memories from the selected ledger',
       (tester) async {
+    addTearDown(() async {
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pump();
+    });
     await tester.pumpWidget(host());
     await tester.pumpAndSettle();
 
     expect(find.text('本地记忆'), findsOneWidget);
     expect(find.text('午饭优先使用现金账户'), findsOneWidget);
 
+    await tester.tap(find.byKey(const ValueKey('agent-memory-delete-1')));
+    await tester.pumpAndSettle();
+    expect(find.byType(BeeDialog), findsOneWidget);
+    expect(find.byType(AlertDialog), findsNothing);
+    await tester.tap(find.text('取消').last);
+    await tester.pumpAndSettle();
+    expect(await repository.listActive(ledgerId: 1), hasLength(1));
     await tester.tap(find.byKey(const ValueKey('agent-memory-delete-1')));
     await tester.pumpAndSettle();
     await tester.tap(find.text('删除').last);

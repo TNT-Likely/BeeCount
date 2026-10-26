@@ -1,0 +1,46 @@
+{
+  "source": "docs/design/card-refresh/prototype/demo.html?page=home&viewport=398x844, brand hidden, skin none",
+  "referenceCommit": "5bb4d32",
+  "measurement": "Chromium DOM bounding boxes, border 1, safe top 37",
+  "viewport": {
+    "width": 398,
+    "height": 844
+  },
+  "boxes": {
+    "topbar": {
+      "x": 18,
+      "y": 44,
+      "width": 362,
+      "height": 64
+    },
+    "summary": {
+      "x": 18,
+      "y": 113,
+      "width": 362,
+      "height": 283.796875
+    },
+    "stream": {
+      "x": 18,
+      "y": 409.796875,
+      "width": 362
+    },
+    "streamHeader": {
+      "x": 33,
+      "y": 413.796875,
+      "width": 332,
+      "height": 43
+    }
+  },
+  "summaryChildren": {
+    "contextY": 17,
+    "contextHeight": 27,
+    "amountLabelY": 57,
+    "amountLabelHeight": 26,
+    "heroY": 89,
+    "heroHeight": 46.796875,
+    "metricsY": 152.796875,
+    "metricsHeight": 43,
+    "budgetY": 212.796875,
+    "budgetHeight": 54
+  }
+}

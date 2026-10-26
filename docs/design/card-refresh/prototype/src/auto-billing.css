@@ -1,0 +1,48 @@
+#bee-immersive-suite .bc-phone .ab92-page{display:flex;flex-direction:column;gap:12px;padding-bottom:24px;color:var(--bc-ink);min-width:0}
+#bee-immersive-suite .bc-phone .ab92-page button{font:inherit;color:inherit;cursor:pointer;border:0;background:transparent;min-height:44px}
+#bee-immersive-suite .bc-phone .ab92-page button:disabled{cursor:default;opacity:.5}
+#bee-immersive-suite .bc-phone .ab92-header{display:flex;gap:8px;align-items:center;margin-bottom:2px}
+#bee-immersive-suite .bc-phone .ab92-header>button{display:grid;place-items:center;width:36px;flex:none}
+#bee-immersive-suite .bc-phone .ab92-header h2{font-size:18px;font-weight:650;margin:0;line-height:1.4}
+#bee-immersive-suite .bc-phone .ab92-card{padding:16px;background:var(--bc-paper);border-radius:22px;min-width:0}
+#bee-immersive-suite .bc-phone .ab92-card h3{display:flex;gap:10px;align-items:flex-start;font-size:14px;line-height:1.5;font-weight:600;margin:0}
+#bee-immersive-suite .bc-phone .ab92-card h3 svg{width:20px;height:20px;color:#a28a38;flex:none;margin-top:1px}
+#bee-immersive-suite .bc-phone .ab92-card p{white-space:pre-line;font-size:13px;line-height:1.65;color:var(--bc-muted);margin:12px 0 0;overflow-wrap:anywhere}
+#bee-immersive-suite .bc-phone .ab92-primary{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:10px 14px;background:#f2d477!important;color:#514824!important;border-radius:14px;font-size:13px!important;font-weight:600!important;margin-top:14px}
+#bee-immersive-suite .bc-phone .ab92-tutorial{display:flex;gap:12px;align-items:center;text-align:left;background:var(--bc-paper)!important;border-radius:22px;padding:16px;min-width:0}
+#bee-immersive-suite .bc-phone .ab92-tutorial>span:nth-child(2){flex:1;min-width:0}
+#bee-immersive-suite .bc-phone .ab92-tutorial b{font-size:14px;line-height:1.5;display:block}
+#bee-immersive-suite .bc-phone .ab92-tutorial small{font-size:13px;color:var(--bc-muted);line-height:1.65;display:block;margin-top:5px}
+#bee-immersive-suite .bc-phone .ab92-tutorial>svg{width:17px;height:17px;flex:none;color:var(--bc-muted)}
+#bee-immersive-suite .bc-phone .ab92-visual{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:var(--bc-soft);color:#a28a38;flex:none}
+#bee-immersive-suite .bc-phone .ab92-manual{padding:4px}
+#bee-immersive-suite .bc-phone .ab92-manual>button{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;padding:12px;text-align:left;font-size:14px}
+#bee-immersive-suite .bc-phone .ab92-manual>button b{font-weight:600;line-height:1.5}
+#bee-immersive-suite .bc-phone .ab92-manual>button svg{width:18px;height:18px;flex:none}
+#bee-immersive-suite .bc-phone .ab92-steps{padding:0 12px 12px}
+#bee-immersive-suite .bc-phone .ab92-steps>b{display:block;font-size:13px;margin:16px 0 12px}
+#bee-immersive-suite .bc-phone .ab92-step{display:flex;gap:10px;align-items:flex-start;margin-bottom:12px}
+#bee-immersive-suite .bc-phone .ab92-step>span{display:grid;place-items:center;width:25px;height:25px;border-radius:100%;background:var(--bc-soft);font-size:12px;font-weight:600;flex:none}
+#bee-immersive-suite .bc-phone .ab92-step p{margin:0;flex:1;min-width:0}
+#bee-immersive-suite .bc-phone .ab92-recommend{padding:12px;background:var(--bc-soft);border-radius:12px}
+#bee-immersive-suite .bc-phone .ab92-status-row{display:flex;align-items:center;gap:12px}
+#bee-immersive-suite .bc-phone .ab92-status-row>span{flex:1;min-width:0}
+#bee-immersive-suite .bc-phone .ab92-status-row b{font-size:14px;line-height:1.5;display:block}
+#bee-immersive-suite .bc-phone .ab92-status-row small{font-size:12px;line-height:1.5;color:var(--bc-muted);display:block;margin-top:4px}
+#bee-immersive-suite .bc-phone .ab92-switch{display:flex;width:44px;height:26px;min-height:26px!important;background:#d7dadd!important;border-radius:20px;padding:3px;flex:none}
+#bee-immersive-suite .bc-phone .ab92-switch i{width:20px;height:20px;border-radius:100%;background:#fff;box-shadow:0 1px 3px #0002}
+#bee-immersive-suite .bc-phone .ab92-switch.selected{background:#e0b445!important;justify-content:flex-end}
+#bee-immersive-suite .bc-phone .ab92-healthy{color:#4e9969!important}
+#bee-immersive-suite .bc-phone .ab92-warning,#bee-immersive-suite .bc-phone .ab92-error{color:#bc802e!important}
+#bee-immersive-suite .bc-phone .ab92-control,#bee-immersive-suite .bc-phone .ab92-event{border-radius:16px;padding:12px;background:var(--bc-paper);font-size:12px;line-height:1.5}
+#bee-immersive-suite .bc-phone .ab92-control p{margin:0 0 10px;color:var(--bc-muted)}
+#bee-immersive-suite .bc-phone .ab92-control>div{display:flex;gap:6px;flex-wrap:wrap}
+#bee-immersive-suite .bc-phone .ab92-control button{padding:5px 12px;border-radius:20px;background:var(--bc-soft)}
+#bee-immersive-suite .bc-phone .ab92-control button.selected{background:#f5e3a5;color:#766228}
+#bee-immersive-suite .bc-phone .ab92-dialog{max-width:calc(100vw - 48px);width:330px;box-sizing:border-box;border:0;border-radius:22px;padding:20px;background:var(--bc-paper);color:var(--bc-ink);box-shadow:0 16px 60px #0004;font-size:13px;line-height:1.6}
+#bee-immersive-suite .bc-phone .ab92-dialog::backdrop{background:#0005}
+#bee-immersive-suite .bc-phone .ab92-dialog h3{font-size:16px;line-height:1.4;margin:0 0 12px}
+#bee-immersive-suite .bc-phone .ab92-dialog p{white-space:pre-line;overflow-wrap:anywhere}
+#bee-immersive-suite .bc-phone .ab92-dialog footer{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+#bee-immersive-suite .bc-phone .ab92-dialog button{font:inherit;min-height:44px;border:0;background:var(--bc-soft);color:inherit;border-radius:12px;padding:8px 14px}
+.ab92-guide{font:14px/1.7 system-ui;max-width:900px;margin:20px auto;padding:16px;color:#292c30}.ab92-links{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}.ab92-links a,.ab92-guide section{background:#fff;color:inherit;text-decoration:none;border-radius:12px;padding:10px}

@@ -1,7 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:math' as math;
+import 'package:beecount_business_ui/beecount_business_ui.dart';
+import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -244,8 +245,7 @@ class _BeeAppState extends ConsumerState<BeeApp>
           logger.info('AppStart', '本地无账本,跳过首次同步');
           return;
         }
-        logger.info('AppStart',
-            'BeeCount Cloud 首次同步: 本地账本数=${ledgers.length}');
+        logger.info('AppStart', 'BeeCount Cloud 首次同步: 本地账本数=${ledgers.length}');
         final overallStart = DateTime.now();
 
         // ========== Phase 1: 用户级一次性 ==========
@@ -263,10 +263,10 @@ class _BeeAppState extends ConsumerState<BeeApp>
         List<dynamic>? remoteLedgers;
         try {
           remoteLedgers = await engine.provider.storage.list(path: '');
-          logger.info(
-              'AppStart', 'Phase1: 远端账本=${remoteLedgers.length}');
+          logger.info('AppStart', 'Phase1: 远端账本=${remoteLedgers.length}');
         } catch (e, st) {
-          logger.warning('AppStart', 'Phase1: 拉 remote_ledgers 失败,fallback', st);
+          logger.warning(
+              'AppStart', 'Phase1: 拉 remote_ledgers 失败,fallback', st);
           logger.warning('AppStart', 'error: $e');
         }
 
@@ -286,7 +286,8 @@ class _BeeAppState extends ConsumerState<BeeApp>
         //       user-global 的新增/重命名也能推上去(原来 Phase 2 skip 时会漏)
         try {
           final pushed = await engine.pushUserGlobalEntities();
-          logger.info('AppStart', 'Phase1: pushUserGlobalEntities pushed=$pushed');
+          logger.info(
+              'AppStart', 'Phase1: pushUserGlobalEntities pushed=$pushed');
         } catch (e, st) {
           logger.error('AppStart', 'Phase1: pushUserGlobalEntities 失败', e, st);
         }
@@ -364,8 +365,7 @@ class _BeeAppState extends ConsumerState<BeeApp>
 
         final totalPushed = results.fold<int>(0, (a, b) => a + b.pushed);
         final skipped = results.where((r) => r.skipped).length;
-        final totalMs =
-            DateTime.now().difference(overallStart).inMilliseconds;
+        final totalMs = DateTime.now().difference(overallStart).inMilliseconds;
         logger.info('AppStart',
             'BeeCount Cloud 首次同步完成: synced=${ledgers.length - skipped} skipped=$skipped pushed=$totalPushed 总耗时 ${totalMs}ms');
         ref.read(syncStatusRefreshProvider.notifier).state++;
@@ -429,20 +429,24 @@ class _BeeAppState extends ConsumerState<BeeApp>
     String? page,
   }) {
     SharedPreferences.getInstance().then((p) {
-      p.setString(_kPendingDeepLink, jsonEncode({
-        'action': action.name,
-        'type': type,
-        if (categoryId != null) 'categoryId': categoryId,
-        if (page != null) 'page': page,
-        'ts': DateTime.now().millisecondsSinceEpoch,
-      }));
+      p.setString(
+          _kPendingDeepLink,
+          jsonEncode({
+            'action': action.name,
+            'type': type,
+            if (categoryId != null) 'categoryId': categoryId,
+            if (page != null) 'page': page,
+            'ts': DateTime.now().millisecondsSinceEpoch,
+          }));
     }).catchError((_) {});
   }
 
   void _drainPendingDeepLink({String trigger = ''}) {
     if (!mounted) return;
     if (ref.read(appInitStateProvider) != AppInitState.ready) return;
-    if (WidgetsBinding.instance.lifecycleState != AppLifecycleState.resumed) return;
+    if (WidgetsBinding.instance.lifecycleState != AppLifecycleState.resumed) {
+      return;
+    }
     // 重建有时在 resumed 之后还会再发生一次:延迟一拍再认领,只在「存活过这段缓冲期」的
     // 最终页面树上打开。若本页在缓冲期内被销毁(重建),timer 随 dispose 取消,新页面会
     // 重新排程,自然落到稳定的页面树上。
@@ -455,7 +459,9 @@ class _BeeAppState extends ConsumerState<BeeApp>
     if (!mounted) return;
     // 必须就绪 + 前台稳定:冷启动/主题变更的重建窗口(inactive/hidden)里打开会被丢弃
     if (ref.read(appInitStateProvider) != AppInitState.ready) return;
-    if (WidgetsBinding.instance.lifecycleState != AppLifecycleState.resumed) return;
+    if (WidgetsBinding.instance.lifecycleState != AppLifecycleState.resumed) {
+      return;
+    }
 
     SharedPreferences prefs;
     try {
@@ -667,7 +673,6 @@ class _BeeAppState extends ConsumerState<BeeApp>
         ],
         animation: _expandAnimation,
         hoveredIndex: _hoveredIndex,
-        backgroundColor: ref.read(primaryColorProvider),
         onDismiss: _dismissOverlay,
       ),
     );
@@ -687,25 +692,12 @@ class _BeeAppState extends ConsumerState<BeeApp>
       buttonPosition.dy + buttonSize.height / 2,
     );
 
-    final angles = [210.0, 270.0, 330.0];
-    const distance = 85.0;
-    const buttonRadius = 26.0;
-
+    final origin =
+        BeeQuickAddFan.safeOrigin(buttonCenter, MediaQuery.sizeOf(context));
     int? newHoveredIndex;
-    for (int i = 0; i < 3 && i < angles.length; i++) {
-      final angle = angles[i];
-      final radians = angle * math.pi / 180;
-      final offsetX = distance * math.cos(radians);
-      final offsetY = distance * math.sin(radians);
-
-      final actionCenter = Offset(
-        buttonCenter.dx + offsetX,
-        buttonCenter.dy + offsetY,
-      );
-
-      final distanceToButton = (globalPosition - actionCenter).distance;
-
-      if (distanceToButton <= buttonRadius) {
+    for (var i = 0; i < 3; i++) {
+      if ((globalPosition - BeeQuickAddFan.centerFor(origin, i)).distance <=
+          27) {
         newHoveredIndex = i;
         break;
       }
@@ -876,7 +868,8 @@ class _BeeAppState extends ConsumerState<BeeApp>
             ),
           ),
           // 开发模式下的主题切换按钮
-          if (kDebugMode)
+          if (kDebugMode &&
+              !const bool.fromEnvironment('BEECOUNT_V4_RECORDING'))
             Positioned(
               right: 16,
               bottom: 100,
@@ -970,18 +963,25 @@ class _BeeBottomBar extends StatelessWidget {
                   Positioned.fill(
                       child: IgnorePointer(
                           child: SkinAnimationScope(
-                              child: skin!.tabBarBuilder!(
-                                  primaryColor, isDark)))),
+                              child:
+                                  skin!.tabBarBuilder!(primaryColor, isDark)))),
                 Row(
                   children: [
                     _buildTabItem(0, Icons.receipt_long_outlined,
                         Icons.receipt_long, l10n.tabHome, inactiveColor),
-                    _buildTabItem(1, Icons.pie_chart_outline_rounded,
-                        Icons.pie_chart_rounded, l10n.tabInsights, inactiveColor),
+                    _buildTabItem(
+                        1,
+                        Icons.pie_chart_outline_rounded,
+                        Icons.pie_chart_rounded,
+                        l10n.tabInsights,
+                        inactiveColor),
                     // 中间记账按钮（作为 Tab 样式）
                     _buildCenterTabItem(inactiveColor),
-                    _buildTabItem(2, Icons.account_balance_wallet_outlined,
-                        Icons.account_balance_wallet, l10n.tabAssets,
+                    _buildTabItem(
+                        2,
+                        Icons.account_balance_wallet_outlined,
+                        Icons.account_balance_wallet,
+                        l10n.tabAssets,
                         inactiveColor),
                     _buildAvatarTabItem(3, l10n.tabMine, inactiveColor),
                   ],
@@ -994,8 +994,8 @@ class _BeeBottomBar extends StatelessWidget {
     );
   }
 
-  Widget _buildTabItem(
-      int index, IconData icon, IconData activeIcon, String label, Color inactiveColor,
+  Widget _buildTabItem(int index, IconData icon, IconData activeIcon,
+      String label, Color inactiveColor,
       {String? dotAnchor}) {
     final isActive = index == currentIndex;
     final iconColor = isActive ? primaryColor : inactiveColor;
@@ -1104,8 +1104,10 @@ class _BeeBottomBar extends StatelessWidget {
         ),
       );
     } else {
-      iconWidget = Icon(isActive ? Icons.person_rounded : Icons.person_outline_rounded,
-          color: isActive ? primaryColor : inactiveColor, size: 24);
+      iconWidget = Icon(
+          isActive ? Icons.person_rounded : Icons.person_outline_rounded,
+          color: isActive ? primaryColor : inactiveColor,
+          size: 24);
     }
 
     return Expanded(
@@ -1155,109 +1157,53 @@ class _BeeBottomBar extends StatelessWidget {
   }
 }
 
-/// 扇形菜单覆盖层
+/// Adapts original platform actions/animation to the shared controlled fan.
 class _SpeedDialOverlay extends StatelessWidget {
+  const _SpeedDialOverlay(
+      {required this.buttonPosition,
+      required this.buttonSize,
+      required this.actions,
+      required this.animation,
+      required this.hoveredIndex,
+      this.onDismiss});
   final Offset buttonPosition;
   final Size buttonSize;
   final List<SpeedDialAction> actions;
   final Animation<double> animation;
   final int? hoveredIndex;
-  final Color backgroundColor;
   final VoidCallback? onDismiss;
-
-  const _SpeedDialOverlay({
-    required this.buttonPosition,
-    required this.buttonSize,
-    required this.actions,
-    required this.animation,
-    required this.hoveredIndex,
-    required this.backgroundColor,
-    this.onDismiss,
-  });
-
   @override
   Widget build(BuildContext context) {
-    final buttonCenter = Offset(
-      buttonPosition.dx + buttonSize.width / 2,
-      buttonPosition.dy + buttonSize.height / 2,
-    );
-
-    final angles = [210.0, 270.0, 330.0];
-    const distance = 85.0;
-
+    final l = AppLocalizations.of(context);
+    final origin = BeeQuickAddFan.safeOrigin(
+        buttonPosition + Offset(buttonSize.width / 2, buttonSize.height / 2),
+        MediaQuery.sizeOf(context));
     return AnimatedBuilder(
-      animation: animation,
-      builder: (context, child) {
-        if (animation.value == 0) {
-          return const SizedBox.shrink();
-        }
-
-        return Stack(
-          children: [
-            Positioned.fill(
-              child: GestureDetector(
-                onTap: onDismiss,
-                child: Container(
-                  color: Colors.black.withValues(alpha: 0.3 * animation.value),
-                ),
-              ),
-            ),
-            for (int i = 0; i < actions.length && i < angles.length; i++)
-              Builder(builder: (context) {
-                final angle = angles[i];
-                final radians = angle * math.pi / 180;
-                final progress = animation.value;
-                final offsetX = progress * distance * math.cos(radians);
-                final offsetY = progress * distance * math.sin(radians);
-
-                const btnSize = 48.0;
-                final left = buttonCenter.dx + offsetX - btnSize / 2;
-                final top = buttonCenter.dy + offsetY - btnSize / 2;
-
-                final isEnabled = actions[i].enabled;
-                final bgColor =
-                    isEnabled ? backgroundColor : Colors.grey.shade400;
-                final isHovered = i == hoveredIndex;
-
-                return Positioned(
-                  left: left,
-                  top: top,
-                  child: Transform.scale(
-                    scale: progress,
-                    child: Opacity(
-                      opacity: progress,
-                      child: AnimatedScale(
-                        scale: isHovered ? 1.2 : 1.0,
-                        duration: const Duration(milliseconds: 150),
-                        child: Material(
-                          color: bgColor,
-                          shape: const CircleBorder(),
-                          elevation: isHovered ? 8 : 4,
-                          child: Container(
-                            width: btnSize,
-                            height: btnSize,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: isHovered
-                                  ? Border.all(color: Colors.white, width: 3)
-                                  : null,
-                            ),
-                            child: Icon(
-                              actions[i].icon,
-                              color: Colors.white,
-                              size: 24,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              }),
-          ],
-        );
-      },
-    );
+        animation: animation,
+        builder: (context, _) => BeeQuickAddFan(
+            origin: origin,
+            progress: animation.value,
+            hoveredIndex: hoveredIndex,
+            title: l.widgetQuickEntryTitle,
+            hint: l.v4QuickAddSlideHint,
+            cancelLabel: l.commonClose,
+            actions: [
+              for (var i = 0; i < actions.length && i < 3; i++)
+                BeeAction(
+                    id: '$i',
+                    label: actions[i].label,
+                    icon: BeeLineIcon(['Camera', 'Images', 'Mic'][i], size: 24))
+            ],
+            disabled: {
+              for (var i = 0; i < actions.length; i++)
+                if (!actions[i].enabled) '$i'
+            },
+            onDismiss: () => onDismiss?.call(),
+            onSelected: (id) {
+              final action = actions[int.parse(id)];
+              onDismiss?.call();
+              if (action.enabled) action.onTap?.call();
+            }));
   }
 }
 

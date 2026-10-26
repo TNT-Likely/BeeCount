@@ -1,0 +1,13 @@
+#bee-immersive-suite .a84-shell{display:grid;gap:12px;min-width:0}
+#bee-immersive-suite .a84-shell>.bc-small{margin:0}
+#bee-immersive-suite .a84-options{display:flex;flex-direction:column;min-width:0}
+#bee-immersive-suite .a84-choice{border:0;background:transparent;color:var(--bc-ink);display:flex;align-items:center;gap:16px;min-height:72px;padding:8px;text-align:left;width:100%}
+#bee-immersive-suite .a84-radio-wrap{display:grid;place-items:center;width:48px;height:48px;flex:0 0 48px}
+#bee-immersive-suite .a84-radio{width:18px;height:18px;border:2px solid var(--bc-muted);border-radius:50%}
+#bee-immersive-suite .a84-radio.selected{border-color:var(--bc-accent);position:relative}
+#bee-immersive-suite .a84-radio.selected::after{content:"";position:absolute;width:9px;height:9px;left:50%;top:50%;transform:translate(-50%,-50%);border-radius:50%;background:var(--bc-accent)}
+#bee-immersive-suite .a84-choice-copy{display:flex;flex-direction:column;min-width:0;flex:1;gap:3px}
+#bee-immersive-suite .a84-choice-copy b{font-size:13px;line-height:1.5;font-weight:400}
+#bee-immersive-suite .a84-choice-copy small{font-size:11px;line-height:1.5;color:var(--bc-muted)}
+#bee-immersive-suite .a84-spinner{display:inline-block;width:18px;height:18px;border:2px solid var(--bc-line);border-top-color:var(--bc-accent);border-radius:50%}
+#bee-immersive-suite .a84-error{font-size:12px;color:#bd5d50;line-height:1.5;margin:0 0 8px}

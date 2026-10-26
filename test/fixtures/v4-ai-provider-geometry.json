@@ -1,0 +1,15 @@
+{
+  "source": "R82 Chrome computed styles,398x844,100%; label height21.390625; allow <=0.5px font-engine line-box rounding",
+  "cardPadding": 16,
+  "nameFont": 16,
+  "labelFont": 11,
+  "labelRadius": 8,
+  "labelHorizontalPadding": 8,
+  "labelVerticalPadding": 3,
+  "labelHeight": 21.4,
+  "modelTitleFont": 13,
+  "testFont": 12,
+  "inputFont": 13,
+  "inputRadius": 13,
+  "fontMetricTolerance": 0.5
+}

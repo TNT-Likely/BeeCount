@@ -1,0 +1,18 @@
+  const slTexts=__APP_LOCK_TEXTS__;
+  Object.assign(state,{slEnabled:false,slBio:false,slSupported:true,slTimeout:0});
+  const slOptions=[[0,'appLockTimeoutImmediate'],[60,'appLockTimeout1Min'],[300,'appLockTimeout5Min'],[900,'appLockTimeout15Min']];
+  const slLabel=seconds=>slTexts[slOptions.find(o=>o[0]===seconds)?.[1]]||seconds+'s';
+  function slToggle(action,checked,name,title,description){return btn(action,`<span class="bc-menu-symbol">${icon(name)}</span><span class="bc-menu-copy"><b>${esc(title)}</b><small>${esc(description)}</small></span><span class="bc-switch" aria-hidden="true"></span>`,title,'bc-menu-row',`role="switch" aria-checked="${checked}"`);}
+  function slSettings(){return `${subhead(slTexts.appLockTitle)}<div class="sl-scroll">${surface(slToggle('sl-enable',state.slEnabled,'lock',slTexts.appLockEnable,slTexts.appLockEnableDesc),'bc-menu-card')}${state.slEnabled?surface(menuRow('sl-change','keyboard',slTexts.appLockChangePin),'bc-menu-card')+surface((state.slSupported?slToggle('sl-bio',state.slBio,'fingerprint',slTexts.appLockBiometric,slTexts.appLockBiometricDesc):'')+menuRow('sl-timeout','clock',slTexts.appLockTimeout,slLabel(state.slTimeout)),'bc-menu-card'):''}</div>`;}
+  function slReturnFromPin(){const index=state.history.map(x=>x.page).findLastIndex(p=>p.startsWith('flow-lock-settings'));if(index>=0){const target=state.history[index];state.history=state.history.slice(0,index);state.page=target.page;state.leaf=target.leaf;}else state.page='flow-lock-settings';render();persist();}
+  fDefs['lock-settings'].body=slSettings;
+  const slScenes=[['lock-settings-on','应用锁 · 已启用',true],['lock-settings-no-bio','应用锁 · 无生物识别',false]];
+  for(const[key,title]of slScenes)fDefine(key,title,'首次使用与安全','settings/app_lock_settings_page.dart',slSettings);
+  const slPreviousRender=fRender;fRender=function(key){if(key==='lock-settings'||slScenes.some(s=>s[0]===key)){if(state.slScene!==key){state.slScene=key;const scene=slScenes.find(s=>s[0]===key);if(scene){state.slEnabled=true;state.slSupported=scene[2];}}return slSettings();}return slPreviousRender(key);};
+  function slTimeout(){return `<div class="sl-choices">${slOptions.map(([seconds,label])=>btn('sl-seconds:'+seconds,`<span>${esc(slTexts[label])}</span><span>${seconds===state.slTimeout?icon('check'):''}</span>`,slTexts[label],'',`aria-pressed="${seconds===state.slTimeout}"`)).join('')}</div>`;}
+  rSpecs['lock-timeout']={title:slTexts.appLockTimeout,host:'flow-lock-settings-on',kind:'sheet'};
+  fDefine('lock-timeout','应用锁 · 原四档超时弹层','首次使用与安全','settings/app_lock_settings_page.dart',slTimeout);
+  fDefine('pin-verify',slTexts.appLockVerifyPin,'首次使用与安全','settings/app_lock_settings_page.dart',()=>fPinPage(true));
+  const slPrevModal=rModalBody;rModalBody=function(key){return key==='lock-timeout'?slTimeout():slPrevModal(key);};
+  const slPicker=document.createElement('optgroup');slPicker.label='应用锁 · 原设置与验证';for(const[key,title]of [...slScenes,['lock-timeout','应用锁 · 四档超时'],['pin-verify','应用锁 · 关闭前验证']])slPicker.appendChild(new Option(title,'flow-'+key));picker.appendChild(slPicker);
+  root.addEventListener('click',event=>{const el=event.target.closest('[data-action]');if(!el?.dataset.action.startsWith('sl-'))return;event.preventDefault();event.stopImmediatePropagation();const[action,value]=el.dataset.action.split(':');if(action==='sl-enable'){state.sPinMode='';navigate(state.slEnabled?'flow-pin-verify':'flow-pin');}else if(action==='sl-change'){state.sPinMode='';navigate('flow-pin-change');}else if(action==='sl-bio'){state.slBio=!state.slBio;render();}else if(action==='sl-timeout')rOpenModal('lock-timeout');else if(action==='sl-seconds'){state.slTimeout=Number(value);rClose();}},true);

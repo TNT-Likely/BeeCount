@@ -5,7 +5,13 @@
   "agentActivityThinking": "Model is thinking…",
   "agentActivityGenerating": "Composing the answer…",
   "agentExecutionCompletedSummary": "Completed {count} operations",
-  "@agentExecutionCompletedSummary": {"placeholders":{"count":{"type":"int"}}},
+  "@agentExecutionCompletedSummary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "agentExecutionFailedSummary": "Some operations did not complete",
   "agentActivityUnknownTool": "Local operation",
   "agentActivityOverview": "Income and expense overview",
@@ -13,11 +19,29 @@
   "agentActivityCategories": "Spending categories",
   "agentActivityLeafCategories": "Detailed categories",
   "agentActivityCategoryScope": "Categories: {categories}",
-  "@agentActivityCategoryScope": {"placeholders":{"categories":{"type":"String"}}},
+  "@agentActivityCategoryScope": {
+    "placeholders": {
+      "categories": {
+        "type": "String"
+      }
+    }
+  },
   "agentActivityReturnedRows": "Returned {count} transactions",
-  "@agentActivityReturnedRows": {"placeholders":{"count":{"type":"int"}}},
+  "@agentActivityReturnedRows": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "agentActivityReturnedGroups": "Returned {count} groups",
-  "@agentActivityReturnedGroups": {"placeholders":{"count":{"type":"int"}}},
+  "@agentActivityReturnedGroups": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "agentActivityTruncated": "Only part of the results was returned",
   "agentFollowUpRotate": "Another set",
   "agentScrollToLatest": "Back to the latest message",
@@ -35,24 +59,78 @@
   "agentSuggestionSavingPrompt": "Analyze this month's top-level spending categories and shares and the monthly spending trend for the last six months. Offer three to five practical saving tips based on tool results, without inferring personal circumstances. Explain any data limitations.",
   "agentFollowUpTitle": "Explore further",
   "agentFollowUpRange": "{start} to {end} (end exclusive)",
-  "@agentFollowUpRange": {"placeholders":{"start":{"type":"String"},"end":{"type":"String"}}},
+  "@agentFollowUpRange": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
   "agentFollowUpAllCategories": "all spending categories",
   "agentFollowUpCategoryTitle": "View category shares",
   "agentFollowUpCategoryPrompt": "Show top-level spending category shares for {range}.",
-  "@agentFollowUpCategoryPrompt": {"placeholders":{"range":{"type":"String"}}},
+  "@agentFollowUpCategoryPrompt": {
+    "placeholders": {
+      "range": {
+        "type": "String"
+      }
+    }
+  },
   "agentFollowUpTrendTitle": "View spending trend",
   "agentFollowUpTrendPrompt": "List monthly spending for {category} during {range}, without month-over-month or year-over-year comparison.",
-  "@agentFollowUpTrendPrompt": {"placeholders":{"category":{"type":"String"},"range":{"type":"String"}}},
+  "@agentFollowUpTrendPrompt": {
+    "placeholders": {
+      "category": {
+        "type": "String"
+      },
+      "range": {
+        "type": "String"
+      }
+    }
+  },
   "agentFollowUpCompareTitle": "Compare adjacent months",
   "agentFollowUpComparePrompt": "List monthly spending for {category} during {range}, with month-over-month changes between adjacent months.",
-  "@agentFollowUpComparePrompt": {"placeholders":{"category":{"type":"String"},"range":{"type":"String"}}},
+  "@agentFollowUpComparePrompt": {
+    "placeholders": {
+      "category": {
+        "type": "String"
+      },
+      "range": {
+        "type": "String"
+      }
+    }
+  },
   "agentFollowUpLeafTitle": "Explore {category}",
-  "@agentFollowUpLeafTitle": {"placeholders":{"category":{"type":"String"}}},
+  "@agentFollowUpLeafTitle": {
+    "placeholders": {
+      "category": {
+        "type": "String"
+      }
+    }
+  },
   "agentFollowUpLeafPrompt": "Show subcategory spending shares within the category “{category}” for {range}.",
-  "@agentFollowUpLeafPrompt": {"placeholders":{"category":{"type":"String"},"range":{"type":"String"}}},
+  "@agentFollowUpLeafPrompt": {
+    "placeholders": {
+      "category": {
+        "type": "String"
+      },
+      "range": {
+        "type": "String"
+      }
+    }
+  },
   "agentFollowUpOverviewTitle": "View income and expenses",
   "agentFollowUpOverviewPrompt": "Show total income, expenses and balance for {range}.",
-  "@agentFollowUpOverviewPrompt": {"placeholders":{"range":{"type":"String"}}},
+  "@agentFollowUpOverviewPrompt": {
+    "placeholders": {
+      "range": {
+        "type": "String"
+      }
+    }
+  },
   "aiConsentTitle": "Before enabling AI features",
   "aiConsentBody": "AI features need to send related data to the third-party AI provider you configure:\n\n• Who it goes to: by default Zhipu GLM (open.bigmodel.cn, operated by Zhipu); if you configure another third-party AI service, it goes to the provider you entered.\n• What is sent: the content you actively use for recognition/chat — receipt images, voice recordings, text you type, plus the category names, account names and relevant transaction records needed to complete recognition/analysis.\n• Purpose: only for bill recognition, bookkeeping and chats you initiate; BeeCount itself does not collect or store this data.\n\nThe data is processed by that third-party provider under its own privacy policy. Enabling means you consent to the data sharing above.",
   "aiConsentAgree": "Agree & enable",
@@ -217,15 +295,15 @@
   "homeAnnualReportView": "View",
   "widgetTodayExpense": "Today's Expense",
   "widgetConsumptionRhythmTitle": "Spending Rhythm",
-  "widgetConsumptionRhythmRange": "Last 30 Days",
-  "widgetConsumptionRhythmStable": "Steady spending",
+  "widgetConsumptionRhythmRange": "Last 30 days",
+  "widgetConsumptionRhythmStable": "Spending is steady",
   "widgetConsumptionRhythmIncrease": "Faster than last week",
-  "widgetConsumptionRhythmDecrease": "Slower than last week",
-  "widgetConsumptionRhythmEmpty": "No spending this month yet",
-  "widgetBeeTrailTitle": "Recording Bee Trail",
+  "widgetConsumptionRhythmDecrease": "Steadier than last week",
+  "widgetConsumptionRhythmEmpty": "No spending in the last 30 days",
+  "widgetBeeTrailTitle": "Record Bee Trail",
   "widgetBeeTrailStreakSuffix": "days",
-  "widgetBeeTrailCompletion": "This month's completion",
-  "widgetBeeTrailEmpty": "Log today's entry to light it up",
+  "widgetBeeTrailCompletion": "28-day completion",
+  "widgetBeeTrailEmpty": "Add a record to light the first cell",
   "widgetTodayIncome": "Today's Income",
   "widgetMonthExpense": "Month's Expense",
   "widgetMonthIncome": "Month's Income",
@@ -266,8 +344,8 @@
   "searchBatchChangeCategorySuccess": "Successfully changed category for {count} transactions",
   "searchBatchChangeCategoryFailed": "Change category failed: {error}",
   "searchResultsCount": "{count} results",
-  "searchSummaryIncome": "Income",
-  "searchSummaryExpense": "Expense",
+  "searchSummaryIncome": "Income total",
+  "searchSummaryExpense": "Expense total",
   "searchFilterTitle": "Filter",
   "searchAmountFilter": "Amount Filter",
   "searchDateFilter": "Date Filter",
@@ -304,6 +382,13 @@
   "splashSecurityFeature1": "• Local data storage, complete privacy control",
   "splashSecurityFeature2": "• Open source code transparency, trustworthy security",
   "splashSecurityFeature3": "• Optional cloud sync, consistent data across devices",
+  "splashPreparingRecords": "Getting your records ready",
+  "splashSecuritySummary": "Local data · Open source",
+  "splashSecurityCaption": "Optional cloud sync. Your data, your choice.",
+  "splashSecurityLocalTitle": "Local storage",
+  "splashSecurityOpenTitle": "Open source",
+  "splashSecuritySyncTitle": "Optional cloud sync",
+  "splashSecurityFootnote": "Start without an account. Cloud sync is optional.",
   "splashInitializing": "Initializing data...",
   "ledgersTitle": "Ledger Management",
   "ledgersNew": "New Ledger",
@@ -448,7 +533,9 @@
   "categoryGenerateDefaultSuccess": "Generated {count} default categories",
   "@categoryGenerateDefaultSuccess": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "categoryGenerateDefaultNoChanges": "Default categories already exist",
@@ -552,8 +639,12 @@
   "mineGreetingNamed": "{greeting}, {name}",
   "@mineGreetingNamed": {
     "placeholders": {
-      "greeting": { "type": "String" },
-      "name": { "type": "String" }
+      "greeting": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
     }
   },
   "mineProfileEditTitle": "Edit profile",
@@ -575,7 +666,11 @@
   "headerSkinFixedPalette": "Own palette",
   "personalizeLockedBySkin": "The skin \"{skin}\" comes with its own palette, so the theme color is set by the skin and can't be changed. Switch to another skin to get your color back.",
   "@personalizeLockedBySkin": {
-    "placeholders": { "skin": { "type": "String" } }
+    "placeholders": {
+      "skin": {
+        "type": "String"
+      }
+    }
   },
   "personalizeFixedSkinAction": "Change skin",
   "headerSkinAurora": "Aurora",
@@ -864,7 +959,7 @@
   "categoryNameLabel": "Category Name",
   "categoryNameHint": "Enter category name",
   "categoryNameRequired": "Please enter category name",
-  "categoryNameTooLong": "Category name cannot exceed 4 characters",
+  "categoryNameTooLong": "Category name cannot exceed 10 characters",
   "categoryNameDuplicate": "Category name already exists",
   "categoryIconLabel": "Category Icon",
   "categoryCustomIconTitle": "Custom Icon",
@@ -923,6 +1018,7 @@
   "categoryDeleteConfirmMessage": "Are you sure you want to delete category \"{name}\"? This action cannot be undone.",
   "categoryDeleteError": "Delete failed",
   "categoryDeleted": "Category \"{name}\" deleted",
+  "categoryManageChildren": "Manage",
   "categorySubCategoryTitle": "Subcategory",
   "categorySubCategoryDescriptionEnabled": "This category belongs to a parent category",
   "categorySubCategoryDescriptionDisabled": "This is an independent top-level category",
@@ -1316,7 +1412,7 @@
   "updateLaterButton": "Later",
   "updateDownloadButton": "Download",
   "updateInstallingCachedApk": "Installing cached APK",
-  "updateDownloadComplete": "Download Complete",
+  "updateDownloadComplete": "Download complete",
   "updateInstallStarted": "Download complete, installer started",
   "updateInstallFailed": "Installation failed",
   "updateDownloadFailed": "Download failed",
@@ -1836,16 +1932,6 @@
   "widgetGalleryDashboardTitle": "Dashboard",
   "widgetDashboardTitle": "This Month",
   "widgetGalleryDashboardDesc": "Income, trend and recent transactions in one view",
-  "widgetConsumptionRhythmTitle": "Spending Rhythm",
-  "widgetConsumptionRhythmRange": "Last 30 days",
-  "widgetConsumptionRhythmStable": "Spending is steady",
-  "widgetConsumptionRhythmIncrease": "Faster than last week",
-  "widgetConsumptionRhythmDecrease": "Steadier than last week",
-  "widgetConsumptionRhythmEmpty": "No spending in the last 30 days",
-  "widgetBeeTrailTitle": "Record Bee Trail",
-  "widgetBeeTrailStreakSuffix": "days",
-  "widgetBeeTrailCompletion": "28-day completion",
-  "widgetBeeTrailEmpty": "Add a record to light the first cell",
   "widgetGalleryConsumptionRhythmDesc": "See your spending pace across the last 30 days",
   "widgetGalleryBeeTrailDesc": "Build a gentle daily recording habit",
   "widgetSizeSmall": "Small",
@@ -1964,43 +2050,79 @@
   "autoBillingNotifyProcessFailedTitle": "❌ Processing failed",
   "autoBillingNotifyProcessFailedBody": "Error: {error}",
   "@autoBillingNotifyProcessFailedBody": {
-    "placeholders": { "error": { "type": "String" } }
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
   },
   "autoBillingNotifySuccessSingleTitle": "✅ Auto billing succeeded ¥{amount}",
   "@autoBillingNotifySuccessSingleTitle": {
-    "placeholders": { "amount": { "type": "String" } }
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
   },
   "autoBillingNotifySuccessMultiTitle": "✅ Auto billing succeeded ({count} entries)",
   "@autoBillingNotifySuccessMultiTitle": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "autoBillingNotifySuccessMultiBody": "Total ¥{amount}",
   "@autoBillingNotifySuccessMultiBody": {
-    "placeholders": { "amount": { "type": "String" } }
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
   },
   "autoBillingNotifySuccessSingleBodyNote": "Note: {note}",
   "@autoBillingNotifySuccessSingleBodyNote": {
-    "placeholders": { "note": { "type": "String" } }
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
   },
   "autoBillingNotifySuccessSingleBodyDefault": "Record created automatically",
   "aiOcrNoLedger": "Ledger not found",
   "aiBillingRateMissingHint": "⚠️ No {currency} rate available — recorded 1:1 for now; use “Reconvert” on the stats page to fix.",
   "@aiBillingRateMissingHint": {
-    "placeholders": { "currency": { "type": "String" } }
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      }
+    }
   },
   "aiPromptVarCurrencies": "Ledger base currency + foreign-currency accounts in use",
   "aiPromptVarBillGuard": "Non-bill filter (injected for screenshot / auto bookkeeping only)",
   "aiPromptMissingVarsHint": "Your custom template is missing these variables, so the matching features stop working: {vars}",
   "@aiPromptMissingVarsHint": {
-    "placeholders": { "vars": { "type": "String" } }
+    "placeholders": {
+      "vars": {
+        "type": "String"
+      }
+    }
   },
   "aiPromptInsertVarSection": "Insert {name} section",
   "@aiPromptInsertVarSection": {
-    "placeholders": { "name": { "type": "String" } }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
   "aiPromptVarSectionInserted": "{name} section appended — review, then save",
   "@aiPromptVarSectionInserted": {
-    "placeholders": { "name": { "type": "String" } }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
   "aiOcrSuccess": "✅ {type} bill created ¥{amount}",
   "@aiOcrSuccess": {
@@ -2051,8 +2173,12 @@
   "cloudSyncComplete": "Sync complete: pushed {pushed}, pulled {pulled}",
   "@cloudSyncComplete": {
     "placeholders": {
-      "pushed": {"type": "int"},
-      "pulled": {"type": "int"}
+      "pushed": {
+        "type": "int"
+      },
+      "pulled": {
+        "type": "int"
+      }
     }
   },
   "cloudAutoSyncHint": "Auto-sync to cloud after data changes",
@@ -2131,13 +2257,17 @@
   "productPromoEmailSubject": "Beta access request - {productName}",
   "@productPromoEmailSubject": {
     "placeholders": {
-      "productName": { "type": "String" }
+      "productName": {
+        "type": "String"
+      }
     }
   },
   "productPromoEmailBody": "Hi,\n\nI'd like to join the closed beta for {productName} on Google Play. My Google account email is:\n\n(please fill in your Gmail / Google account email)\n\nThanks!",
   "@productPromoEmailBody": {
     "placeholders": {
-      "productName": { "type": "String" }
+      "productName": {
+        "type": "String"
+      }
     }
   },
   "logCenterTitle": "Log Center",
@@ -2376,7 +2506,9 @@
   "aiChatEmptyTransactionCount": "{count} recorded",
   "@aiChatEmptyTransactionCount": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "aiChatEmptyQuestionExample": "Try asking: What did I spend the most on this month?",
@@ -2408,20 +2540,30 @@
   "agentRecordIncomplete": "The transaction details are incomplete. Please include an amount and purpose, then try again.",
   "agentRecordCreated": "Created {count, plural, =1{1 transaction} other{{count} transactions}}.",
   "@agentRecordCreated": {
-    "placeholders": {"count": {"type": "int"}}
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "agentStepsExceeded": "This request took too many steps. Please simplify it and try again.",
   "agentExecutingTool": "Working: {tool}",
   "@agentExecutingTool": {
-    "placeholders": {"tool": {}}
+    "placeholders": {
+      "tool": {}
+    }
   },
   "agentToolCompleted": "Done: {tool}",
   "@agentToolCompleted": {
-    "placeholders": {"tool": {}}
+    "placeholders": {
+      "tool": {}
+    }
   },
   "agentToolFailed": "Could not complete: {tool}",
   "@agentToolFailed": {
-    "placeholders": {"tool": {}}
+    "placeholders": {
+      "tool": {}
+    }
   },
   "agentToolQueryTransactions": "query transactions",
   "agentToolSpendingSummary": "summarize spending",
@@ -2440,7 +2582,11 @@
   "agentPermissionsDefaultsActive": "All tools are using their default policies",
   "agentPermissionsModifiedCount": "{count} custom settings",
   "@agentPermissionsModifiedCount": {
-    "placeholders": {"count": {"type": "int"}}
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "agentPermissionsRestoreDefaults": "Restore defaults",
   "agentPermissionsRestoreTitle": "Restore default permissions?",
@@ -2463,7 +2609,11 @@
   "agentAuthorizationTitle": "Allow Agent action?",
   "agentAuthorizationCurrentLedger": "Ledger: current ledger (ID {ledgerId})",
   "@agentAuthorizationCurrentLedger": {
-    "placeholders": {"ledgerId": {"type": "int"}}
+    "placeholders": {
+      "ledgerId": {
+        "type": "int"
+      }
+    }
   },
   "agentAuthorizationAllLedgers": "Ledger: all accessible ledgers",
   "agentAuthorizationParameters": "Information used this time",
@@ -3120,8 +3270,6 @@
   "budgetManagementDesc": "Set monthly budget and control spending",
   "budgetSetupHint": "Set a budget to control monthly spending",
   "budgetSetupAction": "Set up",
-
-
   "syncHealthTitle": "Sync status",
   "cloudSyncHelpTitle": "How sync works · Why it sometimes stalls",
   "cloudSyncHelpModesTitle": "Three sync modes",
@@ -3136,7 +3284,9 @@
   "syncHealthCheckFailed": "Check failed: {msg}",
   "@syncHealthCheckFailed": {
     "placeholders": {
-      "msg": { "type": "String" }
+      "msg": {
+        "type": "String"
+      }
     }
   },
   "syncHealthHasDiff": "Diff detected; auto-synced",
@@ -3154,17 +3304,22 @@
   "syncHealthValue": "Local {local} · Cloud {remote}",
   "@syncHealthValue": {
     "placeholders": {
-      "local": { "type": "int" },
-      "remote": { "type": "int" }
+      "local": {
+        "type": "int"
+      },
+      "remote": {
+        "type": "int"
+      }
     }
   },
   "syncHealthValueRemoteMissing": "Local {local} · Cloud —",
   "@syncHealthValueRemoteMissing": {
     "placeholders": {
-      "local": { "type": "int" }
+      "local": {
+        "type": "int"
+      }
     }
   },
-
   "twofaChallengeTitle": "Two-factor authentication",
   "twofaMethodTotp": "Code",
   "twofaMethodRecovery": "Recovery code",
@@ -3175,7 +3330,9 @@
   "twofaCountdown": "Time remaining {time}",
   "@twofaCountdown": {
     "placeholders": {
-      "time": { "type": "String" }
+      "time": {
+        "type": "String"
+      }
     }
   },
   "twofaVerifyButton": "Verify",
@@ -3185,7 +3342,9 @@
   "twofaStatusEnabledAt": "Enabled on {date}",
   "@twofaStatusEnabledAt": {
     "placeholders": {
-      "date": { "type": "String" }
+      "date": {
+        "type": "String"
+      }
     }
   },
   "twofaStatusManageHint": "Manage from the Web app (enable / disable / regenerate recovery codes)",
@@ -3202,17 +3361,53 @@
   "sharedJoinPreviewButton": "Verify code",
   "sharedJoinAcceptButton": "Join",
   "sharedJoinInvitedBy": "{name} invited you to join",
-  "@sharedJoinInvitedBy": { "placeholders": { "name": { "type": "String" } } },
+  "@sharedJoinInvitedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "sharedJoinRoleLine": "Role: {role}",
-  "@sharedJoinRoleLine": { "placeholders": { "role": { "type": "String" } } },
+  "@sharedJoinRoleLine": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
   "sharedJoinExpiresInMinutes": "Expires in {n} min",
-  "@sharedJoinExpiresInMinutes": { "placeholders": { "n": { "type": "int" } } },
+  "@sharedJoinExpiresInMinutes": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "sharedJoinExpiresInHours": "Expires in {n}h",
-  "@sharedJoinExpiresInHours": { "placeholders": { "n": { "type": "int" } } },
+  "@sharedJoinExpiresInHours": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "sharedJoinExpiresInDays": "Expires in {n}d",
-  "@sharedJoinExpiresInDays": { "placeholders": { "n": { "type": "int" } } },
+  "@sharedJoinExpiresInDays": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "sharedJoinSuccess": "Joined \"{name}\"",
-  "@sharedJoinSuccess": { "placeholders": { "name": { "type": "String" } } },
+  "@sharedJoinSuccess": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "sharedJoinCodeFormatError": "Invite code must be 6 letters/digits.",
   "sharedJoinInvalidOrExpired": "Invite code is invalid or expired. Ask the inviter for a new one.",
   "sharedJoinAlreadyMember": "You are already a member of this ledger.",
@@ -3221,24 +3416,48 @@
   "sharedInviteFormRole": "Role",
   "sharedInviteFormExpiry": "Valid for",
   "sharedInviteExpiryHours": "{n} h",
-  "@sharedInviteExpiryHours": { "placeholders": { "n": { "type": "int" } } },
+  "@sharedInviteExpiryHours": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "sharedInviteExpiryDays": "{n} day",
-  "@sharedInviteExpiryDays": { "placeholders": { "n": { "type": "int" } } },
+  "@sharedInviteExpiryDays": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "sharedInviteGenerate": "Generate invite code",
   "sharedInviteGenerateAnother": "Generate another code",
   "sharedInviteCopyCode": "Copy code",
   "sharedInviteCopyLink": "Copy link",
   "sharedInviteShareLink": "Share link",
   "sharedInviteExpiresAt": "Expires at {dt}",
-  "@sharedInviteExpiresAt": { "placeholders": { "dt": { "type": "String" } } },
+  "@sharedInviteExpiresAt": {
+    "placeholders": {
+      "dt": {
+        "type": "String"
+      }
+    }
+  },
   "sharedInviteWarning": "⚠️ Don't post invite codes to public groups / social. Anyone with the code can join. Revoke and regenerate from Members if leaked.",
   "sharedInviteInstruction": "Send the code or short link to the other person. After they install BeeCount, they can tap the link or enter the code from \"Me → Join shared ledger\".",
   "sharedInviteShareText": "I'm inviting you to BeeCount shared ledger \"{ledger}\".\n\nCode: {code}\nLink: {url}\n\nTap the link, or open BeeCount → Me → Join shared ledger and enter this code.",
   "@sharedInviteShareText": {
     "placeholders": {
-      "ledger": { "type": "String" },
-      "code": { "type": "String" },
-      "url": { "type": "String" }
+      "ledger": {
+        "type": "String"
+      },
+      "code": {
+        "type": "String"
+      },
+      "url": {
+        "type": "String"
+      }
     }
   },
   "sharedMembersPageTitle": "Members",
@@ -3247,27 +3466,69 @@
   "sharedMembersLeaveCta": "Leave ledger",
   "sharedMembersLeaveTitle": "Leave ledger",
   "sharedMembersLeaveConfirm": "After leaving \"{name}\" you won't be able to access its transactions. Continue?",
-  "@sharedMembersLeaveConfirm": { "placeholders": { "name": { "type": "String" } } },
+  "@sharedMembersLeaveConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "sharedMembersLeaveDone": "Left the ledger",
   "sharedMembersRemoveTitle": "Remove member",
   "sharedMembersRemoveCta": "Remove this member",
   "sharedMembersRemoveConfirm": "Remove {name}? They will immediately lose access to this ledger.",
-  "@sharedMembersRemoveConfirm": { "placeholders": { "name": { "type": "String" } } },
+  "@sharedMembersRemoveConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "sharedMembersRemoved": "Member removed",
   "sharedMembersTransferTitle": "Transfer ownership",
   "sharedMembersTransferTo": "Transfer to this member",
   "sharedMembersTransferConfirm": "Transfer ownership to {name}? You will become an editor and can no longer invite, rename, or delete the ledger.",
-  "@sharedMembersTransferConfirm": { "placeholders": { "name": { "type": "String" } } },
+  "@sharedMembersTransferConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "sharedMembersTransferConfirmCta": "Transfer",
   "sharedMembersTransferDone": "Ownership transferred",
   "sharedTxRecordedBy": "recorded by {name}",
-  "@sharedTxRecordedBy": { "placeholders": { "name": { "type": "String" } } },
+  "@sharedTxRecordedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "sharedTxCreatedBy": "Created by {name}",
-  "@sharedTxCreatedBy": { "placeholders": { "name": { "type": "String" } } },
+  "@sharedTxCreatedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "sharedTxEditedBy": "Last edited by {name}",
-  "@sharedTxEditedBy": { "placeholders": { "name": { "type": "String" } } },
+  "@sharedTxEditedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "sharedTxCreatedAndEditedBy": "Created and edited by {name}",
-  "@sharedTxCreatedAndEditedBy": { "placeholders": { "name": { "type": "String" } } },
+  "@sharedTxCreatedAndEditedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "sharedRequiresCloudSync": "Please enable cloud sync first",
   "sharedMembersStatsTitle": "Member balances",
   "sharedMembersStatsEmpty": "No transactions yet",
@@ -3275,7 +3536,13 @@
   "sharedMembersStatsIncome": "Income",
   "sharedMembersStatsExpense": "Expense",
   "sharedMembersStatsTxCount": "{count} tx",
-  "@sharedMembersStatsTxCount": { "placeholders": { "count": { "type": "int" } } },
+  "@sharedMembersStatsTxCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "maintenanceOrphanCleanupTitle": "Data Cleanup",
   "maintenanceOrphanCleanupSubtitle": "Detect and clean local orphan data",
   "maintenanceOrphanRescan": "Rescan",
@@ -3284,56 +3551,152 @@
   "maintenanceOrphanGroupFile": "File orphans",
   "maintenanceOrphanGroupSync": "Sync state orphans",
   "maintenanceOrphanSummary": "Found {count} issue(s)",
-  "@maintenanceOrphanSummary": { "placeholders": { "count": { "type": "int" } } },
+  "@maintenanceOrphanSummary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "maintenanceOrphanSummarySize": "Reclaimable space ~ {size}",
-  "@maintenanceOrphanSummarySize": { "placeholders": { "size": { "type": "String" } } },
+  "@maintenanceOrphanSummarySize": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
   "maintenanceOrphanSelectAll": "Select all",
   "maintenanceOrphanDeselectAll": "Deselect all",
   "maintenanceOrphanDeleteOne": "Delete this",
   "maintenanceOrphanSelectedHint": "{count} selected",
-  "@maintenanceOrphanSelectedHint": { "placeholders": { "count": { "type": "int" } } },
+  "@maintenanceOrphanSelectedHint": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "maintenanceOrphanCleanSelected": "Clean selected",
   "maintenanceOrphanConfirmTitle": "Confirm cleanup",
   "maintenanceOrphanConfirmDeleteOne": "Delete \"{title}\"? This cannot be undone.",
-  "@maintenanceOrphanConfirmDeleteOne": { "placeholders": { "title": { "type": "String" } } },
+  "@maintenanceOrphanConfirmDeleteOne": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
   "maintenanceOrphanConfirmDeleteBatch": "Delete the {count} selected item(s)? This cannot be undone.",
-  "@maintenanceOrphanConfirmDeleteBatch": { "placeholders": { "count": { "type": "int" } } },
+  "@maintenanceOrphanConfirmDeleteBatch": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "maintenanceOrphanCleanSuccess": "Cleaned {count} item(s)",
-  "@maintenanceOrphanCleanSuccess": { "placeholders": { "count": { "type": "int" } } },
+  "@maintenanceOrphanCleanSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "maintenanceOrphanCleanPartial": "Cleaned {ok} item(s), {fail} failed",
-  "@maintenanceOrphanCleanPartial": { "placeholders": { "ok": { "type": "int" }, "fail": { "type": "int" } } },
+  "@maintenanceOrphanCleanPartial": {
+    "placeholders": {
+      "ok": {
+        "type": "int"
+      },
+      "fail": {
+        "type": "int"
+      }
+    }
+  },
   "syncProgressTitle": "Syncing",
   "syncProgressCount": "{applied} / {total}",
-  "@syncProgressCount": { "placeholders": { "applied": { "type": "int" }, "total": { "type": "int" } } },
+  "@syncProgressCount": {
+    "placeholders": {
+      "applied": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "exchangeRatePageTitle": "Exchange Rates",
   "exchangeRateEntrySubtitle": "Auto-fetched rates with manual override",
   "baseCurrencyLabel": "Primary Currency",
   "rateSourceAuto": "Auto",
   "rateSourceManual": "Manual",
   "rateUpdatedAt": "Updated {date}",
-  "@rateUpdatedAt": {"placeholders": {"date": {"type": "String"}}},
+  "@rateUpdatedAt": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "rateNotFetched": "Not fetched",
   "rateTapToSet": "Tap to set manually",
   "rateEditTitle": "Edit Rate",
   "rateInverseHint": "Inverse: 1 {base} ≈ {rate} {quote}",
-  "@rateInverseHint": {"placeholders": {"base": {"type": "String"}, "rate": {"type": "String"}, "quote": {"type": "String"}}},
+  "@rateInverseHint": {
+    "placeholders": {
+      "base": {
+        "type": "String"
+      },
+      "rate": {
+        "type": "String"
+      },
+      "quote": {
+        "type": "String"
+      }
+    }
+  },
   "rateResetToAuto": "Reset to auto",
   "rateRefreshSuccess": "Rates updated",
   "rateRefreshFailed": "Fetch failed, you can set rates manually",
   "ratesEmptyHint": "Rates appear here once your accounts use different currencies",
   "rateDisclaimer": "Source: open exchange-rate data, updated daily. Conversion is for reference only and may differ from bank rates.",
   "convertedNetWorth": "Net worth (in {currency})",
-  "@convertedNetWorth": {"placeholders": {"currency": {"type": "String"}}},
+  "@convertedNetWorth": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      }
+    }
+  },
   "convertedFootnote": "Converted at {date} rates, tap to manage",
-  "@convertedFootnote": {"placeholders": {"date": {"type": "String"}}},
+  "@convertedFootnote": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "convertedPartialWarning": "{currencies} not converted, tap to set rates",
-  "@convertedPartialWarning": {"placeholders": {"currencies": {"type": "String"}}},
+  "@convertedPartialWarning": {
+    "placeholders": {
+      "currencies": {
+        "type": "String"
+      }
+    }
+  },
   "unconvertedBadge": "Not converted",
   "commonDetail": "Detail",
   "conversionDetailTitle": "Conversion Details",
   "assetConversionToggle": "Convert to primary currency",
   "rateManualApplied": "Applied {count} manual rates",
-  "@rateManualApplied": {"placeholders": {"count": {"type": "int"}}},
+  "@rateManualApplied": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "netWorthTrendTitle": "Net Worth Trend",
   "netWorthTrend3M": "3M",
   "netWorthTrend6M": "6M",
@@ -3342,7 +3705,7 @@
   "netWorthTrendLineNet": "Net Worth",
   "netWorthTrendLineAssets": "Total Assets",
   "netWorthTrendLineLiabilities": "Total Liabilities",
-  "netWorthTrendMultiCurrencyNote": "Historical net worth is the raw sum of each currency, not converted",
+  "netWorthTrendMultiCurrencyNote": "Converted to the base currency at current rates. Accounts without a rate are excluded.",
   "txFlagExcludeFromStats": "Exclude from income/expense",
   "txFlagExcludeFromBudget": "Exclude from budget",
   "txFlagMoreOptions": "More options",
@@ -3356,20 +3719,37 @@
   "transactionDoubleTapHint": "Double tap",
   "transactionSavedNextCategory": "Saved. Choose another category.",
   "txConvertedPreview": "≈ {amount} {currency}",
-  "@txConvertedPreview": { "placeholders": { "amount": {}, "currency": {} } },
+  "@txConvertedPreview": {
+    "placeholders": {
+      "amount": {},
+      "currency": {}
+    }
+  },
   "txRateMissingHint": "Please enter the rate for this entry before saving",
   "txCrossCurrencyTransferBlocked": "Cross-currency transfers are not supported yet. Record two entries or use same-currency accounts.",
   "ledgerBaseCurrencyLabel": "Primary currency",
   "statsConvertedFootnote": "Includes foreign currency, converted to {currency} at entry-time rates",
-  "@statsConvertedFootnote": { "placeholders": { "currency": {} } },
+  "@statsConvertedFootnote": {
+    "placeholders": {
+      "currency": {}
+    }
+  },
   "ledgerCurrencyChangeRecalcHint": "Changing the base currency will reconvert all history at current rates",
   "recalcForeignTxBanner": "Unconverted foreign-currency transactions detected in this ledger",
   "recalcForeignTxAction": "Reconvert at current rates",
   "recalcForeignTxDone": "Reconverted {count} foreign-currency transactions",
-  "@recalcForeignTxDone": { "placeholders": { "count": {} } },
+  "@recalcForeignTxDone": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "txCurrencyPickerTitle": "Select currency",
   "recalcSyncCountHint": "{count} transactions will be reconverted and synced",
-  "@recalcSyncCountHint": { "placeholders": { "count": {} } },
+  "@recalcSyncCountHint": {
+    "placeholders": {
+      "count": {}
+    }
+  },
   "exportCsvHeaderCurrency": "Currency",
   "importFieldCurrency": "Currency",
   "currencyMOP": "Macau Pataca",
@@ -3488,7 +3868,13 @@
   "agentExecutionDepthEntry": "Execution depth",
   "agentExecutionDepthEntryDescription": "Higher limits can handle more steps but may take longer.",
   "agentExecutionDepthSelected": "Up to {turns} model turns",
-  "@agentExecutionDepthSelected": {"placeholders": {"turns": {"type": "int"}}},
+  "@agentExecutionDepthSelected": {
+    "placeholders": {
+      "turns": {
+        "type": "int"
+      }
+    }
+  },
   "agentExecutionDepthChooseTitle": "Execution depth",
   "agentExecutionDepthQuick": "Quick",
   "agentExecutionDepthStandard": "Standard",
@@ -3567,20 +3953,26 @@
   "aiChatRecordSuccessMany": "✅ Recorded {count} transactions",
   "@aiChatRecordSuccessMany": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "agentEmptyFinalReply": "Done.",
   "creditCardReminderDueSoonTitle": "{accountName} payment due soon",
   "@creditCardReminderDueSoonTitle": {
     "placeholders": {
-      "accountName": { "type": "String" }
+      "accountName": {
+        "type": "String"
+      }
     }
   },
   "creditCardReminderDueBody": "Payment due on day {paymentDueDay} of each month, please repay on time",
   "@creditCardReminderDueBody": {
     "placeholders": {
-      "paymentDueDay": { "type": "int" }
+      "paymentDueDay": {
+        "type": "int"
+      }
     }
   },
   "reminderBackupChannelName": "Recording reminder (backup)",
@@ -3596,13 +3988,17 @@
   "appLinkOpenPage": "Open page: {page}",
   "@appLinkOpenPage": {
     "placeholders": {
-      "page": { "type": "String" }
+      "page": {
+        "type": "String"
+      }
     }
   },
   "appLinkUnknownAction": "Unknown action: {action}",
   "@appLinkUnknownAction": {
     "placeholders": {
-      "action": { "type": "String" }
+      "action": {
+        "type": "String"
+      }
     }
   },
   "appLinkNoLedger": "Select a ledger first",
@@ -3611,7 +4007,9 @@
   "appLinkCategoryNotFound": "Not recorded: category \"{name}\" does not exist",
   "@appLinkCategoryNotFound": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "appLinkTypeIncome": "Income",
@@ -3620,140 +4018,210 @@
   "appLinkRecorded": "Recorded {type} {amount}",
   "@appLinkRecorded": {
     "placeholders": {
-      "type": { "type": "String" },
-      "amount": { "type": "String" }
+      "type": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "appLinkRecordSuccess": "Transaction recorded",
   "appLinkParamError": "Invalid parameters: {message}",
   "@appLinkParamError": {
     "placeholders": {
-      "message": { "type": "String" }
+      "message": {
+        "type": "String"
+      }
     }
   },
   "appLinkRecordFailed": "Recording failed: {error}",
   "@appLinkRecordFailed": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "appLinkTextDone": "Text processing done",
   "appLinkTextFailed": "Text billing failed: {error}",
   "@appLinkTextFailed": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "appLinkNoText": "No text content provided",
   "orphanBudgetTitle": "Budget #{id}",
   "@orphanBudgetTitle": {
     "placeholders": {
-      "id": { "type": "String" }
+      "id": {
+        "type": "String"
+      }
     }
   },
   "orphanBudgetNoLedger": "{type} · ¥{amount} · ledger deleted (id={id})",
   "@orphanBudgetNoLedger": {
     "placeholders": {
-      "type": { "type": "String" },
-      "amount": { "type": "String" },
-      "id": { "type": "String" }
+      "type": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      },
+      "id": {
+        "type": "String"
+      }
     }
   },
   "orphanAttachmentRowTitle": "Attachment row #{id}",
   "@orphanAttachmentRowTitle": {
     "placeholders": {
-      "id": { "type": "String" }
+      "id": {
+        "type": "String"
+      }
     }
   },
   "orphanAttachmentNoTx": "{fileName} · transaction deleted (txId={id})",
   "@orphanAttachmentNoTx": {
     "placeholders": {
-      "fileName": { "type": "String" },
-      "id": { "type": "String" }
+      "fileName": {
+        "type": "String"
+      },
+      "id": {
+        "type": "String"
+      }
     }
   },
   "orphanTagLinkTitle": "Tag link #{id}",
   "@orphanTagLinkTitle": {
     "placeholders": {
-      "id": { "type": "String" }
+      "id": {
+        "type": "String"
+      }
     }
   },
   "orphanTagLinkNoTx": "transaction deleted (txId={txId}, tagId={tagId})",
   "@orphanTagLinkNoTx": {
     "placeholders": {
-      "txId": { "type": "String" },
-      "tagId": { "type": "String" }
+      "txId": {
+        "type": "String"
+      },
+      "tagId": {
+        "type": "String"
+      }
     }
   },
   "orphanTagLinkNoTag": "tag deleted (txId={txId}, tagId={tagId})",
   "@orphanTagLinkNoTag": {
     "placeholders": {
-      "txId": { "type": "String" },
-      "tagId": { "type": "String" }
+      "txId": {
+        "type": "String"
+      },
+      "tagId": {
+        "type": "String"
+      }
     }
   },
   "orphanTxTitle": "Transaction #{id}",
   "@orphanTxTitle": {
     "placeholders": {
-      "id": { "type": "String" }
+      "id": {
+        "type": "String"
+      }
     }
   },
   "orphanTxNoMissing": "{type} · ¥{amount} · {missing} deleted",
   "@orphanTxNoMissing": {
     "placeholders": {
-      "type": { "type": "String" },
-      "amount": { "type": "String" },
-      "missing": { "type": "String" }
+      "type": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      },
+      "missing": {
+        "type": "String"
+      }
     }
   },
   "orphanTxNoCategory": "{type} · ¥{amount} · category deleted (categoryId={id})",
   "@orphanTxNoCategory": {
     "placeholders": {
-      "type": { "type": "String" },
-      "amount": { "type": "String" },
-      "id": { "type": "String" }
+      "type": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      },
+      "id": {
+        "type": "String"
+      }
     }
   },
   "orphanSubcategoryTitle": "Subcategory \"{name}\" #{id}",
   "@orphanSubcategoryTitle": {
     "placeholders": {
-      "name": { "type": "String" },
-      "id": { "type": "String" }
+      "name": {
+        "type": "String"
+      },
+      "id": {
+        "type": "String"
+      }
     }
   },
   "orphanSubcategoryNoParent": "{kind} · parent category deleted (parentId={id})",
   "@orphanSubcategoryNoParent": {
     "placeholders": {
-      "kind": { "type": "String" },
-      "id": { "type": "String" }
+      "kind": {
+        "type": "String"
+      },
+      "id": {
+        "type": "String"
+      }
     }
   },
   "orphanBudgetNoCategory": "{type} · ¥{amount} · category deleted (categoryId={id})",
   "@orphanBudgetNoCategory": {
     "placeholders": {
-      "type": { "type": "String" },
-      "amount": { "type": "String" },
-      "id": { "type": "String" }
+      "type": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      },
+      "id": {
+        "type": "String"
+      }
     }
   },
   "orphanSharedSubcategoryTitle": "Shared subcategory \"{name}\"",
   "@orphanSharedSubcategoryTitle": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "orphanSharedSubcategoryNoParent": "parent category deleted (parentSyncId={id})",
   "@orphanSharedSubcategoryNoParent": {
     "placeholders": {
-      "id": { "type": "String" }
+      "id": {
+        "type": "String"
+      }
     }
   },
   "orphanSharedTagOverrideTitle": "Shared tag override",
   "orphanSharedTagNoTx": "transaction deleted (txSyncId={txId}, tagSyncId={tagId})",
   "@orphanSharedTagNoTx": {
     "placeholders": {
-      "txId": { "type": "String" },
-      "tagId": { "type": "String" }
+      "txId": {
+        "type": "String"
+      },
+      "tagId": {
+        "type": "String"
+      }
     }
   },
   "orphanFileNoRef": "Attachment file has no DB reference",
@@ -3762,15 +4230,23 @@
   "orphanSyncChangeTitle": "Sync change #{id}",
   "@orphanSyncChangeTitle": {
     "placeholders": {
-      "id": { "type": "String" }
+      "id": {
+        "type": "String"
+      }
     }
   },
   "orphanSyncChangeNoEntity": "{entityType} · {action} · entity deleted (syncId={id})",
   "@orphanSyncChangeNoEntity": {
     "placeholders": {
-      "entityType": { "type": "String" },
-      "action": { "type": "String" },
-      "id": { "type": "String" }
+      "entityType": {
+        "type": "String"
+      },
+      "action": {
+        "type": "String"
+      },
+      "id": {
+        "type": "String"
+      }
     }
   },
   "customIconFileMissing": "Image file does not exist",
@@ -3780,7 +4256,9 @@
   "customIconSaveFailed": "Failed to save icon: {error}",
   "@customIconSaveFailed": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "sharePosterAppText": "BeeCount - Simple Ledger",
@@ -3789,7 +4267,9 @@
   "aiProviderMissingTextModelFor": "Provider {name} has no text model configured",
   "@aiProviderMissingTextModelFor": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "aiProviderNotConfiguredTextUsable": "No usable text chat provider configured",
@@ -3803,25 +4283,33 @@
   "xlsxParseFailed": "Failed to parse Excel file: {error}",
   "@xlsxParseFailed": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "rateFetchAllSourcesFailed": "All sources failed: {errors}",
   "@rateFetchAllSourcesFailed": {
     "placeholders": {
-      "errors": { "type": "String" }
+      "errors": {
+        "type": "String"
+      }
     }
   },
   "rateFetchSourcePayloadInvalid": "Unexpected payload from exchange rate source {source}",
   "@rateFetchSourcePayloadInvalid": {
     "placeholders": {
-      "source": { "type": "String" }
+      "source": {
+        "type": "String"
+      }
     }
   },
   "donationPurchaseFailedWith": "Purchase failed: {error}",
   "@donationPurchaseFailedWith": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "donationPurchaseRequestFailed": "Purchase request failed",
@@ -3830,10 +4318,11 @@
   "donationRestoreFailed": "Restore purchases failed: {error}",
   "@donationRestoreFailed": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
-  "updateDownloadComplete": "Download complete",
   "updateDownloadDone": "Done",
   "attachmentArchiveMissing": "The archive file does not exist",
   "attachmentArchiveInvalidFormat": "Invalid archive format: metadata.json is missing",
@@ -3846,13 +4335,17 @@
   "configExportFileMissing": "The file does not exist: {path}",
   "@configExportFileMissing": {
     "placeholders": {
-      "path": { "type": "String" }
+      "path": {
+        "type": "String"
+      }
     }
   },
   "ledgerTargetIdExists": "Target ledger ID already exists: {id}",
   "@ledgerTargetIdExists": {
     "placeholders": {
-      "id": { "type": "String" }
+      "id": {
+        "type": "String"
+      }
     }
   },
   "ledgerMissing": "The ledger does not exist",
@@ -3862,20 +4355,26 @@
   "syncHealthLedgerMissing": "Ledger {id} not found locally",
   "@syncHealthLedgerMissing": {
     "placeholders": {
-      "id": { "type": "String" }
+      "id": {
+        "type": "String"
+      }
     }
   },
   "logExportTitle": "=== BeeCount log export ===",
   "logExportTime": "Exported at: {time}",
   "@logExportTime": {
     "placeholders": {
-      "time": { "type": "String" }
+      "time": {
+        "type": "String"
+      }
     }
   },
   "logExportCount": "Log entries: {count}",
   "@logExportCount": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "creditCardOverpayment": "Overpayment",
@@ -3899,5 +4398,277 @@
   "transactionReceiptTags": "Tags",
   "transactionReceiptFooter": "Little moments, thoughtfully recorded",
   "transactionReceiptUnavailable": "Unable to generate a receipt. Check that this transaction still exists.",
-  "transactionReceiptShareFailed": "Unable to share. Please try again."
+  "transactionReceiptShareFailed": "Unable to share. Please try again.",
+  "v4RecordingMoreCategories": "More categories",
+  "v4RecordingCalculationHint": "Calculate with + − × ÷",
+  "v4RecordingSaveNext": "Save & add another",
+  "v4RecordingClearAmount": "Clear amount",
+  "v4RecordingSelectCategory": "Choose a category",
+  "v4RecordingSaveFailed": "Could not save. Please try again.",
+  "v4RecordingCategoriesFailed": "Could not load categories",
+  "v4RecordingRetry": "Retry",
+  "v4RecordingDiscardTitle": "Discard this entry?",
+  "v4RecordingDiscardMessage": "Your unsaved amount, note and selections will be cleared.",
+  "v4RateInvalid": "Enter a valid exchange rate greater than 0",
+  "v4RecordingConvertedLabel": "In {currency}",
+  "@v4RecordingConvertedLabel": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      }
+    }
+  },
+  "v4CategoryToolsTitle": "Category tools",
+  "v4CategoryToolsHint": "Sort, import, share and default categories",
+  "v4AttachmentPending": "Pending save",
+  "v4ClearSelection": "Clear selection",
+  "v4HomeAllTransactions": "All transactions",
+  "v4HomeBatch": "Batch",
+  "v4HomeMonthShare": "Share monthly summary",
+  "v4HomeBrandShow": "Show BeeCount branding",
+  "v4HomeBrandHide": "Hide BeeCount branding",
+  "v4HomeMonthExpense": "Monthly expenses",
+  "v4HomeMonthIncome": "Monthly income",
+  "v4HomeMonthBalance": "Monthly balance",
+  "v4AmountsShow": "Show amounts",
+  "v4AmountsHide": "Hide amounts",
+  "v4SearchTitle": "Search transactions",
+  "v4SearchRecent": "Recent searches",
+  "v4SearchClearHistory": "Clear search history",
+  "v4SearchInvert": "Invert selection",
+  "v4SearchScope": "Change scope",
+  "v4SearchOriginalAmount": "Original amount",
+  "v4SearchLedgerAmount": "Converted amount",
+  "v4SearchInvalidRange": "Enter valid nonnegative amounts and check the range",
+  "v4SearchSetTags": "Set tags",
+  "v4SearchTagsSaved": "Tags updated for selected transactions",
+  "v4SearchAll": "All",
+  "v4SearchHint": "Search notes, categories, amounts or tags",
+  "v4SearchFilterActive": "Filters applied",
+  "v4SearchSelected": "{count} selected transactions",
+  "@v4SearchSelected": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "v4DetailMonth": "Month",
+  "v4DetailYear": "Year",
+  "v4DetailCumulative": "All time",
+  "v4DetailCustom": "Custom range",
+  "v4DetailTrend": "Cumulative amount",
+  "v4DetailShare": "Share",
+  "v4DetailMissingCategory": "This category no longer exists",
+  "v4DetailRecent": "Recent transactions",
+  "v4DetailCollapse": "Show fewer",
+  "v4DetailCategoryChildren": "Parent category · {count} subcategories",
+  "@v4DetailCategoryChildren": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "v4DetailAmountLabel": "{kind} · {period}",
+  "@v4DetailAmountLabel": {
+    "placeholders": {
+      "period": {
+        "type": "String"
+      },
+      "kind": {
+        "type": "String"
+      }
+    }
+  },
+  "v4DetailAllTransactions": "View all {count} transactions",
+  "@v4DetailAllTransactions": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "v4DetailRecord": "Record in {name}",
+  "@v4DetailRecord": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "v4MineCloudGroup": "Cloud and sync",
+  "v4MineFeaturesGroup": "Features",
+  "v4MineHelpGroup": "Help and information",
+  "v4MineSupportGroup": "Support us",
+  "v4ConfigImportWarning": "Import replaces existing configuration. Back up your current configuration first.",
+  "v4CategoryPresetIcons": "Preset icons",
+  "v4CategoryCommonIcons": "Common",
+  "v4CategoryImageHint": "Keep original colors and transparency. Crop to a square after choosing.",
+  "welcomePreferencesLater": "You can change these preferences later.",
+  "welcomeRestoreTitle": "Welcome back.",
+  "welcomeRestoreDescription": "Restore your familiar ledgers and keep recording your days.",
+  "welcomeReadyDescription": "Record your days with confidence. Your data stays in your control.",
+  "welcomeCloudLater": "No setup is needed now. Enable it later in Me > Cloud services.",
+  "welcomeSelectBackup": "Choose backup file",
+  "welcomeRestoreContinue": "Import and continue",
+  "welcomeRestoreLedgersAccounts": "Ledgers and accounts",
+  "welcomeRestoreCategoriesTags": "Categories and tags",
+  "welcomeRestoreSettings": "App settings and preferences",
+  "welcomeAttachmentRestoreTitle": "Bring your memories back, too.",
+  "welcomeAttachmentRestoreDescription": "Restore receipts and their transaction links, or import them later.",
+  "welcomeAttachmentBackupDescription": "TAR.GZ · Receipts, screenshots and attachments",
+  "welcomeImportAttachmentsContinue": "Import attachments and finish",
+  "v4QuickAddSlideHint": "Hold, slide to an action, and release",
+  "v4AccountDetailTitle": "Account details",
+  "v4AmountInvalid": "Enter a valid amount",
+  "v4TagCategories": "Linked categories",
+  "v4TagRecord": "Record with this tag",
+  "v4TagDistribution": "Category distribution",
+  "v4TagOriginalLedgerTotals": "Totals use each ledger’s original amounts",
+  "v4TagToolsTitle": "Tag tools",
+  "v4TagToolsHint": "Add, import, generate defaults and clean up",
+  "v4TrendClosing": "Closing balance",
+  "v4TrendOpening": "Opening balance",
+  "v4TrendChange": "Period change",
+  "v4TrendChangeRate": "Change rate",
+  "v4DataBills": "Transactions",
+  "v4DataCategories": "Categories and tags",
+  "v4DataConfiguration": "Configuration and storage",
+  "v4DataAttachments": "Attachments",
+  "v4CustomIcons": "Custom icons",
+  "v4AnalyticsTrend": "Income and expense trend",
+  "v4AnalyticsShowRanking": "Show category ranking",
+  "v4AnalyticsShowPie": "Show category chart",
+  "v4AnalyticsView": "Statistics view",
+  "v4AnalyticsRecalculate": "Convert now",
+  "aiProviderShowKey": "Show API key",
+  "aiProviderHideKey": "Hide API key",
+  "aiPromptShare": "Share prompt",
+  "aiPromptPaste": "Paste prompt",
+  "v4AIChatSend": "Send message",
+  "v4RecurringLastGeneratedLabel": "Last generated",
+  "v4TransactionDetailTitle": "Bill details",
+  "v4TransactionDetailSnapshot": "Historical conversion",
+  "v4TransactionDetailSnapshotRate": "Rate at entry",
+  "v4DetailConvertedScope": "Totals converted to current ledger currency {currency}",
+  "@v4DetailConvertedScope": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      }
+    }
+  },
+  "v4DetailMissingConversion": "{count} records not converted · {currencies}. Summary amounts unavailable.",
+  "@v4DetailMissingConversion": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "currencies": {
+        "type": "String"
+      }
+    }
+  },
+  "v4DetailRateDate": "Rate date {date}",
+  "@v4DetailRateDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "v4DetailRatesStale": "Rate is more than 7 days old · {date}",
+  "@v4DetailRatesStale": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "v4ShareCardTitle": "Share card",
+  "v4ShareCardProfile": "My profile",
+  "v4InsightsCategoryShare": "Category share",
+  "v4InsightsShareHint": "Tap a category to view its share of the total",
+  "v4InsightsTapBar": "Tap a column to see its amount",
+  "v4InsightsAverageTitle": "How the average is calculated",
+  "v4InsightsAverageDays": "Uses elapsed days in this period, including days without entries. Future dates are excluded.",
+  "v4InsightsAverageMonths": "Uses elapsed months in this year, including months without entries. Future months are excluded.",
+  "v4InsightsAverageYears": "Uses the years spanned by the ledger, including years without entries. Future years are excluded.",
+  "v4InsightsDaysUnit": "days",
+  "v4InsightsMonthsUnit": "months",
+  "v4InsightsYearsUnit": "years",
+  "v4InsightsBalanceComposition": "Income and expenses",
+  "v4InsightsBalanceEquation": "Balance = income − expenses",
+  "v4InsightsPreviousPeriod": "Previous period",
+  "v4InsightsNextPeriod": "Next period",
+  "v4InsightsOtherCategories": "Other categories",
+  "v4InsightsSortedByAmount": "Sorted by amount",
+  "v4InsightsNoData": "Choose another period or use the tabs above to switch between expenses, income and balance.",
+  "v4InsightsTrendTitle": "{type} trend",
+  "@v4InsightsTrendTitle": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "v4InsightsAmountUnit": "Unit: {currency}",
+  "@v4InsightsAmountUnit": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      }
+    }
+  },
+  "v4InsightsCollapseCategories": "Collapse categories",
+  "v4InsightsAllCategories": "All {count} categories",
+  "@v4InsightsAllCategories": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "v4AssetsAllAccounts": "All accounts",
+  "v4AssetsByCurrency": "By currency",
+  "v4AssetsUnifiedConversion": "Converted total",
+  "v4AssetsCurrencyView": "Amount display",
+  "v4AssetsHiddenIncluded": "Hidden accounts remain included in net worth.",
+  "v4AssetsIncludesHidden": "Includes {count} hidden accounts",
+  "v4AssetsOrder": "Account order",
+  "v4AssetsOrderHint": "Reorder within an account type. Balances stay unchanged.",
+  "v4AssetsSeparateCurrencyHint": "View each currency separately; currencies are not added together.",
+  "v4AssetsOriginal": "Original",
+  "v4AssetsDefaultExpense": "Default expense",
+  "v4AssetsDefaultIncome": "Default income",
+  "v4AssetsTrend": "Trend",
+  "v4AssetsComposition": "Mix",
+  "@v4AssetsIncludesHidden": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "v4TransactionRowFieldsTitle": "Transaction fields",
+  "v4TransactionRowMoreFields": "{count} more fields",
+  "@v4TransactionRowMoreFields": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "v4TransactionRowReadOnly": "Read only",
+  "v4TransactionRowAccess": "Access",
+  "v4SharePosterProfileEyebrow": "My everyday records",
+  "v4SharePosterDayCaption": "days of thoughtful records.",
+  "v4SharePosterProfileJourney": "A small habit, a lasting story.",
+  "v4SharePosterPromoInvite": "Make a record of your days.",
+  "v4SharePosterOpenSourceBody": "Your data stays yours. Our code stays open.\nKeep bookkeeping simple, together.",
+  "v4SharePosterOpenSourceAction": "Explore the source",
+  "v4SharePosterRecommend": "Recommend to a friend",
+  "v4SharePosterTopIncome": "TOP 3 income",
+  "v4SharePosterAverageRecords": "Daily records"
 }

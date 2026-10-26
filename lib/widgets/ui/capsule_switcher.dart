@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import '../../styles/tokens.dart';
+import 'package:beecount_ui/beecount_ui.dart';
 
 /// 胶囊选项配置
 class CapsuleOption<T> {
@@ -50,11 +51,10 @@ class CapsuleSwitcher<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     if (options.isEmpty) return const SizedBox.shrink();
     final bg = backgroundColor ?? BeeTokens.surfaceCapsule(context);
-    final selectedBg = selectedBackgroundColor ??
-        (BeeTokens.isDark(context) ? BeeTokens.primary(context) : Colors.black);
+    final selectedBg =
+        selectedBackgroundColor ?? BeeCardTheme.of(context).surface;
     final selectedFg = selectedTextColor ?? BeeTokens.textOnColor(selectedBg);
-    final unselectedFg =
-        unselectedTextColor ?? BeeTokens.textPrimary(context);
+    final unselectedFg = unselectedTextColor ?? BeeTokens.textPrimary(context);
     final textStyle = (Theme.of(context).textTheme.bodyMedium ??
             const TextStyle(fontSize: 14))
         .copyWith(fontWeight: FontWeight.w600);
@@ -74,8 +74,8 @@ class CapsuleSwitcher<T> extends StatelessWidget {
       painter.dispose();
     }
     final controlHeight = math.max(height, textHeight + BeeDimens.p16 + 6);
-    final radius = borderRadius ?? BorderRadius.circular(controlHeight / 2);
-    final segmentRadius = BorderRadius.circular((controlHeight - 6) / 2);
+    final radius = borderRadius ?? BorderRadius.circular(13);
+    final segmentRadius = BorderRadius.circular(10);
     final duration = MediaQuery.disableAnimationsOf(context)
         ? Duration.zero
         : const Duration(milliseconds: 160);

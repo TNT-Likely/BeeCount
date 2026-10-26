@@ -1,34 +1,22 @@
-import 'dart:io';
-
+import 'package:beecount_business_ui/beecount_business_ui.dart';
+import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import '../../widgets/ui/ui.dart';
-import '../../styles/tokens.dart';
 import '../../l10n/app_localizations.dart';
-import '../../utils/ui_scale_extensions.dart';
-import '../../utils/image_file_info.dart';
 import '../../services/attachment_export_import_service.dart';
-import '../../providers.dart';
+import '../../presentation/v4/bindings/attachment_library_data.dart';
+import '../../presentation/v4/bindings/page_scaffold.dart';
 
-/// 附件预览页面
-/// 用于展示即将导出或导入的附件图片和自定义图标
 class AttachmentPreviewPage extends ConsumerStatefulWidget {
-  final ExportPreviewData? exportData; // 导出数据（本地文件）
-  final ArchivePreviewData? archiveData; // 导入数据（归档数据）
+  const AttachmentPreviewPage(
+      {super.key, this.exportData, this.archiveData, required this.title})
+      : assert(
+            (exportData != null && archiveData == null) ||
+                (exportData == null && archiveData != null),
+            'Must provide either exportData or archiveData, but not both');
+  final ExportPreviewData? exportData;
+  final ArchivePreviewData? archiveData;
   final String title;
-
-  const AttachmentPreviewPage({
-    super.key,
-    this.exportData,
-    this.archiveData,
-    required this.title,
-  }) : assert(
-          (exportData != null && archiveData == null) ||
-              (exportData == null && archiveData != null),
-          'Must provide either exportData or archiveData, but not both',
-        );
-
   @override
   ConsumerState<AttachmentPreviewPage> createState() =>
       _AttachmentPreviewPageState();
@@ -36,327 +24,83 @@ class AttachmentPreviewPage extends ConsumerStatefulWidget {
 
 class _AttachmentPreviewPageState extends ConsumerState<AttachmentPreviewPage>
     with SingleTickerProviderStateMixin {
-  late TabController _tabController;
-  int? _selectedIndex;
-  final Map<String, Future<ImageFileInfo>> _imageInfo = {};
-
-  int get attachmentCount =>
-      widget.exportData?.attachments.length ??
-      widget.archiveData?.attachments.length ??
-      0;
-
-  int get customIconCount =>
-      widget.exportData?.customIcons.length ??
-      widget.archiveData?.customIcons.length ??
-      0;
-
-  int get totalCount => attachmentCount + customIconCount;
-
+  late final TabController tabs;
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    tabs = TabController(length: 2, vsync: this)..addListener(revealTab);
   }
 
+  final tabScroll = ScrollController();
+  void revealTab() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && tabScroll.hasClients) {
+        tabScroll
+            .jumpTo(tabs.index == 0 ? 0 : tabScroll.position.maxScrollExtent);
+      }
+    });
+  }
+
+  late final data = AttachmentLibraryData(
+      exportData: widget.exportData, archiveData: widget.archiveData);
+  String? selectedId;
   @override
   void dispose() {
-    _tabController.dispose();
+    tabs.dispose();
+    tabScroll.dispose();
     super.dispose();
+  }
+
+  Future<void> open(int group, int index) async {
+    final item = data.items(group)[index];
+    setState(() => selectedId = item.id);
+    await showAttachmentLibraryItem(context, data, group, index);
+    if (mounted) setState(() => selectedId = null);
   }
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-
-    return Scaffold(
-      backgroundColor: BeeTokens.scaffoldBackground(context),
-      body: Column(
-        children: [
-          PrimaryHeader(
-            title: widget.title,
-            subtitle: l10n.attachmentPreviewSubtitle(totalCount),
-            showBack: true,
-          ),
-          // Tab栏
-          if (totalCount > 0)
-            Container(
-              color: BeeTokens.surface(context),
-              child: TabBar(
-                controller: _tabController,
-                indicatorColor: ref.watch(primaryColorProvider),
-                labelColor: ref.watch(primaryColorProvider),
-                unselectedLabelColor: BeeTokens.textSecondary(context),
-                tabs: [
-                  Tab(text: '${l10n.attachmentImportTitle} ($attachmentCount)'),
-                  Tab(text: '自定义图标 ($customIconCount)'),
-                ],
-              ),
-            ),
-          Expanded(
-            child: totalCount == 0
-                ? Center(
-                    child: Text(
-                      l10n.attachmentPreviewEmpty,
-                      style: TextStyle(
-                        color: BeeTokens.textSecondary(context),
-                        fontSize: 14,
-                      ),
-                    ),
-                  )
-                : TabBarView(
-                    controller: _tabController,
-                    children: [
-                      // 附件预览
-                      _buildGridView(true),
-                      // 自定义图标预览
-                      _buildGridView(false),
+    final l = AppLocalizations.of(context),
+        attachments = data.items(0),
+        icons = data.items(1),
+        total = attachments.length + icons.length;
+    return V4PageScaffold(
+        body: Column(children: [
+      BeePageHeader(
+          title: widget.title,
+          subtitle: l.attachmentPreviewSubtitle(total),
+          leading: const BackButton()),
+      if (total > 0) ...[
+        Padding(
+            padding: const EdgeInsets.fromLTRB(17, 12, 17, 0),
+            child: AnimatedBuilder(
+                animation: tabs,
+                builder: (context, _) => BeeSegmented<int>(
+                    scrollController: tabScroll,
+                    items: [
+                      BeeSegment(
+                          0, '${l.v4DataAttachments} (${attachments.length})'),
+                      BeeSegment(1, '${l.v4CustomIcons} (${icons.length})')
                     ],
-                  ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildGridView(bool isAttachment) {
-    final l10n = AppLocalizations.of(context);
-    final count = isAttachment ? attachmentCount : customIconCount;
-
-    if (count == 0) {
-      return Center(
-        child: Text(
-          l10n.attachmentPreviewEmpty,
-          style: TextStyle(
-            color: BeeTokens.textSecondary(context),
-            fontSize: 14,
-          ),
-        ),
-      );
-    }
-
-    return GridView.builder(
-      padding: EdgeInsets.all(12.0.scaled(context, ref)),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
-        crossAxisSpacing: 8.0.scaled(context, ref),
-        mainAxisSpacing: 8.0.scaled(context, ref),
-        childAspectRatio: 1.0,
-      ),
-      itemCount: count,
-      itemBuilder: (context, index) {
-        return _buildImageItem(context, index, isAttachment);
-      },
-    );
-  }
-
-  Widget _buildImageItem(BuildContext context, int index, bool isAttachment) {
-    final isSelected = _selectedIndex == index;
-
-    return GestureDetector(
-      onTap: () => _showImageDetail(context, index, isAttachment),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8),
-          border: isSelected
-              ? Border.all(
-                  color: ref.watch(primaryColorProvider),
-                  width: 2,
-                )
-              : null,
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              _buildImage(index, isAttachment),
-              Positioned(
-                right: 4,
-                bottom: 4,
-                child: _buildImageInfo(index, isAttachment, badge: true),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  String _formatFileSize(int bytes) {
-    if (bytes < 1024) return '$bytes B';
-    if (bytes < 1024 * 1024) {
-      return '${(bytes / 1024).toStringAsFixed(2)} KB';
-    }
-    if (bytes < 1024 * 1024 * 1024) {
-      return '${(bytes / (1024 * 1024)).toStringAsFixed(2)} MB';
-    }
-    return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(2)} GB';
-  }
-
-  Widget _buildImageInfo(int index, bool isAttachment, {bool badge = false}) {
-    Widget infoLabel(ImageFileInfo info) {
-      const style = TextStyle(color: Colors.white, fontSize: 11);
-      final label = Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment:
-            badge ? CrossAxisAlignment.end : CrossAxisAlignment.center,
-        children: [
-          if (info.width != null && info.height != null)
-            Text('${info.width} × ${info.height}', style: style, maxLines: 1),
-          Text(_formatFileSize(info.fileSize), style: style, maxLines: 1),
-        ],
-      );
-      if (!badge) return label;
-      return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-        decoration: BoxDecoration(
-          color: Colors.black54,
-          borderRadius: BorderRadius.circular(4),
-        ),
-        child: label,
-      );
-    }
-
-    if (widget.exportData != null) {
-      final File file = isAttachment
-          ? widget.exportData!.attachments[index]
-          : widget.exportData!.customIcons[index];
-      return FutureBuilder<ImageFileInfo>(
-        future: _imageInfo.putIfAbsent(
-            file.path, () => ImageFileInfo.fromFile(file)),
-        builder: (context, snapshot) => snapshot.hasData
-            ? infoLabel(snapshot.data!)
-            : const SizedBox.shrink(),
-      );
-    }
-
-    final item = isAttachment
-        ? widget.archiveData!.attachments[index]
-        : widget.archiveData!.customIcons[index];
-    return FutureBuilder<ImageFileInfo>(
-      future: _imageInfo.putIfAbsent('archive:$isAttachment:$index',
-          () => ImageFileInfo.fromBytes(item.bytes)),
-      builder: (context, snapshot) => snapshot.hasData
-          ? infoLabel(snapshot.data!)
-          : const SizedBox.shrink(),
-    );
-  }
-
-  Widget _buildImage(int index, bool isAttachment) {
-    if (widget.exportData != null) {
-      // 本地文件
-      final file = isAttachment
-          ? widget.exportData!.attachments[index]
-          : widget.exportData!.customIcons[index];
-      return Image.file(
-        file,
-        fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) {
-          return Container(
-            color: BeeTokens.surface(context),
-            child: Icon(
-              Icons.broken_image,
-              color: BeeTokens.iconSecondary(context),
-            ),
-          );
-        },
-      );
-    } else {
-      // 归档数据
-      final item = isAttachment
-          ? widget.archiveData!.attachments[index]
-          : widget.archiveData!.customIcons[index];
-      return Image.memory(
-        item.bytes,
-        fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) {
-          return Container(
-            color: BeeTokens.surface(context),
-            child: Icon(
-              Icons.broken_image,
-              color: BeeTokens.iconSecondary(context),
-            ),
-          );
-        },
-      );
-    }
-  }
-
-  void _showImageDetail(BuildContext context, int index, bool isAttachment) {
-    setState(() {
-      _selectedIndex = index;
-    });
-
-    String fileName;
-    Widget imageWidget;
-
-    if (widget.exportData != null) {
-      final file = isAttachment
-          ? widget.exportData!.attachments[index]
-          : widget.exportData!.customIcons[index];
-      fileName = file.path.split('/').last;
-      imageWidget = Image.file(file);
-    } else {
-      final item = isAttachment
-          ? widget.archiveData!.attachments[index]
-          : widget.archiveData!.customIcons[index];
-      fileName = item.fileName;
-      imageWidget = Image.memory(item.bytes);
-    }
-
-    showDialog(
-      context: context,
-      builder: (context) => Dialog(
-        backgroundColor: Colors.transparent,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // 关闭按钮
-            Align(
-              alignment: Alignment.topRight,
-              child: IconButton(
-                icon: const Icon(Icons.close, color: Colors.white),
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-            ),
-            // 图片
-            Flexible(
-              child: InteractiveViewer(
-                child: imageWidget,
-              ),
-            ),
-            const SizedBox(height: 16),
-            // 文件名
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.black54,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    fileName,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 4),
-                  _buildImageInfo(index, isAttachment),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    ).then((_) {
-      if (!mounted) return;
-      setState(() {
-        _selectedIndex = null;
-      });
-    });
+                    value: tabs.index,
+                    onChanged: tabs.animateTo))),
+        const SizedBox(height: 6)
+      ],
+      Expanded(
+          child: total == 0
+              ? BeeEmptyState(
+                  title: l.attachmentPreviewEmpty,
+                  icon: const BeeLineIcon('Images', size: 36))
+              : TabBarView(controller: tabs, children: [
+                  for (var group = 0; group < 2; group++)
+                    BeeAttachmentLibrary(
+                        key: PageStorageKey('preview-group-$group'),
+                        items: group == 0 ? attachments : icons,
+                        emptyLabel: l.attachmentPreviewEmpty,
+                        selectedId: selectedId,
+                        metadataBuilder: (index) => data.metadata(group, index),
+                        onOpen: (index) => open(group, index))
+                ]))
+    ]));
   }
 }

@@ -638,10 +638,10 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get searchSummaryIncome => '收入';
+  String get searchSummaryIncome => '收入合计';
 
   @override
-  String get searchSummaryExpense => '支出';
+  String get searchSummaryExpense => '支出合计';
 
   @override
   String get searchFilterTitle => '筛选';
@@ -731,6 +731,27 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get splashSecurityFeature3 => '• 可选云端同步，多设备数据一致';
+
+  @override
+  String get splashPreparingRecords => '正在准备你的记录';
+
+  @override
+  String get splashSecuritySummary => '本地存储 · 开源透明';
+
+  @override
+  String get splashSecurityCaption => '云同步由你选择，数据始终由你掌握';
+
+  @override
+  String get splashSecurityLocalTitle => '数据本地存储';
+
+  @override
+  String get splashSecurityOpenTitle => '开源代码透明';
+
+  @override
+  String get splashSecuritySyncTitle => '可选云端同步';
+
+  @override
+  String get splashSecurityFootnote => '无需账号也能开始记录，云端同步由你选择。';
 
   @override
   String get splashInitializing => '正在初始化数据...';
@@ -2045,7 +2066,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get categoryNameRequired => '请输入分类名称';
 
   @override
-  String get categoryNameTooLong => '分类名称不能超过4个字';
+  String get categoryNameTooLong => '分类名称不能超过10个字';
 
   @override
   String get categoryNameDuplicate => '分类名称已存在';
@@ -2199,6 +2220,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String categoryDeleted(Object name) {
     return '分类\"$name\"已删除';
   }
+
+  @override
+  String get categoryManageChildren => '管理';
 
   @override
   String get categorySubCategoryTitle => '二级分类';
@@ -7608,7 +7632,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get netWorthTrendLineLiabilities => '总负债';
 
   @override
-  String get netWorthTrendMultiCurrencyNote => '历史净值为各币种原值相加,未折算';
+  String get netWorthTrendMultiCurrencyNote => '按当前汇率折算为主币种；缺少汇率的账户暂不计入。';
 
   @override
   String get txFlagExcludeFromStats => '不计入收支';
@@ -8673,6 +8697,519 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get transactionReceiptShareFailed => '分享失败，请重试。';
+
+  @override
+  String get v4RecordingMoreCategories => '更多分类';
+
+  @override
+  String get v4RecordingCalculationHint => '支持 + − × ÷ 四则运算';
+
+  @override
+  String get v4RecordingSaveNext => '再记一笔';
+
+  @override
+  String get v4RecordingClearAmount => '清空金额';
+
+  @override
+  String get v4RecordingSelectCategory => '请选择分类';
+
+  @override
+  String get v4RecordingSaveFailed => '保存失败，请重试';
+
+  @override
+  String get v4RecordingCategoriesFailed => '分类加载失败';
+
+  @override
+  String get v4RecordingRetry => '重试';
+
+  @override
+  String get v4RecordingDiscardTitle => '放弃本次记账？';
+
+  @override
+  String get v4RecordingDiscardMessage => '尚未保存的金额、备注和选择将被清除。';
+
+  @override
+  String get v4RateInvalid => '请输入大于 0 的有效汇率';
+
+  @override
+  String v4RecordingConvertedLabel(String currency) {
+    return '折合 $currency';
+  }
+
+  @override
+  String get v4CategoryToolsTitle => '分类工具';
+
+  @override
+  String get v4CategoryToolsHint => '排序、导入、分享与默认分类';
+
+  @override
+  String get v4AttachmentPending => '待保存';
+
+  @override
+  String get v4ClearSelection => '清空选择';
+
+  @override
+  String get v4HomeAllTransactions => '全部明细';
+
+  @override
+  String get v4HomeBatch => '批量';
+
+  @override
+  String get v4HomeMonthShare => '月账单分享';
+
+  @override
+  String get v4HomeBrandShow => '显示蜜蜂记账品牌';
+
+  @override
+  String get v4HomeBrandHide => '隐藏蜜蜂记账品牌';
+
+  @override
+  String get v4HomeMonthExpense => '本月支出';
+
+  @override
+  String get v4HomeMonthIncome => '本月收入';
+
+  @override
+  String get v4HomeMonthBalance => '本月结余';
+
+  @override
+  String get v4AmountsShow => '显示金额';
+
+  @override
+  String get v4AmountsHide => '隐藏金额';
+
+  @override
+  String get v4SearchTitle => '账单搜索';
+
+  @override
+  String get v4SearchRecent => '最近搜索';
+
+  @override
+  String get v4SearchClearHistory => '清除搜索历史';
+
+  @override
+  String get v4SearchInvert => '反选';
+
+  @override
+  String get v4SearchScope => '调整范围';
+
+  @override
+  String get v4SearchOriginalAmount => '原币金额';
+
+  @override
+  String get v4SearchLedgerAmount => '折算金额';
+
+  @override
+  String get v4SearchInvalidRange => '请填写有效的非负金额，并确认起止范围正确';
+
+  @override
+  String get v4SearchSetTags => '设置标签';
+
+  @override
+  String get v4SearchTagsSaved => '所选账单的标签已更新';
+
+  @override
+  String get v4SearchAll => '全部';
+
+  @override
+  String get v4SearchHint => '搜索备注、分类、金额、标签';
+
+  @override
+  String get v4SearchFilterActive => '已应用筛选';
+
+  @override
+  String v4SearchSelected(int count) {
+    return '已选择 $count 笔';
+  }
+
+  @override
+  String get v4DetailMonth => '本月';
+
+  @override
+  String get v4DetailYear => '本年';
+
+  @override
+  String get v4DetailCumulative => '累计';
+
+  @override
+  String get v4DetailCustom => '指定周期';
+
+  @override
+  String get v4DetailTrend => '累计金额趋势';
+
+  @override
+  String get v4DetailShare => '占比';
+
+  @override
+  String get v4DetailMissingCategory => '分类已不存在';
+
+  @override
+  String get v4DetailRecent => '近期账单';
+
+  @override
+  String get v4DetailCollapse => '收起明细';
+
+  @override
+  String v4DetailCategoryChildren(int count) {
+    return '一级分类 · $count 个二级分类';
+  }
+
+  @override
+  String v4DetailAmountLabel(String period, String kind) {
+    return '$period$kind';
+  }
+
+  @override
+  String v4DetailAllTransactions(int count) {
+    return '查看全部 $count 笔';
+  }
+
+  @override
+  String v4DetailRecord(String name) {
+    return '记一笔 · $name';
+  }
+
+  @override
+  String get v4MineCloudGroup => '云服务与同步';
+
+  @override
+  String get v4MineFeaturesGroup => '功能管理';
+
+  @override
+  String get v4MineHelpGroup => '帮助与信息';
+
+  @override
+  String get v4MineSupportGroup => '支持我们';
+
+  @override
+  String get v4ConfigImportWarning => '导入将覆盖现有配置，建议先备份当前配置。';
+
+  @override
+  String get v4CategoryPresetIcons => '预设图标';
+
+  @override
+  String get v4CategoryCommonIcons => '常用';
+
+  @override
+  String get v4CategoryImageHint => '保留图片原色与透明背景，选择后裁剪为正方形。';
+
+  @override
+  String get welcomePreferencesLater => '这些偏好之后都可以修改。';
+
+  @override
+  String get welcomeRestoreTitle => '欢迎回来。';
+
+  @override
+  String get welcomeRestoreDescription => '恢复熟悉的账本，接着记录你的日常。';
+
+  @override
+  String get welcomeReadyDescription => '放心记下日常，数据始终由你掌控。';
+
+  @override
+  String get welcomeCloudLater => '无需现在配置。进入后可在「我的 · 云服务」中开启。';
+
+  @override
+  String get welcomeSelectBackup => '选择备份文件';
+
+  @override
+  String get welcomeRestoreContinue => '导入配置并继续';
+
+  @override
+  String get welcomeRestoreLedgersAccounts => '账本与账户';
+
+  @override
+  String get welcomeRestoreCategoriesTags => '分类与标签';
+
+  @override
+  String get welcomeRestoreSettings => '应用设置与偏好';
+
+  @override
+  String get welcomeAttachmentRestoreTitle => '把回忆也带回来。';
+
+  @override
+  String get welcomeAttachmentRestoreDescription => '恢复票据与账单的关联，也可以稍后再导入。';
+
+  @override
+  String get welcomeAttachmentBackupDescription => 'TAR.GZ · 票据、截图等附件';
+
+  @override
+  String get welcomeImportAttachmentsContinue => '导入附件并完成';
+
+  @override
+  String get v4QuickAddSlideHint => '长按后滑向目标，松手进入';
+
+  @override
+  String get v4AccountDetailTitle => '账户详情';
+
+  @override
+  String get v4AmountInvalid => '请输入有效金额';
+
+  @override
+  String get v4TagCategories => '关联分类';
+
+  @override
+  String get v4TagRecord => '使用此标签记一笔';
+
+  @override
+  String get v4TagDistribution => '分类分布';
+
+  @override
+  String get v4TagOriginalLedgerTotals => '按原账本金额汇总';
+
+  @override
+  String get v4TagToolsTitle => '标签工具';
+
+  @override
+  String get v4TagToolsHint => '新增、导入、默认生成与清理';
+
+  @override
+  String get v4TrendClosing => '期末金额';
+
+  @override
+  String get v4TrendOpening => '期初金额';
+
+  @override
+  String get v4TrendChange => '期间变化';
+
+  @override
+  String get v4TrendChangeRate => '变化比例';
+
+  @override
+  String get v4DataBills => '账单数据';
+
+  @override
+  String get v4DataCategories => '分类与标签';
+
+  @override
+  String get v4DataConfiguration => '应用配置与空间';
+
+  @override
+  String get v4DataAttachments => '账单附件';
+
+  @override
+  String get v4CustomIcons => '自定义图标';
+
+  @override
+  String get v4AnalyticsTrend => '收支趋势';
+
+  @override
+  String get v4AnalyticsShowRanking => '显示分类排行';
+
+  @override
+  String get v4AnalyticsShowPie => '显示分类环图';
+
+  @override
+  String get v4AnalyticsView => '统计视角';
+
+  @override
+  String get v4AnalyticsRecalculate => '补折算';
+
+  @override
+  String get aiProviderShowKey => '显示密钥';
+
+  @override
+  String get aiProviderHideKey => '隐藏密钥';
+
+  @override
+  String get aiPromptShare => '分享提示词';
+
+  @override
+  String get aiPromptPaste => '粘贴提示词';
+
+  @override
+  String get v4AIChatSend => '发送消息';
+
+  @override
+  String get v4RecurringLastGeneratedLabel => '最近生成';
+
+  @override
+  String get v4TransactionDetailTitle => '账单详情';
+
+  @override
+  String get v4TransactionDetailSnapshot => '历史折算';
+
+  @override
+  String get v4TransactionDetailSnapshotRate => '记账时汇率';
+
+  @override
+  String v4DetailConvertedScope(String currency) {
+    return '已按当前账本币种 $currency 汇总';
+  }
+
+  @override
+  String v4DetailMissingConversion(int count, String currencies) {
+    return '$count 笔未折算 · $currencies，暂不显示汇总金额';
+  }
+
+  @override
+  String v4DetailRateDate(String date) {
+    return '汇率日期 $date';
+  }
+
+  @override
+  String v4DetailRatesStale(String date) {
+    return '汇率已超过 7 天 · $date';
+  }
+
+  @override
+  String get v4ShareCardTitle => '分享卡片';
+
+  @override
+  String get v4ShareCardProfile => '我的档案';
+
+  @override
+  String get v4InsightsCategoryShare => '分类占比';
+
+  @override
+  String get v4InsightsShareHint => '点选分类，查看它在总额中的占比';
+
+  @override
+  String get v4InsightsTapBar => '点柱形，查看对应收支';
+
+  @override
+  String get v4InsightsAverageTitle => '平均值怎么算';
+
+  @override
+  String get v4InsightsAverageDays => '按本周期截至今天已发生的天数计算，没有记账的日期也计入；不包含未来日期。';
+
+  @override
+  String get v4InsightsAverageMonths => '按本年度截至今天已发生的月份计算，没有记账的月份也计入；不包含未来月份。';
+
+  @override
+  String get v4InsightsAverageYears => '按账本记录跨越的年份计算，没有记账的年份也计入；不包含未来年份。';
+
+  @override
+  String get v4InsightsDaysUnit => '天';
+
+  @override
+  String get v4InsightsMonthsUnit => '个月';
+
+  @override
+  String get v4InsightsYearsUnit => '年';
+
+  @override
+  String get v4InsightsBalanceComposition => '收支构成';
+
+  @override
+  String get v4InsightsBalanceEquation => '结余 = 收入 − 支出';
+
+  @override
+  String get v4InsightsPreviousPeriod => '上一期';
+
+  @override
+  String get v4InsightsNextPeriod => '下一期';
+
+  @override
+  String get v4InsightsOtherCategories => '其他分类';
+
+  @override
+  String get v4InsightsSortedByAmount => '按金额排序';
+
+  @override
+  String get v4InsightsNoData => '换个统计周期，或点上方 Tab 切换收支视角。';
+
+  @override
+  String v4InsightsTrendTitle(String type) {
+    return '$type趋势';
+  }
+
+  @override
+  String v4InsightsAmountUnit(String currency) {
+    return '单位：$currency';
+  }
+
+  @override
+  String get v4InsightsCollapseCategories => '收起分类';
+
+  @override
+  String v4InsightsAllCategories(int count) {
+    return '全部 $count 个分类';
+  }
+
+  @override
+  String get v4AssetsAllAccounts => '全部账户';
+
+  @override
+  String get v4AssetsByCurrency => '按币种查看';
+
+  @override
+  String get v4AssetsUnifiedConversion => '统一折算';
+
+  @override
+  String get v4AssetsCurrencyView => '金额显示方式';
+
+  @override
+  String get v4AssetsHiddenIncluded => '隐藏账户仍计入净资产';
+
+  @override
+  String v4AssetsIncludesHidden(int count) {
+    return '含 $count 个隐藏账户';
+  }
+
+  @override
+  String get v4AssetsOrder => '账户排序';
+
+  @override
+  String get v4AssetsOrderHint => '在同一账户类型内调整顺序，不改变余额。';
+
+  @override
+  String get v4AssetsSeparateCurrencyHint => '分别查看各币种，不混合相加。';
+
+  @override
+  String get v4AssetsOriginal => '原币';
+
+  @override
+  String get v4AssetsDefaultExpense => '默认支出';
+
+  @override
+  String get v4AssetsDefaultIncome => '默认收入';
+
+  @override
+  String get v4AssetsTrend => '趋势';
+
+  @override
+  String get v4AssetsComposition => '构成';
+
+  @override
+  String get v4TransactionRowFieldsTitle => '完整账单字段';
+
+  @override
+  String v4TransactionRowMoreFields(int count) {
+    return '更多$count项';
+  }
+
+  @override
+  String get v4TransactionRowReadOnly => '只读';
+
+  @override
+  String get v4TransactionRowAccess => '访问状态';
+
+  @override
+  String get v4SharePosterProfileEyebrow => '这是我的记账日常';
+
+  @override
+  String get v4SharePosterDayCaption => '天，把生活认真记下。';
+
+  @override
+  String get v4SharePosterProfileJourney => '把记录，变成一个小习惯。';
+
+  @override
+  String get v4SharePosterPromoInvite => '一起，把日子记下来。';
+
+  @override
+  String get v4SharePosterOpenSourceBody => '数据由你掌握，代码向你开放。\n和社区一起，让记账保持简单。';
+
+  @override
+  String get v4SharePosterOpenSourceAction => '了解开源';
+
+  @override
+  String get v4SharePosterRecommend => '推荐给朋友';
+
+  @override
+  String get v4SharePosterTopIncome => 'TOP 3 收入';
+
+  @override
+  String get v4SharePosterAverageRecords => '日均记账';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).

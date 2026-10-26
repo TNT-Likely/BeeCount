@@ -98,7 +98,7 @@ class UpdateDownloader {
               dialogSetState = setState;
               return AlertDialog(
                 title: Text(AppLocalizations.of(context).updateDownloadTitle),
-                content: Column(
+                content: SingleChildScrollView(child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(AppLocalizations.of(context).updateDownloading((progress * 100).toStringAsFixed(1))),
@@ -114,7 +114,7 @@ class UpdateDownloader {
                     Text(AppLocalizations.of(context).updateDownloadBackgroundHint,
                         style: TextStyle(fontSize: 12, color: Colors.grey)),
                   ],
-                ),
+                )),
                 actions: [
                   TextButton(
                     onPressed: () {

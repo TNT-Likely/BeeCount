@@ -1,0 +1,22 @@
+#bee-immersive-suite .j-category-image { width:24px; height:24px; object-fit:contain; border-radius:4px; flex-shrink:0; filter:none!important; }
+#bee-immersive-suite .j-category-image[data-fit="cover"] { object-fit:cover; }
+#bee-immersive-suite .d-rank-children .bc-entry-icon { width:24px; height:24px; border-radius:8px; }
+#bee-immersive-suite .p-category .j-category-image { width:25px; height:25px; }
+#bee-immersive-suite .j-subcategories { gap:7px; align-items:center; }
+#bee-immersive-suite .j-subcategories button, #bee-immersive-suite .w-picker-child-grid button { display:inline-flex; align-items:center; justify-content:center; gap:6px; min-height:40px; }
+#bee-immersive-suite .j-subcategories svg, #bee-immersive-suite .w-picker-child-grid svg { --icon-size:16px; }
+#bee-immersive-suite .j-subcategories .j-category-image, #bee-immersive-suite .w-picker-child-grid .j-category-image { width:20px; height:20px; border-radius:3px; }
+#bee-immersive-suite .j-image-fallback { display:inline-grid; place-items:center; width:24px; height:24px; color:var(--bc-muted); }
+#bee-immersive-suite .j-icon-preview { display:grid; place-items:center; width:52px; height:52px; border-radius:13px; background:var(--bc-soft); overflow:hidden; color:var(--bc-muted); flex-shrink:0; }
+#bee-immersive-suite .j-icon-preview img { width:38px; height:38px; object-fit:contain; }
+#bee-immersive-suite .j-icon-preview[data-fit="cover"] img { width:100%; height:100%; object-fit:cover; }
+#bee-immersive-suite .j-icon-preview[data-state="loading"] .j-icon-loading { width:26px; height:26px; border-radius:9px; background:var(--bc-line); }
+#bee-immersive-suite .j-icon-examples { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:9px; margin-top:18px; }
+#bee-immersive-suite .j-icon-examples > div { display:flex; flex-direction:column; align-items:center; gap:8px; font-size:11px; text-align:center; }
+#bee-immersive-suite .j-icon-examples small { color:var(--bc-muted); font-size:10px; }
+#bee-immersive-suite .j-custom-preview { display:flex; align-items:center; gap:14px; margin:18px 0; }
+#bee-immersive-suite .j-custom-preview h3 { font-size:13px; }
+#bee-immersive-suite .j-custom-preview p { font-size:11px; color:var(--bc-muted); margin-top:5px; }
+#bee-immersive-suite .j-icon-tabs { margin:15px 0; }
+#bee-immersive-suite .j-icon-sample-options { display:flex; gap:16px; margin-top:9px; }
+@media(pointer:coarse) { #bee-immersive-suite .j-subcategories button, #bee-immersive-suite .w-picker-child-grid button { min-height:44px; } }

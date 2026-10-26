@@ -1,0 +1,1 @@
+document.addEventListener('click',event=>{const button=event.target.closest('[data-cs99-demo-remove]');if(button)button.closest('.cs99-guide').querySelector('[data-cs99-demo-event]').textContent='示例移除回调，完整页面仍保留原确认弹窗';});

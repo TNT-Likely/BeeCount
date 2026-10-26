@@ -2217,6 +2217,7 @@ class ConfigExportService {
     BaseRepository? repository,
     int? ledgerId,
     ExportOptions options = ExportOptions.all,
+    bool throwOnTagError = false,
   }) async {
     final doc = loadYaml(yamlContent);
 
@@ -2682,6 +2683,11 @@ class ConfigExportService {
         }
       } catch (e) {
         logger.error('ConfigImport', '导入标签失败: $e');
+        // Tag-library overwrite must roll back the preceding unused-tag cleanup.
+        // Other callers retain their original best-effort import behavior.
+        if (throwOnTagError) {
+          rethrow;
+        }
       }
     }
 

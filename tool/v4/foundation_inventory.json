@@ -1,0 +1,809 @@
+{
+  "scope": "Current foundational Widget inventory and source-reachable gallery declarations; no claim that every state has passed native acceptance",
+  "components": [
+    {
+      "component": "BeeSurface",
+      "cases": [
+        0,
+        16
+      ],
+      "supportedStates": [
+        "default",
+        "nested"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeLineIcon",
+      "cases": [
+        8,
+        12
+      ],
+      "supportedStates": [
+        "default",
+        "inherited-color",
+        "explicit-color"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeButton",
+      "cases": [
+        0,
+        17
+      ],
+      "supportedStates": [
+        "primary",
+        "secondary",
+        "quiet",
+        "danger",
+        "disabled",
+        "loading",
+        "compact"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeField",
+      "cases": [
+        2,
+        15
+      ],
+      "supportedStates": [
+        "default",
+        "focus",
+        "disabled",
+        "readonly",
+        "helper",
+        "error",
+        "validator",
+        "password",
+        "multiline",
+        "counter",
+        "input-format",
+        "submit",
+        "own-semantic-boundary",
+        "external_label"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeSegmented",
+      "cases": [
+        1,
+        14
+      ],
+      "supportedStates": [
+        "selected",
+        "unselected",
+        "disabled",
+        "long-label-scroll",
+        "dense-editor-toolbar",
+        "host-scroll-controller",
+        "bounded-single-segment"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeMenuRow",
+      "cases": [
+        3,
+        6
+      ],
+      "supportedStates": [
+        "title",
+        "subtitle",
+        "leading",
+        "trailing",
+        "selected",
+        "danger",
+        "divider",
+        "own-semantic-boundary"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeSection",
+      "cases": [
+        16
+      ],
+      "supportedStates": [
+        "title",
+        "action"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeStatus",
+      "cases": [
+        4,
+        18
+      ],
+      "supportedStates": [
+        "neutral",
+        "success",
+        "warning",
+        "error",
+        "busy",
+        "detail",
+        "retry"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeEmptyState",
+      "cases": [
+        4
+      ],
+      "supportedStates": [
+        "empty",
+        "search-empty",
+        "action"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeProgress",
+      "cases": [
+        4,
+        18
+      ],
+      "supportedStates": [
+        "zero",
+        "partial",
+        "complete",
+        "indeterminate"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeSheet",
+      "cases": [
+        6,
+        14
+      ],
+      "supportedStates": [
+        "short-content",
+        "scrolling",
+        "close",
+        "cancel",
+        "keyboard"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeWheel",
+      "cases": [
+        5
+      ],
+      "supportedStates": [
+        "scroll",
+        "tap",
+        "keyboard",
+        "controlled"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeBottomBar",
+      "cases": [
+        7
+      ],
+      "supportedStates": [
+        "selected",
+        "unselected",
+        "long-press"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeDialog",
+      "cases": [
+        6
+      ],
+      "supportedStates": [
+        "confirm",
+        "danger",
+        "editing",
+        "close",
+        "cancel",
+        "content-scroll"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeMenuButton",
+      "cases": [
+        9
+      ],
+      "supportedStates": [
+        "action",
+        "disabled",
+        "danger"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeToast",
+      "cases": [
+        9
+      ],
+      "supportedStates": [
+        "neutral",
+        "success",
+        "warning",
+        "error",
+        "replacement",
+        "auto-dismiss"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeRadioTile",
+      "cases": [
+        11
+      ],
+      "supportedStates": [
+        "selected",
+        "unselected",
+        "disabled"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeSliderField",
+      "cases": [
+        11
+      ],
+      "supportedStates": [
+        "value",
+        "steps",
+        "zero",
+        "max",
+        "disabled",
+        "commit_on_release"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeAccordion",
+      "cases": [
+        10
+      ],
+      "supportedStates": [
+        "collapsed",
+        "expanded"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeFilterBar",
+      "cases": [
+        10
+      ],
+      "supportedStates": [
+        "selected",
+        "unselected",
+        "horizontal-scroll"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeSelectField",
+      "cases": [
+        10,
+        14
+      ],
+      "supportedStates": [
+        "selected",
+        "disabled",
+        "error"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeSearchField",
+      "cases": [
+        2
+      ],
+      "supportedStates": [
+        "default",
+        "typing",
+        "clear",
+        "submit",
+        "disabled",
+        "controller-owned-by-host",
+        "own-semantic-boundary"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeToggleRow",
+      "cases": [
+        2,
+        13
+      ],
+      "supportedStates": [
+        "on",
+        "off",
+        "disabled",
+        "tap-and-drag",
+        "36x22-track-with-44-touch-target",
+        "semantic-boundary",
+        "可选前置图标，与同卡片菜单行对齐；默认无图标行为不变"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeCheckTile",
+      "cases": [
+        2,
+        13
+      ],
+      "supportedStates": [
+        "checked",
+        "unchecked",
+        "mixed",
+        "disabled"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeAvatar",
+      "cases": [
+        8,
+        16
+      ],
+      "supportedStates": [
+        "default",
+        "image",
+        "error-fallback"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeePageHeader",
+      "cases": [
+        16
+      ],
+      "supportedStates": [
+        "primary",
+        "compact",
+        "back",
+        "actions",
+        "long-title-ellipsis"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeSkeleton",
+      "cases": [
+        4,
+        18
+      ],
+      "supportedStates": [
+        "rows",
+        "semantics"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeIconButton",
+      "cases": [
+        12,
+        15
+      ],
+      "supportedStates": [
+        "default",
+        "selected",
+        "disabled",
+        "danger",
+        "loading",
+        "tooltip",
+        "44-touch",
+        "own-semantic-boundary"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeBadge",
+      "cases": [
+        12
+      ],
+      "supportedStates": [
+        "dot",
+        "count",
+        "99-plus",
+        "hidden-zero",
+        "no-hit-interception"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeChoiceChip",
+      "cases": [
+        13
+      ],
+      "supportedStates": [
+        "selected",
+        "unselected",
+        "leading",
+        "disabled",
+        "wrapping",
+        "compact visual 34 / touch target 44",
+        "trailing"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeDivider",
+      "cases": [
+        12,
+        16
+      ],
+      "supportedStates": [
+        "default",
+        "inset",
+        "label",
+        "分隔行高度可配置；默认24，卡片内可用0.6"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeActionBar",
+      "cases": [
+        17
+      ],
+      "supportedStates": [
+        "single",
+        "double",
+        "disabled",
+        "loading",
+        "safe-area",
+        "fixed-host-slot"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeChoicePicker",
+      "cases": [
+        14
+      ],
+      "supportedStates": [
+        "search",
+        "selected",
+        "long-list",
+        "empty",
+        "loading",
+        "error",
+        "retry",
+        "cancel"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeValidatedInput",
+      "cases": [
+        6
+      ],
+      "supportedStates": [
+        "draft",
+        "invalid",
+        "confirm",
+        "cancel"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeeDateWheels",
+      "cases": [
+        5
+      ],
+      "supportedStates": [
+        "date",
+        "year-month",
+        "time",
+        "leap-clamp"
+      ],
+      "sampleCoverage": "Representative states are on the flat Flutter page; see docs for test/device coverage"
+    },
+    {
+      "component": "BeePageBody",
+      "supportedStates": [
+        "统一页边距",
+        "底部安全区",
+        "保留滚动控制器"
+      ],
+      "cases": [
+        16
+      ]
+    },
+    {
+      "component": "BeeIconChoiceGrid",
+      "cases": [
+        8
+      ],
+      "supportedStates": [
+        "选中",
+        "未选中",
+        "禁用",
+        "文字省略与换行",
+        "compact-icons-with-semantic-labels"
+      ]
+    },
+    {
+      "component": "BeeColorPalette",
+      "cases": [
+        8,
+        21
+      ],
+      "supportedStates": [
+        "selected",
+        "unselected",
+        "disabled",
+        "long-label-semantics",
+        "controlled-callback",
+        "可选显示完整名称/三列色板；默认圆点保持"
+      ],
+      "sampleCoverage": "Flat token section and tag editor, unit/widget and same retained QA acceptance tracked per page"
+    },
+    {
+      "component": "BeeLineChart",
+      "cases": [
+        19
+      ],
+      "supportedStates": [
+        "dual-line",
+        "negative",
+        "zero",
+        "single",
+        "empty",
+        "dark",
+        "hidden",
+        "privacy-repaint",
+        "swipe",
+        "primary-secondary-tap",
+        "pass-through"
+      ],
+      "sampleCoverage": "Flutter平铺示例和原图四组像素基准；App数据由原Provider和Repository提供"
+    },
+    {
+      "component": "BeeTimeWheels",
+      "cases": [
+        20
+      ],
+      "supportedStates": [
+        "24-hour",
+        "minute",
+        "controlled",
+        "draft",
+        "confirm-cancel-owned-by-host",
+        "dark",
+        "large-text"
+      ],
+      "sampleCoverage": "基础第21节独立时间滚轮、HTML独立规范和真实提醒页弹层；偏好/OS调度留在App。"
+    },
+    {
+      "component": "BeeHsvColorPicker",
+      "cases": [
+        21
+      ],
+      "supportedStates": [
+        "controlled-hsv",
+        "RGB-hex-byte-correct",
+        "hue-0-360",
+        "saturation-brightness-0-1",
+        "disabled",
+        "short-screen-scroll-host"
+      ],
+      "sampleCoverage": "Foundation22 HSV/multiline named palette, production theme dialog and widget tests"
+    },
+    {
+      "component": "BeeLabel",
+      "cases": [
+        13
+      ],
+      "supportedStates": [
+        "neutral",
+        "accent",
+        "leading",
+        "muted",
+        "noninteractive"
+      ],
+      "sampleCoverage": "14: static neutral/accent/leading/muted metadata with no button semantics"
+    },
+    {
+      "component": "BeeCodeEditor",
+      "supportedStates": [
+        "草稿输入",
+        "多行与行数约束",
+        "只读",
+        "外置无障碍标签",
+        "长文本换行"
+      ],
+      "cases": [
+        2
+      ],
+      "sampleCoverage": "3: editable/read-only multiline template and selectable wrapping code text; 13px/20px line grid and 13px radius"
+    },
+    {
+      "component": "BeeCodeBlock",
+      "supportedStates": [
+        "可选择",
+        "长文本换行",
+        "浅深色",
+        "代码字体"
+      ],
+      "cases": [
+        2
+      ],
+      "sampleCoverage": "3: editable/read-only multiline template and selectable wrapping code text; 13px/20px line grid and 13px radius"
+    },
+    {
+      "component": "BeeCompactTabs",
+      "cases": [
+        22
+      ],
+      "supportedStates": [
+        "selected",
+        "unselected",
+        "controlled"
+      ],
+      "sampleCoverage": "真实组件在原Flutter分区中声明并渲染；原生验收另列，不以此清单宣称通过。"
+    },
+    {
+      "component": "BeeUnderlineTabs",
+      "cases": [
+        22
+      ],
+      "supportedStates": [
+        "selected",
+        "unselected",
+        "controlled"
+      ],
+      "sampleCoverage": "真实组件在原Flutter分区中声明并渲染；原生验收另列，不以此清单宣称通过。"
+    },
+    {
+      "component": "BeeColumnChart",
+      "cases": [
+        22
+      ],
+      "supportedStates": [
+        "positive",
+        "negative",
+        "zero",
+        "selected-bar",
+        "average-line-action"
+      ],
+      "sampleCoverage": "真实组件在原Flutter分区中声明并渲染；原生验收另列，不以此清单宣称通过。"
+    },
+    {
+      "component": "BeePaper",
+      "cases": [
+        23
+      ],
+      "supportedStates": [
+        "plain",
+        "tear-edge",
+        "light-print-surface"
+      ],
+      "sampleCoverage": "真实组件在原Flutter分区中声明并渲染；原生验收另列，不以此清单宣称通过。"
+    },
+    {
+      "component": "BeePaperRule",
+      "cases": [
+        23
+      ],
+      "supportedStates": [
+        "solid",
+        "dashed"
+      ],
+      "sampleCoverage": "真实组件在原Flutter分区中声明并渲染；原生验收另列，不以此清单宣称通过。"
+    },
+    {
+      "component": "BeeCardFrame",
+      "cases": [
+        23
+      ],
+      "supportedStates": [
+        "outline",
+        "content-slot"
+      ],
+      "sampleCoverage": "真实组件在原Flutter分区中声明并渲染；原生验收另列，不以此清单宣称通过。"
+    },
+    {
+      "component": "BeeStatusPill",
+      "cases": [
+        23
+      ],
+      "supportedStates": [
+        "success",
+        "warning",
+        "error",
+        "neutral",
+        "busy-paused"
+      ],
+      "sampleCoverage": "真实组件在原Flutter分区中声明并渲染；原生验收另列，不以此清单宣称通过。"
+    },
+    {
+      "component": "BeeTrailBackdrop",
+      "cases": [
+        24
+      ],
+      "supportedStates": [
+        "replay",
+        "static",
+        "reduced-motion",
+        "paused"
+      ],
+      "sampleCoverage": "真实组件在原Flutter分区中声明并渲染；原生验收另列，不以此清单宣称通过。"
+    },
+    {
+      "component": "BeeActivityIndicator",
+      "cases": [
+        24
+      ],
+      "supportedStates": [
+        "indeterminate",
+        "reduced-motion-static",
+        "paused",
+        "light-dark"
+      ],
+      "sampleCoverage": "真实组件在原Flutter分区中声明并渲染；原生验收另列，不以此清单宣称通过。"
+    },
+    {
+      "component": "BeeLocalSheet",
+      "cases": [
+        24
+      ],
+      "supportedStates": [
+        "open",
+        "close",
+        "page-owned"
+      ],
+      "sampleCoverage": "真实组件在原Flutter分区中声明并渲染；原生验收另列，不以此清单宣称通过。"
+    },
+    {
+      "component": "BeeSystemBars",
+      "cases": [
+        25
+      ],
+      "supportedStates": [
+        "light",
+        "dark",
+        "nested-override",
+        "preserve-input"
+      ],
+      "sampleCoverage": "真实组件在原Flutter分区中声明并渲染；原生验收另列，不以此清单宣称通过。"
+    },
+    {
+      "component": "BeeInlineLabel",
+      "cases": [
+        13
+      ],
+      "supportedStates": [
+        "compact",
+        "long-ellipsis",
+        "full-tooltip",
+        "noninteractive",
+        "local-click",
+        "44-hit-area",
+        "light-dark"
+      ],
+      "sampleCoverage": "真实组件在原Flutter分区中声明并渲染；原生验收另列，不以此清单宣称通过。"
+    },
+    {
+      "component": "BeeMultiSelect",
+      "cases": [
+        13
+      ],
+      "supportedStates": [
+        "controlled-set",
+        "selected",
+        "unselected",
+        "disabled"
+      ],
+      "sampleCoverage": "真实组件在原Flutter分区中声明并渲染；原生验收另列，不以此清单宣称通过。"
+    }
+  ]
+}

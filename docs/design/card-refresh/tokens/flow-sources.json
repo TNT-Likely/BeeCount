@@ -1,0 +1,2942 @@
+[
+  {
+    "route": "flow-splash",
+    "title": "启动页",
+    "group": "首次使用与安全",
+    "source": "auth/splash_page.dart"
+  },
+  {
+    "route": "flow-welcome-bridge",
+    "title": "首次设置",
+    "group": "首次使用与安全",
+    "source": "auth/welcome_page.dart"
+  },
+  {
+    "route": "flow-login",
+    "title": "登录",
+    "group": "云服务与同步",
+    "source": "auth/login_page.dart"
+  },
+  {
+    "route": "flow-lock",
+    "title": "应用锁",
+    "group": "首次使用与安全",
+    "source": "auth/app_lock_screen.dart"
+  },
+  {
+    "route": "flow-pin",
+    "title": "设置密码",
+    "group": "首次使用与安全",
+    "source": "auth/pin_setup_page.dart"
+  },
+  {
+    "route": "flow-lock-settings",
+    "title": "应用锁设置",
+    "group": "首次使用与安全",
+    "source": "settings/app_lock_settings_page.dart"
+  },
+  {
+    "route": "flow-account-edit",
+    "title": "编辑账户",
+    "group": "账户与资产",
+    "source": "account/account_edit_page.dart"
+  },
+  {
+    "route": "flow-balance-adjust",
+    "title": "调整余额",
+    "group": "账户与资产",
+    "source": "account/account_edit_page.dart"
+  },
+  {
+    "route": "flow-valuation",
+    "title": "资产估值",
+    "group": "账户与资产",
+    "source": "account/account_detail_page.dart"
+  },
+  {
+    "route": "flow-account-settings",
+    "title": "账户管理",
+    "group": "账户与资产",
+    "source": "account/accounts_page.dart"
+  },
+  {
+    "route": "flow-networth",
+    "title": "净值趋势",
+    "group": "账户与资产",
+    "source": "account/net_worth_trend_page.dart"
+  },
+  {
+    "route": "flow-ledger-edit",
+    "title": "编辑账本",
+    "group": "账本与共享",
+    "source": "main/ledgers_page_new.dart"
+  },
+  {
+    "route": "flow-invite",
+    "title": "邀请成员",
+    "group": "账本与共享",
+    "source": "cloud/invite_page.dart"
+  },
+  {
+    "route": "flow-join",
+    "title": "加入共享账本",
+    "group": "账本与共享",
+    "source": "cloud/join_shared_ledger_page.dart"
+  },
+  {
+    "route": "flow-members",
+    "title": "共享成员",
+    "group": "账本与共享",
+    "source": "cloud/member_list_page.dart"
+  },
+  {
+    "route": "flow-member-stats",
+    "title": "成员统计",
+    "group": "账本与共享",
+    "source": "cloud/member_stats_page.dart"
+  },
+  {
+    "route": "flow-cloud-config",
+    "title": "云服务",
+    "group": "云服务与同步",
+    "source": "cloud/cloud_service_page.dart"
+  },
+  {
+    "route": "flow-cloud-sync",
+    "title": "数据同步",
+    "group": "云服务与同步",
+    "source": "cloud/beecount_cloud_sync_page.dart"
+  },
+  {
+    "route": "flow-sync-preview",
+    "title": "同步预览",
+    "group": "云服务与同步",
+    "source": "cloud/sync_preview_dialog.dart"
+  },
+  {
+    "route": "flow-sync-health",
+    "title": "同步健康检查",
+    "group": "云服务与同步",
+    "source": "cloud/beecount_cloud_sync_page.dart"
+  },
+  {
+    "route": "flow-backup",
+    "title": "云同步",
+    "group": "云服务与同步",
+    "source": "cloud/cloud_sync_page.dart"
+  },
+  {
+    "route": "flow-twofa",
+    "title": "双重验证",
+    "group": "云服务与同步",
+    "source": "cloud/beecount_cloud_sync_page.dart"
+  },
+  {
+    "route": "flow-import",
+    "title": "导入账单",
+    "group": "导入导出与维护",
+    "source": "data/import_page.dart"
+  },
+  {
+    "route": "flow-mapping",
+    "title": "确认映射",
+    "group": "导入导出与维护",
+    "source": "data/import_confirm_page.dart"
+  },
+  {
+    "route": "flow-category-map",
+    "title": "分类映射",
+    "group": "导入导出与维护",
+    "source": "data/import_confirm_page.dart"
+  },
+  {
+    "route": "flow-import-preview",
+    "title": "确认账户币种",
+    "group": "导入导出与维护",
+    "source": "data/import_confirm_page.dart"
+  },
+  {
+    "route": "flow-import-progress",
+    "title": "正在导入…",
+    "group": "导入导出与维护",
+    "source": "data/import_confirm_page.dart"
+  },
+  {
+    "route": "flow-export",
+    "title": "导出",
+    "group": "导入导出与维护",
+    "source": "data/export_page.dart"
+  },
+  {
+    "route": "flow-config",
+    "title": "配置导入导出",
+    "group": "导入导出与维护",
+    "source": "settings/config_import_export_page.dart"
+  },
+  {
+    "route": "flow-config-preview",
+    "title": "配置预览",
+    "group": "导入导出与维护",
+    "source": "settings/config_import_export_page.dart"
+  },
+  {
+    "route": "flow-attachments",
+    "title": "账单附件",
+    "group": "导入导出与维护",
+    "source": "attachment/attachment_preview_page.dart"
+  },
+  {
+    "route": "flow-attachment-transfer",
+    "title": "附件导入导出",
+    "group": "导入导出与维护",
+    "source": "settings/data_management_page.dart"
+  },
+  {
+    "route": "flow-storage",
+    "title": "存储空间",
+    "group": "导入导出与维护",
+    "source": "settings/storage_management_page.dart"
+  },
+  {
+    "route": "flow-orphan",
+    "title": "孤儿数据清理",
+    "group": "导入导出与维护",
+    "source": "maintenance/orphan_cleanup_page.dart"
+  },
+  {
+    "route": "flow-category-edit",
+    "title": "编辑分类",
+    "group": "分类标签与预算",
+    "source": "category/category_edit_page.dart"
+  },
+  {
+    "route": "flow-category-tools",
+    "title": "分类工具",
+    "group": "分类标签与预算",
+    "source": "category/category_manage_page.dart"
+  },
+  {
+    "route": "flow-taxonomy-import",
+    "title": "导入分类包 · ZIP",
+    "group": "分类标签与预算",
+    "source": "category/category_manage_page.dart"
+  },
+  {
+    "route": "flow-category-migration",
+    "title": "分类迁移",
+    "group": "分类标签与预算",
+    "source": "category/category_migration_page.dart"
+  },
+  {
+    "route": "flow-tag-edit",
+    "title": "编辑标签",
+    "group": "分类标签与预算",
+    "source": "tag/tag_edit_page.dart"
+  },
+  {
+    "route": "flow-tag-tools",
+    "title": "标签工具",
+    "group": "分类标签与预算",
+    "source": "tag/tag_manage_page.dart"
+  },
+  {
+    "route": "flow-budget-edit",
+    "title": "编辑预算",
+    "group": "分类标签与预算",
+    "source": "budget/budget_edit_page.dart"
+  },
+  {
+    "route": "flow-recurring",
+    "title": "周期账单",
+    "group": "自动化与识别",
+    "source": "transaction/recurring_transaction_page.dart"
+  },
+  {
+    "route": "flow-recurring-edit",
+    "title": "编辑周期账单 · 原编辑流程",
+    "group": "自动化与识别",
+    "source": "transaction/recurring_transaction_edit_page.dart"
+  },
+  {
+    "route": "flow-android-auto",
+    "title": "Android 截图记账",
+    "group": "自动化与识别",
+    "source": "automation/auto_billing_settings_page.dart"
+  },
+  {
+    "route": "flow-ios-auto",
+    "title": "iOS 截图记账",
+    "group": "自动化与识别",
+    "source": "automation/ios_auto_billing_page.dart"
+  },
+  {
+    "route": "flow-shortcuts",
+    "title": "快捷指令指南",
+    "group": "自动化与识别",
+    "source": "settings/shortcuts_guide_page.dart"
+  },
+  {
+    "route": "flow-reminder",
+    "title": "记账提醒",
+    "group": "自动化与识别",
+    "source": "settings/reminder_settings_page.dart"
+  },
+  {
+    "route": "flow-capture",
+    "title": "识别与确认",
+    "group": "自动化与识别",
+    "source": "settings/smart_billing_page.dart"
+  },
+  {
+    "route": "flow-recognition-result",
+    "title": "确认识别结果",
+    "group": "自动化与识别",
+    "source": "transaction/transaction_editor_page.dart"
+  },
+  {
+    "route": "flow-ai-settings",
+    "title": "AI小助手",
+    "group": "AI 与助手",
+    "source": "ai/ai_settings_page.dart"
+  },
+  {
+    "route": "flow-providers",
+    "title": "服务商管理",
+    "group": "AI 与助手",
+    "source": "ai/ai_provider_manage_page.dart"
+  },
+  {
+    "route": "flow-provider-edit",
+    "title": "编辑 AI 服务商",
+    "group": "AI 与助手",
+    "source": "ai/ai_provider_manage_page.dart"
+  },
+  {
+    "route": "flow-capabilities",
+    "title": "AI 能力分配",
+    "group": "AI 与助手",
+    "source": "ai/ai_settings_page.dart"
+  },
+  {
+    "route": "flow-prompt",
+    "title": "提示词编辑",
+    "group": "AI 与助手",
+    "source": "ai/ai_prompt_edit_page.dart"
+  },
+  {
+    "route": "flow-assistant-settings",
+    "title": "AI助手",
+    "group": "AI 与助手",
+    "source": "ai/agent_assistant_settings_page.dart"
+  },
+  {
+    "route": "flow-permissions",
+    "title": "助手权限",
+    "group": "AI 与助手",
+    "source": "ai/agent_permissions_page.dart"
+  },
+  {
+    "route": "flow-memory",
+    "title": "助手记忆",
+    "group": "AI 与助手",
+    "source": "ai/agent_memory_page.dart"
+  },
+  {
+    "route": "flow-activity",
+    "title": "助手活动",
+    "group": "AI 与助手",
+    "source": "ai/agent_activity_page.dart"
+  },
+  {
+    "route": "flow-font",
+    "title": "显示缩放",
+    "group": "外观与辅助",
+    "source": "settings/font_settings_page.dart"
+  },
+  {
+    "route": "flow-widgets",
+    "title": "桌面小组件",
+    "group": "外观与辅助",
+    "source": "settings/widget_management_page.dart"
+  },
+  {
+    "route": "flow-rates",
+    "title": "汇率管理",
+    "group": "外观与辅助",
+    "source": "currency/exchange_rate_page.dart"
+  },
+  {
+    "route": "flow-donation",
+    "title": "打赏支持",
+    "group": "帮助与信息",
+    "source": "donation/donation_page.dart"
+  },
+  {
+    "route": "flow-logs",
+    "title": "日志中心",
+    "group": "帮助与信息",
+    "source": "settings/log_center_page.dart"
+  },
+  {
+    "route": "flow-help",
+    "title": "使用帮助",
+    "group": "帮助与信息",
+    "source": "settings/help_center_page.dart"
+  },
+  {
+    "route": "flow-result",
+    "title": "操作结果",
+    "group": "流程状态",
+    "source": "data/import_confirm_page.dart"
+  },
+  {
+    "route": "flow-failure",
+    "title": "失败与重试",
+    "group": "流程状态",
+    "source": "cloud/cloud_sync_page.dart"
+  },
+  {
+    "route": "flow-empty",
+    "title": "空账本",
+    "group": "流程状态",
+    "source": "main/home_page.dart"
+  },
+  {
+    "route": "flow-auto-platform",
+    "title": "自动截图记账",
+    "group": "自动化与识别",
+    "source": "automation/auto_billing_settings_page.dart"
+  },
+  {
+    "route": "flow-twofa-challenge",
+    "title": "登录二次验证",
+    "group": "首次使用与安全",
+    "source": "../widgets/biz/login_2fa_challenge_view.dart"
+  },
+  {
+    "route": "flow-ai-consent",
+    "title": "AI 隐私说明",
+    "group": "AI 与助手",
+    "source": "../widgets/ai/ai_privacy_consent_dialog.dart"
+  },
+  {
+    "route": "flow-authorization",
+    "title": "助手操作授权",
+    "group": "AI 与助手",
+    "source": "../widgets/ai/agent_tool_authorization_dialog.dart"
+  },
+  {
+    "route": "flow-transfer",
+    "title": "跨币种转账",
+    "group": "账户与资产",
+    "source": "../widgets/biz/amount_editor_sheet.dart"
+  },
+  {
+    "route": "flow-tag-picker",
+    "title": "选择标签",
+    "group": "记账选择与弹层",
+    "source": "tag/widgets/tag_selector.dart"
+  },
+  {
+    "route": "flow-language",
+    "title": "语言设置",
+    "group": "外观与辅助",
+    "source": "settings/language_settings_page.dart"
+  },
+  {
+    "route": "flow-record-flags",
+    "title": "统计与预算",
+    "group": "记账选择与弹层",
+    "source": "../widgets/biz/amount_editor_sheet.dart"
+  },
+  {
+    "route": "flow-account-picker",
+    "title": "选择账户",
+    "group": "记账选择与弹层",
+    "source": "../widgets/biz/account_selector.dart"
+  },
+  {
+    "route": "flow-date-picker",
+    "title": "账单日期与时间",
+    "group": "记账选择与弹层",
+    "source": "../widgets/ui/wheel_date_picker.dart"
+  },
+  {
+    "route": "flow-category-order",
+    "title": "分类排序",
+    "group": "分类标签与预算",
+    "source": "category/category_manage_page.dart"
+  },
+  {
+    "route": "flow-receipt-options",
+    "title": "小票展示字段",
+    "group": "记账选择与弹层",
+    "source": "../widgets/biz/transaction_receipt_dialog.dart"
+  },
+  {
+    "route": "flow-export-scope",
+    "title": "导出配置范围",
+    "group": "导入导出与维护",
+    "source": "settings/config_import_export_page.dart"
+  },
+  {
+    "route": "flow-month-picker",
+    "title": "月份滚轮",
+    "group": "交互补充",
+    "source": "../widgets/ui/wheel_date_picker.dart"
+  },
+  {
+    "route": "flow-quick-add",
+    "title": "记账按钮长按",
+    "group": "交互补充",
+    "source": "../app.dart"
+  },
+  {
+    "route": "flow-category-icons",
+    "title": "分类图标与自定义图片",
+    "group": "交互补充",
+    "source": "category/category_edit_page.dart"
+  },
+  {
+    "route": "flow-ledger-actions",
+    "title": "账本操作菜单",
+    "group": "交互补充",
+    "source": "main/ledgers_page_new.dart"
+  },
+  {
+    "route": "flow-tag-picker-many",
+    "title": "标签多选 · 大量标签",
+    "group": "交互补充",
+    "source": "tag/widgets/tag_selector.dart"
+  },
+  {
+    "route": "flow-sync-states",
+    "title": "我的 · 同步状态展示",
+    "group": "交互补充",
+    "source": "main/mine_page.dart"
+  },
+  {
+    "route": "flow-currency-picker",
+    "title": "账单币种选择",
+    "group": "交互补充",
+    "source": "../widgets/currency/currency_picker_sheet.dart"
+  },
+  {
+    "route": "flow-foreign-editor",
+    "title": "记账 · 外币折算预览",
+    "group": "交互补充",
+    "source": "../widgets/biz/amount_editor_sheet.dart"
+  },
+  {
+    "route": "flow-rate-unavailable",
+    "title": "记账 · 汇率获取失败",
+    "group": "交互补充",
+    "source": "../widgets/biz/amount_editor_sheet.dart"
+  },
+  {
+    "route": "flow-exchange-rate",
+    "title": "记账 · 手动补充汇率",
+    "group": "交互补充",
+    "source": "../widgets/biz/amount_editor_sheet.dart"
+  },
+  {
+    "route": "flow-foreign-detail",
+    "title": "账单详情 · 外币与记录时汇率",
+    "group": "交互补充",
+    "source": "../widgets/biz/transaction_list_item.dart"
+  },
+  {
+    "route": "flow-nickname-edit",
+    "title": "编辑昵称",
+    "group": "交互补充",
+    "source": "main/mine_page.dart"
+  },
+  {
+    "route": "flow-profile-edit",
+    "title": "编辑个人资料",
+    "group": "交互补充",
+    "source": "main/mine_page.dart"
+  },
+  {
+    "route": "flow-attachment-grid",
+    "title": "账单详情 · 多张附件",
+    "group": "交互补充",
+    "source": "../widgets/biz/transaction_list_item.dart"
+  },
+  {
+    "route": "flow-feedback",
+    "title": "成功、失败与持续状态",
+    "group": "组件规范",
+    "source": "packages/beecount_ui/lib/src/controls.dart"
+  },
+  {
+    "route": "flow-ledger-picker",
+    "title": "账本选择器",
+    "group": "交互补充",
+    "source": "widgets/biz/ledger_picker_sheet.dart"
+  },
+  {
+    "route": "flow-category-select",
+    "title": "分类选择 · 即时选择与笔数",
+    "group": "记账选择与弹层",
+    "source": "widgets/biz/category_selector_dialog.dart"
+  },
+  {
+    "route": "flow-update-check",
+    "title": "检查更新",
+    "group": "帮助与信息",
+    "source": "settings/about_page.dart"
+  },
+  {
+    "route": "flow-feature-guide",
+    "title": "快捷记账使用说明",
+    "group": "自动化与识别",
+    "source": "settings/smart_billing_page.dart"
+  },
+  {
+    "route": "flow-voice-trigger",
+    "title": "语音触发方式",
+    "group": "自动化与识别",
+    "source": "settings/smart_billing_page.dart"
+  },
+  {
+    "route": "flow-transfer-icon",
+    "title": "转账图标设置",
+    "group": "分类标签与预算",
+    "source": "category/category_edit_page.dart"
+  },
+  {
+    "route": "flow-attachment-library",
+    "title": "附件预览",
+    "group": "导入导出与维护",
+    "source": "settings/attachment_preview_page.dart"
+  },
+  {
+    "route": "flow-execution-depth",
+    "title": "执行深度",
+    "group": "AI 与助手",
+    "source": "ai/agent_assistant_settings_page.dart"
+  },
+  {
+    "route": "flow-log-detail",
+    "title": "日志详情",
+    "group": "帮助与信息",
+    "source": "settings/log_center_page.dart"
+  },
+  {
+    "route": "flow-config-select",
+    "title": "选择导出内容",
+    "group": "导入导出与维护",
+    "source": "settings/config_import_export_page.dart"
+  },
+  {
+    "route": "flow-config-import",
+    "title": "导入预览",
+    "group": "导入导出与维护",
+    "source": "settings/config_import_export_page.dart"
+  },
+  {
+    "route": "flow-config-error",
+    "title": "配置导入失败",
+    "group": "导入导出与维护",
+    "source": "settings/config_import_export_page.dart"
+  },
+  {
+    "route": "flow-config-done",
+    "title": "需要重启",
+    "group": "导入导出与维护",
+    "source": "settings/config_import_export_page.dart"
+  },
+  {
+    "route": "flow-pin-change",
+    "title": "修改密码",
+    "group": "首次使用与安全",
+    "source": "auth/pin_setup_page.dart"
+  },
+  {
+    "route": "flow-lock-bio",
+    "title": "应用锁 · 生物识别可用",
+    "group": "首次使用与安全",
+    "source": "auth/app_lock_screen.dart"
+  },
+  {
+    "route": "flow-category-new",
+    "title": "新建分类",
+    "group": "分类标签与预算",
+    "source": "category/category_edit_page.dart"
+  },
+  {
+    "route": "flow-category-parent-picker",
+    "title": "选择父分类",
+    "group": "分类标签与预算",
+    "source": "category/category_edit_page.dart"
+  },
+  {
+    "route": "flow-account-new",
+    "title": "新建账户",
+    "group": "账户与资产",
+    "source": "account/account_edit_page.dart"
+  },
+  {
+    "route": "flow-account-credit",
+    "title": "编辑信用卡",
+    "group": "账户与资产",
+    "source": "account/account_edit_page.dart"
+  },
+  {
+    "route": "flow-account-valuation",
+    "title": "编辑估值账户",
+    "group": "账户与资产",
+    "source": "account/account_edit_page.dart"
+  },
+  {
+    "route": "flow-category-management",
+    "title": "分类管理",
+    "group": "分类标签与预算",
+    "source": "category/category_manage_page.dart"
+  },
+  {
+    "route": "flow-category-empty",
+    "title": "分类管理 · 空分类",
+    "group": "分类标签与预算",
+    "source": "category/category_manage_page.dart"
+  },
+  {
+    "route": "flow-category-children",
+    "title": "管理二级分类 · 图标与图片",
+    "group": "分类标签与预算",
+    "source": "category/category_manage_page.dart"
+  },
+  {
+    "route": "flow-category-share",
+    "title": "选择分享范围",
+    "group": "分类标签与预算",
+    "source": "category/category_manage_page.dart"
+  },
+  {
+    "route": "flow-category-defaults",
+    "title": "生成默认分类 · 模式",
+    "group": "分类标签与预算",
+    "source": "category/category_manage_page.dart"
+  },
+  {
+    "route": "flow-category-clear",
+    "title": "清空未使用分类",
+    "group": "分类标签与预算",
+    "source": "category/category_manage_page.dart"
+  },
+  {
+    "route": "flow-assets-single",
+    "title": "资产 · 单币种",
+    "group": "账户与资产",
+    "source": "account/accounts_page.dart"
+  },
+  {
+    "route": "flow-assets-missing",
+    "title": "资产 · 缺失汇率",
+    "group": "账户与资产",
+    "source": "account/accounts_page.dart"
+  },
+  {
+    "route": "flow-assets-empty",
+    "title": "资产 · 空账户",
+    "group": "账户与资产",
+    "source": "account/accounts_page.dart"
+  },
+  {
+    "route": "flow-assets-hidden",
+    "title": "资产 · 隐藏账户",
+    "group": "账户与资产",
+    "source": "account/accounts_page.dart"
+  },
+  {
+    "route": "flow-assets-valuation",
+    "title": "资产 · 估值账户",
+    "group": "账户与资产",
+    "source": "account/accounts_page.dart"
+  },
+  {
+    "route": "flow-asset-default",
+    "title": "默认账户选择",
+    "group": "账户与资产",
+    "source": "account/accounts_page.dart"
+  },
+  {
+    "route": "flow-asset-conversion",
+    "title": "资产折算明细",
+    "group": "账户与资产",
+    "source": "account/accounts_page.dart"
+  },
+  {
+    "route": "flow-account-credit-detail",
+    "title": "账户详情 · 信用卡",
+    "group": "账户与资产",
+    "source": "account/account_detail_page.dart"
+  },
+  {
+    "route": "flow-account-overpayment-detail",
+    "title": "账户详情 · 溢缴款",
+    "group": "账户与资产",
+    "source": "account/account_detail_page.dart"
+  },
+  {
+    "route": "flow-account-no-limit-detail",
+    "title": "账户详情 · 未设额度",
+    "group": "账户与资产",
+    "source": "account/account_detail_page.dart"
+  },
+  {
+    "route": "flow-account-valuation-detail",
+    "title": "账户详情 · 估值",
+    "group": "账户与资产",
+    "source": "account/account_detail_page.dart"
+  },
+  {
+    "route": "flow-account-loan-detail",
+    "title": "账户详情 · 贷款",
+    "group": "账户与资产",
+    "source": "account/account_detail_page.dart"
+  },
+  {
+    "route": "flow-account-empty-detail",
+    "title": "账户详情 · 空流水",
+    "group": "账户与资产",
+    "source": "account/account_detail_page.dart"
+  },
+  {
+    "route": "flow-tag-foreign-detail",
+    "title": "标签详情 · 原币与多状态",
+    "group": "标签与分类",
+    "source": "tag/tag_detail_page.dart"
+  },
+  {
+    "route": "flow-tag-all-ledgers-detail",
+    "title": "标签详情 · 全部账本",
+    "group": "标签与分类",
+    "source": "tag/tag_detail_page.dart"
+  },
+  {
+    "route": "flow-tag-empty-detail",
+    "title": "标签详情 · 空记录",
+    "group": "标签与分类",
+    "source": "tag/tag_detail_page.dart"
+  },
+  {
+    "route": "flow-tag-new",
+    "title": "新增标签",
+    "group": "分类标签与预算",
+    "source": "tag/tag_edit_page.dart"
+  },
+  {
+    "route": "flow-tag-management",
+    "title": "标签管理 · 完整工具",
+    "group": "标签与分类",
+    "source": "tag/tag_manage_page.dart"
+  },
+  {
+    "route": "flow-tag-management-empty",
+    "title": "标签管理 · 空态",
+    "group": "标签与分类",
+    "source": "tag/tag_manage_page.dart"
+  },
+  {
+    "route": "flow-tag-management-error",
+    "title": "标签管理 · 重试",
+    "group": "标签与分类",
+    "source": "tag/tag_manage_page.dart"
+  },
+  {
+    "route": "flow-tag-management-loading",
+    "title": "标签管理 · 加载",
+    "group": "标签与分类",
+    "source": "tag/tag_manage_page.dart"
+  },
+  {
+    "route": "flow-reminder-ios",
+    "title": "记账提醒 · iOS",
+    "group": "自动化与识别",
+    "source": "settings/reminder_settings_page.dart"
+  },
+  {
+    "route": "flow-reminder-time",
+    "title": "选择时间",
+    "group": "自动化与识别",
+    "source": "settings/reminder_settings_page.dart"
+  },
+  {
+    "route": "flow-reminder-battery",
+    "title": "电池优化状态",
+    "group": "自动化与识别",
+    "source": "settings/reminder_settings_page.dart"
+  },
+  {
+    "route": "flow-reminder-channel",
+    "title": "通知渠道状态",
+    "group": "自动化与识别",
+    "source": "settings/reminder_settings_page.dart"
+  },
+  {
+    "route": "flow-reminder-battery-warning",
+    "title": "电池优化 · 待设置",
+    "group": "自动化与识别",
+    "source": "settings/reminder_settings_page.dart"
+  },
+  {
+    "route": "flow-reminder-channel-warning",
+    "title": "通知渠道 · 异常",
+    "group": "自动化与识别",
+    "source": "settings/reminder_settings_page.dart"
+  },
+  {
+    "route": "flow-appearance-mode",
+    "title": "外观模式",
+    "group": "显示与外观",
+    "source": "settings/appearance_settings_page.dart"
+  },
+  {
+    "route": "flow-appearance-amount",
+    "title": "余额显示格式",
+    "group": "显示与外观",
+    "source": "settings/appearance_settings_page.dart"
+  },
+  {
+    "route": "flow-appearance-note",
+    "title": "备注显示方式",
+    "group": "显示与外观",
+    "source": "settings/appearance_settings_page.dart"
+  },
+  {
+    "route": "flow-appearance-history",
+    "title": "历史备注",
+    "group": "显示与外观",
+    "source": "settings/appearance_settings_page.dart"
+  },
+  {
+    "route": "flow-appearance-scheme",
+    "title": "收支颜色方案",
+    "group": "显示与外观",
+    "source": "settings/appearance_settings_page.dart"
+  },
+  {
+    "route": "flow-appearance-currency",
+    "title": "主币种",
+    "group": "显示与外观",
+    "source": "settings/appearance_settings_page.dart"
+  },
+  {
+    "route": "flow-theme-custom",
+    "title": "自定义",
+    "group": "显示与外观",
+    "source": "settings/personalize_page.dart"
+  },
+  {
+    "route": "flow-theme-locked",
+    "title": "主题色 · 皮肤固定配色",
+    "group": "显示与外观",
+    "source": "settings/personalize_page.dart"
+  },
+  {
+    "route": "flow-skins-animated",
+    "title": "皮肤 · 动态与固定配色",
+    "group": "显示与外观",
+    "source": "settings/header_skin_page.dart"
+  },
+  {
+    "route": "flow-skins-static",
+    "title": "皮肤 · 静态系列",
+    "group": "显示与外观",
+    "source": "settings/header_skin_page.dart"
+  },
+  {
+    "route": "flow-skins-debug",
+    "title": "皮肤 · 调试SVG示例",
+    "group": "显示与外观",
+    "source": "settings/header_skin_page.dart"
+  },
+  {
+    "route": "flow-attachment-import-confirm",
+    "title": "附件导入 · 原归档确认弹窗",
+    "group": "导入导出与维护",
+    "source": "settings/data_management_page.dart"
+  },
+  {
+    "route": "flow-data-import-running",
+    "title": "数据管理 · 后台导入中",
+    "group": "导入导出与维护",
+    "source": "settings/data_management_page.dart"
+  },
+  {
+    "route": "flow-data-import-success",
+    "title": "数据管理 · 原导入完成",
+    "group": "导入导出与维护",
+    "source": "settings/data_management_page.dart"
+  },
+  {
+    "route": "flow-data-import-partial",
+    "title": "数据管理 · 部分失败",
+    "group": "导入导出与维护",
+    "source": "settings/data_management_page.dart"
+  },
+  {
+    "route": "flow-attachment-export-progress",
+    "title": "数据管理 · 附件导出进度",
+    "group": "导入导出与维护",
+    "source": "settings/data_management_page.dart"
+  },
+  {
+    "route": "flow-attachment-import-progress",
+    "title": "数据管理 · 附件导入进度",
+    "group": "导入导出与维护",
+    "source": "settings/data_management_page.dart"
+  },
+  {
+    "route": "flow-attachment-library-archive",
+    "title": "附件 · 归档字节预览",
+    "group": "导入导出与维护",
+    "source": "settings/attachment_preview_page.dart"
+  },
+  {
+    "route": "flow-attachment-library-empty",
+    "title": "附件 · 全部为空",
+    "group": "导入导出与维护",
+    "source": "settings/attachment_preview_page.dart"
+  },
+  {
+    "route": "flow-attachment-library-empty-group",
+    "title": "附件 · 空分组",
+    "group": "导入导出与维护",
+    "source": "settings/attachment_preview_page.dart"
+  },
+  {
+    "route": "flow-attachment-library-broken",
+    "title": "附件 · 图片加载失败",
+    "group": "导入导出与维护",
+    "source": "settings/attachment_preview_page.dart"
+  },
+  {
+    "route": "flow-attachment-library-loading",
+    "title": "附件 · 加载中",
+    "group": "导入导出与维护",
+    "source": "settings/attachment_preview_page.dart"
+  },
+  {
+    "route": "flow-attachment-library-long",
+    "title": "附件 · 完整长文件名",
+    "group": "导入导出与维护",
+    "source": "settings/attachment_preview_page.dart"
+  },
+  {
+    "route": "flow-lock-settings-on",
+    "title": "应用锁 · 已启用",
+    "group": "首次使用与安全",
+    "source": "settings/app_lock_settings_page.dart"
+  },
+  {
+    "route": "flow-lock-settings-no-bio",
+    "title": "应用锁 · 无生物识别",
+    "group": "首次使用与安全",
+    "source": "settings/app_lock_settings_page.dart"
+  },
+  {
+    "route": "flow-lock-timeout",
+    "title": "应用锁 · 原四档超时弹层",
+    "group": "首次使用与安全",
+    "source": "settings/app_lock_settings_page.dart"
+  },
+  {
+    "route": "flow-pin-verify",
+    "title": "验证密码",
+    "group": "首次使用与安全",
+    "source": "settings/app_lock_settings_page.dart"
+  },
+  {
+    "route": "flow-category-migration-from",
+    "title": "分类迁移 · 自定义图标来源",
+    "group": "分类标签与预算",
+    "source": "category/category_migration_page.dart"
+  },
+  {
+    "route": "flow-category-migration-ready",
+    "title": "分类迁移 · 已选择目标",
+    "group": "分类标签与预算",
+    "source": "category/category_migration_page.dart"
+  },
+  {
+    "route": "flow-category-migration-empty",
+    "title": "分类迁移 · 来源没有账单",
+    "group": "分类标签与预算",
+    "source": "category/category_migration_page.dart"
+  },
+  {
+    "route": "flow-cgm-select",
+    "title": "分类迁移 · 分类选择弹窗",
+    "group": "分类标签与预算",
+    "source": "category/category_migration_page.dart"
+  },
+  {
+    "route": "flow-cgm-confirm",
+    "title": "分类迁移 · 确认弹窗",
+    "group": "分类标签与预算",
+    "source": "category/category_migration_page.dart"
+  },
+  {
+    "route": "flow-cgm-complete",
+    "title": "分类迁移 · 完成弹窗",
+    "group": "分类标签与预算",
+    "source": "category/category_migration_page.dart"
+  },
+  {
+    "route": "flow-cgm-cannot",
+    "title": "分类迁移 · 无法迁移弹窗",
+    "group": "分类标签与预算",
+    "source": "category/category_migration_page.dart"
+  },
+  {
+    "route": "flow-rates-empty",
+    "title": "汇率管理 · 单币种空态",
+    "group": "外观与辅助",
+    "source": "currency/exchange_rate_page.dart"
+  },
+  {
+    "route": "flow-rates-loading",
+    "title": "汇率管理 · 读取中",
+    "group": "外观与辅助",
+    "source": "currency/exchange_rate_page.dart"
+  },
+  {
+    "route": "flow-rates-error",
+    "title": "汇率管理 · 读取失败",
+    "group": "外观与辅助",
+    "source": "currency/exchange_rate_page.dart"
+  },
+  {
+    "route": "flow-rates-refresh-error",
+    "title": "汇率管理 · 刷新失败",
+    "group": "外观与辅助",
+    "source": "currency/exchange_rate_page.dart"
+  },
+  {
+    "route": "flow-xrm-base",
+    "title": "汇率管理 · 主币种选择",
+    "group": "外观与辅助",
+    "source": "currency/exchange_rate_page.dart"
+  },
+  {
+    "route": "flow-xrm-rate-edit",
+    "title": "汇率管理 · 原编辑弹窗",
+    "group": "外观与辅助",
+    "source": "currency/exchange_rate_page.dart"
+  },
+  {
+    "route": "flow-budget",
+    "title": "预算管理",
+    "group": "分类标签与预算",
+    "source": "budget/budget_page.dart"
+  },
+  {
+    "route": "flow-budget-warning",
+    "title": "预算 · 接近上限",
+    "group": "分类标签与预算",
+    "source": "budget/budget_page.dart"
+  },
+  {
+    "route": "flow-budget-danger",
+    "title": "预算 · 即将超支",
+    "group": "分类标签与预算",
+    "source": "budget/budget_page.dart"
+  },
+  {
+    "route": "flow-budget-exceeded",
+    "title": "预算 · 超支负剩余",
+    "group": "分类标签与预算",
+    "source": "budget/budget_page.dart"
+  },
+  {
+    "route": "flow-budget-empty",
+    "title": "预算 · 空态",
+    "group": "分类标签与预算",
+    "source": "budget/budget_page.dart"
+  },
+  {
+    "route": "flow-budget-readonly",
+    "title": "预算 · 共享成员只读",
+    "group": "分类标签与预算",
+    "source": "budget/budget_page.dart"
+  },
+  {
+    "route": "flow-budget-empty-readonly",
+    "title": "预算 · 共享成员空态",
+    "group": "分类标签与预算",
+    "source": "budget/budget_page.dart"
+  },
+  {
+    "route": "flow-budget-loading",
+    "title": "预算 · 读取中",
+    "group": "分类标签与预算",
+    "source": "budget/budget_page.dart"
+  },
+  {
+    "route": "flow-budget-error",
+    "title": "预算 · 读取失败",
+    "group": "分类标签与预算",
+    "source": "budget/budget_page.dart"
+  },
+  {
+    "route": "flow-budget-usd",
+    "title": "预算 · 美元账本",
+    "group": "分类标签与预算",
+    "source": "budget/budget_page.dart"
+  },
+  {
+    "route": "flow-budget-edit-existing-total",
+    "title": "添加分类预算 · 已有总预算",
+    "group": "分类标签与预算",
+    "source": "budget/budget_edit_page.dart"
+  },
+  {
+    "route": "flow-budget-edit-total",
+    "title": "编辑总预算 · 保留原始精度",
+    "group": "分类标签与预算",
+    "source": "budget/budget_edit_page.dart"
+  },
+  {
+    "route": "flow-budget-edit-category",
+    "title": "编辑分类预算",
+    "group": "分类标签与预算",
+    "source": "budget/budget_edit_page.dart"
+  },
+  {
+    "route": "flow-budget-edit-custom",
+    "title": "编辑预算 · 自定义分类图片",
+    "group": "分类标签与预算",
+    "source": "budget/budget_edit_page.dart"
+  },
+  {
+    "route": "flow-budget-edit-empty-categories",
+    "title": "添加预算 · 无可选父分类",
+    "group": "分类标签与预算",
+    "source": "budget/budget_edit_page.dart"
+  },
+  {
+    "route": "flow-budget-edit-loading",
+    "title": "预算编辑 · 读取中",
+    "group": "分类标签与预算",
+    "source": "budget/budget_edit_page.dart"
+  },
+  {
+    "route": "flow-budget-edit-error",
+    "title": "预算编辑 · 读取失败",
+    "group": "分类标签与预算",
+    "source": "budget/budget_edit_page.dart"
+  },
+  {
+    "route": "flow-budget-edit-write-error",
+    "title": "预算编辑 · 写入失败保留草稿",
+    "group": "分类标签与预算",
+    "source": "budget/budget_edit_page.dart"
+  },
+  {
+    "route": "flow-budget-edit-readonly",
+    "title": "预算编辑 · 共享成员只读",
+    "group": "分类标签与预算",
+    "source": "budget/budget_edit_page.dart"
+  },
+  {
+    "route": "flow-bge-category",
+    "title": "预算编辑 · 原分类底部选择",
+    "group": "分类标签与预算",
+    "source": "budget/budget_edit_page.dart"
+  },
+  {
+    "route": "flow-bge-delete",
+    "title": "预算编辑 · 原删除确认",
+    "group": "分类标签与预算",
+    "source": "budget/budget_edit_page.dart"
+  },
+  {
+    "route": "flow-decimal-input",
+    "title": "基础输入 · 小数与输入法",
+    "group": "组件规范",
+    "source": "packages/beecount_ui/lib/src/form_components.dart"
+  },
+  {
+    "route": "flow-decimal-two-digits",
+    "title": "基础输入 · 可选两位小数",
+    "group": "组件规范",
+    "source": "packages/beecount_ui/lib/src/form_components.dart"
+  },
+  {
+    "route": "flow-calendar",
+    "title": "账单日历",
+    "group": "常用流程",
+    "source": "calendar/calendar_page.dart"
+  },
+  {
+    "route": "flow-calendar-unselected",
+    "title": "日历 · 切月未选中",
+    "group": "常用流程",
+    "source": "calendar/calendar_page.dart"
+  },
+  {
+    "route": "flow-calendar-empty",
+    "title": "日历 · 无交易",
+    "group": "常用流程",
+    "source": "calendar/calendar_page.dart"
+  },
+  {
+    "route": "flow-calendar-loading",
+    "title": "日历 · 读取中",
+    "group": "常用流程",
+    "source": "calendar/calendar_page.dart"
+  },
+  {
+    "route": "flow-calendar-error",
+    "title": "日历 · 读取失败",
+    "group": "常用流程",
+    "source": "calendar/calendar_page.dart"
+  },
+  {
+    "route": "flow-calendar-earliest",
+    "title": "日历 · 2000年下界",
+    "group": "常用流程",
+    "source": "calendar/calendar_page.dart"
+  },
+  {
+    "route": "flow-calendar-latest",
+    "title": "日历 · 未来一年上界",
+    "group": "常用流程",
+    "source": "calendar/calendar_page.dart"
+  },
+  {
+    "route": "flow-cl-month",
+    "title": "日历 · 原年月滚轮",
+    "group": "常用流程",
+    "source": "calendar/calendar_page.dart"
+  },
+  {
+    "route": "flow-analytics-income",
+    "title": "洞察 · 收入",
+    "group": "主要页面",
+    "source": "main/analytics_page.dart"
+  },
+  {
+    "route": "flow-analytics-balance",
+    "title": "洞察 · 结余",
+    "group": "主要页面",
+    "source": "main/analytics_page.dart"
+  },
+  {
+    "route": "flow-analytics-year",
+    "title": "洞察 · 年度",
+    "group": "主要页面",
+    "source": "main/analytics_page.dart"
+  },
+  {
+    "route": "flow-analytics-all",
+    "title": "洞察 · 全部年份",
+    "group": "主要页面",
+    "source": "main/analytics_page.dart"
+  },
+  {
+    "route": "flow-analytics-empty",
+    "title": "洞察 · 空周期",
+    "group": "主要页面",
+    "source": "main/analytics_page.dart"
+  },
+  {
+    "route": "flow-analytics-loading",
+    "title": "洞察 · 加载中",
+    "group": "主要页面",
+    "source": "main/analytics_page.dart"
+  },
+  {
+    "route": "flow-analytics-error",
+    "title": "洞察 · 读取失败",
+    "group": "主要页面",
+    "source": "main/analytics_page.dart"
+  },
+  {
+    "route": "flow-analytics-pie",
+    "title": "洞察 · 分类环图",
+    "group": "主要页面",
+    "source": "main/analytics_page.dart"
+  },
+  {
+    "route": "flow-analytics-foreign",
+    "title": "洞察 · 补折算确认",
+    "group": "主要页面",
+    "source": "main/analytics_page.dart"
+  },
+  {
+    "route": "flow-smart-guide-image",
+    "title": "图片记账 · 原使用说明",
+    "group": "自动化与识别",
+    "source": "settings/smart_billing_page.dart"
+  },
+  {
+    "route": "flow-smart-guide-camera",
+    "title": "拍照记账 · 原使用说明",
+    "group": "自动化与识别",
+    "source": "settings/smart_billing_page.dart"
+  },
+  {
+    "route": "flow-smart-guide-voice",
+    "title": "语音记账 · 原使用说明",
+    "group": "自动化与识别",
+    "source": "settings/smart_billing_page.dart"
+  },
+  {
+    "route": "flow-smart-guide-share",
+    "title": "分享记账 · 原使用说明",
+    "group": "自动化与识别",
+    "source": "settings/smart_billing_page.dart"
+  },
+  {
+    "route": "flow-smart-direct",
+    "title": "智能记账 · Android直装",
+    "group": "自动化与识别",
+    "source": "settings/smart_billing_page.dart"
+  },
+  {
+    "route": "flow-smart-gp",
+    "title": "智能记账 · Google Play",
+    "group": "自动化与识别",
+    "source": "settings/smart_billing_page.dart"
+  },
+  {
+    "route": "flow-smart-ios",
+    "title": "智能记账 · iOS",
+    "group": "自动化与识别",
+    "source": "settings/smart_billing_page.dart"
+  },
+  {
+    "route": "flow-ai-capability-text",
+    "title": "文本对话 · 服务商选择",
+    "group": "AI与助手",
+    "source": "ai/ai_settings_page.dart"
+  },
+  {
+    "route": "flow-ai-capability-vision",
+    "title": "图片理解 · 服务商选择",
+    "group": "AI与助手",
+    "source": "ai/ai_settings_page.dart"
+  },
+  {
+    "route": "flow-ai-capability-speech",
+    "title": "语音转文字 · 服务商选择",
+    "group": "AI与助手",
+    "source": "ai/ai_settings_page.dart"
+  },
+  {
+    "route": "flow-ai-settings-enabled",
+    "title": "AI设置 · 已启用",
+    "group": "AI与助手",
+    "source": "ai/ai_settings_page.dart"
+  },
+  {
+    "route": "flow-ai-settings-loading",
+    "title": "AI设置 · 加载中",
+    "group": "AI与助手",
+    "source": "ai/ai_settings_page.dart"
+  },
+  {
+    "route": "flow-ai-settings-error",
+    "title": "AI设置 · 读取失败",
+    "group": "AI与助手",
+    "source": "ai/ai_settings_page.dart"
+  },
+  {
+    "route": "flow-ai-settings-long",
+    "title": "AI设置 · 长服务商名称",
+    "group": "AI与助手",
+    "source": "ai/ai_settings_page.dart"
+  },
+  {
+    "route": "flow-provider-add",
+    "title": "添加服务商",
+    "group": "AI与助手",
+    "source": "ai/ai_provider_manage_page.dart"
+  },
+  {
+    "route": "flow-provider-custom",
+    "title": "编辑服务商",
+    "group": "AI与助手",
+    "source": "ai/ai_provider_manage_page.dart"
+  },
+  {
+    "route": "flow-provider-testing",
+    "title": "服务商 · 测试中",
+    "group": "AI与助手",
+    "source": "ai/ai_provider_manage_page.dart"
+  },
+  {
+    "route": "flow-provider-success",
+    "title": "服务商 · 测试成功",
+    "group": "AI与助手",
+    "source": "ai/ai_provider_manage_page.dart"
+  },
+  {
+    "route": "flow-provider-failed",
+    "title": "服务商 · 测试失败",
+    "group": "AI与助手",
+    "source": "ai/ai_provider_manage_page.dart"
+  },
+  {
+    "route": "flow-provider-delete",
+    "title": "删除服务商",
+    "group": "AI与助手",
+    "source": "ai/ai_provider_manage_page.dart"
+  },
+  {
+    "route": "flow-providers-many",
+    "title": "服务商 · 多能力",
+    "group": "AI与助手",
+    "source": "ai/ai_provider_manage_page.dart"
+  },
+  {
+    "route": "flow-providers-empty",
+    "title": "服务商 · 空列表",
+    "group": "AI与助手",
+    "source": "ai/ai_provider_manage_page.dart"
+  },
+  {
+    "route": "flow-providers-loading",
+    "title": "服务商 · 加载中",
+    "group": "AI与助手",
+    "source": "ai/ai_provider_manage_page.dart"
+  },
+  {
+    "route": "flow-providers-error",
+    "title": "服务商 · 读取失败",
+    "group": "AI与助手",
+    "source": "ai/ai_provider_manage_page.dart"
+  },
+  {
+    "route": "flow-prompt-draft",
+    "title": "提示词 · 编辑草稿",
+    "group": "AI与助手",
+    "source": "ai/ai_prompt_edit_page.dart"
+  },
+  {
+    "route": "flow-prompt-missing",
+    "title": "提示词 · 缺失能力",
+    "group": "AI与助手",
+    "source": "ai/ai_prompt_edit_page.dart"
+  },
+  {
+    "route": "flow-prompt-complete",
+    "title": "提示词 · 完整变量",
+    "group": "AI与助手",
+    "source": "ai/ai_prompt_edit_page.dart"
+  },
+  {
+    "route": "flow-prompt-preview",
+    "title": "提示词预览",
+    "group": "AI与助手",
+    "source": "ai/ai_prompt_edit_page.dart"
+  },
+  {
+    "route": "flow-prompt-reset",
+    "title": "恢复默认",
+    "group": "AI与助手",
+    "source": "ai/ai_prompt_edit_page.dart"
+  },
+  {
+    "route": "flow-prompt-share",
+    "title": "分享提示词",
+    "group": "AI与助手",
+    "source": "ai/ai_prompt_edit_page.dart"
+  },
+  {
+    "route": "flow-assistant-settings-loading",
+    "title": "AI助手 · 加载中",
+    "group": "AI与助手",
+    "source": "ai/agent_assistant_settings_page.dart"
+  },
+  {
+    "route": "flow-assistant-settings-error",
+    "title": "AI助手 · 读取失败",
+    "group": "AI与助手",
+    "source": "ai/agent_assistant_settings_page.dart"
+  },
+  {
+    "route": "flow-execution-depth-quick",
+    "title": "执行深度 · 快速",
+    "group": "AI与助手",
+    "source": "ai/agent_assistant_settings_page.dart"
+  },
+  {
+    "route": "flow-execution-depth-deep",
+    "title": "执行深度 · 深入",
+    "group": "AI与助手",
+    "source": "ai/agent_assistant_settings_page.dart"
+  },
+  {
+    "route": "flow-execution-depth-maximum",
+    "title": "执行深度 · 自定义上限",
+    "group": "AI与助手",
+    "source": "ai/agent_assistant_settings_page.dart"
+  },
+  {
+    "route": "flow-chat-empty",
+    "title": "空对话与真实账本摘要",
+    "group": "AI与助手",
+    "source": "ai/ai_chat_page.dart"
+  },
+  {
+    "route": "flow-chat-first",
+    "title": "首笔记账空态",
+    "group": "AI与助手",
+    "source": "ai/ai_chat_page.dart"
+  },
+  {
+    "route": "flow-chat-history",
+    "title": "AI对话与消息",
+    "group": "AI与助手",
+    "source": "ai/ai_chat_page.dart"
+  },
+  {
+    "route": "flow-chat-unconfigured",
+    "title": "AI对话 · 未配置",
+    "group": "AI与助手",
+    "source": "ai/ai_chat_page.dart"
+  },
+  {
+    "route": "flow-chat-streaming",
+    "title": "AI对话 · 流式与停止",
+    "group": "AI与助手",
+    "source": "ai/ai_chat_page.dart"
+  },
+  {
+    "route": "flow-chat-error",
+    "title": "AI对话 · 请求失败",
+    "group": "AI与助手",
+    "source": "ai/ai_chat_page.dart"
+  },
+  {
+    "route": "flow-chat-bill",
+    "title": "AI对话 · 外币账单卡",
+    "group": "AI与助手",
+    "source": "ai/ai_chat_page.dart"
+  },
+  {
+    "route": "flow-chat-undone",
+    "title": "AI对话 · 已撤销账单",
+    "group": "AI与助手",
+    "source": "ai/ai_chat_page.dart"
+  },
+  {
+    "route": "flow-chat-authorization",
+    "title": "允许 Agent 执行操作？",
+    "group": "AI与助手",
+    "source": "ai/ai_chat_page.dart"
+  },
+  {
+    "route": "flow-chat-clear",
+    "title": "清除对话历史",
+    "group": "AI与助手",
+    "source": "ai/ai_chat_page.dart"
+  },
+  {
+    "route": "flow-chat-message-menu",
+    "title": "消息操作",
+    "group": "AI与助手",
+    "source": "ai/ai_chat_page.dart"
+  },
+  {
+    "route": "flow-chat-delete",
+    "title": "删除",
+    "group": "AI与助手",
+    "source": "ai/ai_chat_page.dart"
+  },
+  {
+    "route": "flow-chat-ledger",
+    "title": "账单所属账本",
+    "group": "AI与助手",
+    "source": "ai/ai_chat_page.dart"
+  },
+  {
+    "route": "flow-recurring-empty",
+    "title": "周期账单 · 空列表",
+    "group": "自动化与识别",
+    "source": "transaction/recurring_transaction_page.dart"
+  },
+  {
+    "route": "flow-recurring-loading",
+    "title": "周期账单 · 加载中",
+    "group": "自动化与识别",
+    "source": "transaction/recurring_transaction_page.dart"
+  },
+  {
+    "route": "flow-recurring-error",
+    "title": "周期账单 · 加载失败与重试",
+    "group": "自动化与识别",
+    "source": "transaction/recurring_transaction_page.dart"
+  },
+  {
+    "route": "flow-recurring-saving",
+    "title": "周期账单 · 启停保存中",
+    "group": "自动化与识别",
+    "source": "transaction/recurring_transaction_page.dart"
+  },
+  {
+    "route": "flow-recurring-long",
+    "title": "周期账单 · 长分类与账本名称",
+    "group": "自动化与识别",
+    "source": "transaction/recurring_transaction_page.dart"
+  },
+  {
+    "route": "flow-recurring-save-error",
+    "title": "周期账单 · 保存失败保持原状态",
+    "group": "自动化与识别",
+    "source": "transaction/recurring_transaction_page.dart"
+  },
+  {
+    "route": "flow-import-result",
+    "title": "导入完成",
+    "group": "导入导出与维护",
+    "source": "data/import_confirm_page.dart"
+  },
+  {
+    "route": "flow-import-partial",
+    "title": "导入完成",
+    "group": "导入导出与维护",
+    "source": "data/import_confirm_page.dart"
+  },
+  {
+    "route": "flow-import-cancelled",
+    "title": "导入完成",
+    "group": "导入导出与维护",
+    "source": "data/import_confirm_page.dart"
+  },
+  {
+    "route": "flow-import-reading",
+    "title": "读取文件中…",
+    "group": "导入导出与维护",
+    "source": "data/import_confirm_page.dart"
+  },
+  {
+    "route": "flow-import-empty",
+    "title": "确认映射",
+    "group": "导入导出与维护",
+    "source": "data/import_confirm_page.dart"
+  },
+  {
+    "route": "flow-import-open-error",
+    "title": "导入账单",
+    "group": "导入导出与维护",
+    "source": "data/import_confirm_page.dart"
+  },
+  {
+    "route": "flow-import-invalid-currency",
+    "title": "分类映射",
+    "group": "导入导出与维护",
+    "source": "data/import_confirm_page.dart"
+  },
+  {
+    "route": "flow-import-background",
+    "title": "正在导入…",
+    "group": "导入导出与维护",
+    "source": "data/import_confirm_page.dart"
+  },
+  {
+    "route": "flow-export-running",
+    "title": "导出 · 导出中",
+    "group": "导入导出与维护",
+    "source": "data/export_page.dart"
+  },
+  {
+    "route": "flow-export-success",
+    "title": "导出 · 已保存",
+    "group": "导入导出与维护",
+    "source": "data/export_page.dart"
+  },
+  {
+    "route": "flow-export-error",
+    "title": "导出 · 失败后重试",
+    "group": "导入导出与维护",
+    "source": "data/export_page.dart"
+  },
+  {
+    "route": "flow-export-ios",
+    "title": "导出 · iOS 分享入口",
+    "group": "导入导出与维护",
+    "source": "data/export_page.dart"
+  },
+  {
+    "route": "flow-export-share-error",
+    "title": "导出 · 已保存但分享失败",
+    "group": "导入导出与维护",
+    "source": "data/export_page.dart"
+  },
+  {
+    "route": "flow-export-long",
+    "title": "导出 · 长账本名称",
+    "group": "导入导出与维护",
+    "source": "data/export_page.dart"
+  },
+  {
+    "route": "flow-recurring-edit-new",
+    "title": "编辑周期账单 · 原编辑流程-new",
+    "group": "自动化与识别",
+    "source": "transaction/recurring_transaction_edit_page.dart"
+  },
+  {
+    "route": "flow-recurring-edit-transfer",
+    "title": "编辑周期账单 · 原编辑流程-transfer",
+    "group": "自动化与识别",
+    "source": "transaction/recurring_transaction_edit_page.dart"
+  },
+  {
+    "route": "flow-recurring-edit-daily",
+    "title": "编辑周期账单 · 原编辑流程-daily",
+    "group": "自动化与识别",
+    "source": "transaction/recurring_transaction_edit_page.dart"
+  },
+  {
+    "route": "flow-recurring-edit-weekly",
+    "title": "编辑周期账单 · 原编辑流程-weekly",
+    "group": "自动化与识别",
+    "source": "transaction/recurring_transaction_edit_page.dart"
+  },
+  {
+    "route": "flow-recurring-edit-yearly",
+    "title": "编辑周期账单 · 原编辑流程-yearly",
+    "group": "自动化与识别",
+    "source": "transaction/recurring_transaction_edit_page.dart"
+  },
+  {
+    "route": "flow-recurring-edit-saving",
+    "title": "编辑周期账单 · 原编辑流程-saving",
+    "group": "自动化与识别",
+    "source": "transaction/recurring_transaction_edit_page.dart"
+  },
+  {
+    "route": "flow-recurring-edit-error",
+    "title": "编辑周期账单 · 原编辑流程-error",
+    "group": "自动化与识别",
+    "source": "transaction/recurring_transaction_edit_page.dart"
+  },
+  {
+    "route": "flow-recurring-edit-loading",
+    "title": "编辑周期账单 · 原编辑流程-loading",
+    "group": "自动化与识别",
+    "source": "transaction/recurring_transaction_edit_page.dart"
+  },
+  {
+    "route": "flow-recurring-edit-load-error",
+    "title": "编辑周期账单 · 原编辑流程-load-error",
+    "group": "自动化与识别",
+    "source": "transaction/recurring_transaction_edit_page.dart"
+  },
+  {
+    "route": "flow-recurring-edit-long",
+    "title": "编辑周期账单 · 原编辑流程-long",
+    "group": "自动化与识别",
+    "source": "transaction/recurring_transaction_edit_page.dart"
+  },
+  {
+    "route": "flow-recurring-edit-empty-accounts",
+    "title": "编辑周期账单 · 原编辑流程-empty-accounts",
+    "group": "自动化与识别",
+    "source": "transaction/recurring_transaction_edit_page.dart"
+  },
+  {
+    "route": "flow-annual-report",
+    "title": "年度账单",
+    "group": "年度账单与小票",
+    "source": "report/annual_report_page.dart"
+  },
+  {
+    "route": "flow-annual-report-loading",
+    "title": "年度账单 · 生成中",
+    "group": "年度账单与小票",
+    "source": "report/annual_report_page.dart"
+  },
+  {
+    "route": "flow-annual-report-empty",
+    "title": "年度账单 · 无数据",
+    "group": "年度账单与小票",
+    "source": "report/annual_report_page.dart"
+  },
+  {
+    "route": "flow-annual-report-error",
+    "title": "年度账单 · 错误与重试",
+    "group": "年度账单与小票",
+    "source": "report/annual_report_page.dart"
+  },
+  {
+    "route": "flow-annual-report-long",
+    "title": "年度账单 · 长名称",
+    "group": "年度账单与小票",
+    "source": "report/annual_report_page.dart"
+  },
+  {
+    "route": "flow-receipt-preview",
+    "title": "账单小票弹窗",
+    "group": "年度账单与小票",
+    "source": "widgets/biz/transaction_receipt_dialog.dart"
+  },
+  {
+    "route": "flow-receipt-long",
+    "title": "账单小票 · 长备注与大金额",
+    "group": "年度账单与小票",
+    "source": "widgets/biz/transaction_receipt_dialog.dart"
+  },
+  {
+    "route": "flow-receipt-busy",
+    "title": "账单小票 · 导出中",
+    "group": "年度账单与小票",
+    "source": "widgets/biz/transaction_receipt_dialog.dart"
+  },
+  {
+    "route": "flow-receipt-unavailable",
+    "title": "账单小票 · 无法加载",
+    "group": "年度账单与小票",
+    "source": "widgets/biz/transaction_receipt_dialog.dart"
+  },
+  {
+    "route": "flow-cloud-config-ios",
+    "title": "云服务",
+    "group": "云服务与同步",
+    "source": "cloud/cloud_service_page.dart"
+  },
+  {
+    "route": "flow-cloud-config-normal",
+    "title": "云服务",
+    "group": "云服务与同步",
+    "source": "cloud/cloud_service_page.dart"
+  },
+  {
+    "route": "flow-cloud-config-failed",
+    "title": "云服务",
+    "group": "云服务与同步",
+    "source": "cloud/cloud_service_page.dart"
+  },
+  {
+    "route": "flow-login-webdav",
+    "title": "登录",
+    "group": "云服务与同步",
+    "source": "auth/login_page.dart"
+  },
+  {
+    "route": "flow-login-busy",
+    "title": "登录",
+    "group": "云服务与同步",
+    "source": "auth/login_page.dart"
+  },
+  {
+    "route": "flow-login-error",
+    "title": "登录",
+    "group": "云服务与同步",
+    "source": "auth/login_page.dart"
+  },
+  {
+    "route": "flow-transfer-inline",
+    "title": "转账 · 同屏空草稿",
+    "group": "主记账转账",
+    "source": "widgets/transaction/transfer_form.dart"
+  },
+  {
+    "route": "flow-transfer-inline-cny",
+    "title": "转账 · CNY → CNY",
+    "group": "主记账转账",
+    "source": "widgets/transaction/transfer_form.dart"
+  },
+  {
+    "route": "flow-transfer-inline-usd",
+    "title": "转账 · CNY账本内 USD → USD",
+    "group": "主记账转账",
+    "source": "widgets/transaction/transfer_form.dart"
+  },
+  {
+    "route": "flow-transfer-inline-from-empty",
+    "title": "转账 · 转出为空",
+    "group": "主记账转账",
+    "source": "widgets/transaction/transfer_form.dart"
+  },
+  {
+    "route": "flow-transfer-inline-to-empty",
+    "title": "转账 · 转入为空",
+    "group": "主记账转账",
+    "source": "widgets/transaction/transfer_form.dart"
+  },
+  {
+    "route": "flow-transfer-inline-same-account",
+    "title": "转账 · 同账户禁止",
+    "group": "主记账转账",
+    "source": "widgets/transaction/transfer_form.dart"
+  },
+  {
+    "route": "flow-transfer-inline-different",
+    "title": "转账 · 新增跨币种禁止",
+    "group": "主记账转账",
+    "source": "widgets/transaction/transfer_form.dart"
+  },
+  {
+    "route": "flow-transfer-inline-no-rate",
+    "title": "转账 · 缺汇率",
+    "group": "主记账转账",
+    "source": "widgets/transaction/transfer_form.dart"
+  },
+  {
+    "route": "flow-transfer-inline-invalid-rate",
+    "title": "转账 · 非法汇率",
+    "group": "主记账转账",
+    "source": "widgets/transaction/transfer_form.dart"
+  },
+  {
+    "route": "flow-transfer-inline-history",
+    "title": "转账 · 历史跨币种编辑",
+    "group": "主记账转账",
+    "source": "widgets/transaction/transfer_form.dart"
+  },
+  {
+    "route": "flow-transfer-inline-history-copy",
+    "title": "转账 · 历史跨币种复制需改同币种",
+    "group": "主记账转账",
+    "source": "widgets/transaction/transfer_form.dart"
+  },
+  {
+    "route": "flow-transfer-inline-hidden-history",
+    "title": "转账 · 隐藏账户历史编辑",
+    "group": "主记账转账",
+    "source": "widgets/transaction/transfer_form.dart"
+  },
+  {
+    "route": "flow-transfer-inline-hidden-new",
+    "title": "转账 · 新建排除隐藏账户",
+    "group": "主记账转账",
+    "source": "widgets/transaction/transfer_form.dart"
+  },
+  {
+    "route": "flow-transfer-inline-fields",
+    "title": "转账 · 备注日期标签附件",
+    "group": "主记账转账",
+    "source": "widgets/transaction/transfer_form.dart"
+  },
+  {
+    "route": "flow-transfer-inline-saving",
+    "title": "转账 · 防重复保存",
+    "group": "主记账转账",
+    "source": "widgets/transaction/transfer_form.dart"
+  },
+  {
+    "route": "flow-transfer-inline-save-error",
+    "title": "转账 · 元信息失败原身份重试",
+    "group": "主记账转账",
+    "source": "widgets/transaction/transfer_form.dart"
+  },
+  {
+    "route": "flow-transfer-inline-empty-accounts",
+    "title": "转账 · 无可交易账户",
+    "group": "主记账转账",
+    "source": "widgets/transaction/transfer_form.dart"
+  },
+  {
+    "route": "flow-transfer-inline-note",
+    "title": "转账 · 小屏展开备注",
+    "group": "主记账转账",
+    "source": "widgets/transaction/transfer_form.dart"
+  },
+  {
+    "route": "flow-transaction-detail",
+    "title": "账单详情 · 原交易",
+    "group": "账单与详情",
+    "source": "transaction/transaction_detail_page.dart"
+  },
+  {
+    "route": "flow-transaction-detail-income",
+    "title": "账单详情 · income",
+    "group": "账单与详情",
+    "source": "transaction/transaction_detail_page.dart"
+  },
+  {
+    "route": "flow-transaction-detail-transfer",
+    "title": "账单详情 · transfer",
+    "group": "账单与详情",
+    "source": "transaction/transaction_detail_page.dart"
+  },
+  {
+    "route": "flow-transaction-detail-foreign",
+    "title": "账单详情 · foreign",
+    "group": "账单与详情",
+    "source": "transaction/transaction_detail_page.dart"
+  },
+  {
+    "route": "flow-transaction-detail-unconverted",
+    "title": "账单详情 · unconverted",
+    "group": "账单与详情",
+    "source": "transaction/transaction_detail_page.dart"
+  },
+  {
+    "route": "flow-transaction-detail-private",
+    "title": "账单详情 · private",
+    "group": "账单与详情",
+    "source": "transaction/transaction_detail_page.dart"
+  },
+  {
+    "route": "flow-transaction-detail-attachments",
+    "title": "账单详情 · attachments",
+    "group": "账单与详情",
+    "source": "transaction/transaction_detail_page.dart"
+  },
+  {
+    "route": "flow-transaction-detail-missing-image",
+    "title": "账单详情 · missing-image",
+    "group": "账单与详情",
+    "source": "transaction/transaction_detail_page.dart"
+  },
+  {
+    "route": "flow-transaction-detail-long",
+    "title": "账单详情 · long",
+    "group": "账单与详情",
+    "source": "transaction/transaction_detail_page.dart"
+  },
+  {
+    "route": "flow-transaction-detail-loading",
+    "title": "账单详情 · loading",
+    "group": "账单与详情",
+    "source": "transaction/transaction_detail_page.dart"
+  },
+  {
+    "route": "flow-transaction-detail-error",
+    "title": "账单详情 · error",
+    "group": "账单与详情",
+    "source": "transaction/transaction_detail_page.dart"
+  },
+  {
+    "route": "flow-transaction-detail-missing",
+    "title": "账单详情 · missing",
+    "group": "账单与详情",
+    "source": "transaction/transaction_detail_page.dart"
+  },
+  {
+    "route": "flow-transaction-detail-readonly",
+    "title": "账单详情 · readonly",
+    "group": "账单与详情",
+    "source": "transaction/transaction_detail_page.dart"
+  },
+  {
+    "route": "flow-backup-loading",
+    "title": "云同步",
+    "group": "云服务与同步",
+    "source": "cloud/cloud_sync_page.dart"
+  },
+  {
+    "route": "flow-backup-error",
+    "title": "云同步",
+    "group": "云服务与同步",
+    "source": "cloud/cloud_sync_page.dart"
+  },
+  {
+    "route": "flow-backup-no-ledger",
+    "title": "云同步",
+    "group": "云服务与同步",
+    "source": "cloud/cloud_sync_page.dart"
+  },
+  {
+    "route": "flow-backup-signed-out",
+    "title": "云同步",
+    "group": "云服务与同步",
+    "source": "cloud/cloud_sync_page.dart"
+  },
+  {
+    "route": "flow-backup-supabase",
+    "title": "云同步",
+    "group": "云服务与同步",
+    "source": "cloud/cloud_sync_page.dart"
+  },
+  {
+    "route": "flow-backup-beecount",
+    "title": "云同步",
+    "group": "云服务与同步",
+    "source": "cloud/cloud_sync_page.dart"
+  },
+  {
+    "route": "flow-backup-relogin",
+    "title": "云同步",
+    "group": "云服务与同步",
+    "source": "cloud/cloud_sync_page.dart"
+  },
+  {
+    "route": "flow-backup-uploading",
+    "title": "云同步",
+    "group": "云服务与同步",
+    "source": "cloud/cloud_sync_page.dart"
+  },
+  {
+    "route": "flow-backup-detail",
+    "title": "云同步",
+    "group": "云服务与同步",
+    "source": "cloud/cloud_sync_page.dart"
+  },
+  {
+    "route": "flow-backup-preview",
+    "title": "云同步",
+    "group": "云服务与同步",
+    "source": "cloud/cloud_sync_page.dart"
+  },
+  {
+    "route": "flow-backup-old-format",
+    "title": "云同步",
+    "group": "云服务与同步",
+    "source": "cloud/cloud_sync_page.dart"
+  },
+  {
+    "route": "flow-backup-empty",
+    "title": "云同步",
+    "group": "云服务与同步",
+    "source": "cloud/cloud_sync_page.dart"
+  },
+  {
+    "route": "flow-backup-restore-error",
+    "title": "云同步",
+    "group": "云服务与同步",
+    "source": "cloud/cloud_sync_page.dart"
+  },
+  {
+    "route": "flow-auto-billing-android",
+    "title": "Android · 默认关闭",
+    "group": "自动记账",
+    "source": "automation/auto_billing_settings_page.dart"
+  },
+  {
+    "route": "flow-auto-billing-android-on",
+    "title": "Android · 已开启",
+    "group": "自动记账",
+    "source": "automation/auto_billing_settings_page.dart"
+  },
+  {
+    "route": "flow-auto-billing-battery-ok",
+    "title": "Android · 电池已豁免",
+    "group": "自动记账",
+    "source": "automation/auto_billing_settings_page.dart"
+  },
+  {
+    "route": "flow-auto-billing-battery-error",
+    "title": "Android · 电池读取失败",
+    "group": "自动记账",
+    "source": "automation/auto_billing_settings_page.dart"
+  },
+  {
+    "route": "flow-auto-billing-no-battery-request",
+    "title": "Android · 系统不支持请求",
+    "group": "自动记账",
+    "source": "automation/auto_billing_settings_page.dart"
+  },
+  {
+    "route": "flow-auto-billing-load-error",
+    "title": "Android · 状态读取失败可重试",
+    "group": "自动记账",
+    "source": "automation/auto_billing_settings_page.dart"
+  },
+  {
+    "route": "flow-auto-billing-permission-denied",
+    "title": "Android · 权限拒绝",
+    "group": "自动记账",
+    "source": "automation/auto_billing_settings_page.dart"
+  },
+  {
+    "route": "flow-auto-billing-enable-error",
+    "title": "Android · 启用失败",
+    "group": "自动记账",
+    "source": "automation/auto_billing_settings_page.dart"
+  },
+  {
+    "route": "flow-auto-billing-disable-error",
+    "title": "Android · 停用失败",
+    "group": "自动记账",
+    "source": "automation/auto_billing_settings_page.dart"
+  },
+  {
+    "route": "flow-auto-billing-busy",
+    "title": "Android · 操作处理中",
+    "group": "自动记账",
+    "source": "automation/auto_billing_settings_page.dart"
+  },
+  {
+    "route": "flow-auto-billing-ios",
+    "title": "iOS · 一键导入与手动兜底",
+    "group": "自动记账",
+    "source": "automation/ios_auto_billing_page.dart"
+  },
+  {
+    "route": "flow-auto-billing-ios-old",
+    "title": "iOS · 16以下提示",
+    "group": "自动记账",
+    "source": "automation/ios_auto_billing_page.dart"
+  },
+  {
+    "route": "flow-auto-billing-ios-manual",
+    "title": "iOS · 展开六步引导",
+    "group": "自动记账",
+    "source": "automation/ios_auto_billing_page.dart"
+  },
+  {
+    "route": "flow-auto-billing-ios-open-error",
+    "title": "iOS · 导入失败",
+    "group": "自动记账",
+    "source": "automation/ios_auto_billing_page.dart"
+  },
+  {
+    "route": "flow-auto-billing-ios-opening",
+    "title": "iOS · 外部打开中防重",
+    "group": "自动记账",
+    "source": "automation/ios_auto_billing_page.dart"
+  },
+  {
+    "route": "flow-auto-billing-sample",
+    "title": "自动记账 · 受控组件",
+    "group": "自动记账",
+    "source": "presentation/v4/gallery/auto_billing_sample.dart"
+  },
+  {
+    "route": "flow-detail-currency-category-current",
+    "title": "分类详情 · 当前账本本币与外币历史快照",
+    "group": "分类与标签 · 汇总币种",
+    "source": "transaction/category_detail_page.dart"
+  },
+  {
+    "route": "flow-detail-currency-category-all",
+    "title": "分类详情 · 全部账本统一为CNY",
+    "group": "分类与标签 · 汇总币种",
+    "source": "transaction/category_detail_page.dart"
+  },
+  {
+    "route": "flow-detail-currency-category-usd",
+    "title": "分类详情 · 切当前账本为USD与反向汇率",
+    "group": "分类与标签 · 汇总币种",
+    "source": "transaction/category_detail_page.dart"
+  },
+  {
+    "route": "flow-detail-currency-category-missing",
+    "title": "分类详情 · 缺USD汇率禁止完整合计",
+    "group": "分类与标签 · 汇总币种",
+    "source": "transaction/category_detail_page.dart"
+  },
+  {
+    "route": "flow-detail-currency-category-native-missing",
+    "title": "分类详情 · 显式外币缺历史native",
+    "group": "分类与标签 · 汇总币种",
+    "source": "transaction/category_detail_page.dart"
+  },
+  {
+    "route": "flow-detail-currency-category-legacy",
+    "title": "分类详情 · 旧null原币与空native合法本币",
+    "group": "分类与标签 · 汇总币种",
+    "source": "transaction/category_detail_page.dart"
+  },
+  {
+    "route": "flow-detail-currency-category-unknown",
+    "title": "分类详情 · 来源或币种缺失",
+    "group": "分类与标签 · 汇总币种",
+    "source": "transaction/category_detail_page.dart"
+  },
+  {
+    "route": "flow-detail-currency-category-stale",
+    "title": "分类详情 · 陈旧有效缓存与日期",
+    "group": "分类与标签 · 汇总币种",
+    "source": "transaction/category_detail_page.dart"
+  },
+  {
+    "route": "flow-detail-currency-category-invalid",
+    "title": "分类详情 · 无效直接手动率不得回退",
+    "group": "分类与标签 · 汇总币种",
+    "source": "transaction/category_detail_page.dart"
+  },
+  {
+    "route": "flow-detail-currency-category-shared",
+    "title": "分类详情 · 共享synthetic分类标签来源",
+    "group": "分类与标签 · 汇总币种",
+    "source": "transaction/category_detail_page.dart"
+  },
+  {
+    "route": "flow-detail-currency-category-privacy",
+    "title": "分类详情 · 隐私不泄露金额与百分比",
+    "group": "分类与标签 · 汇总币种",
+    "source": "transaction/category_detail_page.dart"
+  },
+  {
+    "route": "flow-detail-currency-category-privacy-missing",
+    "title": "分类详情 · 隐私保留缺项状态",
+    "group": "分类与标签 · 汇总币种",
+    "source": "transaction/category_detail_page.dart"
+  },
+  {
+    "route": "flow-detail-currency-category-month",
+    "title": "分类详情 · 月范围与二级分组",
+    "group": "分类与标签 · 汇总币种",
+    "source": "transaction/category_detail_page.dart"
+  },
+  {
+    "route": "flow-detail-currency-category-year",
+    "title": "分类详情 · 年范围",
+    "group": "分类与标签 · 汇总币种",
+    "source": "transaction/category_detail_page.dart"
+  },
+  {
+    "route": "flow-detail-currency-category-empty",
+    "title": "分类详情 · 无关联记录",
+    "group": "分类与标签 · 汇总币种",
+    "source": "transaction/category_detail_page.dart"
+  },
+  {
+    "route": "flow-detail-currency-tag-current",
+    "title": "标签详情 · 当前账本本币与外币历史快照",
+    "group": "分类与标签 · 汇总币种",
+    "source": "tag/tag_detail_page.dart"
+  },
+  {
+    "route": "flow-detail-currency-tag-all",
+    "title": "标签详情 · 全部账本统一为CNY",
+    "group": "分类与标签 · 汇总币种",
+    "source": "tag/tag_detail_page.dart"
+  },
+  {
+    "route": "flow-detail-currency-tag-usd",
+    "title": "标签详情 · 切当前账本为USD与反向汇率",
+    "group": "分类与标签 · 汇总币种",
+    "source": "tag/tag_detail_page.dart"
+  },
+  {
+    "route": "flow-detail-currency-tag-missing",
+    "title": "标签详情 · 缺USD汇率禁止完整合计",
+    "group": "分类与标签 · 汇总币种",
+    "source": "tag/tag_detail_page.dart"
+  },
+  {
+    "route": "flow-detail-currency-tag-native-missing",
+    "title": "标签详情 · 显式外币缺历史native",
+    "group": "分类与标签 · 汇总币种",
+    "source": "tag/tag_detail_page.dart"
+  },
+  {
+    "route": "flow-detail-currency-tag-legacy",
+    "title": "标签详情 · 旧null原币与空native合法本币",
+    "group": "分类与标签 · 汇总币种",
+    "source": "tag/tag_detail_page.dart"
+  },
+  {
+    "route": "flow-detail-currency-tag-unknown",
+    "title": "标签详情 · 来源或币种缺失",
+    "group": "分类与标签 · 汇总币种",
+    "source": "tag/tag_detail_page.dart"
+  },
+  {
+    "route": "flow-detail-currency-tag-stale",
+    "title": "标签详情 · 陈旧有效缓存与日期",
+    "group": "分类与标签 · 汇总币种",
+    "source": "tag/tag_detail_page.dart"
+  },
+  {
+    "route": "flow-detail-currency-tag-invalid",
+    "title": "标签详情 · 无效直接手动率不得回退",
+    "group": "分类与标签 · 汇总币种",
+    "source": "tag/tag_detail_page.dart"
+  },
+  {
+    "route": "flow-detail-currency-tag-shared",
+    "title": "标签详情 · 共享synthetic分类标签来源",
+    "group": "分类与标签 · 汇总币种",
+    "source": "tag/tag_detail_page.dart"
+  },
+  {
+    "route": "flow-detail-currency-tag-privacy",
+    "title": "标签详情 · 隐私不泄露金额与百分比",
+    "group": "分类与标签 · 汇总币种",
+    "source": "tag/tag_detail_page.dart"
+  },
+  {
+    "route": "flow-detail-currency-tag-privacy-missing",
+    "title": "标签详情 · 隐私保留缺项状态",
+    "group": "分类与标签 · 汇总币种",
+    "source": "tag/tag_detail_page.dart"
+  },
+  {
+    "route": "flow-detail-currency-tag-month",
+    "title": "标签详情 · 月范围与二级分组",
+    "group": "分类与标签 · 汇总币种",
+    "source": "tag/tag_detail_page.dart"
+  },
+  {
+    "route": "flow-detail-currency-tag-year",
+    "title": "标签详情 · 年范围",
+    "group": "分类与标签 · 汇总币种",
+    "source": "tag/tag_detail_page.dart"
+  },
+  {
+    "route": "flow-detail-currency-tag-empty",
+    "title": "标签详情 · 无关联记录",
+    "group": "分类与标签 · 汇总币种",
+    "source": "tag/tag_detail_page.dart"
+  },
+  {
+    "route": "flow-detail-currency-tag-custom-month",
+    "title": "标签详情 · 自定义8日月边界",
+    "group": "分类与标签 · 汇总币种",
+    "source": "tag/tag_detail_page.dart"
+  },
+  {
+    "route": "flow-detail-currency-component",
+    "title": "汇总币种提示 · 受控状态",
+    "group": "分类与标签 · 汇总币种",
+    "source": "presentation/v4/gallery/detail_currency_sample.dart"
+  },
+  {
+    "route": "flow-shared-sync",
+    "title": "云同步",
+    "group": "共享账本与云同步",
+    "source": "cloud/beecount_cloud_sync_page.dart"
+  },
+  {
+    "route": "flow-shared-sync-error",
+    "title": "云同步",
+    "group": "共享账本与云同步",
+    "source": "cloud/beecount_cloud_sync_page.dart"
+  },
+  {
+    "route": "flow-shared-invite",
+    "title": "邀请新成员",
+    "group": "共享账本与云同步",
+    "source": "cloud/invite_page.dart"
+  },
+  {
+    "route": "flow-shared-code",
+    "title": "邀请新成员",
+    "group": "共享账本与云同步",
+    "source": "cloud/invite_page.dart"
+  },
+  {
+    "route": "flow-shared-join",
+    "title": "加入共享账本",
+    "group": "共享账本与云同步",
+    "source": "cloud/join_shared_ledger_page.dart"
+  },
+  {
+    "route": "flow-shared-preview",
+    "title": "加入共享账本",
+    "group": "共享账本与云同步",
+    "source": "cloud/join_shared_ledger_page.dart"
+  },
+  {
+    "route": "flow-shared-members-owner",
+    "title": "成员管理",
+    "group": "共享账本与云同步",
+    "source": "cloud/member_list_page.dart"
+  },
+  {
+    "route": "flow-shared-members-editor",
+    "title": "成员管理",
+    "group": "共享账本与云同步",
+    "source": "cloud/member_list_page.dart"
+  },
+  {
+    "route": "flow-shared-members-loading",
+    "title": "成员管理",
+    "group": "共享账本与云同步",
+    "source": "cloud/member_list_page.dart"
+  },
+  {
+    "route": "flow-shared-members-error",
+    "title": "成员管理",
+    "group": "共享账本与云同步",
+    "source": "cloud/member_list_page.dart"
+  },
+  {
+    "route": "flow-shared-stats",
+    "title": "成员收支",
+    "group": "共享账本与云同步",
+    "source": "cloud/member_stats_page.dart"
+  },
+  {
+    "route": "flow-shared-stats-empty",
+    "title": "成员收支",
+    "group": "共享账本与云同步",
+    "source": "cloud/member_stats_page.dart"
+  },
+  {
+    "route": "flow-shared-stats-error",
+    "title": "成员收支",
+    "group": "共享账本与云同步",
+    "source": "cloud/member_stats_page.dart"
+  },
+  {
+    "route": "flow-share-card",
+    "title": "分享卡片",
+    "group": "启动与分享",
+    "source": "report/share_card_page.dart"
+  },
+  {
+    "route": "flow-share-card-app",
+    "title": "分享卡片",
+    "group": "启动与分享",
+    "source": "report/share_card_page.dart"
+  },
+  {
+    "route": "flow-share-card-month",
+    "title": "分享卡片",
+    "group": "启动与分享",
+    "source": "report/share_card_page.dart"
+  },
+  {
+    "route": "flow-share-card-year",
+    "title": "分享卡片",
+    "group": "启动与分享",
+    "source": "report/share_card_page.dart"
+  },
+  {
+    "route": "flow-share-card-ledger",
+    "title": "分享卡片",
+    "group": "启动与分享",
+    "source": "report/share_card_page.dart"
+  },
+  {
+    "route": "flow-share-card-private",
+    "title": "分享卡片",
+    "group": "启动与分享",
+    "source": "report/share_card_page.dart"
+  },
+  {
+    "route": "flow-share-card-loading",
+    "title": "分享卡片",
+    "group": "启动与分享",
+    "source": "report/share_card_page.dart"
+  },
+  {
+    "route": "flow-share-card-error",
+    "title": "分享卡片",
+    "group": "启动与分享",
+    "source": "report/share_card_page.dart"
+  },
+  {
+    "route": "flow-share-card-long",
+    "title": "分享卡片",
+    "group": "启动与分享",
+    "source": "report/share_card_page.dart"
+  },
+  {
+    "route": "flow-advanced-memory",
+    "title": "本地记忆",
+    "group": "AI高级设置",
+    "source": "ai/agent_memory_page.dart"
+  },
+  {
+    "route": "flow-advanced-memory-empty",
+    "title": "本地记忆",
+    "group": "AI高级设置",
+    "source": "ai/agent_memory_page.dart"
+  },
+  {
+    "route": "flow-advanced-memory-loading",
+    "title": "本地记忆",
+    "group": "AI高级设置",
+    "source": "ai/agent_memory_page.dart"
+  },
+  {
+    "route": "flow-advanced-memory-error",
+    "title": "本地记忆",
+    "group": "AI高级设置",
+    "source": "ai/agent_memory_page.dart"
+  },
+  {
+    "route": "flow-advanced-memory-global",
+    "title": "本地记忆",
+    "group": "AI高级设置",
+    "source": "ai/agent_memory_page.dart"
+  },
+  {
+    "route": "flow-advanced-permissions",
+    "title": "AI助手权限",
+    "group": "AI高级设置",
+    "source": "ai/agent_permissions_page.dart"
+  },
+  {
+    "route": "flow-advanced-permissions-modified",
+    "title": "AI助手权限",
+    "group": "AI高级设置",
+    "source": "ai/agent_permissions_page.dart"
+  },
+  {
+    "route": "flow-advanced-permissions-error",
+    "title": "AI助手权限",
+    "group": "AI高级设置",
+    "source": "ai/agent_permissions_page.dart"
+  },
+  {
+    "route": "flow-advanced-activity",
+    "title": "最近活动",
+    "group": "AI高级设置",
+    "source": "ai/agent_activity_page.dart"
+  },
+  {
+    "route": "flow-advanced-activity-empty",
+    "title": "最近活动",
+    "group": "AI高级设置",
+    "source": "ai/agent_activity_page.dart"
+  },
+  {
+    "route": "flow-advanced-activity-error",
+    "title": "最近活动",
+    "group": "AI高级设置",
+    "source": "ai/agent_activity_page.dart"
+  },
+  {
+    "route": "flow-privacy",
+    "title": "隐私政策",
+    "group": "帮助与信息",
+    "source": "settings/privacy_policy_page.dart"
+  },
+  {
+    "route": "flow-support-about",
+    "title": "关于",
+    "group": "帮助与支持",
+    "source": "settings/about_page.dart"
+  },
+  {
+    "route": "flow-support-about-ios",
+    "title": "关于",
+    "group": "帮助与支持",
+    "source": "settings/about_page.dart"
+  },
+  {
+    "route": "flow-support-about-international",
+    "title": "关于",
+    "group": "帮助与支持",
+    "source": "settings/about_page.dart"
+  },
+  {
+    "route": "flow-support-help",
+    "title": "使用帮助",
+    "group": "帮助与支持",
+    "source": "settings/help_center_page.dart"
+  },
+  {
+    "route": "flow-support-changelog",
+    "title": "更新日志",
+    "group": "帮助与支持",
+    "source": "settings/help_center_page.dart"
+  },
+  {
+    "route": "flow-support-help-error",
+    "title": "使用帮助",
+    "group": "帮助与支持",
+    "source": "settings/help_center_page.dart"
+  },
+  {
+    "route": "flow-support-help-loading",
+    "title": "使用帮助",
+    "group": "帮助与支持",
+    "source": "settings/help_center_page.dart"
+  },
+  {
+    "route": "flow-support-privacy",
+    "title": "隐私政策",
+    "group": "帮助与支持",
+    "source": "settings/privacy_policy_page.dart"
+  },
+  {
+    "route": "flow-support-privacy-error",
+    "title": "隐私政策",
+    "group": "帮助与支持",
+    "source": "settings/privacy_policy_page.dart"
+  },
+  {
+    "route": "flow-support-shortcuts-ios",
+    "title": "快捷指令",
+    "group": "帮助与支持",
+    "source": "settings/shortcuts_guide_page.dart"
+  },
+  {
+    "route": "flow-support-shortcuts-android",
+    "title": "快捷指令",
+    "group": "帮助与支持",
+    "source": "settings/shortcuts_guide_page.dart"
+  },
+  {
+    "route": "flow-support-donation-empty",
+    "title": "捐赠",
+    "group": "帮助与支持",
+    "source": "donation/donation_page.dart"
+  },
+  {
+    "route": "flow-support-donation-loading",
+    "title": "捐赠",
+    "group": "帮助与支持",
+    "source": "donation/donation_page.dart"
+  },
+  {
+    "route": "flow-support-donation-products",
+    "title": "捐赠",
+    "group": "帮助与支持",
+    "source": "donation/donation_page.dart"
+  },
+  {
+    "route": "flow-maintenance-logs",
+    "title": "日志中心",
+    "group": "维护与本地诊断",
+    "source": "settings/log_center_page.dart"
+  },
+  {
+    "route": "flow-maintenance-log-detail",
+    "title": "日志中心",
+    "group": "维护与本地诊断",
+    "source": "settings/log_center_page.dart"
+  },
+  {
+    "route": "flow-maintenance-log-clear",
+    "title": "日志中心",
+    "group": "维护与本地诊断",
+    "source": "settings/log_center_page.dart"
+  },
+  {
+    "route": "flow-maintenance-log-empty",
+    "title": "日志中心",
+    "group": "维护与本地诊断",
+    "source": "settings/log_center_page.dart"
+  },
+  {
+    "route": "flow-maintenance-storage",
+    "title": "存储空间管理",
+    "group": "维护与本地诊断",
+    "source": "settings/storage_management_page.dart"
+  },
+  {
+    "route": "flow-maintenance-storage-ios",
+    "title": "存储空间管理",
+    "group": "维护与本地诊断",
+    "source": "settings/storage_management_page.dart"
+  },
+  {
+    "route": "flow-maintenance-storage-error",
+    "title": "存储空间管理",
+    "group": "维护与本地诊断",
+    "source": "settings/storage_management_page.dart"
+  },
+  {
+    "route": "flow-maintenance-storage-clear",
+    "title": "存储空间管理",
+    "group": "维护与本地诊断",
+    "source": "settings/storage_management_page.dart"
+  },
+  {
+    "route": "flow-maintenance-widgets-android",
+    "title": "桌面小组件",
+    "group": "维护与本地诊断",
+    "source": "settings/widget_management_page.dart"
+  },
+  {
+    "route": "flow-maintenance-widgets-ios",
+    "title": "桌面小组件",
+    "group": "维护与本地诊断",
+    "source": "settings/widget_management_page.dart"
+  },
+  {
+    "route": "flow-maintenance-orphans",
+    "title": "数据清理",
+    "group": "维护与本地诊断",
+    "source": "maintenance/orphan_cleanup_page.dart"
+  },
+  {
+    "route": "flow-maintenance-orphans-empty",
+    "title": "数据清理",
+    "group": "维护与本地诊断",
+    "source": "maintenance/orphan_cleanup_page.dart"
+  },
+  {
+    "route": "flow-maintenance-orphans-error",
+    "title": "数据清理",
+    "group": "维护与本地诊断",
+    "source": "maintenance/orphan_cleanup_page.dart"
+  },
+  {
+    "route": "flow-maintenance-orphans-confirm",
+    "title": "数据清理",
+    "group": "维护与本地诊断",
+    "source": "maintenance/orphan_cleanup_page.dart"
+  },
+  {
+    "route": "flow-maintenance-orphans-partial",
+    "title": "数据清理",
+    "group": "维护与本地诊断",
+    "source": "maintenance/orphan_cleanup_page.dart"
+  },
+  {
+    "route": "flow-auto-billing",
+    "title": "截图自动记账",
+    "group": "自动化与识别",
+    "source": "automation/auto_billing_settings_page.dart"
+  },
+  {
+    "route": "flow-welcome-currency-picker",
+    "title": "欢迎 · 全部币种与搜索",
+    "group": "启动与分享",
+    "source": "auth/welcome_page.dart"
+  },
+  {
+    "route": "flow-ledgers-empty",
+    "title": "账本 · 无账本与创建",
+    "group": "账本与共享",
+    "source": "main/ledgers_page_new.dart"
+  },
+  {
+    "route": "flow-ledgers-remote",
+    "title": "账本 · 云端独立账本",
+    "group": "账本与共享",
+    "source": "main/ledgers_page_new.dart"
+  },
+  {
+    "route": "flow-ledgers-loading",
+    "title": "账本 · 云端加载本地可用",
+    "group": "账本与共享",
+    "source": "main/ledgers_page_new.dart"
+  },
+  {
+    "route": "flow-ledgers-error",
+    "title": "账本 · 云端错误与重试",
+    "group": "账本与共享",
+    "source": "main/ledgers_page_new.dart"
+  },
+  {
+    "route": "flow-ledgers-editor",
+    "title": "账本 · 编辑者操作范围",
+    "group": "账本与共享",
+    "source": "main/ledgers_page_new.dart"
+  },
+  {
+    "route": "flow-ledger-create",
+    "title": "账本 · 新建美元与28日起始日",
+    "group": "账本与共享",
+    "source": "main/ledgers_page_new.dart"
+  },
+  {
+    "route": "flow-ledger-remote-actions",
+    "title": "账本 · 云端操作菜单",
+    "group": "账本与共享",
+    "source": "main/ledgers_page_new.dart"
+  },
+  {
+    "route": "flow-ledger-period",
+    "title": "账本 · 月起始日选择",
+    "group": "账本与共享",
+    "source": "main/ledgers_page_new.dart"
+  },
+  {
+    "route": "flow-ledger-currencies",
+    "title": "账本 · 全部币种选择",
+    "group": "账本与共享",
+    "source": "main/ledgers_page_new.dart"
+  },
+  {
+    "route": "flow-ledger-conflict",
+    "title": "账本 · 冲突处理",
+    "group": "账本与共享",
+    "source": "main/ledgers_page_new.dart"
+  },
+  {
+    "route": "flow-transaction-states",
+    "title": "账单行 · 全部场景用例",
+    "group": "组件验收",
+    "source": "widgets/biz/transaction_list_item.dart"
+  }
+]

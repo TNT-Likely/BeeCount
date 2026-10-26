@@ -1,0 +1,367 @@
+#bee-immersive-suite .rf119-approved-poster{--brand: #facb16; --brand-soft: #fff9df; --page: #f3f4f6; --surface: #fff; --soft: #f5f6f7; --ink: #292d31; --muted: #858a91; --line: #e9ebef; --good: #25856d; --bad: #bd5d50; --radius: 22px; color-scheme: light; font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; color: var(--ink); background: var(--page); font-size: 14px;}
+#bee-immersive-suite .rf119-approved-poster *{box-sizing: border-box;}
+#bee-immersive-suite .rf119-approved-poster{margin: 0px;}
+#bee-immersive-suite .rf119-approved-poster button,#bee-immersive-suite .rf119-approved-poster input,#bee-immersive-suite .rf119-approved-poster select{font: inherit;}
+#bee-immersive-suite .rf119-approved-poster button,#bee-immersive-suite .rf119-approved-poster select{cursor: pointer;}
+#bee-immersive-suite .rf119-approved-poster button,#bee-immersive-suite .rf119-approved-poster a,#bee-immersive-suite .rf119-approved-poster input,#bee-immersive-suite .rf119-approved-poster select{touch-action: manipulation;}
+#bee-immersive-suite .rf119-approved-poster button{color: inherit; background: none; border: 0px;}
+#bee-immersive-suite .rf119-approved-poster button:disabled{opacity: 0.45; cursor: default;}
+#bee-immersive-suite .rf119-approved-poster button:focus-visible,#bee-immersive-suite .rf119-approved-poster a:focus-visible,#bee-immersive-suite .rf119-approved-poster input:focus-visible,#bee-immersive-suite .rf119-approved-poster select:focus-visible{outline: rgb(70, 120, 217) solid 3px; outline-offset: 3px;}
+#bee-immersive-suite .rf119-approved-poster a{color: inherit;}
+#bee-immersive-suite .rf119-approved-poster h1,#bee-immersive-suite .rf119-approved-poster h2,#bee-immersive-suite .rf119-approved-poster h3,#bee-immersive-suite .rf119-approved-poster p{margin: 0px;}
+#bee-immersive-suite .rf119-approved-poster h1{font-size: 30px; letter-spacing: -1px;}
+#bee-immersive-suite .rf119-approved-poster h2{font-size: 20px; letter-spacing: -0.4px;}
+#bee-immersive-suite .rf119-approved-poster h3{font-size: 15px;}
+#bee-immersive-suite .rf119-approved-poster .muted{color: var(--muted);}
+#bee-immersive-suite .rf119-approved-poster .icon{width: 19px; height: 19px; display: inline-block; vertical-align: middle; flex-shrink: 0; stroke: currentcolor; stroke-width: 1.6; fill: none; stroke-linecap: round; stroke-linejoin: round;}
+#bee-immersive-suite .rf119-approved-poster .brandmark{display: inline-flex; gap: 7px; align-items: center; color: var(--ink);}
+#bee-immersive-suite .rf119-approved-poster .brandmark svg{color: rgb(250, 203, 22); width: 27px; height: 27px; flex-shrink: 0;}
+#bee-immersive-suite .rf119-approved-poster .brandmark b{font-size: 11px; line-height: 1.3;}
+#bee-immersive-suite .rf119-approved-poster .brandmark small{display: block; letter-spacing: 1.2px; font-size: 6px; color: var(--muted); margin-top: 2px;}
+#bee-immersive-suite .rf119-approved-poster .top{max-width: 1320px; margin: 0px auto; padding: 40px 28px 22px;}
+#bee-immersive-suite .rf119-approved-poster .eyebrow{font-size: 10px; letter-spacing: 2px; color: var(--muted); margin-bottom: 9px; font-weight: 600;}
+#bee-immersive-suite .rf119-approved-poster .intro{display: flex; align-items: center; justify-content: space-between; gap: 24px;}
+#bee-immersive-suite .rf119-approved-poster .intro p{line-height: 1.8; max-width: 710px; color: var(--muted); margin-top: 10px;}
+#bee-immersive-suite .rf119-approved-poster .badge{background: var(--surface); border: 1px solid var(--line); padding: 9px 13px; border-radius: 99px; font-size: 11px; white-space: nowrap;}
+#bee-immersive-suite .rf119-approved-poster .nav{display: flex; flex-wrap: wrap; gap: 8px; margin-top: 23px;}
+#bee-immersive-suite .rf119-approved-poster .nav a{padding: 9px 13px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); text-decoration: none; font-size: 12px;}
+#bee-immersive-suite .rf119-approved-poster .stage{max-width: 1264px; margin: 0px auto; display: grid; grid-template-columns: minmax(390px, 1fr) 350px; gap: 24px; padding: 0px 0px 32px;}
+#bee-immersive-suite .rf119-approved-poster .preview-wrap{background: rgb(233, 236, 239); border-radius: 28px; padding: 26px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; min-width: 0px;}
+#bee-immersive-suite .rf119-approved-poster .preview-caption{font-size: 11px; color: rgb(119, 126, 134); margin-bottom: 14px; align-self: flex-start; display: flex; justify-content: space-between; width: 100%; gap: 8px;}
+#bee-immersive-suite .rf119-approved-poster .phone{width: 398px; height: 844px; max-width: 100%; background: var(--soft); border: 1px solid var(--line); border-radius: 36px; overflow: hidden; position: relative; display: flex; flex-direction: column; isolation: isolate; box-shadow: rgba(32, 36, 43, 0.03) 0px 12px 28px; color: var(--ink);}
+#bee-immersive-suite .rf119-approved-poster .phone.short{width: 320px; height: 568px; border-radius: 29px;}
+#bee-immersive-suite .rf119-approved-poster .statusbar{height: 42px; flex-shrink: 0; padding: 15px 24px 8px; font-size: 11px; font-weight: 650; display: flex; align-items: center; justify-content: space-between;}
+#bee-immersive-suite .rf119-approved-poster .status-icons{display: flex; align-items: center; gap: 4px;}
+#bee-immersive-suite .rf119-approved-poster .status-icons .icon{width: 14px; height: 14px;}
+#bee-immersive-suite .rf119-approved-poster .phone-head{height: 47px; display: flex; gap: 12px; align-items: center; padding: 0px 18px; flex-shrink: 0;}
+#bee-immersive-suite .rf119-approved-poster .phone-head h2{font-size: 18px; flex: 1 1 0%;}
+#bee-immersive-suite .rf119-approved-poster .icon-btn{width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; border-radius: 8px;}
+#bee-immersive-suite .rf119-approved-poster .icon-btn:hover{background: var(--line);}
+#bee-immersive-suite .rf119-approved-poster .kind-tabs{display: flex; gap: 4px; margin: 8px 16px 10px; background: var(--line); padding: 3px; border-radius: 11px; flex-shrink: 0;}
+#bee-immersive-suite .rf119-approved-poster .kind-tabs button{padding: 8px 12px; flex: 1 1 0%; white-space: nowrap; border-radius: 8px; color: var(--muted); font-size: 11px;}
+#bee-immersive-suite .rf119-approved-poster .kind-tabs button.active{background: var(--surface); color: var(--ink); box-shadow: rgba(0, 0, 0, 0.027) 0px 1px 4px;}
+#bee-immersive-suite .rf119-approved-poster .poster-scroll{overflow: auto; padding: 2px 16px 16px; min-height: 0px; flex: 1 1 0%; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: rgb(191, 196, 203) transparent;}
+#bee-immersive-suite .rf119-approved-poster .preview-note{font-size: 9px; color: var(--muted); text-align: center; line-height: 1.7; margin: 11px 0px 2px;}
+#bee-immersive-suite .rf119-approved-poster .phone-actions{padding: 10px 16px 5px; display: flex; gap: 10px; flex-shrink: 0; border-top: 1px solid var(--line); background: var(--soft);}
+#bee-immersive-suite .rf119-approved-poster .btn{min-height: 42px; padding: 10px 15px; border-radius: 12px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; gap: 7px; border: 1px solid transparent;}
+#bee-immersive-suite .rf119-approved-poster .btn.primary{background: var(--brand); color: var(--brand-ink,#292817);}
+#bee-immersive-suite .rf119-approved-poster .btn.secondary{background: var(--surface); border-color: var(--line);}
+#bee-immersive-suite .rf119-approved-poster .phone-actions .btn{flex: 1 1 0%;}
+#bee-immersive-suite .rf119-approved-poster .home-indicator{flex-shrink: 0; height: 23px; display: flex; align-items: center; justify-content: center;}
+#bee-immersive-suite .rf119-approved-poster .home-indicator::after{content: ""; width: 110px; height: 4px; border-radius: 9px; background: var(--ink);}
+#bee-immersive-suite .rf119-approved-poster .side{display: flex; flex-direction: column; gap: 14px;}
+#bee-immersive-suite .rf119-approved-poster .panel{background: var(--surface); padding: 22px; border-radius: 22px; border: 1px solid var(--line);}
+#bee-immersive-suite .rf119-approved-poster .panel h3{margin-bottom: 17px;}
+#bee-immersive-suite .rf119-approved-poster .field{display: flex; flex-direction: column; gap: 7px; margin-bottom: 15px;}
+#bee-immersive-suite .rf119-approved-poster .field:last-child{margin: 0px;}
+#bee-immersive-suite .rf119-approved-poster .field label,#bee-immersive-suite .rf119-approved-poster .field-label{font-size: 11px; color: var(--muted);}
+#bee-immersive-suite .rf119-approved-poster select{appearance: auto; width: 100%; min-height: 38px; border: 1px solid var(--line); border-radius: 9px; padding: 7px 9px; background: var(--surface); color: var(--ink);}
+#bee-immersive-suite .rf119-approved-poster .split{display: grid; grid-template-columns: 1fr 1fr; gap: 10px;}
+#bee-immersive-suite .rf119-approved-poster .toggle{display: flex; align-items: center; justify-content: space-between; gap: 15px; font-size: 12px; min-height: 35px;}
+#bee-immersive-suite .rf119-approved-poster .toggle input{accent-color: rgb(141, 118, 12); width: 16px; height: 16px; margin: 0px;}
+#bee-immersive-suite .rf119-approved-poster .subtext{font-size: 11px; color: var(--muted); line-height: 1.8; margin-top: 10px;}
+#bee-immersive-suite .rf119-approved-poster .tokens{display: flex; gap: 5px; margin-top: 13px;}
+#bee-immersive-suite .rf119-approved-poster .tokens span{height: 18px; border-radius: 5px; flex: 1 1 0%; border: 1px solid rgba(0, 0, 0, 0.03);}
+#bee-immersive-suite .rf119-approved-poster .mini-number{font-size: 10px; color: var(--muted); font-variant-numeric: tabular-nums;}
+#bee-immersive-suite .rf119-approved-poster .section{max-width: 1264px; margin: 0px auto; padding-bottom: 38px; scroll-margin-top: 20px;}
+#bee-immersive-suite .rf119-approved-poster .section-head{display: flex; justify-content: space-between; align-items: flex-start; margin: 4px 0px 18px; gap: 24px;}
+#bee-immersive-suite .rf119-approved-poster .section-head p{font-size: 12px; line-height: 1.7; color: var(--muted); margin-top: 8px; max-width: 710px;}
+#bee-immersive-suite .rf119-approved-poster .section-label{font-size: 10px; color: var(--muted); margin-bottom: 8px; letter-spacing: 1px;}
+#bee-immersive-suite .rf119-approved-poster .gallery{display: grid; grid-template-columns: repeat(3, minmax(0px, 1fr)); gap: 18px;}
+#bee-immersive-suite .rf119-approved-poster .gallery-item{min-width: 0px; padding: 19px; background: var(--surface); border: 1px solid var(--line); border-radius: 24px; display: flex; flex-direction: column;}
+#bee-immersive-suite .rf119-approved-poster .gallery-item h3{margin-bottom: 7px;}
+#bee-immersive-suite .rf119-approved-poster .gallery-item > p{font-size: 11px; color: var(--muted); line-height: 1.8; margin-bottom: 17px; min-height: 38px;}
+#bee-immersive-suite .rf119-approved-poster .gallery-art{background: var(--soft); padding: 16px; border-radius: 16px; flex: 1 1 0%; min-width: 0px;}
+#bee-immersive-suite .rf119-approved-poster .gallery-art .poster{max-width: 330px; margin: auto;}
+#bee-immersive-suite .rf119-approved-poster .gallery-bottom{display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 13px;}
+#bee-immersive-suite .rf119-approved-poster .text-button{font-size: 11px; text-decoration: underline; text-underline-offset: 4px; padding: 3px 0px;}
+#bee-immersive-suite .rf119-approved-poster .text-button .icon{width: 13px; height: 13px;}
+#bee-immersive-suite .rf119-approved-poster .poster{--paper: #fffefa; --p-ink: #292d31; --p-muted: #8c8d88; --p-line: #e8e7dd; --p-soft: #f7f7f2; container-type: inline-size; position: relative; border: 1px solid var(--p-line); border-radius: 8px; background: var(--paper); color: var(--p-ink); width: 100%; isolation: isolate; overflow: hidden;}
+#bee-immersive-suite .rf119-approved-poster .poster-inner{position: relative; z-index: 1; padding: 6.4cqw; min-height: 165cqw; display: flex; flex-direction: column; font-size: 3.25cqw; line-height: 1.45;}
+#bee-immersive-suite .rf119-approved-poster .poster .brandmark b{font-size: 3cqw;}
+#bee-immersive-suite .rf119-approved-poster .poster .brandmark small{font-size: 1.6cqw; color: var(--p-muted);}
+#bee-immersive-suite .rf119-approved-poster .poster .brandmark svg{width: 7.4cqw; height: 7.4cqw;}
+#bee-immersive-suite .rf119-approved-poster .poster .brandmark{gap: 1.9cqw; color: var(--p-ink);}
+#bee-immersive-suite .rf119-approved-poster .poster-top{display: flex; align-items: center; justify-content: space-between; gap: 3cqw;}
+#bee-immersive-suite .rf119-approved-poster .poster-top > .serial{font-size: 2.1cqw; letter-spacing: 0.6px; color: var(--p-muted);}
+#bee-immersive-suite .rf119-approved-poster .poster .overline{color: var(--p-muted); font-size: 2.7cqw; letter-spacing: 0.7px; margin-bottom: 2.4cqw;}
+#bee-immersive-suite .rf119-approved-poster .poster-title{font-size: 7cqw; line-height: 1.25; letter-spacing: -0.4px; font-weight: 700; overflow-wrap: anywhere;}
+#bee-immersive-suite .rf119-approved-poster .poster-sub{font-size: 3cqw; color: var(--p-muted); margin-top: 2cqw;}
+#bee-immersive-suite .rf119-approved-poster .poster-footer{display: flex; align-items: center; justify-content: space-between; gap: 4cqw; border-top: 1px solid var(--p-line); padding-top: 3.8cqw; margin-top: auto; color: var(--p-muted); font-size: 2.3cqw; line-height: 1.6;}
+#bee-immersive-suite .rf119-approved-poster .poster-footer span:first-child{color: var(--p-ink);}
+#bee-immersive-suite .rf119-approved-poster .profile-intro{display: flex; align-items: center; justify-content: space-between; gap: 3cqw; margin-top: 9cqw;}
+#bee-immersive-suite .rf119-approved-poster .avatar{display: grid; place-items: center; width: 12cqw; height: 12cqw; border-radius: 38%; background: var(--p-soft); border: 1px solid var(--p-line); flex-shrink: 0;}
+#bee-immersive-suite .rf119-approved-poster .avatar .icon{width: 6cqw; height: 6cqw; color: var(--p-muted);}
+#bee-immersive-suite .rf119-approved-poster .hero-days{position: relative; margin: 7cqw 0px; min-height: 48cqw; display: flex; flex-direction: column; justify-content: center; align-items: flex-start;}
+#bee-immersive-suite .rf119-approved-poster .hero-days::before{content: ""; position: absolute; width: 44cqw; height: 44cqw; background: var(--brand); border-radius: 50%; left: 30cqw; top: 2cqw; z-index: -1; opacity: 0.95;}
+#bee-immersive-suite .rf119-approved-poster .hero-days .large{font-size: 28cqw; letter-spacing: -1.8cqw; line-height: 1.15; font-weight: 750; max-width: 100%; overflow-wrap: anywhere;}
+#bee-immersive-suite .rf119-approved-poster .hero-days .small{font-size: 3.8cqw; margin-top: 2cqw;}
+#bee-immersive-suite .rf119-approved-poster .poster-stats{display: grid; grid-template-columns: repeat(2, minmax(0px, 1fr)); border-top: 1px solid var(--p-line); border-bottom: 1px solid var(--p-line); padding: 5cqw 0px; margin-bottom: 6cqw; gap: 3cqw;}
+#bee-immersive-suite .rf119-approved-poster .poster-stat b{display: block; font-size: 7cqw; font-weight: 650; letter-spacing: -0.2cqw; overflow-wrap: anywhere; line-height: 1.3;}
+#bee-immersive-suite .rf119-approved-poster .poster-stat span{display: block; color: var(--p-muted); font-size: 2.8cqw; margin-top: 1cqw;}
+#bee-immersive-suite .rf119-approved-poster .journey{font-size: 4cqw; font-weight: 650; margin-bottom: 2.4cqw;}
+#bee-immersive-suite .rf119-approved-poster .journey-sub{font-size: 2.8cqw; color: var(--p-muted); line-height: 1.9; margin-bottom: 6cqw;}
+#bee-immersive-suite .rf119-approved-poster .mini-brand-tag{display: inline-flex; gap: 1cqw; align-items: center; color: var(--p-muted); font-size: 2.6cqw; border: 1px solid var(--p-line); padding: 1.2cqw 2cqw; border-radius: 99px;}
+#bee-immersive-suite .rf119-approved-poster .promo-title{margin-top: 13cqw; font-size: 10cqw; line-height: 1.28; letter-spacing: -0.5cqw; position: relative;}
+#bee-immersive-suite .rf119-approved-poster .highlight{position: relative; display: inline-block; z-index: 1;}
+#bee-immersive-suite .rf119-approved-poster .highlight::after{content: ""; position: absolute; bottom: 1.3cqw; left: 0px; right: 0px; height: 2.8cqw; background: var(--brand); z-index: -1;}
+#bee-immersive-suite .rf119-approved-poster .promo-features{display: grid; grid-template-columns: 1fr 1fr; gap: 5.5cqw 3cqw; margin: 9cqw 0px;}
+#bee-immersive-suite .rf119-approved-poster .promo-feature{display: flex; align-items: center; gap: 2cqw; min-width: 0px; font-size: 2.8cqw;}
+#bee-immersive-suite .rf119-approved-poster .promo-feature .icon{width: 4.2cqw; height: 4.2cqw; flex-shrink: 0;}
+#bee-immersive-suite .rf119-approved-poster .scan-card{display: flex; align-items: center; gap: 4cqw; background: var(--p-soft); padding: 3cqw; border: 1px solid var(--p-line); border-radius: 3cqw; margin-bottom: 6cqw;}
+#bee-immersive-suite .rf119-approved-poster .qr{background: rgb(255, 255, 255); flex-shrink: 0; width: 22cqw; height: 22cqw; border-radius: 1.5cqw; display: grid; place-items: center; padding: 1.4cqw;}
+#bee-immersive-suite .rf119-approved-poster .qr svg{width: 100%; height: 100%;}
+#bee-immersive-suite .rf119-approved-poster .scan-card b{font-size: 3.4cqw; display: block; margin-bottom: 1.7cqw;}
+#bee-immersive-suite .rf119-approved-poster .scan-card small{font-size: 2.35cqw; color: var(--p-muted); line-height: 1.7; display: block; overflow-wrap: anywhere;}
+#bee-immersive-suite .rf119-approved-poster .tags-open{display: flex; gap: 1.5cqw; margin-top: 2.3cqw;}
+#bee-immersive-suite .rf119-approved-poster .tags-open span{font-size: 2.4cqw; border: 1px solid var(--p-line); border-radius: 1cqw; padding: 0.7cqw 1.5cqw;}
+#bee-immersive-suite .rf119-approved-poster .financial-heading{margin-top: 8cqw; display: flex; align-items: flex-start; justify-content: space-between; gap: 3cqw;}
+#bee-immersive-suite .rf119-approved-poster .financial-heading .year{font-size: 14cqw; font-weight: 750; line-height: 1.1; letter-spacing: -0.6cqw;}
+#bee-immersive-suite .rf119-approved-poster .financial-heading .period{font-size: 7.5cqw; font-weight: 700; line-height: 1.2; overflow-wrap: anywhere;}
+#bee-immersive-suite .rf119-approved-poster .financial-heading .period small{font-size: 3.2cqw; font-weight: 400; display: block; color: var(--p-muted); margin-top: 2.4cqw;}
+#bee-immersive-suite .rf119-approved-poster .date-seal{height: 10cqw; width: 10cqw; border-radius: 2.5cqw; background: var(--brand); display: grid; place-items: center; flex-shrink: 0;}
+#bee-immersive-suite .rf119-approved-poster .date-seal .icon{width: 5cqw; height: 5cqw; color: rgb(57, 53, 31);}
+#bee-immersive-suite .rf119-approved-poster .expense-main{margin: 7cqw 0px 5cqw;}
+#bee-immersive-suite .rf119-approved-poster .expense-main .amount{font-size: 10.5cqw; font-weight: 720; line-height: 1.2; letter-spacing: -0.35cqw; overflow-wrap: anywhere; max-width: 100%;}
+#bee-immersive-suite .rf119-approved-poster .expense-main .amount .currency{font-size: 4.3cqw; margin-right: 1cqw; letter-spacing: 0px;}
+#bee-immersive-suite .rf119-approved-poster .paired{display: grid; grid-template-columns: 1fr 1fr; gap: 4cqw; background: var(--p-soft); border-radius: 2.8cqw; padding: 3cqw; margin-bottom: 5cqw;}
+#bee-immersive-suite .rf119-approved-poster .paired span{display: block; font-size: 2.5cqw; color: var(--p-muted); margin-bottom: 1.3cqw;}
+#bee-immersive-suite .rf119-approved-poster .paired b{font-size: 4.2cqw; line-height: 1.3; display: block; overflow-wrap: anywhere;}
+#bee-immersive-suite .rf119-approved-poster .facts{display: flex; gap: 2cqw; flex-wrap: wrap; margin: 0px 0px 5cqw; font-size: 2.55cqw; color: var(--p-muted);}
+#bee-immersive-suite .rf119-approved-poster .facts b{color: var(--p-ink); font-weight: 550;}
+#bee-immersive-suite .rf119-approved-poster .facts > span{flex: 1 1 0%; min-width: 35%; display: flex; justify-content: space-between; gap: 1.5cqw;}
+#bee-immersive-suite .rf119-approved-poster .ranking{display: grid; grid-template-columns: 1fr 1fr; gap: 6cqw; margin-bottom: 5cqw;}
+#bee-immersive-suite .rf119-approved-poster .ranking h4{font-size: 3.1cqw; font-weight: 650; margin: 0px 0px 3cqw; display: flex; justify-content: space-between;}
+#bee-immersive-suite .rf119-approved-poster .ranking h4 small{color: var(--p-muted); font-size: 2.1cqw; font-weight: 400; align-self: center;}
+#bee-immersive-suite .rf119-approved-poster .rank-row{margin-bottom: 2.5cqw;}
+#bee-immersive-suite .rf119-approved-poster .rank-row > div{display: flex; justify-content: space-between; gap: 2cqw; font-size: 2.75cqw; line-height: 1.5;}
+#bee-immersive-suite .rf119-approved-poster .rank-row > div span{display: flex; align-items: center; gap: 1cqw; min-width: 0px;}
+#bee-immersive-suite .rf119-approved-poster .rank-row .icon{width: 3cqw; height: 3cqw;}
+#bee-immersive-suite .rf119-approved-poster .rank-row em{font-style: normal; color: var(--p-muted); font-size: 2.5cqw;}
+#bee-immersive-suite .rf119-approved-poster .rank-bar{height: 1.2cqw; background: var(--p-line); border-radius: 20px; margin-top: 1.3cqw; overflow: hidden;}
+#bee-immersive-suite .rf119-approved-poster .rank-bar::before{content: ""; display: block; width: var(--pct); height: 100%; background: var(--brand); border-radius: inherit;}
+#bee-immersive-suite .rf119-approved-poster .financial-footnote{font-size: 2.6cqw; color: var(--p-muted); line-height: 1.7; margin-bottom: 5cqw;}
+#bee-immersive-suite .rf119-approved-poster .change{color: var(--p-ink); display: inline-block; margin-bottom: 4cqw; font-size: 2.7cqw;}
+#bee-immersive-suite .rf119-approved-poster .change b{font-weight: 600; background: var(--p-soft); padding: 1cqw 1.4cqw; border-radius: 1.4cqw;}
+#bee-immersive-suite .rf119-approved-poster .ledger-span{font-size: 2.55cqw; color: var(--p-muted); margin: 3cqw 0px 0px;}
+#bee-immersive-suite .rf119-approved-poster .year-bars{display: flex; align-items: flex-end; height: 17cqw; gap: 1cqw; border-bottom: 1px solid var(--p-line); margin-bottom: 2cqw;}
+#bee-immersive-suite .rf119-approved-poster .year-bars span{flex: 1 1 0%; background: var(--brand); border-radius: 0.7cqw 0.7cqw 0px 0px; opacity: 0.23; height: var(--height); min-height: 2px;}
+#bee-immersive-suite .rf119-approved-poster .year-bars span.current{opacity: 1;}
+#bee-immersive-suite .rf119-approved-poster .year-bars span.future{background: var(--p-line); opacity: 0.65;}
+#bee-immersive-suite .rf119-approved-poster .bar-labels{display: flex; justify-content: space-between; color: var(--p-muted); font-size: 2.3cqw; margin-bottom: 4cqw;}
+#bee-immersive-suite .rf119-approved-poster .year-long .poster-inner{min-height: auto;}
+#bee-immersive-suite .rf119-approved-poster .year-long section{border-top: 1px solid var(--p-line); padding: 6cqw 0px;}
+#bee-immersive-suite .rf119-approved-poster .year-long section h4{font-size: 4.2cqw; margin: 0px 0px 4cqw;}
+#bee-immersive-suite .rf119-approved-poster .year-long .chapter-id{font-size: 2.5cqw; color: var(--p-muted); display: block; margin-bottom: 2cqw;}
+#bee-immersive-suite .rf119-approved-poster .insight-pairs{display: grid; grid-template-columns: 1fr 1fr; gap: 5cqw 4cqw;}
+#bee-immersive-suite .rf119-approved-poster .insight-pairs span{display: block; color: var(--p-muted); font-size: 2.8cqw; margin-bottom: 1cqw;}
+#bee-immersive-suite .rf119-approved-poster .insight-pairs b{font-size: 4.7cqw; display: block; overflow-wrap: anywhere;}
+#bee-immersive-suite .rf119-approved-poster .moment{margin-bottom: 4cqw; display: flex; gap: 3cqw; align-items: center;}
+#bee-immersive-suite .rf119-approved-poster .moment > span{background: var(--p-soft); border-radius: 2cqw; width: 9cqw; height: 9cqw; display: grid; place-items: center;}
+#bee-immersive-suite .rf119-approved-poster .moment .icon{width: 4.5cqw; height: 4.5cqw;}
+#bee-immersive-suite .rf119-approved-poster .moment b{font-size: 3.5cqw; display: block;}
+#bee-immersive-suite .rf119-approved-poster .moment small{font-size: 2.5cqw; color: var(--p-muted); display: block; margin-top: 1cqw;}
+#bee-immersive-suite .rf119-approved-poster .receipt{border: 0px; border-radius: 0px; background: var(--paper); mask-image: linear-gradient(rgb(0, 0, 0), rgb(0, 0, 0)), linear-gradient(135deg, transparent 25%, rgb(0, 0, 0) 25%), linear-gradient(225deg, transparent 25%, rgb(0, 0, 0) 25%); mask-size: 100% calc(100% - 7px), 12px 12px, 12px 12px; mask-position: 0px 0px, 0px 100%, 0px 100%; mask-repeat: no-repeat, repeat-x, repeat-x;}
+#bee-immersive-suite .rf119-approved-poster .receipt .poster-inner{padding: 7cqw 7cqw 9cqw; min-height: 155cqw; font-family: ui-monospace, SFMono-Regular, "PingFang SC", monospace;}
+#bee-immersive-suite .rf119-approved-poster .receipt-head{text-align: center; padding-bottom: 6cqw;}
+#bee-immersive-suite .rf119-approved-poster .receipt-head .brandmark{flex-direction: column; gap: 2cqw;}
+#bee-immersive-suite .rf119-approved-poster .receipt-head .brandmark svg{width: 9cqw; height: 9cqw;}
+#bee-immersive-suite .rf119-approved-poster .receipt-head .brandmark b{font-size: 4.5cqw;}
+#bee-immersive-suite .rf119-approved-poster .receipt-head .brandmark small{font-size: 2.2cqw; letter-spacing: 0.8px;}
+#bee-immersive-suite .rf119-approved-poster .receipt-amount{text-align: center; border-top: 1px dashed var(--p-line); border-bottom: 1px dashed var(--p-line); padding: 7cqw 0px; margin-bottom: 6cqw;}
+#bee-immersive-suite .rf119-approved-poster .receipt-amount > strong{font-size: 12cqw; letter-spacing: -0.65cqw; line-height: 1.2; display: block; overflow-wrap: anywhere;}
+#bee-immersive-suite .rf119-approved-poster .receipt-amount > span{font-size: 3.1cqw; display: block; margin-top: 2.3cqw; color: var(--p-muted);}
+#bee-immersive-suite .rf119-approved-poster .receipt-kv{display: grid; grid-template-columns: 26% 1fr; gap: 3.8cqw 4cqw; font-size: 3cqw; line-height: 1.7; margin-bottom: 6cqw;}
+#bee-immersive-suite .rf119-approved-poster .receipt-kv > dt{color: var(--p-muted);}
+#bee-immersive-suite .rf119-approved-poster .receipt-kv > dd{margin: 0px; text-align: right; overflow-wrap: anywhere;}
+#bee-immersive-suite .rf119-approved-poster .receipt-tags{display: flex; justify-content: flex-end; gap: 1.5cqw; flex-wrap: wrap;}
+#bee-immersive-suite .rf119-approved-poster .receipt-tags span{padding: 0.6cqw 1.6cqw; background: var(--brand-soft); border-radius: 99px; font-size: 2.6cqw; color: rgb(140, 116, 26);}
+#bee-immersive-suite .rf119-approved-poster .receipt-close{margin-top: auto; border-top: 1px dashed var(--p-line); padding-top: 6cqw; text-align: center; font-size: 2.7cqw; line-height: 2; color: var(--p-muted);}
+#bee-immersive-suite .rf119-approved-poster .receipt-bars{width: 60%; height: 9cqw; margin: 3cqw auto 1.5cqw; background: repeating-linear-gradient(90deg,var(--p-ink) 0 1px,transparent 1px 3px,var(--p-ink) 3px 5px,transparent 5px 8px,var(--p-ink) 8px 9px,transparent 9px 13px); opacity: 0.65;}
+#bee-immersive-suite .rf119-approved-poster .receipt-close small{font-size: 2.1cqw;}
+#bee-immersive-suite .rf119-approved-poster .receipt-close .receipt-bars{display: none;}
+#bee-immersive-suite .rf119-approved-poster .paper-dark .poster:not(.receipt){--paper: #292c2d; --p-ink: #f0f0e9; --p-muted: #a6aaa4; --p-line: #454847; --p-soft: #333635;}
+#bee-immersive-suite .rf119-approved-poster .paper-dark .hero-days::before{opacity: 0.85;}
+#bee-immersive-suite .rf119-approved-poster .paper-dark .hero-days .large{position: relative; z-index: 1;}
+#bee-immersive-suite .rf119-approved-poster .paper-dark .hero-days::after{content: ""; position: absolute; inset: 0px; background: linear-gradient(90deg,var(--paper) 2%,transparent 90%); z-index: -1;}
+#bee-immersive-suite .rf119-approved-poster .skin-art{position: absolute; inset: 0px; overflow: hidden; z-index: 0; pointer-events: none;}
+#bee-immersive-suite .rf119-approved-poster .skin-art span{position: absolute; background: var(--brand); width: 4cqw; height: 1.5cqw; border-radius: 1px; opacity: 0.35; animation: 6s ease-in-out 0s infinite normal none running float; transform: rotate(25deg);}
+#bee-immersive-suite .rf119-approved-poster .skin-art span:nth-child(1){top: 8%; left: 20%;}
+#bee-immersive-suite .rf119-approved-poster .skin-art span:nth-child(2){top: 27%; left: 87%; animation-delay: -1s; transform: rotate(85deg);}
+#bee-immersive-suite .rf119-approved-poster .skin-art span:nth-child(3){top: 63%; left: 5%; animation-delay: -2s;}
+#bee-immersive-suite .rf119-approved-poster .skin-art span:nth-child(4){top: 91%; left: 72%; animation-delay: -3s;}
+#bee-immersive-suite .rf119-approved-poster .skin-cake .skin-art::before,#bee-immersive-suite .rf119-approved-poster .skin-cake .skin-art::after{content: ""; position: absolute; width: 65cqw; height: 65cqw; border-radius: 50%; filter: blur(22px); opacity: 0.2; animation: 7s ease-in-out 0s infinite normal none running glow;}
+#bee-immersive-suite .rf119-approved-poster .skin-cake .skin-art::before{background: rgb(237, 187, 209); top: -20cqw; right: -25cqw;}
+#bee-immersive-suite .rf119-approved-poster .skin-cake .skin-art::after{background: rgb(209, 196, 239); bottom: -30cqw; left: -25cqw; animation-delay: -2s;}
+#bee-immersive-suite .rf119-approved-poster .paused *{animation-play-state: paused !important;}
+#bee-immersive-suite .rf119-approved-poster .paused .skin-art span{transform: rotate(25deg);}
+@media (prefers-reduced-motion: reduce){#bee-immersive-suite .rf119-approved-poster *{animation: auto ease 0s 1 normal none running none !important; scroll-behavior: auto !important;}}
+#bee-immersive-suite .rf119-approved-poster .empty-poster{min-height: 153cqw; display: flex; align-items: center; justify-content: center; flex-direction: column; text-align: center;}
+#bee-immersive-suite .rf119-approved-poster .empty-poster .icon{width: 11cqw; height: 11cqw; color: var(--p-muted); margin-bottom: 7cqw;}
+#bee-immersive-suite .rf119-approved-poster .empty-poster h3{font-size: 5cqw; margin-bottom: 3cqw;}
+#bee-immersive-suite .rf119-approved-poster .empty-poster p{font-size: 3cqw; color: var(--p-muted); line-height: 1.8;}
+#bee-immersive-suite .rf119-approved-poster .preview-state{min-height: 360px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); padding: 24px;}
+#bee-immersive-suite .rf119-approved-poster .preview-state h3{font-size: 14px; margin: 15px 0px 8px;}
+#bee-immersive-suite .rf119-approved-poster .preview-state p{font-size: 11px; line-height: 1.8; color: var(--muted); max-width: 240px;}
+#bee-immersive-suite .rf119-approved-poster .preview-state .btn{margin-top: 20px;}
+#bee-immersive-suite .rf119-approved-poster .spinner{width: 24px; height: 24px; border-top-style: ; border-top-width: ; border-right-color: ; border-right-style: ; border-right-width: ; border-bottom-color: ; border-bottom-style: ; border-bottom-width: ; border-left-color: ; border-left-style: ; border-left-width: ; border-image-source: ; border-image-slice: ; border-image-width: ; border-image-outset: ; border-image-repeat: ; border-top-color: var(--brand); border-radius: 50%; animation: 1s linear 0s infinite normal none running spin;}
+#bee-immersive-suite .rf119-approved-poster .paused .spinner{animation-play-state: running !important;}
+#bee-immersive-suite .rf119-approved-poster .card-gallery{display: grid; grid-template-columns: 1fr 1fr; gap: 18px;}
+#bee-immersive-suite .rf119-approved-poster .card-example{background: var(--surface); padding: 22px; border-radius: 24px; border: 1px solid var(--line); min-width: 0px;}
+#bee-immersive-suite .rf119-approved-poster .example-head{display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 19px;}
+#bee-immersive-suite .rf119-approved-poster .example-head p{font-size: 11px; line-height: 1.8; color: var(--muted); margin-top: 6px;}
+#bee-immersive-suite .rf119-approved-poster .app-frame{background: var(--soft); padding: 16px; border-radius: 16px; min-height: 250px; display: flex; flex-direction: column; gap: 12px;}
+#bee-immersive-suite .rf119-approved-poster .app-card{background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 20px; min-width: 0px;}
+#bee-immersive-suite .rf119-approved-poster .card-overline{display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 11px; color: var(--muted); margin-bottom: 15px;}
+#bee-immersive-suite .rf119-approved-poster .app-card h4{margin: 0px; font-size: 15px;}
+#bee-immersive-suite .rf119-approved-poster .app-card .app-value{display: block; font-size: 33px; letter-spacing: -1px; line-height: 1.2; font-weight: 700; margin: 8px 0px 19px; overflow-wrap: anywhere;}
+#bee-immersive-suite .rf119-approved-poster .app-card .app-value small{font-size: 15px; margin-right: 3px; letter-spacing: 0px;}
+#bee-immersive-suite .rf119-approved-poster .app-stats{display: grid; grid-template-columns: 1fr 1fr; gap: 15px;}
+#bee-immersive-suite .rf119-approved-poster .app-stats span{color: var(--muted); font-size: 10px; display: block; margin-bottom: 7px;}
+#bee-immersive-suite .rf119-approved-poster .app-stats b{font-size: 14px; display: block; overflow-wrap: anywhere;}
+#bee-immersive-suite .rf119-approved-poster .mini-pill{font-size: 10px; border-radius: 99px; padding: 5px 8px; background: var(--soft); display: inline-flex; gap: 5px; align-items: center;}
+#bee-immersive-suite .rf119-approved-poster .mini-pill .icon{width: 12px; height: 12px;}
+#bee-immersive-suite .rf119-approved-poster .year-heading{display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; margin-bottom: 22px;}
+#bee-immersive-suite .rf119-approved-poster .year-heading strong{font-size: 37px; line-height: 1; letter-spacing: -2px;}
+#bee-immersive-suite .rf119-approved-poster .year-heading .brandmark{margin-top: 2px;}
+#bee-immersive-suite .rf119-approved-poster .annual-caption{font-size: 13px; margin: 14px 0px 4px;}
+#bee-immersive-suite .rf119-approved-poster .annual-mean{display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--line); padding-top: 16px; margin-top: 19px; gap: 12px; font-size: 11px; color: var(--muted);}
+#bee-immersive-suite .rf119-approved-poster .annual-mean b{font-size: 15px; color: var(--ink);}
+#bee-immersive-suite .rf119-approved-poster .budget-meta{display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 17px;}
+#bee-immersive-suite .rf119-approved-poster .budget-meta .app-value{font-size: 30px; margin: 6px 0px 0px;}
+#bee-immersive-suite .rf119-approved-poster .budget-meta > div:last-child{text-align: right; color: var(--muted); font-size: 10px;}
+#bee-immersive-suite .rf119-approved-poster .budget-meta > div:last-child b{font-size: 14px; display: block; color: var(--ink); margin: 7px 0px 3px;}
+#bee-immersive-suite .rf119-approved-poster .progress-track{height: 6px; border-radius: 99px; background: var(--line); margin: 20px 0px 12px; overflow: hidden;}
+#bee-immersive-suite .rf119-approved-poster .progress-track::before{content: ""; display: block; width: var(--progress); height: 100%; background: var(--brand); border-radius: inherit;}
+#bee-immersive-suite .rf119-approved-poster .warning .progress-track::before{background: rgb(213, 155, 50);}
+#bee-immersive-suite .rf119-approved-poster .over .progress-track::before{background: var(--bad);}
+#bee-immersive-suite .rf119-approved-poster .state-label{color: var(--good); background: rgba(37, 133, 109, 0.07); font-size: 10px; display: inline-flex; align-items: center; gap: 5px; border-radius: 99px; padding: 5px 8px;}
+#bee-immersive-suite .rf119-approved-poster .state-label.warning{color: rgb(155, 113, 29); background: rgba(213, 155, 50, 0.086);}
+#bee-immersive-suite .rf119-approved-poster .state-label.error{color: var(--bad); background: rgba(189, 93, 80, 0.07);}
+#bee-immersive-suite .rf119-approved-poster .state-label.neutral{color: var(--muted); background: var(--soft);}
+#bee-immersive-suite .rf119-approved-poster .state-label .icon{width: 12px; height: 12px;}
+#bee-immersive-suite .rf119-approved-poster .card-bottom{display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 10px; color: var(--muted); line-height: 1.7;}
+#bee-immersive-suite .rf119-approved-poster .card-bottom button{font-size: 10px; padding: 0px; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; white-space: nowrap;}
+#bee-immersive-suite .rf119-approved-poster .sync-title{display: flex; align-items: center; gap: 10px; margin-bottom: 16px;}
+#bee-immersive-suite .rf119-approved-poster .sync-title > .icon{width: 23px; height: 23px; color: var(--muted);}
+#bee-immersive-suite .rf119-approved-poster .sync-title h4{flex: 1 1 0%; font-size: 14px;}
+#bee-immersive-suite .rf119-approved-poster .sync-description{font-size: 11px; line-height: 1.8; color: var(--muted);}
+#bee-immersive-suite .rf119-approved-poster .sync-counts{display: flex; gap: 12px; border-top: 1px solid var(--line); padding-top: 15px; margin-top: 17px;}
+#bee-immersive-suite .rf119-approved-poster .sync-counts span{flex: 1 1 0%; color: var(--muted); font-size: 10px;}
+#bee-immersive-suite .rf119-approved-poster .sync-counts b{display: block; color: var(--ink); font-size: 14px; margin-top: 7px;}
+#bee-immersive-suite .rf119-approved-poster .sync-action{margin-top: 15px; font-size: 11px; display: flex; align-items: center; justify-content: space-between;}
+#bee-immersive-suite .rf119-approved-poster .sync-action .icon{width: 14px; height: 14px;}
+#bee-immersive-suite .rf119-approved-poster .support-title{display: flex; gap: 12px; align-items: center; margin-bottom: 17px;}
+#bee-immersive-suite .rf119-approved-poster .support-title > .brandmark svg{width: 38px; height: 38px;}
+#bee-immersive-suite .rf119-approved-poster .support-title h4{font-size: 15px;}
+#bee-immersive-suite .rf119-approved-poster .support-title p{font-size: 10px; color: var(--muted); margin-top: 6px;}
+#bee-immersive-suite .rf119-approved-poster .support-copy{font-size: 12px; line-height: 1.9; margin-bottom: 19px; color: var(--muted);}
+#bee-immersive-suite .rf119-approved-poster .support-actions{display: flex; gap: 8px;}
+#bee-immersive-suite .rf119-approved-poster .support-actions .btn{flex: 1 1 0%; min-height: 36px; font-size: 11px; padding: 7px 11px;}
+#bee-immersive-suite .rf119-approved-poster .provenance{background: var(--surface); border: 1px solid var(--line); border-radius: 22px; padding: 24px;}
+#bee-immersive-suite .rf119-approved-poster .provenance details{padding: 15px 0px; border-bottom: 1px solid var(--line);}
+#bee-immersive-suite .rf119-approved-poster .provenance details:last-child{border: 0px;}
+#bee-immersive-suite .rf119-approved-poster .provenance summary{font-weight: 600; font-size: 13px; cursor: pointer;}
+#bee-immersive-suite .rf119-approved-poster .provenance p,#bee-immersive-suite .rf119-approved-poster .provenance li{font-size: 12px; color: var(--muted); line-height: 1.9;}
+#bee-immersive-suite .rf119-approved-poster .provenance ul{padding-left: 20px; margin: 12px 0px 0px;}
+#bee-immersive-suite .rf119-approved-poster .question-grid{display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;}
+#bee-immersive-suite .rf119-approved-poster .question{background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 20px;}
+#bee-immersive-suite .rf119-approved-poster .question small{font-size: 10px; color: var(--muted);}
+#bee-immersive-suite .rf119-approved-poster .question h3{font-size: 14px; margin: 9px 0px;}
+#bee-immersive-suite .rf119-approved-poster .question p{font-size: 12px; color: var(--muted); line-height: 1.9;}
+#bee-immersive-suite .rf119-approved-poster .question .recommended{font-size: 11px; display: inline-block; background: var(--brand-soft); color: rgb(141, 119, 26); border-radius: 7px; padding: 5px 8px; margin-top: 13px;}
+#bee-immersive-suite .rf119-approved-poster .footer{max-width: 1264px; margin: auto; padding: 0px 0px 36px; color: var(--muted); font-size: 11px; line-height: 1.8;}
+#bee-immersive-suite .rf119-approved-poster .toast{position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%); background: rgb(44, 48, 52); color: rgb(255, 255, 255); padding: 12px 18px; border-radius: 13px; box-shadow: rgba(0, 0, 0, 0.133) 0px 8px 30px; max-width: calc(100% - 32px); font-size: 12px; line-height: 1.7; z-index: 50; display: flex; align-items: center; gap: 9px;}
+#bee-immersive-suite .rf119-approved-poster .toast .icon{width: 17px; height: 17px; flex-shrink: 0;}
+#bee-immersive-suite .rf119-approved-poster dialog{border: 1px solid var(--line); border-radius: 23px; background: var(--surface); color: var(--ink); padding: 0px; max-width: min(460px, 100% - 28px); width: 460px; max-height: calc(100dvh - 40px);}
+#bee-immersive-suite .rf119-approved-poster dialog::backdrop{background: rgba(32, 38, 44, 0.4); backdrop-filter: blur(3px);}
+#bee-immersive-suite .rf119-approved-poster .dialog-head{display: flex; align-items: center; justify-content: space-between; padding: 20px 22px 14px; gap: 15px; position: sticky; top: 0px; background: var(--surface); z-index: 3; border-bottom: 1px solid var(--line);}
+#bee-immersive-suite .rf119-approved-poster .dialog-body{padding: 20px 22px; overflow-wrap: anywhere; line-height: 1.8; font-size: 12px;}
+#bee-immersive-suite .rf119-approved-poster .dialog-body .toggle{min-height: 43px;}
+#bee-immersive-suite .rf119-approved-poster .dialog-actions{display: flex; justify-content: flex-end; gap: 8px; padding: 0px 22px 20px;}
+#bee-immersive-suite .rf119-approved-poster .dialog-body .preview-full{max-width: 360px; margin: auto;}
+#bee-immersive-suite .rf119-approved-poster .preview-modal{max-width: min(470px, 100% - 24px); width: 470px;}
+#bee-immersive-suite .rf119-approved-poster .preview-modal .dialog-body{background: var(--soft); padding: 18px;}
+#bee-immersive-suite .rf119-approved-poster .notice{padding: 12px 14px; background: var(--soft); border-radius: 12px; color: var(--muted); font-size: 11px; line-height: 1.8; margin-top: 12px;}
+#bee-immersive-suite .rf119-approved-poster .privacy-hidden{letter-spacing: 2px;}
+#bee-immersive-suite .rf119-approved-poster .theme-dark{--page: #1b1d1f; --surface: #292c2f; --soft: #222527; --ink: #eff1f2; --muted: #9ba1a7; --line: #363b3f; --brand-soft: #524814; color-scheme: dark;}
+#bee-immersive-suite .rf119-approved-poster .theme-dark .preview-wrap{background: rgb(21, 23, 25);}
+#bee-immersive-suite .rf119-approved-poster .theme-dark .phone{box-shadow: none;}
+#bee-immersive-suite .rf119-approved-poster .theme-dark .brandmark{color: var(--ink);}
+#bee-immersive-suite .rf119-approved-poster .theme-dark .poster .brandmark{color: var(--p-ink);}
+#bee-immersive-suite .rf119-approved-poster .theme-dark .gallery-art{background: rgb(31, 34, 36);}
+#bee-immersive-suite .rf119-approved-poster .theme-dark .question .recommended{color: rgb(242, 218, 117);}
+#bee-immersive-suite .rf119-approved-poster .theme-dark .receipt-tags span{background: rgb(255, 246, 217);}
+#bee-immersive-suite .rf119-approved-poster .theme-dark .qr{color-scheme: light;}
+#bee-immersive-suite .rf119-approved-poster .theme-dark .badge{background: var(--soft);}
+#bee-immersive-suite .rf119-approved-poster body.phone-only{background: var(--soft);}
+#bee-immersive-suite .rf119-approved-poster .phone-only .top,#bee-immersive-suite .rf119-approved-poster .phone-only .side,#bee-immersive-suite .rf119-approved-poster .phone-only .section,#bee-immersive-suite .rf119-approved-poster .phone-only .footer,#bee-immersive-suite .rf119-approved-poster .phone-only .preview-caption{display: none;}
+#bee-immersive-suite .rf119-approved-poster .phone-only .stage{display: block; padding: 0px; margin: 0px; max-width: none;}
+#bee-immersive-suite .rf119-approved-poster .phone-only .preview-wrap{padding: 0px; background: var(--soft); border-radius: 0px;}
+#bee-immersive-suite .rf119-approved-poster .phone-only .phone{width: 100%; height: 100dvh; border: 0px; border-radius: 0px; box-shadow: none; max-width: 480px;}
+#bee-immersive-suite .rf119-approved-poster .phone-only .phone.short{width: 100%; height: 100dvh; border-radius: 0px;}
+@media (max-width: 1320px){#bee-immersive-suite .rf119-approved-poster .stage,#bee-immersive-suite .rf119-approved-poster .section,#bee-immersive-suite .rf119-approved-poster .footer{margin-left: 28px; margin-right: 28px;}}
+@media (max-width: 900px){#bee-immersive-suite .rf119-approved-poster .stage{grid-template-columns: minmax(340px, 1fr) 290px; gap: 18px;}
+#bee-immersive-suite .rf119-approved-poster .panel{padding: 18px;}
+#bee-immersive-suite .rf119-approved-poster .preview-wrap{padding: 18px;}
+#bee-immersive-suite .rf119-approved-poster .gallery{grid-template-columns: repeat(2, minmax(0px, 1fr));}
+#bee-immersive-suite .rf119-approved-poster .question-grid{grid-template-columns: 1fr;}
+#bee-immersive-suite .rf119-approved-poster .intro{align-items: flex-start;}
+#bee-immersive-suite .rf119-approved-poster .badge{white-space: normal; line-height: 1.8; max-width: 180px;}}
+@media (max-width: 720px){#bee-immersive-suite .rf119-approved-poster .top{padding: 25px 16px 20px;}
+#bee-immersive-suite .rf119-approved-poster .intro{display: block;}
+#bee-immersive-suite .rf119-approved-poster .intro .badge{display: inline-block; margin-top: 15px; max-width: none;}
+#bee-immersive-suite .rf119-approved-poster .stage{display: flex; flex-direction: column; margin: 0px 16px 28px; padding: 0px;}
+#bee-immersive-suite .rf119-approved-poster .side{display: grid; grid-template-columns: 1fr 1fr; gap: 12px;}
+#bee-immersive-suite .rf119-approved-poster .side .panel:first-child{grid-column: 1 / -1;}
+#bee-immersive-suite .rf119-approved-poster .preview-wrap{padding: 16px;}
+#bee-immersive-suite .rf119-approved-poster .section,#bee-immersive-suite .rf119-approved-poster .footer{margin-left: 16px; margin-right: 16px;}
+#bee-immersive-suite .rf119-approved-poster .gallery,#bee-immersive-suite .rf119-approved-poster .card-gallery{grid-template-columns: 1fr;}
+#bee-immersive-suite .rf119-approved-poster .section-head{display: block;}
+#bee-immersive-suite .rf119-approved-poster .section-head .badge{display: inline-block; margin-top: 12px;}
+#bee-immersive-suite .rf119-approved-poster .poster-scroll{padding-left: 14px; padding-right: 14px;}
+#bee-immersive-suite .rf119-approved-poster .gallery-art .poster{max-width: 340px;}
+#bee-immersive-suite .rf119-approved-poster .question-grid{gap: 12px;}
+#bee-immersive-suite .rf119-approved-poster .app-frame{padding: 14px;}
+#bee-immersive-suite .rf119-approved-poster .phone{flex-shrink: 0;}
+#bee-immersive-suite .rf119-approved-poster .phone-head{padding: 0px 16px;}
+#bee-immersive-suite .rf119-approved-poster .statusbar{padding-left: 22px; padding-right: 22px;}
+#bee-immersive-suite .rf119-approved-poster .side .panel{padding: 16px;}
+#bee-immersive-suite .rf119-approved-poster .split{grid-template-columns: 1fr;}
+#bee-immersive-suite .rf119-approved-poster h1{font-size: 26px;}
+#bee-immersive-suite .rf119-approved-poster .panel .btn{padding: 8px 10px; min-height: 37px; font-size: 11px;}
+#bee-immersive-suite .rf119-approved-poster .card-example{padding: 18px;}
+#bee-immersive-suite .rf119-approved-poster .app-card{padding: 18px;}
+#bee-immersive-suite .rf119-approved-poster .sync-counts{gap: 10px;}
+#bee-immersive-suite .rf119-approved-poster .sync-counts b{font-size: 13px;}
+#bee-immersive-suite .rf119-approved-poster .support-actions .btn{min-width: 0px; padding: 7px; font-size: 10px;}}
+#bee-immersive-suite .rf119-approved-poster .poster-footer > div:first-child > span{color: var(--p-ink); display: block; margin-bottom: 1.4cqw;}
+#bee-immersive-suite .rf119-approved-poster .poster-footer small{font-size: 2.15cqw; line-height: 1.8; display: block;}
+#bee-immersive-suite .rf119-approved-poster .footer-qr{width: 15cqw; height: 15cqw; background: rgb(255, 255, 255); padding: 1cqw; border-radius: 1.2cqw; flex-shrink: 0; display: grid; place-items: center;}
+#bee-immersive-suite .rf119-approved-poster .footer-qr svg{width: 100%; height: 100%;}
+#bee-immersive-suite .rf119-approved-poster .poster-footer{align-items: center;}
+#bee-immersive-suite .rf119-approved-poster .avatar img{width: 100%; height: 100%; object-fit: cover; border-radius: inherit;}
+#bee-immersive-suite .rf119-approved-poster .avatar .avatar-fallback{font-size: 5cqw; font-weight: 600; color: var(--p-muted);}
+#bee-immersive-suite .rf119-approved-poster .rank-detail{display: flex; justify-content: space-between; align-items: baseline; gap: 1cqw; margin-top: 1cqw;}
+#bee-immersive-suite .rf119-approved-poster .rank-detail b{font-size: 2.65cqw; font-weight: 550; overflow-wrap: anywhere; min-width: 0px;}
+#bee-immersive-suite .rf119-approved-poster .rank-detail em{font-size: 2.3cqw; flex-shrink: 0;}
+#bee-immersive-suite .rf119-approved-poster .ranking h4{margin-bottom: 2.5cqw;}
+#bee-immersive-suite .rf119-approved-poster .rank-row{margin-bottom: 2.7cqw;}
+#bee-immersive-suite .rf119-approved-poster .rank-row > div:first-child{font-size: 2.9cqw;}
+#bee-immersive-suite .rf119-approved-poster .ranking .rank-bar{height: 0.9cqw; margin-top: 1cqw;}
+#bee-immersive-suite .rf119-approved-poster .annual-rank{display: flex; align-items: center; gap: 2.5cqw; padding: 3cqw 0px; border-bottom: 1px solid var(--p-line);}
+#bee-immersive-suite .rf119-approved-poster .annual-rank:last-child{border: 0px;}
+#bee-immersive-suite .rf119-approved-poster .annual-rank-icon{width: 7cqw; height: 7cqw; background: var(--p-soft); border-radius: 2cqw; display: grid; place-items: center; flex-shrink: 0;}
+#bee-immersive-suite .rf119-approved-poster .annual-rank-icon .icon{width: 4cqw; height: 4cqw;}
+#bee-immersive-suite .rf119-approved-poster .annual-rank > div{flex: 1 1 0%; min-width: 0px;}
+#bee-immersive-suite .rf119-approved-poster .annual-rank b{font-size: 3.1cqw; font-weight: 500;}
+#bee-immersive-suite .rf119-approved-poster .annual-rank > span:last-child{font-size: 3.1cqw; text-align: right; max-width: 45%; overflow-wrap: anywhere;}
+#bee-immersive-suite .rf119-approved-poster .annual-rank small{display: block; font-size: 2.4cqw; color: var(--p-muted); margin-top: 0.8cqw;}
+#bee-immersive-suite .rf119-approved-poster .receipt-close{font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;}
+#bee-immersive-suite .rf119-approved-poster .receipt-close > small{display: block; margin-top: 3cqw; letter-spacing: 0.7px;}
+#bee-immersive-suite .rf119-approved-poster .financial-footnote{overflow-wrap: anywhere;}
+#bee-immersive-suite .rf119-approved-poster #phone{width: 398px; max-width: 100%; min-width: 0px;}
+#bee-immersive-suite .rf119-approved-poster .phone{margin-left: auto; margin-right: auto;}
+#bee-immersive-suite .rf119-approved-poster .provenance p,#bee-immersive-suite .rf119-approved-poster .provenance code{overflow-wrap: anywhere;}
+#bee-immersive-suite .rf119-approved-poster .phone-only #phone{width: 100%; max-width: 480px;}
+#bee-immersive-suite .rf119-approved-poster{--brand:var(--bc-accent,#facb16);--brand-ink:var(--bc-on-accent,#292817);--brand-soft:color-mix(in srgb,var(--bc-accent,#facb16) 12%,#fffefa);font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;color-scheme:light;background:transparent;margin:0;padding:0}

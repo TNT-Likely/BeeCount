@@ -1,0 +1,25 @@
+{
+  "source": "Independent Chrome DOM from user-approved A HTML a13aa0185c86e5a622cf3004114fcf259f367c77bc4481b538e945684ba8a441; 1px outer review border excluded. Flutter native tab tap target40 vs optical track below.",
+  "cases": [
+    {
+      "width": 396,
+      "sideInset": 16,
+      "summaryWidth": 364,
+      "summaryPadding": 18,
+      "heroFont": 37,
+      "metricTrackHeight": 29,
+      "scopeTrackHeight": 31,
+      "plotHeight": 145
+    },
+    {
+      "width": 318,
+      "sideInset": 12,
+      "summaryWidth": 294,
+      "summaryPadding": 15,
+      "heroFont": 33,
+      "metricTrackHeight": 28,
+      "scopeTrackHeight": 29,
+      "plotHeight": 132
+    }
+  ]
+}

@@ -3,6 +3,7 @@ import 'package:beecount/l10n/app_localizations.dart';
 import 'package:beecount/pages/ai/agent_permissions_page.dart';
 import 'package:beecount/providers/ai_chat_providers.dart';
 import 'package:beecount/styles/tokens.dart';
+import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -27,6 +28,10 @@ void main() {
   }
 
   testWidgets('默认将记录交易工具设为每次询问', (tester) async {
+    addTearDown(() async {
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pump();
+    });
     await tester.pumpWidget(host());
     await tester.pumpAndSettle();
 
@@ -50,6 +55,10 @@ void main() {
   });
 
   testWidgets('权限说明使用中性信息卡而非主题渐变', (tester) async {
+    addTearDown(() async {
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pump();
+    });
     await tester.pumpWidget(host());
     await tester.pumpAndSettle();
 
@@ -66,6 +75,10 @@ void main() {
   });
 
   testWidgets('可将单个工具改为始终允许', (tester) async {
+    addTearDown(() async {
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pump();
+    });
     await tester.pumpWidget(host());
     await tester.pumpAndSettle();
 
@@ -75,6 +88,7 @@ void main() {
       ),
       160,
     );
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey(
       'permission-status-record_transaction_from_text',
     )));
@@ -89,6 +103,10 @@ void main() {
   });
 
   testWidgets('恢复默认会移除已保存的始终允许设置', (tester) async {
+    addTearDown(() async {
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pump();
+    });
     await store.setPermission(
       'record_transaction_from_text',
       AgentToolPermission.alwaysAllow,
@@ -101,6 +119,14 @@ void main() {
     await tester.tap(
       find.byKey(const ValueKey('restore-agent-permissions')),
     );
+    await tester.pumpAndSettle();
+    expect(find.byType(BeeDialog), findsOneWidget);
+    expect(find.byType(AlertDialog), findsNothing);
+    await tester.tap(find.text('取消').last);
+    await tester.pumpAndSettle();
+    expect(await store.permissionFor('record_transaction_from_text'),
+        AgentToolPermission.alwaysAllow);
+    await tester.tap(find.byKey(const ValueKey('restore-agent-permissions')));
     await tester.pumpAndSettle();
     await tester.tap(find.text('恢复').last);
     await tester.pumpAndSettle();

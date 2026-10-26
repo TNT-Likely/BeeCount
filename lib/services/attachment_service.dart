@@ -50,15 +50,29 @@ class AttachmentService {
   /// 从相册选择图片
   /// 返回选择的图片文件列表
   Future<List<File>> pickFromGallery({int maxCount = 9}) async {
+    final remaining = maxCount.clamp(0, maxAttachments);
+    if (remaining == 0) return [];
     try {
       final keepOriginal =
           await ref.read(attachmentKeepOriginalProvider.future);
+      // Android's multiple-image contract requires a limit of at least two.
+      if (remaining == 1) {
+        final image = await _picker.pickImage(
+          source: ImageSource.gallery,
+          maxWidth: keepOriginal ? null : maxWidth.toDouble(),
+          maxHeight: keepOriginal ? null : maxHeight.toDouble(),
+          imageQuality: keepOriginal ? null : quality,
+        );
+        return image == null ? [] : [File(image.path)];
+      }
       final images = await _picker.pickMultiImage(
         maxWidth: keepOriginal ? null : maxWidth.toDouble(),
         maxHeight: keepOriginal ? null : maxHeight.toDouble(),
         imageQuality: keepOriginal ? null : quality,
+        limit: remaining,
       );
-      return images.map((x) => File(x.path)).toList();
+      // Some vendor pickers ignore the requested limit.
+      return images.take(remaining).map((x) => File(x.path)).toList();
     } catch (e) {
       logger.error('AttachmentService', '从相册选择图片失败', e);
       return [];

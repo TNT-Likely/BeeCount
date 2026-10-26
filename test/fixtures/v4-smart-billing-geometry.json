@@ -1,0 +1,15 @@
+{
+  "source": "R80 HTML browser computed styles, 398x844 (phone border excludes 2px from inner width)",
+  "sideInset": 17,
+  "cardPadding": 6,
+  "rowPadding": 12,
+  "titleFont": 14,
+  "subtitleFont": 11,
+  "guideFont": 13,
+  "guideLineHeight": 1.65,
+  "statusPadding": 12,
+  "statusRadius": 12,
+  "sliderMin": 500,
+  "sliderMax": 4000,
+  "sliderStep": 100
+}

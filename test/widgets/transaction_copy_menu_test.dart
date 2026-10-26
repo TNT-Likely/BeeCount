@@ -3,6 +3,7 @@ import 'package:beecount/data/repositories/local/local_repository.dart';
 import 'package:beecount/l10n/app_localizations.dart';
 import 'package:beecount/providers/database_providers.dart';
 import 'package:beecount/widgets/biz/amount_editor_sheet.dart';
+import 'package:beecount/pages/transaction/transaction_editor_page.dart';
 import 'package:beecount/widgets/biz/transaction_list.dart';
 import 'package:beecount/widgets/biz/transaction_list_item.dart';
 import 'package:drift/native.dart';
@@ -53,6 +54,9 @@ void main() {
     final row = find.byType(TransactionListItem, skipOffstage: false);
     await tester.longPress(row);
     await tester.pumpAndSettle();
+    expect(find.byType(PopupMenuItem<String>), findsNWidgets(3));
+    expect(find.text('账单详情'), findsOneWidget);
+    expect(find.text('生成小票'), findsOneWidget);
     await tester.runAsync(() async {
       await tester.tap(find.text('复制为新交易'));
       await Future<void>.delayed(const Duration(milliseconds: 100));
@@ -62,8 +66,12 @@ void main() {
     final nav = Navigator.of(tester.element(find.byType(AmountEditorSheet)));
     nav.pop();
     await tester.pumpAndSettle();
-    nav.pop();
-    await tester.pumpAndSettle();
+    // The v4 editor embeds AmountEditorSheet on its page. Only the legacy
+    // modal presentation has an additional editor route to close.
+    if (find.byType(TransactionEditorPage).evaluate().isNotEmpty) {
+      nav.pop();
+      await tester.pumpAndSettle();
+    }
     expect((await db.select(db.transactions).get()).length, 1);
     await tester.longPress(row);
     await tester.pumpAndSettle();

@@ -1,0 +1,23 @@
+#bee-immersive-suite .bc-main:has(.a79-shell){height:calc(100% - 35px);display:flex;flex-direction:column;overflow:hidden;padding-bottom:0}
+#bee-immersive-suite .a79-shell{display:flex;flex-direction:column;min-height:0;flex:1}
+#bee-immersive-suite .a79-scroll{min-height:0;overflow:auto;padding-bottom:84px}
+#bee-immersive-suite .a79-summary{padding:18px}
+#bee-immersive-suite .a79-summary-selectors button{min-height:48px;font-size:calc(13px * var(--q-scale,1));font-weight:600;display:flex;align-items:center;gap:4px}
+#bee-immersive-suite .a79-summary-selectors svg{width:14px;height:14px}
+#bee-immersive-suite .a79-total{font-size:calc(34px * var(--q-scale,1));font-weight:600;line-height:1.15;margin:8px 0 20px;overflow:hidden;text-overflow:ellipsis}
+#bee-immersive-suite .a79-trend-card{padding:16px}
+#bee-immersive-suite .a79-trend{height:240px;position:relative;margin-top:12px}
+#bee-immersive-suite .a79-trend svg{width:100%;height:100%}
+#bee-immersive-suite .a79-trend text{font-size:10px;fill:var(--bc-muted)}
+#bee-immersive-suite .a79-chart-actions{position:absolute;inset:0;display:flex;align-items:center;justify-content:space-between}
+#bee-immersive-suite .a79-chart-actions button{min-width:44px;min-height:44px;color:var(--bc-muted)}
+#bee-immersive-suite .a79-chart-actions button:nth-child(2){align-self:flex-end;opacity:.01}
+#bee-immersive-suite .a79-hint{display:flex;align-items:center;justify-content:space-between;font-size:calc(11px * var(--q-scale,1));color:var(--bc-muted);min-height:44px}
+#bee-immersive-suite .a79-hint button{width:44px;height:44px}
+#bee-immersive-suite .a79-pie{text-align:center;display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+#bee-immersive-suite .a79-pie .bc-donut{width:160px;height:160px;margin:8px calc(50% - 80px) 12px}
+#bee-immersive-suite .a79-options{display:flex;flex-direction:column;gap:6px}
+#bee-immersive-suite .a79-options button{text-align:left;padding:14px;min-height:48px}
+#bee-immersive-suite .a79-loading{height:300px;display:grid;place-items:center}
+
+#bee-immersive-suite .a79-summary-selectors button{flex:none;white-space:nowrap;min-width:64px}#bee-immersive-suite .a79-summary-selectors svg{flex-shrink:0}

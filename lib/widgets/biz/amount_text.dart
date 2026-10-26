@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../styles/tokens.dart';
 import '../../providers.dart';
-import '../../utils/currencies.dart';
-import '../../utils/format_utils.dart';
 import 'format_money.dart';
 
 class AmountText extends ConsumerWidget {
@@ -44,56 +42,25 @@ class AmountText extends ConsumerWidget {
                   ?.copyWith(color: BeeTokens.textPrimary(context)));
     }
 
-    String displayText;
-
+    String? effectiveCurrency;
+    var isChinese = true;
     if (showCurrency || useCompactFormat) {
-      // 需要币种符号或大金额缩写时,使用formatBalance
-      final effectiveCurrencyCode = currencyCode ??
+      effectiveCurrency = currencyCode ??
           ref.watch(currentLedgerProvider).asData?.value?.currency;
-
-      if (effectiveCurrencyCode != null) {
-        // 自动检测是否为中文环境
+      if (effectiveCurrency != null) {
         final selectedLocale = ref.watch(languageProvider);
-        final isChinese = selectedLocale?.languageCode == 'zh' ||
+        isChinese = selectedLocale?.languageCode == 'zh' ||
             (selectedLocale == null &&
                 Localizations.localeOf(context).languageCode == 'zh');
-
-        // 使用formatBalance,然后根据开关移除不需要的部分
-        String formatted = formatBalance(value, effectiveCurrencyCode,
-            isChineseLocale: isChinese);
-
-        if (!showCurrency) {
-          // 移除 formatBalance 加进去的币种符号。要按实际币种动态算 —
-          // 老的硬编码字符类 [¥$€£₩] 漏了 ฿ ₹ ₽ ₫ Rp HK$ NT$ C$ 等。
-          final symbol = getCurrencySymbol(effectiveCurrencyCode.toUpperCase());
-          if (symbol.isNotEmpty && formatted.startsWith(symbol)) {
-            formatted = formatted.substring(symbol.length).trimLeft();
-          }
-        }
-
-        if (!useCompactFormat) {
-          // 不使用大金额缩写,回退到formatMoneyCompact
-          displayText =
-              formatMoneyCompact(value, maxDecimals: decimals, signed: signed);
-          // 但如果需要币种符号,添加上去
-          if (showCurrency) {
-            final currencySymbol =
-                getCurrencySymbol(effectiveCurrencyCode.toUpperCase());
-            displayText = '$currencySymbol$displayText';
-          }
-        } else {
-          displayText = formatted;
-        }
-      } else {
-        // 如果没有币种,使用简单格式化
-        displayText =
-            formatMoneyCompact(value, maxDecimals: decimals, signed: signed);
       }
-    } else {
-      // 默认使用简单格式化
-      displayText =
-          formatMoneyCompact(value, maxDecimals: decimals, signed: signed);
     }
+    final displayText = formatDisplayAmount(value,
+        currencyCode: effectiveCurrency,
+        showCurrency: showCurrency,
+        useCompactFormat: useCompactFormat,
+        isChineseLocale: isChinese,
+        signed: signed,
+        decimals: decimals);
 
     // 计算最终样式：收入且开启着色时使用绿色
     final isIncome = value > 0;

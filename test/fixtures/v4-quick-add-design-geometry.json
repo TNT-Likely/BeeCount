@@ -1,0 +1,34 @@
+{
+  "source": "docs/design/card-refresh/prototype/demo.html?page=flow-quick-add",
+  "reference": "existing HTML fan, measured independently of Flutter",
+  "size": "398x844",
+  "scale": 1,
+  "mode": "light",
+  "close": {
+    "width": 50,
+    "height": 50
+  },
+  "actions": [
+    {
+      "method": "camera",
+      "width": 54,
+      "height": 54,
+      "dx": -97,
+      "dy": -56
+    },
+    {
+      "method": "gallery",
+      "width": 54,
+      "height": 54,
+      "dx": 0,
+      "dy": -112
+    },
+    {
+      "method": "voice",
+      "width": 54,
+      "height": 54,
+      "dx": 97,
+      "dy": -56
+    }
+  ]
+}

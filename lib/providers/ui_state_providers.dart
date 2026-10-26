@@ -19,19 +19,24 @@ import '../services/system/logger_service.dart';
 import '../ai/providers/ai_constants.dart';
 import '../services/platform/app_link_service.dart';
 import 'security_providers.dart';
+import '../models/home_transaction_preview.dart';
+import 'home_startup_preview_provider.dart';
+export '../models/home_transaction_preview.dart' show TransactionDisplayItem;
 
 // 底部导航索引（0: 明细, 1: 图表, 2: 账本, 3: 我的）
 final bottomTabIndexProvider = StateProvider<int>((ref) => 0);
 
 // AppLink 待处理动作（用于通知 UI 层执行导航）
-final pendingAppLinkActionProvider = StateProvider<AppLinkAction?>((ref) => null);
+final pendingAppLinkActionProvider =
+    StateProvider<AppLinkAction?>((ref) => null);
 
 // 手动记账待处理类型（expense/income，配合 newTransaction action 使用）
 final pendingNewTransactionTypeProvider = StateProvider<String?>((ref) => null);
 
 // 手动记账待处理的预填分类 id（配合 newTransaction action 使用，来自小组件
 // 「快速记账」深链 beecount://new?type=...&category=<id>）
-final pendingNewTransactionCategoryIdProvider = StateProvider<int?>((ref) => null);
+final pendingNewTransactionCategoryIdProvider =
+    StateProvider<int?>((ref) => null);
 
 // beecount://open?page=... 深链的待处理目标页面（assets/budget/detail），
 // 配合 AppLinkAction.open 使用
@@ -162,31 +167,20 @@ final accountFeatureSetterProvider = Provider<AccountFeatureSetter>((ref) {
   return AccountFeatureSetter();
 });
 
-/// 完整的交易展示数据（含分类、账户、标签、附件数量）
-/// 用于首页列表一次性加载，避免二次查询闪烁
-///
-/// D 方案后:account / toAccount 是 watchTransactionsWithCategory* JOIN 直接
-/// 拿到的 Drift Account 对象,不再依赖 Splash 单独 getAccountsByIds 拼名字。
-/// accountName / toAccountName 保留是为了字符串路径(import / export / diff)
-/// 的向后兼容,等下游全部切到 account 对象后可以删。
-typedef TransactionDisplayItem = ({
-  Transaction t,
-  Category? category,
-  Account? account,
-  Account? toAccount,
-  List<Tag> tags,
-  int attachmentCount,
-  String? accountName,
-  String? toAccountName,
-});
-
-// 缓存的完整交易数据Provider（含标签、附件、账户，用于首屏快速展示）
+// Legacy compatibility cache. The first Home receives the full, one-shot
+// startup snapshot instead; later navigation always reads current data.
 final cachedTransactionsProvider =
     StateProvider<List<TransactionDisplayItem>?>((ref) => null);
 
 // 缓存的交易数据Provider（仅含分类，兼容旧版本）
-final cachedTransactionsWithCategoryProvider =
-    StateProvider<List<({Transaction t, Category? category, Account? account, Account? toAccount})>?>((ref) => null);
+final cachedTransactionsWithCategoryProvider = StateProvider<
+    List<
+        ({
+          Transaction t,
+          Category? category,
+          Account? account,
+          Account? toAccount
+        })>?>((ref) => null);
 
 // 应用初始化Provider - 管理数据预加载
 final appSplashInitProvider = FutureProvider<void>((ref) async {
@@ -194,6 +188,9 @@ final appSplashInitProvider = FutureProvider<void>((ref) async {
   logger.info(tag, '开始启屏页预加载');
   final startTime = DateTime.now();
   var stepTime = startTime;
+  final handoff = ref.read(homeStartupPreviewHandoffProvider)..clear();
+  var disposed = false;
+  ref.onDispose(() => disposed = true);
 
   try {
     // 确保基础providers已初始化
@@ -218,136 +215,116 @@ final appSplashInitProvider = FutureProvider<void>((ref) async {
       ref.watch(headerSkinInitProvider.future),
       ref.watch(securityInitProvider.future),
     ]);
-    logger.info(tag, '基础配置初始化完成: ${DateTime.now().difference(stepTime).inMilliseconds}ms');
+    logger.info(tag,
+        '基础配置初始化完成: ${DateTime.now().difference(stepTime).inMilliseconds}ms');
     stepTime = DateTime.now();
 
-    // 获取 repository
-    final repo = ref.read(repositoryProvider);
+    if (disposed) return;
 
-    // 预加载当前账本的关键数据
-    final ledgerId = ref.read(currentLedgerIdProvider);
-    final now = DateTime.now();
-    // 月份周期标签:startDay>1 时今天可能属于「上个标签月」(如 6月5日属 5月周期)
-    final ledgerRow = await repo.getLedgerById(ledgerId);
-    final startDay = (ledgerRow?.monthStartDay ?? 1).clamp(1, 28);
-    final currentMonth = labelForDate(now, startDay);
-    ref.read(selectedMonthProvider.notifier).state = currentMonth;
-
-    // 并行预加载：月度统计 + 交易列表（分别计时）
-    final monthlyParams = (ledgerId: ledgerId, month: currentMonth);
-
-    // 包装每个任务以记录各自耗时
-    Future<T> timed<T>(String name, Future<T> future) async {
-      final start = DateTime.now();
-      final result = await future;
-      logger.info(tag, '$name: ${DateTime.now().difference(start).inMilliseconds}ms');
-      return result;
-    }
-
-    // 首屏预加载条数限制（只加载前 N 条，加快启动速度）
-    const preloadLimit = 20;
-
-    final results = await Future.wait([
-      timed('月度统计', ref.read(monthlyTotalsProvider(monthlyParams).future)),
-      // 只查询前 N 条，而非全部
-      timed('交易列表(前$preloadLimit条)', repo.getRecentTransactionsWithCategory(ledgerId: ledgerId, limit: preloadLimit)),
-      // 预加载预算概览，避免首页进度条闪现
-      timed('预算概览', ref.read(budgetOverviewProvider.future)),
-    ]);
-
-    final monthlyResult = results[0] as (double, double);
-    final transactionsWithCategory = results[1] as List<({Transaction t, Category? category, Account? account, Account? toAccount})>;
-
-    ref.read(lastMonthlyTotalsProvider(monthlyParams).notifier).state = monthlyResult;
-    // 不再预加载完整列表，让 Stream 自己加载
-    logger.info(tag, '并行预加载完成: ${DateTime.now().difference(stepTime).inMilliseconds}ms, 首屏${transactionsWithCategory.length}条');
-    stepTime = DateTime.now();
-
-    // 只为首屏数据加载标签、附件数量和账户信息
-    final transactionIds = transactionsWithCategory.map((t) => t.t.id).toList();
-
-    // 收集所有需要查询的账户ID
-    final accountIds = <int>{};
-    for (final item in transactionsWithCategory) {
-      if (item.t.accountId != null) accountIds.add(item.t.accountId!);
-      if (item.t.toAccountId != null) accountIds.add(item.t.toAccountId!);
-    }
-
-    final detailResults = await Future.wait([
-      timed('标签数据', repo.getTagsForTransactions(transactionIds)),
-      timed('附件数量', repo.getAttachmentCountsForTransactions(transactionIds)),
-      timed('账户数据', repo.getAccountsByIds(accountIds.toList())),
-    ]);
-
-    final tagsMap = detailResults[0] as Map<int, List<Tag>>;
-    final attachmentCounts = detailResults[1] as Map<int, int>;
-    final accountsList = detailResults[2] as List<Account>;
-
-    // 构建账户ID到名称的映射
-    final accountNameMap = <int, String>{};
-    for (final account in accountsList) {
-      accountNameMap[account.id] = account.name;
-    }
-    logger.info(tag, '详情数据加载完成: ${DateTime.now().difference(stepTime).inMilliseconds}ms');
-    stepTime = DateTime.now();
-
-    // 组装完整的交易展示数据。account / toAccount 直接用 watch 时 JOIN 拿到
-    // 的对象(D 方案);accountName 走 item.account?.name 优先,fallback 到
-    // accountNameMap(Editor 共享账本场景:主表 accountId 是 null,要走
-    // accountSyncIdOverride → SharedLedgerAccounts 反查)。
-    final fullTransactions = transactionsWithCategory.map((item) {
-      final accName = item.account?.name ??
-          (item.t.accountId != null
-              ? accountNameMap[item.t.accountId!]
-              : null);
-      final toAccName = item.toAccount?.name ??
-          (item.t.toAccountId != null
-              ? accountNameMap[item.t.toAccountId!]
-              : null);
-      return (
-        t: item.t,
-        category: item.category,
-        account: item.account,
-        toAccount: item.toAccount,
-        tags: tagsMap[item.t.id] ?? <Tag>[],
-        attachmentCount: attachmentCounts[item.t.id] ?? 0,
-        accountName: accName,
-        toAccountName: toAccName,
-      );
-    }).toList();
-
-    ref.read(cachedTransactionsProvider.notifier).state = fullTransactions;
-
-    // 账本统计异步加载（不阻塞启动）
-    Future.microtask(() async {
-      final start = DateTime.now();
-      await ref.read(countsForLedgerProvider(ledgerId).future);
-      logger.info(tag, '账本统计(异步): ${DateTime.now().difference(start).inMilliseconds}ms');
-    });
-
-    // 生成待处理的周期交易
+    // Finish startup writes before preparing the snapshot that Home will use.
+    // Publishing the earlier rows would omit newly generated recurring bills.
     try {
-      final generatedLedgerIds = await RecurringTransactionService.generatePendingTransactionsStatic(
-        repository: repo,
+      final generatedLedgerIds =
+          await RecurringTransactionService.generatePendingTransactionsStatic(
+        repository: ref.read(repositoryProvider),
         verbose: false,
       );
-      logger.info(tag, '周期交易生成完成: ${DateTime.now().difference(stepTime).inMilliseconds}ms');
-
-      // 统一后处理：刷新UI + 触发云同步（如果有生成交易）
-      for (final genLedgerId in generatedLedgerIds) {
-        await PostProcessor.runR(ref, ledgerId: genLedgerId);
+      if (disposed) return;
+      for (final ledgerId in generatedLedgerIds) {
+        await PostProcessor.runR(ref, ledgerId: ledgerId);
+        if (disposed) return;
       }
+      logger.info(tag,
+          '周期交易生成完成: ${DateTime.now().difference(stepTime).inMilliseconds}ms');
     } catch (e, stackTrace) {
       logger.error(tag, '周期交易生成失败', e, stackTrace);
     }
+
+    if (disposed) return;
+    // Configuration can replace the repository or selected ledger while an
+    // async read is running. Only publish the final, still-current scope.
+    while (true) {
+      final repo = ref.read(repositoryProvider);
+
+      // 预加载当前账本的关键数据
+      final ledgerId = ref.read(currentLedgerIdProvider);
+      final now = DateTime.now();
+      // 月份周期标签:startDay>1 时今天可能属于「上个标签月」(如 6月5日属 5月周期)
+      final ledgerRow = await repo.getLedgerById(ledgerId);
+      final startDay = (ledgerRow?.monthStartDay ?? 1).clamp(1, 28);
+      final currentMonth = labelForDate(now, startDay);
+      ref.read(selectedMonthProvider.notifier).state = currentMonth;
+
+      // 并行预加载：月度统计 + 交易列表（分别计时）
+      final monthlyParams = (ledgerId: ledgerId, month: currentMonth);
+      ref.invalidate(monthlyTotalsProvider(monthlyParams));
+      ref.invalidate(budgetOverviewProvider);
+
+      // 包装每个任务以记录各自耗时
+      Future<T> timed<T>(String name, Future<T> future) async {
+        final start = DateTime.now();
+        final result = await future;
+        logger.info(
+            tag, '$name: ${DateTime.now().difference(start).inMilliseconds}ms');
+        return result;
+      }
+
+      // 首屏预加载条数限制（只加载前 N 条，加快启动速度）
+      const preloadLimit = 20;
+
+      final results = await Future.wait([
+        timed('月度统计', ref.read(monthlyTotalsProvider(monthlyParams).future)),
+        // 只查询前 N 条，而非全部
+        timed('完整首屏(前$preloadLimit条)',
+            handoff.prepare(repo, ledgerId, ref.read(databaseProvider))),
+        // 预加载预算概览，避免首页进度条闪现
+        timed('预算概览', ref.read(budgetOverviewProvider.future)),
+        timed('账本信息', ref.read(currentLedgerProvider.future)),
+      ]);
+
+      final monthlyResult = results[0] as (double, double);
+      final preview = results[1] as HomeTransactionPreview;
+      if (disposed) return;
+      if (!identical(repo, ref.read(repositoryProvider)) ||
+          ledgerId != ref.read(currentLedgerIdProvider) ||
+          !identical(handoff.peek(repo, ledgerId)?.preview, preview)) {
+        continue;
+      }
+
+      ref.read(lastMonthlyTotalsProvider(monthlyParams).notifier).state =
+          monthlyResult;
+      ref.read(cachedTransactionsProvider.notifier).state = preview.rows;
+      logger.info(tag,
+          '并行预加载完成: ${DateTime.now().difference(stepTime).inMilliseconds}ms, 完整首屏${preview.rows.length}条');
+      stepTime = DateTime.now();
+
+      // 账本统计异步加载（不阻塞启动）
+      Future.microtask(() async {
+        if (disposed) return;
+        final start = DateTime.now();
+        await ref.read(countsForLedgerProvider(ledgerId).future);
+        if (disposed) return;
+        logger.info(tag,
+            '账本统计(异步): ${DateTime.now().difference(start).inMilliseconds}ms');
+      });
+
+      break;
+    }
   } catch (e, stackTrace) {
+    if (disposed) return;
+    handoff.clear();
     logger.error(tag, '预加载数据失败', e, stackTrace);
+    // Keep the startup boundary retryable. A failed read must not become a
+    // "ready" Home with an empty list, a second spinner or stale cache.
+    rethrow;
   }
 
   // 计算数据预加载耗时
   final dataLoadTime = DateTime.now().difference(startTime);
   logger.info(tag, '预加载总耗时: ${dataLoadTime.inMilliseconds}ms，切换到主应用');
-  ref.read(appInitStateProvider.notifier).state = AppInitState.ready;
+  if (!disposed) {
+    ref.read(appInitStateProvider.notifier).state = AppInitState.ready;
+  }
 });
 
 // 是否应该显示欢迎页面的Provider
@@ -431,4 +408,3 @@ class AIAssistantSetter {
 final aiAssistantSetterProvider = Provider<AIAssistantSetter>((ref) {
   return AIAssistantSetter();
 });
-

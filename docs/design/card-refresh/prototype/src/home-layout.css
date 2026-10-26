@@ -1,0 +1,33 @@
+/* The normal header stays fixed; compact screens can move it above the journal.
+   The journal retains a separate scroll viewport, as in BeeHomeLayout. */
+#bee-immersive-suite .bc-phone[data-page="home"] .bc-main{height:calc(var(--q-height,844px) - 143px);max-height:none;display:flex;flex-direction:column;overflow:hidden;padding-bottom:0}
+#bee-immersive-suite .bc-phone[data-page="home"] .bc-main>.bc-topbar,#bee-immersive-suite .bc-phone[data-page="home"] .bc-main>.bc-summary{flex:none}
+#bee-immersive-suite .bc-phone[data-page="home"] .bc-stream{display:flex;flex-direction:column;flex:1;min-height:0;margin-bottom:0}
+#bee-immersive-suite .bc-phone[data-page="home"] .bc-stream-head{flex:none}
+#bee-immersive-suite .h-journal-list{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin}
+#bee-immersive-suite .bc-phone[data-home-compact="true"] .bc-main{display:block;overflow-y:auto}
+#bee-immersive-suite .bc-phone[data-home-compact="true"] .bc-stream{height:max(280px,calc((var(--q-height) - 76px) * .7));margin-bottom:0}
+#bee-immersive-suite .h-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100%;padding:24px;text-align:center;color:var(--bc-muted)}
+#bee-immersive-suite .h-empty>svg{width:36px!important;height:36px!important;margin-bottom:12px}
+#bee-immersive-suite .h-empty h3{font-size:16px;color:var(--bc-ink);font-weight:400}
+#bee-immersive-suite .h-empty p{margin:6px 0 0;font-size:12px}
+#bee-immersive-suite .h-gallery-compact{height:300px;overflow:auto;background:var(--bc-bg);border-radius:22px}
+#bee-immersive-suite .h-gallery-compact>p{padding:16px;margin:0;font-size:24px;font-weight:600}
+#bee-immersive-suite .h-gallery-compact .bc-stream{height:280px;display:flex;flex-direction:column}
+
+#bee-immersive-suite .bc-phone[data-home-compact="true"] .bc-topbar h2{font-size:calc(23px * var(--q-scale,1))}
+#bee-immersive-suite .bc-phone[data-home-compact="true"] .bc-summary-label{font-size:calc(12px * var(--q-scale,1))}
+#bee-immersive-suite .bc-phone[data-home-compact="true"] .bc-hero-value{font-size:calc(36px * var(--q-scale,1))}
+#bee-immersive-suite .bc-phone[data-home-compact="true"] .bc-dual label{font-size:calc(11px * var(--q-scale,1))}
+#bee-immersive-suite .bc-phone[data-home-compact="true"] .bc-dual strong{font-size:calc(18px * var(--q-scale,1))}
+#bee-immersive-suite .bc-phone[data-home-compact="true"] .bc-stream-head h3{font-size:calc(16px * var(--q-scale,1))}
+#bee-immersive-suite .bc-phone[data-home-compact="true"] .v-entry-title{font-size:calc(13px * var(--q-scale,1))}
+#bee-immersive-suite .bc-phone[data-home-compact="true"] .v-entry-meta{font-size:calc(11px * var(--q-scale,1))}
+#bee-immersive-suite .bc-phone[data-home-compact="true"] .h-empty h3{font-size:calc(16px * var(--q-scale,1))}
+#bee-immersive-suite .bc-phone[data-home-compact="true"] .h-empty p{font-size:calc(12px * var(--q-scale,1))}
+#bee-immersive-suite .h-ledger-options{max-height:300px;overflow:auto;margin:8px 0 16px}
+#bee-immersive-suite .h-ledger-option{display:flex;align-items:center;gap:12px;width:100%;min-height:66px;text-align:left;padding:10px 4px;border-bottom:1px solid var(--bc-line)}
+#bee-immersive-suite .h-ledger-option>span:nth-child(2){flex:1;min-width:0}
+#bee-immersive-suite .h-ledger-option b{display:block;font-size:14px;font-weight:400;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#bee-immersive-suite .h-ledger-option small{display:block;font-size:11px;color:var(--bc-muted);margin-top:4px}
+#bee-immersive-suite .h-ledger-option[aria-pressed="true"]{background:var(--bc-tint);border-radius:13px}

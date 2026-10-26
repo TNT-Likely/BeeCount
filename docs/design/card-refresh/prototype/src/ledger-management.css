@@ -1,0 +1,27 @@
+#bee-immersive-suite .l-section{display:flex;align-items:center;justify-content:space-between;margin:8px 3px 12px;font-size:12px;color:var(--bc-muted)}
+#bee-immersive-suite .l-ledger-balance{font-size:12px;color:var(--bc-muted);margin:12px 0 0}
+#bee-immersive-suite .l-day-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(44px,1fr));gap:8px;margin-top:14px}
+#bee-immersive-suite .l-day-grid button{min-height:44px;aspect-ratio:1;background:var(--bc-soft);border:1px solid var(--bc-line);border-radius:12px;font-size:14px}
+#bee-immersive-suite .l-day-grid [aria-pressed=true]{background:var(--bc-tint);border-color:var(--bc-accent)}
+#bee-immersive-suite .l-editor-field{display:grid;gap:7px;margin-bottom:12px;font-size:12px}
+#bee-immersive-suite .l-editor-field input{background:var(--bc-soft);border:0;border-radius:13px;width:100%;min-height:48px;padding:12px;font:inherit;color:var(--bc-ink)}
+#bee-immersive-suite .l-ledger-meta{font-size:11px;color:var(--bc-muted);margin:12px 0}
+#bee-immersive-suite .l-status{font-size:12px;color:var(--bc-muted);padding:18px;background:var(--bc-paper);border-radius:22px;margin:10px 0}
+#bee-immersive-suite .l-status[data-error=true]{color:var(--bc-danger,#bd5d50)}
+#bee-immersive-suite .l-status .bc-secondary{margin-top:12px}
+#bee-immersive-suite .l-conflict-info{padding:12px;background:var(--bc-soft);border-radius:13px;margin:12px 0;font-size:12px;line-height:1.6}
+#bee-immersive-suite .l-gallery-editor{margin-top:18px;padding:18px;background:var(--bc-soft);border-radius:18px}
+#bee-immersive-suite .l-gallery-editor .bc-menu-row{padding-left:0;padding-right:0}
+#bee-immersive-suite .bc-phone[data-page="ledgers"] .bc-main,
+#bee-immersive-suite .bc-phone[data-page^="flow-ledgers-"] .bc-main{padding-left:17px;padding-right:17px}
+#bee-immersive-suite .j-ledger-more{width:44px;height:44px}
+#bee-immersive-suite .j-ledger-card .bc-entry-icon{width:39px;height:39px;border-radius:14px}
+#bee-immersive-suite .j-ledger-totals label{font-size:11px}
+#bee-immersive-suite .j-ledger-totals strong{font-size:15px}
+#bee-immersive-suite .j-ledger-actions .bc-secondary{min-height:44px}
+#bee-immersive-suite .j-ledger-menu .bc-menu-row{min-height:53px}
+#bee-immersive-suite .j-ledger-menu [data-action$=":local"]{color:var(--bc-red)}
+/* Flutter paints the 2px selection stroke inside Material without consuming
+   content padding. An inset outline keeps the HTML's content inset at 15px. */
+#bee-immersive-suite .j-ledger-card{border:0;outline:2px solid transparent;outline-offset:-2px}
+#bee-immersive-suite .j-ledger-card[data-current="true"]{outline-color:var(--bc-accent)}

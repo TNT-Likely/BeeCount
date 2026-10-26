@@ -1,0 +1,28 @@
+#bee-immersive-suite .a81-shell{display:grid;gap:12px;padding:12px 0 24px}
+#bee-immersive-suite .a81-card{padding:0 6px;margin:0}
+#bee-immersive-suite .a81-card .bc-menu-row{padding:10px 12px!important;min-height:53px;gap:10px}
+#bee-immersive-suite .a81-card .bc-menu-symbol{width:28px}
+#bee-immersive-suite .a81-card .bc-menu-copy b{font-size:calc(14px * var(--q-scale,1));font-weight:400}
+#bee-immersive-suite .a81-card .bc-menu-copy small{font-size:calc(11px * var(--q-scale,1))}
+#bee-immersive-suite .a81-card .bc-menu-value{width:90px;max-width:90px;white-space:normal;font-size:calc(12px * var(--q-scale,1));line-height:1.4;overflow-wrap:anywhere}
+#bee-immersive-suite .a81-card .bc-menu-row[role=switch]{padding:6px 12px!important;min-height:56px}
+#bee-immersive-suite .a81-card .bc-switch{width:36px;height:22px;flex:none;margin:11px 4px}
+#bee-immersive-suite .a81-caption{padding:12px;font-size:calc(14px * var(--q-scale,1))}
+#bee-immersive-suite .a81-caption p{margin:6px 0 0;color:var(--bc-muted);font-size:calc(11px * var(--q-scale,1))}
+#bee-immersive-suite .a81-consent-copy{white-space:pre-line;font-size:calc(13px * var(--q-scale,1));line-height:1.6}
+#bee-immersive-suite .a81-provider-choice{display:flex;align-items:center;text-align:left;gap:12px;border:0;background:transparent;color:var(--bc-ink);padding:10px 12px;min-height:53px;width:100%}
+#bee-immersive-suite .a81-provider-choice b{font-size:calc(13px * var(--q-scale,1));font-weight:400}
+#bee-immersive-suite .a81-provider-choice small{display:block;font-size:calc(11px * var(--q-scale,1));color:var(--bc-muted);margin-top:3px}
+#bee-immersive-suite .a81-radio{display:block;width:18px;height:18px;border:1.5px solid var(--bc-muted);border-radius:50%;flex:none}
+#bee-immersive-suite .a81-radio.selected{border:5px solid var(--bc-accent)}
+#bee-immersive-suite .a81-provider-choice:disabled{opacity:.4}
+#bee-immersive-suite .a81-advanced summary{padding:12px;font-size:calc(14px * var(--q-scale,1))}
+#bee-immersive-suite .a81-advanced summary small{display:block;font-size:calc(11px * var(--q-scale,1));color:var(--bc-muted);margin-top:3px}
+#bee-immersive-suite .a81-advanced-body{padding:0 12px 12px}
+#bee-immersive-suite .a81-status{padding:16px}
+
+.a81-demo-dialog{width:min(360px,calc(100% - 40px));max-height:85vh;overflow:auto;padding:18px;border:0;border-radius:23px;background:var(--bc-surface,#fff);color:var(--bc-ink,#25282c);font-size:13px;line-height:1.6}
+.a81-demo-dialog::backdrop{background:#25282c66;backdrop-filter:blur(3px)}
+.a81-demo-dialog h3{font-size:16px;margin:0 0 13px}
+
+#bee-immersive-suite .r-modal-layer[data-r-key=ai-consent] .bc-sheet-title>button{display:none}

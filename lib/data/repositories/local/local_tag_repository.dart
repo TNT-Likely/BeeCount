@@ -226,66 +226,124 @@ class LocalTagRepository implements TagRepository {
   }
 
   @override
-  Future<Map<int, List<Tag>>> getTagsForTransactions(List<int> transactionIds) async {
+  Future<Map<int, List<Tag>>> getTagsForTransactions(
+      List<int> transactionIds) async {
     if (transactionIds.isEmpty) return {};
 
-    final query = db.select(db.transactionTags).join([
-      d.innerJoin(
-        db.tags,
-        db.tags.id.equalsExp(db.transactionTags.tagId),
-      ),
-    ])..where(db.transactionTags.transactionId.isIn(transactionIds));
+    // One read snapshot across bounded queries: a concurrent tag deletion must
+    // not leave relation IDs from one version paired with tags from another.
+    return db.transaction(() async {
+      const batchSize = 400;
+      final ids = transactionIds.toSet().toList()..sort();
+      final result = <int, List<Tag>>{};
+      final tagsById = <int, Tag>{};
+      final checkedTagIds = <int>{};
+      final sharedBySyncId = <String, Tag>{};
+      final sharedReadTime = DateTime.now();
 
-    final rows = await query.get();
-
-    final result = <int, List<Tag>>{};
-    for (final row in rows) {
-      final transactionTag = row.readTable(db.transactionTags);
-      final tag = row.readTable(db.tags);
-      result.putIfAbsent(transactionTag.transactionId, () => []).add(tag);
-    }
-
-    // §7 共享账本:union TransactionTagOverrides — Editor 选 Owner tag 的
-    // 关系存 override 表(by tx.syncId,not tx.id)。反查映射成 synthetic Tag
-    // (id<0)同 picker 一致;tx 列表 chip / 编辑回显都能 join。
-    final txs = await (db.select(db.transactions)
-          ..where((t) => t.id.isIn(transactionIds)))
-        .get();
-    final syncIdToTxId = <String, int>{};
-    for (final t in txs) {
-      if (t.syncId != null) syncIdToTxId[t.syncId!] = t.id;
-    }
-    if (syncIdToTxId.isNotEmpty) {
-      final overrides = await (db.select(db.transactionTagOverrides)
-            ..where(
-                (t) => t.transactionSyncId.isIn(syncIdToTxId.keys.toList())))
-          .get();
-      if (overrides.isNotEmpty) {
-        final tagSyncIds = overrides.map((o) => o.tagSyncId).toSet().toList();
-        final sharedTags = await (db.select(db.sharedLedgerTags)
-              ..where((t) => t.syncId.isIn(tagSyncIds)))
+      for (var offset = 0; offset < ids.length; offset += batchSize) {
+        final end = (offset + batchSize).clamp(0, ids.length);
+        final batch = ids.sublist(offset, end);
+        // Each relation transfers two integers, not another full Tag object.
+        // Preserve each transaction's relation insertion order, not sortOrder.
+        final links = await (db.selectOnly(db.transactionTags)
+              ..addColumns(
+                  [db.transactionTags.transactionId, db.transactionTags.tagId])
+              ..where(db.transactionTags.transactionId.isIn(batch))
+              ..orderBy([d.OrderingTerm.asc(db.transactionTags.id)]))
             .get();
-        final bySyncId = <String, SharedLedgerTag>{
-          for (final s in sharedTags) s.syncId: s,
-        };
-        for (final ov in overrides) {
-          final txId = syncIdToTxId[ov.transactionSyncId];
-          if (txId == null) continue;
-          final shared = bySyncId[ov.tagSyncId];
-          if (shared == null) continue;
-          result.putIfAbsent(txId, () => []).add(Tag(
-                id: _syntheticIdForSyncId(shared.syncId),
-                name: shared.name,
-                color: shared.color,
-                sortOrder: 0,
-                createdAt: DateTime.now(),
-                syncId: shared.syncId,
-              ));
+        final missing = links
+            .map((row) => row.read(db.transactionTags.tagId)!)
+            .where((id) => !checkedTagIds.contains(id))
+            .toSet()
+            .toList();
+        for (var at = 0; at < missing.length; at += batchSize) {
+          final tagIds =
+              missing.sublist(at, (at + batchSize).clamp(0, missing.length));
+          final tags =
+              await (db.select(db.tags)..where((t) => t.id.isIn(tagIds))).get();
+          for (final tag in tags) {
+            tagsById[tag.id] = tag;
+          }
+          checkedTagIds.addAll(tagIds);
+        }
+        for (final row in links) {
+          final tag = tagsById[row.read(db.transactionTags.tagId)!];
+          // Same inner-join semantics for orphaned legacy relations.
+          if (tag == null) continue;
+          final txId = row.read(db.transactionTags.transactionId)!;
+          result.putIfAbsent(txId, () => []).add(tag);
         }
       }
-    }
-
-    return result;
+      // Join only transaction identity and override identity. No override means
+      // zero transaction payload rows; long notes/amounts never cross isolates.
+      final selected = <String, ({int txId, List<String> tags})>{};
+      for (var offset = 0; offset < ids.length; offset += batchSize) {
+        final batch =
+            ids.sublist(offset, (offset + batchSize).clamp(0, ids.length));
+        final rows = await (db.selectOnly(db.transactions)
+              ..join([
+                d.innerJoin(
+                    db.transactionTagOverrides,
+                    db.transactionTagOverrides.transactionSyncId
+                        .equalsExp(db.transactions.syncId),
+                    useColumns: false)
+              ])
+              ..addColumns([
+                db.transactions.id,
+                db.transactionTagOverrides.transactionSyncId,
+                db.transactionTagOverrides.tagSyncId
+              ])
+              ..where(db.transactions.id.isIn(batch))
+              ..orderBy([
+                d.OrderingTerm.asc(
+                    db.transactionTagOverrides.transactionSyncId),
+                d.OrderingTerm.asc(db.transactions.id),
+                d.OrderingTerm.asc(db.transactionTagOverrides.tagSyncId)
+              ]))
+            .get();
+        for (final row in rows) {
+          final syncId =
+              row.read(db.transactionTagOverrides.transactionSyncId)!;
+          final txId = row.read(db.transactions.id)!;
+          // Legacy duplicate syncIds resolve to the last local ID, including
+          // when the requested IDs straddle the 400-ID query boundary.
+          if (selected[syncId] == null || txId > selected[syncId]!.txId) {
+            selected[syncId] = (txId: txId, tags: <String>[]);
+          }
+          if (txId == selected[syncId]!.txId) {
+            selected[syncId]!
+                .tags
+                .add(row.read(db.transactionTagOverrides.tagSyncId)!);
+          }
+        }
+      }
+      final sharedIds =
+          selected.values.expand((entry) => entry.tags).toSet().toList();
+      for (var offset = 0; offset < sharedIds.length; offset += batchSize) {
+        final batch = sharedIds.sublist(
+            offset, (offset + batchSize).clamp(0, sharedIds.length));
+        final shared = await (db.select(db.sharedLedgerTags)
+              ..where((t) => t.syncId.isIn(batch)))
+            .get();
+        for (final tag in shared) {
+          sharedBySyncId[tag.syncId] = Tag(
+              id: _syntheticIdForSyncId(tag.syncId),
+              name: tag.name,
+              color: tag.color,
+              sortOrder: 0,
+              createdAt: sharedReadTime,
+              syncId: tag.syncId);
+        }
+      }
+      for (final entry in selected.values) {
+        for (final syncId in entry.tags) {
+          final tag = sharedBySyncId[syncId];
+          if (tag != null) result.putIfAbsent(entry.txId, () => []).add(tag);
+        }
+      }
+      return result;
+    });
   }
 
   /// 派生 synthetic int id(跟 shared_ledger_picker_filter.syntheticIdForSyncId 同算法)

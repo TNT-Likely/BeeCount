@@ -1,0 +1,13 @@
+const fs=require('fs'),path=require('path');
+const here=path.resolve(__dirname,'..'),root=path.resolve(here,'../../../..'),out=path.join(root,'.docs/v4-ui-migration');
+const fixtures=require('./detail-currency-samples.cjs'),texts=JSON.parse(fs.readFileSync(path.join(root,'lib/l10n/app_zh.arb'),'utf8'));
+const js=fs.readFileSync(path.join(__dirname,'detail-currency.js'),'utf8').replace('__DETAIL_CURRENCY_TEXTS__',()=>JSON.stringify(texts)).replace('__DETAIL_CURRENCY_FIXTURES__',()=>JSON.stringify(fixtures));
+let html=fs.readFileSync(path.join(here,'demo.html'),'utf8');
+if(html.includes('const dc97Texts='))throw Error('r97 module already included: use root registered build');
+html=html.replace('const views={',()=>js+'\nconst views={');
+html=html.replace('</head>',()=>'<style>'+fs.readFileSync(path.join(__dirname,'detail-currency.css'),'utf8')+'</style></head>');
+for(const file of ['vendor/lucide.min.js','scene-presets.js'])html=html.replace(`<script src="${file}"></script>`,()=>'<script>'+fs.readFileSync(path.join(here,file),'utf8')+'</script>');
+html=html.replace('const qInitialScene=qApplyPreviewLink();',"if(!new URLSearchParams(location.search).has('page'))state.page='flow-detail-currency-category-all';\nconst qInitialScene=qApplyPreviewLink();");
+fs.mkdirSync(out,{recursive:true});fs.writeFileSync(path.join(out,'r97-detail-currency-preview.html'),html);
+fs.writeFileSync(path.join(out,'r97-detail-currency-guide.html'),'<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>分类与标签 · 汇总币种</title><style>body{background:#f5f6f7}'+fs.readFileSync(path.join(__dirname,'detail-currency.css'),'utf8')+'</style>'+fixtures.guide.replaceAll('../prototype/demo.html','r97-detail-currency-preview.html')+'</html>');
+console.log(JSON.stringify({scenes:fixtures.scenes.length,preview:path.join(out,'r97-detail-currency-preview.html'),guide:path.join(out,'r97-detail-currency-guide.html')}));

@@ -1,0 +1,36 @@
+{
+  "source": "docs/design/card-refresh/prototype/demo.html?page=mine",
+  "measuredWith": "Chromium computed styles, default skin, approved task F/A, 2026-10-26",
+  "geometry": [
+    {
+      "viewport": "398x844",
+      "padding": [
+        14,
+        12,
+        14,
+        13
+      ],
+      "radius": 19,
+      "amountFont": 27,
+      "prefixFont": 15,
+      "statsValueFont": 11,
+      "statsLabelFont": 9,
+      "height": 93.5
+    },
+    {
+      "viewport": "320x568",
+      "padding": [
+        14,
+        12,
+        14,
+        13
+      ],
+      "radius": 19,
+      "amountFont": 25,
+      "prefixFont": 15,
+      "statsValueFont": 11,
+      "statsLabelFont": 9,
+      "height": 93.5
+    }
+  ]
+}

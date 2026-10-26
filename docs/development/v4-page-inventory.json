@@ -1,0 +1,2723 @@
+{
+  "date": "2026-10-26T08:49:55.523434+08:00",
+  "branch": "v4",
+  "pageFiles": 73,
+  "helperFiles": [
+    "lib/pages/ai/agent_message_visibility.dart",
+    "lib/pages/ai/agent_tool_presentation.dart",
+    "lib/pages/budget/widgets/budget_progress_bar.dart",
+    "lib/pages/budget/widgets/category_budget_tile.dart",
+    "lib/pages/cloud/sync_preview_dialog.dart",
+    "lib/pages/tag/widgets/tag_selector.dart"
+  ],
+  "designSceneExports": 567,
+  "flowDefinitions": 490,
+  "priorityCounts": {
+    "P0": 17,
+    "P1": 43,
+    "P2": 13
+  },
+  "plannedPages": [],
+  "associatedFlows": [
+    {
+      "name": "转账表单（新增同币种／兼容历史跨币种）",
+      "source": "lib/widgets/transaction/transfer_form.dart",
+      "priority": "P0",
+      "status": "已完成·P0生产消费者按固定版本累积验收；其他页面继续各自核对",
+      "designRoutes": [
+        "editor"
+      ],
+      "acceptance": "按Q04/Q06/Q09：新增仅同币种账户对，允许其他本位币账本的同一外币账户对；历史跨币种编辑兼容、复制遵守新增规则；同屏金额/账户、历史快照、余额与保存防重。"
+    },
+    {
+      "name": "金额与元信息表单",
+      "source": "lib/widgets/biz/amount_editor_sheet.dart",
+      "priority": "P0",
+      "status": "已完成·P0生产消费者按固定版本累积验收；其他页面继续各自核对",
+      "designRoutes": [
+        "editor",
+        "flow-foreign-editor"
+      ],
+      "acceptance": "键盘贴底、8px 间距、备注直接修改、附件右上角、分类独立滚动、折算右对齐。"
+    },
+    {
+      "name": "账单行、长按与滑动菜单",
+      "source": "lib/widgets/biz/transaction_list.dart",
+      "priority": "P0",
+      "status": "已完成·P0生产消费者按固定版本累积验收；其他页面继续各自核对",
+      "designRoutes": [
+        "home",
+        "search",
+        "batch"
+      ],
+      "acceptance": "真实列表绑定、分类图标导航、时间/折算/标签/附件、批量与只读、长按菜单和删除确认。"
+    },
+    {
+      "name": "分类选择弹窗",
+      "source": "lib/widgets/biz/category_selector_dialog.dart",
+      "priority": "P0",
+      "status": "已完成·P0生产消费者按固定版本累积验收；其他页面继续各自核对",
+      "designRoutes": [
+        "categoryPicker"
+      ],
+      "acceptance": "二级图标、自定义图片、搜索、更多分类、取消不提交。"
+    },
+    {
+      "name": "账户选择弹窗",
+      "source": "lib/widgets/biz/account_selector.dart",
+      "priority": "P0",
+      "status": "已完成·P0生产消费者按固定版本累积验收；其他页面继续各自核对",
+      "designRoutes": [
+        "flow-account-picker"
+      ],
+      "acceptance": "按币种筛选、未设置、隐藏历史账户、共享权限、搜索和草稿。"
+    },
+    {
+      "name": "账本选择弹层",
+      "source": "lib/widgets/biz/ledger_picker_sheet.dart",
+      "priority": "P0",
+      "status": "已完成·本地真实选择与原管理入口",
+      "designRoutes": [
+        "flow-ledger-picker"
+      ],
+      "acceptance": "当前态、个人/共享、币种与搜索、切换账本不丢草稿。"
+    },
+    {
+      "name": "币种选择弹层与汇率编辑",
+      "source": "lib/widgets/currency/currency_picker_sheet.dart",
+      "priority": "P0",
+      "status": "已完成·P0生产消费者按固定版本累积验收；其他页面继续各自核对",
+      "designRoutes": [
+        "flow-currency-picker",
+        "flow-exchange-rate"
+      ],
+      "acceptance": "搜索、同币种账户联动、历史快照、汇率缺失和正数校验。"
+    },
+    {
+      "name": "标签横排选择",
+      "source": "lib/pages/tag/widgets/tag_selector.dart",
+      "priority": "P0",
+      "status": "已完成·P0生产消费者按固定版本累积验收；其他页面继续各自核对",
+      "designRoutes": [
+        "flow-tag-picker-many"
+      ],
+      "acceptance": "多选、搜索、取消不提交、新建标签、长标签与 +N。"
+    },
+    {
+      "name": "日期与时间滚轮",
+      "source": "lib/widgets/ui/wheel_date_picker.dart",
+      "priority": "P0",
+      "status": "已复用·正式消费者随各页固定版本验收；日期边界与未原生重跑组合分列",
+      "designRoutes": [
+        "flow-date-picker"
+      ],
+      "acceptance": "月末/闰年、时间开关、取消和系统安全区。"
+    },
+    {
+      "name": "历史备注选择",
+      "source": "lib/widgets/biz/note_picker_dialog.dart",
+      "priority": "P1",
+      "status": "已完成UI迁移·原服务/方法体保持；本轮未新增原生历史选择重跑，边界保留",
+      "designRoutes": [
+        "editor"
+      ],
+      "acceptance": "常用备注筛选/排序、直接输入与选择后的草稿一致性。"
+    },
+    {
+      "name": "账单小票弹窗",
+      "source": "lib/widgets/biz/transaction_receipt_dialog.dart",
+      "priority": "P1",
+      "status": "已完成·原小票R108/R111固定范围已封存；D新版R116实际PNG/四字段与系统取消，报告另列",
+      "designRoutes": [
+        "receipt"
+      ],
+      "acceptance": "保留弹窗与原币格式，备注/标签/账户/账本四个原字段开关、图片生成和系统分享；原小票本无额外历史折算/附件图，未伪装成新增能力。R116实际USD10.25的960×1659 PNG、字段切换及取消；共用保存链以月PNG实存字节验证，未重复执行小票Save。"
+    },
+    {
+      "name": "AI 授权弹窗",
+      "source": "lib/widgets/ai/agent_tool_authorization_dialog.dart",
+      "priority": "P1",
+      "status": "已完成·R85正式消费者与真实拒绝/一次允许闭环",
+      "designRoutes": [
+        "flow-authorization"
+      ],
+      "acceptance": "标准三动作弹窗保留实际工具、当前账本和安全参数；真实拒绝不写账、本次允许准确一笔，权限不提升；Flutter59仅局部返回选择，原Gate字节不变。"
+    },
+    {
+      "name": "检查升级弹窗",
+      "source": "lib/services/update/update_dialogs.dart",
+      "priority": "P2",
+      "status": "已完成·R105实际检查/新版本/稍后取消；下载安装边界单列",
+      "designRoutes": [
+        "flow-update-check"
+      ],
+      "acceptance": "保持原弹窗，检查中/最新/可升级/错误与下载入口。"
+    },
+    {
+      "name": "关闭应用锁前的私有密码验证页",
+      "source": "lib/pages/settings/app_lock_settings_page.dart",
+      "priority": "P1",
+      "status": "已完成·R73原PIN验证与关闭闭环",
+      "acceptance": "R73实际错误PIN/取消保持锁，正确验证后清除PIN和关闭生物识别；四位原服务、错误半秒恢复和未知超时均保留，报告app-lock-settings-r73封存。"
+    }
+  ],
+  "rows": [
+    {
+      "source": "lib/pages/account/account_detail_page.dart",
+      "classes": [
+        "AccountDetailPage"
+      ],
+      "lines": 266,
+      "batch": "M3 资源管理与详情",
+      "designRoutes": [
+        "accountDetail",
+        "flow-account-credit-detail",
+        "flow-account-overpayment-detail",
+        "flow-account-no-limit-detail",
+        "flow-account-valuation-detail",
+        "flow-account-loan-detail",
+        "flow-account-empty-detail",
+        "flow-valuation"
+      ],
+      "designMapping": "已定位",
+      "components": "账户信息、余额、统计与过滤账单列表",
+      "acceptance": "323项/42文件相关回归、4文件静态检查及18组HTML通过；398/320关键几何独立冻结对照。R56实际CNY/USD、编辑取消、资金流向、1元信用卡还款和两类估值取消保存；R59实际投资+50、欠款减少10后父页SQL一致，图例中心及正常重启57笔/24账户/5附件保持。20图离线报告account-r59三宽度通过，ZIP SHA256 1ddceb4cf99b7f0831e2e1167de6743cdf9f6db1812448a3b1279ffb107aa1ef。Cloud/iOS及提醒送达未执行。",
+      "status": "已完成",
+      "name": "账户详情",
+      "priority": "P1",
+      "reason": "266行组合页，原分页/统计/资金流向、信用卡/估值及完整原币字段保留；R56/R59同一QA真实UI、独立SQL/文件和正常重启完成。R56发现父页缓存未刷新，R59已实际再次修改投资/贷款并确认无需重启两次立即更新。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=accountDetail",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-account-credit-detail",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-account-overpayment-detail",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-account-no-limit-detail",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-account-valuation-detail",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-account-loan-detail",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-account-empty-detail",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-valuation"
+      ]
+    },
+    {
+      "source": "lib/pages/account/account_edit_page.dart",
+      "classes": [
+        "AccountEditPage"
+      ],
+      "lines": 381,
+      "batch": "M3 资源管理与详情",
+      "designRoutes": [
+        "flow-account-edit",
+        "flow-balance-adjust",
+        "flow-account-new",
+        "flow-account-credit",
+        "flow-account-valuation"
+      ],
+      "designMapping": "已定位",
+      "components": "账户类型选择、规范表单、余额调整双模式、信用卡日期与提醒、币种选择和确认弹窗",
+      "acceptance": "211 项相关回归（27 文件）通过；相同逻辑尺寸的 HTML/真机关键几何对齐。本页 18 项含美元小数、信用卡、估值负数、并发余额、回滚和小屏。R37 实际保存现金/USD/信用卡/贷款、余额三分支、币种锁、隐藏/恢复、删除取消/确认和正常重启通过。原 51 笔与 5 附件不变，保留四个新合成账户及一笔收入 10 供继续验收；当前总 52 笔/当前账本 48。原生 iOS、真实 Cloud 与 OS 还款提醒送达未执行。",
+      "status": "已完成",
+      "name": "新增与编辑账户",
+      "priority": "P0",
+      "reason": "P0 账户依赖已完成：整卡表单、原类型/币种/余额和信用卡流程保留；R37 生产 UI、独立 SQL/文件和正常重启闭环通过。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-account-edit",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-balance-adjust",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-account-new",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-account-credit",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-account-valuation"
+      ]
+    },
+    {
+      "source": "lib/pages/account/accounts_page.dart",
+      "classes": [
+        "AccountsPage"
+      ],
+      "lines": 135,
+      "batch": "M3 资源管理与详情",
+      "designRoutes": [
+        "assets",
+        "flow-assets-single",
+        "flow-assets-missing",
+        "flow-assets-empty",
+        "flow-assets-hidden",
+        "flow-assets-valuation",
+        "flow-account-settings",
+        "flow-asset-default",
+        "flow-asset-conversion"
+      ],
+      "designMapping": "已定位",
+      "components": "资产汇总、账户卡、类型分组与操作菜单",
+      "acceptance": "239项相关回归（32文件）通过，HTML205场景/59组规范与交互链接、三宽度通过。R42实际验证汇总551814.48、隐私、图表偏好、折算明细、默认美元/现金账户、功能开关、整卡详情/长按编辑、隐藏取消/确认/菜单恢复、汇率/产品入口与正常重启。52笔/当前账本48/5附件/2自定义图片及全部原业务行保持；R41图片语义吞菜单问题已修复并在R42复验。Cloud/iOS和目标P1/P2页迁移未包含。",
+      "status": "已完成",
+      "name": "资产与账户列表",
+      "priority": "P0",
+      "reason": "原全币种统计、净值/构成、隐藏恢复、默认账户与外链入口保留；受控组件与125行页面编排完成。R42生产UI、独立SQL/文件与正常入口重启闭环通过。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=assets",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-assets-single",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-assets-missing",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-assets-empty",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-assets-hidden",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-assets-valuation",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-account-settings",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-asset-default",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-asset-conversion"
+      ]
+    },
+    {
+      "source": "lib/pages/account/net_worth_trend_page.dart",
+      "classes": [
+        "NetWorthTrendPage"
+      ],
+      "lines": 72,
+      "batch": "M4 统计与分享",
+      "designRoutes": [
+        "flow-networth"
+      ],
+      "designMapping": "已定位",
+      "components": "净值摘要、四种时间范围、三种资产维度、基础折线图、隐私和主币种说明",
+      "acceptance": "100项/13文件相关回归、最终49项目录/真实数据目标检查（重叠不相加）、11文件静态0问题；四组旧图逐像素、真正选择字号/外观的3组HTML、61组规范/39基础控件和231场景链接通过。真机12组合期初/期末/变化独立SQL一致，实际隐藏恢复/默认12个月重启、原57/53/24/5及标签26保持。8图/11文件报告networth-r65三宽度通过，ZIP SHA256 a7cf294cd75bccf73caa279d11e3c470834a74422ba31d8cee5f014d5ff9eafa。跨币种缺汇率/美元账本符号/空错与短屏大字高额由真实仓库/widget覆盖；原全屏没有点选回调，不新增该行为。Cloud/iOS未执行。",
+      "status": "已完成",
+      "name": "净资产趋势",
+      "priority": "P1",
+      "reason": "原四范围/三条线/月末降采样和期初期末变化保留；基础折线图抽离并冻结旧图。R65最终同一QA真实UI、独立SQL/偏好/文件与正常重启闭环通过。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-networth"
+      ]
+    },
+    {
+      "source": "lib/pages/ai/agent_activity_page.dart",
+      "classes": [
+        "AgentActivityPage"
+      ],
+      "lines": 10,
+      "batch": "M6 AI与自动化",
+      "designRoutes": [
+        "flow-activity",
+        "flow-advanced-activity",
+        "flow-advanced-activity-empty",
+        "flow-advanced-activity-error"
+      ],
+      "designMapping": "已定位",
+      "components": "原最近30次活动、运行与工具状态、错误反馈、只读刷新及当前账本真实仓储绑定",
+      "acceptance": "原recent30/createdAt工具顺序与服务逐字保留。5产品native共享批次中本页使用查看/跨本/最终3场景（不当成5个本页独有），4状态及completed/failed/denied工具结果实际可见；一共5合成runs/3calls，真实模型/网络工具未执行。3财务行/原会话行/旧21PNG全保护，两页共用一次正常入口重启31表逐字段相同。9图16文件三宽/ZIP/manifest/脱敏/0444通过，ZIP ba11fa9905fd655b464367cfca9d689228a78dda5291f15daa013df5512360e5。30条压力/多工具排序仅原源码与unit，Android重复完整套未执行。",
+      "status": "已完成",
+      "name": "AI 活动记录",
+      "priority": "P2",
+      "reason": "R109同一iOS实际4运行状态/3工具结果、只读刷新、真实两账本范围及共享一次正常main通过；合成展示fixture与实际模型/工具严格分开。Root逐20unique图、17固定源和31表复核，9图16文件独立报告最终封存。",
+      "implementationStage": "accepted",
+      "acceptanceReport": ".docs/acceptance/v4-migration/2026-10-25/ai-activity-r109/index.html",
+      "acceptanceZipSha256": "ba11fa9905fd655b464367cfca9d689228a78dda5291f15daa013df5512360e5",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-activity",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-advanced-activity",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-advanced-activity-empty",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-advanced-activity-error"
+      ]
+    },
+    {
+      "source": "lib/pages/ai/agent_assistant_settings_page.dart",
+      "classes": [
+        "AgentAssistantSettingsPage"
+      ],
+      "lines": 11,
+      "batch": "M6 AI与自动化",
+      "designRoutes": [
+        "flow-assistant-settings",
+        "flow-execution-depth",
+        "flow-assistant-settings-loading",
+        "flow-assistant-settings-error",
+        "flow-execution-depth-quick",
+        "flow-execution-depth-deep",
+        "flow-execution-depth-maximum"
+      ],
+      "designMapping": "已定位",
+      "components": "原权限/记忆/活动菜单、受控执行深度选择器、标准底部弹层、加载/错误/重试、App真实本地Store与当前账本绑定",
+      "acceptance": "固定38aa52af的868产品文件/lock一致，APK1324977584128ac4250745fa0ea582929780a206c2ac8b2e9fc05fa0ccc33bed；提交副本138项/28文件回归、11文件静态0问题，14组HTML/352场景/79规范组/44基础控件及三宽度通过。实际缺省4轮取消不写、2/4/6/8逐项保存、8轮正常launcher保持、恢复有效标准4，原权限/记忆/活动三目标和Back通过；Flutter58受控6/8不改真实配置、实际只读与正式入口、最终正常53笔首页通过。57全局/53当前交易、24账户、5附件及原全部业务表/追踪/图片/公共文件保持；原运行时/Store/AI Provider字节不变，私有服务商/提示词/能力缓存逐字不变，仅原有效标准4显式保存及原运行日志/小时Star缓存允许变化。18图21文件报告assistant-r84三宽度/完整hash/密钥扫描后只读封存，ZIP5afbd2f717c5570773140824fde6b97c1f733f809b84cc6e4681c93317637aab。原调试目录Back次数与合并语义定位的失败已保留并修正后实际复验；目标页只验证导航不冒称完成。未执行iOS/物理短屏/Cloud或模型请求。",
+      "status": "已完成",
+      "name": "AI 助手设置",
+      "priority": "P1",
+      "reason": "原226行页面/执行配置/本地Store/Provider四文件只读备份；薄页/纯执行深度选择器与App真实存储分层，原三入口及账本身份保留。同一QA四档保存/取消/正常重启、三个原目标返回、Flutter58及全部业务偏好/SQL/文件核验后封存。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-assistant-settings",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-execution-depth",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-assistant-settings-loading",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-assistant-settings-error",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-execution-depth-quick",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-execution-depth-deep",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-execution-depth-maximum"
+      ]
+    },
+    {
+      "source": "lib/pages/ai/agent_memory_page.dart",
+      "classes": [
+        "AgentMemoryPage"
+      ],
+      "lines": 10,
+      "batch": "M6 AI与自动化",
+      "designRoutes": [
+        "flow-memory",
+        "flow-advanced-memory",
+        "flow-advanced-memory-empty",
+        "flow-advanced-memory-loading",
+        "flow-advanced-memory-error",
+        "flow-advanced-memory-global"
+      ],
+      "designMapping": "已定位",
+      "components": "消息、配置表单、授权、任务状态与列表",
+      "acceptance": "合成fixture准备一次，11scratch准备单元与真实模型/工具分开；真实5产品native共享批次与R1114增量批次均不按页重复累计，只有一次共享normal main。原3财务行/原会话/21PNG、global/other记忆与另本summary全护，仅合法UI产生book2及派生偏好；R111取消不再CUD。两个阶段全部守卫、三宽/ZIP/manifest/脱敏/0444通过；Android重复整套、真实模型/工具与30条压力未执行。",
+      "status": "已完成",
+      "name": "AI 记忆管理",
+      "priority": "P2",
+      "reason": "R109实际当前/全局/其他账本记忆、单条取消/原global拒绝/当前遗忘、清当前取消确认及FTS/summary保护；R111规范确认框仅打开取消补验。17图25文件，Root逐图/17源单位及原31表跨版本精确保持后封存。",
+      "implementationStage": "accepted",
+      "acceptanceReport": ".docs/acceptance/v4-migration/2026-10-25/ai-memory-r111/index.html",
+      "acceptanceZipSha256": "043666491507f32ec284ca86d4cc83adf946fc3db5e4ac56aa2bc0ef0b7b3b8b",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-memory",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-advanced-memory",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-advanced-memory-empty",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-advanced-memory-loading",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-advanced-memory-error",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-advanced-memory-global"
+      ]
+    },
+    {
+      "source": "lib/pages/ai/agent_permissions_page.dart",
+      "classes": [
+        "AgentPermissionsPage"
+      ],
+      "lines": 8,
+      "batch": "M6 AI与自动化",
+      "designRoutes": [
+        "flow-permissions",
+        "flow-advanced-permissions",
+        "flow-advanced-permissions-modified",
+        "flow-advanced-permissions-error"
+      ],
+      "designMapping": "已定位",
+      "components": "原9工具权限列表、两种受控授权方式、作用范围提示与规范恢复确认弹窗",
+      "acceptance": "固定R108/d8cc3506，同一保留iOS QA：query→每次询问、record→始终允许实际保存并正常重启，恢复取消不写、确认清原权限key并重启回缺省；其余7项逐项写入NOT_RUN。原3财务行与21图片及其余业务表保持，原空会话/6运行偏好差异逐项记录，无模型/工具调用。15图22文件，三宽/完整hash/脱敏/0444通过；ZIP b165a527434a0f15732823f57b9a93e73ee1560169e563696e4923aafb0862cc。Android重复整套、真实模型执行和故障注入未执行。",
+      "status": "已完成",
+      "name": "AI 权限管理",
+      "priority": "P2",
+      "reason": "原9项权限与两种模式、作用范围保留；iOS实际选择两项、重启持久化、恢复取消/确认并回到原缺省，独立SQL/偏好/文件和正常main通过。15图22文件离线报告经Root逐图/15源单位与最终ZIP/manifest核验后只读封存。",
+      "implementationStage": "accepted",
+      "acceptanceReport": ".docs/acceptance/v4-migration/2026-10-25/ai-permissions-r108/index.html",
+      "acceptanceZipSha256": "b165a527434a0f15732823f57b9a93e73ee1560169e563696e4923aafb0862cc",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-permissions",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-advanced-permissions",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-advanced-permissions-modified",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-advanced-permissions-error"
+      ]
+    },
+    {
+      "source": "lib/pages/ai/ai_chat_page.dart",
+      "classes": [
+        "AIChatPage"
+      ],
+      "lines": 8,
+      "batch": "M6 AI与自动化",
+      "designRoutes": [
+        "ai",
+        "flow-chat-empty",
+        "flow-chat-first",
+        "flow-chat-history",
+        "flow-chat-unconfigured",
+        "flow-chat-streaming",
+        "flow-chat-error",
+        "flow-chat-bill",
+        "flow-chat-undone",
+        "flow-chat-authorization",
+        "flow-chat-clear",
+        "flow-chat-message-menu",
+        "flow-chat-delete",
+        "flow-chat-ledger"
+      ],
+      "designMapping": "已定位",
+      "components": "会话输入与停止、消息/账单卡、工具执行与授权、原会话/消息真实仓储绑定、标准确认弹窗",
+      "acceptance": "固定f809a3ec的872产品文件/lock与APK62ea9d017098981c347b0cd8d52ba6fac77cd980e655eaa48b25e64aed4613fe核验；提交副本220项/35文件回归，16文件静态0问题（字体差异2文件亦复核），HTML28组/365场景/80规范组/44基础控件与三宽度通过。实际glm-5.3-flash查询工具和独立SQL36笔/273.27收入/3506.76支出一致；停止cancelled，拒绝denied无写入，本次允许准确新增13元CNY专属交易，正式编辑仅改备注，账本取消/仅迁移专属记录/撤销保留原57笔及关系。重启历史/标题原设置、长按锚点菜单/单条删除/清空取消与确认只影响自有会话，原生不改剪贴板。Flutter59受控发送/停止/编辑/账本/撤销、实际生产授权仅返本地选择、同一仓储只读0消息/正式入口及最终正常launcher空对话和53笔首页通过。原24账户/5附件/3图片/两公共文件、私有AI配置/提示词/能力缓存/权限/深度及完整偏好保持，仅原日志/Star缓存变化；自有会话2与目标账本7增量保留，4次模型run可追踪，不重建/重种。输入和暂停动效滚动的原生驱动失败修正后真实复验，日志私有保留。31图34文件chat-r85报告三宽度/完整hash/密钥扫描后只读封存，ZIP6aad7ee4aec294dfcb054bc7c81f8612dcd5c28673b50945b4ecf05e66c1b2e7。未执行iOS/物理短屏/Cloud；外币/转账/多卡/错误未配置由Widget/HTML覆盖，语音/额外确认Q22待集中确认。",
+      "status": "已完成",
+      "name": "AI 对话与执行",
+      "priority": "P1",
+      "reason": "原1524行页面及13个关联文件4140行、原基础弹窗/消息菜单/账本选择器完整只读备份。七个纯对话组件与App真实绑定，服务/权限/Markdown/时间线/追问/可见性按原字节保持；实际指定模型、授权写入、编辑/切账本/撤销、消息操作/重启与Flutter59及完整数据守卫通过，31图34文件报告封存。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=ai",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-chat-empty",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-chat-first",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-chat-history",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-chat-unconfigured",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-chat-streaming",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-chat-error",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-chat-bill",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-chat-undone",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-chat-authorization",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-chat-clear",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-chat-message-menu",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-chat-delete",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-chat-ledger"
+      ]
+    },
+    {
+      "source": "lib/pages/ai/ai_prompt_edit_page.dart",
+      "classes": [
+        "AIPromptEditPage"
+      ],
+      "lines": 9,
+      "batch": "M6 AI与自动化",
+      "designRoutes": [
+        "flow-prompt",
+        "flow-prompt-draft",
+        "flow-prompt-missing",
+        "flow-prompt-complete",
+        "flow-prompt-preview",
+        "flow-prompt-reset",
+        "flow-prompt-share"
+      ],
+      "designMapping": "已定位",
+      "components": "模板变量折叠、能力缺失提示与安全补丁、代码编辑/预览、草稿保存/重置、剪贴板与分享App绑定",
+      "acceptance": "最终e1adf230的864产品文件及lock一致，APK d3d87148e1a06a83a9da2631f8ef2b4956fb698e6372419cc668d2dc904d9b8c；127项/24文件提交副本回归、16文件静态0问题，14组HTML/347场景/78规范组/44基础控件及三宽度通过。完整八变量/原模板、实际草稿/预览不保存、安全币种补丁、恢复取消、自定义保存重启、默认只改草稿后保存重启、长预览滚动/固定关闭及系统分享面板取消通过；Flutter57局部与真实只读/正式入口、最终正常53笔首页通过。连续编辑焦点/光标缺陷已用eager表单与稳定标识修复并重建复验。首次安装前独立备份证明已有交易56本位币快照85.20CNY(原金额仍12USD)及AI开启，均保留并Q21记录；全部进入前金融/追踪、57/53/24/5、图片/公共文件和私有AI配置/能力缓存不变，其他完整偏好仅原默认提示词显式保存及运行缓存变化。23图26文件报告prompt-r83三宽度/hash/密钥扫描后只读封存，ZIP471d6e49a6647eed86c001d137653e011c786b98c8c45512b3c2ad9269ecb341。原生剪贴板未改写，由Widget验证实际通道；未执行iOS/物理短屏/Cloud或本页模型请求。",
+      "status": "已完成",
+      "name": "AI 提示词编辑",
+      "priority": "P1",
+      "reason": "原631行提示词页面及模板/常量/Manager四文件只读备份；薄页/纯代码与变量文档组件/App真实草稿与持久化分层，原模板及服务字节保持。R83同一QA实际编辑/补丁/取消/保存/默认恢复/长预览/系统分享取消/Flutter57和正常重启、完整偏好文件核验封存。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-prompt",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-prompt-draft",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-prompt-missing",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-prompt-complete",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-prompt-preview",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-prompt-reset",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-prompt-share"
+      ]
+    },
+    {
+      "source": "lib/pages/ai/ai_provider_manage_page.dart",
+      "classes": [
+        "AIProviderManagePage",
+        "AIProviderEditPage"
+      ],
+      "lines": 50,
+      "batch": "M6 AI与自动化",
+      "designRoutes": [
+        "flow-providers",
+        "flow-providers-many",
+        "flow-providers-empty",
+        "flow-providers-loading",
+        "flow-providers-error",
+        "flow-provider-edit",
+        "flow-provider-add",
+        "flow-provider-custom",
+        "flow-provider-testing",
+        "flow-provider-success",
+        "flow-provider-failed",
+        "flow-provider-delete"
+      ],
+      "designMapping": "已定位",
+      "components": "基础静态标签/外部字段标签、服务商能力卡、模型测试字段、配置弹窗、App请求/缓存/保存/删除绑定",
+      "acceptance": "最终476796f6的858产品文件及lock一致，APK ce2b3e9e6d16c7c8265ce9ec1665e87a84365e5f78d1bc5e6089ca530e7de6dd；118项/20文件提交副本回归、18文件静态0问题，24组HTML/341场景/77规范组/42基础控件与三宽度通过。实际内置锁定/密钥隐藏、两合成服务商新增/必填/取消及重启，模型编辑保持ID/创建时间、三能力过滤取消、第三专属对象绑定后删除取消/确认回退原智谱；用户指定glm-5.3-flash正式Factory文本/工具/流式合成探测成功，保存前后/重启精确核对私有Key及其他字段。实际Flutter56状态/真实只读/生产入口及最终53笔首页；全部原金融追踪、57/53/24/5、图片/两公共文件和其他完整业务偏好保持，只允许本页精确配置/原能力指纹缓存及运行日志/小时Star缓存。28图31文件报告providers-r82三宽度与ZIP密钥/文件hash核验后只读封存，SHA256 26758aea753669de1c88e44b81c3fa8fdb10944378097e3a736c50c37dc03fc9。Cloud/视觉语音实服/iOS/物理短屏未执行；初次自动化定位/IME与脚本错误已按真实UI复验并保留失败日志。",
+      "status": "已完成",
+      "name": "AI 服务商管理",
+      "priority": "P1",
+      "reason": "原1075行管理/编辑及Factory/Manager/配置/常量五文件完整备份。正式薄页、纯服务卡/测试字段/静态标签与App真实读写请求分层；R82同一QA实际新增/取消/编辑、三能力过滤、删除回退、私有配置真实连接/持久化、组件页与正常重启闭环封存。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-providers",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-providers-many",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-providers-empty",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-providers-loading",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-providers-error",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-provider-edit",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-provider-add",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-provider-custom",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-provider-testing",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-provider-success",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-provider-failed",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-provider-delete"
+      ]
+    },
+    {
+      "source": "lib/pages/ai/ai_settings_page.dart",
+      "classes": [
+        "AISettingsPage"
+      ],
+      "lines": 52,
+      "batch": "M6 AI与自动化",
+      "designRoutes": [
+        "flow-ai-settings",
+        "flow-ai-settings-enabled",
+        "flow-ai-settings-loading",
+        "flow-ai-settings-error",
+        "flow-ai-settings-long",
+        "flow-ai-consent",
+        "flow-capabilities",
+        "flow-ai-capability-text",
+        "flow-ai-capability-vision",
+        "flow-ai-capability-speech"
+      ],
+      "designMapping": "已定位",
+      "components": "纯能力绑定行与完整原授权正文，标准弹窗/开关/四策略/折叠；真实过滤/保存/权限/缓存/导航留App；Flutter55受控和真实只读",
+      "acceptance": "最终0ef55f7b提交副本102项/15文件回归、14文件静态0问题，20组HTML/331场景/76组规范/41基础控件与三宽度通过。851产品文件/lock一致，实际APK身份/签名/hash和私有备份核验；同一QA完整原授权取消/政策往返/接受/版本1重启、3能力取消和内置保存、仅云端重启及原云端优先恢复、原两项本地策略禁用、2原目标/Flutter55/只读与正式入口及正常53笔首页通过。原全部金融表/追踪/57全局53当前24账户5附件、Smart偏好、Provider配置hash和全部图片/public文件保持；仅本页5原有效设置显式保存/原日志与Star小时缓存时间更新，计数2638保持。23图26文件ai-r81报告封存，ZIP 035ab7ef629832d6a0f938905343823b94e24efd0128f52a48dc1d7e19ed5011。实际AI/Cloud未执行；原升级补授权及多服务商过滤由Widget，物理短屏/iOS未执行。",
+      "status": "已完成",
+      "name": "AI 设置",
+      "priority": "P1",
+      "reason": "原529行/授权弹窗和配置Provider、Manager、Store完整备份；配置Provider/Manager/Store原字节未改。薄页/纯组件/App真实门禁与能力绑定、HTML/Flutter55、真实UI/全量数据和重启/封存完成。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-ai-settings",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-ai-settings-enabled",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-ai-settings-loading",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-ai-settings-error",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-ai-settings-long",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-ai-consent",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-capabilities",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-ai-capability-text",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-ai-capability-vision",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-ai-capability-speech"
+      ]
+    },
+    {
+      "source": "lib/pages/attachment/attachment_preview_page.dart",
+      "classes": [
+        "AttachmentPreviewPage"
+      ],
+      "lines": 63,
+      "batch": "M7 初始化与数据",
+      "designRoutes": [
+        "flow-attachment-viewer",
+        "flow-attachments"
+      ],
+      "designMapping": "已定位",
+      "components": "附件网格、大图、缩略图与状态",
+      "acceptance": "7 项真实文件/数据库 widget 回归及冻结 HTML 尺寸通过；真机预览/切换/缩略图、保存附件删除与重新添加、文件 SHA256 和重启持久化通过。双指缩放通过实际 widget 手势；原生拍照及原生双指手势未执行，作为设备覆盖边界记录。",
+      "status": "已完成",
+      "name": "账单附件大图预览",
+      "priority": "P0",
+      "reason": "已对齐 HTML 全屏留白、文件名、计数和缩略图；R13 在同一隔离包完成删除取消、实际删除/系统相册重加与正常入口重启，50 笔交易及其余附件保持不变。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-attachment-viewer",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-attachments"
+      ]
+    },
+    {
+      "source": "lib/pages/auth/app_lock_screen.dart",
+      "classes": [
+        "AppLockScreen"
+      ],
+      "lines": 135,
+      "batch": "M7 初始化与数据",
+      "designRoutes": [
+        "flow-lock",
+        "flow-lock-bio"
+      ],
+      "designMapping": "已定位",
+      "components": "安全输入、错误反馈与解锁状态",
+      "acceptance": "四位 PIN、原哈希与生物识别可用性条件不变；398/320 HTML 冻结键盘、浅深色 140% 字体和相关 184 项回归通过。R35 真实 UI 与独立偏好/业务表/文件核对、正常重启通过；原生 iOS、真实设备生物识别未执行。关闭锁前私有验证页仍单独列为设置关联迁移。",
+      "status": "已完成",
+      "name": "应用锁解锁",
+      "priority": "P0",
+      "reason": "R35 当前独立 Android 产物已完成真实 PIN 创建取消/不一致/保存、旧密码验证/修改、正常重启锁定/解锁、验证关闭锁与移除验收 PIN；原认证规则与所有业务数据保持。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-lock",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-lock-bio"
+      ]
+    },
+    {
+      "source": "lib/pages/auth/login_page.dart",
+      "classes": [
+        "AuthPage",
+        "LoginPage"
+      ],
+      "lines": 15,
+      "batch": "M7 初始化与数据",
+      "designRoutes": [
+        "flow-login",
+        "flow-login-webdav",
+        "flow-login-busy",
+        "flow-login-error"
+      ],
+      "designMapping": "已定位",
+      "components": "登录表单、安全输入、验证码与错误反馈",
+      "acceptance": "原账号/验证方式、合法输入、加载防重、取消、登录失败/恢复和实际鉴权。 R114整页封存：cloud-login-r114；原c7/R113视觉证据按源连续性复用，R114目标水合/加入退出与DAV真实恢复/重登/首建月8和共同正常入口单列。2本9笔/3附件refs两侧实际字节严格MATCH；全原71保护，最终仅新增0.41至72。Q24精度MISMATCH、旧附件order拒绝、DAVv6字段边界、未实服后端等继续保留。该报告不覆盖后续A–E新设计修订。",
+      "status": "已完成",
+      "name": "云账号登录",
+      "priority": "P1",
+      "reason": "Root已逐页审阅原功能/设计/组件/相关回归与实际原生实服闭环，R114固定版本独立HTML/ZIP解压hash/links与三宽检查通过并只读封存。",
+      "implementationStage": "accepted",
+      "report": {
+        "path": ".docs/acceptance/v4-migration/2026-10-26/cloud-r114-final/cloud-login-r114/index.html",
+        "zip": ".docs/acceptance/v4-migration/2026-10-26/cloud-r114-final/cloud-login-r114.zip",
+        "zipSHA256": "6bce62be76ea534ed3020999b3f816a0f33a5a3d30e69a8e63cd0eb39f4fed07",
+        "sourceCommit": "c21b378a0322a0b48da631a9ff438f69574474cc",
+        "artifactSHA256": "e37427b9f7f35ce70d357ee2db9126bd18bd351147aab1aff5f7334c4052d6f3",
+        "sealed": true
+      },
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-login",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-login-webdav",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-login-busy",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-login-error"
+      ]
+    },
+    {
+      "source": "lib/pages/auth/pin_setup_page.dart",
+      "classes": [
+        "PinSetupPage"
+      ],
+      "lines": 155,
+      "batch": "M7 初始化与数据",
+      "designRoutes": [
+        "flow-pin",
+        "flow-pin-change"
+      ],
+      "designMapping": "已定位",
+      "components": "PIN 输入、确认步骤与错误状态",
+      "acceptance": "四位 PIN、原哈希与生物识别可用性条件不变；398/320 HTML 冻结键盘、浅深色 140% 字体和相关 184 项回归通过。R35 真实 UI 与独立偏好/业务表/文件核对、正常重启通过；原生 iOS、真实设备生物识别未执行。关闭锁前私有验证页仍单独列为设置关联迁移。",
+      "status": "已完成",
+      "name": "PIN 设置与确认",
+      "priority": "P0",
+      "reason": "R35 当前独立 Android 产物已完成真实 PIN 创建取消/不一致/保存、旧密码验证/修改、正常重启锁定/解锁、验证关闭锁与移除验收 PIN；原认证规则与所有业务数据保持。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-pin",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-pin-change"
+      ]
+    },
+    {
+      "source": "lib/pages/auth/splash_page.dart",
+      "classes": [
+        "SplashPage"
+      ],
+      "lines": 46,
+      "batch": "M7 初始化与数据",
+      "designRoutes": [
+        "flow-splash"
+      ],
+      "designMapping": "已定位",
+      "components": "品牌底座、原安全说明、卡片与初始化进度",
+      "acceptance": "214 项相关回归（28 文件）与静态检查通过，保留原本地/开源/可选同步三项说明和原自动初始化边界。HTML 398/320、140% 和深色检查通过；R38 原 App 实际生产页面预览、76dp 像素边界及正常入口冷启动/当前账本/52 笔与 5 附件核对通过。无额外欢迎按钮，无初始化耗时声明；欢迎完整流程、真实 Cloud 和原生 iOS 单列。",
+      "status": "已完成",
+      "name": "启动页",
+      "priority": "P0",
+      "reason": "P0 原启动界面已对齐自动初始化展示与安全说明；初始化控制仍在原 MainApp/provider，R38 原 App 页面和正常启动复核通过。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-splash"
+      ]
+    },
+    {
+      "source": "lib/pages/auth/welcome_page.dart",
+      "classes": [
+        "WelcomePage"
+      ],
+      "lines": 160,
+      "batch": "M7 初始化与数据",
+      "designRoutes": [
+        "welcome",
+        "welcomeCurrency",
+        "welcomeCategories",
+        "welcomeCloud",
+        "welcomePrivacy",
+        "welcomeImport",
+        "welcomeAttachments",
+        "welcomeDone",
+        "flow-welcome-currency-picker",
+        "flow-welcome-bridge"
+      ],
+      "designMapping": "已定位",
+      "components": "居中欢迎步骤、语言/币种/分类选择、恢复与云同步说明",
+      "acceptance": "250项相关回归（33文件）通过；R44最终文案变更后本页11项重跑通过。实际五语言/English偏好、USD/全部151币种搜索THB、三模式草稿、真实系统选择取消/无效YAML拒绝/有效标签导入、无效TAR.GZ拒绝/有效v3零条目包导入与正常重启通过。原52笔/当前48/5附件/2自定义图片保持，仅新增合成标签74581443。首次种子三模式/无账本/失败回滚/防重复及320深色140%由真实仓库widget覆盖；Cloud/iOS和首次空数据包冷启未执行。",
+      "status": "已完成",
+      "name": "欢迎与初始化全流程",
+      "priority": "P0",
+      "reason": "原五步和两步恢复保留，受控组件、真实种子/导入服务与失败事务防重完成；R44同一隔离包生产UI、独立SQL/文件及正常重启闭环通过。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=welcome",
+        "../../docs/design/card-refresh/prototype/demo.html?page=welcomeCurrency",
+        "../../docs/design/card-refresh/prototype/demo.html?page=welcomeCategories",
+        "../../docs/design/card-refresh/prototype/demo.html?page=welcomeCloud",
+        "../../docs/design/card-refresh/prototype/demo.html?page=welcomePrivacy",
+        "../../docs/design/card-refresh/prototype/demo.html?page=welcomeImport",
+        "../../docs/design/card-refresh/prototype/demo.html?page=welcomeAttachments",
+        "../../docs/design/card-refresh/prototype/demo.html?page=welcomeDone",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-welcome-currency-picker",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-welcome-bridge"
+      ]
+    },
+    {
+      "source": "lib/pages/automation/auto_billing_settings_page.dart",
+      "classes": [
+        "AutoBillingSettingsPage",
+        "AndroidAutoBillingPage"
+      ],
+      "lines": 234,
+      "batch": "M6 AI与自动化",
+      "designRoutes": [
+        "flow-android-auto",
+        "flow-auto-platform",
+        "flow-auto-billing-android",
+        "flow-auto-billing-android-on",
+        "flow-auto-billing-battery-ok",
+        "flow-auto-billing-battery-error",
+        "flow-auto-billing-no-battery-request",
+        "flow-auto-billing-load-error",
+        "flow-auto-billing-permission-denied",
+        "flow-auto-billing-enable-error",
+        "flow-auto-billing-disable-error",
+        "flow-auto-billing-busy",
+        "flow-auto-billing"
+      ],
+      "designMapping": "已定位",
+      "components": "平台引导、开关、选择项与配置表单",
+      "acceptance": "真实false→true→返回再进true→电池原信息确定→true→false→返回再进false，原photos请求已granted，授权按钮手势未执行；不触OS电池配置。原缺省screenshot_monitor_enabled变显式false及app_logs源证变化，其余Prefs和全部31表/70财务/7附件+3图精确保持。Root直接核原完整Home d4134…与原PNG/crop，先前视觉误读已更正而非产品/actor错误，无补图重跑。7图19文件三宽/ZIP/manifest/脱敏/0444通过；截图MediaStore事件→AI记账、拒绝/storage/OS豁免和其它厂商原生未执行，原service/平台文件逐字不变。",
+      "status": "已完成",
+      "name": "Android 自动记账设置",
+      "priority": "P1",
+      "reason": "R111实际原开关开启/返回再入、原电池信息dialog、关闭/再入与正常MAIN冷启动持久化完成。Root直接核7真实原图、18固定源和原31表/70笔/7附件3图、唯一业务Pref delta后封存7图19文件报告。",
+      "implementationStage": "accepted",
+      "acceptanceReport": ".docs/acceptance/v4-migration/2026-10-25/auto-billing-r111/index.html",
+      "acceptanceZipSha256": "aaf2fd3d7882aa1d13a8c03df020c318c9e3e6005ac844de78406d7b9b56f07b",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-android-auto",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-auto-platform",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-auto-billing-android",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-auto-billing-android-on",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-auto-billing-battery-ok",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-auto-billing-battery-error",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-auto-billing-no-battery-request",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-auto-billing-load-error",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-auto-billing-permission-denied",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-auto-billing-enable-error",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-auto-billing-disable-error",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-auto-billing-busy",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-auto-billing"
+      ]
+    },
+    {
+      "source": "lib/pages/automation/ios_auto_billing_page.dart",
+      "classes": [
+        "IOSAutoBillingPage"
+      ],
+      "lines": 101,
+      "batch": "M6 AI与自动化",
+      "designRoutes": [
+        "flow-ios-auto",
+        "flow-auto-billing-ios",
+        "flow-auto-billing-ios-old",
+        "flow-auto-billing-ios-manual",
+        "flow-auto-billing-ios-open-error",
+        "flow-auto-billing-ios-opening"
+      ],
+      "designMapping": "已定位",
+      "components": "平台引导、开关、选择项与配置表单",
+      "acceptance": "真实iOS生产入口、六步展开/滚动/收起/返回，R106 CirclePlay视觉补验；30源码单元独立匹配。外部快捷指令导入/系统执行/低版本未测，只确认App说明页迁移。 独立报告ios-auto-billing-r106；失败/PARTIAL/INTERRUPTED与全部NOT_RUN原样保留，组件测试不等同原生动作，历史数据快照不代表当前。",
+      "status": "已完成",
+      "name": "iOS 自动记账设置",
+      "priority": "P1",
+      "reason": "固定R105流程与R106视觉增量，Root人工核图/独立源码、数据守卫和正常入口共享重启审阅，独立三宽/ZIP/manifest/脱敏后只读封存。",
+      "implementationStage": "implemented",
+      "acceptanceReport": ".docs/acceptance/v4-migration/2026-10-25/ios-auto-billing-r106/index.html",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-ios-auto",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-auto-billing-ios",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-auto-billing-ios-old",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-auto-billing-ios-manual",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-auto-billing-ios-open-error",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-auto-billing-ios-opening"
+      ]
+    },
+    {
+      "source": "lib/pages/budget/budget_edit_page.dart",
+      "classes": [
+        "BudgetEditPage"
+      ],
+      "lines": 99,
+      "batch": "M4 统计与分享",
+      "designRoutes": [
+        "flow-budget-edit",
+        "flow-budget-edit-existing-total",
+        "flow-budget-edit-total",
+        "flow-budget-edit-category",
+        "flow-budget-edit-custom",
+        "flow-budget-edit-empty-categories",
+        "flow-budget-edit-loading",
+        "flow-budget-edit-error",
+        "flow-budget-edit-write-error",
+        "flow-budget-edit-readonly",
+        "flow-bge-category",
+        "flow-bge-delete"
+      ],
+      "designMapping": "已定位",
+      "components": "白底金额卡、原两位小数输入、父分类底部选择与图标、固定全宽保存、原身份编辑与删除确认",
+      "acceptance": "最终提交7cb799a7/823产品文件/lock及APK核对；93项11文件、14文件静态0问题；20组HTML、72组规范/300场景阶段检查。真机在已有专用USD账本创建/修改小数预算、0拒绝、父分类选择、分类删除与总预算级联取消/确认，所有临时预算经UI删除。Flutter51可编辑/自定义图片真实显示/历史2000.125只读/错误及真实500预算取消，正常启动原2000预算取消与53笔首页；原57/53/24/5和文件/prefs保持。23图26文件三宽度报告budget-edit-r77封存，ZIP SHA256 f68b2bb2d75db8cdd08336a16e419b5c40a3ab6d69029dbb4beb0adc9359d884。Q18保留原updateBudget不改categoryId，不新增分类迁移；Cloud/iOS/物理短屏未执行。",
+      "status": "已完成",
+      "name": "预算编辑",
+      "priority": "P1",
+      "reason": "原556行完整备份；页面组合纯金额/分类草稿与App真实动作，R77同一QA实际增改删/取消和独立SQL、正常重启与封存报告闭环。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-budget-edit",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-budget-edit-existing-total",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-budget-edit-total",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-budget-edit-category",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-budget-edit-custom",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-budget-edit-empty-categories",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-budget-edit-loading",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-budget-edit-error",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-budget-edit-write-error",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-budget-edit-readonly",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-bge-category",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-bge-delete"
+      ]
+    },
+    {
+      "source": "lib/pages/budget/budget_page.dart",
+      "classes": [
+        "BudgetPage"
+      ],
+      "lines": 62,
+      "batch": "M4 统计与分享",
+      "designRoutes": [
+        "budget",
+        "flow-budget",
+        "flow-budget-warning",
+        "flow-budget-danger",
+        "flow-budget-exceeded",
+        "flow-budget-empty",
+        "flow-budget-readonly",
+        "flow-budget-empty-readonly",
+        "flow-budget-loading",
+        "flow-budget-error",
+        "flow-budget-usd"
+      ],
+      "designMapping": "已定位",
+      "components": "纯预算概览、风险进度与分类预算行，App统计与编辑动作绑定、真实只读预览和首页偏好",
+      "acceptance": "已提交源码53项/4文件回归、9文件静态0问题；128环形/80分类行冻结、20组HTML场景、71组规范/41基础及288场景链接通过。真机原2000预算/3232.72用量/负剩余与SQL一致，原编辑取消、首页开关恢复、Flutter50/真实预览/正常重启通过；57/53/24/5及全部原预算/金融表/图片与公共文件保持。14图/17文件报告budget-r76，ZIP SHA256 5e3140606c79da56755502556c32dc68d10d7dd20a97c3b2bc31f9621c223429。预算编辑页另迁移；Cloud/iOS未执行。",
+      "status": "已完成",
+      "name": "预算总览",
+      "priority": "P1",
+      "reason": "128环形概览/分类预算/个人首页显示卡片完成，原统计与权限/编辑对象保留；R76同一QA真实UI、独立SQL/文件和正常重启通过。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=budget",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-budget",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-budget-warning",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-budget-danger",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-budget-exceeded",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-budget-empty",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-budget-readonly",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-budget-empty-readonly",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-budget-loading",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-budget-error",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-budget-usd"
+      ]
+    },
+    {
+      "source": "lib/pages/calendar/calendar_page.dart",
+      "classes": [
+        "CalendarPage"
+      ],
+      "lines": 85,
+      "batch": "M4 统计与分享",
+      "designRoutes": [
+        "calendar",
+        "flow-calendar",
+        "flow-calendar-unselected",
+        "flow-calendar-empty",
+        "flow-calendar-loading",
+        "flow-calendar-error",
+        "flow-calendar-earliest",
+        "flow-calendar-latest",
+        "flow-cl-month"
+      ],
+      "designMapping": "已定位",
+      "components": "月历整卡、双金额日期槽、按日标题与完整原账单行、年月滚轮及选日记账",
+      "acceptance": "最终提交副本70项/7文件相关回归、16文件静态0问题；14组HTML和308场景/73组规范/41基础控件及三宽度通过。真机日收入42.45/支出455.71、原转账编辑与选日新增取消、次月/横滑/今天/滚轮取消和确认9月、原USD32→227.20均与独立SQL一致；Flutter52真实3天只读与正式入口、正常launcher重启通过。原57/53/24/5、金融表/追踪/偏好/图片和公共文件hash保持。18图/21文件报告calendar-r78三宽度与密钥逐字节扫描封存，ZIP d4ca4c578710d86ddd2235a97c40ffa78e1f3f838ce7beae104a5c13c757f396。物理短屏/iOS未执行，Cloud不适用。",
+      "status": "已完成",
+      "name": "账单日历",
+      "priority": "P1",
+      "reason": "原721行页面与70行Provider完整备份；原统计口径不变，薄页面与纯日历业务组件完成。R78同一QA真实UI、独立SQL/文件、正常重启及封存报告闭环。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=calendar",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-calendar",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-calendar-unselected",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-calendar-empty",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-calendar-loading",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-calendar-error",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-calendar-earliest",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-calendar-latest",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-cl-month"
+      ]
+    },
+    {
+      "source": "lib/pages/category/category_edit_page.dart",
+      "classes": [
+        "CategoryEditPage"
+      ],
+      "lines": 254,
+      "batch": "M3 资源管理与详情",
+      "designRoutes": [
+        "flow-category-edit",
+        "flow-category-icons",
+        "flow-transfer-icon",
+        "flow-category-new",
+        "flow-category-parent-picker"
+      ],
+      "designMapping": "已定位",
+      "components": "名称与类型、原 237 图标目录、自定义图片草稿、父分类选择与删除保护",
+      "acceptance": "原 237 图标与分组、收支同名规则、转账类型、父分类禁用和层级、原生相册/裁剪/图片草稿取消、名称图标原子保存与失败回滚、删除保护均已核对。R30/R31 同一 QA 包实际创建/编辑二级分类、图片保存/替换取消、删除取消/确认及原转账入口，正常重启后原 51 笔、5 附件、业务表及图标文件保持。176 项相关回归通过；原生 iOS 与真实 Cloud 未执行。",
+      "status": "已完成",
+      "name": "新增与编辑分类",
+      "priority": "P0",
+      "reason": "日常记账闭环、明细导航或启动/恢复入口，必须先保证可用且连贯。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-category-edit",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-category-icons",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-transfer-icon",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-category-new",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-category-parent-picker"
+      ]
+    },
+    {
+      "source": "lib/pages/category/category_manage_page.dart",
+      "classes": [
+        "CategoryManagePage"
+      ],
+      "lines": 128,
+      "batch": "M3 资源管理与详情",
+      "designRoutes": [
+        "flow-category-management",
+        "flow-category-children",
+        "flow-category-tools",
+        "flow-category-share",
+        "flow-taxonomy-import",
+        "flow-category-defaults",
+        "flow-category-clear",
+        "flow-category-empty",
+        "flow-category-order"
+      ],
+      "designMapping": "已定位",
+      "components": "分类层级、图标/图片、表单、排序与工具弹窗",
+      "acceptance": "228 项相关回归（30 文件）及本页 11 项通过；真实排序、默认两模式、清理保护、ZIP 合并/覆盖、异常重试、空态和短屏深色大字覆盖。R39 真机实际父子编辑/添加、收入类型、转账入口、五项工具取消、支出/全部 ZIP 独立核对、系统选择取消与实际合并导入三分类/自定义 PNG、正常重启通过。原 52 笔/当前账本 48、5 附件和既有图标字节保持，新增三分类保留。独立 HTML/ZIP 验证通过；Cloud/iOS 未执行，真机破坏性默认/覆盖/清理采用取消，确认由真实仓库 widget 测试覆盖。",
+      "status": "已完成",
+      "name": "分类管理与工具",
+      "priority": "P0",
+      "reason": "P0 分类依赖完成：原分类层级、图标和五项工具、文件路径保留；R39 同一隔离包实际导出/导入、自定义图片、导航及正常重启闭环通过。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-category-management",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-category-children",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-category-tools",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-category-share",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-taxonomy-import",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-category-defaults",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-category-clear",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-category-empty",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-category-order"
+      ]
+    },
+    {
+      "source": "lib/pages/category/category_migration_page.dart",
+      "classes": [
+        "CategoryMigrationPage"
+      ],
+      "lines": 120,
+      "batch": "M3 资源管理与详情",
+      "designRoutes": [
+        "flow-category-migration",
+        "flow-category-migration-from",
+        "flow-category-migration-ready",
+        "flow-category-migration-empty",
+        "flow-cgm-select",
+        "flow-cgm-confirm",
+        "flow-cgm-complete",
+        "flow-cgm-cannot"
+      ],
+      "designMapping": "已定位",
+      "components": "分类迁移选择对、类型、规范确认/结果弹窗、固定操作栏和真实迁移信息预览",
+      "acceptance": "已提交源码62项/5文件回归，8文件静态0问题；398/320深色140%与固定操作/图标约束、271场景链接、69规范组/41基础组件边界通过。真机专用tx55/56分类216→217→216、确认取消/空来源拒绝/类型清空、业务48真实读取与预选入口、正常启动53笔通过；57/53/24/5和3图片/prefs/公共文件保持，仅两笔原服务同步追踪合法变化。15图18文件报告category-migration-r74三宽度通过，ZIP SHA256 6872ece9e205ac5d1a0d6cc403d82d6b0aff1000375b825089ae931a9f08205a。跨双币种账本由真实SQLite widget覆盖；共享负分类原服务范围记Q17，Cloud/iOS未执行。",
+      "status": "已完成",
+      "name": "分类迁移",
+      "priority": "P1",
+      "reason": "原506行和SHA备份；120行组合页与分类选择对、App动作/真实预览分层。R74同一QA原分类弹窗、实际2笔正反迁移、独立业务字段/关系/hash与正常重启闭环完成，保留原全账本查询/本地迁移。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-category-migration",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-category-migration-from",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-category-migration-ready",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-category-migration-empty",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-cgm-select",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-cgm-confirm",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-cgm-complete",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-cgm-cannot"
+      ]
+    },
+    {
+      "source": "lib/pages/cloud/beecount_cloud_sync_page.dart",
+      "classes": [
+        "BeeCountCloudSyncPage"
+      ],
+      "lines": 8,
+      "batch": "M5 云与共享",
+      "designRoutes": [
+        "flow-cloud-sync",
+        "flow-sync-health",
+        "flow-twofa",
+        "flow-shared-sync",
+        "flow-shared-sync-error"
+      ],
+      "designMapping": "已定位",
+      "components": "同步状态、配置、成员列表与权限操作",
+      "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。 R114整页封存：beecount-cloud-sync-r114；原c7/R113视觉证据按源连续性复用，R114目标水合/加入退出与DAV真实恢复/重登/首建月8和共同正常入口单列。2本9笔/3附件refs两侧实际字节严格MATCH；全原71保护，最终仅新增0.41至72。Q24精度MISMATCH、旧附件order拒绝、DAVv6字段边界、未实服后端等继续保留。该报告不覆盖后续A–E新设计修订。",
+      "status": "已完成",
+      "name": "BeeCount Cloud 同步",
+      "priority": "P1",
+      "reason": "Root已逐页审阅原功能/设计/组件/相关回归与实际原生实服闭环，R114固定版本独立HTML/ZIP解压hash/links与三宽检查通过并只读封存。",
+      "implementationStage": "accepted",
+      "report": {
+        "path": ".docs/acceptance/v4-migration/2026-10-26/cloud-r114-final/beecount-cloud-sync-r114/index.html",
+        "zip": ".docs/acceptance/v4-migration/2026-10-26/cloud-r114-final/beecount-cloud-sync-r114.zip",
+        "zipSHA256": "2c169162b9050d25fb7a0b46a06172170e8d32fe614b959bfbb83ec8d7a822cc",
+        "sourceCommit": "c21b378a0322a0b48da631a9ff438f69574474cc",
+        "artifactSHA256": "e37427b9f7f35ce70d357ee2db9126bd18bd351147aab1aff5f7334c4052d6f3",
+        "sealed": true
+      },
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-cloud-sync",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-sync-health",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-twofa",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-shared-sync",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-shared-sync-error"
+      ]
+    },
+    {
+      "source": "lib/pages/cloud/cloud_service_page.dart",
+      "classes": [
+        "CloudServicePage"
+      ],
+      "lines": 8,
+      "batch": "M5 云与共享",
+      "designRoutes": [
+        "flow-cloud-config",
+        "flow-cloud-config-ios",
+        "flow-cloud-config-normal",
+        "flow-cloud-config-failed"
+      ],
+      "designMapping": "已定位",
+      "components": "同步状态、配置、成员列表与权限操作",
+      "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。 R114整页封存：cloud-configuration-r114；原c7/R113视觉证据按源连续性复用，R114目标水合/加入退出与DAV真实恢复/重登/首建月8和共同正常入口单列。2本9笔/3附件refs两侧实际字节严格MATCH；全原71保护，最终仅新增0.41至72。Q24精度MISMATCH、旧附件order拒绝、DAVv6字段边界、未实服后端等继续保留。该报告不覆盖后续A–E新设计修订。",
+      "status": "已完成",
+      "name": "云服务配置与账号",
+      "priority": "P1",
+      "reason": "Root已逐页审阅原功能/设计/组件/相关回归与实际原生实服闭环，R114固定版本独立HTML/ZIP解压hash/links与三宽检查通过并只读封存。",
+      "implementationStage": "accepted",
+      "report": {
+        "path": ".docs/acceptance/v4-migration/2026-10-26/cloud-r114-final/cloud-configuration-r114/index.html",
+        "zip": ".docs/acceptance/v4-migration/2026-10-26/cloud-r114-final/cloud-configuration-r114.zip",
+        "zipSHA256": "622c1c87a64f6e8599115841321e9d5ee75ae25802963784bec9b0ec6e0fbe6f",
+        "sourceCommit": "c21b378a0322a0b48da631a9ff438f69574474cc",
+        "artifactSHA256": "e37427b9f7f35ce70d357ee2db9126bd18bd351147aab1aff5f7334c4052d6f3",
+        "sealed": true
+      },
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-cloud-config",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-cloud-config-ios",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-cloud-config-normal",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-cloud-config-failed"
+      ]
+    },
+    {
+      "source": "lib/pages/cloud/cloud_sync_page.dart",
+      "classes": [
+        "CloudSyncPage"
+      ],
+      "lines": 8,
+      "batch": "M5 云与共享",
+      "designRoutes": [
+        "flow-backup",
+        "flow-failure",
+        "flow-backup-loading",
+        "flow-backup-error",
+        "flow-backup-no-ledger",
+        "flow-backup-signed-out",
+        "flow-backup-supabase",
+        "flow-backup-beecount",
+        "flow-backup-relogin",
+        "flow-backup-uploading",
+        "flow-backup-detail",
+        "flow-backup-preview",
+        "flow-backup-old-format",
+        "flow-backup-empty",
+        "flow-backup-restore-error"
+      ],
+      "designMapping": "已定位",
+      "components": "同步状态、配置、成员列表与权限操作",
+      "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。 R114整页封存：cloud-backup-r114；原c7/R113视觉证据按源连续性复用，R114目标水合/加入退出与DAV真实恢复/重登/首建月8和共同正常入口单列。2本9笔/3附件refs两侧实际字节严格MATCH；全原71保护，最终仅新增0.41至72。Q24精度MISMATCH、旧附件order拒绝、DAVv6字段边界、未实服后端等继续保留。该报告不覆盖后续A–E新设计修订。",
+      "status": "已完成",
+      "name": "云端备份与同步",
+      "priority": "P1",
+      "reason": "Root已逐页审阅原功能/设计/组件/相关回归与实际原生实服闭环，R114固定版本独立HTML/ZIP解压hash/links与三宽检查通过并只读封存。",
+      "implementationStage": "accepted",
+      "report": {
+        "path": ".docs/acceptance/v4-migration/2026-10-26/cloud-r114-final/cloud-backup-r114/index.html",
+        "zip": ".docs/acceptance/v4-migration/2026-10-26/cloud-r114-final/cloud-backup-r114.zip",
+        "zipSHA256": "f38cbbf93fe6cd8fbbeb7d4d1790582eadddf12dadf322ef975e075ed3d6cea2",
+        "sourceCommit": "c21b378a0322a0b48da631a9ff438f69574474cc",
+        "artifactSHA256": "e37427b9f7f35ce70d357ee2db9126bd18bd351147aab1aff5f7334c4052d6f3",
+        "sealed": true
+      },
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-backup",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-failure",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-backup-loading",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-backup-error",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-backup-no-ledger",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-backup-signed-out",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-backup-supabase",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-backup-beecount",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-backup-relogin",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-backup-uploading",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-backup-detail",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-backup-preview",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-backup-old-format",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-backup-empty",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-backup-restore-error"
+      ]
+    },
+    {
+      "source": "lib/pages/cloud/invite_page.dart",
+      "classes": [
+        "InvitePage"
+      ],
+      "lines": 11,
+      "batch": "M5 云与共享",
+      "designRoutes": [
+        "flow-invite",
+        "flow-shared-invite",
+        "flow-shared-code"
+      ],
+      "designMapping": "已定位",
+      "components": "同步状态、配置、成员列表与权限操作",
+      "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。 R114整页封存：shared-invite-r114；原c7/R113视觉证据按源连续性复用，R114目标水合/加入退出与DAV真实恢复/重登/首建月8和共同正常入口单列。2本9笔/3附件refs两侧实际字节严格MATCH；全原71保护，最终仅新增0.41至72。Q24精度MISMATCH、旧附件order拒绝、DAVv6字段边界、未实服后端等继续保留。该报告不覆盖后续A–E新设计修订。",
+      "status": "已完成",
+      "name": "共享账本邀请",
+      "priority": "P1",
+      "reason": "Root已逐页审阅原功能/设计/组件/相关回归与实际原生实服闭环，R114固定版本独立HTML/ZIP解压hash/links与三宽检查通过并只读封存。",
+      "implementationStage": "accepted",
+      "report": {
+        "path": ".docs/acceptance/v4-migration/2026-10-26/cloud-r114-final/shared-invite-r114/index.html",
+        "zip": ".docs/acceptance/v4-migration/2026-10-26/cloud-r114-final/shared-invite-r114.zip",
+        "zipSHA256": "c40776cfdd9cdc66f01e3c98bfa84005be8d0ca7ba09d0f222c9e6f22bd82c8e",
+        "sourceCommit": "c21b378a0322a0b48da631a9ff438f69574474cc",
+        "artifactSHA256": "e37427b9f7f35ce70d357ee2db9126bd18bd351147aab1aff5f7334c4052d6f3",
+        "sealed": true
+      },
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-invite",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-shared-invite",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-shared-code"
+      ]
+    },
+    {
+      "source": "lib/pages/cloud/join_shared_ledger_page.dart",
+      "classes": [
+        "JoinSharedLedgerPage"
+      ],
+      "lines": 10,
+      "batch": "M5 云与共享",
+      "designRoutes": [
+        "flow-join",
+        "flow-shared-join",
+        "flow-shared-preview"
+      ],
+      "designMapping": "已定位",
+      "components": "同步状态、配置、成员列表与权限操作",
+      "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。 R114整页封存：join-shared-ledger-r114；原c7/R113视觉证据按源连续性复用，R114目标水合/加入退出与DAV真实恢复/重登/首建月8和共同正常入口单列。2本9笔/3附件refs两侧实际字节严格MATCH；全原71保护，最终仅新增0.41至72。Q24精度MISMATCH、旧附件order拒绝、DAVv6字段边界、未实服后端等继续保留。该报告不覆盖后续A–E新设计修订。",
+      "status": "已完成",
+      "name": "加入共享账本",
+      "priority": "P1",
+      "reason": "Root已逐页审阅原功能/设计/组件/相关回归与实际原生实服闭环，R114固定版本独立HTML/ZIP解压hash/links与三宽检查通过并只读封存。",
+      "implementationStage": "accepted",
+      "report": {
+        "path": ".docs/acceptance/v4-migration/2026-10-26/cloud-r114-final/join-shared-ledger-r114/index.html",
+        "zip": ".docs/acceptance/v4-migration/2026-10-26/cloud-r114-final/join-shared-ledger-r114.zip",
+        "zipSHA256": "afab5ae0155cc45d975f86b333713cd007e9133961e61d5887ec6aab9bf15ee3",
+        "sourceCommit": "c21b378a0322a0b48da631a9ff438f69574474cc",
+        "artifactSHA256": "e37427b9f7f35ce70d357ee2db9126bd18bd351147aab1aff5f7334c4052d6f3",
+        "sealed": true
+      },
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-join",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-shared-join",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-shared-preview"
+      ]
+    },
+    {
+      "source": "lib/pages/cloud/member_list_page.dart",
+      "classes": [
+        "MemberListPage"
+      ],
+      "lines": 11,
+      "batch": "M5 云与共享",
+      "designRoutes": [
+        "flow-members",
+        "flow-shared-members-owner",
+        "flow-shared-members-editor",
+        "flow-shared-members-loading",
+        "flow-shared-members-error"
+      ],
+      "designMapping": "已定位",
+      "components": "同步状态、配置、成员列表与权限操作",
+      "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。 R114整页封存：member-list-r114；原c7/R113视觉证据按源连续性复用，R114目标水合/加入退出与DAV真实恢复/重登/首建月8和共同正常入口单列。2本9笔/3附件refs两侧实际字节严格MATCH；全原71保护，最终仅新增0.41至72。Q24精度MISMATCH、旧附件order拒绝、DAVv6字段边界、未实服后端等继续保留。该报告不覆盖后续A–E新设计修订。",
+      "status": "已完成",
+      "name": "共享成员管理",
+      "priority": "P1",
+      "reason": "Root已逐页审阅原功能/设计/组件/相关回归与实际原生实服闭环，R114固定版本独立HTML/ZIP解压hash/links与三宽检查通过并只读封存。",
+      "implementationStage": "accepted",
+      "report": {
+        "path": ".docs/acceptance/v4-migration/2026-10-26/cloud-r114-final/member-list-r114/index.html",
+        "zip": ".docs/acceptance/v4-migration/2026-10-26/cloud-r114-final/member-list-r114.zip",
+        "zipSHA256": "1a4398a1a47f3595981cdbe31f89c17d977ba6612e3943e4b9c4ecaeccc8c4bd",
+        "sourceCommit": "c21b378a0322a0b48da631a9ff438f69574474cc",
+        "artifactSHA256": "e37427b9f7f35ce70d357ee2db9126bd18bd351147aab1aff5f7334c4052d6f3",
+        "sealed": true
+      },
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-members",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-shared-members-owner",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-shared-members-editor",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-shared-members-loading",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-shared-members-error"
+      ]
+    },
+    {
+      "source": "lib/pages/cloud/member_stats_page.dart",
+      "classes": [
+        "MemberStatsPage"
+      ],
+      "lines": 11,
+      "batch": "M5 云与共享",
+      "designRoutes": [
+        "flow-member-stats",
+        "flow-shared-stats",
+        "flow-shared-stats-empty",
+        "flow-shared-stats-error"
+      ],
+      "designMapping": "已定位",
+      "components": "同步状态、配置、成员列表与权限操作",
+      "acceptance": "沿用实际同步引擎与角色；保留配置/备份/邀请、异常重试和本地/远端删除差别。 R114整页封存：member-stats-r114；原c7/R113视觉证据按源连续性复用，R114目标水合/加入退出与DAV真实恢复/重登/首建月8和共同正常入口单列。2本9笔/3附件refs两侧实际字节严格MATCH；全原71保护，最终仅新增0.41至72。Q24精度MISMATCH、旧附件order拒绝、DAVv6字段边界、未实服后端等继续保留。该报告不覆盖后续A–E新设计修订。",
+      "status": "已完成",
+      "name": "共享成员统计",
+      "priority": "P2",
+      "reason": "Root已逐页审阅原功能/设计/组件/相关回归与实际原生实服闭环，R114固定版本独立HTML/ZIP解压hash/links与三宽检查通过并只读封存。",
+      "implementationStage": "accepted",
+      "report": {
+        "path": ".docs/acceptance/v4-migration/2026-10-26/cloud-r114-final/member-stats-r114/index.html",
+        "zip": ".docs/acceptance/v4-migration/2026-10-26/cloud-r114-final/member-stats-r114.zip",
+        "zipSHA256": "09cc4ea44ea5f43d3fadecc26e419158deeec58e491efeae0958390adb6a62d6",
+        "sourceCommit": "c21b378a0322a0b48da631a9ff438f69574474cc",
+        "artifactSHA256": "e37427b9f7f35ce70d357ee2db9126bd18bd351147aab1aff5f7334c4052d6f3",
+        "sealed": true
+      },
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-member-stats",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-shared-stats",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-shared-stats-empty",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-shared-stats-error"
+      ]
+    },
+    {
+      "source": "lib/pages/currency/exchange_rate_page.dart",
+      "classes": [
+        "ExchangeRatePage"
+      ],
+      "lines": 140,
+      "batch": "M3 资源管理与详情",
+      "designRoutes": [
+        "flow-rates",
+        "flow-rates-empty",
+        "flow-rates-loading",
+        "flow-rates-error",
+        "flow-rates-refresh-error",
+        "flow-xrm-base",
+        "flow-xrm-rate-edit"
+      ],
+      "designMapping": "已定位",
+      "components": "汇率行、原始精度输入与规范编辑弹窗、基础IME兼容小数输入、真实只读缓存和实际动作绑定",
+      "acceptance": "已提交源码71项/7文件、13文件静态0问题；HTML278场景/70组规范/41基础控件、三宽度和364×72冻结对照通过。真机实际高精度保存取消/零拒绝、原7.1恢复、临时USD:CNY小于1手动值保存与恢复自动、151搜索主币种往返、公网刷新及Flutter49/正常重启通过。57/53/24/5与关系/图片/偏好/公共文件保持，原override身份raw恢复，合法updatedAt/tracking/cache变化分列。18图/21文件报告exchange-rate-r75，ZIP SHA256 e4d34c4b34d80683c4031efa01d4acf5ee16cd790e10e513b0ce9634f2f9da58。Widget网络明确合成transport；Cloud/iOS未执行。",
+      "status": "已完成",
+      "name": "汇率管理",
+      "priority": "P1",
+      "reason": "原币种列表/151搜索底部选择/手动精度与反向/24h节流强刷保留；R75同一QA真实生产UI、独立SQL/文件与正常重启闭环通过。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-rates",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-rates-empty",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-rates-loading",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-rates-error",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-rates-refresh-error",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-xrm-base",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-xrm-rate-edit"
+      ]
+    },
+    {
+      "source": "lib/pages/data/export_page.dart",
+      "classes": [
+        "ExportPage"
+      ],
+      "lines": 8,
+      "batch": "M7 初始化与数据",
+      "designRoutes": [
+        "flow-export",
+        "flow-export-running",
+        "flow-export-success",
+        "flow-export-error",
+        "flow-export-ios",
+        "flow-export-share-error",
+        "flow-export-long"
+      ],
+      "designMapping": "已定位",
+      "components": "导入选择、字段映射、预览、任务状态与结果",
+      "acceptance": "R108源d8cc/APK33f4固定历史、真实导入64→70/book8 1→7；CSV字段/父子分类/原币/账户转出入/备注逗号引号/秒时间/标签保留，原64及原31表行全保护。实际两张后加附件metadata8/9只tx70，按原压缩成957/959JPEG保留.png名，真实App预览及正常launcher护70/7附件+3图；Root安装前私备份实际SQLite31表全字段与最终baseline相同、实际全部文件SHA核。原970B导出早于附图，附件列空且不重导；非空附件导出/CSV二进制恢复/XLSX实际写入/小批进度弹窗等未执行或未观测边界明确。两个独立报告覆盖3源页面，三宽含details、ZIP/manifest/脱敏/0444通过，旧DRAFT和原native字节保护。",
+      "status": "已完成",
+      "name": "账单导出",
+      "priority": "P1",
+      "reason": "R108实际唯一一次导出book8七笔970B/12列+BOM，Root直接从实际SQLite独立核84单元格与固定14源。末共享正常入口保护原数据，4图17文件最终包已Root逐ZIP字节/manifest核后封存。",
+      "implementationStage": "accepted",
+      "acceptanceReport": ".docs/acceptance/v4-migration/2026-10-25/transaction-export-r108/index.html",
+      "acceptanceZipSha256": "a062e101577f8f6fdaeb858c5c13d547a8d50a0703ea70135cb0d2c24cd99230",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-export",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-export-running",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-export-success",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-export-error",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-export-ios",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-export-share-error",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-export-long"
+      ]
+    },
+    {
+      "source": "lib/pages/data/import_confirm_page.dart",
+      "classes": [
+        "ImportConfirmPage"
+      ],
+      "lines": 17,
+      "batch": "M7 初始化与数据",
+      "designRoutes": [
+        "flow-mapping",
+        "flow-category-map",
+        "flow-import-preview",
+        "flow-import-progress",
+        "flow-result",
+        "flow-import-result",
+        "flow-import-partial",
+        "flow-import-cancelled",
+        "flow-import-reading",
+        "flow-import-empty",
+        "flow-import-open-error",
+        "flow-import-invalid-currency",
+        "flow-import-background"
+      ],
+      "designMapping": "已定位",
+      "components": "导入选择、字段映射、预览、任务状态与结果",
+      "acceptance": "R108源d8cc/APK33f4固定历史、真实导入64→70/book8 1→7；CSV字段/父子分类/原币/账户转出入/备注逗号引号/秒时间/标签保留，原64及原31表行全保护。实际两张后加附件metadata8/9只tx70，按原压缩成957/959JPEG保留.png名，真实App预览及正常launcher护70/7附件+3图；Root安装前私备份实际SQLite31表全字段与最终baseline相同、实际全部文件SHA核。原970B导出早于附图，附件列空且不重导；非空附件导出/CSV二进制恢复/XLSX实际写入/小批进度弹窗等未执行或未观测边界明确。两个独立报告覆盖3源页面，三宽含details、ZIP/manifest/脱敏/0444通过，旧DRAFT和原native字节保护。",
+      "status": "已完成",
+      "name": "导入映射、预览与结果",
+      "priority": "P1",
+      "reason": "12字段与分类映射、4原账户币种审查取消不写、同稿唯一6行确认及7笔正常入口持久已核；原10服务/5方法保留，历史double及125.27原显示不改。与导入入口共用同一16图29文件报告，不伪造两轮导入或重启。",
+      "implementationStage": "accepted",
+      "acceptanceReport": ".docs/acceptance/v4-migration/2026-10-25/transaction-import-r108/index.html",
+      "acceptanceZipSha256": "f42092d155b05315143158c6795f42f049d9a0a1daedd347d4a6af4d198052a4",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-mapping",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-category-map",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-import-preview",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-import-progress",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-result",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-import-result",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-import-partial",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-import-cancelled",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-import-reading",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-import-empty",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-import-open-error",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-import-invalid-currency",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-import-background"
+      ]
+    },
+    {
+      "source": "lib/pages/data/import_page.dart",
+      "classes": [
+        "ImportPage"
+      ],
+      "lines": 10,
+      "batch": "M7 初始化与数据",
+      "designRoutes": [
+        "flow-import"
+      ],
+      "designMapping": "已定位",
+      "components": "导入选择、字段映射、预览、任务状态与结果",
+      "acceptance": "R108源d8cc/APK33f4固定历史、真实导入64→70/book8 1→7；CSV字段/父子分类/原币/账户转出入/备注逗号引号/秒时间/标签保留，原64及原31表行全保护。实际两张后加附件metadata8/9只tx70，按原压缩成957/959JPEG保留.png名，真实App预览及正常launcher护70/7附件+3图；Root安装前私备份实际SQLite31表全字段与最终baseline相同、实际全部文件SHA核。原970B导出早于附图，附件列空且不重导；非空附件导出/CSV二进制恢复/XLSX实际写入/小批进度弹窗等未执行或未观测边界明确。两个独立报告覆盖3源页面，三宽含details、ZIP/manifest/脱敏/0444通过，旧DRAFT和原native字节保护。",
+      "status": "已完成",
+      "name": "账单导入入口",
+      "priority": "P1",
+      "reason": "真实系统选择/取消、三原来源及12字段流程保留；R108唯一CSV6行实际导入与XLSX首sheet横滚预览取消、双图另行真实选择/预览及共用正常入口闭环。Root23源/16图和实际全31表/字节核验后报告封存。",
+      "implementationStage": "accepted",
+      "acceptanceReport": ".docs/acceptance/v4-migration/2026-10-25/transaction-import-r108/index.html",
+      "acceptanceZipSha256": "f42092d155b05315143158c6795f42f049d9a0a1daedd347d4a6af4d198052a4",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-import"
+      ]
+    },
+    {
+      "source": "lib/pages/donation/donation_page.dart",
+      "classes": [
+        "DonationPage"
+      ],
+      "lines": 8,
+      "batch": "M8 设置与收尾",
+      "designRoutes": [
+        "flow-donation",
+        "flow-support-donation-empty",
+        "flow-support-donation-loading",
+        "flow-support-donation-products"
+      ],
+      "designMapping": "已定位",
+      "components": "支持选项、支付入口和说明",
+      "acceptance": "原5单位跨5提交byteexact，DonationService952b保留原6商品ID/mock=false，Root已看旧6+新3图并核31表/偏好/图片保护。原R105两次本地SKTestSession Code3失败与skip保留；实际购买0，真实6商品价格选择/沙盒成功失败/真实AppStore支付未执行，是平台上线前边界，不冒称通过。旧ZIP64ec原字节不改，三宽/ZIP/manifest/脱敏/0444通过。",
+      "status": "已完成",
+      "name": "打赏支持",
+      "priority": "P2",
+      "reason": "R105真实生产入口/空态/返回及正常重启与R111同入口/返回增量完成；真实StoreKit initialize成功、查询error-null/0商品/noMock已核，9图25文件边界报告封存。",
+      "implementationStage": "accepted",
+      "acceptanceReport": ".docs/acceptance/v4-migration/2026-10-25/donation-r111/index.html",
+      "acceptanceZipSha256": "77cdbb6f0dabe2dc49a9d676f70d49436dea1d6907f600eb9164f242b5883ec0",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-donation",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-support-donation-empty",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-support-donation-loading",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-support-donation-products"
+      ]
+    },
+    {
+      "source": "lib/pages/main/analytics_page.dart",
+      "classes": [
+        "AnalyticsPage"
+      ],
+      "lines": 124,
+      "batch": "M4 统计与分享",
+      "designRoutes": [
+        "report",
+        "flow-analytics-income",
+        "flow-analytics-balance",
+        "flow-analytics-year",
+        "flow-analytics-all",
+        "flow-analytics-empty",
+        "flow-analytics-loading",
+        "flow-analytics-error",
+        "flow-analytics-pie",
+        "flow-analytics-foreign"
+      ],
+      "designMapping": "已定位",
+      "components": "三种周期/三视角、汇总与平均值、原折线、二级分类图标与图片排行/环图、年月滚轮、补折算确认与原分享预览",
+      "acceptance": "最终提交副本82项/9文件相关回归、16文件静态0问题；20组HTML、317场景/74组规范/41基础控件与三宽度通过。真机九周期/视角金额/笔数/均值独立SQL一致，本月3433.56/29笔/137.34日均；滚轮取消/9月确认、图表前后/未来边界、补折算取消、真实图片与父子详情/环图、月海报生成/遮罩恢复/取消和Flutter53/正常重启通过。原57/53/24/5、全部金融表与追踪、所选偏好、图片及两公共文件hash保持。30图33文件报告analytics-r79封存，ZIP 2c1ca7553f9c3dc943d604d4b9fd4a33cef57086c00d18ef960ba75e5e761116。Cloud/iOS、相册保存/外发未执行；原全部分享模板差异Q19按旧服务保留。",
+      "status": "已完成",
+      "name": "统计与洞察",
+      "priority": "P1",
+      "reason": "原1267行完整备份；原加载/结余/共享父子聚合除format外恒等，薄页/纯业务组件/真实App绑定完成。R79同一QA实际UI、独立SQL/文件、正常重启与封存报告闭环。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=report",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-analytics-income",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-analytics-balance",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-analytics-year",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-analytics-all",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-analytics-empty",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-analytics-loading",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-analytics-error",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-analytics-pie",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-analytics-foreign"
+      ]
+    },
+    {
+      "source": "lib/pages/main/home_page.dart",
+      "classes": [
+        "HomePage"
+      ],
+      "lines": 386,
+      "batch": "M2 首页与列表",
+      "designRoutes": [
+        "home",
+        "flow-empty"
+      ],
+      "designMapping": "已定位",
+      "components": "BeeHomeLayout、身份/月汇总/预算、真实账本选择、虚拟账单流、受控扇形菜单与原底部栏",
+      "acceptance": "R108只加稳定journal GlobalKey，Repository/金额口径不变；3文件22项回归/2文件analysis0。iOS独立Home case exit0，完整键盘与正常入口后稳定图及31表/3笔守卫；Android64/57/原5附件+3图保持。Android帧只证明备注聚焦，不伪称完整OS键盘。初次startup UI树IllegalStateException及iOS大case AX驱动失败均保留，原固定版本Home功能范围仍按R50，不冒称iOS全部菜单重跑。增量独立home-keyboard-r108三宽/ZIP/脱敏只读封存。",
+      "status": "已完成",
+      "name": "首页明细",
+      "priority": "P0",
+      "reason": "原R50完整验收基础上，R106新iOS键盘回归重新打开后已由R108增量闭环：真实Repo红绿、iOS完整键盘取消/三笔/同次正常main、Android既有USD转账备注取消及共享正常重启。Root核图与31表/文件/业务Prefs守卫后封存。",
+      "previousAcceptanceBeforeRegression": {
+        "status": "已完成",
+        "reason": "R50实际生产UI、独立SQL/文件、原数据保持、正常launcher重启与独立报告闭环；Q01行点击保留原编辑，新增独立详情另列。",
+        "acceptance": "280项相关回归/36文件通过；R50品牌重启、隐私、滚轮取消、分类/标签/附件目标、批量48/筛选/日历、复制取消、小票实际关闭、空USD切换/缓存、左滑删除取消、原长按动作取消和正常重启通过。独立SQL核对支出3421.56/收入264.27及预算已用3220.72；原52笔/当前48/5附件/2分类图片及全部原业务行不变。报告home-r50，22图/三宽度/ZIP通过。Cloud/iOS/付费AI和独立目的页不计本页范围；Q01/Q07保留原规则。"
+      },
+      "implementationStage": "implemented",
+      "incrementalAcceptanceReports": [
+        ".docs/acceptance/v4-migration/2026-10-25/home-keyboard-r108/index.html"
+      ],
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=home",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-empty"
+      ]
+    },
+    {
+      "source": "lib/pages/main/ledgers_page_new.dart",
+      "classes": [
+        "LedgersPageNew"
+      ],
+      "lines": 90,
+      "batch": "M2 首页与列表",
+      "designRoutes": [
+        "ledgers",
+        "flow-ledger-edit",
+        "flow-ledger-actions",
+        "flow-ledger-create",
+        "flow-ledger-period",
+        "flow-ledger-currencies",
+        "flow-ledger-remote-actions",
+        "flow-ledgers-empty",
+        "flow-ledgers-remote",
+        "flow-ledgers-loading",
+        "flow-ledgers-error",
+        "flow-ledgers-editor",
+        "flow-ledger-conflict"
+      ],
+      "designMapping": "已定位",
+      "components": "受控账本卡/编辑草稿/28日起始日格/上下文菜单，原真实统计、权限、服务和Repository在App binding",
+      "acceptance": "267项相关回归（35文件）通过；R46本月标题变更后14项重跑与静态通过。真机实际统计/刷新、当前状态、独立更多/长按、新建USD/28日、改名/8日、币种重算确认取消、切换/预算、专用空账本清空/两种删除的取消与确认、当前账本删除回退及正常重启通过。原52笔/当前48/5附件/2图片保持，仅保留UI创建USD账本id4；临时id5/id6已UI删除。非空清理及跨账本文件保护由真实Repo/widget覆盖，Cloud实服/iOS及Q12远端删除未包含。",
+      "status": "已完成",
+      "name": "账本管理与切换",
+      "priority": "P0",
+      "reason": "90行页面编排与受控业务组件完成，保留原本地/远端和权限/财务口径；R46生产UI、独立SQL/文件与正常入口重启闭环通过。原云端删除适配遗留Q12单列。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=ledgers",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-ledger-edit",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-ledger-actions",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-ledger-create",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-ledger-period",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-ledger-currencies",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-ledger-remote-actions",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-ledgers-empty",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-ledgers-remote",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-ledgers-loading",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-ledgers-error",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-ledgers-editor",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-ledger-conflict"
+      ]
+    },
+    {
+      "source": "lib/pages/main/mine_page.dart",
+      "classes": [
+        "MinePage"
+      ],
+      "lines": 135,
+      "batch": "M2 首页与列表",
+      "designRoutes": [
+        "mine",
+        "flow-sync-states",
+        "flow-nickname-edit",
+        "flow-profile-edit"
+      ],
+      "designMapping": "已定位",
+      "components": "昵称、紧凑账本余额、同步状态与分组菜单",
+      "acceptance": "R22/R23 昵称保存/取消、隐私、账本切换和全部菜单入口有独立版本证据；菜单/云 binding 与 R35 相同。R35 当前产物实际头像、文件/偏好、负数币种与紧凑统计、两款皮肤/深色和恢复默认后重启通过。398/320 冻结尺寸与相关 184 项回归通过。原生拍照/iOS/真实 Cloud 未执行，关联目标页仍按各自清单迁移。",
+      "status": "已完成",
+      "name": "我的、昵称与当前账本",
+      "priority": "P0",
+      "reason": "已对齐紧凑资料与累计结余、全部原菜单、同步状态及整页皮肤；R35 实际头像系统相册/文件保存/删除恢复、笔数导航和正常重启通过，原 51 笔与 5 附件保持。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=mine",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-sync-states",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-nickname-edit",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-profile-edit"
+      ]
+    },
+    {
+      "source": "lib/pages/maintenance/orphan_cleanup_page.dart",
+      "classes": [
+        "OrphanCleanupPage"
+      ],
+      "lines": 8,
+      "batch": "M7 初始化与数据",
+      "designRoutes": [
+        "flow-orphan",
+        "flow-maintenance-orphans",
+        "flow-maintenance-orphans-empty",
+        "flow-maintenance-orphans-error",
+        "flow-maintenance-orphans-confirm",
+        "flow-maintenance-orphans-partial"
+      ],
+      "designMapping": "已定位",
+      "components": "清理概览、选择、确认与结果状态",
+      "acceptance": "存储只验证58B/82B合成过滤文件各自取消/确认，不称模型可用或APK安装；孤儿只删一张306B本轮文件，其他13清理类型未原生执行。旧6→5通用guard失败与修正边界保留。独立三宽、ZIP/manifest/脱敏及只读封存；Cloud/iOS与IO故障等单列。",
+      "status": "已完成",
+      "name": "孤儿数据清理",
+      "priority": "P2",
+      "reason": "R105实际生产扫描、选定owned文件取消/确认删除、重扫与正常launcher；原31表/64笔/5附件+3图及业务Prefs保持，root独立核24文件源码及稳定图并封存。",
+      "implementationStage": "accepted",
+      "acceptanceReport": ".docs/acceptance/v4-migration/2026-10-25/orphans-r105/index.html",
+      "acceptanceZipSha256": "5384c2214b2eaf2f71fc3da89af690ddc419364dd9acc9cb2056ffda392bef52",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-orphan",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-maintenance-orphans",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-maintenance-orphans-empty",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-maintenance-orphans-error",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-maintenance-orphans-confirm",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-maintenance-orphans-partial"
+      ]
+    },
+    {
+      "source": "lib/pages/report/annual_report_page.dart",
+      "classes": [
+        "AnnualReportPage"
+      ],
+      "lines": 676,
+      "batch": "M4 统计与分享",
+      "designRoutes": [
+        "annual",
+        "flow-annual-report",
+        "flow-annual-report-loading",
+        "flow-annual-report-empty",
+        "flow-annual-report-error",
+        "flow-annual-report-long"
+      ],
+      "designMapping": "已定位",
+      "components": "年度汇总、趋势、排行与分享内容",
+      "acceptance": "Root已审原实际16图及新增主按钮/两预览/正常main，原30单位与展示层差异独立核。原3财务行105.28/120/14.72、Q20已发生时间逻辑、原整数海报0/11与原含收入笔数平均分母均保留，隐私只遮金额不声称备注也隐藏。真实App导出PNG/系统取消与共享重启闭环；Cloud/Android重复整套/真实发给他人未执行。",
+      "status": "已完成",
+      "name": "年度账单",
+      "priority": "P1",
+      "reason": "R108实际七章节/空年/独立年度长海报两隐私/系统取消与真实PNG完成；R111主生成和footer规范组件补验及正常入口保持，20图28文件独立报告封存。",
+      "implementationStage": "accepted",
+      "acceptanceReport": ".docs/acceptance/v4-migration/2026-10-25/annual-report-r111/index.html",
+      "acceptanceZipSha256": "2b3aada11ed7a40d2d774bd06decbacea678f849819891511415c1908fb908c2",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=annual",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-annual-report",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-annual-report-loading",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-annual-report-empty",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-annual-report-error",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-annual-report-long"
+      ]
+    },
+    {
+      "source": "lib/pages/report/share_card_page.dart",
+      "classes": [
+        "ShareCardPage"
+      ],
+      "lines": 17,
+      "batch": "M4 统计与分享",
+      "designRoutes": [
+        "poster"
+      ],
+      "designMapping": "已定位",
+      "components": "原分享模板、隐藏收入、预览、导出分享与错误/取消状态",
+      "acceptance": "R108功能/PNG与R109主题、R111最小视觉明确分阶段，Root30源单位与31历史+新增实际图均审；原8PNG金额/收入mask保持，Q19新book2合法使档案账本数2，旧历史图数1不改。新footer45相关回归、R111实际系统取消与正常main/31表护，2motion图只操作附录。相册真实写入/发给他人/Cloud未执行，不将平台unit等同native。",
+      "status": "已完成",
+      "name": "分享卡片",
+      "priority": "P1",
+      "reason": "原Q19档案/应用及月年账本总结、隐私/真实PNG/系统分享取消全部保留；R109主题chip与R111矩形footer/真实Rect系统取消增量完成，39图47文件独立封存。",
+      "implementationStage": "accepted",
+      "newInV4": true,
+      "acceptanceReport": ".docs/acceptance/v4-migration/2026-10-25/share-card-r111/index.html",
+      "acceptanceZipSha256": "564d20583abffecddcf3b545385a41ba78c798e70e757b087f589bb10be05b37",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=poster"
+      ]
+    },
+    {
+      "source": "lib/pages/settings/about_page.dart",
+      "classes": [
+        "AboutPage"
+      ],
+      "lines": 8,
+      "batch": "M8 设置与收尾",
+      "designRoutes": [
+        "about",
+        "flow-update-check",
+        "flow-support-about",
+        "flow-support-about-ios",
+        "flow-support-about-international"
+      ],
+      "designMapping": "已定位",
+      "components": "版本/链接/分组菜单与升级弹窗",
+      "acceptance": "独立包三宽/ZIP/manifest/脱敏并root只读封存；原范围检查/PARTIAL/exit78和未执行项保留。剪贴板内容读回、外部App/下载安装/iOS和故障等未测边界不冒称通过；早期SVG未绘完Home截图从最终图册排除，17:00同R105稳定Home只作共同视觉补图。",
+      "status": "已完成",
+      "name": "关于与检查更新",
+      "priority": "P2",
+      "reason": "R105实际生产入口、主要页面动作、返回和正常launcher及31表/64笔/5附件+3图/业务Prefs守卫；root逐张核图并独立校24文件与原功能、29项固定源码回归。关于实际更新取消；快捷六项复制反馈；帮助/隐私实际原WebView正文和滚动。",
+      "implementationStage": "accepted",
+      "acceptanceReport": ".docs/acceptance/v4-migration/2026-10-25/about-r105/index.html",
+      "acceptanceZipSha256": "b90dd4073aafb2cf0e95237fb3773dcca7a8218c4abc2e32edd8f611140a5793",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=about",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-update-check",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-support-about",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-support-about-ios",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-support-about-international"
+      ]
+    },
+    {
+      "source": "lib/pages/settings/app_lock_settings_page.dart",
+      "classes": [
+        "AppLockSettingsPage"
+      ],
+      "lines": 81,
+      "batch": "M8 设置与收尾",
+      "designRoutes": [
+        "flow-lock-settings",
+        "flow-lock-settings-on",
+        "flow-lock-settings-no-bio",
+        "flow-lock-timeout",
+        "flow-pin-verify"
+      ],
+      "designMapping": "已定位",
+      "components": "应用锁受控设置、原认证与PIN校验、安全输入、四档超时底部弹层和能力门控",
+      "acceptance": "已提交源码副本17项/2文件回归、4文件静态0问题；398/320深色140%、原PIN几何、264链接/68规范组/41基础控件通过。真机实际创建取消/确认、错误旧PIN/新草稿取消、替换保存、四档超时/选中取消、启用启动旧PIN拒绝/新PIN解锁、错误关闭取消/正确关闭和最终无PIN正常启动通过。原57/53/24/5及3图片hash/外观偏好/公共文件保持，原有效安全值恢复；超时原键缺失则保留显式默认0，PIN与哈希已清除。13图16文件报告三宽度/ZIP封存，SHA256 2162f4f022369f1614d7471ed7cc459a6898ba358403d9e2627822b953933d75。物理生物识别未执行；MethodChannel成功/失败不计真实指纹/FaceID通过，Cloud/iOS未执行或不适用。",
+      "status": "已完成",
+      "name": "应用锁设置",
+      "priority": "P1",
+      "reason": "原421行及SHA备份，基础开关/菜单和安全Panel复用，原认证服务/能力门控/四档超时保留；R73同一QA真实UI、正常启动门控、验证关闭、数据/有效安全设置恢复与最终重启闭环通过。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-lock-settings",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-lock-settings-on",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-lock-settings-no-bio",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-lock-timeout",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-pin-verify"
+      ]
+    },
+    {
+      "source": "lib/pages/settings/appearance_settings_page.dart",
+      "classes": [
+        "AppearanceSettingsPage"
+      ],
+      "lines": 273,
+      "batch": "M8 设置与收尾",
+      "designRoutes": [
+        "appearance",
+        "flow-appearance-mode",
+        "flow-appearance-amount",
+        "flow-appearance-note",
+        "flow-appearance-history",
+        "flow-appearance-scheme",
+        "flow-appearance-currency"
+      ],
+      "designMapping": "已定位",
+      "components": "规范页头/菜单/带图标开关、可配置分隔、BeeNoteHistoryPreferences、真实只读预览及原配置弹窗",
+      "acceptance": "66项/9文件回归，最终5项间距目标检查（重叠不相加）、11文件静态0问题；3组实际外观字号HTML、243链接/64规范/40基础控件通过。真机三种主题、四种单选/两个开关、范围/排序/37重开恢复20、原七目的页往返、搜索USD恢复CNY、业务第44项实际disabled只读37和重启通过。57/53/24/5及历史业务表/附件hash保持；原自动汇率缓存exchange_rates更新、四键新增显式默认单列。23图/26文件报告appearance-r68三宽度及ZIP SHA256 1bca13984fb5850ac29ea04d9195c6432fe26536b80f91b2d766b0d18a5d884d。逐字101保留中途有效10，不冒充原子替换；Cloud/原生iOS未执行或不适用。",
+      "status": "已完成",
+      "name": "显示与外观设置",
+      "priority": "P1",
+      "reason": "原815行完整备份，四组15项、五种配置弹窗、主币种选择及七条生产路由与Provider/持久化/同步保留；R68同一QA真实偏好/业务目录/正常重启闭环已封存。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=appearance",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-appearance-mode",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-appearance-amount",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-appearance-note",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-appearance-history",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-appearance-scheme",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-appearance-currency"
+      ]
+    },
+    {
+      "source": "lib/pages/settings/attachment_preview_page.dart",
+      "classes": [
+        "AttachmentPreviewPage"
+      ],
+      "lines": 106,
+      "batch": "M7 初始化与数据",
+      "designRoutes": [
+        "flow-attachment-library",
+        "flow-attachment-library-archive",
+        "flow-attachment-library-empty",
+        "flow-attachment-library-empty-group",
+        "flow-attachment-library-broken",
+        "flow-attachment-library-loading",
+        "flow-attachment-library-long"
+      ],
+      "designMapping": "已定位",
+      "components": "惰性三列附件库、实际尺寸/大小、完整长文件名、只读缩放、分组与空错、真实服务预览",
+      "acceptance": "最终已提交源码副本60项/7文件回归、11文件静态0问题；398/320深色140%、7场景/260链接/68规范组/41基础控件通过。真机逐一验证7个文件真实头/字节/名称、横滑/准确关闭、同TAR.GZ归档两组、业务47全部平铺状态/真实5+2/生产入口和正常重启，原57/53/24/5及3图标头像hash/偏好/公共文件保持。修复并复验基础关闭节点语义合并和内嵌网格滚动陷阱。13图16文件报告三宽度/ZIP封存，SHA256 59233d26faeac0d70e7ba04fdd6cd994d799538b66e422986a8193c46440c6ab。Cloud/iOS/物理短屏/原生双指缩放未执行或不适用。",
+      "status": "已完成",
+      "name": "全局附件库",
+      "priority": "P1",
+      "reason": "原362行及SHA已备份，两来源/双分组/真实元信息/只读缩放保留；受控预览库与App文件绑定完成。R72同一QA真实UI、全部原数据/文件/偏好和正常重启闭环通过。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-attachment-library",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-attachment-library-archive",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-attachment-library-empty",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-attachment-library-empty-group",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-attachment-library-broken",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-attachment-library-loading",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-attachment-library-long"
+      ]
+    },
+    {
+      "source": "lib/pages/settings/automation_page.dart",
+      "classes": [
+        "AutomationPage"
+      ],
+      "lines": 43,
+      "batch": "M6 AI与自动化",
+      "designRoutes": [
+        "automation"
+      ],
+      "designMapping": "已定位",
+      "components": "规范页头、说明、分组卡片、两个菜单行与原生产路由",
+      "acceptance": "100项/13文件相关回归，最终49项/4文件目标检查（重叠不相加）、11文件静态0问题和资源打包检查通过；中文398/英文320深色140%实际打开两个原目的页及返回，HTML三个实际控件组合通过。R66原提醒时间/三个偏好键及57/53/24/5、标签26、全业务表/文件保持，正常重启再次进入。6图/9文件报告automation-r66三宽度和ZIP通过，SHA256 eb42d5acd718cba56b41206442d4be2eac3d94a5ecf4477f1ccdc7b3ed67bfe8。两个目的页不计已迁移，OS通知/调度不在本入口范围；Cloud/iOS未执行或不适用。",
+      "status": "已完成",
+      "name": "自动化功能入口",
+      "priority": "P1",
+      "reason": "原68行入口已备份，规范卡片/菜单与原两条路由/作用域保留。R66真实我的入口、两个原子页往返、独立SQL/文件/提醒偏好和正常重启通过。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=automation"
+      ]
+    },
+    {
+      "source": "lib/pages/settings/config_import_export_page.dart",
+      "classes": [
+        "ConfigImportExportPage"
+      ],
+      "lines": 141,
+      "batch": "M7 初始化与数据",
+      "designRoutes": [
+        "flow-config",
+        "flow-config-preview",
+        "flow-export-scope",
+        "flow-config-select",
+        "flow-config-import",
+        "flow-config-error",
+        "flow-config-done"
+      ],
+      "designMapping": "已定位",
+      "components": "配置范围选择、文件读取/预览、导入导出状态",
+      "acceptance": "页面、范围选择/预览/确认和完成错误均使用新版卡片与规范弹窗；四项真实 Repository/文件 widget 及 R35 184 项相关回归通过。同一隔离包实际导出文件、剪贴板内容逐字核对与重启，原 51 笔/5 附件和全部业务表/文件保持。iOS 系统分享未执行；Cloud 不适用（仅 App）。",
+      "status": "已完成",
+      "name": "配置导入导出与恢复",
+      "priority": "P0",
+      "reason": "R35 当前产物完成八项范围、真实仅标签 YAML/SQL 字段核对、实际复制粘贴与正常重启；R24/R25 真实系统导入、取消、无效 YAML 拒绝与合成标签保存有固定版本证据，生产数据 binding 与 R35 相同。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-config",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-config-preview",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-export-scope",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-config-select",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-config-import",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-config-error",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-config-done"
+      ]
+    },
+    {
+      "source": "lib/pages/settings/data_management_page.dart",
+      "classes": [
+        "DataManagementPage"
+      ],
+      "lines": 170,
+      "batch": "M7 初始化与数据",
+      "designRoutes": [
+        "data",
+        "flow-attachment-transfer",
+        "flow-attachment-import-confirm",
+        "flow-data-import-running",
+        "flow-data-import-success",
+        "flow-data-import-partial",
+        "flow-attachment-export-progress",
+        "flow-attachment-import-progress"
+      ],
+      "designMapping": "已定位",
+      "components": "BeeFileTransferStatus五状态、BeeArchiveSummary原归档确认弹窗、真实文件/任务只读绑定与原平台动作",
+      "acceptance": "49项/5文件回归、8文件静态0问题，HTML实际53px最小行高与140%字体、254链接/67组规范/41基础控件通过。实际导出5附件2图标，与原SQL的id/关联/名称/大小/宽高/顺序/创建时间及图片hash完整一致；同包浏览选取、确认默认跳过、覆盖草稿取消、归档预览、真实跳过5+2、专属损坏拒绝、8目的页与业务46/原右侧预览图标通过。正常重启后原57/53/24/5、全部业务表、3图标/头像hash与所选/头像偏好保持；仅新增2个文件级拥有的公共测试文件。18图/21文件独立报告三宽度与ZIP校验通过，SHA256 1b81d943febbc1504e617d38ebdd8845a508b20f7c7f52f4f8e976b9bbd70ba8。实际覆盖/缺文件修复/头像图标往返为临时真实DB/文件服务回归，原生覆盖只验草稿取消；原始TAR Q16、iOS/物理短屏/原生CSV后台执行未执行或待确认，Cloud不适用。",
+      "status": "已完成",
+      "name": "数据管理入口",
+      "priority": "P1",
+      "reason": "原714行及SHA已备份；新版四组、原提示/八路由/附件导入导出/右侧预览与显式预览、原后台Provider及平台服务保持。R71同一QA真实UI、独立归档/SQL/图片与正常重启闭环完成。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=data",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-attachment-transfer",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-attachment-import-confirm",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-data-import-running",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-data-import-success",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-data-import-partial",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-attachment-export-progress",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-attachment-import-progress"
+      ]
+    },
+    {
+      "source": "lib/pages/settings/font_settings_page.dart",
+      "classes": [
+        "FontSettingsPage"
+      ],
+      "lines": 64,
+      "batch": "M8 设置与收尾",
+      "designRoutes": [
+        "flow-font"
+      ],
+      "designMapping": "已定位",
+      "components": "BeeChoiceChip/BeeSliderField/BeeAccordion/BeeSurface、完整文字数字列表预览和真实缩放Provider",
+      "acceptance": "373项/55文件主回归、5文件静态检查、HTML3组合通过；补真实root订阅最终6项目标检查0问题（计数重叠）。R64实际八档checked/保存值、自定义滑杆1.23、正常重启保留、标准重选/重置/适配及七项设备信息通过。原57笔/当前53/24账户/5附件与标签26保持；原生效0/1恢复，仅QA新存两项显式默认。9图/12文件报告font-r64三宽度及ZIP校验通过，SHA256 2e8eaf3fc7c9dccc78664133f788941c4d67b9d0db447da188208e43570c8adb。300ms提前读盘中间值已纠正并用稳定值及重启证明，不冒充产品再次失败；Cloud/iOS未执行。",
+      "status": "已完成",
+      "name": "字体设置",
+      "priority": "P1",
+      "reason": "原422行及缩放Provider备份保持，新64行页组合既有基础组件和专用预览Section；八档、0.01自定义、完整预览、设备信息及重置/适配保留，旧互相重置已修复。R64同一QA实际UI/独立偏好/正常重启闭环完成。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-font"
+      ]
+    },
+    {
+      "source": "lib/pages/settings/header_skin_page.dart",
+      "classes": [
+        "HeaderSkinPage"
+      ],
+      "lines": 101,
+      "batch": "M8 设置与收尾",
+      "designRoutes": [
+        "skins",
+        "flow-skins-animated",
+        "flow-skins-static",
+        "flow-skins-debug"
+      ],
+      "designMapping": "已定位",
+      "components": "BeeSkinChoice/BeeSkinCard、原registry绑定、当前皮肤只读与显式生产入口",
+      "acceptance": "83项/6文件相关回归、7文件静态0问题；HTML三组实际外观字号与66组规范/41基础控件/248链接通过。全部23项实际选择持久化；正常launcher重启后，在任何选择回调前原极光仍选中；业务45实际受控回调只改样例，当前真实皮肤只读与生产入口通过。原选中偏好和57/53/24/5及全部业务表/附件hash精确保持，最终正常重启纯色和53笔首页。16图/19文件报告三宽度和ZIP校验通过，SHA256 063ac6de12c7e2a095a67b740df97a6462b05b409bddd9a50e02a0b396f5c51c。Q15保留原缩略图动效开关作用范围等待集中确认；Cloud/iOS/物理短屏未执行或不适用，正式22项由原kDebugMode/冻结注册验证，未另装release包。",
+      "status": "已完成",
+      "name": "皮肤选择与预览",
+      "priority": "P1",
+      "reason": "原456行及SHA已备份；原三筛选/正式22项调试23项/五系列/默认纯色/两款固定配色与原恢复服务保留。R70同一QA全部23项真实选择、重启和组件真实预览闭环完成。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=skins",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-skins-animated",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-skins-static",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-skins-debug"
+      ]
+    },
+    {
+      "source": "lib/pages/settings/help_center_page.dart",
+      "classes": [
+        "HelpCenterPage"
+      ],
+      "lines": 13,
+      "batch": "M8 设置与收尾",
+      "designRoutes": [
+        "flow-help",
+        "flow-support-help",
+        "flow-support-changelog",
+        "flow-support-help-error",
+        "flow-support-help-loading"
+      ],
+      "designMapping": "已定位",
+      "components": "分组菜单、输入/选择/开关、弹窗与状态",
+      "acceptance": "独立包三宽/ZIP/manifest/脱敏并root只读封存；原范围检查/PARTIAL/exit78和未执行项保留。剪贴板内容读回、外部App/下载安装/iOS和故障等未测边界不冒称通过；早期SVG未绘完Home截图从最终图册排除，17:00同R105稳定Home只作共同视觉补图。",
+      "status": "已完成",
+      "name": "帮助中心",
+      "priority": "P2",
+      "reason": "R105实际生产入口、主要页面动作、返回和正常launcher及31表/64笔/5附件+3图/业务Prefs守卫；root逐张核图并独立校24文件与原功能、29项固定源码回归。关于实际更新取消；快捷六项复制反馈；帮助/隐私实际原WebView正文和滚动。",
+      "implementationStage": "accepted",
+      "acceptanceReport": ".docs/acceptance/v4-migration/2026-10-25/help-r105/index.html",
+      "acceptanceZipSha256": "589750cd792bb4fb58ce1ec45bcc894a35203a73d60d9fd6d0c34c75d25137ab",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-help",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-support-help",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-support-changelog",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-support-help-error",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-support-help-loading"
+      ]
+    },
+    {
+      "source": "lib/pages/settings/language_settings_page.dart",
+      "classes": [
+        "LanguageSettingsPage"
+      ],
+      "lines": 66,
+      "batch": "M8 设置与收尾",
+      "designRoutes": [
+        "flow-language"
+      ],
+      "designMapping": "已定位",
+      "components": "V4页头/整页背景、BeeSurface与BeeOnboardingChoice，原LanguageNotifier和updateAppWidget",
+      "acceptance": "16项/3文件相关回归、2文件静态检查0问题及3组HTML通过。真实UI核对英语、zh/TW、韩语、简体、跟随系统及选中语义；系统清两键，其他语言清旧TW，英语父页副标题与正常重启持久化。原简体和主题恢复，原57笔/当前53/24账户/5附件及标签26不变。9图/12文件报告language-r63三宽度与ZIP校验通过，SHA256 3a2be7bbac79ff68d9ed9ffc15522a9aff7fb838992bfff58a76fdb55f4355b4。Cloud/iOS、实际桌面组件图片渲染未执行；刷新本地化参数由生产函数和捕获OS渲染器的widget验证。",
+      "status": "已完成",
+      "name": "语言设置",
+      "priority": "P1",
+      "reason": "原144行备份保持，新统一选择卡片复用初始化组件；原五项、语言/地区持久化及桌面组件刷新保留。R63同一QA实际五语言选择、英语重启与恢复原偏好完成。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-language"
+      ]
+    },
+    {
+      "source": "lib/pages/settings/log_center_page.dart",
+      "classes": [
+        "LogCenterPage"
+      ],
+      "lines": 8,
+      "batch": "M8 设置与收尾",
+      "designRoutes": [
+        "flow-logs",
+        "flow-log-detail",
+        "flow-maintenance-logs",
+        "flow-maintenance-log-detail",
+        "flow-maintenance-log-clear",
+        "flow-maintenance-log-empty"
+      ],
+      "designMapping": "已定位",
+      "components": "级别/来源多选、搜索、统计、日志行与堆栈详情",
+      "acceptance": "R105真实2398→0且旧2395 fingerprints不回灌，安全空日志系统Chooser取消、复制反馈；R108六个checked/checkable逐项false→true、主题紧凑选择与SearchField、安全搜索/空态/恢复及一次共享正常main。24源码单元独立核，清空/导出/复制/详情函数字节相同。R10746维护回归与实际原生区分；剪贴板读回/非空外发/iOS/权限故障NOT_RUN。logs-r108独立9图/三宽/ZIP/manifest/脱敏并只读封存。",
+      "status": "已完成",
+      "name": "日志中心",
+      "priority": "P2",
+      "reason": "R105功能与R108视觉增量经Root独立审阅封存；实际四级别/两来源状态、搜索空态、复制详情、清空取消确认、安全空导出取消和正常入口闭环，范围及失败分列。",
+      "implementationStage": "implemented",
+      "acceptanceReport": ".docs/acceptance/v4-migration/2026-10-25/logs-r108/index.html",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-logs",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-log-detail",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-maintenance-logs",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-maintenance-log-detail",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-maintenance-log-clear",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-maintenance-log-empty"
+      ]
+    },
+    {
+      "source": "lib/pages/settings/personalize_page.dart",
+      "classes": [
+        "PersonalizePage"
+      ],
+      "lines": 120,
+      "batch": "M8 设置与收尾",
+      "designRoutes": [
+        "colors",
+        "flow-theme-custom",
+        "flow-theme-locked"
+      ],
+      "designMapping": "已定位",
+      "components": "可见名称色板、受控HSV/RGB预览、统一自定义弹窗、固定皮肤说明与原换皮肤入口",
+      "acceptance": "74项/10文件回归（7主题专项）、7文件静态0问题；真实3组HTML外观字号、245链接/65规范/41基础控件通过。真机27原名称、橙/青柠实际保存及重启选中、三HSV通道取消/确认红色、两款动态皮肤绑定/禁用/换纯色恢复自定义红、基础第22节回调及最终重启通过。原主题/记忆色/皮肤与全部所选偏好精确恢复，57/53/24/5和原业务表/附件hash不变。2026-10-25主题报告17图/20文件三宽度及ZIP SHA256 d0748bb841b37867680f35e3981438353153dcf74594d4e5f82bdd626f925522。Cloud/原生iOS/物理短屏未执行或不适用；未计独立皮肤页完成。",
+      "status": "已完成",
+      "name": "主题色与自定义配色",
+      "priority": "P1",
+      "reason": "原512行/27原色值和中英文名称冻结，自定义HSV草稿/原持久化/两款动态皮肤锁定恢复保留；R69同一QA真实UI、独立偏好/数据库/附件和正常重启已封存。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=colors",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-theme-custom",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-theme-locked"
+      ]
+    },
+    {
+      "source": "lib/pages/settings/privacy_policy_page.dart",
+      "classes": [
+        "PrivacyPolicyPage"
+      ],
+      "lines": 10,
+      "batch": "M8 设置与收尾",
+      "designRoutes": [
+        "leaf:隐私政策",
+        "flow-privacy",
+        "flow-support-privacy",
+        "flow-support-privacy-error"
+      ],
+      "designMapping": "已定位",
+      "components": "分组菜单、输入/选择/开关、弹窗与状态",
+      "acceptance": "独立包三宽/ZIP/manifest/脱敏并root只读封存；原范围检查/PARTIAL/exit78和未执行项保留。剪贴板内容读回、外部App/下载安装/iOS和故障等未测边界不冒称通过；早期SVG未绘完Home截图从最终图册排除，17:00同R105稳定Home只作共同视觉补图。",
+      "status": "已完成",
+      "name": "隐私政策",
+      "priority": "P2",
+      "reason": "R105实际生产入口、主要页面动作、返回和正常launcher及31表/64笔/5附件+3图/业务Prefs守卫；root逐张核图并独立校24文件与原功能、29项固定源码回归。关于实际更新取消；快捷六项复制反馈；帮助/隐私实际原WebView正文和滚动。",
+      "implementationStage": "accepted",
+      "acceptanceReport": ".docs/acceptance/v4-migration/2026-10-25/privacy-r105/index.html",
+      "acceptanceZipSha256": "7b86de8706b3d2abed4d500cd18ab7d3221ad2ec5baffdb524291c9ee0ad7d23",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=leaf:隐私政策",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-privacy",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-support-privacy",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-support-privacy-error"
+      ]
+    },
+    {
+      "source": "lib/pages/settings/reminder_settings_page.dart",
+      "classes": [
+        "ReminderSettingsPage"
+      ],
+      "lines": 155,
+      "batch": "M8 设置与收尾",
+      "designRoutes": [
+        "flow-reminder",
+        "flow-reminder-ios",
+        "flow-reminder-time",
+        "flow-reminder-battery",
+        "flow-reminder-channel",
+        "flow-reminder-battery-warning",
+        "flow-reminder-channel-warning"
+      ],
+      "designMapping": "已定位",
+      "components": "BeeTimeWheels、BeeReminderPreferences、固定操作区诊断弹窗、实际偏好只读预览及生产入口",
+      "acceptance": "79项/12文件相关回归、10文件静态0问题；3组实际外观字号HTML、iOS门控、237链接/63组规范/40基础控件通过。R67实际取消/确认21:01、8条1001–1008待处理记录及取消、9999系统通知记录、硬件诊断、渠道与MIUI系统设置往返、恢复关闭21:00和正常重启通过。57/53/24/5及原业务表/附件hash保持；原未设置三键变显式false/21/0。15图/18文件报告三宽度及ZIP SHA256 be40ee7984f36bf64646123ed92b6c07f9b73c547d382c78b9f2957c08f740ba。未等待次日送达、额外Native备用未来触发、原生iOS/物理短屏；Q14原iOS说明后续核对。Cloud不适用。",
+      "status": "已完成",
+      "name": "记账提醒",
+      "priority": "P1",
+      "reason": "原398行与Provider完整备份；受控时间滚轮/提醒组件与App诊断、真实偏好、原调度和平台分支保留。R67同一QA生产UI/独立OS记录/业务数据/正常重启闭环完成。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-reminder",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-reminder-ios",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-reminder-time",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-reminder-battery",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-reminder-channel",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-reminder-battery-warning",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-reminder-channel-warning"
+      ]
+    },
+    {
+      "source": "lib/pages/settings/shortcuts_guide_page.dart",
+      "classes": [
+        "ShortcutsGuidePage"
+      ],
+      "lines": 8,
+      "batch": "M6 AI与自动化",
+      "designRoutes": [
+        "flow-shortcuts",
+        "flow-support-shortcuts-ios",
+        "flow-support-shortcuts-android"
+      ],
+      "designMapping": "已定位",
+      "components": "分组菜单、输入/选择/开关、弹窗与状态",
+      "acceptance": "独立包三宽/ZIP/manifest/脱敏并root只读封存；原范围检查/PARTIAL/exit78和未执行项保留。剪贴板内容读回、外部App/下载安装/iOS和故障等未测边界不冒称通过；早期SVG未绘完Home截图从最终图册排除，17:00同R105稳定Home只作共同视觉补图。",
+      "status": "已完成",
+      "name": "快捷指令引导",
+      "priority": "P2",
+      "reason": "R105实际生产入口、主要页面动作、返回和正常launcher及31表/64笔/5附件+3图/业务Prefs守卫；root逐张核图并独立校24文件与原功能、29项固定源码回归。关于实际更新取消；快捷六项复制反馈；帮助/隐私实际原WebView正文和滚动。",
+      "implementationStage": "accepted",
+      "acceptanceReport": ".docs/acceptance/v4-migration/2026-10-25/shortcuts-r105/index.html",
+      "acceptanceZipSha256": "10823de21008c98cff0a93c3f5f9049b6f4bb4b7e2de85bc99982bad61dbe0d3",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-shortcuts",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-support-shortcuts-ios",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-support-shortcuts-android"
+      ]
+    },
+    {
+      "source": "lib/pages/settings/smart_billing_page.dart",
+      "classes": [
+        "SmartBillingPage"
+      ],
+      "lines": 28,
+      "batch": "M6 AI与自动化",
+      "designRoutes": [
+        "smart",
+        "flow-smart-direct",
+        "flow-smart-gp",
+        "flow-smart-ios",
+        "flow-feature-guide",
+        "flow-voice-trigger",
+        "flow-smart-guide-image",
+        "flow-smart-guide-camera",
+        "flow-smart-guide-voice",
+        "flow-smart-guide-share",
+        "flow-capture"
+      ],
+      "designMapping": "已定位",
+      "components": "纯完整识别引导、统一设置行/开关/语音单选、500–4000ms滑杆松手提交；平台/偏好/回调留App，Flutter54真实只读与正式入口",
+      "acceptance": "最终3029788d提交副本93项/12文件相关回归、15文件静态0问题；20组HTML、324场景/75组规范/41基础控件与三宽度通过。845产品文件及lock一致、APK身份/签名/hash和私有备份核验；同一QA实际4原说明、3原目标、3开关保存/重启、语音选择/取消/4000重启及1500恢复、真实Flutter54/只读/入口和最终正常53笔首页通过。全部金融表/追踪、57/53/24/5及附件/3图片/两公共文件hash保持；仅5项原默认显式化与原运行日志正常保留策略变化，其他全偏好一致。22图25文件报告smart-r80封存，ZIP a39c3ae88f6554daf0523640a35e0de9ddb15cfdff57073ae938305e0288b7ba。Cloud/实际AI调用不适用；GP/iOS/物理短屏未执行，320英文深色140%由Widget/HTML覆盖。",
+      "status": "已完成",
+      "name": "智能记账入口与识别偏好",
+      "priority": "P1",
+      "reason": "原526行及三个Provider完整备份，原Provider字节未改；薄页/纯引导/滑杆松手提交/App平台偏好绑定、HTML与Flutter样例、真实UI及独立全量数据/重启/封存闭环。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=smart",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-smart-direct",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-smart-gp",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-smart-ios",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-feature-guide",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-voice-trigger",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-smart-guide-image",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-smart-guide-camera",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-smart-guide-voice",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-smart-guide-share",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-capture"
+      ]
+    },
+    {
+      "source": "lib/pages/settings/storage_management_page.dart",
+      "classes": [
+        "StorageManagementPage"
+      ],
+      "lines": 8,
+      "batch": "M7 初始化与数据",
+      "designRoutes": [
+        "flow-storage",
+        "flow-maintenance-storage",
+        "flow-maintenance-storage-ios",
+        "flow-maintenance-storage-error",
+        "flow-maintenance-storage-clear"
+      ],
+      "designMapping": "已定位",
+      "components": "分组菜单、输入/选择/开关、弹窗与状态",
+      "acceptance": "存储只验证58B/82B合成过滤文件各自取消/确认，不称模型可用或APK安装；孤儿只删一张306B本轮文件，其他13清理类型未原生执行。旧6→5通用guard失败与修正边界保留。独立三宽、ZIP/manifest/脱敏及只读封存；Cloud/iOS与IO故障等单列。",
+      "status": "已完成",
+      "name": "存储空间管理",
+      "priority": "P2",
+      "reason": "R105实际生产扫描、选定owned文件取消/确认删除、重扫与正常launcher；原31表/64笔/5附件+3图及业务Prefs保持，root独立核24文件源码及稳定图并封存。",
+      "implementationStage": "accepted",
+      "acceptanceReport": ".docs/acceptance/v4-migration/2026-10-25/storage-r105/index.html",
+      "acceptanceZipSha256": "a21e835d2df2c0aa42baf71cdb887ab0d8cc55e0e948c6be52f2c686a5b0ac7a",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-storage",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-maintenance-storage",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-maintenance-storage-ios",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-maintenance-storage-error",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-maintenance-storage-clear"
+      ]
+    },
+    {
+      "source": "lib/pages/settings/widget_management_page.dart",
+      "classes": [
+        "WidgetManagementPage"
+      ],
+      "lines": 8,
+      "batch": "M8 设置与收尾",
+      "designRoutes": [
+        "flow-widgets",
+        "flow-maintenance-widgets-android",
+        "flow-maintenance-widgets-ios"
+      ],
+      "designMapping": "已定位",
+      "components": "分组菜单、输入/选择/开关、弹窗与状态",
+      "acceptance": "Android九张完整预览、iOS七张连续图覆盖九预览与各平台原说明；原View/样例/服务保留，20源码单元双版本40次独立比对。系统桌面放置/更新/deep link未测，原ellipsis/三占位保留。 独立报告widgets-r106；失败/PARTIAL/INTERRUPTED与全部NOT_RUN原样保留，组件测试不等同原生动作，历史数据快照不代表当前。",
+      "status": "已完成",
+      "name": "桌面小组件管理",
+      "priority": "P2",
+      "reason": "固定R105流程与R106视觉增量，Root人工核图/独立源码、数据守卫和正常入口共享重启审阅，独立三宽/ZIP/manifest/脱敏后只读封存。",
+      "implementationStage": "implemented",
+      "acceptanceReport": ".docs/acceptance/v4-migration/2026-10-25/widgets-r106/index.html",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-widgets",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-maintenance-widgets-android",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-maintenance-widgets-ios"
+      ]
+    },
+    {
+      "source": "lib/pages/tag/tag_detail_page.dart",
+      "classes": [
+        "TagDetailPage"
+      ],
+      "lines": 213,
+      "batch": "M3 资源管理与详情",
+      "designRoutes": [
+        "tagDetail",
+        "flow-tag-foreign-detail",
+        "flow-tag-all-ledgers-detail",
+        "flow-tag-empty-detail",
+        "flow-detail-currency-tag-current",
+        "flow-detail-currency-tag-all",
+        "flow-detail-currency-tag-usd",
+        "flow-detail-currency-tag-missing",
+        "flow-detail-currency-tag-native-missing",
+        "flow-detail-currency-tag-legacy",
+        "flow-detail-currency-tag-unknown",
+        "flow-detail-currency-tag-stale",
+        "flow-detail-currency-tag-invalid",
+        "flow-detail-currency-tag-shared",
+        "flow-detail-currency-tag-privacy",
+        "flow-detail-currency-tag-privacy-missing",
+        "flow-detail-currency-tag-month",
+        "flow-detail-currency-tag-year",
+        "flow-detail-currency-tag-empty",
+        "flow-detail-currency-tag-custom-month"
+      ],
+      "designMapping": "已定位",
+      "components": "语义标签、关联分类、统计/筛选和账单行",
+      "acceptance": "同一QA、源码0272614c、APK97819bb8，原59保护，setup原61保留后64笔/原本57笔；后续明确owned批量变更按新基线核对，31表及5附件hash重启精确保持。10图/15文件离线包、三宽、ZIP/manifest/脱敏与root不可变封存通过。Android App范围完成；缺率/异常等相关widget/HTML单列，iOS/Cloud及本轮专门隐私切换未执行。",
+      "status": "已完成",
+      "name": "标签详情",
+      "priority": "P1",
+      "reason": "Q10/Q11/Q23及原已确认决定已落地；R98真实当前/全部账本、父子/分类分布、CNY76.80与USD11.00、退款/历史native/已有quotes不回写、周期/滚轮取消与导航及正常launcher重启通过。保留旧R55/R60相应CUD的版本证据，新汇总变更以R98实际覆盖，不冒充全部旧动作重复执行。",
+      "implementationStage": "accepted",
+      "acceptanceReport": ".docs/acceptance/v4-migration/2026-10-25/tag-detail-r98/index.html",
+      "acceptanceZipSha256": "083d9a5206a46f9cc836c9835b81d660590c096c2d71370a87390bb7b200a697",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=tagDetail",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-tag-foreign-detail",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-tag-all-ledgers-detail",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-tag-empty-detail",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-tag-current",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-tag-all",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-tag-usd",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-tag-missing",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-tag-native-missing",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-tag-legacy",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-tag-unknown",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-tag-stale",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-tag-invalid",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-tag-shared",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-tag-privacy",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-tag-privacy-missing",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-tag-month",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-tag-year",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-tag-empty",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-tag-custom-month"
+      ]
+    },
+    {
+      "source": "lib/pages/tag/tag_edit_page.dart",
+      "classes": [
+        "TagEditPage"
+      ],
+      "lines": 137,
+      "batch": "M3 资源管理与详情",
+      "designRoutes": [
+        "flow-tag-edit",
+        "flow-tag-new"
+      ],
+      "designMapping": "已定位",
+      "components": "规范表单、语义标签实时预览、受控20色选择与真实保存结果",
+      "acceptance": "九图独立报告tag-edit-r61，三宽度及12文件/ZIP校验通过，SHA256 d0fa699ae10b111fc5c924ff69df3c68b67da48d66f27fe7b878da93ffe7e7d1。原57笔/当前53/24账户/5附件和全部原标签关系保持。长标签20字素320深色140%回归通过，颜色44触控/36色块。Cloud/iOS及共享负身份写入不属于本地编辑已通过范围，旧服务缺口Q13保留。",
+      "status": "已完成",
+      "name": "新增与编辑标签",
+      "priority": "P1",
+      "reason": "原308行备份保持，新137行页与真实保存绑定完成，20色/旧自定义色/查重/返回值保留。350项主回归与最终样式10项、6组HTML通过；R61同一QA实际必填/重名拒绝、新建选色、同身份改名换色、取消/专属目标删除和正常重启闭环通过。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-tag-edit",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-tag-new"
+      ]
+    },
+    {
+      "source": "lib/pages/tag/tag_manage_page.dart",
+      "classes": [
+        "TagManagePage"
+      ],
+      "lines": 170,
+      "batch": "M3 资源管理与详情",
+      "designRoutes": [
+        "flow-tag-management",
+        "flow-tag-management-empty",
+        "flow-tag-management-error",
+        "flow-tag-management-loading",
+        "flow-tag-tools"
+      ],
+      "designMapping": "已定位",
+      "components": "受控BeeTagLibrary、真实标签预览、上下文工具菜单、确认/模式弹窗、原子标签导入与平台文件适配",
+      "acceptance": "361项/51文件主回归、最终9项目标检查、12组HTML与独立网格几何通过；10文件主静态检查及最终测试复核0问题。R62实际23标签仅标签YAML导出、系统/模式取消、两标签合并、原同名颜色保持、新增入口取消、专属删除取消/确认及正常重启通过。原57笔/当前53/24账户/5附件与全部旧行保持，只保留橙色合成标签26。15图/18文件独立报告tag-library-r62三宽度与ZIP校验通过，SHA256 4bb4871bdc0f1854919b2f06beb64e901e9e1e2e6c2f86021ccbefab8941870b。Cloud/iOS未执行；清理/覆盖实际写入由真实Repository/widget覆盖。",
+      "status": "已完成",
+      "name": "标签管理",
+      "priority": "P1",
+      "reason": "原633行备份保持，新170行编排真实标签网格和四项工具；原生成/导入/清理/分享与全局计数保留。R62同一QA实际UI、独立SQL/文件和正常重启闭环完成。",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-tag-management",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-tag-management-empty",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-tag-management-error",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-tag-management-loading",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-tag-tools"
+      ]
+    },
+    {
+      "source": "lib/pages/transaction/category_detail_page.dart",
+      "classes": [
+        "CategoryDetailPage"
+      ],
+      "lines": 311,
+      "batch": "M3 资源管理与详情",
+      "designRoutes": [
+        "categoryDetail",
+        "flow-detail-currency-category-current",
+        "flow-detail-currency-category-all",
+        "flow-detail-currency-category-usd",
+        "flow-detail-currency-category-missing",
+        "flow-detail-currency-category-native-missing",
+        "flow-detail-currency-category-legacy",
+        "flow-detail-currency-category-unknown",
+        "flow-detail-currency-category-stale",
+        "flow-detail-currency-category-invalid",
+        "flow-detail-currency-category-shared",
+        "flow-detail-currency-category-privacy",
+        "flow-detail-currency-category-privacy-missing",
+        "flow-detail-currency-category-month",
+        "flow-detail-currency-category-year",
+        "flow-detail-currency-category-empty"
+      ],
+      "designMapping": "已定位",
+      "components": "分类信息/父子展开、统计、日期筛选与账单行",
+      "acceptance": "同一QA、源码0272614c、APK97819bb8，原59保护，setup原61保留后64笔/原本57笔；后续明确owned批量变更按新基线核对，31表及5附件hash重启精确保持。10图/15文件离线包、三宽、ZIP/manifest/脱敏与root不可变封存通过。Android App范围完成；缺率/异常等相关widget/HTML单列，iOS/Cloud及本轮专门隐私切换未执行。",
+      "status": "已完成",
+      "name": "分类详情",
+      "priority": "P0",
+      "reason": "Q10/Q11/Q23及原已确认决定已落地；R98真实当前/全部账本、父子/分类分布、CNY76.80与USD11.00、退款/历史native/已有quotes不回写、周期/滚轮取消与导航及正常launcher重启通过。保留旧R55/R60相应CUD的版本证据，新汇总变更以R98实际覆盖，不冒充全部旧动作重复执行。",
+      "checkpointReport": ".docs/acceptance/v4-migration/2026-10-24/category-r55/index.html",
+      "checkpointZipSha256": "a4cfbad0d465a4175bb36755cb51942a7f3a10ee44126ca58a4e86e12ca6d354",
+      "implementationStage": "accepted",
+      "acceptanceReport": ".docs/acceptance/v4-migration/2026-10-25/category-detail-r98/index.html",
+      "acceptanceZipSha256": "9a0392f6eb2a48cfd203b850134ca2382be085dac73161253ef748caf21b8ee7",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=categoryDetail",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-category-current",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-category-all",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-category-usd",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-category-missing",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-category-native-missing",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-category-legacy",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-category-unknown",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-category-stale",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-category-invalid",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-category-shared",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-category-privacy",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-category-privacy-missing",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-category-month",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-category-year",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-detail-currency-category-empty"
+      ]
+    },
+    {
+      "source": "lib/pages/transaction/recurring_transaction_edit_page.dart",
+      "classes": [
+        "RecurringTransactionEditPage"
+      ],
+      "lines": 11,
+      "batch": "M1 记账闭环",
+      "designRoutes": [
+        "flow-recurring-edit",
+        "flow-recurring-edit-new",
+        "flow-recurring-edit-transfer",
+        "flow-recurring-edit-daily",
+        "flow-recurring-edit-weekly",
+        "flow-recurring-edit-yearly",
+        "flow-recurring-edit-saving",
+        "flow-recurring-edit-error",
+        "flow-recurring-edit-loading",
+        "flow-recurring-edit-load-error",
+        "flow-recurring-edit-long",
+        "flow-recurring-edit-empty-accounts"
+      ],
+      "designMapping": "已定位",
+      "components": "周期编辑表单、金额/币种/账户、日期与频率选择",
+      "acceptance": "真实3.21支出每2月31日/开始2027与结束2028，草稿4.56取消不写，6.54收入每3周清结束，2.50USD同币种双账户每2年/账本CNY；类型清分类、必填和币种清两账户、仅USD选择/目标排除源。实际正常入口持久化与删除取消/确认仅owned2。R108相关14文件exact但不假称重跑。旧21widget非native；due-date实际生成/非空lastGenerated及原TODO、iOS/故障压力未测。两报告三宽/ZIP/manifest/脱敏只读封存。",
+      "status": "已完成",
+      "name": "周期账单编辑",
+      "priority": "P1",
+      "reason": "R106生产UI真实未来模板三类型CUD/启停/取消/持久化/只删owned2，Root15张unique图与41源码比对独立审阅，原rule1及31表/64/57/5+3/业务Prefs保持；独立报告只读封存。",
+      "implementationStage": "implemented",
+      "acceptanceReport": ".docs/acceptance/v4-migration/2026-10-25/recurring-editor-r106/index.html",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-recurring-edit",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-recurring-edit-new",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-recurring-edit-transfer",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-recurring-edit-daily",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-recurring-edit-weekly",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-recurring-edit-yearly",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-recurring-edit-saving",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-recurring-edit-error",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-recurring-edit-loading",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-recurring-edit-load-error",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-recurring-edit-long",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-recurring-edit-empty-accounts"
+      ]
+    },
+    {
+      "source": "lib/pages/transaction/recurring_transaction_page.dart",
+      "classes": [
+        "RecurringTransactionPage"
+      ],
+      "lines": 8,
+      "batch": "M1 记账闭环",
+      "designRoutes": [
+        "flow-recurring",
+        "flow-recurring-empty",
+        "flow-recurring-loading",
+        "flow-recurring-error",
+        "flow-recurring-saving",
+        "flow-recurring-long",
+        "flow-recurring-save-error"
+      ],
+      "designMapping": "已定位",
+      "components": "周期任务列表、状态、菜单与空态",
+      "acceptance": "真实3.21支出每2月31日/开始2027与结束2028，草稿4.56取消不写，6.54收入每3周清结束，2.50USD同币种双账户每2年/账本CNY；类型清分类、必填和币种清两账户、仅USD选择/目标排除源。实际正常入口持久化与删除取消/确认仅owned2。R108相关14文件exact但不假称重跑。旧21widget非native；due-date实际生成/非空lastGenerated及原TODO、iOS/故障压力未测。两报告三宽/ZIP/manifest/脱敏只读封存。",
+      "status": "已完成",
+      "name": "周期账单列表",
+      "priority": "P1",
+      "reason": "R106生产UI真实未来模板三类型CUD/启停/取消/持久化/只删owned2，Root15张unique图与41源码比对独立审阅，原rule1及31表/64/57/5+3/业务Prefs保持；独立报告只读封存。",
+      "implementationStage": "implemented",
+      "acceptanceReport": ".docs/acceptance/v4-migration/2026-10-25/recurring-list-r106/index.html",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-recurring",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-recurring-empty",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-recurring-loading",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-recurring-error",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-recurring-saving",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-recurring-long",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-recurring-save-error"
+      ]
+    },
+    {
+      "source": "lib/pages/transaction/search_page.dart",
+      "classes": [
+        "SearchPage"
+      ],
+      "lines": 395,
+      "batch": "M2 首页与列表",
+      "designRoutes": [
+        "search",
+        "batch"
+      ],
+      "designMapping": "已定位",
+      "components": "搜索、筛选/日期范围、账单行和批量操作栏",
+      "acceptance": "Root独立匹配154份源码/3458函数审计、相关固定版本回归及新稳定截图；记账14图/搜索27图，三宽/ZIP/manifest/脱敏与只读封存通过。短屏/140%等按widget/HTML，Cloud/iOS/系统外部边界继续单列。",
+      "status": "已完成",
+      "name": "账单搜索与批量操作",
+      "priority": "P0",
+      "reason": "按固定R52/53、R54/55、R96/R98旧原生证据与未变源码/函数复用收口；R105新分类几何分别实际验证默认确认回传或仅owned64分类3→4→3保存恢复，正常重启31表/64笔/5附件+3图/业务偏好守卫。原阶段状态和NOT_RUN保留，非宣称所有动作R105重跑。",
+      "checkpointReport": ".docs/acceptance/v4-migration/2026-10-24/search-r55/index.html",
+      "checkpointZipSha256": "e1c785304f48b4c2eabcd67af71abe8a91244277f51fe2c87da8c50277525d80",
+      "implementationStage": "accepted",
+      "acceptanceReport": ".docs/acceptance/v4-migration/2026-10-25/search-incremental-r105/index.html",
+      "acceptanceZipSha256": "ccc6d1b0e68fd5e1c7a57c64147b9cc0307f1e2402e0f199ebe684d35eff58d0",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=search",
+        "../../docs/design/card-refresh/prototype/demo.html?page=batch"
+      ]
+    },
+    {
+      "source": "lib/pages/transaction/transaction_detail_page.dart",
+      "classes": [
+        "TransactionDetailPage"
+      ],
+      "lines": 17,
+      "batch": "M2 首页与列表",
+      "designRoutes": [
+        "detail",
+        "flow-foreign-detail",
+        "flow-attachment-grid"
+      ],
+      "designMapping": "已定位",
+      "components": "详情金额/历史折算、分类/账户/账本/日期/备注/标签、平铺附件与编辑复制小票",
+      "acceptance": "16稳定图/21文件独立包通过三宽/脱敏/ZIP/manifest并root审阅只读封存。源码0272614c/APK97819bb8，固定历史版本；同数据已更新R105，不将旧动作称为新版本执行。小票保存/分享及Cloud/iOS/异常权限等分别单列；原AndroidApp页面范围完成。",
+      "status": "已完成",
+      "name": "账单详情",
+      "priority": "P0",
+      "reason": "R98实际支出三图平铺/大图、美元转账历史快照、收入隐私还原、账户往返、直接编辑/长按详情、复制新69再按原确认删除、原小票预览取消及正常launcher重启通过；原64交易/31表与附件保持。图片严格区分编辑入口和复制表单，不用加载态作回显证据。",
+      "implementationStage": "accepted",
+      "newInV4": true,
+      "acceptanceReport": ".docs/acceptance/v4-migration/2026-10-25/transaction-detail-r98/index.html",
+      "acceptanceZipSha256": "782acf6615226d3db95bd366a96a8521fe981b59fd20c4bf0796984579364853",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=detail",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-foreign-detail",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-attachment-grid"
+      ]
+    },
+    {
+      "source": "lib/pages/transaction/transaction_editor_page.dart",
+      "classes": [
+        "TransactionEditorPage"
+      ],
+      "lines": 432,
+      "batch": "M1 记账闭环",
+      "designRoutes": [
+        "editor",
+        "flow-foreign-editor",
+        "flow-recognition-result"
+      ],
+      "designMapping": "已定位",
+      "components": "金额/折算、计算器、两行元信息、分类/资源选择器与转账账户组合",
+      "acceptance": "Root独立匹配154份源码/3458函数审计、相关固定版本回归及新稳定截图；记账14图/搜索27图，三宽/ZIP/manifest/脱敏与只读封存通过。短屏/140%等按widget/HTML，Cloud/iOS/系统外部边界继续单列。",
+      "status": "已完成",
+      "name": "记账、新增、编辑与复制",
+      "priority": "P0",
+      "reason": "按固定R52/53、R54/55、R96/R98旧原生证据与未变源码/函数复用收口；R105新分类几何分别实际验证默认确认回传或仅owned64分类3→4→3保存恢复，正常重启31表/64笔/5附件+3图/业务偏好守卫。原阶段状态和NOT_RUN保留，非宣称所有动作R105重跑。",
+      "implementationStage": "accepted",
+      "acceptanceReport": ".docs/acceptance/v4-migration/2026-10-25/recording-incremental-r105/index.html",
+      "acceptanceZipSha256": "6fe961bdbff5b7ad32ce5721a98ca209ed59296a813fdec51b889e2483144f8a",
+      "designLinks": [
+        "../../docs/design/card-refresh/prototype/demo.html?page=editor",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-foreign-editor",
+        "../../docs/design/card-refresh/prototype/demo.html?page=flow-recognition-result"
+      ]
+    }
+  ],
+  "baselineCompletion": {
+    "completed": 73,
+    "total": 73,
+    "scope": "原迁移基线；后续设计修订独立记录，不据此宣称新修订已验收"
+  },
+  "approvedDesignRevisions": [
+    {
+      "id": "A",
+      "name": "洞察页",
+      "status": "已实现并按原整页基线＋源码连续性＋对应原生增量合并验收；独立报告已封存，失败与NOT_RUN按原阶段保留",
+      "url": "boards/insights-task-a-review.html",
+      "flutterCommit": "0c730777",
+      "flutterApproved": true,
+      "executedScopeAccepted": true,
+      "revisionReportSealed": true,
+      "compositeCurrentVersionAcceptance": true,
+      "reportHTML": ".docs/acceptance/v4-migration/2026-10-26/approved-AE-r117-final/A-insights-r116/index.html",
+      "reportZIP": ".docs/acceptance/v4-migration/2026-10-26/approved-AE-r117-final/A-insights-r116.zip",
+      "reportZIPsha256": "b00e5487a09b0b9678d6ea88f172d3fc84ac66650e299ec4c5b5f2076d74a360"
+    },
+    {
+      "id": "B",
+      "name": "资产页",
+      "status": "已实现并按原整页基线＋源码连续性＋对应原生增量合并验收；独立报告已封存，失败与NOT_RUN按原阶段保留",
+      "url": "boards/assets-task-b-review.html",
+      "flutterCommit": "de25c879",
+      "flutterApproved": true,
+      "mainDemoCommit": "3f59b6d3",
+      "executedScopeAccepted": true,
+      "revisionReportSealed": true,
+      "compositeCurrentVersionAcceptance": true,
+      "reportHTML": ".docs/acceptance/v4-migration/2026-10-26/approved-AE-r117-final/B-assets-r116/index.html",
+      "reportZIP": ".docs/acceptance/v4-migration/2026-10-26/approved-AE-r117-final/B-assets-r116.zip",
+      "reportZIPsha256": "5106722ddf5ce78972383e0ee4524409f5f656be70aae4aa0353f29534551125"
+    },
+    {
+      "id": "C",
+      "name": "交易明细行",
+      "status": "已实现并按原整页基线＋源码连续性＋对应原生增量合并验收；独立报告已封存，失败与NOT_RUN按原阶段保留",
+      "url": "boards/transaction-rows-task-c-review.html",
+      "designCommit": "e00a31e6",
+      "approvedHtmlSha256": "643833f7d50be973e5e08296ef84d01c096743a1086a02636de08b293f66177c",
+      "approval": "子任务 c 就按照这个版本推进吧。",
+      "flutterApproved": true,
+      "flutterCommit": "2fe64194",
+      "mainDemoCommit": "98f1942f",
+      "allConsumersDemoCommit": "765729d7",
+      "executedScopeAccepted": true,
+      "revisionReportSealed": true,
+      "compositeCurrentVersionAcceptance": true,
+      "reportHTML": ".docs/acceptance/v4-migration/2026-10-26/approved-AE-r117-final/C-transaction-rows-r116/index.html",
+      "reportZIP": ".docs/acceptance/v4-migration/2026-10-26/approved-AE-r117-final/C-transaction-rows-r116.zip",
+      "reportZIPsha256": "b426a58429d71e463220657f85b048d193ee6822d6862d1900080c01503863f1"
+    },
+    {
+      "id": "D",
+      "name": "分享海报与应用卡片",
+      "status": "已实现并按原整页基线＋源码连续性＋对应原生增量合并验收；独立报告已封存，失败与NOT_RUN按原阶段保留",
+      "url": "boards/share-cards-task-d-review.html",
+      "designCommit": "c93457bf",
+      "approvedHtmlSha256": "8c039e5608b67add35cb8a9f66a83e1e85c20b35c91cc71013fb496ae43e4e5d",
+      "approval": "子任务 d 设计稿确认没问题，更新下 demo 然后开做吧。",
+      "flutterApproved": true,
+      "mainDemoCommit": "233d8f8a",
+      "flutterCommit": "5661828b",
+      "executedScopeAccepted": true,
+      "revisionReportSealed": true,
+      "compositeCurrentVersionAcceptance": true,
+      "reportHTML": ".docs/acceptance/v4-migration/2026-10-26/approved-AE-r117-final/D-share-cards-r116/index.html",
+      "reportZIP": ".docs/acceptance/v4-migration/2026-10-26/approved-AE-r117-final/D-share-cards-r116.zip",
+      "reportZIPsha256": "1b0f52c9a973c7299c4528056cfc50dca120abdae33cafd1d553f8f404de71fc"
+    },
+    {
+      "id": "E",
+      "name": "启动页 · 一笔成形",
+      "status": "已实现并按原整页基线＋源码连续性＋对应原生增量合并验收；独立报告已封存，失败与NOT_RUN按原阶段保留",
+      "url": "boards/splash-task-e-review.html?concept=trail",
+      "designCommit": "c0eeb0e8",
+      "approvedHtmlSha256": "cb3b28761dd234ad803c6a5b54eb74be80fd1c02c1156d651f1ed0ee0f12f665",
+      "approval": "子任务 e 用方案 B",
+      "flutterApproved": true,
+      "flutterCommit": "40a7d193",
+      "mainDemoCommit": "3cb0a735",
+      "systemBarsCommit": "607bb5b2",
+      "componentGalleryCommit": "983f6180",
+      "executedScopeAccepted": true,
+      "revisionReportSealed": true,
+      "compositeCurrentVersionAcceptance": true,
+      "reportHTML": ".docs/acceptance/v4-migration/2026-10-26/approved-AE-r117-final/E-launch-components-r116/index.html",
+      "reportZIP": ".docs/acceptance/v4-migration/2026-10-26/approved-AE-r117-final/E-launch-components-r116.zip",
+      "reportZIPsha256": "dfe892a17439c591525d8af735c044926933994611b4e610b6b0a7a7b1cb296f"
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+name: beecount_business_ui
+description: BeeCount business presentation components with data and callbacks.
+publish_to: none
+version: 0.0.1
+environment:
+  sdk: ^3.6.0
+dependencies:
+  flutter:
+    sdk: flutter
+  beecount_ui:
+    path: ../beecount_ui
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0

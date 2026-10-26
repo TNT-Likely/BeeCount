@@ -1,0 +1,1 @@
+document.addEventListener('click',event=>{const button=event.target.closest('[data-aa101-demo-permission]');if(button){const status=button.querySelector('.aa101-status');status.textContent=status.textContent==='每次询问'?'始终允许':'每次询问';button.closest('.aa101-guide').querySelector('[data-aa101-demo-event]').textContent='示例权限已切换，未保存真实偏好';}});

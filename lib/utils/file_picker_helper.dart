@@ -71,10 +71,10 @@ class FilePickerHelper {
     );
   }
 
-  /// 选择压缩归档文件 (.gz, .tar, .tar.gz)
+  /// 选择附件压缩归档文件 (.tar.gz)
   static Future<FilePickerResult?> pickArchiveFile() async {
     return pickFileWithExtensions(
-      allowedExtensions: ['gz', 'tar'],
+      allowedExtensions: ['gz'],
       validateExtension: true,
     );
   }

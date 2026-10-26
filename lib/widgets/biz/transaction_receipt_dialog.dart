@@ -1,3 +1,5 @@
+import 'package:beecount_business_ui/annual_report.dart';
+import 'package:beecount_ui/beecount_ui.dart';
 import 'dart:math' as math;
 import 'dart:typed_data';
 import 'dart:ui' as ui;
@@ -12,7 +14,6 @@ import '../../l10n/app_localizations.dart';
 import '../../providers/database_providers.dart';
 import '../../services/export/share_poster_service.dart';
 import '../../services/system/logger_service.dart';
-import '../../styles/tokens.dart';
 import '../../widgets/posters/transaction_receipt.dart';
 import '../../widgets/ui/ui.dart';
 
@@ -47,12 +48,12 @@ class TransactionReceiptDialog extends StatefulWidget {
       await showDialog<void>(
           context: context,
           builder: (_) => Dialog(
-                backgroundColor: BeeTokens.surfaceElevated(context),
+                backgroundColor: BeeCardTheme.of(context).surface,
                 surfaceTintColor: Colors.transparent,
                 insetPadding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 28),
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(24)),
+                    borderRadius: BorderRadius.circular(23)),
                 clipBehavior: Clip.antiAlias,
                 child: SizedBox(
                     width: 420,
@@ -160,168 +161,60 @@ class _TransactionReceiptDialogState extends State<TransactionReceiptDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
+    final l = AppLocalizations.of(context);
     final data = widget.data;
-    return Material(
-      color: BeeTokens.surfaceElevated(context),
-      child: Column(children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(20, 10, 10, 6),
-          child: Row(children: [
-            Icon(Icons.receipt_long_outlined,
-                size: 20, color: BeeTokens.iconPrimary(context)),
-            const SizedBox(width: 10),
-            Expanded(
-                child: Text(l10n.transactionReceiptTitle,
-                    style: TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w600,
-                        color: BeeTokens.textPrimary(context)))),
-            IconButton(
-                key: const ValueKey('receipt-close'),
-                tooltip: l10n.commonClose,
-                onPressed: _busy ? null : () => Navigator.of(context).pop(),
-                icon: Icon(Icons.close_rounded,
-                    size: 21, color: BeeTokens.iconSecondary(context))),
-          ]),
-        ),
-        Expanded(
-            child: ColoredBox(
-          color: BeeTokens.surfaceSecondary(context),
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: ClipRect(
-                child: InteractiveViewer(
-              minScale: 1,
-              maxScale: 5,
-              child: Center(
-                  child: FittedBox(
-                fit: BoxFit.scaleDown,
-                child: SizedBox(
-                  width: 320,
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(boxShadow: [
-                      BoxShadow(
-                          color: Colors.black.withValues(alpha: .10),
-                          blurRadius: 18,
-                          offset: const Offset(0, 6))
-                    ]),
-                    child: RepaintBoundary(
-                        key: _receiptKey,
-                        child: TransactionReceipt(
-                          data: data,
-                          showNote: _showNote,
-                          showTags: _showTags,
-                          showAccount: _showAccount,
-                          showLedger: _showLedger,
-                        )),
-                  ),
-                ),
-              )),
-            )),
-          ),
-        )),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(20, 14, 20, 10),
-          child:
-              Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-            Text(l10n.transactionReceiptFields,
-                style: TextStyle(
-                    color: BeeTokens.textSecondary(context), fontSize: 12)),
-            const SizedBox(height: 10),
-            BeeMultiSelect<String>(
-              selectedValues: {
-                if (_showNote) 'note',
-                if (_showTags) 'tags',
-                if (_showAccount) 'account',
-                if (_showLedger) 'ledger'
-              },
-              options: [
-                if (data.transaction.note?.trim().isNotEmpty ?? false)
-                  BeeMultiSelectOption(
-                      value: 'note',
-                      label: l10n.importFieldNote,
-                      key: const ValueKey('receipt-option-note')),
-                if (data.tags.isNotEmpty)
-                  BeeMultiSelectOption(
-                      value: 'tags',
-                      label: l10n.transactionReceiptTags,
-                      key: const ValueKey('receipt-option-tags')),
-                if (data.account != null || data.toAccount != null)
-                  BeeMultiSelectOption(
-                      value: 'account',
-                      label: l10n.importFieldAccount,
-                      key: const ValueKey('receipt-option-account')),
-                BeeMultiSelectOption(
-                    value: 'ledger',
-                    label: l10n.transactionReceiptLedger,
-                    key: const ValueKey('receipt-option-ledger')),
-              ],
-              onChanged: _busy
-                  ? null
-                  : (values) => setState(() {
-                        _showNote = values.contains('note');
-                        _showTags = values.contains('tags');
-                        _showAccount = values.contains('account');
-                        _showLedger = values.contains('ledger');
-                      }),
-            ),
-          ]),
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(20, 4, 20, 18),
-          child: Row(children: [
-            Expanded(
-                child: OutlinedButton.icon(
-              key: const ValueKey('receipt-save'),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: BeeTokens.textPrimary(context),
-                iconColor: BeeTokens.textPrimary(context),
-                side: BorderSide(color: BeeTokens.borderStrong(context)),
-              ),
-              onPressed: _busy ? null : () => _export(share: false),
-              icon: _busy && !_sharing
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Icon(Icons.save_alt_rounded, size: 18),
-              label: Text(l10n.sharePosterSave),
-            )),
-            const SizedBox(width: 10),
-            Expanded(
-                child: Builder(
-                    builder: (buttonContext) => FilledButton.icon(
-                          key: const ValueKey('receipt-share'),
-                          style: FilledButton.styleFrom(
-                            backgroundColor: BeeTokens.primary(context),
-                            foregroundColor: BeeTokens.textOnColor(
-                                BeeTokens.primary(context)),
-                            iconColor: BeeTokens.textOnColor(
-                                BeeTokens.primary(context)),
-                          ),
-                          onPressed: _busy
-                              ? null
-                              : () {
-                                  final box = buttonContext.findRenderObject()
-                                      as RenderBox;
-                                  _export(
-                                      share: true,
-                                      anchor: box.localToGlobal(Offset.zero) &
-                                          box.size);
-                                },
-                          icon: _busy && _sharing
-                              ? const SizedBox(
-                                  width: 18,
-                                  height: 18,
-                                  child:
-                                      CircularProgressIndicator(strokeWidth: 2))
-                              : const Icon(Icons.ios_share_rounded, size: 18),
-                          label: Text(l10n.sharePosterShare),
-                        ))),
-          ]),
-        ),
-      ]),
+    return BeeReceiptComposer(
+      title: l.transactionReceiptTitle,
+      closeLabel: l.commonClose,
+      fieldsLabel: l.transactionReceiptFields,
+      saveLabel: l.sharePosterSave,
+      shareLabel: l.sharePosterShare,
+      preview: RepaintBoundary(
+          key: _receiptKey,
+          child: TransactionReceipt(
+              data: data,
+              showNote: _showNote,
+              showTags: _showTags,
+              showAccount: _showAccount,
+              showLedger: _showLedger)),
+      fields: [
+        if (data.transaction.note?.trim().isNotEmpty ?? false)
+          BeeReceiptField(
+              value: 'note',
+              label: l.importFieldNote,
+              key: const ValueKey('receipt-option-note')),
+        if (data.tags.isNotEmpty)
+          BeeReceiptField(
+              value: 'tags',
+              label: l.transactionReceiptTags,
+              key: const ValueKey('receipt-option-tags')),
+        if (data.account != null || data.toAccount != null)
+          BeeReceiptField(
+              value: 'account',
+              label: l.importFieldAccount,
+              key: const ValueKey('receipt-option-account')),
+        BeeReceiptField(
+            value: 'ledger',
+            label: l.transactionReceiptLedger,
+            key: const ValueKey('receipt-option-ledger')),
+      ],
+      selected: {
+        if (_showNote) 'note',
+        if (_showTags) 'tags',
+        if (_showAccount) 'account',
+        if (_showLedger) 'ledger'
+      },
+      busy: _busy,
+      sharing: _sharing,
+      onChanged: (values) => setState(() {
+        _showNote = values.contains('note');
+        _showTags = values.contains('tags');
+        _showAccount = values.contains('account');
+        _showLedger = values.contains('ledger');
+      }),
+      onClose: () => Navigator.of(context).pop(),
+      onSave: () => _export(share: false),
+      onShare: (anchor) => _export(share: true, anchor: anchor),
     );
   }
 }

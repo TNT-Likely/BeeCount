@@ -111,12 +111,17 @@ class TagChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            name,
-            style: TextStyle(
-              fontSize: fontSize,
-              color: tagColor,
-              fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+          Flexible(
+            child: Text(
+              name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              softWrap: false,
+              style: TextStyle(
+                fontSize: fontSize,
+                color: tagColor,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+              ),
             ),
           ),
           if (showDelete) ...[

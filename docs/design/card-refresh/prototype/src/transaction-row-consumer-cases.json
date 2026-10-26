@@ -1,0 +1,601 @@
+[
+  {
+    "route": "accountDetail",
+    "summary": "¥2,860.32",
+    "consumer": "ad",
+    "ids": [
+      1,
+      5,
+      101,
+      117,
+      103,
+      104,
+      108
+    ],
+    "amounts": [
+      "−¥32.00",
+      "−¥39.00",
+      "−¥41.00",
+      "−¥78.84",
+      "−¥78.50",
+      "−¥219.80",
+      "−¥75.00"
+    ]
+  },
+  {
+    "route": "flow-account-credit-detail",
+    "summary": "¥3,200.00",
+    "consumer": "ad",
+    "ids": [
+      9001,
+      9002,
+      9003
+    ],
+    "amounts": [
+      "−¥168.00",
+      "+¥500.00",
+      "−¥32.00"
+    ]
+  },
+  {
+    "route": "flow-account-overpayment-detail",
+    "summary": "¥500.00",
+    "consumer": "ad",
+    "ids": [
+      9001,
+      9002,
+      9003
+    ],
+    "amounts": [
+      "−¥168.00",
+      "+¥500.00",
+      "−¥32.00"
+    ]
+  },
+  {
+    "route": "flow-account-no-limit-detail",
+    "summary": "¥800.00",
+    "consumer": "ad",
+    "ids": [
+      9001,
+      9002,
+      9003
+    ],
+    "amounts": [
+      "−¥168.00",
+      "+¥500.00",
+      "−¥32.00"
+    ]
+  },
+  {
+    "route": "flow-account-valuation-detail",
+    "summary": "¥50,000.00",
+    "consumer": "none",
+    "ids": []
+  },
+  {
+    "route": "flow-account-loan-detail",
+    "summary": "¥120,000.00",
+    "consumer": "none",
+    "ids": []
+  },
+  {
+    "route": "flow-account-empty-detail",
+    "summary": "¥0.00",
+    "consumer": "none",
+    "ids": []
+  },
+  {
+    "route": "categoryDetail",
+    "summary": "¥1,199.57",
+    "consumer": "dc97",
+    "ids": [
+      1,
+      5,
+      101,
+      102,
+      103,
+      104,
+      105,
+      106,
+      107,
+      108
+    ],
+    "dataSha256": "1a18a19f85f656d2a8e1bb2691c94759c187795318acad995a6e6ea1ffcea26c"
+  },
+  {
+    "route": "tagDetail",
+    "summary": "¥1,121.00",
+    "consumer": "dc97",
+    "ids": [
+      101,
+      109,
+      118,
+      111,
+      119,
+      107,
+      120,
+      108
+    ],
+    "dataSha256": "d825d2cf74d234d0abec0c80a36b14efc470ad033b832d79ac9a43c5f9d62016"
+  },
+  {
+    "route": "flow-tag-foreign-detail",
+    "presetCorrection": {
+      "oldDefault": "日常",
+      "oldCount": 0,
+      "tagFromExistingForeignRow": "旅行",
+      "derivedCount": 6
+    },
+    "consumer": "dc97",
+    "ids": [
+      9201,
+      9202,
+      9203,
+      9204,
+      9205,
+      9206
+    ],
+    "dataSha256": "cb71bdd2249c396b7e7c44be072dcc42b3c022f1267f06a8bd5112721ceb21c9"
+  },
+  {
+    "route": "flow-tag-all-ledgers-detail",
+    "presetCorrection": {
+      "oldDefault": "日常",
+      "oldCount": 0,
+      "tagFromExistingForeignRow": "旅行",
+      "derivedCount": 6
+    },
+    "consumer": "dc97",
+    "ids": [
+      9201,
+      9202,
+      9203,
+      9204,
+      9205,
+      9206
+    ],
+    "dataSha256": "fe26b65152cd5da82478c4b7818f598fcf98370b63cff7cb0339cfb13f865022"
+  },
+  {
+    "route": "flow-tag-empty-detail",
+    "summary": "¥0.00",
+    "consumer": "dc97",
+    "ids": [],
+    "dataSha256": "7ded6051b56098fd3ed94318c6b43fe58a38f5b29f6caa26bdc97dbdc8a6b33a"
+  },
+  {
+    "route": "calendar",
+    "consumer": "calendar",
+    "ids": [
+      1,
+      2,
+      3,
+      74001,
+      74002,
+      74003,
+      74004
+    ]
+  },
+  {
+    "route": "flow-calendar",
+    "consumer": "calendar",
+    "ids": [
+      1,
+      2,
+      3,
+      74001,
+      74002,
+      74003,
+      74004
+    ]
+  },
+  {
+    "route": "flow-calendar-empty",
+    "consumer": "none",
+    "ids": []
+  },
+  {
+    "route": "flow-detail-currency-category-current",
+    "summary": "¥102.20",
+    "consumer": "dc97",
+    "ids": [
+      9701,
+      9703,
+      9706
+    ],
+    "dataSha256": "fac8a9366536d05ee72d2e587a10ff51bf77c7df4d1acb9ec7848decbf368130"
+  },
+  {
+    "route": "flow-detail-currency-category-all",
+    "summary": "¥272.60",
+    "consumer": "dc97",
+    "ids": [
+      9701,
+      9702,
+      9703,
+      9705,
+      9706
+    ],
+    "dataSha256": "900c8837ed1c318e915bc70f3ad5b824592dd2a91ba187173fb9724e80f74243"
+  },
+  {
+    "route": "flow-detail-currency-category-usd",
+    "summary": "US$38.39",
+    "consumer": "dc97",
+    "ids": [
+      9701,
+      9702,
+      9703,
+      9705,
+      9706
+    ],
+    "dataSha256": "e4b4a39599bd120bb74274a0704c2de0fe1a516c86c2d110b2b2033e21731b2b"
+  },
+  {
+    "route": "flow-detail-currency-category-missing",
+    "summary": "—",
+    "consumer": "dc97",
+    "ids": [
+      9701,
+      9702,
+      9703,
+      9705,
+      9706
+    ],
+    "dataSha256": "c2e4d3a89b3f91fd1c5af9af618d63087fb9e5dfeff3c21248433eba7547d633"
+  },
+  {
+    "route": "flow-detail-currency-category-native-missing",
+    "summary": "—",
+    "consumer": "dc97",
+    "ids": [
+      9701,
+      9702,
+      9703,
+      9705,
+      9706
+    ],
+    "dataSha256": "9d53b5478a00c956138aa03b5f1b6b1b9bbc8aee0156f625d7b216df481d7f58"
+  },
+  {
+    "route": "flow-detail-currency-category-legacy",
+    "summary": "¥10.00",
+    "consumer": "dc97",
+    "ids": [
+      9701
+    ],
+    "dataSha256": "b4c546d6b5198855ac4e224e06020722e5debc8dfd9038a2603855fb3bca3032"
+  },
+  {
+    "route": "flow-detail-currency-category-unknown",
+    "summary": "—",
+    "consumer": "dc97",
+    "ids": [
+      9701,
+      9702,
+      9703,
+      9705,
+      9706
+    ],
+    "dataSha256": "60590b6e3c8e2749b04b1bee740c9ea1dcb57ffc1ad5601d0ea9f19287638bf3"
+  },
+  {
+    "route": "flow-detail-currency-category-stale",
+    "summary": "¥272.60",
+    "consumer": "dc97",
+    "ids": [
+      9701,
+      9702,
+      9703,
+      9705,
+      9706
+    ],
+    "dataSha256": "0565322b47c83287ef4edaefdc71c086568979a47f405488cecb6f40e731bb00"
+  },
+  {
+    "route": "flow-detail-currency-category-invalid",
+    "summary": "—",
+    "consumer": "dc97",
+    "ids": [
+      9701,
+      9702,
+      9703,
+      9705,
+      9706
+    ],
+    "dataSha256": "87467fa43f623acd40aa9ca63eceb453f0dd569039aaccdefb45a93df34717ec"
+  },
+  {
+    "route": "flow-detail-currency-category-shared",
+    "summary": "¥142.00",
+    "consumer": "dc97",
+    "ids": [
+      9702
+    ],
+    "dataSha256": "257f84f31d953d0efb5a12daa84f3c34c2b6c5c9ee331aaa39f3edfaee32de87"
+  },
+  {
+    "route": "flow-detail-currency-category-privacy",
+    "summary": "••••",
+    "consumer": "dc97",
+    "ids": [
+      9701,
+      9702,
+      9703,
+      9705,
+      9706
+    ],
+    "dataSha256": "f68e44c6a40a783e0dbebd86b2b3fb25f76c8067ea0f34259c92313d695b7987"
+  },
+  {
+    "route": "flow-detail-currency-category-privacy-missing",
+    "summary": "••••",
+    "consumer": "dc97",
+    "ids": [
+      9701,
+      9702,
+      9703,
+      9705,
+      9706
+    ],
+    "dataSha256": "cb5523df8cd6ae86a2a91fe009dbc86a0363a7114fde3c432bc0b4d4b7b75a3b"
+  },
+  {
+    "route": "flow-detail-currency-category-month",
+    "summary": "¥237.20",
+    "consumer": "dc97",
+    "ids": [
+      9701,
+      9702,
+      9703
+    ],
+    "dataSha256": "944d3b8ee002f7e614bac3f6837f41cce9ec6b3998198b2b451a3a7a3707ea00"
+  },
+  {
+    "route": "flow-detail-currency-category-year",
+    "summary": "¥265.60",
+    "consumer": "dc97",
+    "ids": [
+      9701,
+      9702,
+      9703,
+      9705
+    ],
+    "dataSha256": "37655052aa68d496c0b4ebb7ca4858ddf1e787979b4634e401e846eefa731974"
+  },
+  {
+    "route": "flow-detail-currency-category-empty",
+    "summary": "¥0.00",
+    "consumer": "dc97",
+    "ids": [],
+    "dataSha256": "4fb9bdfc21ab56031589e0055e9be3b5cc411e77544e465a209a6508450a179d"
+  },
+  {
+    "route": "flow-detail-currency-tag-current",
+    "summary": "¥17.00",
+    "consumer": "dc97",
+    "ids": [
+      9701,
+      9704,
+      9703,
+      9706
+    ],
+    "dataSha256": "fac8a9366536d05ee72d2e587a10ff51bf77c7df4d1acb9ec7848decbf368130"
+  },
+  {
+    "route": "flow-detail-currency-tag-all",
+    "summary": "¥187.40",
+    "consumer": "dc97",
+    "ids": [
+      9701,
+      9702,
+      9704,
+      9703,
+      9705,
+      9706
+    ],
+    "dataSha256": "900c8837ed1c318e915bc70f3ad5b824592dd2a91ba187173fb9724e80f74243"
+  },
+  {
+    "route": "flow-detail-currency-tag-usd",
+    "summary": "US$26.39",
+    "consumer": "dc97",
+    "ids": [
+      9701,
+      9702,
+      9704,
+      9703,
+      9705,
+      9706
+    ],
+    "dataSha256": "e4b4a39599bd120bb74274a0704c2de0fe1a516c86c2d110b2b2033e21731b2b"
+  },
+  {
+    "route": "flow-detail-currency-tag-missing",
+    "summary": "—",
+    "consumer": "dc97",
+    "ids": [
+      9701,
+      9702,
+      9704,
+      9703,
+      9705,
+      9706
+    ],
+    "dataSha256": "c2e4d3a89b3f91fd1c5af9af618d63087fb9e5dfeff3c21248433eba7547d633"
+  },
+  {
+    "route": "flow-detail-currency-tag-native-missing",
+    "summary": "—",
+    "consumer": "dc97",
+    "ids": [
+      9701,
+      9702,
+      9704,
+      9703,
+      9705,
+      9706
+    ],
+    "dataSha256": "9d53b5478a00c956138aa03b5f1b6b1b9bbc8aee0156f625d7b216df481d7f58"
+  },
+  {
+    "route": "flow-detail-currency-tag-legacy",
+    "summary": "¥10.00",
+    "consumer": "dc97",
+    "ids": [
+      9701
+    ],
+    "dataSha256": "b4c546d6b5198855ac4e224e06020722e5debc8dfd9038a2603855fb3bca3032"
+  },
+  {
+    "route": "flow-detail-currency-tag-unknown",
+    "summary": "—",
+    "consumer": "dc97",
+    "ids": [
+      9701,
+      9702,
+      9704,
+      9703,
+      9705,
+      9706
+    ],
+    "dataSha256": "60590b6e3c8e2749b04b1bee740c9ea1dcb57ffc1ad5601d0ea9f19287638bf3"
+  },
+  {
+    "route": "flow-detail-currency-tag-stale",
+    "summary": "¥187.40",
+    "consumer": "dc97",
+    "ids": [
+      9701,
+      9702,
+      9704,
+      9703,
+      9705,
+      9706
+    ],
+    "dataSha256": "0565322b47c83287ef4edaefdc71c086568979a47f405488cecb6f40e731bb00"
+  },
+  {
+    "route": "flow-detail-currency-tag-invalid",
+    "summary": "—",
+    "consumer": "dc97",
+    "ids": [
+      9701,
+      9702,
+      9704,
+      9703,
+      9705,
+      9706
+    ],
+    "dataSha256": "87467fa43f623acd40aa9ca63eceb453f0dd569039aaccdefb45a93df34717ec"
+  },
+  {
+    "route": "flow-detail-currency-tag-shared",
+    "summary": "¥142.00",
+    "consumer": "dc97",
+    "ids": [
+      9702
+    ],
+    "dataSha256": "257f84f31d953d0efb5a12daa84f3c34c2b6c5c9ee331aaa39f3edfaee32de87"
+  },
+  {
+    "route": "flow-detail-currency-tag-privacy",
+    "summary": "••••",
+    "consumer": "dc97",
+    "ids": [
+      9701,
+      9702,
+      9704,
+      9703,
+      9705,
+      9706
+    ],
+    "dataSha256": "f68e44c6a40a783e0dbebd86b2b3fb25f76c8067ea0f34259c92313d695b7987"
+  },
+  {
+    "route": "flow-detail-currency-tag-privacy-missing",
+    "summary": "••••",
+    "consumer": "dc97",
+    "ids": [
+      9701,
+      9702,
+      9704,
+      9703,
+      9705,
+      9706
+    ],
+    "dataSha256": "cb5523df8cd6ae86a2a91fe009dbc86a0363a7114fde3c432bc0b4d4b7b75a3b"
+  },
+  {
+    "route": "flow-detail-currency-tag-month",
+    "summary": "¥152.00",
+    "consumer": "dc97",
+    "ids": [
+      9701,
+      9702,
+      9704,
+      9703
+    ],
+    "dataSha256": "944d3b8ee002f7e614bac3f6837f41cce9ec6b3998198b2b451a3a7a3707ea00"
+  },
+  {
+    "route": "flow-detail-currency-tag-year",
+    "summary": "¥180.40",
+    "consumer": "dc97",
+    "ids": [
+      9701,
+      9702,
+      9704,
+      9703,
+      9705
+    ],
+    "dataSha256": "37655052aa68d496c0b4ebb7ca4858ddf1e787979b4634e401e846eefa731974"
+  },
+  {
+    "route": "flow-detail-currency-tag-empty",
+    "summary": "¥0.00",
+    "consumer": "dc97",
+    "ids": [],
+    "dataSha256": "4fb9bdfc21ab56031589e0055e9be3b5cc411e77544e465a209a6508450a179d"
+  },
+  {
+    "route": "flow-detail-currency-tag-custom-month",
+    "summary": "¥7.00",
+    "consumer": "dc97",
+    "ids": [
+      9782
+    ],
+    "dataSha256": "b1908d14d43fd69def81f7c1b9f7bde303bdff4e0692e4114d0ea6e87266c2aa"
+  },
+  {
+    "route": "flow-calendar-unselected",
+    "consumer": "none",
+    "ids": [],
+    "additionalNoRowScene": true
+  },
+  {
+    "route": "flow-calendar-loading",
+    "consumer": "none",
+    "ids": [],
+    "additionalNoRowScene": true
+  },
+  {
+    "route": "flow-calendar-error",
+    "consumer": "none",
+    "ids": [],
+    "additionalNoRowScene": true
+  },
+  {
+    "route": "flow-calendar-earliest",
+    "consumer": "none",
+    "ids": [],
+    "additionalNoRowScene": true
+  },
+  {
+    "route": "flow-calendar-latest",
+    "consumer": "none",
+    "ids": [],
+    "additionalNoRowScene": true
+  }
+]

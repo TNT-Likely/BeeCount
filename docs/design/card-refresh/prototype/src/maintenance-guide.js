@@ -1,0 +1,1 @@
+document.addEventListener('click',event=>{const button=event.target.closest('[data-mt103-demo-details]');if(button)button.closest('.mt103-guide').querySelector('[data-mt103-demo-event]').textContent='示例详情入口；完整日志页保留原详情弹窗、复制与堆栈';});

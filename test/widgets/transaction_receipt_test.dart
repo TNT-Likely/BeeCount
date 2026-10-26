@@ -1,3 +1,4 @@
+import 'dart:ui' show SemanticsFlag;
 import 'package:beecount/data/db.dart';
 import 'package:beecount/data/repositories/local/local_repository.dart';
 import 'package:beecount/l10n/app_localizations.dart';
@@ -69,7 +70,7 @@ void main() {
     expect(receiptText('Private ledger'), findsNothing);
     expect(receiptText('A little treat'), findsOneWidget);
     expect(receiptText('#Friends'), findsOneWidget);
-    expect(receiptText('−1,234.56'), findsOneWidget);
+    expect(receiptText('−\$1,234.56'), findsOneWidget);
     expect(receiptText('USD'), findsOneWidget);
     expect(receiptText('8,888.00'), findsNothing);
     for (final option in ['note', 'tags', 'account', 'ledger']) {
@@ -135,8 +136,18 @@ void main() {
       expect(find.byType(Dialog), findsOneWidget);
       expect(find.byType(TransactionList), findsOneWidget,
           reason: 'The existing list stays visible beneath the modal preview');
-      Navigator.of(tester.element(find.byType(TransactionReceiptDialog))).pop();
-      await tester.pumpAndSettle();
+      final semantics = tester.ensureSemantics();
+      try {
+        final close = find.byKey(const ValueKey('receipt-close'));
+        expect(
+            tester.getSemantics(close).hasFlag(SemanticsFlag.isButton), isTrue);
+        expect(tester.getSemantics(close).label, '关闭');
+        await tester.tap(close);
+        await tester.pumpAndSettle();
+        expect(find.byType(TransactionReceiptDialog), findsNothing);
+      } finally {
+        semantics.dispose();
+      }
     }
     expect(
         await repo.getTransactionById(data.transaction.id), data.transaction);
@@ -166,7 +177,8 @@ void main() {
                               data: receipt, showAccount: true))))),
           locale: 'zh'));
       await tester.pumpAndSettle();
-      expect(find.text(kind == 'income' ? '+1,200' : '1,200'), findsOneWidget);
+      expect(
+          find.text(kind == 'income' ? '+¥1,200' : '¥1,200'), findsOneWidget);
       expect(find.text('JPY'), findsOneWidget);
       expect(find.text('Private account'), findsOneWidget);
       expect(find.text('Destination'),
@@ -188,7 +200,7 @@ void main() {
     );
     await tester.pumpWidget(host(TransactionReceiptDialog(data: receipt)));
     await tester.pumpAndSettle();
-    expect(find.text('−1,234,567,890.12'), findsOneWidget);
+    expect(find.text('−\$1,234,567,890.12'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 

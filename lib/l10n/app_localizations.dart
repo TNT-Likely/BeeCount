@@ -1235,13 +1235,13 @@ abstract class AppLocalizations {
   /// No description provided for @searchSummaryIncome.
   ///
   /// In en, this message translates to:
-  /// **'Income'**
+  /// **'Income total'**
   String get searchSummaryIncome;
 
   /// No description provided for @searchSummaryExpense.
   ///
   /// In en, this message translates to:
-  /// **'Expense'**
+  /// **'Expense total'**
   String get searchSummaryExpense;
 
   /// No description provided for @searchFilterTitle.
@@ -1417,6 +1417,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'• Optional cloud sync, consistent data across devices'**
   String get splashSecurityFeature3;
+
+  /// No description provided for @splashPreparingRecords.
+  ///
+  /// In en, this message translates to:
+  /// **'Getting your records ready'**
+  String get splashPreparingRecords;
+
+  /// No description provided for @splashSecuritySummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Local data · Open source'**
+  String get splashSecuritySummary;
+
+  /// No description provided for @splashSecurityCaption.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional cloud sync. Your data, your choice.'**
+  String get splashSecurityCaption;
+
+  /// No description provided for @splashSecurityLocalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Local storage'**
+  String get splashSecurityLocalTitle;
+
+  /// No description provided for @splashSecurityOpenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Open source'**
+  String get splashSecurityOpenTitle;
+
+  /// No description provided for @splashSecuritySyncTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional cloud sync'**
+  String get splashSecuritySyncTitle;
+
+  /// No description provided for @splashSecurityFootnote.
+  ///
+  /// In en, this message translates to:
+  /// **'Start without an account. Cloud sync is optional.'**
+  String get splashSecurityFootnote;
 
   /// No description provided for @splashInitializing.
   ///
@@ -3881,7 +3923,7 @@ abstract class AppLocalizations {
   /// No description provided for @categoryNameTooLong.
   ///
   /// In en, this message translates to:
-  /// **'Category name cannot exceed 4 characters'**
+  /// **'Category name cannot exceed 10 characters'**
   String get categoryNameTooLong;
 
   /// No description provided for @categoryNameDuplicate.
@@ -4153,6 +4195,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Category \"{name}\" deleted'**
   String categoryDeleted(Object name);
+
+  /// No description provided for @categoryManageChildren.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage'**
+  String get categoryManageChildren;
 
   /// No description provided for @categorySubCategoryTitle.
   ///
@@ -14399,7 +14447,7 @@ abstract class AppLocalizations {
   /// No description provided for @netWorthTrendMultiCurrencyNote.
   ///
   /// In en, this message translates to:
-  /// **'Historical net worth is the raw sum of each currency, not converted'**
+  /// **'Converted to the base currency at current rates. Accounts without a rate are excluded.'**
   String get netWorthTrendMultiCurrencyNote;
 
   /// No description provided for @txFlagExcludeFromStats.
@@ -16321,6 +16369,972 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unable to share. Please try again.'**
   String get transactionReceiptShareFailed;
+
+  /// No description provided for @v4RecordingMoreCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'More categories'**
+  String get v4RecordingMoreCategories;
+
+  /// No description provided for @v4RecordingCalculationHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Calculate with + − × ÷'**
+  String get v4RecordingCalculationHint;
+
+  /// No description provided for @v4RecordingSaveNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Save & add another'**
+  String get v4RecordingSaveNext;
+
+  /// No description provided for @v4RecordingClearAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear amount'**
+  String get v4RecordingClearAmount;
+
+  /// No description provided for @v4RecordingSelectCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a category'**
+  String get v4RecordingSelectCategory;
+
+  /// No description provided for @v4RecordingSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save. Please try again.'**
+  String get v4RecordingSaveFailed;
+
+  /// No description provided for @v4RecordingCategoriesFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load categories'**
+  String get v4RecordingCategoriesFailed;
+
+  /// No description provided for @v4RecordingRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get v4RecordingRetry;
+
+  /// No description provided for @v4RecordingDiscardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard this entry?'**
+  String get v4RecordingDiscardTitle;
+
+  /// No description provided for @v4RecordingDiscardMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Your unsaved amount, note and selections will be cleared.'**
+  String get v4RecordingDiscardMessage;
+
+  /// No description provided for @v4RateInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid exchange rate greater than 0'**
+  String get v4RateInvalid;
+
+  /// No description provided for @v4RecordingConvertedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'In {currency}'**
+  String v4RecordingConvertedLabel(String currency);
+
+  /// No description provided for @v4CategoryToolsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Category tools'**
+  String get v4CategoryToolsTitle;
+
+  /// No description provided for @v4CategoryToolsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort, import, share and default categories'**
+  String get v4CategoryToolsHint;
+
+  /// No description provided for @v4AttachmentPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending save'**
+  String get v4AttachmentPending;
+
+  /// No description provided for @v4ClearSelection.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear selection'**
+  String get v4ClearSelection;
+
+  /// No description provided for @v4HomeAllTransactions.
+  ///
+  /// In en, this message translates to:
+  /// **'All transactions'**
+  String get v4HomeAllTransactions;
+
+  /// No description provided for @v4HomeBatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Batch'**
+  String get v4HomeBatch;
+
+  /// No description provided for @v4HomeMonthShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share monthly summary'**
+  String get v4HomeMonthShare;
+
+  /// No description provided for @v4HomeBrandShow.
+  ///
+  /// In en, this message translates to:
+  /// **'Show BeeCount branding'**
+  String get v4HomeBrandShow;
+
+  /// No description provided for @v4HomeBrandHide.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide BeeCount branding'**
+  String get v4HomeBrandHide;
+
+  /// No description provided for @v4HomeMonthExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly expenses'**
+  String get v4HomeMonthExpense;
+
+  /// No description provided for @v4HomeMonthIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly income'**
+  String get v4HomeMonthIncome;
+
+  /// No description provided for @v4HomeMonthBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly balance'**
+  String get v4HomeMonthBalance;
+
+  /// No description provided for @v4AmountsShow.
+  ///
+  /// In en, this message translates to:
+  /// **'Show amounts'**
+  String get v4AmountsShow;
+
+  /// No description provided for @v4AmountsHide.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide amounts'**
+  String get v4AmountsHide;
+
+  /// No description provided for @v4SearchTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Search transactions'**
+  String get v4SearchTitle;
+
+  /// No description provided for @v4SearchRecent.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent searches'**
+  String get v4SearchRecent;
+
+  /// No description provided for @v4SearchClearHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear search history'**
+  String get v4SearchClearHistory;
+
+  /// No description provided for @v4SearchInvert.
+  ///
+  /// In en, this message translates to:
+  /// **'Invert selection'**
+  String get v4SearchInvert;
+
+  /// No description provided for @v4SearchScope.
+  ///
+  /// In en, this message translates to:
+  /// **'Change scope'**
+  String get v4SearchScope;
+
+  /// No description provided for @v4SearchOriginalAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Original amount'**
+  String get v4SearchOriginalAmount;
+
+  /// No description provided for @v4SearchLedgerAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Converted amount'**
+  String get v4SearchLedgerAmount;
+
+  /// No description provided for @v4SearchInvalidRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter valid nonnegative amounts and check the range'**
+  String get v4SearchInvalidRange;
+
+  /// No description provided for @v4SearchSetTags.
+  ///
+  /// In en, this message translates to:
+  /// **'Set tags'**
+  String get v4SearchSetTags;
+
+  /// No description provided for @v4SearchTagsSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Tags updated for selected transactions'**
+  String get v4SearchTagsSaved;
+
+  /// No description provided for @v4SearchAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get v4SearchAll;
+
+  /// No description provided for @v4SearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search notes, categories, amounts or tags'**
+  String get v4SearchHint;
+
+  /// No description provided for @v4SearchFilterActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Filters applied'**
+  String get v4SearchFilterActive;
+
+  /// No description provided for @v4SearchSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} selected transactions'**
+  String v4SearchSelected(int count);
+
+  /// No description provided for @v4DetailMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Month'**
+  String get v4DetailMonth;
+
+  /// No description provided for @v4DetailYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Year'**
+  String get v4DetailYear;
+
+  /// No description provided for @v4DetailCumulative.
+  ///
+  /// In en, this message translates to:
+  /// **'All time'**
+  String get v4DetailCumulative;
+
+  /// No description provided for @v4DetailCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom range'**
+  String get v4DetailCustom;
+
+  /// No description provided for @v4DetailTrend.
+  ///
+  /// In en, this message translates to:
+  /// **'Cumulative amount'**
+  String get v4DetailTrend;
+
+  /// No description provided for @v4DetailShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get v4DetailShare;
+
+  /// No description provided for @v4DetailMissingCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'This category no longer exists'**
+  String get v4DetailMissingCategory;
+
+  /// No description provided for @v4DetailRecent.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent transactions'**
+  String get v4DetailRecent;
+
+  /// No description provided for @v4DetailCollapse.
+  ///
+  /// In en, this message translates to:
+  /// **'Show fewer'**
+  String get v4DetailCollapse;
+
+  /// No description provided for @v4DetailCategoryChildren.
+  ///
+  /// In en, this message translates to:
+  /// **'Parent category · {count} subcategories'**
+  String v4DetailCategoryChildren(int count);
+
+  /// No description provided for @v4DetailAmountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{kind} · {period}'**
+  String v4DetailAmountLabel(String period, String kind);
+
+  /// No description provided for @v4DetailAllTransactions.
+  ///
+  /// In en, this message translates to:
+  /// **'View all {count} transactions'**
+  String v4DetailAllTransactions(int count);
+
+  /// No description provided for @v4DetailRecord.
+  ///
+  /// In en, this message translates to:
+  /// **'Record in {name}'**
+  String v4DetailRecord(String name);
+
+  /// No description provided for @v4MineCloudGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud and sync'**
+  String get v4MineCloudGroup;
+
+  /// No description provided for @v4MineFeaturesGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Features'**
+  String get v4MineFeaturesGroup;
+
+  /// No description provided for @v4MineHelpGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Help and information'**
+  String get v4MineHelpGroup;
+
+  /// No description provided for @v4MineSupportGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Support us'**
+  String get v4MineSupportGroup;
+
+  /// No description provided for @v4ConfigImportWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Import replaces existing configuration. Back up your current configuration first.'**
+  String get v4ConfigImportWarning;
+
+  /// No description provided for @v4CategoryPresetIcons.
+  ///
+  /// In en, this message translates to:
+  /// **'Preset icons'**
+  String get v4CategoryPresetIcons;
+
+  /// No description provided for @v4CategoryCommonIcons.
+  ///
+  /// In en, this message translates to:
+  /// **'Common'**
+  String get v4CategoryCommonIcons;
+
+  /// No description provided for @v4CategoryImageHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep original colors and transparency. Crop to a square after choosing.'**
+  String get v4CategoryImageHint;
+
+  /// No description provided for @welcomePreferencesLater.
+  ///
+  /// In en, this message translates to:
+  /// **'You can change these preferences later.'**
+  String get welcomePreferencesLater;
+
+  /// No description provided for @welcomeRestoreTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome back.'**
+  String get welcomeRestoreTitle;
+
+  /// No description provided for @welcomeRestoreDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore your familiar ledgers and keep recording your days.'**
+  String get welcomeRestoreDescription;
+
+  /// No description provided for @welcomeReadyDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Record your days with confidence. Your data stays in your control.'**
+  String get welcomeReadyDescription;
+
+  /// No description provided for @welcomeCloudLater.
+  ///
+  /// In en, this message translates to:
+  /// **'No setup is needed now. Enable it later in Me > Cloud services.'**
+  String get welcomeCloudLater;
+
+  /// No description provided for @welcomeSelectBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose backup file'**
+  String get welcomeSelectBackup;
+
+  /// No description provided for @welcomeRestoreContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Import and continue'**
+  String get welcomeRestoreContinue;
+
+  /// No description provided for @welcomeRestoreLedgersAccounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Ledgers and accounts'**
+  String get welcomeRestoreLedgersAccounts;
+
+  /// No description provided for @welcomeRestoreCategoriesTags.
+  ///
+  /// In en, this message translates to:
+  /// **'Categories and tags'**
+  String get welcomeRestoreCategoriesTags;
+
+  /// No description provided for @welcomeRestoreSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'App settings and preferences'**
+  String get welcomeRestoreSettings;
+
+  /// No description provided for @welcomeAttachmentRestoreTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bring your memories back, too.'**
+  String get welcomeAttachmentRestoreTitle;
+
+  /// No description provided for @welcomeAttachmentRestoreDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore receipts and their transaction links, or import them later.'**
+  String get welcomeAttachmentRestoreDescription;
+
+  /// No description provided for @welcomeAttachmentBackupDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'TAR.GZ · Receipts, screenshots and attachments'**
+  String get welcomeAttachmentBackupDescription;
+
+  /// No description provided for @welcomeImportAttachmentsContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Import attachments and finish'**
+  String get welcomeImportAttachmentsContinue;
+
+  /// No description provided for @v4QuickAddSlideHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold, slide to an action, and release'**
+  String get v4QuickAddSlideHint;
+
+  /// No description provided for @v4AccountDetailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Account details'**
+  String get v4AccountDetailTitle;
+
+  /// No description provided for @v4AmountInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid amount'**
+  String get v4AmountInvalid;
+
+  /// No description provided for @v4TagCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'Linked categories'**
+  String get v4TagCategories;
+
+  /// No description provided for @v4TagRecord.
+  ///
+  /// In en, this message translates to:
+  /// **'Record with this tag'**
+  String get v4TagRecord;
+
+  /// No description provided for @v4TagDistribution.
+  ///
+  /// In en, this message translates to:
+  /// **'Category distribution'**
+  String get v4TagDistribution;
+
+  /// No description provided for @v4TagOriginalLedgerTotals.
+  ///
+  /// In en, this message translates to:
+  /// **'Totals use each ledger’s original amounts'**
+  String get v4TagOriginalLedgerTotals;
+
+  /// No description provided for @v4TagToolsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tag tools'**
+  String get v4TagToolsTitle;
+
+  /// No description provided for @v4TagToolsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add, import, generate defaults and clean up'**
+  String get v4TagToolsHint;
+
+  /// No description provided for @v4TrendClosing.
+  ///
+  /// In en, this message translates to:
+  /// **'Closing balance'**
+  String get v4TrendClosing;
+
+  /// No description provided for @v4TrendOpening.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening balance'**
+  String get v4TrendOpening;
+
+  /// No description provided for @v4TrendChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Period change'**
+  String get v4TrendChange;
+
+  /// No description provided for @v4TrendChangeRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Change rate'**
+  String get v4TrendChangeRate;
+
+  /// No description provided for @v4DataBills.
+  ///
+  /// In en, this message translates to:
+  /// **'Transactions'**
+  String get v4DataBills;
+
+  /// No description provided for @v4DataCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'Categories and tags'**
+  String get v4DataCategories;
+
+  /// No description provided for @v4DataConfiguration.
+  ///
+  /// In en, this message translates to:
+  /// **'Configuration and storage'**
+  String get v4DataConfiguration;
+
+  /// No description provided for @v4DataAttachments.
+  ///
+  /// In en, this message translates to:
+  /// **'Attachments'**
+  String get v4DataAttachments;
+
+  /// No description provided for @v4CustomIcons.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom icons'**
+  String get v4CustomIcons;
+
+  /// No description provided for @v4AnalyticsTrend.
+  ///
+  /// In en, this message translates to:
+  /// **'Income and expense trend'**
+  String get v4AnalyticsTrend;
+
+  /// No description provided for @v4AnalyticsShowRanking.
+  ///
+  /// In en, this message translates to:
+  /// **'Show category ranking'**
+  String get v4AnalyticsShowRanking;
+
+  /// No description provided for @v4AnalyticsShowPie.
+  ///
+  /// In en, this message translates to:
+  /// **'Show category chart'**
+  String get v4AnalyticsShowPie;
+
+  /// No description provided for @v4AnalyticsView.
+  ///
+  /// In en, this message translates to:
+  /// **'Statistics view'**
+  String get v4AnalyticsView;
+
+  /// No description provided for @v4AnalyticsRecalculate.
+  ///
+  /// In en, this message translates to:
+  /// **'Convert now'**
+  String get v4AnalyticsRecalculate;
+
+  /// No description provided for @aiProviderShowKey.
+  ///
+  /// In en, this message translates to:
+  /// **'Show API key'**
+  String get aiProviderShowKey;
+
+  /// No description provided for @aiProviderHideKey.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide API key'**
+  String get aiProviderHideKey;
+
+  /// No description provided for @aiPromptShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share prompt'**
+  String get aiPromptShare;
+
+  /// No description provided for @aiPromptPaste.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste prompt'**
+  String get aiPromptPaste;
+
+  /// No description provided for @v4AIChatSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send message'**
+  String get v4AIChatSend;
+
+  /// No description provided for @v4RecurringLastGeneratedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Last generated'**
+  String get v4RecurringLastGeneratedLabel;
+
+  /// No description provided for @v4TransactionDetailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bill details'**
+  String get v4TransactionDetailTitle;
+
+  /// No description provided for @v4TransactionDetailSnapshot.
+  ///
+  /// In en, this message translates to:
+  /// **'Historical conversion'**
+  String get v4TransactionDetailSnapshot;
+
+  /// No description provided for @v4TransactionDetailSnapshotRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate at entry'**
+  String get v4TransactionDetailSnapshotRate;
+
+  /// No description provided for @v4DetailConvertedScope.
+  ///
+  /// In en, this message translates to:
+  /// **'Totals converted to current ledger currency {currency}'**
+  String v4DetailConvertedScope(String currency);
+
+  /// No description provided for @v4DetailMissingConversion.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} records not converted · {currencies}. Summary amounts unavailable.'**
+  String v4DetailMissingConversion(int count, String currencies);
+
+  /// No description provided for @v4DetailRateDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate date {date}'**
+  String v4DetailRateDate(String date);
+
+  /// No description provided for @v4DetailRatesStale.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate is more than 7 days old · {date}'**
+  String v4DetailRatesStale(String date);
+
+  /// No description provided for @v4ShareCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Share card'**
+  String get v4ShareCardTitle;
+
+  /// No description provided for @v4ShareCardProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'My profile'**
+  String get v4ShareCardProfile;
+
+  /// No description provided for @v4InsightsCategoryShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Category share'**
+  String get v4InsightsCategoryShare;
+
+  /// No description provided for @v4InsightsShareHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a category to view its share of the total'**
+  String get v4InsightsShareHint;
+
+  /// No description provided for @v4InsightsTapBar.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a column to see its amount'**
+  String get v4InsightsTapBar;
+
+  /// No description provided for @v4InsightsAverageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How the average is calculated'**
+  String get v4InsightsAverageTitle;
+
+  /// No description provided for @v4InsightsAverageDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Uses elapsed days in this period, including days without entries. Future dates are excluded.'**
+  String get v4InsightsAverageDays;
+
+  /// No description provided for @v4InsightsAverageMonths.
+  ///
+  /// In en, this message translates to:
+  /// **'Uses elapsed months in this year, including months without entries. Future months are excluded.'**
+  String get v4InsightsAverageMonths;
+
+  /// No description provided for @v4InsightsAverageYears.
+  ///
+  /// In en, this message translates to:
+  /// **'Uses the years spanned by the ledger, including years without entries. Future years are excluded.'**
+  String get v4InsightsAverageYears;
+
+  /// No description provided for @v4InsightsDaysUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'days'**
+  String get v4InsightsDaysUnit;
+
+  /// No description provided for @v4InsightsMonthsUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'months'**
+  String get v4InsightsMonthsUnit;
+
+  /// No description provided for @v4InsightsYearsUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'years'**
+  String get v4InsightsYearsUnit;
+
+  /// No description provided for @v4InsightsBalanceComposition.
+  ///
+  /// In en, this message translates to:
+  /// **'Income and expenses'**
+  String get v4InsightsBalanceComposition;
+
+  /// No description provided for @v4InsightsBalanceEquation.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance = income − expenses'**
+  String get v4InsightsBalanceEquation;
+
+  /// No description provided for @v4InsightsPreviousPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous period'**
+  String get v4InsightsPreviousPeriod;
+
+  /// No description provided for @v4InsightsNextPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'Next period'**
+  String get v4InsightsNextPeriod;
+
+  /// No description provided for @v4InsightsOtherCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'Other categories'**
+  String get v4InsightsOtherCategories;
+
+  /// No description provided for @v4InsightsSortedByAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Sorted by amount'**
+  String get v4InsightsSortedByAmount;
+
+  /// No description provided for @v4InsightsNoData.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose another period or use the tabs above to switch between expenses, income and balance.'**
+  String get v4InsightsNoData;
+
+  /// No description provided for @v4InsightsTrendTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{type} trend'**
+  String v4InsightsTrendTitle(String type);
+
+  /// No description provided for @v4InsightsAmountUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'Unit: {currency}'**
+  String v4InsightsAmountUnit(String currency);
+
+  /// No description provided for @v4InsightsCollapseCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'Collapse categories'**
+  String get v4InsightsCollapseCategories;
+
+  /// No description provided for @v4InsightsAllCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'All {count} categories'**
+  String v4InsightsAllCategories(int count);
+
+  /// No description provided for @v4AssetsAllAccounts.
+  ///
+  /// In en, this message translates to:
+  /// **'All accounts'**
+  String get v4AssetsAllAccounts;
+
+  /// No description provided for @v4AssetsByCurrency.
+  ///
+  /// In en, this message translates to:
+  /// **'By currency'**
+  String get v4AssetsByCurrency;
+
+  /// No description provided for @v4AssetsUnifiedConversion.
+  ///
+  /// In en, this message translates to:
+  /// **'Converted total'**
+  String get v4AssetsUnifiedConversion;
+
+  /// No description provided for @v4AssetsCurrencyView.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount display'**
+  String get v4AssetsCurrencyView;
+
+  /// No description provided for @v4AssetsHiddenIncluded.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden accounts remain included in net worth.'**
+  String get v4AssetsHiddenIncluded;
+
+  /// No description provided for @v4AssetsIncludesHidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Includes {count} hidden accounts'**
+  String v4AssetsIncludesHidden(int count);
+
+  /// No description provided for @v4AssetsOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Account order'**
+  String get v4AssetsOrder;
+
+  /// No description provided for @v4AssetsOrderHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Reorder within an account type. Balances stay unchanged.'**
+  String get v4AssetsOrderHint;
+
+  /// No description provided for @v4AssetsSeparateCurrencyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'View each currency separately; currencies are not added together.'**
+  String get v4AssetsSeparateCurrencyHint;
+
+  /// No description provided for @v4AssetsOriginal.
+  ///
+  /// In en, this message translates to:
+  /// **'Original'**
+  String get v4AssetsOriginal;
+
+  /// No description provided for @v4AssetsDefaultExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Default expense'**
+  String get v4AssetsDefaultExpense;
+
+  /// No description provided for @v4AssetsDefaultIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Default income'**
+  String get v4AssetsDefaultIncome;
+
+  /// No description provided for @v4AssetsTrend.
+  ///
+  /// In en, this message translates to:
+  /// **'Trend'**
+  String get v4AssetsTrend;
+
+  /// No description provided for @v4AssetsComposition.
+  ///
+  /// In en, this message translates to:
+  /// **'Mix'**
+  String get v4AssetsComposition;
+
+  /// No description provided for @v4TransactionRowFieldsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction fields'**
+  String get v4TransactionRowFieldsTitle;
+
+  /// No description provided for @v4TransactionRowMoreFields.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} more fields'**
+  String v4TransactionRowMoreFields(int count);
+
+  /// No description provided for @v4TransactionRowReadOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Read only'**
+  String get v4TransactionRowReadOnly;
+
+  /// No description provided for @v4TransactionRowAccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Access'**
+  String get v4TransactionRowAccess;
+
+  /// No description provided for @v4SharePosterProfileEyebrow.
+  ///
+  /// In en, this message translates to:
+  /// **'My everyday records'**
+  String get v4SharePosterProfileEyebrow;
+
+  /// No description provided for @v4SharePosterDayCaption.
+  ///
+  /// In en, this message translates to:
+  /// **'days of thoughtful records.'**
+  String get v4SharePosterDayCaption;
+
+  /// No description provided for @v4SharePosterProfileJourney.
+  ///
+  /// In en, this message translates to:
+  /// **'A small habit, a lasting story.'**
+  String get v4SharePosterProfileJourney;
+
+  /// No description provided for @v4SharePosterPromoInvite.
+  ///
+  /// In en, this message translates to:
+  /// **'Make a record of your days.'**
+  String get v4SharePosterPromoInvite;
+
+  /// No description provided for @v4SharePosterOpenSourceBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your data stays yours. Our code stays open.\nKeep bookkeeping simple, together.'**
+  String get v4SharePosterOpenSourceBody;
+
+  /// No description provided for @v4SharePosterOpenSourceAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Explore the source'**
+  String get v4SharePosterOpenSourceAction;
+
+  /// No description provided for @v4SharePosterRecommend.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommend to a friend'**
+  String get v4SharePosterRecommend;
+
+  /// No description provided for @v4SharePosterTopIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'TOP 3 income'**
+  String get v4SharePosterTopIncome;
+
+  /// No description provided for @v4SharePosterAverageRecords.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily records'**
+  String get v4SharePosterAverageRecords;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

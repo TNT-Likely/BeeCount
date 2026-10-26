@@ -1,3 +1,6 @@
+import 'package:beecount_business_ui/annual_report.dart';
+import 'package:beecount_ui/beecount_ui.dart';
+import '../../presentation/v4/bindings/annual_report_sections.dart';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
@@ -8,13 +11,11 @@ import 'package:intl/intl.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers.dart';
 import '../../utils/month_range.dart';
-import '../../utils/currencies.dart';
 import '../../widgets/ui/ui.dart';
 import '../../widgets/posters/annual_report_poster.dart';
 import '../../data/db.dart';
 import '../../services/export/share_poster_types.dart';
 import '../../services/export/share_poster_service.dart';
-import '../../services/data/category_service.dart';
 
 /// 年度账单数据
 class AnnualReportData {
@@ -201,26 +202,22 @@ final annualReportDataProvider =
   );
 });
 
-/// 年度账单页面
+/// 年度账单页面。数据与原生导出保留 App 绑定。
 class AnnualReportPage extends ConsumerStatefulWidget {
   final int? initialYear;
-
   const AnnualReportPage({super.key, this.initialYear});
-
   @override
   ConsumerState<AnnualReportPage> createState() => _AnnualReportPageState();
 }
 
 class _AnnualReportPageState extends ConsumerState<AnnualReportPage> {
-  late PageController _pageController;
+  final _pageController = PageController();
   int _currentPage = 0;
   late int _selectedYear;
-
+  bool _generatingPoster = false;
   @override
   void initState() {
     super.initState();
-    _pageController = PageController();
-    // 如果传入了初始年份则使用，否则使用当前年份
     _selectedYear = widget.initialYear ?? DateTime.now().year;
   }
 
@@ -232,222 +229,165 @@ class _AnnualReportPageState extends ConsumerState<AnnualReportPage> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final primaryColor = ref.watch(primaryColorProvider);
+    final l = AppLocalizations.of(context);
+    final cards = BeeCardTheme.of(context);
     final dataAsync = ref.watch(annualReportDataProvider(_selectedYear));
-
-    return Scaffold(
-      backgroundColor: primaryColor,
-      body: dataAsync.when(
-        loading: () => _buildLoading(l10n),
-        error: (e, _) => _buildError(l10n, e.toString()),
-        data: (data) {
-          if (data == null) {
-            return _buildNoData(l10n);
-          }
-          return _buildContent(context, data);
-        },
-      ),
-    );
-  }
-
-  Widget _buildLoading(AppLocalizations l10n) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const CircularProgressIndicator(color: Colors.white),
-          const SizedBox(height: 16),
-          Text(
-            l10n.annualReportGenerating,
-            style: const TextStyle(color: Colors.white, fontSize: 16),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildError(AppLocalizations l10n, String error) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.error_outline, color: Colors.white, size: 48),
-          const SizedBox(height: 16),
-          Text(
-            '${l10n.commonError}: $error',
-            style: const TextStyle(color: Colors.white),
-          ),
-          const SizedBox(height: 16),
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(l10n.commonBack,
-                style: const TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNoData(AppLocalizations l10n) {
-    return SafeArea(
-      child: Column(
-        children: [
-          _buildHeader(l10n),
-          Expanded(
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.inbox_outlined,
-                      color: Colors.white54, size: 64),
-                  const SizedBox(height: 16),
-                  Text(
-                    l10n.annualReportNoData(_selectedYear),
-                    style: const TextStyle(color: Colors.white70, fontSize: 16),
-                  ),
-                  const SizedBox(height: 24),
-                  _buildYearSelector(),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHeader(AppLocalizations l10n) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
-      child: Row(
-        children: [
-          IconButton(
-            icon: const Icon(Icons.close, color: Colors.white),
-            onPressed: () => Navigator.pop(context),
-          ),
-          const Spacer(),
-          _buildYearSelector(),
-          const Spacer(),
-          const SizedBox(width: 48), // Balance the close button
-        ],
-      ),
-    );
-  }
-
-  Widget _buildYearSelector() {
     final currentYear = DateTime.now().year;
-    final years = List.generate(5, (i) => currentYear - i);
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.2),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: DropdownButton<int>(
-        value: _selectedYear,
-        dropdownColor: ref.watch(primaryColorProvider),
-        underline: const SizedBox(),
-        icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
-        style: const TextStyle(
-            color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
-        items: years.map((year) {
-          return DropdownMenuItem(
-            value: year,
-            child: Text('$year'),
-          );
-        }).toList(),
-        onChanged: (year) {
-          if (year != null) {
-            setState(() => _selectedYear = year);
-          }
-        },
-      ),
-    );
-  }
-
-  Widget _buildContent(BuildContext context, AnnualReportData data) {
-    final l10n = AppLocalizations.of(context);
-
-    return SafeArea(
-      child: Column(
-        children: [
-          _buildHeader(l10n),
+    final years = {...List.generate(5, (i) => currentYear - i), _selectedYear}
+        .toList()
+      ..sort((a, b) => b.compareTo(a));
+    return Scaffold(
+        backgroundColor: cards.canvas,
+        body: SafeArea(
+            child: Column(children: [
+          Padding(
+              padding: const EdgeInsets.fromLTRB(8, 5, 17, 5),
+              child: Row(children: [
+                BeeIconButton(
+                    key: const ValueKey('annual-close'),
+                    label: l.commonClose,
+                    onPressed: () => Navigator.maybePop(context),
+                    icon: const BeeLineIcon('X', size: 22)),
+                const SizedBox(width: 4),
+                Expanded(
+                    child: Text(l.annualReportTitle,
+                        style: const TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.w600))),
+                Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    decoration: BoxDecoration(
+                        color: cards.surface,
+                        borderRadius: BorderRadius.circular(13)),
+                    child: DropdownButton<int>(
+                        key: const ValueKey('annual-year'),
+                        value: _selectedYear,
+                        underline: const SizedBox.shrink(),
+                        dropdownColor: cards.surface,
+                        borderRadius: BorderRadius.circular(16),
+                        items: [
+                          for (final year in years)
+                            DropdownMenuItem(
+                                value: year,
+                                child: Text('$year',
+                                    style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600)))
+                        ],
+                        onChanged: (year) {
+                          if (year != null) {
+                            setState(() => _selectedYear = year);
+                          }
+                        })),
+              ])),
           Expanded(
-            child: PageView(
-              controller: _pageController,
-              onPageChanged: (page) => setState(() => _currentPage = page),
-              children: [
-                _buildPage1Overview(context, data),
-                _buildPageInsights(context, data), // 年度洞察
-                _buildPageIncomeVsExpense(context, data), // 收支对比
-                _buildPage2Categories(context, data),
-                _buildPage3MonthlyTrend(context, data),
-                _buildPage4SpecialMoments(context, data),
-                _buildPage5Achievements(context, data),
-              ],
-            ),
-          ),
-          _buildPageIndicator(7), // 7页
-          const SizedBox(height: 16),
-          _buildBottomActions(l10n),
-          const SizedBox(height: 16),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPageIndicator(int pageCount) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(pageCount, (index) {
-        final isActive = index == _currentPage;
-        return AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          margin: const EdgeInsets.symmetric(horizontal: 4),
-          width: isActive ? 24 : 8,
-          height: 8,
-          decoration: BoxDecoration(
-            color:
-                isActive ? Colors.white : Colors.white.withValues(alpha: 0.4),
-            borderRadius: BorderRadius.circular(4),
-          ),
-        );
-      }),
-    );
-  }
-
-  Widget _buildBottomActions(AppLocalizations l10n) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: SizedBox(
-        width: double.infinity,
-        child: ElevatedButton.icon(
-          onPressed: _generatePoster,
-          icon: const Icon(Icons.share),
-          label: Text(l10n.annualReportShareButton),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.white,
-            foregroundColor: ref.watch(primaryColorProvider),
-            padding: const EdgeInsets.symmetric(vertical: 14),
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          ),
-        ),
-      ),
-    );
+              child: dataAsync.when(
+                  loading: () => Center(
+                          child:
+                              Column(mainAxisSize: MainAxisSize.min, children: [
+                        const CircularProgressIndicator(),
+                        const SizedBox(height: 16),
+                        Text(l.annualReportGenerating)
+                      ])),
+                  error: (e, _) => Center(
+                      child: Padding(
+                          padding: const EdgeInsets.all(24),
+                          child:
+                              Column(mainAxisSize: MainAxisSize.min, children: [
+                            const BeeLineIcon('CircleAlert', size: 40),
+                            const SizedBox(height: 16),
+                            Text('${l.commonError}: $e',
+                                textAlign: TextAlign.center),
+                            const SizedBox(height: 12),
+                            TextButton(
+                                onPressed: () => ref.invalidate(
+                                    annualReportDataProvider(_selectedYear)),
+                                child: Text(l.helpCenterRetry))
+                          ]))),
+                  data: (data) {
+                    if (data == null) {
+                      return Center(
+                          child: Padding(
+                              padding: const EdgeInsets.all(24),
+                              child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const BeeLineIcon('Inbox', size: 48),
+                                    const SizedBox(height: 16),
+                                    Text(l.annualReportNoData(_selectedYear),
+                                        textAlign: TextAlign.center)
+                                  ])));
+                    }
+                    return Column(children: [
+                      Expanded(
+                          child: PageView(
+                              controller: _pageController,
+                              onPageChanged: (page) =>
+                                  setState(() => _currentPage = page),
+                              children: annualReportSections(context, data,
+                                  monthStartDay: ref
+                                      .watch(currentMonthStartDayProvider)))),
+                      Padding(
+                          padding: const EdgeInsets.fromLTRB(17, 10, 17, 5),
+                          child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                for (var i = 0; i < 7; i++)
+                                  Semantics(
+                                      label: '${i + 1} / 7',
+                                      selected: i == _currentPage,
+                                      child: GestureDetector(
+                                          onTap: () => _pageController.animateToPage(i,
+                                              duration: const Duration(
+                                                  milliseconds: 200),
+                                              curve: Curves.easeOut),
+                                          child: Padding(
+                                              padding: const EdgeInsets.symmetric(
+                                                  horizontal: 4, vertical: 9),
+                                              child: AnimatedContainer(
+                                                  duration: const Duration(
+                                                      milliseconds: 200),
+                                                  width: i == _currentPage
+                                                      ? 24
+                                                      : 7,
+                                                  height: 7,
+                                                  decoration: BoxDecoration(
+                                                      color: i == _currentPage
+                                                          ? Theme.of(context)
+                                                              .colorScheme
+                                                              .primary
+                                                          : Theme.of(context).hintColor.withValues(alpha: .2),
+                                                      borderRadius: BorderRadius.circular(4))))))
+                              ])),
+                      Padding(
+                          padding: const EdgeInsets.fromLTRB(17, 0, 17, 14),
+                          child: SizedBox(
+                              width: double.infinity,
+                              child: BeeButton(
+                                  key: const ValueKey('annual-generate-poster'),
+                                  label: l.annualReportShareButton,
+                                  onPressed: _generatingPoster
+                                      ? null
+                                      : _generatePoster,
+                                  icon: const BeeLineIcon('Share', size: 18))))
+                    ]);
+                  })),
+        ])));
   }
 
   Future<void> _generatePoster() async {
+    if (_generatingPoster) return;
     final dataAsync = ref.read(annualReportDataProvider(_selectedYear));
     final data = dataAsync.valueOrNull;
     if (data == null) return;
 
     final l10n = AppLocalizations.of(context);
     final primaryColor = ref.read(primaryColorProvider);
+    final monthStartDay = ref.read(currentMonthStartDayProvider);
 
-    // Show loading
+    setState(() => _generatingPoster = true);
+
+    // Track cancellation so a late render never pops the underlying page.
+    bool loadingShown = true;
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -491,7 +431,7 @@ class _AnnualReportPageState extends ConsumerState<AnnualReportPage> {
           ),
         );
       },
-    );
+    ).whenComplete(() => loadingShown = false);
 
     try {
       // Precache logo image
@@ -504,14 +444,16 @@ class _AnnualReportPageState extends ConsumerState<AnnualReportPage> {
         child: AnnualReportPoster(
           data: data,
           primaryColor: primaryColor,
+          monthStartDay: monthStartDay,
         ),
       );
 
       // Render to image using offscreen rendering
       final pngBytes = await _renderPosterToImage(poster, posterKey);
 
-      if (!mounted) return;
-      Navigator.pop(context); // Close loading dialog
+      if (!mounted || !loadingShown) return;
+      loadingShown = false;
+      Navigator.of(context, rootNavigator: true).pop(); // Close loading dialog
 
       // Show preview dialog
       if (!mounted) return;
@@ -521,12 +463,18 @@ class _AnnualReportPageState extends ConsumerState<AnnualReportPage> {
           initialImageBytes: pngBytes,
           data: data,
           primaryColor: primaryColor,
+          monthStartDay: monthStartDay,
         ),
       );
     } catch (e) {
       if (!mounted) return;
-      Navigator.pop(context);
+      if (loadingShown) {
+        loadingShown = false;
+        Navigator.of(context, rootNavigator: true).pop();
+      }
       showToast(context, '${l10n.commonError}: $e');
+    } finally {
+      if (mounted) setState(() => _generatingPoster = false);
     }
   }
 
@@ -555,1249 +503,15 @@ class _AnnualReportPageState extends ConsumerState<AnnualReportPage> {
       }
 
       final image = await boundary.toImage(pixelRatio: 2.0);
-      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-      return byteData!.buffer.asUint8List();
+      try {
+        final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+        return byteData!.buffer.asUint8List();
+      } finally {
+        image.dispose();
+      }
     } finally {
       overlayEntry.remove();
     }
-  }
-
-  // ==================== Page 1: Overview ====================
-  Widget _buildPage1Overview(BuildContext context, AnnualReportData data) {
-    final l10n = AppLocalizations.of(context);
-
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 标题
-          Text(
-            l10n.annualReportPage1Title,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            l10n.annualReportPage1Subtitle(data.year),
-            style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.8),
-              fontSize: 16,
-            ),
-          ),
-          const SizedBox(height: 32),
-
-          // 记账天数和笔数
-          Row(
-            children: [
-              Expanded(
-                child: _buildStatCard(
-                  icon: Icons.calendar_today_rounded,
-                  label: l10n.annualReportTotalDays,
-                  value: '${data.totalDays}',
-                  unit: l10n.sharePosterUnitDay,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: _buildStatCard(
-                  icon: Icons.edit_note_rounded,
-                  label: l10n.annualReportTotalRecords,
-                  value: '${data.totalRecords}',
-                  unit: l10n.sharePosterUnitCount,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-
-          // 收支卡片
-          _buildAmountCard(
-            icon: Icons.trending_up_rounded,
-            label: l10n.annualReportTotalIncome,
-            amount: data.totalIncome,
-            currencyCode: data.currencyCode,
-            color: const Color(0xFF4CAF50),
-          ),
-          const SizedBox(height: 12),
-          _buildAmountCard(
-            icon: Icons.trending_down_rounded,
-            label: l10n.annualReportTotalExpense,
-            amount: data.totalExpense,
-            currencyCode: data.currencyCode,
-            color: const Color(0xFFFF5252),
-          ),
-          const SizedBox(height: 12),
-          _buildAmountCard(
-            icon: data.netSavings >= 0
-                ? Icons.savings_rounded
-                : Icons.warning_rounded,
-            label: l10n.annualReportNetSavings,
-            amount: data.netSavings,
-            currencyCode: data.currencyCode,
-            color: data.netSavings >= 0
-                ? const Color(0xFF4CAF50)
-                : const Color(0xFFFF5252),
-            showSign: true,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatCard({
-    required IconData icon,
-    required String label,
-    required String value,
-    required String unit,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        children: [
-          Icon(icon, color: Colors.white, size: 28),
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                value,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 4),
-                child: Text(
-                  unit,
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.7),
-                    fontSize: 14,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.7),
-              fontSize: 14,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAmountCard({
-    required IconData icon,
-    required String label,
-    required double amount,
-    required String currencyCode,
-    required Color color,
-    bool showSign = false,
-  }) {
-    final formatter =
-        NumberFormat('#,##0.00', AppLocalizations.of(context).localeName);
-    final sign = showSign ? (amount >= 0 ? '+' : '-') : '';
-
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(icon, color: color, size: 24),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Text(
-              label,
-              style: const TextStyle(
-                fontSize: 16,
-                color: Color(0xFF666666),
-              ),
-            ),
-          ),
-          const SizedBox(width: 8),
-          Flexible(
-            flex: 2,
-            child: Align(
-              alignment: Alignment.centerRight,
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  '$sign${getCurrencySymbol(currencyCode)}${formatter.format(amount.abs())}',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: color,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ==================== 年度洞察页 ====================
-  Widget _buildPageInsights(BuildContext context, AnnualReportData data) {
-    final l10n = AppLocalizations.of(context);
-    final formatter =
-        NumberFormat('#,##0.00', AppLocalizations.of(context).localeName);
-    final primaryColor = ref.watch(primaryColorProvider);
-
-    // 计算各种洞察数据
-    final avgExpensePerRecord =
-        data.totalRecords > 0 ? data.totalExpense / data.totalRecords : 0.0;
-
-    // 计算年度总天数：过去年份用全年天数，当前年份用截至今天的天数
-    final now = DateTime.now();
-    final sd = ref.watch(currentMonthStartDayProvider);
-    final yr = yearRangeFor(data.year, sd);
-    final isCurrentYear = !now.isBefore(yr.start) && now.isBefore(yr.end);
-    final yearEnd =
-        isCurrentYear ? now : yr.end.subtract(const Duration(days: 1));
-    final yearStart = yr.start;
-    final totalCalendarDays = yearEnd.difference(yearStart).inDays + 1;
-
-    final dailyAvg =
-        totalCalendarDays > 0 ? data.totalExpense / totalCalendarDays : 0;
-    final monthlyAvg = data.totalExpense / 12;
-
-    // 找出记账最多的月份
-    int busiestMonth = 1;
-    double maxMonthlyTotal = 0;
-    for (final m in data.monthlyData) {
-      final total = m.income + m.expense;
-      if (total > maxMonthlyTotal) {
-        maxMonthlyTotal = total;
-        busiestMonth = m.month;
-      }
-    }
-
-    // 储蓄率
-    final savingsRate =
-        data.totalIncome > 0 ? (data.netSavings / data.totalIncome * 100) : 0.0;
-
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            l10n.annualReportInsightsTitle,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            l10n.annualReportInsightsSubtitle,
-            style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.8),
-              fontSize: 16,
-            ),
-          ),
-          const SizedBox(height: 24),
-
-          // 洞察卡片
-          _buildInsightItem(
-            icon: Icons.receipt_long_rounded,
-            title: l10n.annualReportAveragePerRecord,
-            value:
-                '${getCurrencySymbol(data.currencyCode)}${formatter.format(avgExpensePerRecord)}',
-            description: l10n.annualReportAveragePerRecordDesc,
-            primaryColor: primaryColor,
-          ),
-          const SizedBox(height: 12),
-
-          _buildInsightItem(
-            icon: Icons.schedule_rounded,
-            title: l10n.annualReportDailyAverage,
-            value:
-                '${getCurrencySymbol(data.currencyCode)}${formatter.format(dailyAvg)}',
-            description: l10n.annualReportDailyAverageDesc,
-            primaryColor: primaryColor,
-          ),
-          const SizedBox(height: 12),
-
-          _buildInsightItem(
-            icon: Icons.date_range_rounded,
-            title: l10n.annualReportMonthlyAverage,
-            value:
-                '${getCurrencySymbol(data.currencyCode)}${formatter.format(monthlyAvg)}',
-            description: l10n.annualReportMonthlyAverageDesc,
-            primaryColor: primaryColor,
-          ),
-          const SizedBox(height: 12),
-
-          _buildInsightItem(
-            icon: Icons.calendar_month_rounded,
-            title: l10n.annualReportBusiestMonth,
-            value: DateFormat.MMMM(l10n.localeName)
-                .format(DateTime(data.year, busiestMonth)),
-            description: l10n.annualReportBusiestMonthDesc,
-            primaryColor: primaryColor,
-          ),
-          const SizedBox(height: 12),
-
-          _buildInsightItem(
-            icon: Icons.category_rounded,
-            title: l10n.annualReportCategoryCount,
-            value: l10n.annualReportCategoryCountValue(
-                data.topExpenseCategories.length),
-            description: l10n.annualReportCategoryCountDesc,
-            primaryColor: primaryColor,
-          ),
-          const SizedBox(height: 12),
-
-          // 储蓄率（仅在有收入数据时显示）
-          if (data.totalIncome > 0)
-            _buildInsightItem(
-              icon: Icons.savings_rounded,
-              title: l10n.annualReportSavingsRate,
-              value: '${savingsRate.toStringAsFixed(1)}%',
-              description: savingsRate >= 0
-                  ? l10n.annualReportSavingsRatePositive
-                  : l10n.annualReportSavingsRateNegative,
-              primaryColor: savingsRate >= 0
-                  ? const Color(0xFF4CAF50)
-                  : const Color(0xFFFF5252),
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInsightItem({
-    required IconData icon,
-    required String title,
-    required String value,
-    required String description,
-    required Color primaryColor,
-  }) {
-    // 判断是否使用特殊颜色（红/绿）
-    final isSpecialColor = primaryColor == const Color(0xFF4CAF50) ||
-        primaryColor == const Color(0xFFFF5252);
-
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(icon, color: Colors.white, size: 24),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  description,
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.6),
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Flexible(
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(
-                value,
-                style: TextStyle(
-                  color: isSpecialColor ? primaryColor : Colors.white,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ==================== 收支对比页 ====================
-  Widget _buildPageIncomeVsExpense(
-      BuildContext context, AnnualReportData data) {
-    final l10n = AppLocalizations.of(context);
-    final formatter =
-        NumberFormat('#,##0', AppLocalizations.of(context).localeName);
-
-    // 找出最高和最低月份
-    double maxIncome = 0;
-    double maxExpense = 0;
-    int maxIncomeMonth = 1;
-    int maxExpenseMonth = 1;
-
-    for (final m in data.monthlyData) {
-      if (m.income > maxIncome) {
-        maxIncome = m.income;
-        maxIncomeMonth = m.month;
-      }
-      if (m.expense > maxExpense) {
-        maxExpense = m.expense;
-        maxExpenseMonth = m.month;
-      }
-    }
-
-    final maxValue = maxIncome > maxExpense ? maxIncome : maxExpense;
-
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            l10n.annualReportComparisonTitle,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            l10n.annualReportComparisonSubtitle,
-            style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.8),
-              fontSize: 16,
-            ),
-          ),
-          const SizedBox(height: 24),
-
-          // 图例
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                width: 12,
-                height: 12,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF4CAF50),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(width: 6),
-              Text(
-                l10n.analyticsIncome,
-                style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.8),
-                  fontSize: 14,
-                ),
-              ),
-              const SizedBox(width: 24),
-              Container(
-                width: 12,
-                height: 12,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFF5252),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(width: 6),
-              Text(
-                l10n.analyticsExpense,
-                style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.8),
-                  fontSize: 14,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-
-          // 月度对比条形图
-          ...data.monthlyData.map((m) {
-            final incomeRatio = maxValue > 0 ? m.income / maxValue : 0.0;
-            final expenseRatio = maxValue > 0 ? m.expense / maxValue : 0.0;
-            final isMaxIncome = m.month == maxIncomeMonth;
-            final isMaxExpense = m.month == maxExpenseMonth;
-
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // 月份标签
-                  Row(
-                    children: [
-                      Text(
-                        DateFormat.MMM(l10n.localeName)
-                            .format(DateTime(data.year, m.month)),
-                        style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.9),
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const Spacer(),
-                      if (isMaxIncome)
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(
-                            color:
-                                const Color(0xFF4CAF50).withValues(alpha: 0.2),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Text(
-                            l10n.annualReportHighestIncome,
-                            style: const TextStyle(
-                              color: Color(0xFF4CAF50),
-                              fontSize: 10,
-                            ),
-                          ),
-                        ),
-                      if (isMaxExpense)
-                        Container(
-                          margin: EdgeInsets.only(left: isMaxIncome ? 6 : 0),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(
-                            color:
-                                const Color(0xFFFF5252).withValues(alpha: 0.2),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Text(
-                            l10n.annualReportHighestExpense,
-                            style: const TextStyle(
-                              color: Color(0xFFFF5252),
-                              fontSize: 10,
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  // 收入条
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Stack(
-                          children: [
-                            Container(
-                              height: 16,
-                              decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                            ),
-                            FractionallySizedBox(
-                              widthFactor: incomeRatio.clamp(0.0, 1.0),
-                              child: Container(
-                                height: 16,
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF4CAF50),
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      SizedBox(
-                        width: 80,
-                        child: Text(
-                          '${getCurrencySymbol(data.currencyCode)}${formatter.format(m.income)}',
-                          style: const TextStyle(
-                            color: Color(0xFF4CAF50),
-                            fontSize: 12,
-                          ),
-                          textAlign: TextAlign.right,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  // 支出条
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Stack(
-                          children: [
-                            Container(
-                              height: 16,
-                              decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                            ),
-                            FractionallySizedBox(
-                              widthFactor: expenseRatio.clamp(0.0, 1.0),
-                              child: Container(
-                                height: 16,
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFFF5252),
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      SizedBox(
-                        width: 80,
-                        child: Text(
-                          '${getCurrencySymbol(data.currencyCode)}${formatter.format(m.expense)}',
-                          style: const TextStyle(
-                            color: Color(0xFFFF5252),
-                            fontSize: 12,
-                          ),
-                          textAlign: TextAlign.right,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            );
-          }),
-        ],
-      ),
-    );
-  }
-
-  // ==================== Page 2: Categories ====================
-  Widget _buildPage2Categories(BuildContext context, AnnualReportData data) {
-    final l10n = AppLocalizations.of(context);
-    final formatter =
-        NumberFormat('#,##0.00', AppLocalizations.of(context).localeName);
-
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            l10n.annualReportPage2Title,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            l10n.annualReportPage2Subtitle,
-            style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.8),
-              fontSize: 16,
-            ),
-          ),
-          const SizedBox(height: 32),
-
-          // TOP 分类列表
-          ...data.topExpenseCategories.asMap().entries.map((entry) {
-            final index = entry.key;
-            final category = entry.value;
-            final rankColors = [
-              const Color(0xFFFFD700),
-              const Color(0xFFC0C0C0),
-              const Color(0xFFCD7F32),
-              Colors.white.withValues(alpha: 0.6),
-              Colors.white.withValues(alpha: 0.6),
-            ];
-
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Row(
-                  children: [
-                    // 排名
-                    Container(
-                      width: 36,
-                      height: 36,
-                      decoration: BoxDecoration(
-                        color: rankColors[index],
-                        shape: BoxShape.circle,
-                      ),
-                      child: Center(
-                        child: Text(
-                          '${index + 1}',
-                          style: TextStyle(
-                            color: index < 3 ? Colors.white : Colors.black54,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    // 图标
-                    if (category.icon != null)
-                      Icon(
-                        CategoryService.getCategoryIcon(category.icon),
-                        color: Colors.white,
-                        size: 24,
-                      ),
-                    const SizedBox(width: 12),
-                    // 名称
-                    Expanded(
-                      child: Text(
-                        category.name,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                    // 金额和占比
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          '${getCurrencySymbol(data.currencyCode)}${formatter.format(category.total)}',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          '${(category.percentage * 100).toStringAsFixed(1)}%',
-                          style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.7),
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            );
-          }),
-        ],
-      ),
-    );
-  }
-
-  // ==================== Page 3: Monthly Trend ====================
-  Widget _buildPage3MonthlyTrend(BuildContext context, AnnualReportData data) {
-    final l10n = AppLocalizations.of(context);
-    final formatter =
-        NumberFormat('#,##0', AppLocalizations.of(context).localeName);
-
-    // 找出最高和最低支出月份
-    double maxExpense = 0;
-    double minExpense = double.infinity;
-    int maxMonth = 1;
-    int minMonth = 1;
-
-    for (final m in data.monthlyData) {
-      if (m.expense > maxExpense) {
-        maxExpense = m.expense;
-        maxMonth = m.month;
-      }
-      if (m.expense < minExpense && m.expense > 0) {
-        minExpense = m.expense;
-        minMonth = m.month;
-      }
-    }
-
-    // 如果没有支出，重置最小值
-    if (minExpense == double.infinity) minExpense = 0;
-
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            l10n.annualReportPage3Title,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            l10n.annualReportPage3Subtitle,
-            style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.8),
-              fontSize: 16,
-            ),
-          ),
-          const SizedBox(height: 24),
-
-          // 最高/最低月份
-          Row(
-            children: [
-              Expanded(
-                child: _buildHighlightCard(
-                  label: l10n.annualReportHighestMonth,
-                  value: DateFormat.MMMM(l10n.localeName)
-                      .format(DateTime(data.year, maxMonth)),
-                  subValue:
-                      '${getCurrencySymbol(data.currencyCode)}${formatter.format(maxExpense)}',
-                  color: const Color(0xFFFF5252),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildHighlightCard(
-                  label: l10n.annualReportLowestMonth,
-                  value: DateFormat.MMMM(l10n.localeName)
-                      .format(DateTime(data.year, minMonth)),
-                  subValue:
-                      '${getCurrencySymbol(data.currencyCode)}${formatter.format(minExpense)}',
-                  color: const Color(0xFF4CAF50),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 24),
-
-          // 简易柱状图
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Column(
-              children: [
-                // 柱状图
-                SizedBox(
-                  height: 200,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: data.monthlyData.map((m) {
-                      final heightRatio =
-                          maxExpense > 0 ? m.expense / maxExpense : 0.0;
-                      return Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 2),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              Container(
-                                height: 160 * heightRatio,
-                                decoration: BoxDecoration(
-                                  color: m.month == maxMonth
-                                      ? const Color(0xFFFF5252)
-                                      : m.month == minMonth
-                                          ? const Color(0xFF4CAF50)
-                                          : Colors.white.withValues(alpha: 0.6),
-                                  borderRadius: const BorderRadius.vertical(
-                                      top: Radius.circular(4)),
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                '${m.month}',
-                                style: TextStyle(
-                                  color: Colors.white.withValues(alpha: 0.7),
-                                  fontSize: 11,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHighlightCard({
-    required String label,
-    required String value,
-    required String subValue,
-    required Color color,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-              color: Color(0xFF666666),
-              fontSize: 12,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: TextStyle(
-              color: color,
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          Text(
-            subValue,
-            style: TextStyle(
-              color: color.withValues(alpha: 0.7),
-              fontSize: 14,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ==================== Page 4: Special Moments ====================
-  Widget _buildPage4SpecialMoments(
-      BuildContext context, AnnualReportData data) {
-    final l10n = AppLocalizations.of(context);
-    final dateFormatter = DateFormat.MMMd(l10n.localeName);
-
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            l10n.annualReportPage4Title,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            l10n.annualReportPage4Subtitle,
-            style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.8),
-              fontSize: 16,
-            ),
-          ),
-          const SizedBox(height: 32),
-
-          // 最大支出
-          if (data.largestExpense != null)
-            _buildMomentCard(
-              icon: Icons.arrow_downward_rounded,
-              label: l10n.annualReportLargestExpense,
-              amount: data.largestExpense!.amount,
-              currencyCode:
-                  data.largestExpense!.currencyCode ?? data.currencyCode,
-              note: data.largestExpense!.note ??
-                  data.largestExpenseCategory?.name ??
-                  '',
-              date: dateFormatter.format(data.largestExpense!.happenedAt),
-              color: const Color(0xFFFF5252),
-            ),
-
-          if (data.largestIncome != null) ...[
-            const SizedBox(height: 16),
-            _buildMomentCard(
-              icon: Icons.arrow_upward_rounded,
-              label: l10n.annualReportLargestIncome,
-              amount: data.largestIncome!.amount,
-              currencyCode:
-                  data.largestIncome!.currencyCode ?? data.currencyCode,
-              note: data.largestIncome!.note ??
-                  data.largestIncomeCategory?.name ??
-                  '',
-              date: dateFormatter.format(data.largestIncome!.happenedAt),
-              color: const Color(0xFF4CAF50),
-            ),
-          ],
-
-          if (data.firstRecord != null) ...[
-            const SizedBox(height: 16),
-            _buildMomentCard(
-              icon: Icons.flag_rounded,
-              label: l10n.annualReportFirstRecord,
-              amount: data.firstRecord!.amount,
-              currencyCode: data.firstRecord!.currencyCode ?? data.currencyCode,
-              note: data.firstRecord!.note ??
-                  data.firstRecordCategory?.name ??
-                  '',
-              date: dateFormatter.format(data.firstRecord!.happenedAt),
-              color: ref.watch(primaryColorProvider),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMomentCard({
-    required IconData icon,
-    required String label,
-    required double amount,
-    required String currencyCode,
-    required String note,
-    required String date,
-    required Color color,
-  }) {
-    final formatter =
-        NumberFormat('#,##0.00', AppLocalizations.of(context).localeName);
-
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(icon, color: color, size: 20),
-              ),
-              const SizedBox(width: 12),
-              Text(
-                label,
-                style: const TextStyle(
-                  color: Color(0xFF666666),
-                  fontSize: 14,
-                ),
-              ),
-              const Spacer(),
-              Text(
-                date,
-                style: TextStyle(
-                  color: Colors.grey[400],
-                  fontSize: 12,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Text(
-            '${getCurrencySymbol(currencyCode)}${formatter.format(amount)}',
-            style: TextStyle(
-              color: color,
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          if (note.isNotEmpty) ...[
-            const SizedBox(height: 4),
-            Text(
-              note,
-              style: TextStyle(
-                color: Colors.grey[600],
-                fontSize: 14,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  // ==================== Page 5: Achievements ====================
-  Widget _buildPage5Achievements(BuildContext context, AnnualReportData data) {
-    final l10n = AppLocalizations.of(context);
-
-    // 定义成就
-    final achievements =
-        <({String title, String desc, IconData icon, bool unlocked})>[
-      (
-        title: l10n.annualReportAchievementConsistent,
-        desc:
-            l10n.annualReportAchievementConsistentDesc(data.maxConsecutiveDays),
-        icon: Icons.local_fire_department_rounded,
-        unlocked: data.maxConsecutiveDays >= 7,
-      ),
-      (
-        title: l10n.annualReportAchievementSaver,
-        desc: l10n.annualReportAchievementSaverDesc,
-        icon: Icons.savings_rounded,
-        unlocked: data.netSavings > 0,
-      ),
-      (
-        title: l10n.annualReportAchievementDetail,
-        desc: l10n.annualReportAchievementDetailDesc(data.totalRecords),
-        icon: Icons.auto_awesome_rounded,
-        unlocked: data.totalRecords >= 100,
-      ),
-    ];
-
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            l10n.annualReportPage5Title,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            l10n.annualReportPage5Subtitle,
-            style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.8),
-              fontSize: 16,
-            ),
-          ),
-          const SizedBox(height: 32),
-
-          // 成就列表
-          ...achievements.map((a) => Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: _buildAchievementCard(
-                  icon: a.icon,
-                  title: a.title,
-                  desc: a.desc,
-                  unlocked: a.unlocked,
-                ),
-              )),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAchievementCard({
-    required IconData icon,
-    required String title,
-    required String desc,
-    required bool unlocked,
-  }) {
-    final primaryColor = ref.watch(primaryColorProvider);
-
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: unlocked ? Colors.white : Colors.white.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 56,
-            height: 56,
-            decoration: BoxDecoration(
-              color: unlocked
-                  ? primaryColor.withValues(alpha: 0.1)
-                  : Colors.grey.withValues(alpha: 0.2),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              icon,
-              color: unlocked ? primaryColor : Colors.grey,
-              size: 28,
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    color: unlocked ? Colors.black87 : Colors.grey,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  desc,
-                  style: TextStyle(
-                    color: unlocked ? Colors.grey[600] : Colors.grey,
-                    fontSize: 14,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          if (unlocked)
-            Icon(
-              Icons.check_circle,
-              color: primaryColor,
-              size: 28,
-            )
-          else
-            Icon(
-              Icons.lock_outline,
-              color: Colors.grey[400],
-              size: 24,
-            ),
-        ],
-      ),
-    );
   }
 }
 
@@ -1806,11 +520,13 @@ class _AnnualReportPosterPreview extends StatefulWidget {
   final Uint8List initialImageBytes;
   final AnnualReportData data;
   final Color primaryColor;
+  final int monthStartDay;
 
   const _AnnualReportPosterPreview({
     required this.initialImageBytes,
     required this.data,
     required this.primaryColor,
+    required this.monthStartDay,
   });
 
   @override
@@ -1823,6 +539,7 @@ class _AnnualReportPosterPreviewState
   late Uint8List _imageBytes;
   bool _hideIncome = false;
   bool _isGenerating = false;
+  bool _isExporting = false;
 
   @override
   void initState() {
@@ -1831,6 +548,8 @@ class _AnnualReportPosterPreviewState
   }
 
   Future<void> _toggleHideIncome() async {
+    if (_isGenerating || _isExporting) return;
+    final previousHideIncome = _hideIncome;
     setState(() {
       _hideIncome = !_hideIncome;
       _isGenerating = true;
@@ -1845,6 +564,7 @@ class _AnnualReportPosterPreviewState
           data: widget.data,
           primaryColor: widget.primaryColor,
           hideIncome: _hideIncome,
+          monthStartDay: widget.monthStartDay,
         ),
       );
 
@@ -1858,7 +578,10 @@ class _AnnualReportPosterPreviewState
       }
     } catch (e) {
       if (mounted) {
-        setState(() => _isGenerating = false);
+        setState(() {
+          _isGenerating = false;
+          _hideIncome = previousHideIncome;
+        });
         showToast(context, AppLocalizations.of(context).commonError);
       }
     }
@@ -1887,8 +610,12 @@ class _AnnualReportPosterPreviewState
       }
 
       final image = await boundary.toImage(pixelRatio: 2.0);
-      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-      return byteData!.buffer.asUint8List();
+      try {
+        final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+        return byteData!.buffer.asUint8List();
+      } finally {
+        image.dispose();
+      }
     } finally {
       overlayEntry.remove();
     }
@@ -1896,219 +623,54 @@ class _AnnualReportPosterPreviewState
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      insetPadding: const EdgeInsets.all(16),
-      child: Stack(
-        children: [
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // 海报预览
-              Flexible(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(16),
-                  child: Stack(
-                    children: [
-                      InteractiveViewer(
-                        minScale: 0.5,
-                        maxScale: 3.0,
-                        child: Image.memory(
-                          _imageBytes,
-                          fit: BoxFit.contain,
-                        ),
-                      ),
-                      // 生成中的加载指示器
-                      if (_isGenerating)
-                        Positioned.fill(
-                          child: Container(
-                            color: Colors.black.withValues(alpha: 0.3),
-                            child: const Center(
-                              child: CircularProgressIndicator(
-                                strokeWidth: 3,
-                                valueColor:
-                                    AlwaysStoppedAnimation(Colors.white),
-                              ),
-                            ),
-                          ),
-                        ),
-                      // 隐藏收入切换按钮
-                      if (!_isGenerating)
-                        Positioned(
-                          top: 16,
-                          right: 16,
-                          child: Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              onTap: _toggleHideIncome,
-                              borderRadius: BorderRadius.circular(20),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 8,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.black.withValues(alpha: 0.5),
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      _hideIncome
-                                          ? Icons.visibility_off
-                                          : Icons.visibility,
-                                      size: 16,
-                                      color: Colors.white,
-                                    ),
-                                    const SizedBox(width: 6),
-                                    Text(
-                                      _hideIncome
-                                          ? l10n.sharePosterShowIncome
-                                          : l10n.sharePosterHideIncome,
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              // 操作按钮
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // 保存按钮
-                  _buildActionButton(
-                    context: context,
-                    icon: Icons.save_alt,
-                    label: l10n.sharePosterSave,
-                    onTap: _isGenerating ? null : () => _savePoster(context),
-                    isPrimary: true,
-                  ),
-                  const SizedBox(width: 16),
-                  // 分享按钮
-                  _buildActionButton(
-                    context: context,
-                    icon: Icons.share,
-                    label: l10n.sharePosterShare,
-                    onTap: _isGenerating ? null : () => _sharePoster(context),
-                    isPrimary: false,
-                  ),
-                ],
-              ),
-            ],
-          ),
-          // 右上角关闭按钮
-          Positioned(
-            top: 0,
-            right: 0,
-            child: GestureDetector(
-              onTap: () => Navigator.pop(context),
-              child: Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.5),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.close,
-                  color: Colors.white,
-                  size: 20,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildActionButton({
-    required BuildContext context,
-    required IconData icon,
-    required String label,
-    required VoidCallback? onTap,
-    required bool isPrimary,
-  }) {
-    final isDisabled = onTap == null;
-    final bgColor = isPrimary ? widget.primaryColor : Colors.white;
-    final fgColor = isPrimary ? Colors.white : widget.primaryColor;
-
-    return GestureDetector(
-      onTap: onTap,
-      child: Opacity(
-        opacity: isDisabled ? 0.5 : 1.0,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          decoration: BoxDecoration(
-            color: bgColor,
-            borderRadius: BorderRadius.circular(24),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.1),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                icon,
-                size: 20,
-                color: fgColor,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: fgColor,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+    final l = AppLocalizations.of(context);
+    return BeeAnnualPosterPreview(
+        title: l.annualReportTitle,
+        closeLabel: l.commonClose,
+        privacyLabel:
+            _hideIncome ? l.sharePosterShowIncome : l.sharePosterHideIncome,
+        saveLabel: l.sharePosterSave,
+        shareLabel: l.sharePosterShare,
+        preview: Image.memory(_imageBytes, fit: BoxFit.contain),
+        busy: _isGenerating || _isExporting,
+        hideIncome: _hideIncome,
+        onPrivacy: _toggleHideIncome,
+        onSave: () => _savePoster(context),
+        onShare: () => _sharePoster(context),
+        onClose: () => Navigator.pop(context));
   }
 
   Future<void> _savePoster(BuildContext context) async {
-    final l10n = AppLocalizations.of(context);
-    final result = await SharePosterService.savePosterToGallery(_imageBytes);
-
-    if (!context.mounted) return;
-
-    switch (result) {
-      case SavePosterResult.success:
-        showToast(context, l10n.annualReportSaveSuccess);
-        Navigator.pop(context);
-        break;
-      case SavePosterResult.accessDenied:
-        showToast(context, l10n.commonFailed);
-        break;
-      case SavePosterResult.failed:
-        showToast(context, l10n.commonFailed);
-        break;
+    if (_isGenerating || _isExporting) return;
+    setState(() => _isExporting = true);
+    final l = AppLocalizations.of(context);
+    try {
+      final result = await SharePosterService.savePosterToGallery(_imageBytes);
+      if (!context.mounted) return;
+      switch (result) {
+        case SavePosterResult.success:
+          showToast(context, l.annualReportSaveSuccess);
+          Navigator.pop(context);
+          break;
+        case SavePosterResult.accessDenied:
+          showToast(context, l.sharePosterPermissionDenied);
+          break;
+        case SavePosterResult.failed:
+          showToast(context, l.sharePosterSaveFailed);
+          break;
+      }
+    } finally {
+      if (mounted) setState(() => _isExporting = false);
     }
   }
 
   Future<void> _sharePoster(BuildContext context) async {
-    await SharePosterService.sharePoster(_imageBytes);
+    if (_isGenerating || _isExporting) return;
+    setState(() => _isExporting = true);
+    try {
+      await SharePosterService.sharePoster(_imageBytes);
+    } finally {
+      if (mounted) setState(() => _isExporting = false);
+    }
   }
 }

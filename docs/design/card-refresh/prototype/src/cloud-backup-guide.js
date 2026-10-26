@@ -1,0 +1,2 @@
+document.addEventListener('click',event=>{const detail=event.target.closest('[data-cb95-demo-details]');if(detail)detail.closest('.cb95-guide').querySelector('[data-cb95-demo-event]').textContent='示例详情：本地27条、云端26条，不读取真实备份';});
+document.addEventListener('change',event=>{if(event.target.matches('[data-cb95-demo-auto]'))event.target.closest('.cb95-guide').querySelector('[data-cb95-demo-event]').textContent='示例自动同步已'+(event.target.checked?'启用':'关闭')+'，不写真实配置';});

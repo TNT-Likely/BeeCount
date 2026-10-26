@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:beecount_ui/beecount_ui.dart';
 import '../../l10n/app_localizations.dart';
-import '../../styles/tokens.dart';
 
 /// 统一弹窗（基础 UI 组件）
 class AppDialog {
@@ -134,71 +134,18 @@ class AppDialog {
 
     return showDialog<T>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: BeeTokens.surfaceElevated(ctx),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        contentPadding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-        content: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(context).size.height * 0.7,
-            maxWidth: MediaQuery.of(context).size.width * 0.85,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                title,
-                textAlign: TextAlign.center,
-                style: Theme.of(ctx).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600, color: BeeTokens.textPrimary(ctx)),
-              ),
-              const SizedBox(height: 12),
-              Flexible(
-                child: SingleChildScrollView(
-                  child: Text(
-                    message.replaceAll('\\n', '\n'),  // 处理转义的换行符
-                    textAlign: TextAlign.left,
-                    style: Theme.of(ctx).textTheme.bodyMedium?.copyWith(
-                      color: BeeTokens.textSecondary(ctx),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  for (final a in actions!) ...[
-                    if (!a.primary)
-                      Builder(builder: (context) {
-                        final primary = Theme.of(ctx).colorScheme.primary;
-                        return OutlinedButton(
-                          onPressed: a.onTap,
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: primary,
-                            side: BorderSide(color: primary),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10)),
-                          ),
-                          child: Text(a.label),
-                        );
-                      })
-                    else
-                      FilledButton(
-                          onPressed: a.onTap,
-                          style: FilledButton.styleFrom(
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10)),
-                          ),
-                          child: Text(a.label)),
-                    const SizedBox(width: 12),
-                  ]
-                ],
-              ),
-              const SizedBox(height: 12),
-            ],
-          ),
-        ),
+      builder: (ctx) => BeeDialog(
+        showClose: false,
+        title: Text(title),
+        content: Text(message.replaceAll('\\n', '\n')),
+        actions: [
+          for (final a in actions!)
+            BeeButton(
+              label: a.label,
+              kind: a.primary ? BeeButtonKind.primary : BeeButtonKind.secondary,
+              onPressed: a.onTap,
+            ),
+        ],
       ),
     );
   }

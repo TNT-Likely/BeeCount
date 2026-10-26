@@ -1,0 +1,2 @@
+document.addEventListener('click',event=>{const button=event.target.closest('[data-cc91-demo-select],[data-cc91-demo-config]');if(!button)return;const host=button.closest('.cc91-guide');host.querySelector('[data-cc91-demo-event]').textContent=button.hasAttribute('data-cc91-demo-select')?'示例已选择，不切换真实服务':'示例配置入口，不保存真实连接';});
+document.addEventListener('input',event=>{if(!event.target.matches('[data-cc91-demo-field]'))return;event.target.closest('.cc91-guide').querySelector('[data-cc91-demo-event]').textContent='示例地址草稿已编辑，不请求网络';});

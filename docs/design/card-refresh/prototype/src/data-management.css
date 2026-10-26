@@ -1,0 +1,23 @@
+#bee-immersive-suite .dm-hint{margin:8px 2px 0;font-size:calc(12px * var(--q-scale,1));line-height:1.6;color:var(--bc-muted)}
+#bee-immersive-suite .dm-task-heading{display:flex;align-items:center;min-width:0}#bee-immersive-suite .dm-task-heading>.bc-menu-row{flex:1;min-width:0}#bee-immersive-suite .dm-task-heading>.bc-icon{flex:none;width:44px;height:44px}
+#bee-immersive-suite .dm-task-heading>.bc-menu-row:disabled{opacity:1;cursor:default}#bee-immersive-suite .dm-task .bc-menu-symbol{color:inherit}
+#bee-immersive-suite .dm-task[data-file-state=success] .bc-menu-symbol{color:light-dark(#38845c,#8bd4aa)}#bee-immersive-suite .dm-task[data-file-state=partial] .bc-menu-symbol{color:light-dark(#88620c,#f5d580)}#bee-immersive-suite .dm-task[data-file-state=error] .bc-menu-symbol{color:light-dark(#b54242,#ffb3b3)}
+#bee-immersive-suite .dm-progress{padding:0 16px 14px;font-size:calc(12px * var(--q-scale,1));line-height:1.5;display:grid;gap:8px}#bee-immersive-suite .dm-progress progress{width:100%;height:5px;appearance:none;border:0;border-radius:4px;overflow:hidden}#bee-immersive-suite .dm-progress progress::-webkit-progress-bar{background:var(--bc-line)}#bee-immersive-suite .dm-progress progress::-webkit-progress-value{background:var(--bc-accent)}
+#bee-immersive-suite .dm-archive .bc-row{align-items:flex-start;font-size:14px;line-height:1.5}#bee-immersive-suite .dm-archive .bc-row b{overflow-wrap:anywhere;min-width:0;font-weight:500}#bee-immersive-suite .dm-archive .bc-row svg{flex:none;width:20px}#bee-immersive-suite .dm-archive p{font-size:13px;line-height:1.8;color:var(--bc-muted);margin:12px 0 16px}#bee-immersive-suite .dm-archive h4{font-size:14px;margin:0 0 8px}
+#bee-immersive-suite .bc-phone .dm-choice{display:flex;gap:10px;align-items:center;text-align:left;min-height:44px;background:transparent;border:0;color:var(--bc-ink);font:inherit;font-size:13px;width:100%;padding:10px 8px}#bee-immersive-suite .dm-radio{font-size:20px;color:var(--bc-accent)}#bee-immersive-suite .dm-dialog-actions{display:flex;gap:8px;margin-top:14px}#bee-immersive-suite .dm-dialog-actions button{flex:1;min-width:0;font-size:13px;line-height:1.5;padding:10px 8px}
+
+#bee-immersive-suite .bc-phone .dm-task+.bc-menu-row,#bee-immersive-suite .bc-phone .bc-menu-row+.dm-task,#bee-immersive-suite .bc-phone .dm-task+.dm-task{border-top:.6px solid var(--bc-line)}
+
+#bee-immersive-suite .bc-phone:has(.dm-hint) .bc-menu-card{padding:3px 4px!important}
+#bee-immersive-suite .bc-phone:has(.dm-hint) .bc-menu-row,#bee-immersive-suite .bc-phone .dm-sample-surface .bc-menu-row{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:10px;min-height:53px;padding:10px 12px!important}
+#bee-immersive-suite .bc-phone:has(.dm-hint) .bc-menu-copy b,#bee-immersive-suite .dm-sample-surface .bc-menu-copy b{font-size:calc(14px * var(--q-scale,1));font-weight:400;line-height:1.4}
+#bee-immersive-suite .bc-phone:has(.dm-hint) .bc-menu-copy small,#bee-immersive-suite .dm-sample-surface .bc-menu-copy small{font-size:calc(11px * var(--q-scale,1));line-height:1.4}
+#bee-immersive-suite .dm-sample-surface{padding:16px;background:var(--bc-paper);border-radius:22px}
+
+#bee-immersive-suite .bc-phone .dm-task-heading:has(>.bc-icon)>.bc-menu-row{grid-template-columns:28px minmax(0,1fr);padding-right:8px!important}
+#bee-immersive-suite .bc-phone .dm-task-heading>.bc-icon{margin-right:12px}
+#bee-immersive-suite .bc-phone:has(.dm-hint) .bc-menu-card>*+*{border-top:0!important;position:relative}
+#bee-immersive-suite .bc-phone:has(.dm-hint) .bc-menu-card>*+*::before{content:"";position:absolute;top:0;left:12px;right:12px;height:.6px;background:var(--bc-line)}
+
+#bee-immersive-suite .bc-phone:has(.dm-hint) .bc-section-label{margin:20px 2px 9px;font-size:calc(12px * var(--q-scale,1));line-height:1.4}
+@keyframes dm-rotate{to{transform:rotate(360deg)}}#bee-immersive-suite [data-file-state=running] .lucide-loader-circle{animation:dm-rotate 1s linear infinite}@media(prefers-reduced-motion:reduce){#bee-immersive-suite [data-file-state=running] .lucide-loader-circle{animation:none}}

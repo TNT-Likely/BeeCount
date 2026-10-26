@@ -1,3 +1,5 @@
+import 'package:beecount_ui/beecount_ui.dart'
+    show BeeCardTheme, BeeMenuAction, BeeLineIcon, showBeeContextMenu;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -15,12 +17,15 @@ import '../../utils/transaction_edit_utils.dart';
 import '../../utils/category_utils.dart';
 import '../category_icon.dart';
 import '../../pages/transaction/category_detail_page.dart';
+import '../../pages/transaction/transaction_detail_page.dart';
 import '../../pages/tag/tag_detail_page.dart';
 import '../../pages/attachment/attachment_preview_page.dart';
 import '../../widgets/biz/transaction_receipt_dialog.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/attachment_service.dart';
 import '../../utils/month_range.dart';
+import '../../presentation/v4/bindings/transaction_list_metadata.dart';
+import '../../models/home_transaction_preview.dart';
 
 /// 可复用的交易列表组件
 /// 支持显示分组的交易列表，包含日期头部和交易项
@@ -29,7 +34,13 @@ class TransactionList extends ConsumerStatefulWidget {
   final List<TransactionDisplayItem>? transactionsWithDetails;
 
   /// 交易数据（仅含分类，需二次加载标签和附件）
-  final List<({Transaction t, Category? category, Account? account, Account? toAccount})>? transactions;
+  final List<
+      ({
+        Transaction t,
+        Category? category,
+        Account? account,
+        Account? toAccount
+      })>? transactions;
 
   /// 是否隐藏金额
   final bool hideAmounts;
@@ -45,6 +56,16 @@ class TransactionList extends ConsumerStatefulWidget {
 
   /// 列表控制器（可选，用于精准跳转）
   final FlutterListViewController? controller;
+  final bool flatSurface;
+
+  /// Whether the incoming collection is full. An explicit preview needs full
+  /// day totals; its row count must never be used as a ledger/day aggregate.
+  final bool sourceReady;
+  final int? ledgerId;
+  final Map<String, TransactionDayTotals>? previewDayTotals;
+  final Object? sourceError;
+  final bool sourceLoading;
+  final VoidCallback? onRetrySource;
 
   const TransactionList({
     super.key,
@@ -55,6 +76,13 @@ class TransactionList extends ConsumerStatefulWidget {
     this.onDateVisibilityChanged,
     this.emptyWidget,
     this.controller,
+    this.flatSurface = false,
+    this.sourceReady = true,
+    this.ledgerId,
+    this.previewDayTotals,
+    this.sourceError,
+    this.sourceLoading = false,
+    this.onRetrySource,
   }) : assert(transactionsWithDetails != null || transactions != null,
             'Either transactionsWithDetails or transactions must be provided');
 
@@ -69,12 +97,36 @@ class TransactionListState extends ConsumerState<TransactionList> {
 
   // 缓存标签数据（仅用于非预加载模式）
   Map<int, List<Tag>> _cachedTagsMap = {};
-  List<int> _cachedTransactionIds = [];
   int _lastTagRefreshVersion = 0;
 
   // 缓存附件数量（仅用于非预加载模式）
   Map<int, int> _cachedAttachmentCounts = {};
   int _lastAttachmentRefreshVersion = 0;
+  List<
+      ({
+        Transaction t,
+        Category? category,
+        Account? account,
+        Account? toAccount
+      })> _publishedTransactions = const [];
+  List<
+      ({
+        Transaction t,
+        Category? category,
+        Account? account,
+        Account? toAccount
+      })>? _flatSource;
+  int _detailsGeneration = 0;
+  int? _activeLedgerId;
+  bool _loadingDetails = false;
+  Object? _detailsError;
+  bool _publishedIsPreview = false;
+  Map<String, TransactionDayTotals> _publishedDayTotals = const {};
+  ({DateTime month, int startDay})? _pendingMonth;
+
+  /// The published phase, distinct from whether raw full-source rows arrived.
+  bool get showingPreview => _publishedIsPreview;
+  int get loadedTransactionCount => _publishedTransactions.length;
 
   // D 方案后:不再需要 _cachedAccountNames / _cachedToAccountNames /
   // _lastSharedResourceRefreshVersion — 账户对象由 watchTransactionsWith*
@@ -86,8 +138,14 @@ class TransactionListState extends ConsumerState<TransactionList> {
 
   /// 获取统一格式的交易列表（用于内部处理）
   /// 始终使用 transactions 作为列表数据源，预加载数据只用于详情（标签、附件、账户）
-  List<({Transaction t, Category? category, Account? account, Account? toAccount})> get _transactionsList {
-    return widget.transactions ?? [];
+  List<
+      ({
+        Transaction t,
+        Category? category,
+        Account? account,
+        Account? toAccount
+      })> get _transactionsList {
+    return _publishedTransactions;
   }
 
   bool _showingTransactionActions = false;
@@ -100,7 +158,13 @@ class TransactionListState extends ConsumerState<TransactionList> {
     _showingTransactionActions = true;
     try {
       final action = await _pickTransactionAction(rowContext);
-      if (action == 'copy' && mounted) {
+      if (action == 'detail' && mounted) {
+        switchToStreamMode();
+        await Navigator.of(context).push(MaterialPageRoute<void>(
+            builder: (_) => TransactionDetailPage(
+                transactionId: transaction.id,
+                ledgerId: transaction.ledgerId)));
+      } else if (action == 'copy' && mounted) {
         switchToStreamMode();
         await TransactionEditUtils.copyTransaction(context, ref, transaction);
       } else if (action == 'receipt' && mounted) {
@@ -109,155 +173,160 @@ class TransactionListState extends ConsumerState<TransactionList> {
     } catch (error, stack) {
       logger.error('TransactionList', '打开交易操作失败', error, stack);
       if (mounted) {
-        showToast(context, AppLocalizations.of(context).transactionCopyUnavailable);
+        showToast(
+            context, AppLocalizations.of(context).transactionCopyUnavailable);
       }
     }
   }
 
   Future<String?> _pickTransactionAction(BuildContext rowContext) async {
     try {
-      final overlay =
-          Overlay.of(context).context.findRenderObject() as RenderBox;
       final row = rowContext.findRenderObject() as RenderBox;
-      return await BeePopupMenu.showForAnchor(
-        context: context,
-        anchor: row.localToGlobal(Offset.zero, ancestor: overlay) & row.size,
-        items: [
-          BeeMenuItem.action(
-            value: 'copy',
-            icon: Icons.copy_outlined,
-            label: AppLocalizations.of(context).transactionCopyAction,
-          ),
-          BeeMenuItem.action(
-            value: 'receipt',
-            icon: Icons.receipt_long_outlined,
-            label: AppLocalizations.of(context).transactionReceiptAction,
-          ),
-        ],
-      );
+      final l = AppLocalizations.of(context);
+      return await showBeeContextMenu<String>(context,
+          anchor: row.localToGlobal(Offset(row.size.width, row.size.height)),
+          items: [
+            BeeMenuAction(
+                value: 'detail',
+                label: l.v4TransactionDetailTitle,
+                icon: const BeeLineIcon('FileText', size: 18)),
+            BeeMenuAction(
+                value: 'copy',
+                label: l.transactionCopyAction,
+                icon: const BeeLineIcon('Copy', size: 18)),
+            BeeMenuAction(
+                value: 'receipt',
+                label: l.transactionReceiptAction,
+                icon: const BeeLineIcon('Receipt', size: 18)),
+          ]);
     } finally {
       _showingTransactionActions = false;
     }
-  }
-
-  /// 预加载数据的 ID 集合（用于快速判断某条交易是否有预加载详情）
-  Set<int>? _preloadedIds;
-  Set<int> get _preloadedIdSet {
-    if (_preloadedIds == null && widget.transactionsWithDetails != null) {
-      _preloadedIds = widget.transactionsWithDetails!.map((t) => t.t.id).toSet();
-    }
-    return _preloadedIds ?? {};
   }
 
   @override
   void initState() {
     super.initState();
     _controller = widget.controller ?? FlutterListViewController();
-    // 始终加载标签和附件（用于非预加载范围的交易）
-    _loadTags();
-    _loadAttachmentCounts();
+    _refreshDetails();
   }
+
+  List<({Transaction t, Category? category, Account? account, Account? toAccount})>
+      get _incomingTransactions =>
+          widget.transactions ??
+          widget.transactionsWithDetails
+              ?.map((item) => (
+                    t: item.t,
+                    category: item.category,
+                    account: item.account,
+                    toAccount: item.toAccount,
+                  ))
+              .toList(growable: false) ??
+          const [];
 
   @override
   void didUpdateWidget(covariant TransactionList oldWidget) {
     super.didUpdateWidget(oldWidget);
-
-    // 检测预加载数据是否变化（如账本切换），重置状态
-    if (widget.transactionsWithDetails != oldWidget.transactionsWithDetails) {
-      _preloadedIds = null; // 重置预加载 ID 缓存
-      if (widget.transactionsWithDetails != null) {
-        _usePreloadedData = true; // 重置为预加载模式
-      }
-    }
-
-    // 检查 transactions 数据变化，重新加载标签和附件
-    if (widget.transactions != null) {
-      final newIds = widget.transactions!.map((t) => t.t.id).toList();
-      if (!_listEquals(newIds, _cachedTransactionIds)) {
-        _loadTags();
-        _loadAttachmentCounts();
-      }
+    if (oldWidget.sourceReady != widget.sourceReady ||
+        oldWidget.previewDayTotals != widget.previewDayTotals ||
+        oldWidget.ledgerId != widget.ledgerId ||
+        oldWidget.transactionsWithDetails != widget.transactionsWithDetails ||
+        !_sameRows(oldWidget.transactions, widget.transactions)) {
+      _refreshDetails();
     }
   }
 
-  bool _listEquals(List<int> a, List<int> b) {
-    if (a.length != b.length) return false;
-    for (int i = 0; i < a.length; i++) {
-      if (a[i] != b[i]) return false;
+  bool _sameRows(List<dynamic>? previous, List<dynamic>? current) {
+    if (identical(previous, current)) return true;
+    if (previous == null ||
+        current == null ||
+        previous.length != current.length) {
+      return false;
+    }
+    for (var i = 0; i < previous.length; i++) {
+      if (previous[i] != current[i]) return false;
     }
     return true;
   }
 
-  Future<void> _loadTags() async {
-    final transactionIds = _transactionsList.map((t) => t.t.id).toList();
-    if (transactionIds.isEmpty) {
+  /// Keep a same-ledger complete snapshot visible during refresh. A new ledger
+  /// can never receive the old ledger's data or a late metadata response.
+  Future<void> _refreshDetails({bool force = false}) async {
+    final generation = ++_detailsGeneration;
+    final incoming = List.of(_incomingTransactions, growable: false);
+    final ledger = widget.ledgerId ?? incoming.firstOrNull?.t.ledgerId;
+    if (_activeLedgerId != ledger) {
+      _activeLedgerId = ledger;
+      _publishedTransactions = const [];
+      _cachedTagsMap = {};
+      _cachedAttachmentCounts = {};
+      _publishedDayTotals = const {};
+      _publishedIsPreview = false;
+      _pendingMonth = null;
+    }
+    _detailsError = null;
+    _loadingDetails = true;
+    if (mounted) setState(() {});
+    if (!widget.sourceReady && widget.previewDayTotals == null) return;
+    final tags = <int, List<Tag>>{};
+    final counts = <int, int>{};
+    final missing = incoming.map((row) => row.t.id).toSet();
+    // Complete cached row details can avoid reads. A limited preview is only
+    // publishable with separately supplied full-day totals; it never owns counts.
+    if (_usePreloadedData && !force && _publishedTransactions.isEmpty) {
+      final current = {for (final row in incoming) row.t.id: row.t};
+      for (final cached in widget.transactionsWithDetails ??
+          const <TransactionDisplayItem>[]) {
+        if (current[cached.t.id] == cached.t && missing.remove(cached.t.id)) {
+          tags[cached.t.id] = cached.tags;
+          counts[cached.t.id] = cached.attachmentCount;
+        }
+      }
+    }
+    try {
+      if (missing.isNotEmpty) {
+        final repo = ref.read(repositoryProvider);
+        final result = await readTransactionListMetadata(
+            transactionIds: missing.toList(growable: false),
+            isCurrent: () => mounted && generation == _detailsGeneration,
+            readTags: repo.getTagsForTransactions,
+            readAttachmentCounts: repo.getAttachmentCountsForTransactions);
+        tags.addAll(result.tags);
+        counts.addAll(result.attachments);
+      }
+      if (!mounted || generation != _detailsGeneration) return;
       setState(() {
-        _cachedTagsMap = {};
-        _cachedTransactionIds = [];
+        _publishedTransactions = List.unmodifiable(incoming);
+        _cachedTagsMap = tags;
+        _cachedAttachmentCounts = counts;
+        _loadingDetails = false;
+        _detailsError = null;
+        _publishedIsPreview = !widget.sourceReady;
+        _publishedDayTotals =
+            _publishedIsPreview ? Map.of(widget.previewDayTotals!) : const {};
       });
-      return;
-    }
-
-    final repo = ref.read(repositoryProvider);
-    final tagsMap = await repo.getTagsForTransactions(transactionIds);
-
-    if (mounted) {
+      if (!_publishedIsPreview && _pendingMonth != null) {
+        final pending = _pendingMonth!;
+        _pendingMonth = null;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) jumpToMonth(pending.month, startDay: pending.startDay);
+        });
+      }
+    } catch (error, stack) {
+      if (!mounted || generation != _detailsGeneration) return;
+      logger.error('TransactionList', '加载完整交易信息失败', error, stack);
       setState(() {
-        _cachedTagsMap = tagsMap;
-        _cachedTransactionIds = transactionIds;
+        _loadingDetails = false;
+        _detailsError = error;
       });
     }
   }
 
-  Future<void> _loadAttachmentCounts() async {
-    final transactionIds = _transactionsList.map((t) => t.t.id).toList();
-    if (transactionIds.isEmpty) {
-      setState(() {
-        _cachedAttachmentCounts = {};
-      });
-      return;
-    }
+  List<Tag> _getTagsForTransaction(int transactionId) =>
+      _cachedTagsMap[transactionId] ?? const [];
 
-    final repo = ref.read(repositoryProvider);
-    final countsMap = await repo.getAttachmentCountsForTransactions(transactionIds);
-
-    if (mounted) {
-      setState(() {
-        _cachedAttachmentCounts = countsMap;
-      });
-    }
-  }
-
-  /// 检查某条交易是否有预加载详情
-  bool _hasPreloadedDetails(int transactionId) {
-    return _usePreloadedData && _preloadedIdSet.contains(transactionId);
-  }
-
-  /// 获取预加载的交易详情
-  TransactionDisplayItem? _getPreloadedItem(int transactionId) {
-    if (!_hasPreloadedDetails(transactionId)) return null;
-    return widget.transactionsWithDetails!
-        .where((item) => item.t.id == transactionId)
-        .firstOrNull;
-  }
-
-  /// 获取交易的标签列表（优先使用预加载数据）
-  List<Tag> _getTagsForTransaction(int transactionId) {
-    final preloaded = _getPreloadedItem(transactionId);
-    if (preloaded != null) {
-      return preloaded.tags;
-    }
-    return _cachedTagsMap[transactionId] ?? [];
-  }
-
-  /// 获取交易的附件数量（优先使用预加载数据）
-  int _getAttachmentCountForTransaction(int transactionId) {
-    final preloaded = _getPreloadedItem(transactionId);
-    if (preloaded != null) {
-      return preloaded.attachmentCount;
-    }
-    return _cachedAttachmentCounts[transactionId] ?? 0;
-  }
+  int _getAttachmentCountForTransaction(int transactionId) =>
+      _cachedAttachmentCounts[transactionId] ?? 0;
 
   @override
   void dispose() {
@@ -276,41 +345,18 @@ class TransactionListState extends ConsumerState<TransactionList> {
     }
   }
 
-  /// 切换到 Stream 模式（在用户离开首页时调用）
-  /// 这样后续数据变化能正常刷新，且用户看不到切换过程
+  /// Leaving the page permits revalidation, but never makes a visible row
+  /// temporarily lose its tags/attachments while the fresh reads are pending.
   void switchToStreamMode() {
-    if (_usePreloadedData) {
-      // 延迟 100ms 再切换，等导航动画开始后用户看不到
-      Future.delayed(const Duration(milliseconds: 100), () {
-        if (mounted && _usePreloadedData) {
-          logger.info('TransactionList', '用户交互，切换到Stream模式');
-          // 用 setState 改 _usePreloadedData,否则后续 build 还在跑
-          // preloaded 路径,共享账本 WS 推送下来的新账户名永远不会显示
-          // (preloaded.accountName 是 Splash 阶段的快照)。
-          setState(() {
-            _usePreloadedData = false;
-          });
-          // 开始加载标签和附件（异步，不阻塞）
-          _loadTags();
-          _loadAttachmentCounts();
-        }
-      });
-    }
+    if (!_usePreloadedData) return;
+    _usePreloadedData = false;
+    _refreshDetails(force: true);
   }
 
-  /// 共享账本 WS 推送强制切到 Stream 模式 — 没有导航动画顾虑,立即切。
-  /// 用于 sharedResourceRefreshProvider tick 触发的场景:Owner 改 tx 引用的
-  /// account/category/tag,Editor 这边需要立即丢掉 preloaded(里面挂的是
-  /// Splash 阶段的旧 accountName)走 provider 拉新值。
   void forceStreamModeImmediate() {
     if (!mounted) return;
-    if (!_usePreloadedData) return;
-    logger.info('TransactionList', 'WS 推送强制切 Stream 模式 (immediate)');
-    setState(() {
-      _usePreloadedData = false;
-    });
-    _loadTags();
-    _loadAttachmentCounts();
+    _usePreloadedData = false;
+    _refreshDetails(force: true);
   }
 
   /// 跳转到指定周期标签月(按账本起始日的周期范围匹配,而非 yyyy-MM 前缀)
@@ -334,16 +380,28 @@ class TransactionListState extends ConsumerState<TransactionList> {
       }
     }
 
+    if (_publishedIsPreview || !widget.sourceReady || _loadingDetails) {
+      _pendingMonth = (month: targetMonth, startDay: startDay);
+    }
     return false; // 没有找到目标月份
   }
 
   /// 构建扁平化的项目列表
   void _buildFlatItems() {
     final transactions = _transactionsList;
+    if (identical(_flatSource, transactions)) return;
+    _flatSource = transactions;
 
     // 按天分组
     final dateFmt = DateFormat('yyyy-MM-dd');
-    final groups = <String, List<({Transaction t, Category? category, Account? account, Account? toAccount})>>{};
+    final groups = <String,
+        List<
+            ({
+              Transaction t,
+              Category? category,
+              Account? account,
+              Account? toAccount
+            })>>{};
     for (final item in transactions) {
       final dt = item.t.happenedAt.toLocal();
       final key = dateFmt.format(DateTime(dt.year, dt.month, dt.day));
@@ -369,25 +427,23 @@ class TransactionListState extends ConsumerState<TransactionList> {
 
     // 底部留白，避免被悬浮 Tab 栏遮挡
     if (_flatItems.isNotEmpty) {
+      _flatItems.add(('loadStatus', null, null));
       _flatItems.add(('bottomSpacer', null, null));
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    // 监听标签刷新信号，当标签变化时重新加载
-    final tagRefreshVersion = ref.watch(tagListRefreshProvider);
-    if (tagRefreshVersion != _lastTagRefreshVersion) {
-      _lastTagRefreshVersion = tagRefreshVersion;
-      // 延迟加载以避免在build中setState
-      Future.microtask(() => _loadTags());
-    }
-
-    // 监听附件刷新信号，当附件变化时重新加载
-    final attachmentRefreshVersion = ref.watch(attachmentListRefreshProvider);
-    if (attachmentRefreshVersion != _lastAttachmentRefreshVersion) {
-      _lastAttachmentRefreshVersion = attachmentRefreshVersion;
-      Future.microtask(() => _loadAttachmentCounts());
+    // A relationship refresh is one snapshot, never two independent paints.
+    final tagVersion = ref.watch(tagListRefreshProvider);
+    final attachmentVersion = ref.watch(attachmentListRefreshProvider);
+    if (tagVersion != _lastTagRefreshVersion ||
+        attachmentVersion != _lastAttachmentRefreshVersion) {
+      _lastTagRefreshVersion = tagVersion;
+      _lastAttachmentRefreshVersion = attachmentVersion;
+      Future.microtask(() {
+        if (mounted) _refreshDetails(force: true);
+      });
     }
 
     // D 方案后:不再 watch sharedResourceRefreshProvider 触发 _loadAccountNames
@@ -396,23 +452,39 @@ class TransactionListState extends ConsumerState<TransactionList> {
 
     _buildFlatItems();
 
+    if (_flatItems.isEmpty &&
+        (_detailsError != null || widget.sourceError != null)) {
+      final l = AppLocalizations.of(context);
+      return Center(
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+        Text(l.commonError),
+        TextButton(onPressed: _retry, child: Text(l.v4RecordingRetry)),
+      ]));
+    }
+    if (_flatItems.isEmpty && (_loadingDetails || !widget.sourceReady)) {
+      return const Center(
+          child: SizedBox.square(
+              dimension: 22, child: CircularProgressIndicator(strokeWidth: 2)));
+    }
     // 无数据时展示空状态
     if (_flatItems.isEmpty) {
       return widget.emptyWidget ??
-        AppEmpty(
-          text: AppLocalizations.of(context).commonEmpty,
-          subtext: AppLocalizations.of(context).homeNoRecords,
-        );
+          AppEmpty(
+            text: AppLocalizations.of(context).commonEmpty,
+            subtext: AppLocalizations.of(context).homeNoRecords,
+          );
     }
 
     // 使用FlutterListView渲染列表
-    return FlutterListView(
+    final list = FlutterListView(
       controller: _controller,
       physics: const BouncingScrollPhysics(),
       delegate: FlutterListViewDelegate(
         (BuildContext context, int index) {
           final item = _flatItems[index];
           final type = item.$1 as String;
+
+          if (type == 'loadStatus') return _buildLoadStatus(context);
 
           if (type == 'bottomSpacer') {
             // 悬浮 Tab 栏高度(56) + 浮动间距(12) + 安全区 + 额外间距
@@ -423,7 +495,13 @@ class TransactionListState extends ConsumerState<TransactionList> {
           if (type == 'header') {
             // 渲染日期头部
             final dateKey = item.$2 as String;
-            final list = item.$3 as List<({Transaction t, Category? category, Account? account, Account? toAccount})>;
+            final list = item.$3 as List<
+                ({
+                  Transaction t,
+                  Category? category,
+                  Account? account,
+                  Account? toAccount
+                })>;
             double dayIncome = 0, dayExpense = 0;
             for (final it in list) {
               // 转账不计入收支统计
@@ -434,31 +512,35 @@ class TransactionListState extends ConsumerState<TransactionList> {
                 dayExpense += it.t.nativeAmount ?? it.t.amount;
               }
             }
+            if (_publishedIsPreview) {
+              final complete = _publishedDayTotals[dateKey]!;
+              dayIncome = complete.income;
+              dayExpense = complete.expense;
+            }
             final isFirst = index == 0;
 
             Widget header = Column(
               children: [
-                if (!isFirst)
-                  Divider(
-                    height: BeeTokens.listDayDividerHeight(context),
-                    color: BeeTokens.listDayDividerColor(context),
-                  ),
+                if (!isFirst) const SizedBox(height: 10),
                 DaySectionHeader(
                   dateText: dateKey,
                   income: dayIncome,
                   expense: dayExpense,
                   hide: widget.hideAmounts,
+                  flatSurface: widget.flatSurface,
                 ),
               ],
             );
 
             // 如果启用可见性跟踪，则包装VisibilityDetector
-            if (widget.enableVisibilityTracking && widget.onDateVisibilityChanged != null) {
+            if (widget.enableVisibilityTracking &&
+                widget.onDateVisibilityChanged != null) {
               header = VisibilityDetector(
                 key: Key('header-$dateKey'),
                 onVisibilityChanged: (VisibilityInfo info) {
                   // 当可见比例大于50%时认为可见
-                  widget.onDateVisibilityChanged!(dateKey, info.visibleFraction > 0.5);
+                  widget.onDateVisibilityChanged!(
+                      dateKey, info.visibleFraction > 0.5);
                 },
                 child: header,
               );
@@ -467,13 +549,25 @@ class TransactionListState extends ConsumerState<TransactionList> {
             return header;
           } else {
             // 渲染交易项
-            final it = item.$2 as ({Transaction t, Category? category, Account? account, Account? toAccount});
-            final allItemsInDay = item.$3 as List<({Transaction t, Category? category, Account? account, Account? toAccount})>;
+            final it = item.$2 as ({
+              Transaction t,
+              Category? category,
+              Account? account,
+              Account? toAccount
+            });
+            final allItemsInDay = item.$3 as List<
+                ({
+                  Transaction t,
+                  Category? category,
+                  Account? account,
+                  Account? toAccount
+                })>;
             final isTransfer = it.t.type == 'transfer';
             final isExpense = it.t.type == 'expense';
 
             // 获取分类显示名称
-            final categoryName = CategoryUtils.getDisplayName(it.category?.name, context);
+            final categoryName =
+                CategoryUtils.getDisplayName(it.category?.name, context);
 
             final subtitle = it.t.note ?? '';
 
@@ -494,38 +588,22 @@ class TransactionListState extends ConsumerState<TransactionList> {
               if (isTransfer) toAccountName = it.toAccount?.name;
             }
 
-            return Dismissible(
-              key: Key('tx-${it.t.id}-$index'), // 添加索引避免key冲突
-              direction: DismissDirection.endToStart,
-              background: Container(
-                alignment: Alignment.centerRight,
-                padding: const EdgeInsets.only(right: 16),
-                color: Colors.red,
-                child: const Icon(Icons.delete, color: Colors.white),
-              ),
-              confirmDismiss: (direction) async {
-                return await AppDialog.confirm<bool>(
-                      context,
-                      title: AppLocalizations.of(context).deleteConfirmTitle,
-                      message: AppLocalizations.of(context).deleteConfirmMessage,
-                    ) ??
-                    false;
-              },
-              onDismissed: (direction) async {
-                final repo = ref.read(repositoryProvider);
-                await repo.deleteTransaction(it.t.id);
-
-                if (!context.mounted) return;
-                final curLedger = ref.read(currentLedgerIdProvider);
-                ref.invalidate(countsForLedgerProvider(curLedger));
-                ref.read(statsRefreshProvider.notifier).state++;
-                ref.read(budgetRefreshProvider.notifier).state++;
-                PostProcessor.sync(ref, ledgerId: curLedger);
-
-                if (context.mounted) {
-                  showToast(context, AppLocalizations.of(context).ledgersDeleted);
-                }
-              },
+            return Container(
+              key: Key('tx-${it.t.id}-$index'),
+              margin: widget.flatSurface
+                  ? EdgeInsets.zero
+                  : const EdgeInsets.symmetric(horizontal: 17),
+              decoration: BoxDecoration(
+                  color: BeeCardTheme.of(context).surface,
+                  borderRadius: BorderRadius.vertical(
+                      top: !widget.flatSurface &&
+                              allItemsInDay.first.t.id == it.t.id
+                          ? const Radius.circular(22)
+                          : Radius.zero,
+                      bottom: !widget.flatSurface && isLastInGroup
+                          ? const Radius.circular(22)
+                          : Radius.zero)),
+              clipBehavior: Clip.antiAlias,
               child: Column(
                 children: [
                   Builder(
@@ -537,15 +615,37 @@ class TransactionListState extends ConsumerState<TransactionList> {
                           .toList();
 
                       // 转账账户信息
-                      final transferAccountInfo = (accountName != null && toAccountName != null)
-                          ? '$accountName → $toAccountName'
-                          : null;
+                      final transferAccountInfo =
+                          (accountName != null && toAccountName != null)
+                              ? '$accountName → $toAccountName'
+                              : null;
 
                       // 获取附件数量（优先使用预加载数据）
-                      final attachmentCount = _getAttachmentCountForTransaction(it.t.id);
+                      final attachmentCount =
+                          _getAttachmentCountForTransaction(it.t.id);
 
                       return TransactionListItem(
-                        icon: getCategoryIconData(category: it.category, categoryName: categoryName),
+                        // Flat lists inherit the frame's 15px gutter. Standalone
+                        // cards start at 17px, so add 4px to match the 21px header.
+                        horizontalInset: widget.flatSurface ? 0 : 4,
+                        onDelete: () async {
+                          final repo = ref.read(repositoryProvider);
+                          await repo.deleteTransaction(it.t.id);
+
+                          if (!context.mounted) return;
+                          final curLedger = ref.read(currentLedgerIdProvider);
+                          ref.invalidate(countsForLedgerProvider(curLedger));
+                          ref.read(statsRefreshProvider.notifier).state++;
+                          ref.read(budgetRefreshProvider.notifier).state++;
+                          PostProcessor.sync(ref, ledgerId: curLedger);
+
+                          if (context.mounted) {
+                            showToast(context,
+                                AppLocalizations.of(context).ledgersDeleted);
+                          }
+                        },
+                        icon: getCategoryIconData(
+                            category: it.category, categoryName: categoryName),
                         category: it.category,
                         title: isTransfer
                             ? (subtitle.isNotEmpty
@@ -561,8 +661,8 @@ class TransactionListState extends ConsumerState<TransactionList> {
                         hide: widget.hideAmounts,
                         happenedAt: it.t.happenedAt,
                         accountName: isTransfer
-                          ? transferAccountInfo  // 转账始终在第三行显示账户信息
-                          : accountName,
+                            ? transferAccountInfo // 转账始终在第三行显示账户信息
+                            : accountName,
                         tags: tagsList.isNotEmpty ? tagsList : null,
                         attachmentCount: attachmentCount,
                         excludeFromStats: it.t.excludeFromStats,
@@ -572,7 +672,8 @@ class TransactionListState extends ConsumerState<TransactionList> {
                                 switchToStreamMode(); // 用户交互，切换到 Stream 模式
                                 await Navigator.of(context).push(
                                   MaterialPageRoute(
-                                    builder: (_) => AttachmentPreviewPage.fromTransaction(
+                                    builder: (_) =>
+                                        AttachmentPreviewPage.fromTransaction(
                                       transactionId: it.t.id,
                                     ),
                                   ),
@@ -625,7 +726,50 @@ class TransactionListState extends ConsumerState<TransactionList> {
           }
         },
         childCount: _flatItems.length,
+        keepPosition: true,
+        onItemKey: (index) {
+          final item = _flatItems[index];
+          return item.$1 == 'transaction'
+              ? 'transaction-${(item.$2 as TransactionRowData).t.id}'
+              : '${item.$1}-${widget.ledgerId}-${item.$2}';
+        },
       ),
     );
+    return list;
+  }
+
+  void _retry() {
+    if (widget.sourceError != null) {
+      widget.onRetrySource?.call();
+    }
+    if (widget.sourceError == null || _detailsError != null) {
+      _refreshDetails(force: true);
+    }
+  }
+
+  Widget _buildLoadStatus(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    if (_detailsError != null || widget.sourceError != null) {
+      return Padding(
+          key: const ValueKey('transaction-feed-error'),
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+            Text(l.commonError),
+            TextButton(onPressed: _retry, child: Text(l.v4RecordingRetry)),
+          ]));
+    }
+    if (_loadingDetails ||
+        _publishedIsPreview ||
+        !widget.sourceReady ||
+        widget.sourceLoading) {
+      return const Padding(
+          key: ValueKey('transaction-feed-loading'),
+          padding: EdgeInsets.all(16),
+          child: Center(
+              child: SizedBox.square(
+                  dimension: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2))));
+    }
+    return const SizedBox.shrink();
   }
 }

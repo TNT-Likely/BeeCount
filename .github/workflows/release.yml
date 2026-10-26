@@ -4,6 +4,9 @@ on:
   push:
     tags:
       - "*"
+      - "!*beta*"
+      - "!*Beta*"
+      - "!*BETA*"
   workflow_dispatch:
     inputs:
       tag_name:
@@ -22,11 +25,15 @@ on:
         description: "是否创建 GitHub Release（手动运行可设为 false，仅构建与产出 Actions Artifacts）"
         required: false
         default: "true"
+      android_version_code_floor:
+        description: "所有已交付正式版/Beta的最高Android versionCode；留空使用仓库变量ANDROID_VERSION_CODE_FLOOR，均空则拒绝构建"
+        required: false
+        default: ""
 
-# 允许取消正在运行的workflow
+# 与独立 Beta 共用串行水位；发布不相互取消。
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  group: beecount-android-delivery
+  cancel-in-progress: false
 
 permissions:
   contents: write
@@ -36,24 +43,35 @@ env:
 
 jobs:
   check-branch:
-    name: Check if main branch
+    name: Reject Beta and check stable source
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch'
     steps:
       - name: Check branch
+        env:
+          INPUT_TAG: ${{ inputs.tag_name }}
         run: |
-          if [ "${{ github.ref_name }}" != "main" ]; then
-            echo "❌ Release workflow can only be triggered from main branch"
-            echo "Current branch: ${{ github.ref_name }}"
+          set -euo pipefail
+          TARGET_TAG="${INPUT_TAG:-${GITHUB_REF_NAME}}"
+          if [[ "${TARGET_TAG,,}" == *beta* ]]; then
+            echo "::error::Beta 必须使用 beta-release.yml，禁止进入商店发布流程。"
             exit 1
           fi
-          echo "✅ Branch check passed: ${{ github.ref_name }}"
+          if [[ ! "$TARGET_TAG" =~ ^[A-Za-z0-9._-]+$ ]]; then
+            echo "::error::Invalid release tag."
+            exit 1
+          fi
+          if [[ "$GITHUB_EVENT_NAME" == workflow_dispatch && "$GITHUB_REF_NAME" != main ]]; then
+            echo "❌ Release workflow can only be triggered from main branch"
+            echo "Current branch: $GITHUB_REF_NAME"
+            exit 1
+          fi
+          echo "✅ Branch check passed: $GITHUB_REF_NAME"
 
   android:
     name: Android (APK + AAB)
     runs-on: ubuntu-latest
     needs: [check-branch]
-    if: always() && (needs.check-branch.result == 'success' || github.event_name == 'push')
+    if: needs.check-branch.result == 'success'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -130,19 +148,26 @@ jobs:
           fi
 
       - name: Update pubspec.yaml version
+        env:
+          RELEASE_VERSION_NAME: ${{ steps.meta.outputs.tag_name }}
+          ANDROID_VERSION_CODE_FLOOR: ${{ github.event.inputs.android_version_code_floor || vars.ANDROID_VERSION_CODE_FLOOR }}
         run: |
-          VERSION='${{ steps.meta.outputs.tag_name }}'
+          set -euo pipefail
+          VERSION="$RELEASE_VERSION_NAME"
           echo "Updating pubspec.yaml version to: $VERSION"
           # 备份原始 pubspec.yaml
           cp pubspec.yaml pubspec.yaml.backup
-          # 更新版本号，保持构建号递增
-          # 从标签中提取版本号（去掉 v 前缀）
           CLEAN_VERSION=${VERSION#v}
-          # 生成构建号（使用 GitHub run number）
-          BUILD_NUMBER=${{ github.run_number }}
-          # 更新 pubspec.yaml
+          if [[ -z "${ANDROID_VERSION_CODE_FLOOR:-}" ]]; then
+            echo "::error::必须设置全部已交付正式版/Beta的最高Android code，拒绝猜测或退回run_number。"
+            exit 1
+          fi
+          python3 -m unittest discover -s tool/release -p 'test_android_version_code.py'
+          # 与本地APK共用全局floor：4.0.0 Beta为226..299；正式从300起，以后逐次+1。
+          # 每次本地实际交付后须更新floor；Beta序号不能替代真实已发最高code。
+          BUILD_NUMBER=$(python3 tool/release/android_version_code.py "$CLEAN_VERSION" \
+            --minimum-code "$ANDROID_VERSION_CODE_FLOOR")
           sed -i "s/^version: .*/version: ${CLEAN_VERSION}+${BUILD_NUMBER}/" pubspec.yaml
-          echo "Updated version in pubspec.yaml:"
           grep "^version:" pubspec.yaml
 
       - name: Build APK (release)
@@ -354,7 +379,7 @@ jobs:
     name: iOS (app.zip + unsigned .ipa)
     runs-on: macos-latest
     needs: [check-branch]
-    if: always() && (needs.check-branch.result == 'success' || github.event_name == 'push')
+    if: needs.check-branch.result == 'success'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -766,7 +791,7 @@ jobs:
       - check-branch
       - android
       - ios
-    if: always() && (needs.check-branch.result == 'success' || github.event_name == 'push') && needs.android.result == 'success' && needs.ios.result == 'success'
+    if: always() && needs.check-branch.result == 'success' && needs.android.result == 'success' && needs.ios.result == 'success'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

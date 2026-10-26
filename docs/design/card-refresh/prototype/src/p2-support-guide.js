@@ -1,0 +1,1 @@
+document.addEventListener('click',event=>{const button=event.target.closest('[data-ps102-demo]');if(!button)return;button.closest('.ps102-guide').querySelector('[data-ps102-demo-result]').textContent='QA 局部回调完成，不打开外链或付款';});

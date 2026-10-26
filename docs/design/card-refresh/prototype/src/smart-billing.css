@@ -1,0 +1,25 @@
+#bee-immersive-suite .bc-main:has(.s80-shell){height:calc(100% - 35px);display:flex;flex-direction:column;overflow:hidden;padding-bottom:0}
+#bee-immersive-suite .s80-shell{display:flex;flex-direction:column;min-height:0;flex:1}
+#bee-immersive-suite .s80-scroll{min-height:0;overflow:auto;padding-bottom:24px}
+#bee-immersive-suite .s80-subtitle{margin:8px 0 12px}
+#bee-immersive-suite .s80-card{padding:0 6px}
+#bee-immersive-suite .s80-card .bc-menu-row{min-height:56px}
+#bee-immersive-suite .s80-copy{white-space:pre-line;font-size:calc(13px * var(--q-scale,1));line-height:1.65;margin:0 0 16px}
+#bee-immersive-suite .s80-requirement,#bee-immersive-suite .s80-action-hint{display:flex;align-items:center;gap:10px;padding:12px;border-radius:12px;font-size:calc(13px * var(--q-scale,1));line-height:1.6}
+#bee-immersive-suite .s80-requirement{background:var(--bc-soft);color:light-dark(#88620c,#f5d580)}
+#bee-immersive-suite .s80-action-hint{background:var(--bc-paper);margin-top:12px}
+#bee-immersive-suite .s80-requirement svg,#bee-immersive-suite .s80-action-hint svg{width:20px;height:20px;flex:none}
+#bee-immersive-suite .s80-slider{padding:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:center}
+#bee-immersive-suite .s80-slider>span{font-size:calc(13px * var(--q-scale,1))}
+#bee-immersive-suite .s80-slider>output{font-size:calc(12px * var(--q-scale,1));text-align:right}
+#bee-immersive-suite .s80-slider input{grid-column:1/-1;width:100%;min-height:44px;accent-color:var(--bc-accent)}
+
+.s80-slider[hidden]{display:none!important}
+
+#bee-immersive-suite .bc-phone .s80-shell .bc-menu-row{min-height:53px;padding:10px 12px!important;gap:10px}
+#bee-immersive-suite .s80-shell .bc-menu-copy b{font-size:calc(14px * var(--q-scale,1));font-weight:400;line-height:1.4}
+#bee-immersive-suite .s80-shell .bc-menu-copy small{font-size:calc(11px * var(--q-scale,1));line-height:1.5}
+#bee-immersive-suite .s80-shell .bc-menu-symbol{width:28px}
+#bee-immersive-suite .bc-phone .s80-shell [role=switch]{min-height:56px;padding:6px 12px!important}
+#bee-immersive-suite .s80-shell [role=switch] small{margin-top:2px}
+#bee-immersive-suite .s80-shell .bc-switch{width:36px;height:22px;margin:11px 4px;flex:none}

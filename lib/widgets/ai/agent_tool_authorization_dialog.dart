@@ -1,3 +1,5 @@
+import 'package:beecount_ui/beecount_ui.dart';
+import 'package:beecount_business_ui/beecount_business_ui.dart';
 import 'package:flutter/material.dart';
 
 import '../../agent/permission/agent_authorization_gate.dart';
@@ -40,43 +42,22 @@ final class _AgentToolAuthorizationDialog extends StatelessWidget {
       request.toolName,
       request.arguments,
     );
-    return AlertDialog(
+    return BeeDialog(
       title: Text(l10n.agentAuthorizationTitle),
-      content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              AgentToolPresentation.label(l10n, request.toolName),
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 6),
-            Text(AgentToolPresentation.description(l10n, request.toolName)),
-            const SizedBox(height: 12),
-            Text(
-              request.ledgerId == null
-                  ? l10n.agentAuthorizationAllLedgers
-                  : l10n.agentAuthorizationCurrentLedger(request.ledgerId!),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              l10n.agentAuthorizationParameters,
-              style: Theme.of(context).textTheme.labelLarge,
-            ),
-            const SizedBox(height: 4),
-            if (arguments.isEmpty)
-              Text(l10n.agentAuthorizationNoParameters)
-            else
-              for (final argument in arguments) ...[
-                Text(argument.label,
-                    style: Theme.of(context).textTheme.labelMedium),
-                SelectableText(argument.value),
-                const SizedBox(height: 6),
-              ],
-          ],
-        ),
-      ),
+      stackActions: true,
+      content: BeeToolRequestDetails(
+          label: AgentToolPresentation.label(l10n, request.toolName),
+          description:
+              AgentToolPresentation.description(l10n, request.toolName),
+          scope: request.ledgerId == null
+              ? l10n.agentAuthorizationAllLedgers
+              : l10n.agentAuthorizationCurrentLedger(request.ledgerId!),
+          parametersLabel: l10n.agentAuthorizationParameters,
+          emptyLabel: l10n.agentAuthorizationNoParameters,
+          fields: [
+            for (final argument in arguments)
+              BeeAssistantBillField(argument.label, argument.value)
+          ]),
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(

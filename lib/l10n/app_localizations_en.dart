@@ -638,10 +638,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get searchSummaryIncome => 'Income';
+  String get searchSummaryIncome => 'Income total';
 
   @override
-  String get searchSummaryExpense => 'Expense';
+  String get searchSummaryExpense => 'Expense total';
 
   @override
   String get searchFilterTitle => 'Filter';
@@ -731,6 +731,27 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get splashSecurityFeature3 => '• Optional cloud sync, consistent data across devices';
+
+  @override
+  String get splashPreparingRecords => 'Getting your records ready';
+
+  @override
+  String get splashSecuritySummary => 'Local data · Open source';
+
+  @override
+  String get splashSecurityCaption => 'Optional cloud sync. Your data, your choice.';
+
+  @override
+  String get splashSecurityLocalTitle => 'Local storage';
+
+  @override
+  String get splashSecurityOpenTitle => 'Open source';
+
+  @override
+  String get splashSecuritySyncTitle => 'Optional cloud sync';
+
+  @override
+  String get splashSecurityFootnote => 'Start without an account. Cloud sync is optional.';
 
   @override
   String get splashInitializing => 'Initializing data...';
@@ -2045,7 +2066,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get categoryNameRequired => 'Please enter category name';
 
   @override
-  String get categoryNameTooLong => 'Category name cannot exceed 4 characters';
+  String get categoryNameTooLong => 'Category name cannot exceed 10 characters';
 
   @override
   String get categoryNameDuplicate => 'Category name already exists';
@@ -2199,6 +2220,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String categoryDeleted(Object name) {
     return 'Category \"$name\" deleted';
   }
+
+  @override
+  String get categoryManageChildren => 'Manage';
 
   @override
   String get categorySubCategoryTitle => 'Subcategory';
@@ -7614,7 +7638,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get netWorthTrendLineLiabilities => 'Total Liabilities';
 
   @override
-  String get netWorthTrendMultiCurrencyNote => 'Historical net worth is the raw sum of each currency, not converted';
+  String get netWorthTrendMultiCurrencyNote => 'Converted to the base currency at current rates. Accounts without a rate are excluded.';
 
   @override
   String get txFlagExcludeFromStats => 'Exclude from income/expense';
@@ -8681,4 +8705,517 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get transactionReceiptShareFailed => 'Unable to share. Please try again.';
+
+  @override
+  String get v4RecordingMoreCategories => 'More categories';
+
+  @override
+  String get v4RecordingCalculationHint => 'Calculate with + − × ÷';
+
+  @override
+  String get v4RecordingSaveNext => 'Save & add another';
+
+  @override
+  String get v4RecordingClearAmount => 'Clear amount';
+
+  @override
+  String get v4RecordingSelectCategory => 'Choose a category';
+
+  @override
+  String get v4RecordingSaveFailed => 'Could not save. Please try again.';
+
+  @override
+  String get v4RecordingCategoriesFailed => 'Could not load categories';
+
+  @override
+  String get v4RecordingRetry => 'Retry';
+
+  @override
+  String get v4RecordingDiscardTitle => 'Discard this entry?';
+
+  @override
+  String get v4RecordingDiscardMessage => 'Your unsaved amount, note and selections will be cleared.';
+
+  @override
+  String get v4RateInvalid => 'Enter a valid exchange rate greater than 0';
+
+  @override
+  String v4RecordingConvertedLabel(String currency) {
+    return 'In $currency';
+  }
+
+  @override
+  String get v4CategoryToolsTitle => 'Category tools';
+
+  @override
+  String get v4CategoryToolsHint => 'Sort, import, share and default categories';
+
+  @override
+  String get v4AttachmentPending => 'Pending save';
+
+  @override
+  String get v4ClearSelection => 'Clear selection';
+
+  @override
+  String get v4HomeAllTransactions => 'All transactions';
+
+  @override
+  String get v4HomeBatch => 'Batch';
+
+  @override
+  String get v4HomeMonthShare => 'Share monthly summary';
+
+  @override
+  String get v4HomeBrandShow => 'Show BeeCount branding';
+
+  @override
+  String get v4HomeBrandHide => 'Hide BeeCount branding';
+
+  @override
+  String get v4HomeMonthExpense => 'Monthly expenses';
+
+  @override
+  String get v4HomeMonthIncome => 'Monthly income';
+
+  @override
+  String get v4HomeMonthBalance => 'Monthly balance';
+
+  @override
+  String get v4AmountsShow => 'Show amounts';
+
+  @override
+  String get v4AmountsHide => 'Hide amounts';
+
+  @override
+  String get v4SearchTitle => 'Search transactions';
+
+  @override
+  String get v4SearchRecent => 'Recent searches';
+
+  @override
+  String get v4SearchClearHistory => 'Clear search history';
+
+  @override
+  String get v4SearchInvert => 'Invert selection';
+
+  @override
+  String get v4SearchScope => 'Change scope';
+
+  @override
+  String get v4SearchOriginalAmount => 'Original amount';
+
+  @override
+  String get v4SearchLedgerAmount => 'Converted amount';
+
+  @override
+  String get v4SearchInvalidRange => 'Enter valid nonnegative amounts and check the range';
+
+  @override
+  String get v4SearchSetTags => 'Set tags';
+
+  @override
+  String get v4SearchTagsSaved => 'Tags updated for selected transactions';
+
+  @override
+  String get v4SearchAll => 'All';
+
+  @override
+  String get v4SearchHint => 'Search notes, categories, amounts or tags';
+
+  @override
+  String get v4SearchFilterActive => 'Filters applied';
+
+  @override
+  String v4SearchSelected(int count) {
+    return '$count selected transactions';
+  }
+
+  @override
+  String get v4DetailMonth => 'Month';
+
+  @override
+  String get v4DetailYear => 'Year';
+
+  @override
+  String get v4DetailCumulative => 'All time';
+
+  @override
+  String get v4DetailCustom => 'Custom range';
+
+  @override
+  String get v4DetailTrend => 'Cumulative amount';
+
+  @override
+  String get v4DetailShare => 'Share';
+
+  @override
+  String get v4DetailMissingCategory => 'This category no longer exists';
+
+  @override
+  String get v4DetailRecent => 'Recent transactions';
+
+  @override
+  String get v4DetailCollapse => 'Show fewer';
+
+  @override
+  String v4DetailCategoryChildren(int count) {
+    return 'Parent category · $count subcategories';
+  }
+
+  @override
+  String v4DetailAmountLabel(String period, String kind) {
+    return '$kind · $period';
+  }
+
+  @override
+  String v4DetailAllTransactions(int count) {
+    return 'View all $count transactions';
+  }
+
+  @override
+  String v4DetailRecord(String name) {
+    return 'Record in $name';
+  }
+
+  @override
+  String get v4MineCloudGroup => 'Cloud and sync';
+
+  @override
+  String get v4MineFeaturesGroup => 'Features';
+
+  @override
+  String get v4MineHelpGroup => 'Help and information';
+
+  @override
+  String get v4MineSupportGroup => 'Support us';
+
+  @override
+  String get v4ConfigImportWarning => 'Import replaces existing configuration. Back up your current configuration first.';
+
+  @override
+  String get v4CategoryPresetIcons => 'Preset icons';
+
+  @override
+  String get v4CategoryCommonIcons => 'Common';
+
+  @override
+  String get v4CategoryImageHint => 'Keep original colors and transparency. Crop to a square after choosing.';
+
+  @override
+  String get welcomePreferencesLater => 'You can change these preferences later.';
+
+  @override
+  String get welcomeRestoreTitle => 'Welcome back.';
+
+  @override
+  String get welcomeRestoreDescription => 'Restore your familiar ledgers and keep recording your days.';
+
+  @override
+  String get welcomeReadyDescription => 'Record your days with confidence. Your data stays in your control.';
+
+  @override
+  String get welcomeCloudLater => 'No setup is needed now. Enable it later in Me > Cloud services.';
+
+  @override
+  String get welcomeSelectBackup => 'Choose backup file';
+
+  @override
+  String get welcomeRestoreContinue => 'Import and continue';
+
+  @override
+  String get welcomeRestoreLedgersAccounts => 'Ledgers and accounts';
+
+  @override
+  String get welcomeRestoreCategoriesTags => 'Categories and tags';
+
+  @override
+  String get welcomeRestoreSettings => 'App settings and preferences';
+
+  @override
+  String get welcomeAttachmentRestoreTitle => 'Bring your memories back, too.';
+
+  @override
+  String get welcomeAttachmentRestoreDescription => 'Restore receipts and their transaction links, or import them later.';
+
+  @override
+  String get welcomeAttachmentBackupDescription => 'TAR.GZ · Receipts, screenshots and attachments';
+
+  @override
+  String get welcomeImportAttachmentsContinue => 'Import attachments and finish';
+
+  @override
+  String get v4QuickAddSlideHint => 'Hold, slide to an action, and release';
+
+  @override
+  String get v4AccountDetailTitle => 'Account details';
+
+  @override
+  String get v4AmountInvalid => 'Enter a valid amount';
+
+  @override
+  String get v4TagCategories => 'Linked categories';
+
+  @override
+  String get v4TagRecord => 'Record with this tag';
+
+  @override
+  String get v4TagDistribution => 'Category distribution';
+
+  @override
+  String get v4TagOriginalLedgerTotals => 'Totals use each ledger’s original amounts';
+
+  @override
+  String get v4TagToolsTitle => 'Tag tools';
+
+  @override
+  String get v4TagToolsHint => 'Add, import, generate defaults and clean up';
+
+  @override
+  String get v4TrendClosing => 'Closing balance';
+
+  @override
+  String get v4TrendOpening => 'Opening balance';
+
+  @override
+  String get v4TrendChange => 'Period change';
+
+  @override
+  String get v4TrendChangeRate => 'Change rate';
+
+  @override
+  String get v4DataBills => 'Transactions';
+
+  @override
+  String get v4DataCategories => 'Categories and tags';
+
+  @override
+  String get v4DataConfiguration => 'Configuration and storage';
+
+  @override
+  String get v4DataAttachments => 'Attachments';
+
+  @override
+  String get v4CustomIcons => 'Custom icons';
+
+  @override
+  String get v4AnalyticsTrend => 'Income and expense trend';
+
+  @override
+  String get v4AnalyticsShowRanking => 'Show category ranking';
+
+  @override
+  String get v4AnalyticsShowPie => 'Show category chart';
+
+  @override
+  String get v4AnalyticsView => 'Statistics view';
+
+  @override
+  String get v4AnalyticsRecalculate => 'Convert now';
+
+  @override
+  String get aiProviderShowKey => 'Show API key';
+
+  @override
+  String get aiProviderHideKey => 'Hide API key';
+
+  @override
+  String get aiPromptShare => 'Share prompt';
+
+  @override
+  String get aiPromptPaste => 'Paste prompt';
+
+  @override
+  String get v4AIChatSend => 'Send message';
+
+  @override
+  String get v4RecurringLastGeneratedLabel => 'Last generated';
+
+  @override
+  String get v4TransactionDetailTitle => 'Bill details';
+
+  @override
+  String get v4TransactionDetailSnapshot => 'Historical conversion';
+
+  @override
+  String get v4TransactionDetailSnapshotRate => 'Rate at entry';
+
+  @override
+  String v4DetailConvertedScope(String currency) {
+    return 'Totals converted to current ledger currency $currency';
+  }
+
+  @override
+  String v4DetailMissingConversion(int count, String currencies) {
+    return '$count records not converted · $currencies. Summary amounts unavailable.';
+  }
+
+  @override
+  String v4DetailRateDate(String date) {
+    return 'Rate date $date';
+  }
+
+  @override
+  String v4DetailRatesStale(String date) {
+    return 'Rate is more than 7 days old · $date';
+  }
+
+  @override
+  String get v4ShareCardTitle => 'Share card';
+
+  @override
+  String get v4ShareCardProfile => 'My profile';
+
+  @override
+  String get v4InsightsCategoryShare => 'Category share';
+
+  @override
+  String get v4InsightsShareHint => 'Tap a category to view its share of the total';
+
+  @override
+  String get v4InsightsTapBar => 'Tap a column to see its amount';
+
+  @override
+  String get v4InsightsAverageTitle => 'How the average is calculated';
+
+  @override
+  String get v4InsightsAverageDays => 'Uses elapsed days in this period, including days without entries. Future dates are excluded.';
+
+  @override
+  String get v4InsightsAverageMonths => 'Uses elapsed months in this year, including months without entries. Future months are excluded.';
+
+  @override
+  String get v4InsightsAverageYears => 'Uses the years spanned by the ledger, including years without entries. Future years are excluded.';
+
+  @override
+  String get v4InsightsDaysUnit => 'days';
+
+  @override
+  String get v4InsightsMonthsUnit => 'months';
+
+  @override
+  String get v4InsightsYearsUnit => 'years';
+
+  @override
+  String get v4InsightsBalanceComposition => 'Income and expenses';
+
+  @override
+  String get v4InsightsBalanceEquation => 'Balance = income − expenses';
+
+  @override
+  String get v4InsightsPreviousPeriod => 'Previous period';
+
+  @override
+  String get v4InsightsNextPeriod => 'Next period';
+
+  @override
+  String get v4InsightsOtherCategories => 'Other categories';
+
+  @override
+  String get v4InsightsSortedByAmount => 'Sorted by amount';
+
+  @override
+  String get v4InsightsNoData => 'Choose another period or use the tabs above to switch between expenses, income and balance.';
+
+  @override
+  String v4InsightsTrendTitle(String type) {
+    return '$type trend';
+  }
+
+  @override
+  String v4InsightsAmountUnit(String currency) {
+    return 'Unit: $currency';
+  }
+
+  @override
+  String get v4InsightsCollapseCategories => 'Collapse categories';
+
+  @override
+  String v4InsightsAllCategories(int count) {
+    return 'All $count categories';
+  }
+
+  @override
+  String get v4AssetsAllAccounts => 'All accounts';
+
+  @override
+  String get v4AssetsByCurrency => 'By currency';
+
+  @override
+  String get v4AssetsUnifiedConversion => 'Converted total';
+
+  @override
+  String get v4AssetsCurrencyView => 'Amount display';
+
+  @override
+  String get v4AssetsHiddenIncluded => 'Hidden accounts remain included in net worth.';
+
+  @override
+  String v4AssetsIncludesHidden(int count) {
+    return 'Includes $count hidden accounts';
+  }
+
+  @override
+  String get v4AssetsOrder => 'Account order';
+
+  @override
+  String get v4AssetsOrderHint => 'Reorder within an account type. Balances stay unchanged.';
+
+  @override
+  String get v4AssetsSeparateCurrencyHint => 'View each currency separately; currencies are not added together.';
+
+  @override
+  String get v4AssetsOriginal => 'Original';
+
+  @override
+  String get v4AssetsDefaultExpense => 'Default expense';
+
+  @override
+  String get v4AssetsDefaultIncome => 'Default income';
+
+  @override
+  String get v4AssetsTrend => 'Trend';
+
+  @override
+  String get v4AssetsComposition => 'Mix';
+
+  @override
+  String get v4TransactionRowFieldsTitle => 'Transaction fields';
+
+  @override
+  String v4TransactionRowMoreFields(int count) {
+    return '$count more fields';
+  }
+
+  @override
+  String get v4TransactionRowReadOnly => 'Read only';
+
+  @override
+  String get v4TransactionRowAccess => 'Access';
+
+  @override
+  String get v4SharePosterProfileEyebrow => 'My everyday records';
+
+  @override
+  String get v4SharePosterDayCaption => 'days of thoughtful records.';
+
+  @override
+  String get v4SharePosterProfileJourney => 'A small habit, a lasting story.';
+
+  @override
+  String get v4SharePosterPromoInvite => 'Make a record of your days.';
+
+  @override
+  String get v4SharePosterOpenSourceBody => 'Your data stays yours. Our code stays open.\nKeep bookkeeping simple, together.';
+
+  @override
+  String get v4SharePosterOpenSourceAction => 'Explore the source';
+
+  @override
+  String get v4SharePosterRecommend => 'Recommend to a friend';
+
+  @override
+  String get v4SharePosterTopIncome => 'TOP 3 income';
+
+  @override
+  String get v4SharePosterAverageRecords => 'Daily records';
 }

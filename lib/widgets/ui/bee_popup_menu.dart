@@ -73,6 +73,7 @@ class BeePopupMenu extends StatelessWidget {
 
   /// 自定义图标
   final Widget? icon;
+  final Widget? child;
 
   /// 提示文字
   final String? tooltip;
@@ -83,6 +84,7 @@ class BeePopupMenu extends StatelessWidget {
     this.onSelected,
     this.primaryColor,
     this.icon,
+    this.child,
     this.tooltip,
   });
 
@@ -192,11 +194,14 @@ class BeePopupMenu extends StatelessWidget {
     final themeColor = primaryColor ?? Theme.of(context).colorScheme.primary;
 
     return PopupMenuButton<String>(
-      icon: icon ??
-          Icon(
-            Icons.more_vert,
-            color: BeeTokens.textPrimary(context),
-          ),
+      child: child,
+      icon: child != null
+          ? null
+          : icon ??
+              Icon(
+                Icons.more_vert,
+                color: BeeTokens.textPrimary(context),
+              ),
       tooltip: tooltip,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),

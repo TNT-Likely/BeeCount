@@ -6,6 +6,8 @@
 // (c) syncLedgersFromServer: server 返 monthStartDay=99 → clamp 28
 
 import 'package:drift/native.dart';
+import 'package:drift/drift.dart' show Value;
+import 'package:flutter_cloud_sync/flutter_cloud_sync.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -40,6 +42,12 @@ void main() {
   });
 
   tearDown(() async => db.close());
+
+  Future<int> insertEight(String syncId) =>
+      db.into(db.ledgers).insert(LedgersCompanion.insert(
+          name: 'Existing eight',
+          syncId: Value(syncId),
+          monthStartDay: const Value(8)));
 
   group('_applyLedgerChange monthStartDay', () {
     test('(a) payload 带 monthStartDay=15 → 本地行写入 15', () async {
@@ -93,7 +101,8 @@ void main() {
           reason: '不含 monthStartDay 的 change 不应覆盖本地值');
     });
 
-    test('(c) syncLedgersFromServer: server 返 monthStartDay=99 → clamp 28', () async {
+    test('(c) syncLedgersFromServer: server 返 monthStartDay=99 → clamp 28',
+        () async {
       provider.pushFakeLedger(
         ledgerId: 'ledger-clamp',
         ledgerName: 'Clamp Test',
@@ -104,8 +113,70 @@ void main() {
 
       final rows = await db.select(db.ledgers).get();
       expect(rows, hasLength(1));
-      expect(rows.first.monthStartDay, 28,
-          reason: '超出范围的值应 clamp 到 28');
+      expect(rows.first.monthStartDay, 28, reason: '超出范围的值应 clamp 到 28');
+    });
+
+    test('old read-ledgers payload missing canonical field preserves SQLite 8',
+        () async {
+      final id = await insertEight('qa-old-read');
+      final dto = BeeCountCloudReadLedger.fromJson({
+        'ledger_id': 'qa-old-read',
+        'ledger_name': 'Old metadata',
+        'currency': 'CNY',
+      });
+      expect(dto.monthStartDay, isNull);
+      provider.pushFakeLedger(
+          ledgerId: dto.ledgerId,
+          ledgerName: dto.ledgerName,
+          monthStartDay: dto.monthStartDay);
+      await engine.syncLedgersFromServer();
+      final row = await (db.select(db.ledgers)
+            ..where((row) => row.id.equals(id)))
+          .getSingle();
+      expect(row.monthStartDay, 8);
+      expect(row.name, 'Old metadata');
+    });
+
+    test('read-ledgers explicit canonical 1 is a real update from SQLite 8',
+        () async {
+      final id = await insertEight('qa-explicit-one');
+      final dto = BeeCountCloudReadLedger.fromJson({
+        'ledger_id': 'qa-explicit-one',
+        'ledger_name': 'Explicit one',
+        'currency': 'CNY',
+        'month_start_day': 1,
+      });
+      provider.pushFakeLedger(
+          ledgerId: dto.ledgerId,
+          ledgerName: dto.ledgerName,
+          monthStartDay: dto.monthStartDay);
+      await engine.syncLedgersFromServer();
+      expect((await db.select(db.ledgers).getSingle()).id, id);
+      expect((await db.select(db.ledgers).getSingle()).monthStartDay, 1);
+    });
+
+    test('ledger event explicit monthStartDay 1 still replaces existing 8',
+        () async {
+      await insertEight('qa-event-one');
+      provider.pushFakeChange(
+          entityType: 'ledger',
+          entitySyncId: 'qa-event-one',
+          ledgerId: 'qa-event-one',
+          payload: {'ledgerName': 'Explicit one', 'monthStartDay': 1});
+      await engine.pull('');
+      expect((await db.select(db.ledgers).getSingle()).monthStartDay, 1);
+    });
+
+    test('missing canonical event field does not alias periodStartDay to 1',
+        () async {
+      await insertEight('qa-old-event');
+      provider.pushFakeChange(
+          entityType: 'ledger',
+          entitySyncId: 'qa-old-event',
+          ledgerId: 'qa-old-event',
+          payload: {'ledgerName': 'Old event', 'periodStartDay': 1});
+      await engine.pull('');
+      expect((await db.select(db.ledgers).getSingle()).monthStartDay, 8);
     });
   });
 }

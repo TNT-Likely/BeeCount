@@ -1,0 +1,30 @@
+{
+  "source": "docs/design/card-refresh/prototype/demo.html?page=search",
+  "measuredWith": "Chromium computed styles, default skin, 398x844 frame, 2026-10-24",
+  "sourceCssFile": "docs/design/card-refresh/prototype/src/layout.fragment.html",
+  "sourceCssSha256": "ae0f154bfb2a1428b3923d2e29df2c7b3994dc5f62df66b8a35c389068b76416",
+  "summary": {
+    "width": 362,
+    "height": 142.5,
+    "padding": 17,
+    "headingHeight": 26,
+    "totalsTopMargin": 13,
+    "divider": 1,
+    "totalsTopPadding": 14,
+    "metricWidth": 158,
+    "labelLineHeight": 21,
+    "amountGap": 5,
+    "amountFont": 19,
+    "amountLineHeight": 28.5,
+    "radius": 22
+  },
+  "compactChip": {
+    "visualHeight": 34,
+    "horizontalPadding": 10,
+    "verticalPadding": 7,
+    "font": 11,
+    "radius": 10,
+    "flutterTouchTarget": 44
+  },
+  "flutterParagraphRoundingTolerance": 1
+}

@@ -1,3 +1,6 @@
+import 'package:beecount_business_ui/beecount_business_ui.dart';
+import 'package:beecount_ui/beecount_ui.dart';
+import '../../utils/currencies.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:collection/collection.dart';
@@ -18,9 +21,14 @@ class AccountSelector extends ConsumerStatefulWidget {
   final int? selectedAccountId;
   final ValueChanged<int?> onAccountSelected;
   final int ledgerId;
+
+  /// Full searchable V4 picker; the original chip consumers keep their layout.
+  final bool expandedPicker;
+
   /// v30 多币种:按币种过滤可选账户(记账币种优先联动,选 JPY → 只显示 JPY
   /// 账户)。null = 账本本位币(旧行为)。变更时列表自动重载。
   final String? filterCurrency;
+
   /// 账户隐藏(#240)E1 钉住:编辑历史交易时传入该交易当前挂的账户 id。若该
   /// 账户已被隐藏(因而被下方过滤排除),补回候选并打「已隐藏」灰标,让用户
   /// 能原样保存;其余隐藏账户仍不出现。null = 不钉住(新建交易场景)。
@@ -33,6 +41,7 @@ class AccountSelector extends ConsumerStatefulWidget {
     required this.ledgerId,
     this.filterCurrency,
     this.pinnedAccountId,
+    this.expandedPicker = false,
   });
 
   @override
@@ -42,6 +51,7 @@ class AccountSelector extends ConsumerStatefulWidget {
 class _AccountSelectorState extends ConsumerState<AccountSelector> {
   List<Account> _accounts = [];
   List<int> _lruOrder = [];
+  final Map<int, double> _balances = {};
   late LRUCache _lruCache;
   bool _isLoading = true;
 
@@ -91,8 +101,7 @@ class _AccountSelectorState extends ConsumerState<AccountSelector> {
       }
 
       // v30:过滤币种 = 显式传入(记账所选币种)?? 账本本位币(旧行为)
-      final wanted =
-          (widget.filterCurrency ?? ledger.currency).toUpperCase();
+      final wanted = (widget.filterCurrency ?? ledger.currency).toUpperCase();
       var accounts = allAccounts
           .where((a) =>
               a.currency.toUpperCase() == wanted && isTradableType(a.type))
@@ -109,10 +118,18 @@ class _AccountSelectorState extends ConsumerState<AccountSelector> {
         }
       }
 
+      if (widget.expandedPicker) {
+        _balances.clear();
+        for (final account in accounts.where((a) => a.id >= 0)) {
+          _balances[account.id] =
+              (await repo.getAccountStats(account.id)).balance;
+        }
+      }
       // 获取 LRU 排序
       final lruOrder = await _lruCache.getOrderedIds();
 
-      logger.debug('AccountSelector', '加载账户完成，初始选中: $_initialSelectedAccountId, LRU顺序: $lruOrder');
+      logger.debug('AccountSelector',
+          '加载账户完成，初始选中: $_initialSelectedAccountId, LRU顺序: $lruOrder');
 
       if (mounted) {
         setState(() {
@@ -139,7 +156,8 @@ class _AccountSelectorState extends ConsumerState<AccountSelector> {
 
     // 将初始选中的账户放在第一个（如果存在）
     if (_initialSelectedAccountId != null) {
-      final selected = _accounts.where((a) => a.id == _initialSelectedAccountId).firstOrNull;
+      final selected =
+          _accounts.where((a) => a.id == _initialSelectedAccountId).firstOrNull;
       if (selected != null) {
         sorted.add(selected);
       }
@@ -147,7 +165,9 @@ class _AccountSelectorState extends ConsumerState<AccountSelector> {
 
     // 按 LRU 顺序添加其他账户
     for (final id in _lruOrder) {
-      final account = _accounts.where((a) => a.id == id && a.id != _initialSelectedAccountId).firstOrNull;
+      final account = _accounts
+          .where((a) => a.id == id && a.id != _initialSelectedAccountId)
+          .firstOrNull;
       if (account != null && !sorted.contains(account)) {
         sorted.add(account);
       }
@@ -196,7 +216,39 @@ class _AccountSelectorState extends ConsumerState<AccountSelector> {
     }
 
     final sortedAccounts = _getSortedAccounts();
-
+    if (widget.expandedPicker) {
+      final l10n = AppLocalizations.of(context);
+      return BeeAccountPicker(
+          accounts: sortedAccounts
+              .map((a) => BeeAccountChoice(
+                  id: '${a.id}',
+                  name: a.name,
+                  currency: a.currency,
+                  balance: _balances.containsKey(a.id)
+                      ? '${getCurrencySymbol(a.currency)}${_balances[a.id]!.toStringAsFixed(2)}'
+                      : '',
+                  detail: a.hidden
+                      ? l10n.accountHiddenTag
+                      : getAccountTypeLabel(context, a.type),
+                  icon: BeeLineIcon(
+                      a.hidden
+                          ? 'EyeOff'
+                          : a.type == 'cash'
+                              ? 'Banknote'
+                              : a.type.contains('card')
+                                  ? 'CreditCard'
+                                  : 'Wallet',
+                      size: 21)))
+              .toList(),
+          currency: widget.filterCurrency ?? '',
+          // All filtering and historical pinning has already happened above.
+          filterByCurrency: false,
+          selected: widget.selectedAccountId?.toString(),
+          searchLabel: l10n.commonSearch,
+          emptyLabel: l10n.accountsEmptyMessage,
+          unsetLabel: l10n.accountNone,
+          onSelected: (id) => _onAccountTap(id == null ? null : int.parse(id)));
+    }
     return SizedBox(
       height: 32,
       child: ListView.separated(
@@ -268,7 +320,9 @@ class _AccountSelectorState extends ConsumerState<AccountSelector> {
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                  color: isSelected ? Colors.white : BeeTokens.textSecondary(context),
+                  color: isSelected
+                      ? Colors.white
+                      : BeeTokens.textSecondary(context),
                   height: 1.2,
                 ),
               ),

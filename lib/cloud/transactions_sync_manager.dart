@@ -1,4 +1,7 @@
 import 'dart:convert';
+import '../data/repositories/local/local_repository.dart';
+import '../data/repositories/transaction_repository.dart' show BatchAttachmentData;
+import '../services/currency/rate_math.dart';
 
 import 'package:crypto/crypto.dart';
 import 'package:drift/drift.dart' as drift;
@@ -226,6 +229,408 @@ class TransactionsSyncManager implements SyncService {
       rethrow;
     }
   }
+
+// BEGIN r95 atomic legacy restore
+  /// Only the explicitly confirmed pre-v6 replacement path uses this adapter.
+  /// Parse and validate the entire snapshot before entering one SQLite transaction.
+  /// Existing physical files are never removed, including on rollback.
+  Future<({int inserted, int deletedDup})> restoreLegacyBackupToCurrentLedger({
+    required int ledgerId,
+  }) async {
+    await _ensureInitialized();
+    if (repo is! LocalRepository ||
+        !identical((repo as LocalRepository).db, db)) {
+      throw UnsupportedError(
+          'Legacy replacement requires the same local SQLite repository');
+    }
+    final text =
+        await _provider.storage.download(path: _pathForLedger(ledgerId));
+    if (text == null) {
+      throw const FormatException('Legacy backup no longer exists');
+    }
+    final snapshot = _validateLegacyReplacement(text);
+    final data = snapshot.data;
+    final rows = snapshot.rows;
+    final result = await db.transaction(() async {
+      final ledger = await repo.getLedgerById(ledgerId);
+      if (ledger == null) {
+        throw StateError('Target ledger does not exist');
+      }
+      if (ledger.isShared && !['owner', 'editor'].contains(ledger.myRole)) {
+        throw StateError('Target ledger is read-only');
+      }
+      final base = (data.currency ?? ledger.currency).toUpperCase();
+      _legacyCurrency(base);
+      final accounts = {
+        for (final account in await repo.getAllAccounts()) account.name: account
+      };
+      final accountIds = {
+        for (final account in accounts.values) account.name: account.id
+      };
+      final accountCurrencies = {
+        for (final account in accounts.values)
+          account.name: account.currency.toUpperCase()
+      };
+      for (final account in data.accounts) {
+        final currency = (account.currency ?? base).toUpperCase();
+        _legacyCurrency(currency);
+        if (accounts.containsKey(account.name)) {
+          if (accountCurrencies[account.name] != currency) {
+            throw FormatException(
+                'Existing account currency conflicts: ${account.name}');
+          }
+        } else {
+          accountIds[account.name] = await repo.createAccount(
+              ledgerId: 0,
+              name: account.name,
+              type: account.type ?? 'cash',
+              currency: currency,
+              initialBalance: account.initialBalance ?? 0);
+          accountCurrencies[account.name] = currency;
+        }
+      }
+      final allCategories = await repo.getAllCategories();
+      final categoryIds = <String, int>{};
+      final ambiguous = <String>{};
+      for (final category in allCategories) {
+        final key = '${category.kind}|${category.name}';
+        if (categoryIds.containsKey(key)) {
+          ambiguous.add(key);
+        }
+        categoryIds[key] = category.id;
+      }
+      final orderedCategories = [...data.categories]
+        ..sort((a, b) => a.level.compareTo(b.level));
+      for (final category in orderedCategories) {
+        final key = '${category.kind}|${category.name}';
+        if (ambiguous.contains(key)) {
+          throw FormatException('Ambiguous category: ${category.name}');
+        }
+        if (categoryIds.containsKey(key)) {
+          final existing =
+              allCategories.firstWhere((c) => c.id == categoryIds[key]);
+          if (existing.level != category.level ||
+              (category.level == 2 &&
+                  existing.parentId !=
+                      categoryIds['${category.kind}|${category.parentName}'])) {
+            throw FormatException(
+                'Existing category hierarchy conflicts: ${category.name}');
+          }
+          continue;
+        }
+        final parent = category.parentName == null
+            ? null
+            : categoryIds['${category.kind}|${category.parentName}'];
+        if (category.level == 2 && parent == null) {
+          throw FormatException(
+              'Missing parent category: ${category.parentName}');
+        }
+        final id = await repo.createCategory(
+            name: category.name,
+            kind: category.kind,
+            icon: category.icon,
+            sortOrder: category.sortOrder,
+            level: category.level,
+            parentId: parent);
+        categoryIds[key] = id;
+        if (category.iconType != null && category.iconType != 'material') {
+          await repo.updateCategoryIcon(id,
+              iconType: category.iconType!,
+              icon: category.icon,
+              customIconPath: category.customIconPath,
+              communityIconId: category.communityIconId);
+        }
+      }
+      final tagIds = {
+        for (final tag in await repo.getAllTags()) tag.name: tag.id
+      };
+      final tagColors = {for (final tag in data.tags) tag.name: tag.color};
+      final tagNames = {
+        ...tagColors.keys,
+        for (final tx in data.transactions) ...?tx.tagNames
+      };
+      for (final name in tagNames) {
+        tagIds[name] ??=
+            await repo.createTag(name: name, color: tagColors[name]);
+      }
+      final auto = await repo.getLatestAutoRates(base);
+      final overrides = await repo.getOverrides(base);
+      final rates = mergeEffectiveRates(autoRates: [
+        for (final r in auto)
+          (quote: r.quoteCurrency, rate: r.rate, rateDate: r.rateDate)
+      ], overrides: [
+        for (final r in overrides) (quote: r.quoteCurrency, rate: r.rate)
+      ]);
+      final transactions = <TransactionsCompanion>[];
+      final tagsByIndex = <int, List<int>>{};
+      final attachmentsByIndex = <int, List<BatchAttachmentData>>{};
+      for (var i = 0; i < data.transactions.length; i++) {
+        final tx = data.transactions[i], raw = rows[i];
+        final accountName =
+            tx.type == 'transfer' ? tx.fromAccountName : tx.accountName;
+        for (final name in [accountName, tx.toAccountName]) {
+          if (name != null && !accountIds.containsKey(name)) {
+            throw FormatException('Missing account: $name');
+          }
+        }
+        final accountCurrency =
+            accountName == null ? null : accountCurrencies[accountName];
+        final currency =
+            ((raw['currencyCode'] as String?) ?? accountCurrency ?? base)
+                .toUpperCase();
+        _legacyCurrency(currency);
+        if (accountCurrency != null && accountCurrency != currency) {
+          throw FormatException(
+              'Transaction/account currency mismatch at row ${i + 1}');
+        }
+        // Historical transfers use the same stored amount for both accounts,
+        // including older cross-currency pairs. Restore the original pair;
+        // new-transfer UI restrictions must not rewrite historical balances.
+        final native = (raw['nativeAmount'] as num?)?.toDouble() ??
+            computeNativeAmount(
+                amount: tx.amount,
+                accountCurrency: currency,
+                ledgerBase: base,
+                rates: rates);
+        if (native == null || !native.isFinite) {
+          throw FormatException(
+              'Missing valid exchange snapshot at row ${i + 1}');
+        }
+        int? categoryId;
+        if (tx.type != 'transfer' && tx.categoryName != null) {
+          if (tx.categoryKind == null) {
+            throw FormatException('Missing category kind at row ${i + 1}');
+          }
+          final key = '${tx.categoryKind}|${tx.categoryName}';
+          if (ambiguous.contains(key)) {
+            throw FormatException('Ambiguous category: ${tx.categoryName}');
+          }
+          categoryId = categoryIds[key];
+          if (categoryId == null) {
+            categoryId = await repo.createCategory(
+                name: tx.categoryName!, kind: tx.categoryKind!);
+            categoryIds[key] = categoryId;
+          }
+        }
+        transactions.add(TransactionsCompanion.insert(
+            ledgerId: ledgerId,
+            type: tx.type,
+            amount: tx.amount,
+            happenedAt: drift.Value(tx.happenedAt),
+            note: drift.Value(tx.note),
+            syncId: drift.Value(tx.syncId),
+            categoryId: drift.Value(categoryId),
+            accountId: drift.Value(
+                accountName == null ? null : accountIds[accountName]),
+            toAccountId: drift.Value(
+                tx.toAccountName == null ? null : accountIds[tx.toAccountName]),
+            excludeFromStats:
+                drift.Value(raw['excludeFromStats'] as bool? ?? false),
+            excludeFromBudget:
+                drift.Value(raw['excludeFromBudget'] as bool? ?? false),
+            currencyCode: drift.Value(currency),
+            nativeAmount: drift.Value(native)));
+        tagsByIndex[i] = (tx.tagNames ?? const [])
+            .map((name) => tagIds[name]!)
+            .toSet()
+            .toList();
+        if (tx.attachments?.isNotEmpty ?? false) {
+          attachmentsByIndex[i] = [
+            for (final a in tx.attachments!)
+              BatchAttachmentData(
+                  fileName: a.fileName,
+                  originalName: a.originalName,
+                  fileSize: a.fileSize,
+                  width: a.width,
+                  height: a.height,
+                  sortOrder: a.sortOrder,
+                  cloudFileId: a.cloudFileId,
+                  cloudSha256: a.cloudSha256)
+          ];
+        }
+      }
+      final identities =
+          data.transactions.map((tx) => tx.syncId).whereType<String>().toList();
+      if (identities.isNotEmpty) {
+        final conflicts = await (db.select(db.transactions)
+              ..where((t) =>
+                  t.ledgerId.equals(ledgerId).not() &
+                  t.syncId.isIn(identities)))
+            .get();
+        if (conflicts.isNotEmpty) {
+          throw const FormatException(
+              'Backup sync identity belongs to another ledger');
+        }
+      }
+      // clearLedgerTransactions only changes SQLite relation rows. Do not call
+      // deleteTransaction, which also removes physical attachment files.
+      final previous = await (db.select(db.transactions)
+            ..where((t) => t.ledgerId.equals(ledgerId)))
+          .get();
+      final oldIdentities =
+          previous.map((tx) => tx.syncId).whereType<String>().toList();
+      if (oldIdentities.isNotEmpty) {
+        await (db.delete(db.transactionTagOverrides)
+              ..where((t) => t.transactionSyncId.isIn(oldIdentities)))
+            .go();
+      }
+      await repo.clearLedgerTransactions(ledgerId);
+      await repo.updateLedger(
+          id: ledgerId, name: data.ledgerName, currency: data.currency);
+      final ids = await repo.insertTransactionsBatchWithRelations(
+          transactions: transactions,
+          tagIdsByIndex: tagsByIndex,
+          attachmentsByIndex: attachmentsByIndex);
+      if (ids.length != transactions.length ||
+          ids.toSet().length != ids.length) {
+        throw StateError('Legacy replacement batch was incomplete');
+      }
+      final written = await (db.select(db.transactions)
+            ..where((t) => t.ledgerId.equals(ledgerId)))
+          .get();
+      if (written.length != transactions.length) {
+        throw StateError('Legacy replacement row count mismatch');
+      }
+      return (inserted: ids.length, deletedDup: 0);
+    });
+    _statusCache.remove(ledgerId);
+    _recentLocalChangeAt.remove(ledgerId);
+    _recentUpload.remove(ledgerId);
+    return result;
+  }
+
+  static void _legacyCurrency(String currency) {
+    if (!RegExp(r'^[A-Z]{3,8}$').hasMatch(currency)) {
+      throw FormatException('Invalid backup currency: $currency');
+    }
+  }
+
+  static ({ImportData data, List<Map<String, dynamic>> rows})
+      _validateLegacyReplacement(String text) {
+    final decoded = jsonDecode(text);
+    if (decoded is! Map<String, dynamic>) {
+      throw const FormatException('Backup must be an object');
+    }
+    final version = decoded['version'] ?? 1;
+    if (version is! int || version < 1 || version >= 6) {
+      throw const FormatException(
+          'Only pre-v6 snapshots support legacy replacement');
+    }
+    final items = decoded['items'];
+    if (items is! List) {
+      throw const FormatException('Backup items must be an explicit list');
+    }
+    if (decoded['count'] != null &&
+        (decoded['count'] is! int || decoded['count'] != items.length)) {
+      throw const FormatException('Backup count does not match items');
+    }
+    final rows = items.cast<Map<String, dynamic>>();
+    final data = parseJsonToImportData(text);
+    final identities = <String>{};
+    for (var i = 0; i < data.transactions.length; i++) {
+      final tx = data.transactions[i], raw = rows[i];
+      if (!['expense', 'income', 'transfer'].contains(tx.type) ||
+          !tx.amount.isFinite) {
+        throw FormatException('Invalid transaction at row ${i + 1}');
+      }
+      if (tx.categoryKind != null &&
+          !['expense', 'income'].contains(tx.categoryKind)) {
+        throw FormatException(
+            'Invalid transaction category kind at row ${i + 1}');
+      }
+      if (tx.type == 'transfer' &&
+          (tx.fromAccountName == null ||
+              tx.fromAccountName!.trim().isEmpty ||
+              tx.toAccountName == null ||
+              tx.toAccountName!.trim().isEmpty ||
+              tx.fromAccountName == tx.toAccountName)) {
+        throw FormatException('Invalid transfer account pair at row ${i + 1}');
+      }
+      if (tx.syncId != null &&
+          (tx.syncId!.isEmpty || !identities.add(tx.syncId!))) {
+        throw const FormatException('Duplicate or empty sync identity');
+      }
+      for (final flag in ['excludeFromStats', 'excludeFromBudget']) {
+        if (raw[flag] != null && raw[flag] is! bool) {
+          throw FormatException('Invalid $flag');
+        }
+      }
+      if (raw['nativeAmount'] != null &&
+          (raw['nativeAmount'] is! num ||
+              !(raw['nativeAmount'] as num).isFinite)) {
+        throw const FormatException('Invalid native amount');
+      }
+      if (raw['currencyCode'] != null) {
+        _legacyCurrency((raw['currencyCode'] as String).toUpperCase());
+      }
+      for (final name in [
+        'categorySyncIdOverride',
+        'accountSyncIdOverride',
+        'toAccountSyncIdOverride',
+        'tagSyncIdsOverride'
+      ]) {
+        if (raw[name] != null) {
+          throw const FormatException(
+              'Legacy shared-resource overrides cannot be safely restored');
+        }
+      }
+      for (final attachment in tx.attachments ?? const <ImportAttachment>[]) {
+        if (attachment.fileName.isEmpty ||
+            attachment.fileName == '.' ||
+            attachment.fileName == '..' ||
+            attachment.fileName.contains('/') ||
+            attachment.fileName.contains('\\')) {
+          throw const FormatException('Invalid attachment file name');
+        }
+        for (final value in [
+          attachment.fileSize,
+          attachment.width,
+          attachment.height,
+          attachment.sortOrder
+        ]) {
+          if (value != null && value < 0) {
+            throw const FormatException('Invalid attachment metadata');
+          }
+        }
+      }
+    }
+    final accountNames = <String>{},
+        categoryNames = <String>{},
+        tagNames = <String>{};
+    for (final account in data.accounts) {
+      if (account.name.trim().isEmpty ||
+          !accountNames.add(account.name) ||
+          (account.initialBalance != null &&
+              !account.initialBalance!.isFinite)) {
+        throw const FormatException('Invalid account definition');
+      }
+      if (account.currency != null) {
+        _legacyCurrency(account.currency!.toUpperCase());
+      }
+    }
+    for (final category in data.categories) {
+      if (category.name.trim().isEmpty ||
+          !['expense', 'income'].contains(category.kind) ||
+          ![1, 2].contains(category.level) ||
+          !categoryNames.add('${category.kind}|${category.name}') ||
+          (category.level == 2 && (category.parentName?.isEmpty ?? true))) {
+        throw const FormatException('Invalid category definition');
+      }
+    }
+    for (final tag in data.tags) {
+      if (tag.name.trim().isEmpty || !tagNames.add(tag.name)) {
+        throw const FormatException('Invalid tag definition');
+      }
+    }
+    if (data.currency != null) {
+      _legacyCurrency(data.currency!.toUpperCase());
+    }
+    if (data.ledgerName != null && data.ledgerName!.trim().isEmpty) {
+      throw const FormatException('Invalid ledger name');
+    }
+    return (data: data, rows: rows);
+  }
+// END r95 atomic legacy restore
 
   /// 下载云端数据并计算 diff 预览
   ///
