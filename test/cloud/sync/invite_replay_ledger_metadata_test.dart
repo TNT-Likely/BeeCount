@@ -281,20 +281,29 @@ void main() {
     final target = await (db.select(db.transactions)
           ..where((t) => t.ledgerId.equals(id)))
         .get();
-    expect(target.first.amount, -2);
-    expect(target.first.nativeAmount, -14.2);
-    expect(target.first.currencyCode, 'USD');
-    expect(target.last.amount, 0);
-    expect(target.last.nativeAmount, isNull);
-    expect(target.last.currencyCode, isNull);
-    expect(target.last.excludeFromStats, true);
+    // This select has no ORDER BY; locate each fixture by its stable identity.
+    expect(target, hasLength(2));
+    expect(target.map((t) => t.syncId),
+        unorderedEquals(['target-latest', 'zero-null']));
+    final refund = target.singleWhere((t) => t.syncId == 'target-latest');
+    final zero = target.singleWhere((t) => t.syncId == 'zero-null');
+    expect(refund.amount, -2);
+    expect(refund.nativeAmount, -14.2);
+    expect(refund.currencyCode, 'USD');
+    expect(refund.excludeFromStats, false);
+    expect(refund.excludeFromBudget, false);
+    expect(zero.amount, 0);
+    expect(zero.nativeAmount, isNull);
+    expect(zero.currencyCode, isNull);
+    expect(zero.excludeFromStats, true);
+    expect(zero.excludeFromBudget, false);
     expect(await engine.appCursor.read(), 500);
     expect(provider.pullCalls, isEmpty);
     await engine.hydrateLedgerFromServer('new-shared');
     expect(
         await (db.select(db.transactions)..where((t) => t.ledgerId.equals(id)))
             .get(),
-        target);
+        unorderedEquals(target));
     expect(await rows('transactions', 'WHERE ledger_id=$ownLedger ORDER BY id'),
         originalTransactions);
   });
