@@ -1,5 +1,7 @@
 # 蜜蜂记账(BeeCount) &nbsp; [English](README_EN.md)
 
+> 🧪 **[4.x 内测：下载 Android 安装包、查看注意事项与反馈问题](https://github.com/TNT-Likely/BeeCount/issues/580)**
+
 <div align="center">
 
 ![GitHub stars](https://img.shields.io/github/stars/TNT-Likely/BeeCount?style=social)
