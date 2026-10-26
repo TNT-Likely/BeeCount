@@ -86,6 +86,7 @@ void main() {
         level: 2,
         parentId: parent,
         syncId: 'child');
+    await engine.pushUserGlobalEntities();
     provider.pushFakeChange(
         entityType: 'category',
         entitySyncId: 'child',
