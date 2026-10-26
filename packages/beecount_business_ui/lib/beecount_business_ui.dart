@@ -26,6 +26,7 @@ export 'src/journal_components.dart';
 export 'src/search_components.dart';
 
 export 'src/resource_components.dart';
+export 'src/resource_parent_link.dart';
 
 export 'src/configuration_components.dart';
 export 'src/security_components.dart';
@@ -37,6 +38,7 @@ export 'src/ledger_management.dart';
 export 'src/home_layout.dart';
 export 'src/quick_add_fan.dart';
 export 'src/account_detail.dart';
+export 'src/account_summary.dart';
 export 'src/tag_library.dart';
 export 'src/note_history_preferences.dart';
 export 'src/skin_card.dart';

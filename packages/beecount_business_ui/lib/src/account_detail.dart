@@ -13,12 +13,14 @@ class BeeCreditCardTerms extends StatelessWidget {
     this.paymentColor,
     required this.repayLabel,
     required this.onRepay,
+    this.showRepayButton = true,
   });
   final double? usage;
   final Color? usageColor, paymentColor;
   final String? estimateHint, billingLabel, paymentLabel;
   final String repayLabel;
   final VoidCallback? onRepay;
+  final bool showRepayButton;
 
   @override
   Widget build(BuildContext context) {
@@ -71,11 +73,12 @@ class BeeCreditCardTerms extends StatelessWidget {
             ),
             const SizedBox(height: 13),
           ],
-          BeeButton(
-              label: repayLabel,
-              icon: const BeeLineIcon('ArrowLeftRight', size: 18),
-              kind: BeeButtonKind.secondary,
-              onPressed: onRepay),
+          if (showRepayButton)
+            BeeButton(
+                label: repayLabel,
+                icon: const BeeLineIcon('ArrowLeftRight', size: 18),
+                kind: BeeButtonKind.secondary,
+                onPressed: onRepay),
         ],
       ),
     );

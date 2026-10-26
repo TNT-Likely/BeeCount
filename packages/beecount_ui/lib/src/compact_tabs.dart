@@ -10,18 +10,19 @@ class BeeCompactTabs<T> extends StatelessWidget {
     required this.onChanged,
     this.trackHeight = 31,
     this.fontSize = 12,
+    this.tapHeight = 40,
   });
 
   final List<BeeSegment<T>> items;
   final T value;
   final ValueChanged<T>? onChanged;
-  final double trackHeight, fontSize;
+  final double trackHeight, fontSize, tapHeight;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context), colors = BeeCardTheme.of(context);
     return SizedBox(
-      height: 40,
+      height: tapHeight,
       child: Stack(alignment: Alignment.center, children: [
         Container(
           key: const ValueKey('compact-tab-track'),

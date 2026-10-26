@@ -5,6 +5,7 @@ export 'src/line_icon.dart';
 export 'src/line_chart.dart';
 export 'src/column_chart.dart';
 export 'src/compact_tabs.dart';
+export 'src/date_range_bar.dart';
 export 'src/underline_tabs.dart';
 export 'src/hsv_color_picker.dart';
 export 'src/foundations.dart';

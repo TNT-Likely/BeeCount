@@ -20,11 +20,13 @@ class BeeResourceHero extends StatelessWidget {
       required this.amount,
       required this.metrics,
       this.titleWidget,
+      this.beforeIdentity,
       this.fitMetricValues = false,
       this.prefix = ''});
   final String title, caption, amountLabel, amount, prefix;
   final Widget icon;
   final Widget? titleWidget;
+  final Widget? beforeIdentity;
   final bool fitMetricValues;
   final List<BeeResourceMetric> metrics;
   @override
@@ -37,6 +39,10 @@ class BeeResourceHero extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              if (beforeIdentity != null) ...[
+                beforeIdentity!,
+                const SizedBox(height: 7),
+              ],
               Row(children: [
                 Container(
                     width: 44,
@@ -56,10 +62,14 @@ class BeeResourceHero extends StatelessWidget {
                         children: [
                       titleWidget ??
                           Text(title,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
                                   fontSize: 18, fontWeight: FontWeight.w600)),
                       const SizedBox(height: 3),
                       Text(caption,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                               fontSize: 11, height: 1.5, color: muted)),
                     ])),
@@ -197,10 +207,16 @@ class BeeResourceTrend extends StatelessWidget {
       {super.key,
       required this.values,
       required this.label,
-      this.axisLabels = const []});
+      this.axisLabels = const [],
+      this.includeZero = true,
+      this.selectedIndex,
+      this.onSelected});
   final List<double> values;
   final String label;
   final List<String> axisLabels;
+  final bool includeZero;
+  final int? selectedIndex;
+  final ValueChanged<int>? onSelected;
   @override
   Widget build(BuildContext context) => Semantics(
       label: label,
@@ -208,23 +224,39 @@ class BeeResourceTrend extends StatelessWidget {
       child: SizedBox(
           height: 115,
           width: double.infinity,
-          child: CustomPaint(
-              painter: _ResourceTrendPainter(
-                  values,
-                  Theme.of(context).colorScheme.primary,
-                  BeeCardTheme.of(context).divider,
-                  Theme.of(context).hintColor,
-                  axisLabels,
-                  MediaQuery.textScalerOf(context)))));
+          child: LayoutBuilder(
+              builder: (context, bounds) => GestureDetector(
+                  onTapDown: onSelected == null || values.isEmpty
+                      ? null
+                      : (details) {
+                          final index =
+                              ((details.localPosition.dx / bounds.maxWidth) *
+                                      (values.length - 1))
+                                  .round()
+                                  .clamp(0, values.length - 1);
+                          onSelected!(index);
+                        },
+                  child: CustomPaint(
+                      painter: _ResourceTrendPainter(
+                          values,
+                          Theme.of(context).colorScheme.primary,
+                          BeeCardTheme.of(context).divider,
+                          Theme.of(context).hintColor,
+                          axisLabels,
+                          MediaQuery.textScalerOf(context),
+                          includeZero,
+                          selectedIndex))))));
 }
 
 class _ResourceTrendPainter extends CustomPainter {
   _ResourceTrendPainter(this.values, this.accent, this.grid, this.muted,
-      this.labels, this.scaler);
+      this.labels, this.scaler, this.includeZero, this.selectedIndex);
   final List<double> values;
   final Color accent, grid, muted;
   final List<String> labels;
   final TextScaler scaler;
+  final bool includeZero;
+  final int? selectedIndex;
   @override
   void paint(Canvas canvas, Size size) {
     final sx = size.width / 308, sy = size.height / 110;
@@ -238,8 +270,13 @@ class _ResourceTrendPainter extends CustomPainter {
     }
     final clean = values.where((v) => v.isFinite).toList();
     if (clean.isNotEmpty) {
-      final lo = math.min(0.0, clean.reduce(math.min));
-      final hi = math.max(1.0, clean.reduce(math.max));
+      final minimum = clean.reduce(math.min), maximum = clean.reduce(math.max);
+      final lo = includeZero
+          ? math.min(0.0, minimum)
+          : minimum - (maximum == minimum ? 1 : 0);
+      final hi = includeZero
+          ? math.max(1.0, maximum)
+          : maximum + (maximum == minimum ? 1 : 0);
       final points = List.generate(
           clean.length,
           (i) => Offset(
@@ -264,6 +301,9 @@ class _ResourceTrendPainter extends CustomPainter {
             ..strokeCap = StrokeCap.round
             ..style = PaintingStyle.stroke);
       canvas.drawCircle(points.last, 3.5, Paint()..color = accent);
+      if (selectedIndex != null && selectedIndex! >= 0 && selectedIndex! < points.length) {
+        canvas.drawCircle(points[selectedIndex!], 4, Paint()..color = accent);
+      }
     }
     for (var i = 0; i < labels.length && i < 3; i++) {
       final text = TextPainter(
@@ -291,5 +331,7 @@ class _ResourceTrendPainter extends CustomPainter {
       old.grid != grid ||
       old.muted != muted ||
       old.labels != labels ||
+      old.includeZero != includeZero ||
+      old.selectedIndex != selectedIndex ||
       old.scaler != scaler;
 }
