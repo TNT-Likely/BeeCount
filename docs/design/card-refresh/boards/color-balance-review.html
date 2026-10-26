@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BeeCount · 色彩层次提案</title>
+  <link rel="stylesheet" href="color-balance-review.css">
+</head>
+<body class="color-review-board">
+  <header class="review-header">
+    <a class="review-brand" href="color-balance-review.html?page=home" aria-label="BeeCount 色彩层次提案首页"><span class="brand-mark" aria-hidden="true">B<span>•</span></span><span>BeeCount <small>设计提案 / 06</small></span></a>
+    <span class="review-status"><i></i>独立配色预览 · 待确认</span>
+  </header>
+  <main class="review-main">
+    <div class="review-intro"><div><p class="eyebrow">COLOR, WITH A PURPOSE</p><h1>让颜色各司其职。</h1><p class="intro-copy">保留熟悉的卡片与留白，用轻色分组、对象图标和重点信息，给日常记账多一点温度。</p></div><a class="source-link" href="color-balance-review.md" target="_blank" rel="noopener">查看设计说明 <span aria-hidden="true">↗</span></a></div>
+    <section class="review-toolbar" aria-label="预览控制">
+      <div class="tool-group"><span class="tool-label">主题</span><div class="segmented" role="group" aria-label="主题色"><button data-theme="honey" aria-pressed="true"><i class="theme-dot honey"></i>蜜蜂黄</button><button data-theme="lilac" aria-pressed="false"><i class="theme-dot lilac"></i>青莲紫</button></div></div>
+      <div class="tool-group"><span class="tool-label">外观</span><div class="segmented" role="group" aria-label="外观"><button data-mode="light" aria-pressed="true">浅色</button><button data-mode="dark" aria-pressed="false">深色</button></div></div>
+      <label class="tool-group"><span class="tool-label">尺寸</span><select id="viewport" aria-label="手机预览尺寸"><option value="398x844">标准屏 · 398 × 844</option><option value="375x667">短屏 · 375 × 667</option><option value="320x568">小屏 · 320 × 568</option></select></label>
+      <button id="annotations" class="annotation-toggle" aria-pressed="false"><span aria-hidden="true">◎</span>标记用色位置</button>
+    </section>
+    <div class="review-workspace">
+      <aside class="page-sidebar"><div class="sidebar-label"><span>重点页面</span><span>6</span></div><nav id="page-navigation" aria-label="选择预览页面"></nav><div class="sidebar-note"><span class="note-dot"></span><p>直接复用当前交互稿。<br>点击手机内控件，可检查展开、弹窗和返回。</p></div></aside>
+      <section class="preview-section" aria-labelledby="preview-title"><div class="preview-heading"><h2 id="preview-title">明细首页</h2><button id="reset-page" aria-label="重置当前页面">重置页面 <span aria-hidden="true">↻</span></button></div><div id="preview-stage" class="preview-stage"><div id="phone-wrap" class="phone-wrap"><iframe id="phone-preview" title="明细首页配色交互预览" src="about:blank"></iframe></div><p id="loading" role="status">正在载入交互预览…</p></div><div class="preview-footer"><span id="preview-caption">无品牌布局 · 合成示例数据</span><span class="preview-live"><i></i>可交互</span></div></section>
+      <aside class="rationale-sidebar" aria-label="本页设计说明"><p class="eyebrow">WHY THIS PAGE</p><h2 id="rationale-title"></h2><p id="rationale-copy" class="rationale-copy"></p><div id="page-changes" class="page-changes"></div><div class="try-section"><h3>试一下</h3><div id="quick-actions"></div></div><div class="palette-note"><h3>一套颜色，两种职责</h3><div class="palette-legend"><span><i class="swatch accent"></i>主题 / 选中 / 操作</span><span><i class="swatch families"></i>对象 / 内容分类</span></div><p>对象色保持一致，不跟随主题改变。金额与预算状态仍沿用当前语义。</p></div></aside>
+    </div>
+    <section class="principles" aria-label="配色边界"><div><span>01</span><h3>白色仍是主体</h3><p>每页只给一个主要汇总区轻染色，列表保持清爽。</p></div><div><span>02</span><h3>颜色帮助认对象</h3><p>分类、账户与功能分组用稳定颜色；自定义图片保留原色。</p></div><div><span>03</span><h3>财务含义不变</h3><p>保留收支、超预算和同步异常语义，避免装饰色抢占状态提示。</p></div></section>
+    <footer class="review-footer"><span>本提案仅调整颜色，不改变页面结构、字号、间距或业务逻辑。</span><span>HTML 设计预览 · 尚未应用到 App</span></footer>
+  </main>
+  <script src="color-balance-review.js"></script>
+</body>
+</html>
