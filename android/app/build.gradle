@@ -57,6 +57,9 @@ android {
         versionName = flutter.versionName
         manifestPlaceholders += [appName: "@string/app_name"]
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        if (arm64OnlyApk) {
+            ndk { abiFilters 'arm64-v8a' }
+        }
     // 当未在命令行指定 --flavor 时，默认选择 dev 风味，避免 Flutter 调试找不到 APK。
     missingDimensionStrategy "env", "dev"
     }
@@ -89,13 +92,11 @@ android {
     // - bundleProdRelease(AAB):splits 关,正常 AAB
     splits {
         abi {
-            // AGP rejects simultaneous ndk.abiFilters and ABI splits. Keep
-            // APK filtering here; Flutter's target selects the AOT build.
-            enable = !buildingAppBundle
+            // A single-ABI Beta uses NDK filtering without splits. Flutter's
+            // split-per-abi adds 2000 to ARM64 version codes, so do not use it.
+            enable = !buildingAppBundle && !arm64OnlyApk
             reset()
-            if (arm64OnlyApk) {
-                include 'arm64-v8a'
-            } else {
+            if (!arm64OnlyApk) {
                 include 'arm64-v8a', 'armeabi-v7a', 'x86_64'
             }
             universalApk !arm64OnlyApk
@@ -211,7 +212,9 @@ android.applicationVariants.all { variant ->
             def baseName
             if (abi == null) {
                 // splits.abi.universalApk=true 产出的 universal 包(含所有 include 的 ABI)
-                baseName = "app-${flavor}-universal-release-v${vName}(${vCode}).apk"
+                baseName = arm64OnlyApk
+                    ? "app-${flavor}-release-v${vName}(${vCode}).apk"
+                    : "app-${flavor}-universal-release-v${vName}(${vCode}).apk"
             } else if (abi == "arm64-v8a") {
                 // 主分发保持原命名
                 baseName = "app-${flavor}-release-v${vName}(${vCode}).apk"

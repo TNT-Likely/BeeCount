@@ -302,7 +302,7 @@ class Arm64ContractTests(unittest.TestCase):
     def test_flutter_target_is_single_arm64_and_default_is_unchanged(self):
         args = (Path("flutter"), "a" * 40, "4.0.0-beta.2", 227, "now")
         self.assertIn("--target-platform=android-arm64", gate.build_command(*args, arm64_only=True))
-        self.assertIn("--split-per-abi", gate.build_command(*args, arm64_only=True))
+        self.assertNotIn("--split-per-abi", gate.build_command(*args, arm64_only=True))
         self.assertIn("--target-platform=android-arm,android-arm64,android-x64", gate.build_command(*args))
 
     def test_arm64_only_metadata_rejects_additional_artifacts(self):
@@ -330,9 +330,10 @@ class Arm64ContractTests(unittest.TestCase):
         self.assertIn('"${TARGET_TAG,,}" == *beta*', stable_yaml)
         self.assertNotIn("|| github.event_name == 'push'", stable_yaml)
         gradle = (root / "android/app/build.gradle").read_text()
-        # A real ARM64 build rejected the former combination of NDK filters
-        # and ABI splits. The single-ABI split and artifact gate own this rule.
-        self.assertNotIn("ndk { abiFilters", gradle)
+        # NDK filtering is only valid when splits are disabled. In particular,
+        # Flutter's split-per-abi must not inflate code 227 to 2227.
+        self.assertIn("enable = !buildingAppBundle && !arm64OnlyApk", gradle)
+        self.assertIn("ndk { abiFilters 'arm64-v8a' }", gradle)
         self.assertIn("universalApk !arm64OnlyApk", gradle)
         self.assertNotRegex(beta_yaml, r"run:.*\$\{\{ inputs\.")
         # runner is unavailable in job-level env during workflow validation.
@@ -344,6 +345,26 @@ class Arm64ContractTests(unittest.TestCase):
         self.assertNotIn("ANDROID_KEYSTORE", notification)
         self.assertNotIn("beta_release.py build", notification)
         self.assertNotIn("beta_release.py publish", notification)
+
+    def test_single_apk_metadata_preserves_version_code(self):
+        with tempfile.TemporaryDirectory() as temp:
+            source = Path(temp)
+            output = source / "build/app/outputs/apk/prod/release"
+            output.mkdir(parents=True)
+            apk = output / "app.apk"
+            apk.write_bytes(b"metadata-only fixture")
+            item = {"filters": [], "versionCode": 227,
+                    "versionName": "4.0.0-beta.2", "outputFile": apk.name}
+            data = {"applicationId": gate.PACKAGE, "variantName": "prodRelease", "elements": [item]}
+            metadata = output / "output-metadata.json"
+            metadata.write_text(json.dumps(data))
+            self.assertEqual(gate.select_arm64(source, "4.0.0-beta.2", 227, arm64_only=True), apk)
+            with self.assertRaises(gate.GateError):
+                gate.select_arm64(source, "4.0.0-beta.2", 227)
+            item["versionCode"] = 2227
+            metadata.write_text(json.dumps(data))
+            with self.assertRaises(gate.GateError):
+                gate.select_arm64(source, "4.0.0-beta.2", 227, arm64_only=True)
 
 
 if __name__ == "__main__":
