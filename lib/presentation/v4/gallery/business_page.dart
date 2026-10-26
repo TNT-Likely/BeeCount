@@ -1,4 +1,5 @@
 import 'refresh_business_samples.dart';
+import '../bindings/mine_avatar.dart';
 import 'poster_catalog_sample.dart';
 import 'transaction_fixture.dart';
 import 'ai_advanced_sample.dart';
@@ -971,15 +972,16 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
                 nickname: nickname,
                 greeting: '你好，',
                 subtitle: '简单记录，安心生活',
-                avatar: Image.asset('assets/logo2.png'),
+                avatar: const MineDefaultAvatar(),
                 onEdit: _editNickname,
                 onTap: () => record('资料菜单')),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             BeeLedgerBalance(
                 ledger: ledger,
                 amount: '12,860.50',
                 prefix: '¥',
-                balanceLabel: '当前余额 · CNY',
+                balanceLabel: '当前余额',
+                currencyLabel: 'CNY',
                 days: '268',
                 daysLabel: '天',
                 count: '1,268',

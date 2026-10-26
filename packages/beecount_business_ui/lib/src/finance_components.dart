@@ -544,6 +544,7 @@ class BeeSyncStatus extends StatelessWidget {
   }
 }
 
+/// Current-ledger balance strip. Data and actions are supplied by the host.
 class BeeLedgerBalance extends StatelessWidget {
   const BeeLedgerBalance(
       {super.key,
@@ -554,6 +555,7 @@ class BeeLedgerBalance extends StatelessWidget {
       required this.onPrivacyTap,
       required this.privacyLabel,
       this.balanceLabel,
+      this.currencyLabel,
       this.days,
       this.count,
       this.daysLabel,
@@ -563,88 +565,140 @@ class BeeLedgerBalance extends StatelessWidget {
       this.prefix,
       this.hidden = false});
   final String ledger, amount, stats, privacyLabel;
-  final String? balanceLabel, days, count, daysLabel, countLabel, prefix;
+  final String? balanceLabel,
+      currencyLabel,
+      days,
+      count,
+      daysLabel,
+      countLabel,
+      prefix;
   final VoidCallback onLedgerTap, onPrivacyTap;
   final VoidCallback? onCountTap;
-  final Color? amountColor;
   final bool hidden;
+  final Color? amountColor;
+
   @override
-  Widget build(BuildContext context) => ConstrainedBox(
-      constraints: const BoxConstraints(minHeight: 96),
-      child: BeeSurface(
-          padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
-          child: Column(children: [
-            Row(children: [
-              Expanded(
-                  child: InkWell(
-                      onTap: onLedgerTap,
-                      child: ConstrainedBox(
-                          constraints: const BoxConstraints(minHeight: 30),
-                          child: Row(children: [
-                            const BeeLineIcon('BookOpen', size: 14),
-                            const SizedBox(width: 6),
-                            Flexible(
-                                child: Text(ledger,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(fontSize: 11))),
-                            const SizedBox(width: 4),
-                            const BeeLineIcon('ChevronDown', size: 14)
-                          ])))),
-              if (balanceLabel != null)
-                Text(balanceLabel!,
-                    style: TextStyle(
-                        fontSize: 11, color: Theme.of(context).hintColor)),
-              SizedBox(
-                  width: 32,
-                  height: 30,
-                  child: IconButton(
-                      tooltip: privacyLabel,
-                      onPressed: onPrivacyTap,
-                      padding: EdgeInsets.zero,
-                      icon: BeeLineIcon(hidden ? 'EyeOff' : 'Eye', size: 16)))
-            ]),
-            const SizedBox(height: 3),
-            Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
-              Expanded(
-                  child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: BeeMoney(
-                          amount: amount,
-                          prefix: prefix,
-                          prefixSize: 15,
-                          color: amountColor,
-                          hidden: hidden,
-                          size: 23))),
-              const SizedBox(width: 10),
-              if (days != null && count != null)
-                Row(children: [
-                  _stat(context, days!, daysLabel ?? ''),
-                  const SizedBox(width: 8),
-                  if (onCountTap == null)
-                    _stat(context, count!, countLabel ?? '')
-                  else
-                    InkWell(
-                        onTap: onCountTap,
-                        child: _stat(context, count!, countLabel ?? ''))
-                ])
-              else
-                Text(stats,
-                    style: TextStyle(
-                        fontSize: 10, color: Theme.of(context).hintColor))
-            ]),
-          ])));
+  Widget build(BuildContext context) => LayoutBuilder(builder: (context, box) {
+        final compact = box.maxWidth < 300;
+        final hint = Theme.of(context).hintColor;
+        return BeeSurface(
+            borderRadius: BorderRadius.circular(19),
+            padding: const EdgeInsets.fromLTRB(14, 12, 14, 13),
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
+              Row(children: [
+                Expanded(
+                    child: InkWell(
+                        onTap: onLedgerTap,
+                        borderRadius: BorderRadius.circular(8),
+                        child: ConstrainedBox(
+                            constraints: const BoxConstraints(minHeight: 30),
+                            child: Row(children: [
+                              const BeeLineIcon('BookOpen', size: 15),
+                              const SizedBox(width: 6),
+                              Flexible(
+                                  child: Text(ledger,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                          fontSize: 12,
+                                          height: 1.5,
+                                          fontWeight: FontWeight.w500))),
+                              const SizedBox(width: 4),
+                              BeeLineIcon('ChevronDown', size: 13, color: hint)
+                            ])))),
+                const SizedBox(width: 6),
+                if (currencyLabel != null || balanceLabel != null)
+                  Text(currencyLabel ?? balanceLabel!,
+                      maxLines: 1,
+                      style: TextStyle(fontSize: 10, height: 1.5, color: hint)),
+                SizedBox(
+                    width: 30,
+                    height: 30,
+                    child: IconButton(
+                        tooltip: privacyLabel,
+                        onPressed: onPrivacyTap,
+                        padding: EdgeInsets.zero,
+                        icon: BeeLineIcon(hidden ? 'EyeOff' : 'Eye', size: 15)))
+              ]),
+              const SizedBox(height: 1),
+              Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
+                Expanded(
+                    child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: BeeMoney(
+                            amount: amount,
+                            prefix: prefix,
+                            prefixSize: 15,
+                            color: amountColor,
+                            hidden: hidden,
+                            lineHeight: 1.2,
+                            size: compact ? 25 : 27))),
+                const SizedBox(width: 8),
+                ConstrainedBox(
+                    constraints: BoxConstraints(maxWidth: box.maxWidth * .46),
+                    child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          if (balanceLabel != null && currencyLabel != null)
+                            Text(balanceLabel!,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                    fontSize: 9, height: 1.5, color: hint)),
+                          if (days != null && count != null)
+                            FittedBox(
+                                fit: BoxFit.scaleDown,
+                                alignment: Alignment.centerRight,
+                                child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      _stat(context, days!, daysLabel ?? ''),
+                                      Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 4),
+                                          child: Text('·',
+                                              style: TextStyle(
+                                                  fontSize: 9, color: hint))),
+                                      if (onCountTap == null)
+                                        _stat(context, count!, countLabel ?? '')
+                                      else
+                                        InkWell(
+                                            onTap: onCountTap,
+                                            child: ConstrainedBox(
+                                                constraints:
+                                                    const BoxConstraints(
+                                                        minHeight: 24),
+                                                child: Center(
+                                                    child: _stat(
+                                                        context,
+                                                        count!,
+                                                        countLabel ?? ''))))
+                                    ]))
+                          else
+                            Text(stats,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(fontSize: 10, color: hint))
+                        ]))
+              ])
+            ]));
+      });
+
   Widget _stat(BuildContext context, String value, String label) => Row(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.baseline,
           textBaseline: TextBaseline.alphabetic,
           children: [
             Text(value,
-                style:
-                    const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
+                style: const TextStyle(
+                    fontSize: 11, height: 1.5, fontWeight: FontWeight.w600)),
             const SizedBox(width: 2),
             Text(label,
-                style:
-                    TextStyle(fontSize: 10, color: Theme.of(context).hintColor))
+                style: TextStyle(
+                    fontSize: 9,
+                    height: 1.5,
+                    color: Theme.of(context).hintColor))
           ]);
 }
 
@@ -711,6 +765,8 @@ class BeeHomeIdentity extends StatelessWidget {
       ]);
 }
 
+/// Lightweight identity row. The host provides either transparent art or one
+/// cropped photo; this component does not add another avatar background/frame.
 class BeeProfile extends StatelessWidget {
   const BeeProfile(
       {super.key,
@@ -726,72 +782,85 @@ class BeeProfile extends StatelessWidget {
   final String? greeting, profileLabel, editLabel;
   final Widget avatar;
   final VoidCallback onEdit, onTap;
+
   @override
   Widget build(BuildContext context) => Semantics(
       container: true,
-      child: Row(children: [
-        Semantics(
-            container: true,
-            button: true,
-            label: profileLabel ?? nickname,
-            excludeSemantics: true,
-            onTap: onTap,
-            child: InkWell(
+      child: Padding(
+          padding: const EdgeInsets.only(top: 2, bottom: 3),
+          child: Row(children: [
+            Semantics(
+                container: true,
+                button: true,
+                label: profileLabel ?? nickname,
+                excludeSemantics: true,
                 onTap: onTap,
-                child: Container(
-                    width: 54,
-                    height: 54,
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .primary
-                            .withValues(alpha: .1),
-                        borderRadius: BorderRadius.circular(18)),
-                    child: avatar))),
-        const SizedBox(width: 12),
-        Expanded(
-            child:
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Semantics(
-              container: true,
-              button: true,
-              label: editLabel,
-              child: InkWell(
-                  onTap: onEdit,
-                  child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      child: Row(mainAxisSize: MainAxisSize.min, children: [
-                        if (greeting != null) ...[
-                          Text(greeting!,
-                              style: TextStyle(
-                                  fontSize: 12,
-                                  color: Theme.of(context).hintColor)),
-                          const SizedBox(width: 8)
-                        ],
-                        Flexible(
-                            child: Text(nickname,
-                                style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w600))),
-                        const SizedBox(width: 6),
-                        const BeeLineIcon('PencilLine', size: 13)
-                      ])))),
-          Text(subtitle,
-              style:
-                  TextStyle(fontSize: 11, color: Theme.of(context).hintColor))
-        ])),
-        Semantics(
-            container: true,
-            button: true,
-            label: profileLabel ?? nickname,
-            excludeSemantics: true,
-            onTap: onTap,
-            child: IconButton(
-                tooltip: profileLabel,
-                onPressed: onTap,
-                icon: const BeeLineIcon('ChevronRight')))
-      ]));
+                child: InkWell(
+                    onTap: onTap,
+                    borderRadius: BorderRadius.circular(14),
+                    child: SizedBox(width: 48, height: 48, child: avatar))),
+            const SizedBox(width: 11),
+            Expanded(
+                child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                  if (greeting != null)
+                    Text(greeting!,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                            fontSize: 10,
+                            height: 1.5,
+                            color: Theme.of(context).hintColor)),
+                  Semantics(
+                      container: true,
+                      button: true,
+                      label: editLabel,
+                      child: InkWell(
+                          onTap: onEdit,
+                          child: ConstrainedBox(
+                              constraints: const BoxConstraints(minHeight: 29),
+                              child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Flexible(
+                                        child: Text(nickname,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: const TextStyle(
+                                                fontSize: 19,
+                                                height: 1.2,
+                                                fontWeight: FontWeight.w600))),
+                                    const SizedBox(width: 5),
+                                    BeeLineIcon('PencilLine',
+                                        size: 12,
+                                        color: Theme.of(context).hintColor)
+                                  ])))),
+                  Text(subtitle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                          fontSize: 10,
+                          height: 1.5,
+                          color: Theme.of(context).hintColor))
+                ])),
+            Semantics(
+                container: true,
+                button: true,
+                label: profileLabel ?? nickname,
+                excludeSemantics: true,
+                onTap: onTap,
+                child: SizedBox(
+                    width: 32,
+                    height: 44,
+                    child: IconButton(
+                        tooltip: profileLabel,
+                        padding: EdgeInsets.zero,
+                        onPressed: onTap,
+                        icon: BeeLineIcon('ChevronRight',
+                            size: 16, color: Theme.of(context).hintColor))))
+          ])));
 }
 
 class BeeRankItem {

@@ -65,19 +65,24 @@ void main() {
         ledgerId: 1,
         type: 'income',
         amount: 100,
-        happenedAt: DateTime(2026, 10, 23));
+        happenedAt: DateTime.now()
+            .copyWith(
+                hour: 0, minute: 0, second: 0, millisecond: 0, microsecond: 0)
+            .subtract(const Duration(days: 1)));
     await repo.addTransaction(
         ledgerId: 1,
         type: 'expense',
         amount: 12,
         currencyCode: 'USD',
         nativeAmount: 85.2,
-        happenedAt: DateTime(2026, 10, 24));
+        happenedAt: DateTime.now().copyWith(
+            hour: 0, minute: 0, second: 0, millisecond: 0, microsecond: 0));
     container = ProviderContainer(overrides: [
       databaseProvider.overrideWithValue(db),
       repositoryProvider.overrideWithValue(repo),
       currentLedgerIdProvider.overrideWith((ref) => 1),
-      currentLedgerProvider.overrideWith((ref) => repo.watchLedger(1)),
+      currentLedgerProvider.overrideWith(
+          (ref) => repo.watchLedger(ref.watch(currentLedgerIdProvider))),
       accountFeatureEnabledProvider.overrideWith((ref) async => false),
       syncServiceProvider.overrideWithValue(LocalOnlySyncService()),
       activeCloudConfigProvider
@@ -132,7 +137,8 @@ void main() {
     final l = AppLocalizations.of(tester.element(find.byType(MinePage)));
     expect(balance.daysLabel, l.sharePosterUnitDay);
     expect(balance.countLabel, l.sharePosterUnitCount);
-    expect(balance.balanceLabel, contains('CNY'));
+    expect(balance.currencyLabel, 'CNY');
+    expect(balance.balanceLabel, l.mineCurrentBalance);
     container.read(bottomTabIndexProvider.notifier).state = 3;
     await tester.tap(find
         .descendant(of: find.byType(BeeLedgerBalance), matching: find.text('2'))
@@ -152,7 +158,8 @@ void main() {
         ledgerId: 1,
         type: 'expense',
         amount: 20,
-        happenedAt: DateTime(2026, 10, 24));
+        happenedAt: DateTime.now().copyWith(
+            hour: 0, minute: 0, second: 0, millisecond: 0, microsecond: 0));
     await open(tester);
     final balance =
         tester.widget<BeeLedgerBalance>(find.byType(BeeLedgerBalance));
@@ -162,6 +169,52 @@ void main() {
         of: find.byType(BeeLedgerBalance), matching: find.byType(BeeMoney)));
     expect(amount.color, balance.amountColor);
     expect(amount.prefixSize, 15);
+    expect(tester.takeException(), isNull);
+    await close(tester);
+  });
+  testWidgets('A方案保留单本管理入口，真实切换美元本后币种余额与统计一起更新', (tester) async {
+    await open(tester);
+    final l = AppLocalizations.of(tester.element(find.byType(MinePage)));
+    await tester.tap(find.text('生活').first);
+    await tester.pumpAndSettle();
+    expect(find.text(l.homeManageLedgers), findsOneWidget);
+    expect(find.byType(BeeLedgerPicker), findsOneWidget);
+    Navigator.of(tester.element(find.byType(BeeDialog))).pop();
+    await tester.pumpAndSettle();
+    await db.customStatement(
+        "INSERT INTO ledgers(id,name,currency) VALUES(2,'旅行美元','USD')");
+    await repo.addTransaction(
+        ledgerId: 2,
+        type: 'income',
+        amount: 24,
+        currencyCode: 'USD',
+        happenedAt: DateTime.now().copyWith(
+            hour: 0, minute: 0, second: 0, millisecond: 0, microsecond: 0));
+    container.invalidate(localLedgersProvider);
+    await tester.tap(find.text('生活').first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('旅行美元').last);
+    await tester.pumpAndSettle();
+    final balance =
+        tester.widget<BeeLedgerBalance>(find.byType(BeeLedgerBalance));
+    expect(container.read(currentLedgerIdProvider), 2);
+    expect(balance.ledger, '旅行美元');
+    expect(balance.amount, '24');
+    expect(balance.currencyLabel, 'USD');
+    expect(balance.count, '1');
+    expect(balance.days, '1');
+    await tester.tap(find.byTooltip(l.v4AmountsHide));
+    await tester.pumpAndSettle();
+    expect(
+        tester.widget<BeeLedgerBalance>(find.byType(BeeLedgerBalance)).hidden,
+        isTrue);
+    await tester.tap(find.byTooltip(l.v4AmountsShow));
+    await tester.pumpAndSettle();
+    expect(
+        tester.widget<BeeLedgerBalance>(find.byType(BeeLedgerBalance)).hidden,
+        isFalse);
+    expect((await repo.getTransactionsByLedger(1)).length, 2);
+    expect((await repo.getTransactionsByLedger(2)).single.amount, 24);
     expect(tester.takeException(), isNull);
     await close(tester);
   });

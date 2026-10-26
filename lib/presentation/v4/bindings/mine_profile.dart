@@ -7,7 +7,7 @@ import '../../../widgets/biz/ledger_picker_sheet.dart';
 import 'dart:io' show File;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:beecount/widgets/biz/bee_icon.dart';
+import 'mine_avatar.dart';
 import '../../../providers.dart';
 import '../../../widgets/ui/ui.dart';
 import '../../../widgets/biz/biz.dart';
@@ -310,16 +310,14 @@ class MineProfileBindingState extends ConsumerState<MineProfileBinding> {
           avatar: _isLoadingAvatar
               ? const CircularProgressIndicator(strokeWidth: 2)
               : avatar == null
-                  ? BeeIcon(
-                      color: Theme.of(context).colorScheme.primary, size: 32)
+                  ? const MineDefaultAvatar()
                   : ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(14),
                       child: Image.file(File(avatar),
                           key: ValueKey(avatar),
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => BeeIcon(
-                              color: Theme.of(context).colorScheme.primary,
-                              size: 32))),
+                          errorBuilder: (_, __, ___) =>
+                              const MineDefaultAvatar())),
           onEdit: _showEditDisplayName,
           onTap: _showProfileOptions),
       const SizedBox(height: 12),
@@ -330,8 +328,8 @@ class MineProfileBindingState extends ConsumerState<MineProfileBinding> {
         amount: formatMoneyCompact(balance),
         prefix: getCurrencySymbol(ledger?.currency ?? 'CNY'),
         stats: '',
-        balanceLabel:
-            '${l10n.mineCurrentBalance} · ${ledger?.currency ?? 'CNY'}',
+        balanceLabel: l10n.mineCurrentBalance,
+        currencyLabel: ledger?.currency ?? 'CNY',
         amountColor: balance < 0 ? BeeTokens.error(context) : null,
         days: '${counts?.dayCount ?? 0}',
         count: '${counts?.txCount ?? 0}',
@@ -339,7 +337,7 @@ class MineProfileBindingState extends ConsumerState<MineProfileBinding> {
         countLabel: l10n.sharePosterUnitCount,
         onCountTap: () => ref.read(bottomTabIndexProvider.notifier).state = 0,
         hidden: hidden,
-        privacyLabel: l10n.mineCurrentBalance,
+        privacyLabel: hidden ? l10n.v4AmountsShow : l10n.v4AmountsHide,
         onLedgerTap: () => showLedgerPicker(context),
         onPrivacyTap: () =>
             ref.read(hideAmountsProvider.notifier).state = !hidden,
