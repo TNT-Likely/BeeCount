@@ -166,6 +166,34 @@ void main() {
     return (await repo.getAllBudgets(1)).firstWhere((b) => b.id == id);
   }
 
+  for (final narrowInput in [false, true]) {
+    testWidgets('真实点击预算金额请求数值系统键盘：紧凑$narrowInput', (t) async {
+      await open(t, narrow: narrowInput);
+      final amount = find.descendant(
+          of: find.byType(BeeBudgetEditorForm),
+          matching: find.byType(TextField));
+      t.testTextInput.log.clear();
+      await t.tap(amount);
+      await t.pumpAndSettle();
+      final field = t.widget<TextField>(amount);
+      final editable = t.widget<EditableText>(
+          find.descendant(of: amount, matching: find.byType(EditableText)));
+      expect(field.enabled, isTrue);
+      expect(field.readOnly, isFalse);
+      expect(field.keyboardType,
+          const TextInputType.numberWithOptions(decimal: true));
+      expect(editable.focusNode.hasFocus, isTrue);
+      expect(t.testTextInput.hasAnyClients, isTrue);
+      expect(t.testTextInput.isVisible, isTrue,
+          reason: 'tap 生产表单需请求 IME，不能由 enterText 模拟成功');
+      expect(t.testTextInput.log.map((call) => call.method),
+          contains('TextInput.show'));
+      expect(repo.creates, 0);
+      expect(t.takeException(), isNull);
+      await close(t);
+    });
+  }
+
   testWidgets('总预算真实创建保留USD账本/UUID、月周期和默认历史startDay，不改交易', (t) async {
     final before = await rows('transactions');
     await open(t);

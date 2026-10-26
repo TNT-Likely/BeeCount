@@ -346,6 +346,32 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  for (final compactNote in [false, true]) {
+    recordingTest('真实点击备注请求系统输入连接：紧凑$compactNote', (tester) async {
+      await open(tester,
+          size: compactNote ? const Size(320, 568) : const Size(390, 844));
+      tester.testTextInput.log.clear();
+      if (compactNote) {
+        await tester.tap(find.byKey(const ValueKey('recording-note-compact')));
+      } else {
+        await tester.tap(find.byKey(const ValueKey('recording-note')));
+      }
+      await tester.pumpAndSettle();
+      final note = find.byKey(const ValueKey('recording-note'));
+      final field = tester.widget<TextField>(note);
+      expect(field.readOnly, isFalse);
+      expect(field.enabled, isNot(false));
+      expect(field.focusNode!.hasFocus, isTrue);
+      expect(tester.testTextInput.hasAnyClients, isTrue);
+      expect(tester.testTextInput.isVisible, isTrue,
+          reason: '真实点击应发送 TextInput.show，不以 enterText 强制焦点替代');
+      expect(tester.testTextInput.log.map((call) => call.method),
+          contains('TextInput.show'));
+      expect(await db.select(db.transactions).get(), isEmpty);
+      expect(tester.takeException(), isNull);
+    });
+  }
+
   recordingTest('两行表单：备注直接编辑、附件右上角、间距和顶部标记入口', (tester) async {
     await open(tester, accountsEnabled: true);
     final amount =
