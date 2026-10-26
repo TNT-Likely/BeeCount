@@ -32,10 +32,10 @@ html=html.replace('</head>','<style>'+spec.css+'</style></head>').replace('src="
   await go('flow-transaction-detail-attachments');await page.locator('[data-action="td94-attachment:2"]').click();
   assert((await page.locator('.u-viewer-title').innerText()).includes('3 / 3'),'Existing full viewer preserves the index');
   await page.locator('.u-viewer-toolbar [data-action="close"]').click();
-  await go('home');await page.locator('.v-entry-open').first().click();assert.equal(await page.evaluate(()=>window.beeImmersiveDemo.state.page),'editor','Q01=B ordinary list click edits');
-  await go('home');await page.locator('.v-entry-category').first().click();assert.equal(await page.evaluate(()=>window.beeImmersiveDemo.state.page),'categoryDetail');
-  await go('home');await page.locator('.v-entry-open').first().click({button:'right'});
-  for(const action of ['edit-record','copy-record','x-select:','x-receipt:','x-delete:'])assert(await page.locator('.r-modal-layer [data-action^="'+action+'"]').count()||await page.locator('[role="dialog"] [data-action^="'+action+'"]').count(),'Original context action missing: '+action);
+  await go('home');await page.locator('.tx-row .primary').first().click();assert.equal(await page.evaluate(()=>window.beeImmersiveDemo.state.page),'editor','Q01=B ordinary list click edits');
+  await go('home');await page.locator('.tx-row .category-target').first().click();assert.equal(await page.evaluate(()=>window.beeImmersiveDemo.state.page),'categoryDetail');
+  await go('home');await page.locator('.tx-row .primary').first().click({button:'right'});
+  for(const action of ['edit-record','copy-record','x-select:','x-receipt:','x-delete:'])assert(await page.locator('.r-modal-layer [data-action^="'+action+'"]').count()||await page.locator('[role="dialog"] [data-action^="'+action+'"]').count()||await page.locator('[role="menu"] [data-action^="'+action+'"]').count(),'Original context action missing: '+action);
   await page.locator('[data-action^="td94-open:"]').click();assert.equal(await page.evaluate(()=>window.beeImmersiveDemo.state.page),'detail');assert.equal(await page.locator('.td94-stack').count(),1);
   assert.equal(await page.locator('.v-entry [data-action^="td94-open:"]').count(),0,'No new right-side detail dot');
   await page.locator('[data-action="td94-edit"]').click();assert.equal(await page.evaluate(()=>window.beeImmersiveDemo.state.page),'editor');assert(await page.evaluate(()=>window.beeImmersiveDemo.state.vEditId!==null));
