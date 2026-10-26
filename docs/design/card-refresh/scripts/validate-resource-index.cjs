@@ -6,7 +6,7 @@ const { chromium } = require('playwright');
 
 const root = path.resolve(__dirname, '..');
 const repo = path.resolve(root, '../../..');
-const output = path.join(repo, '.docs/v4-ui-migration/design-resource-grouping-20261026');
+const output = process.env.BEECOUNT_RESOURCE_INDEX_QA_DIR || path.join(repo, '.docs/v4-ui-migration/design-resource-grouping-20261026');
 const url = process.env.BEE_DESIGN_INDEX_URL || 'http://127.0.0.1:8374/index.html';
 const key = 'beecount.design-resources.layout.v1';
 const manifest = JSON.parse(fs.readFileSync(path.join(root, 'screens/manifest.json')));

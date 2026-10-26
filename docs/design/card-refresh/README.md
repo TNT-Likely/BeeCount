@@ -8,6 +8,7 @@
 | --- | --- |
 | 可离线打开的完整交互原型 | [prototype/demo.html](prototype/demo.html) |
 | 当前记账页（10 个尺寸、币种和异常场景） | [boards/recording-review.html](boards/recording-review.html) / [大图](boards/recording-review.png) |
+| 转账长短屏（空账户、未选与已选、备注展开） | [boards/transfer-responsive.html](boards/transfer-responsive.html) / [大图](boards/transfer-responsive.png) |
 | 原三行记账版本的交互、源码与截图 | [只读备份](archive/recording-three-row-20261023/index.html) |
 | 完整页面与流程大图 | [boards/all-pages.png](boards/all-pages.png) |
 | 主要页面 / 交互与皮肤 | [主要页面](boards/main-pages.png) / [交互与皮肤](boards/interactions.png) |
@@ -15,7 +16,7 @@
 | 完整 UI 组件规范大图 | [浅色](boards/ui-components-light.png) / [深色](boards/ui-components-dark.png) |
 | 按基础 / 业务分组的组件规范 | [components/ui-components.html](components/ui-components.html) |
 | 组件约定 / 令牌 | [组件说明](components/COMPONENTS.md) / [设计令牌](tokens/design-tokens.json) |
-| 所有场景缩略图与搜索（逐页图片导出后） | [index.html](index.html) |
+| 所有场景缩略图、平铺 / 分组与搜索 | [index.html](index.html) |
 | 现有 Figma 协作文件与导入说明 | [figma/README.md](figma/README.md) |
 
 当前记账页采用两行表单：备注直接修改，附件在右上角；账户 / 日期 / 紧凑标签在下。表单与键盘保留 8px 间距。金额与元信息固定，分类占剩余高度并独立滚动，键盘和保存贴底；小屏金额横排，备注可折叠。折算说明在左，金额与箭头固定靠右，长金额和大字体不改变边界。
@@ -115,3 +116,14 @@ Flutter 业务目录保留原 0–65 索引，追加 66 账单详情、67 备份
 洞察 A、资产 B、账单行 C3、分享卡 D 与启动页 E 的已确认设计现已同步主 demo 和逐页资源。确认稿同步定向重建 112 个场景，其余 455 个场景的逐页 PNG/SVG/导入 HTML 保持原字节，场景顺序及 567 个交互预设均保留；无品牌首页、两款动态皮肤、长按菜单、左滑、短屏大字反馈和外币小票也随账单行刷新。随后单独修正孤儿清理分组工具按钮挤压标题的问题并重建 6 个维护场景；两批合计更新 118 个场景，其余 449 个保留原字节。
 
 完整页面、主要页面及交互皮肤三张总览大图，以及完整 / 基础 / 业务组件的浅深色六张大图已重新生成。新增规范补齐紧凑 Tab、并列指标、纸张卡片、状态标记、启动动效与安全说明弹层、七类分享海报及同步健康卡，现共 105 组；Flutter 原有目录索引保持，所有样例仍平铺并支持搜索与快速定位。实际原生验收结果继续单独记录，图片导出不作为原生通过依据；在线 Figma 仍是较早镜像。
+
+
+### 我的 F/A 与本轮资源同步
+
+我的页面采用已确认 F 的 A 方案：头像按单层图像直接展示，默认蜜蜂和自定义照片共用 48px 点击区；轻量昵称行与紧凑账本余额条分层，保留编辑、账本切换、币种、隐私、累计金额、记录统计和同步异常入口。[F 方案记录](boards/profile-task-f-review.md)保留讨论稿，当前效果以[主 demo](prototype/demo.html?page=mine)为准。
+
+本轮按实际 DOM、交易行 consumer 清单及转账场景定向刷新 104 个场景，覆盖 F 资料 / 昵称 / 同步状态、C 所有已列消费者、首页品牌 / 两款既有皮肤 / 反馈与短屏，以及 18 个转账状态。其余 463 个场景的 1852 个逐页 PNG、SVG 和导入 HTML 保持原字节；全部 567 个预设的内容与顺序、清单顺序均保持。首页五种长短屏参考、完整 / 主要 / 交互总览及六张组件规范图同步重建，规范仍为 105 组。首页品牌卡内嵌的账单样例也改为从当前 C 模板捕获。
+
+原转账预设保持原有尺寸，另以[转账长短屏参考](boards/transfer-responsive.html)补充标准屏与 320×568 下的无账户、未选、已选和展开备注，共八个可进入主 demo 的参考画面，不增加 567 场景计数。可运行 `npm run review:transfer` 单独重建。所有导出与浏览器检查仅证明合成 HTML 设计资源，不替代 Flutter、真机或 Cloud 验收；新皮肤探索稿尚未纳入当前主 demo。
+
+资源总入口可在“平铺 / 分组”之间切换：按 12 个中文业务类别归并展示，原分组筛选继续保留；搜索隐藏空组，并使用入口专属 localStorage 保存显示方式。存储被禁用时保留当次切换能力并安全回退；可运行 `node scripts/validate-resource-index.cjs` 检查。

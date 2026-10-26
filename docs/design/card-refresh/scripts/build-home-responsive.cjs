@@ -19,8 +19,18 @@ fs.writeFileSync(path.join(root,'boards/home-responsive.html'),html);
  }
  if(errors.length)throw Error(errors.join('\n'));
  fs.writeFileSync(path.join(root,'qa/home-layout-checks.json'),JSON.stringify({checks,errors},null,2));
- const samples=JSON.parse(fs.readFileSync(path.join(root,'components/samples.json')));samples.brandOff=samples.brandOff.replace(/<div class="h-gallery-compact">[\s\S]*$/,'');
- await p.goto('file://'+path.join(root,'prototype/demo.html')+'?page=home&viewport=320x568');await p.waitForFunction(()=>window.beeImmersiveDemo);
- const stream=await p.locator('.bc-stream').evaluate(e=>e.outerHTML);await p.locator('[data-action=ledger]').click();samples.ledgerPicker=await p.locator('.r-modal-layer .bc-sheet').evaluate(e=>e.innerHTML);samples.brandOff+='<div class="h-gallery-compact"><p>¥3,286.50</p>'+stream+'</div>';fs.writeFileSync(path.join(root,'components/samples.json'),JSON.stringify(samples,null,2));
+ const samples=JSON.parse(fs.readFileSync(path.join(root,'components/samples.json')));
+ // Re-capture the actual current home markup, including its row renderer and metrics.
+ // Otherwise the brand card can retain an obsolete embedded transaction list.
+ await p.goto('file://'+path.join(root,'prototype/demo.html')+'?page=home&viewport=398x844&brand=shown');await p.waitForFunction(()=>window.beeImmersiveDemo);
+ samples.brand=await p.locator('#bee-immersive-phone .bc-topbar').evaluate(e=>e.outerHTML);
+ samples.summary=await p.locator('#bee-immersive-phone .bc-summary').evaluate(e=>e.outerHTML);
+ await p.goto('file://'+path.join(root,'prototype/demo.html')+'?page=home&viewport=320x568&brand=hidden');await p.waitForFunction(()=>window.beeImmersiveDemo);
+ samples.brandOff=await p.locator('#bee-immersive-phone .bc-topbar').evaluate(e=>e.outerHTML);
+ const stream=await p.locator('#bee-immersive-phone .bc-stream').evaluate(e=>e.outerHTML);
+ await p.locator('#bee-immersive-phone [data-action=ledger]').first().click();
+ samples.ledgerPicker=await p.locator('.r-modal-layer .bc-sheet').evaluate(e=>e.innerHTML);
+ samples.brandOff+='<div class="h-gallery-compact"><p>¥3,286.50</p>'+stream+'</div>';
+ fs.writeFileSync(path.join(root,'components/samples.json'),JSON.stringify(samples,null,2));
  console.log(JSON.stringify({checks,errors}));
 }finally{await b.close()}})().catch(e=>{console.error(e);process.exit(1)});
