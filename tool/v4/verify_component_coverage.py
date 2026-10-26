@@ -136,9 +136,16 @@ assert len({card['id'] for card in mapping}) == len(mapping), 'Duplicate mapped 
 assert {card['id'] for card in mapping} == actual_cards.keys(), 'Unmapped or stale HTML catalog cards'
 guide_source = (root / 'docs/design/card-refresh/scripts/build-guide.cjs').read_text()
 guide_ids = {'spec-' + str(int(value)) for value in re.findall(r"card\('(\d+) · ", guide_source)}
-enhanced_source = (root / 'docs/design/card-refresh/prototype/src/refresh-component-catalog.cjs').read_text()
-enhanced = {'spec-' + ident: (page, int(case)) for ident, page, case in
-            re.findall(r"\{id:(\d+),group:'(foundation|business)',case:(\d+),", enhanced_source)}
+enhanced = {}
+enhanced_paths = {}
+for source in ('refresh-component-catalog.cjs', 'resource-detail-samples.cjs'):
+    source_path = 'docs/design/card-refresh/prototype/src/' + source
+    enhanced_source = (root / source_path).read_text()
+    for ident, page, case in re.findall(r"\{id:(\d+),group:'(foundation|business)',case:(\d+),", enhanced_source):
+        key = 'spec-' + ident
+        assert key not in enhanced, ('Duplicate enhanced source', key)
+        enhanced[key] = (page, int(case))
+        enhanced_paths[key] = source_path
 assert guide_ids | enhanced.keys() == actual_cards.keys(), 'Catalog diverges from its rendering sources'
 assert not guide_ids & enhanced.keys(), 'Enhanced cards overwrite existing anchors'
 contracts = {row['design_key']: row for row in coverage}
@@ -156,7 +163,7 @@ for card in mapping:
     used_keys.update(card['design_keys'])
     if card['id'] in enhanced:
         assert card['kind'] == 'enhanced' and (page, card['case']) == enhanced[card['id']], card
-        assert card['source'].endswith('/refresh-component-catalog.cjs'), card
+        assert card['source'] == enhanced_paths[card['id']], card
     else:
         assert card['kind'] == 'catalog' and card['source'].endswith('/build-guide.cjs'), card
 assert used_keys == contracts.keys(), ('Contracts missing from the current HTML catalog', contracts.keys() - used_keys)

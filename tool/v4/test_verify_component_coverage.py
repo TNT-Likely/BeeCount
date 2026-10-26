@@ -25,7 +25,8 @@ class CoverageRejectionTests(unittest.TestCase):
                          'docs/design/card-refresh/components/samples.json',
                          'docs/design/card-refresh/components/catalog.json',
                          'docs/design/card-refresh/scripts/build-guide.cjs',
-                         'docs/design/card-refresh/prototype/src/refresh-component-catalog.cjs'):
+                         'docs/design/card-refresh/prototype/src/refresh-component-catalog.cjs',
+                         'docs/design/card-refresh/prototype/src/resource-detail-samples.cjs'):
             target = self.root / relative
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(ROOT / relative, target)
@@ -45,7 +46,7 @@ class CoverageRejectionTests(unittest.TestCase):
             self.assertIn(reason, result.stdout + result.stderr)
 
     def test_current_declarations_pass(self):
-        self.check(0, '105 HTML cards')
+        self.check(0, '107 HTML cards')
 
     def test_unmapped_sample_rejected(self):
         self.change('tool/v4/component_coverage.json', lambda value: value.pop())

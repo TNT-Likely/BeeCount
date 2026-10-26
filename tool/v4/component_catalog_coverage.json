@@ -629,7 +629,11 @@
       "components": [
         "RecordingKeypad",
         "RecordingAmountCard",
-        "RecordingHeader"
+        "RecordingHeader",
+        "RecordingFrame",
+        "RecordingActions",
+        "RecordingLegacyKeypad",
+        "RecordingLegacyAmount"
       ],
       "supportedStates": [
         "加减乘除、退格、等号、再记一笔与保存。"
@@ -647,7 +651,21 @@
       ],
       "components": [
         "RecordingDetailsCard",
-        "BeeTag"
+        "BeeTag",
+        "RecordingCurrencyControl",
+        "RecordingLedgerControl",
+        "RecordingMetaControl",
+        "RecordingNoteField",
+        "RecordingNoteToggle",
+        "RecordingAttachmentControl",
+        "RecordingAccountControl",
+        "RecordingTagSummary",
+        "RecordingTagAttachmentBar",
+        "RecordingAuthors",
+        "RecordingFlagControl",
+        "RecordingConversionHint",
+        "BeeAccountStrip",
+        "RecordingFlagsForm"
       ],
       "supportedStates": [
         "两行表单：备注直接编辑、附件右上角；账户 / 日期 / 紧凑标签在下。与键盘保留 8px 间距。"
@@ -866,7 +884,8 @@
       "kind": "catalog",
       "design_keys": [
         "mineProfile",
-        "ledgerBalance"
+        "ledgerBalance",
+        "profilePhoto"
       ],
       "components": [
         "BeeProfile",
@@ -2040,6 +2059,54 @@
         "order-callback"
       ],
       "source": "docs/design/card-refresh/prototype/src/refresh-component-catalog.cjs"
+    },
+    {
+      "id": "spec-2101",
+      "page": "foundation",
+      "case": 22,
+      "nativeLabel": "紧凑页签与柱状图",
+      "kind": "enhanced",
+      "design_keys": [],
+      "components": [
+        "BeeCompactTabs",
+        "BeeDateRangeBar",
+        "BeeYearMonthWheel"
+      ],
+      "supportedStates": [
+        "32px-visual-44px-hit",
+        "month-year-all",
+        "controlled-wheel",
+        "cancel-without-write"
+      ],
+      "source": "docs/design/card-refresh/prototype/src/resource-detail-samples.cjs"
+    },
+    {
+      "id": "spec-2102",
+      "page": "business",
+      "case": 35,
+      "nativeLabel": "分类账户标签详情",
+      "kind": "enhanced",
+      "design_keys": [
+        "resourceDetail"
+      ],
+      "components": [
+        "BeeResourceHero",
+        "BeeResourceBreakdown",
+        "BeeResourceTrend",
+        "BeeCreditCardTerms",
+        "BeeResourceParentLink",
+        "BeeAccountSummaryCard",
+        "BeeAccountCashflowCard",
+        "BeeBalanceHistoryCard"
+      ],
+      "supportedStates": [
+        "parent-link-once",
+        "balance-original-currency",
+        "cashflow",
+        "real-history-range",
+        "credit-valuation"
+      ],
+      "source": "docs/design/card-refresh/prototype/src/resource-detail-samples.cjs"
     }
   ]
 }

@@ -40,6 +40,17 @@
       const header=amount.querySelector('.bc-between'),line=amount.querySelector('.p-amount-line'),ledger=header.querySelector('.bc-mini-ledger'),row=document.createElement('div');row.className='z-compact-amount-row';
       line.querySelector('span')?.remove();ledger.setAttribute('aria-label','切换账本：'+state.ledger);ledger.innerHTML=qPreview.width<=340?icon('book-open'):esc(state.ledger)+icon('chevron-down');row.append(chip,line,ledger);header.remove();amount.prepend(row);if(state.fRecordCurrency===state.fBaseCurrency)summary.hidden=true;
     }
+    // Match the extracted Flutter presentation slots; callbacks remain in the
+    // prototype/App adapters, and the geometry below is unchanged.
+    main.dataset.component='RecordingFrame';
+    amount.dataset.component='RecordingAmountCard';
+    scroll.dataset.component='RecordingFrame.category';
+    meta.dataset.component='RecordingDetailsCard';
+    keypad.dataset.component='RecordingKeypad';
+    footer.dataset.component='RecordingActions';
+    meta.querySelector('[data-z-note]')?.setAttribute('data-component','RecordingNoteField');
+    meta.querySelector('.z-account')?.setAttribute('data-component','RecordingAccountControl');
+    meta.querySelector('.z-attachment-reference')?.setAttribute('data-component','RecordingAttachmentControl');
     main.replaceChildren(head,amount,scroll,meta,keypad,...(error?[error]:[]),footer);
     globalThis.lucide?.createIcons({attrs:{width:20,height:20}});
     scroll.scrollTop=zCategoryMemory?.type===state.recordType?zCategoryMemory.top:0;

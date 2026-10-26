@@ -141,7 +141,11 @@
     "components": [
       "RecordingKeypad",
       "RecordingAmountCard",
-      "RecordingHeader"
+      "RecordingHeader",
+      "RecordingFrame",
+      "RecordingActions",
+      "RecordingLegacyKeypad",
+      "RecordingLegacyAmount"
     ],
     "page": "business",
     "case": 5,
@@ -157,7 +161,21 @@
     "design_key": "metadata",
     "components": [
       "RecordingDetailsCard",
-      "BeeTag"
+      "BeeTag",
+      "RecordingCurrencyControl",
+      "RecordingLedgerControl",
+      "RecordingMetaControl",
+      "RecordingNoteField",
+      "RecordingNoteToggle",
+      "RecordingAttachmentControl",
+      "RecordingAccountControl",
+      "RecordingTagSummary",
+      "RecordingTagAttachmentBar",
+      "RecordingAuthors",
+      "RecordingFlagControl",
+      "RecordingConversionHint",
+      "BeeAccountStrip",
+      "RecordingFlagsForm"
     ],
     "page": "business",
     "case": 5,
@@ -893,12 +911,17 @@
       "BeeResourceHero",
       "BeeResourceBreakdown",
       "BeeResourceTrend",
-      "BeeCreditCardTerms"
+      "BeeCreditCardTerms",
+      "BeeResourceParentLink",
+      "BeeAccountSummaryCard",
+      "BeeAccountCashflowCard",
+      "BeeBalanceHistoryCard"
     ],
     "page": "business",
     "case": 35,
     "catalog_ids": [
-      "spec-53"
+      "spec-53",
+      "spec-2102"
     ],
     "supportedStates": [
       "统一身份、原币与本位币汇总、三项指标；分布行支持预设图标和自定义图片，趋势使用历史快照；信用卡保留额度估算、还款日期、溢缴款和无额度还款。"
@@ -1749,6 +1772,21 @@
     ],
     "supportedStates": [
       "账户与金额同屏，新建同币种、异本位币账本同外币账户对，缺失汇率阻止提交，历史快照保留。"
+    ],
+    "scope": "source and gallery declaration; not a device acceptance claim"
+  },
+  {
+    "design_key": "profilePhoto",
+    "components": [
+      "BeeProfile"
+    ],
+    "page": "business",
+    "case": 11,
+    "catalog_ids": [
+      "spec-30"
+    ],
+    "supportedStates": [
+      "自定义图片头像保持单层圆形裁切，与默认头像共享档案布局。"
     ],
     "scope": "source and gallery declaration; not a device acceptance claim"
   }

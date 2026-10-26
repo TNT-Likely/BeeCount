@@ -804,6 +804,33 @@
         "disabled"
       ],
       "sampleCoverage": "真实组件在原Flutter分区中声明并渲染；原生验收另列，不以此清单宣称通过。"
+    },
+    {
+      "component": "BeeDateRangeBar",
+      "cases": [
+        22
+      ],
+      "supportedStates": [
+        "all-time",
+        "month",
+        "year",
+        "previous-next",
+        "44px-hit-area"
+      ],
+      "sampleCoverage": "真实组件在原Flutter分区中声明并渲染；原生验收另列，不以此清单宣称通过。"
+    },
+    {
+      "component": "BeeYearMonthWheel",
+      "cases": [
+        22
+      ],
+      "supportedStates": [
+        "year",
+        "month",
+        "controlled",
+        "cancel-without-commit"
+      ],
+      "sampleCoverage": "真实组件在原Flutter分区中声明并渲染；原生验收另列，不以此清单宣称通过。"
     }
   ]
 }
