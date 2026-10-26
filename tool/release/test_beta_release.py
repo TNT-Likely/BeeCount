@@ -15,6 +15,12 @@ import beta_release as beta
 import local_apk as gate
 
 
+def receipt(name="4.0.0-beta.2", code=227):
+    return {"schemaVersion": 1, "kind": "beecount-beta-release" if "-beta." in name else "beecount-android-release", "package": gate.PACKAGE,
+            "versionName": name, "versionCode": code, "sourceSha": "a" * 40,
+            "certificateSha256": beta.PRODUCTION_CERTIFICATE, "apkSha256": "b" * 64, "abi": gate.ABI}
+
+
 class FloorTests(unittest.TestCase):
     def floor(self, floor="225", version="4.0.0-beta.2", records=()):
         client = mock.Mock()
@@ -33,12 +39,12 @@ class FloorTests(unittest.TestCase):
                 self.floor(value)
 
     def test_remote_and_draft_receipts_raise_the_floor(self):
-        r = {"schemaVersion": 1, "package": gate.PACKAGE, "versionName": "4.0.0-beta.3", "versionCode": 231}
+        r = receipt("4.0.0-beta.3", 231)
         candidate, floor = self.floor(version="4.0.0-beta.4", records=[r])
         self.assertEqual((candidate.code, floor), (232, 231))
 
     def test_remote_receipt_version_downgrade_and_bad_identity_refuse(self):
-        r = {"schemaVersion": 1, "package": gate.PACKAGE, "versionName": "4.0.0-beta.3", "versionCode": 228}
+        r = receipt("4.0.0-beta.3", 228)
         with self.assertRaises(ValueError):
             self.floor(records=[r])
         r["package"] += ".qa"
@@ -49,9 +55,33 @@ class FloorTests(unittest.TestCase):
         with self.assertRaises(gate.GateError):
             self.floor(version="4.0.0")
 
-    def test_legacy_stable_tag_also_prevents_beta_version_downgrade(self):
-        with self.assertRaises(ValueError):
-            beta.release_floor(mock.Mock(), [{"tag_name": "4.0.0", "draft": False}], "300", "4.0.0-beta.2")
+    def test_receiptless_4x_stable_cannot_reuse_a_stale_external_floor(self):
+        for name, actual_code, stale_floor, next_version in [
+            ("4.0.0", 300, "226", "4.0.1-beta.1"),
+            ("4.0.1", 301, "300", "4.0.2-beta.1"),
+        ]:
+            with self.subTest(name=name, actual=actual_code), self.assertRaisesRegex(gate.GateError, "缺少可信版本回执"):
+                beta.release_floor(mock.Mock(), [{"tag_name": name, "draft": False}], stale_floor, next_version)
+
+    def test_verified_stable_receipt_wins_over_stale_external_floor(self):
+        candidate, floor = self.floor("226", "4.0.1-beta.1", [receipt("4.0.0", 300)])
+        self.assertEqual((candidate.code, floor), (301, 300))
+        candidate, floor = self.floor("300", "4.0.2-beta.1", [receipt("4.0.1", 301)])
+        self.assertEqual((candidate.code, floor), (302, 301))
+
+    def test_legacy_39_may_use_verified_floor_but_new_beta_or_draft_may_not(self):
+        candidate, _ = beta.release_floor(mock.Mock(), [{"tag_name": "3.9.0", "draft": False}], "226", "4.0.0-beta.2")
+        self.assertEqual(candidate.code, 227)
+        for draft in [False, True]:
+            with self.subTest(draft=draft), self.assertRaisesRegex(gate.GateError, "缺少可信版本回执"):
+                beta.release_floor(mock.Mock(), [{"tag_name": "4.0.0-beta.1", "draft": draft}], "226", "4.0.0-beta.2")
+
+    def test_untrusted_receipt_cannot_be_used_as_floor(self):
+        for field, value in [("sourceSha", "wrong"), ("certificateSha256", "f" * 64),
+                             ("abi", "x86_64"), ("kind", "unverified"), ("apkSha256", "")]:
+            r = receipt(); r[field] = value
+            with self.subTest(field=field), self.assertRaises(gate.GateError):
+                self.floor("226", "4.0.0-beta.3", [r])
 
 
 class SourceTests(unittest.TestCase):
@@ -148,6 +178,45 @@ class DispatchTests(unittest.TestCase):
             beta.notify()
         request.assert_not_called()
 
+    def notification_fixture(self):
+        os.environ.update(GITHUB_REPOSITORY=beta.REPOSITORY, GITHUB_EVENT_NAME="workflow_dispatch",
+                          BETA_EXPECTED_CERTIFICATE=beta.PRODUCTION_CERTIFICATE, BETA_VERSION="4.0.0-beta.2")
+        release = {"id": 2, "tag_name": "4.0.0-beta.2", "draft": False, "prerelease": True,
+                   "html_url": f"https://github.com/{beta.REPOSITORY}/releases/tag/4.0.0-beta.2",
+                   "assets": [{"id": 3, "name": beta.RECEIPT},
+                              {"id": 4, "name": "beecount-4.0.0-beta.2-arm64-v8a.apk", "size": 100,
+                               "digest": "sha256:" + "b" * 64}]}
+        client = mock.Mock()
+        client.releases.return_value = [release]
+        client.receipt.return_value = receipt()
+        return client, release
+
+    def test_notification_only_loads_verified_published_receipt_without_any_writes(self):
+        client, _ = self.notification_fixture()
+        with mock.patch.object(beta, "GitHub", return_value=client), mock.patch.object(gate, "prepare_or_build") as build, contextlib.redirect_stdout(io.StringIO()):
+            beta.notification_plan()
+        build.assert_not_called()
+        client.request.assert_not_called()
+        client.upload.assert_not_called()
+        self.assertEqual(beta.read_context()["mode"], "notify-only")
+        self.assertEqual(beta.read_context()["versionCode"], 227)
+        self.assertNotIn("runParent", beta.read_context())
+
+    def test_notification_only_refuses_draft_stable_missing_or_tampered_identity(self):
+        for change in ["draft", "stable", "missing", "cert", "sha", "url"]:
+            client, release = self.notification_fixture()
+            if change == "draft": release["draft"] = True
+            if change == "stable": release["prerelease"] = False
+            if change == "missing": release["assets"] = []
+            if change == "cert": client.receipt.return_value["certificateSha256"] = "f" * 64
+            if change == "sha": release["assets"][1]["digest"] = "sha256:" + "c" * 64
+            if change == "url": release["html_url"] = "https://other.example/download"
+            with self.subTest(change=change), mock.patch.object(beta, "GitHub", return_value=client), self.assertRaises(gate.GateError):
+                beta.notification_plan()
+            client.request.assert_not_called()
+            client.upload.assert_not_called()
+            self.assertFalse(self.context.exists())
+
     def test_authorization_not_forwarded_to_redirected_asset_host(self):
         req = urllib.request.Request("https://api.github.com/repos/test", headers={"Authorization": "Bearer synthetic"})
         redirected = beta.SafeRedirect().redirect_request(req, None, 302, "Found", {}, "https://objects.githubusercontent.com/asset")
@@ -188,6 +257,12 @@ class Arm64ContractTests(unittest.TestCase):
         self.assertIn("ndk { abiFilters 'arm64-v8a' }", gradle)
         self.assertIn("universalApk !arm64OnlyApk", gradle)
         self.assertNotRegex(beta_yaml, r"run:.*\$\{\{ inputs\.")
+        notification = beta_yaml.split("\n  notify-only:", 1)[1]
+        self.assertIn("contents: read", notification)
+        self.assertIn("notification_plan", notification)
+        self.assertNotIn("ANDROID_KEYSTORE", notification)
+        self.assertNotIn("beta_release.py build", notification)
+        self.assertNotIn("beta_release.py publish", notification)
 
 
 if __name__ == "__main__":

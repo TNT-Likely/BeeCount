@@ -112,28 +112,42 @@ def source_sha(value: str, repo: Path) -> str:
     return sha
 
 
+def validate_receipt(release, record):
+    gate.require(isinstance(record, dict) and type(record.get("schemaVersion")) is int and
+                 record["schemaVersion"] == 1 and record.get("package") == gate.PACKAGE and
+                 record.get("kind") in {"beecount-beta-release", "beecount-android-release"} and
+                 record.get("abi") == gate.ABI and
+                 record.get("certificateSha256") == PRODUCTION_CERTIFICATE and
+                 re.fullmatch(r"[0-9a-f]{40}", record.get("sourceSha", "")) and
+                 re.fullmatch(r"[0-9a-f]{64}", record.get("apkSha256", "")),
+                 "版本回执缺少可信的源码、签名、ABI 或 APK 身份")
+    recorded = validate_recorded_version(record["versionName"], record["versionCode"])
+    gate.require(release["tag_name"].removeprefix("v") == recorded.name, "Release 与版本回执不一致")
+    gate.require(record["kind"] == ("beecount-android-release" if recorded.beta is None else "beecount-beta-release"),
+                 "回执的正式/Beta 渠道身份不一致")
+    return recorded
+
+
 def release_floor(client, releases, explicit_floor, version):
     gate.require(re.fullmatch(r"[0-9]+", explicit_floor or ""), "必须提供全渠道最高已交付 code")
     floor = max(int(explicit_floor), LOCAL_DELIVERED_FLOOR)
     minimum_version = parse_version("4.0.0-beta.1")
     for release in releases:
-        # Even a legacy Release without a machine receipt must prevent a
-        # version-name downgrade. Its code still belongs in the required,
-        # externally verified all-channel floor supplied by the operator.
+        tagged = None
         try:
             tagged = parse_version(release.get("tag_name", ""))
             if not release.get("draft") and tagged.order > minimum_version.order:
                 minimum_version = tagged
         except ValueError:
             pass
-        for asset in release.get("assets", []):
-            if asset.get("name") not in {RECEIPT, RESERVATION}:
-                continue
+        receipts = [a for a in release.get("assets", []) if a.get("name") in {RECEIPT, RESERVATION}]
+        # A stale manually supplied floor cannot prove a 4.x code. This also
+        # stops after an interrupted draft that never saved its reservation.
+        gate.require(tagged is None or tagged.order < parse_version("4.0.0-beta.1").order or receipts,
+                     "4.x Release 缺少可信版本回执；请先核实实际 APK 的 code 并补录回执，拒绝猜测水位")
+        for asset in receipts:
             record = client.receipt(asset)
-            gate.require(record.get("package") == gate.PACKAGE and record.get("schemaVersion") == 1,
-                         "版本回执身份无效")
-            recorded = validate_recorded_version(record["versionName"], record["versionCode"])
-            gate.require(release["tag_name"].removeprefix("v") == recorded.name, "Release 与版本回执不一致")
+            recorded = validate_receipt(release, record)
             floor = max(floor, recorded.code)
             if recorded.order > minimum_version.order:
                 minimum_version = recorded
@@ -319,6 +333,43 @@ def notify():
     print("Telegram 已确认送达")
 
 
+def notification_plan():
+    """Read-only retry: no build, code allocation, tag, asset or release writes."""
+    gate.require(os.environ.get("GITHUB_REPOSITORY") == REPOSITORY and
+                 os.environ.get("GITHUB_EVENT_NAME") == "workflow_dispatch", "仅允许目标仓库手动运行")
+    requested = parse_version(os.environ.get("BETA_VERSION", ""))
+    gate.require(requested.beta is not None, "仅重发通知要求 Beta 版本")
+    certificate = gate.certificate_digest(os.environ.get("BETA_EXPECTED_CERTIFICATE", ""))
+    gate.require(certificate == PRODUCTION_CERTIFICATE, "预期指纹不是已核生产签名")
+    client = GitHub()
+    matches = [r for r in client.releases() if r.get("tag_name", "").removeprefix("v") == requested.name]
+    gate.require(len(matches) == 1, "目标 Beta Release 缺失或存在歧义")
+    release = matches[0]
+    gate.require(release.get("draft") is False and release.get("prerelease") is True,
+                 "仅重发通知要求已公开的 prerelease，不能通知草稿或正式版")
+    assets = release.get("assets", [])
+    receipts = [a for a in assets if a.get("name") == RECEIPT]
+    gate.require(len(receipts) == 1, "已发布 Beta 缺少唯一的正式版本回执")
+    record = client.receipt(receipts[0])
+    recorded = validate_receipt(release, record)
+    gate.require(record.get("kind") == "beecount-beta-release", "回执不是 Beta 发布身份")
+    apk_name = "beecount-" + recorded.name + "-arm64-v8a.apk"
+    apks = [a for a in assets if a.get("name") == apk_name]
+    gate.require(len(apks) == 1 and type(apks[0].get("size")) is int and apks[0]["size"] > 0,
+                 "回执对应的 ARM64 APK 缺失或大小无效")
+    digest = apks[0].get("digest")
+    gate.require(digest is None or digest == "sha256:" + record["apkSha256"], "GitHub APK 摘要与回执不同")
+    url = urllib.parse.urlsplit(release.get("html_url", ""))
+    gate.require(url.scheme == "https" and url.netloc == "github.com" and not url.query and not url.fragment and
+                 url.path == f"/{REPOSITORY}/releases/tag/{release['tag_name']}", "Release 链接身份不正确")
+    gate.require(not context_path().exists(), "本轮通知上下文已存在，禁止覆盖")
+    gate.write_private(context_path(), b"{}")
+    save_context({"status": "published", "mode": "notify-only", "sourceSha": record["sourceSha"],
+                  "versionName": recorded.name, "versionCode": recorded.code,
+                  "releaseId": release["id"], "releaseUrl": release["html_url"]})
+    print("已只读核对发布身份；尚未发送通知")
+
+
 def cleanup():
     if not context_path().exists():
         return
@@ -335,7 +386,7 @@ def cleanup():
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("action", choices=["credentials", "plan", "build", "publish", "notify", "cleanup"])
+    parser.add_argument("action", choices=["credentials", "plan", "build", "publish", "notification_plan", "notify", "cleanup"])
     args = parser.parse_args(argv)
     try:
         globals()[args.action]()

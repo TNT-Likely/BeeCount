@@ -134,6 +134,7 @@ python3 -m unittest discover -s tool/release -p 'test_*.py' -v
 - `source_ref` 为 `v4` 或其历史内的完整 40 位 SHA；默认 `v4` 会立即解析并冻结。未提交文件不会进入构建。
 - `version` 默认 `4.0.0-beta.2`；所选提交必须包含 `docs/releases/<version>.md`，正文须有正常变更说明、升级注意及固定反馈 issue 580。
 - `android_version_code_floor` 或仓库变量 `ANDROID_VERSION_CODE_FLOOR` 必须提供全部渠道最高已交付 code。Beta1 已实际本地交付 226，因此有效下界至少 226，下一包为 227。流程还取所有已有 Release/失败草稿的机器回执最大 code；版本名不允许倒退。正式版仍由共用计算器从至少 300 开始。
+- 已有 4.x 正式版、新 Beta 或失败草稿缺少可信机器回执时明确拒绝，即使填写了 floor 也不猜测。3.9 等历史旧版可以沿用已核 floor。补回执须先读取实际 APK 的版本/code、包名、证书、ABI 与 hash，核对对应源 SHA；回执 schemaVersion=1、kind=`beecount-android-release`（Beta 为 `beecount-beta-release`），包含 `package`、`versionName`、`versionCode`、`sourceSha`、`certificateSha256`、`apkSha256`、`abi`。不能依据版本名倒推 code 或填写占位 hash。
 - 必填公开仓库变量 `ANDROID_RELEASE_CERT_SHA256`，必须为已核生产证书指纹；缺失或与已核指纹不同会拒绝，不自动接受证书轮换。
 - 必填四项签名 secrets：`ANDROID_KEYSTORE_BASE64`、`ANDROID_KEYSTORE_PASSWORD`、`ANDROID_KEY_ALIAS`、`ANDROID_KEY_PASSWORD`。沿用现有 `TELEGRAM_BOT_TOKEN`、`TELEGRAM_CHAT_ID`，成功发布后发送下载页和反馈链接；缺失或发送失败会明确报错，已发布 Release 不回滚。
 
@@ -142,3 +143,9 @@ GitHub 的 `GITHUB_TOKEN` 只用于读取版本、创建新 tag/Release 和上�
 产物验证通过后再次核对水位，原子创建新 tag 指向冻结 SHA，再建 draft prerelease。先上传 `android-version-reservation.json`，再上传 APK、SHA256 和 `android-release.json`，最后公开 Release；回执记录源 SHA、版本/code、APK hash、证书及 ABI。它表示静态门禁通过，不冒称完整功能验收。成功后回执成为后续自动水位，同时应将仓库 floor 变量同步为该 code，供本地及旧正式发布流程使用。
 
 同名 tag/Release（含失败草稿）绝不覆盖。发布中断后的 tag、draft 与版本回执保留供排查；有回执的 code 会被后续流程计入，下一次使用新 Beta 名称/code。若中断在回执上传之前，不得自行删除资料重试：先核对是否已对外交付任何 APK，再由维护者处理。全渠道/本地发布不受 GitHub 并发锁控制，必须在下一次运行前更新 floor；机器回执不能替代这个外部确认。此变更只实现流程，未设置远端变量/secrets，也未触发或发布。
+
+### 仅重发 Telegram 通知
+
+若 APK/Release 已发布成功、只有 Telegram 通知失败，重新手动运行该工作流并将 `mode` 选择为 `notify-only`，`version` 填原来已发布的 Beta 版本。默认 `release` 模式仍然禁止覆盖同 tag，不应通过重跑整套发布来补通知。
+
+`notify-only` 使用独立只读 GitHub job：检查目标是唯一、已公开的 prerelease；读取唯一 `android-release.json`，核对正式包名、版本/code、生产证书、ARM64、源 SHA 和 APK hash，并要求对应 APK 存在；GitHub 提供资产摘要时必须匹配回执。核对后仅发送 Telegram。不会分配新 code、构建、访问签名 secrets、创建/修改 tag、上传资产或改写 Release；无需配置 source/floor 或 Android SDK。草稿、正式版、缺失/不可信回执和摘要不匹配均拒绝通知。它复核的是已发布记录与资产身份，不重新下载并执行完整 APK 静态验包。

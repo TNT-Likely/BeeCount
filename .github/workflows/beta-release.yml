@@ -3,16 +3,24 @@ name: Android Beta Release
 on:
   workflow_dispatch:
     inputs:
+      mode:
+        description: "发布新 Beta，或只重发已发布 Beta 的 Telegram 通知"
+        type: choice
+        options:
+          - release
+          - notify-only
+        required: true
+        default: release
       source_ref:
-        description: "v4 或 v4 历史中的完整 40 位提交 SHA"
+        description: "发布模式：v4 或 v4 历史中的完整 40 位提交 SHA；仅通知模式忽略"
         required: true
         default: "v4"
       version:
-        description: "Beta 版本名；对应 docs/releases/<version>.md 必须已提交"
+        description: "Beta 版本名；发布需已提交说明，仅通知填原来已发布的版本"
         required: true
         default: "4.0.0-beta.2"
       android_version_code_floor:
-        description: "全部渠道/本地最高已交付 code；留空读取仓库变量，缺失则拒绝"
+        description: "发布模式：全部渠道/本地最高已交付 code；留空读仓库变量，仅通知忽略"
         required: false
         default: ""
 
@@ -22,11 +30,14 @@ concurrency:
   cancel-in-progress: false
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   beta:
+    if: inputs.mode == 'release'
     name: Verify and publish ARM64 Beta APK
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     timeout-minutes: 60
     env:
@@ -90,3 +101,30 @@ jobs:
       - name: Remove temporary signing inputs
         if: always()
         run: python3 tool/release/beta_release.py cleanup
+
+  notify-only:
+    if: inputs.mode == 'notify-only'
+    name: Retry Telegram notification only
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    env:
+      BETA_VERSION: ${{ inputs.version }}
+      BETA_EXPECTED_CERTIFICATE: ${{ vars.ANDROID_RELEASE_CERT_SHA256 }}
+      BETA_CONTEXT: ${{ runner.temp }}/beecount-beta-notification.json
+    steps:
+      - name: Checkout reviewed notification tool
+        uses: actions/checkout@v4
+        with:
+          ref: v4
+          persist-credentials: false
+      - name: Verify published prerelease and receipt identity without writes
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 tool/release/beta_release.py notification_plan
+      - name: Retry Telegram notification
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python3 tool/release/beta_release.py notify
