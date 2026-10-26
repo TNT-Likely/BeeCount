@@ -20,7 +20,7 @@ import tarfile
 import tempfile
 import zipfile
 
-from android_version_code import MAX_VERSION_CODE, parse_version, validate_candidate
+from android_version_code import MAX_VERSION_CODE, parse_version, validate_candidate, validate_recorded_version
 
 PACKAGE = "com.tntlikely.beecount"
 ABI = "arm64-v8a"
@@ -174,6 +174,7 @@ def _registry_lines(content: bytes):
     require(lines and lines[0] == REGISTRY_HEADER, "交付 registry 缺少正确头部")
     previous = hashlib.sha256(canonical(lines[0])).hexdigest()
     highest = 0
+    previous_version = None
     fields = {"sequence", "deliveredAtUtc", "versionName", "versionCode", "sourceSha", "apkSha256",
               "certificateSha256", "abi", "package", "acceptanceReportSha256", "previousEntrySha256", "entrySha256"}
     for sequence, entry in enumerate(lines[1:], 1):
@@ -182,8 +183,14 @@ def _registry_lines(content: bytes):
                 "交付 registry 链被改写")
         body = {key: value for key, value in entry.items() if key != "entrySha256"}
         require(hashlib.sha256(canonical(body)).hexdigest() == entry["entrySha256"], "交付 registry 校验失败")
-        require(type(entry["versionCode"]) is int and parse_version(entry["versionName"]).code == entry["versionCode"] > highest,
-                "交付 registry 存在复用或回退码号")
+        try:
+            version = validate_recorded_version(entry["versionName"], entry["versionCode"])
+        except ValueError:
+            raise GateError("交付 registry 版本名或码号无效") from None
+        require(version.code > highest, "交付 registry 存在复用或回退码号")
+        require(previous_version is None or version.order >= previous_version.order,
+                "交付 registry 版本名回退")
+        previous_version = version
         require(entry["package"] == PACKAGE and entry["abi"] == ABI, "交付 registry 身份无效")
         require(re.fullmatch(r"[0-9a-f]{40}", entry["sourceSha"]), "交付 registry 源码身份无效")
         for key in ("apkSha256", "certificateSha256", "acceptanceReportSha256"):
@@ -239,7 +246,10 @@ def registry_snapshot(path: Path):
         fcntl.flock(file, fcntl.LOCK_SH)
         content = file.read()
         verify_registry_head(path, content)
-    return registry_state(content)
+    state = registry_state(content)
+    lines, _, _ = _registry_lines(content)
+    state["latestVersionName"] = lines[-1]["versionName"] if len(lines) > 1 else None
+    return state
 
 
 def append_delivery(path: Path, fields: dict):
@@ -521,7 +531,7 @@ def prepare_or_build(args):
     snapshot = registry_snapshot(args.registry)
     floor = max(args.minimum_code, snapshot["maximumCode"])
     require(225 <= args.minimum_code <= MAX_VERSION_CODE, "必须提供可信渠道最高码号，至少为已核225")
-    version = validate_candidate(args.version, minimum_code=floor)
+    version = validate_candidate(args.version, minimum_code=floor, minimum_version=snapshot["latestVersionName"])
     credentials = load_credentials(args.credentials_file, os.environ)
     java_home, sdk, flutter = args.java_home.resolve(), args.sdk_root.resolve(), args.flutter.resolve()
     tools = sdk / "build-tools" / args.build_tools
@@ -610,8 +620,9 @@ def record_delivery(args):
     data = json.loads(args.manifest.read_text())
     require(data["status"] == "artifact-verified-awaiting-functional-qa", "候选未通过实际 APK 门禁")
     latest = registry_snapshot(Path(data["registryPath"]))
-    candidate = validate_candidate(data["versionName"], minimum_code=max(args.minimum_code, latest["maximumCode"]))
-    require(candidate.code == data["versionCode"], "构建清单的版本名与码号不符合统一公式")
+    candidate = validate_candidate(data["versionName"], minimum_code=max(args.minimum_code, latest["maximumCode"]),
+                                   minimum_version=latest["latestVersionName"])
+    require(candidate.code == data["versionCode"], "已发最高码号已变化；候选必须按新 floor 重新分配并构建")
     require(225 <= args.minimum_code <= MAX_VERSION_CODE, "交付前必须再次核对全部渠道最高码号")
     require(args.acceptance_report.is_file() and args.acceptance_report.stat().st_size > 0,
             "必须提供真实功能/升级验收报告；工具不替代该验收")

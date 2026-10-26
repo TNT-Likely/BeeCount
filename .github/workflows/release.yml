@@ -149,7 +149,8 @@ jobs:
             exit 1
           fi
           python3 -m unittest discover -s tool/release -p 'test_android_version_code.py'
-          # 与本地APK共用版本槽位；同版stable99 > beta1..98。
+          # 与本地APK共用全局floor：4.0.0 Beta为226..299；正式从300起，以后逐次+1。
+          # 每次本地实际交付后须更新floor；Beta序号不能替代真实已发最高code。
           BUILD_NUMBER=$(python3 tool/release/android_version_code.py "$CLEAN_VERSION" \
             --minimum-code "$ANDROID_VERSION_CODE_FLOOR")
           sed -i "s/^version: .*/version: ${CLEAN_VERSION}+${BUILD_NUMBER}/" pubspec.yaml

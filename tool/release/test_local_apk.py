@@ -35,14 +35,31 @@ class TemporaryCase(unittest.TestCase):
         gate.init_registry(path)
         return path
 
-    def record(self, name="4.0.0-beta.1"):
+    def record(self, name="4.0.0-beta.1", code=226):
         return {"deliveredAtUtc": "2026-10-26T01:00:00+00:00", "versionName": name,
-                "versionCode": gate.parse_version(name).code, "sourceSha": "1" * 40,
+                "versionCode": code, "sourceSha": "1" * 40,
                 "apkSha256": "2" * 64, "certificateSha256": PUBLIC_CERT,
                 "acceptanceReportSha256": "3" * 64, "abi": gate.ABI, "package": gate.PACKAGE}
 
 
 class RegistryTests(TemporaryCase):
+    def test_stored_beta_number_is_independent_of_its_delivered_code(self):
+        registry = self.registry()
+        gate.append_delivery(registry, self.record("4.0.0-beta.74", 226))
+        gate.append_delivery(registry, self.record("4.0.0-beta.75", 227))
+        snapshot = gate.registry_snapshot(registry)
+        self.assertEqual(snapshot["maximumCode"], 227)
+        self.assertEqual(snapshot["latestVersionName"], "4.0.0-beta.75")
+
+    def test_channel_boundaries_and_old_names_cannot_enter_registry(self):
+        for index, (name, code) in enumerate([("4.0.0-beta.1", 300), ("4.0.0", 299),
+                                             ("4.0.0-beta.1", True), ("3.9.0", 301)]):
+            registry = self.root / f"invalid-{index}.jsonl"
+            gate.init_registry(registry)
+            with self.subTest(name=name, code=code), self.assertRaises(gate.GateError):
+                gate.append_delivery(registry, self.record(name, code))
+            self.assertEqual(gate.registry_snapshot(registry)["entryCount"], 0)
+
     def test_missing_registry_cannot_silently_reset_history(self):
         with self.assertRaises(gate.GateError):
             gate.registry_snapshot(self.root / "missing.jsonl")
@@ -50,20 +67,20 @@ class RegistryTests(TemporaryCase):
     def test_append_preserves_prefix_and_highest_delivered_code_wins(self):
         registry = self.registry()
         before = registry.read_bytes()
-        gate.append_delivery(registry, self.record("4.0.0-beta.2"))
+        gate.append_delivery(registry, self.record("4.0.0-beta.2", 227))
         self.assertTrue(registry.read_bytes().startswith(before))
-        self.assertEqual(gate.registry_snapshot(registry)["maximumCode"], 4_000_002)
+        self.assertEqual(gate.registry_snapshot(registry)["maximumCode"], 227)
         with self.assertRaises(ValueError):
-            gate.validate_candidate("4.0.0-beta.1", minimum_code=max(225, gate.registry_snapshot(registry)["maximumCode"]))
-        self.assertEqual(gate.validate_candidate("4.0.0", minimum_code=4_000_002).code, 4_000_099)
+            gate.validate_candidate("4.0.0-beta.1", minimum_code=max(225, gate.registry_snapshot(registry)["maximumCode"]), minimum_version=gate.registry_snapshot(registry)["latestVersionName"])
+        self.assertEqual(gate.validate_candidate("4.0.0", minimum_code=227).code, 300)
 
     def test_equal_and_lower_delivery_cannot_append(self):
         registry = self.registry()
-        gate.append_delivery(registry, self.record("4.0.0-beta.2"))
+        gate.append_delivery(registry, self.record("4.0.0-beta.2", 227))
         before = registry.read_bytes()
-        for name in ["4.0.0-beta.1", "4.0.0-beta.2"]:
+        for name, code in [("4.0.0-beta.1", 226), ("4.0.0-beta.2", 227)]:
             with self.assertRaises(gate.GateError):
-                gate.append_delivery(registry, self.record(name))
+                gate.append_delivery(registry, self.record(name, code))
         self.assertEqual(registry.read_bytes(), before)
 
     def test_tamper_and_truncated_tail_are_refused(self):
@@ -100,6 +117,36 @@ class RegistryTests(TemporaryCase):
 
 
 class SigningTests(TemporaryCase):
+    def test_floor225_still_accounts_for_local_delivery226_before_credentials(self):
+        registry = self.registry()
+        gate.append_delivery(registry, self.record("4.0.0-beta.1", 226))
+        args = argparse.Namespace(expected_certificate=PUBLIC_CERT, registry=registry,
+                                  minimum_code=225, version="4.0.0-beta.2", credentials_file=None)
+        with mock.patch.object(gate, "validate_candidate", wraps=gate.validate_candidate) as allocate, \
+             mock.patch.object(gate, "load_credentials", side_effect=gate.GateError("synthetic stop")), \
+             mock.patch.object(subprocess, "run") as command:
+            with self.assertRaises(gate.GateError):
+                gate.prepare_or_build(args)
+        allocate.assert_called_once_with("4.0.0-beta.2", minimum_code=226,
+                                         minimum_version="4.0.0-beta.1")
+        command.assert_not_called()
+
+    def test_delivery_rechecks_latest_floor_before_artifact_or_acceptance(self):
+        registry = self.registry()
+        gate.append_delivery(registry, self.record("4.0.0-beta.1", 226))
+        run = self.root / "owned-build"
+        run.mkdir(mode=0o700)
+        gate.write_private(run / ".apk-build-owner", run.name.encode())
+        manifest = run / "manifest.json"
+        gate.write_private(manifest, json.dumps({
+            "status": "artifact-verified-awaiting-functional-qa",
+            "registryPath": str(registry), "versionName": "4.0.0-beta.1", "versionCode": 226,
+        }).encode())
+        args = argparse.Namespace(confirm_delivered=True, manifest=manifest, minimum_code=225)
+        with self.assertRaises(gate.GateError), mock.patch.object(subprocess, "run") as command:
+            gate.record_delivery(args)
+        command.assert_not_called()
+
     def test_missing_credentials_refuses_before_any_subprocess(self):
         registry = self.registry()
         args = argparse.Namespace(expected_certificate=PUBLIC_CERT, registry=registry,
@@ -111,7 +158,7 @@ class SigningTests(TemporaryCase):
 
     def test_registry_floor_refuses_candidate_before_credentials_or_flutter(self):
         registry = self.registry()
-        gate.append_delivery(registry, self.record("4.0.0-beta.2"))
+        gate.append_delivery(registry, self.record("4.0.0-beta.2", 227))
         args = argparse.Namespace(expected_certificate=PUBLIC_CERT, registry=registry,
                                   minimum_code=225, version="4.0.0-beta.1", credentials_file=None)
         with mock.patch.object(subprocess, "run") as command:
@@ -299,7 +346,7 @@ class SourceAndArtifactRefusalTests(TemporaryCase):
 
     def test_missing_actual_manifest_fields_are_rejected(self):
         with self.assertRaises(gate.GateError):
-            gate.parse_badging("package: name='com.tntlikely.beecount' versionCode='4000001' versionName='4.0.0-beta.1'\n")
+            gate.parse_badging("package: name='com.tntlikely.beecount' versionCode='226' versionName='4.0.0-beta.1'\n")
 
     def test_contaminated_archive_is_rejected_before_external_tools(self):
         # Deliberately invalid artifact: this is solely a refusal fixture, never a successful APK.
@@ -321,15 +368,15 @@ class SourceAndArtifactRefusalTests(TemporaryCase):
     def test_duplicate_arm64_metadata_is_rejected(self):
         directory = self.root / "build/app/outputs/apk/prod/release"
         directory.mkdir(parents=True)
-        row = {"filters": [{"filterType": "ABI", "value": "arm64-v8a"}], "versionCode": 4_000_001,
+        row = {"filters": [{"filterType": "ABI", "value": "arm64-v8a"}], "versionCode": 226,
                "versionName": "4.0.0-beta.1", "outputFile": "misleading-name.apk"}
         (directory / "output-metadata.json").write_text(json.dumps({"applicationId": gate.PACKAGE,
                          "variantName": "prodRelease", "elements": [row, row]}))
         with self.assertRaises(gate.GateError):
-            gate.select_arm64(self.root, "4.0.0-beta.1", 4_000_001)
+            gate.select_arm64(self.root, "4.0.0-beta.1", 226)
 
     def test_build_plan_is_normal_release_with_no_qa_entry(self):
-        command = gate.build_command("/not-executed/flutter", "a" * 40, "4.0.0-beta.1", 4_000_001, "2026-10-26T01:00:00+00:00")
+        command = gate.build_command("/not-executed/flutter", "a" * 40, "4.0.0-beta.1", 226, "2026-10-26T01:00:00+00:00")
         self.assertIn("--release", command)
         self.assertEqual(command[command.index("--flavor") + 1], "prod")
         self.assertIn("--target=lib/main.dart", command)

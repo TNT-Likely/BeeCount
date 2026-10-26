@@ -2,16 +2,17 @@
 
 统一入口为 `android_version_code.py`，只计算/验证版本，不构建、签名、联网、打 tag 或修改工作区。
 
-`versionCode = major×1,000,000 + minor×10,000 + patch×100 + channel`。
+版本名与安装码分开管理，按**全部渠道和本地已交付记录的最大 code** 分配：
 
-| versionName | versionCode |
-| --- | ---: |
-| `4.0.0-beta.1` | 4,000,001 |
-| `4.0.0-beta.98` | 4,000,098 |
-| `4.0.0` | 4,000,099 |
-| `4.0.1-beta.1` | 4,000,101 |
+| 场景 | 最高已发 code | 新 code |
+| --- | ---: | ---: |
+| `4.0.0-beta.1`（本次） | 225 | 226 |
+| `4.0.0-beta.2` | 226 | 227 |
+| 最后一个可用 `4.0.0` Beta | 298 | 299 |
+| `4.0.0` 正式 | 299 | 300 |
+| 正式后下一次发包 | 300 | 301 |
 
-beta 序号仅 1–98，99 留给正式版；minor/patch 为0–99，总码号不超过项目保守上限2,100,000,000。超限、已有/更低码号、非法版本、旧产品版本均拒绝，不自动换版本或进位。App 更新提示另按 SemVer 排序；名字与 Android 安装排序的整数码是两个概念。
+`4.0.0-beta.N` 使用 `floor+1`，仅允许 226–299；floor 已到 299 时拒绝继续发本轮 Beta。`4.0.0` 正式及后续版本使用 `max(300, floor+1)`，以后正常逐次累加。Beta 序号不机械决定安装码；从版本名本身无法推算 code。所有 code 均不得超过 2,100,000,000，拒绝旧产品名、本地已交付版本名回退、复用/退码和溢出，不静默切换版本计划。
 
 2026-10-26 实际核验的公开 [3.9.0 APK](https://github.com/TNT-Likely/BeeCount/releases/download/3.9.0/beecount-3.9.0.apk) 为 `3.9.0+225`。这是已知迁移下界，不代表所有渠道永远只有225。
 
@@ -25,7 +26,7 @@ python3 -m unittest discover -s tool/release -p 'test_android_version_code.py' -
 
 Android Release workflow 也调用同一工具，替代原 `github.run_number`。**首次启用前必须**在仓库变量 `ANDROID_VERSION_CODE_FLOOR` 设置当前所有正式版/Beta最高实际码号，或手动运行时提供 `android_version_code_floor`；缺少时构建明确失败。实际本地 Beta 交付后、正式 CI 发布前更新该floor，避免私有Beta与CI计数脱节。未在本次变更中设置远端变量或触发workflow；iOS构建号公式不在本次修改范围。
 
-同版本正式槽99高于全部Beta槽1–98；若已经交付更高版本的Beta，较低版本的正式包仍会被floor拒绝。需要调整版本计划，不能绕过退码门禁。
+本轮所有 Beta 的 code 均小于300，首个正式版从300起，高于本轮全部 Beta。若已交付更高产品版本，不能用较低版本名继续发包；应调整版本计划。
 
 ## 本地 APK wrapper
 
@@ -62,7 +63,7 @@ python3 tool/release/local_apk.py init-registry \
 
 每次交付采用文件锁与 `O_APPEND` 追加，只记录公开产物身份和验收报告hash，不重写旧行。链式hash校验行的顺序及内容；独立水位凭据检测完整尾行被删的情况。文件或凭据缺失、截断、码号复用、链不一致均拒绝。写入中断造成水位不同也会拒绝，需人工依据交付证据恢复，不能重新初始化绕过。它防止工具或日常误操作覆盖历史，并非能抵抗同一用户恶意同时改写两份文件的WORM存储；应保留离线交付回执和线上floor证据。
 
-实际floor为 `max(--minimum-code, registry最高已交付code)`，随后调用共用版本计算器。`--minimum-code`仍然必填，不能用本地registry代替商店、GitHub及其他渠道核查。
+实际floor为 `max(--minimum-code, registry最高已交付code)`，随后调用共用版本计算器。例如显式floor仍为225但本地已交付226，下一候选必须分配227，不能复用226。历史项独立校验合法版本名和正整数递增code；不按Beta序号反推历史code。`--minimum-code`仍然必填，不能用本地registry代替商店、GitHub及其他渠道核查。
 
 ### 默认准备及显式构建
 
