@@ -1,5 +1,6 @@
 // Verify the exact seeded Random sequences used by the original parts in the
 // local Dart VM and dart2js backends. This is not part of the rendered App.
+// ignore_for_file: avoid_print
 import 'dart:convert';
 import 'dart:math';
 

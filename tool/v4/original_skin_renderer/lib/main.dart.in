@@ -1,4 +1,5 @@
-// Study-only Flutter entrypoint. No BeeCount App, database, Cloud or AI imports.
+// Renderer template, materialized only in the ignored standalone web project.
+// No BeeCount App, database, Cloud or AI imports.
 import 'dart:async';
 import 'dart:convert';
 // Flutter 3.27 / Dart 3.6 standalone web renderer; no extra runtime packages.

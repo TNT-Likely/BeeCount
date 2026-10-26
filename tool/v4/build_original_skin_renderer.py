@@ -54,7 +54,7 @@ def main() -> None:
     helpers = registry[registry.index('Color _lighten('):registry.index('/// 已注册皮肤')]
     library = (TEMPLATE / 'lib/header_skins.dart.in').read_text().replace('@@ORIGINAL_HSL_HELPERS@@', helpers)
     (PROJECT / 'lib/header_skins.dart').write_text(library)
-    shutil.copyfile(TEMPLATE / 'lib/main.dart', PROJECT / 'lib/main.dart')
+    shutil.copyfile(TEMPLATE / 'lib/main.dart.in', PROJECT / 'lib/main.dart')
     shutil.copytree(TEMPLATE / 'web', PROJECT / 'web', dirs_exist_ok=True)
     fonts = PROJECT / 'assets/fonts'
     fonts.mkdir(parents=True, exist_ok=True)

@@ -52,3 +52,5 @@ python3 tool/v4/build_original_skin_renderer.py --flutter /absolute/path/to/flut
 下方两张原画直出固定为 398×208，并可使用原代码静态帧与应用效果核对。这里使用 Web 预览的零状态栏内边距；Android 的真实安全区、字体替代、CanvasKit 抗锯齿/模糊与设备渲染可能不同。**源码、算法与构图来源一致，不代表 Web 与 Android 逐像素相同。**最终产品承载方式需用户确认，不能仅凭 A/B 原素材确认而自动替换 Flutter。
 
 原来简化 SVG 的应用稿保存在 `skin-application-svg-history-20261026.*`，用于追溯；它不是线上原素材。旧四方向稿、主 demo 和导出设计图均未替换。
+
+入口保存在 `lib/main.dart.in`，仅由构建器写入忽略目录中的独立项目 `lib/main.dart`。模板依赖从固定3.9提交提取的原part，不能作为App仓内可直接分析的Dart入口；这避免尚未提取原part时给主项目引入缺失引用。该组织修正不改变皮肤绘制、设计或已有预览产物。
