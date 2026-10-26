@@ -106,7 +106,10 @@ class BeeAssetOverviewCard extends StatelessWidget {
                     ])),
                 const SizedBox(width: 8),
                 if (unitLabel != null)
-                  Flexible(child: link(unitLabel!, onUnit, 'ChevronDown'))
+                  Expanded(
+                      child: Align(
+                          alignment: Alignment.centerRight,
+                          child: link(unitLabel!, onUnit, 'ChevronDown')))
               ]),
               Align(
                   alignment: Alignment.centerLeft,
@@ -155,9 +158,11 @@ class BeeAssetOverviewCard extends StatelessWidget {
                     const Spacer(),
                   const SizedBox(width: 10),
                   if (detailLabel != null)
-                    Flexible(
-                        child: link(detailLabel!, onDetails, 'ChevronRight',
-                            warn: warning))
+                    Expanded(
+                        child: Align(
+                            alignment: Alignment.centerRight,
+                            child: link(detailLabel!, onDetails, 'ChevronRight',
+                                warn: warning)))
                 ])
               ]
             ]));

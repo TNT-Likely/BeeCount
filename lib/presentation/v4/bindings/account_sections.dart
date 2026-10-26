@@ -512,11 +512,7 @@ class AccountCardBinding extends ConsumerWidget {
         subtitle: metadata,
         amount: balance == null ? '—' : amount(balance),
         hidden: hidden,
-        icon: AccountTypeIcon(
-            type: account.type,
-            size: 19,
-            monochrome: true,
-            color: Theme.of(context).hintColor),
+        icon: AccountTypeIcon(type: account.type, size: 19),
         onTap: onTap,
         onEdit: onEdit,
         badge: badge,

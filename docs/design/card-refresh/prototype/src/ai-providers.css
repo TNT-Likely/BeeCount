@@ -33,3 +33,5 @@
 #bee-immersive-suite .a82-test[data-test-tone=testing] .a82-test-button svg{color:var(--bc-accent)}
 #bee-immersive-suite .r-modal-layer[data-r-key=provider-delete] [data-action=a82-delete-confirm]{background:light-dark(#ba1a1a,#ffb4ab);color:light-dark(#fff,#690005)}
 #bee-immersive-suite .bc-phone .a82-test-button{font-size:calc(12px * var(--q-scale,1))!important}
+
+#bee-immersive-suite .a82-test-button{margin-left:auto;justify-content:flex-end;text-align:right}

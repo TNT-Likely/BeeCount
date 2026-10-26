@@ -174,11 +174,7 @@ extension _AssetsCardActions on _AccountsOverviewBindings {
                             currency: a.currency,
                             detail:
                                 '${getAccountTypeLabel(context, a.type)}${a.hidden ? ' · ${l.accountHiddenTag}' : ''}',
-                            icon: AccountTypeIcon(
-                                type: a.type,
-                                size: 21,
-                                monochrome: true,
-                                color: Theme.of(context).hintColor))
+                            icon: AccountTypeIcon(type: a.type, size: 21))
                     ],
                     currency: ref.read(baseCurrencyProvider),
                     selected: null,

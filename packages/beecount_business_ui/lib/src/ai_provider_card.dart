@@ -98,25 +98,28 @@ class BeeAIModelTestField extends StatelessWidget {
               child: Text(title,
                   style: const TextStyle(
                       fontSize: 13, fontWeight: FontWeight.w500))),
-          Flexible(
-              child: TextButton.icon(
-                  style: TextButton.styleFrom(
-                      foregroundColor: beeToneColor(context, tone)),
-                  onPressed: busy ? null : onTest,
-                  icon: busy
-                      ? const SizedBox(
-                          width: 14,
-                          height: 14,
-                          child: CircularProgressIndicator(strokeWidth: 2))
-                      : BeeLineIcon(
-                          tone == BeeTone.success
-                              ? 'CircleCheck'
-                              : tone == BeeTone.error
-                                  ? 'CircleAlert'
-                                  : 'Play',
-                          size: 16,
-                          color: beeToneColor(context, tone)),
-                  label: Text(testLabel, style: const TextStyle(fontSize: 12))))
+          Expanded(
+              child: Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton.icon(
+                      style: TextButton.styleFrom(
+                          foregroundColor: beeToneColor(context, tone)),
+                      onPressed: busy ? null : onTest,
+                      icon: busy
+                          ? const SizedBox(
+                              width: 14,
+                              height: 14,
+                              child: CircularProgressIndicator(strokeWidth: 2))
+                          : BeeLineIcon(
+                              tone == BeeTone.success
+                                  ? 'CircleCheck'
+                                  : tone == BeeTone.error
+                                      ? 'CircleAlert'
+                                      : 'Play',
+                              size: 16,
+                              color: beeToneColor(context, tone)),
+                      label: Text(testLabel,
+                          style: const TextStyle(fontSize: 12)))))
         ]),
         const SizedBox(height: 4),
         field,
