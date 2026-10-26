@@ -3,6 +3,8 @@
     const sceneId=qParams.get('scene'),scene=window.beeDesignScenes?.[sceneId],route=qParams.get('page');
     if(scene){Object.assign(state,structuredClone(scene.state));Object.assign(settings,scene.settings);Object.assign(qPreview,scene.viewport);pSelected.clear();for(const id of scene.selected||[])pSelected.add(id);}
     else if(route&&Object.hasOwn(views,route)){state.page=route;state.rModal=null;state.rTrail=[];state.history=[];}
+    const originalSkin=qParams.get('originalSkin');if(['anniversary','anniv_cake'].includes(originalSkin)){settings.skin=originalSkin;settings.accent=skinOptions.find(s=>s.id===originalSkin)?.bound||settings.accent;}
+    const appearance=qParams.get('appearance');if(['light','dark'].includes(appearance))settings.appearance=appearance;
     const scale=Number(qParams.get('scale'));if([1,1.4].includes(scale))qPreview.scale=scale;
     if(qParams.get('note')==='expanded')state.zNoteExpanded=true;
     const expanded=qParams.get('expanded');if(expanded)state.expandedCategory=expanded;

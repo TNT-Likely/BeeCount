@@ -34,36 +34,15 @@ function decorate(entry){
  const{phone,win}=entry,scheme=effectiveScheme(entry.appearance),main=phone.querySelector('.bc-main');if(!main)return;
  const active=['home','mine'].includes(entry.demo.state.page),modal=Boolean(entry.demo.state.rModal)||phone.dataset.modal==='true';
  phone.dataset.nativeApplication=scheme;phone.dataset.nativeActive=String(active);phone.dataset.nativePlain=String(state.plain);
- const pageColor=entry.appearance==='dark'?'linear-gradient(#000 0px,#000 180px,#201b13 390px,var(--bc-bg) 100%)':state.skin==='anniv_cake'?'linear-gradient(#fff8ee,var(--bc-bg) 540px)':'linear-gradient(#fff9df,var(--bc-bg) 540px)';
- phone.style.setProperty('--original-page',pageColor);
+ phone.style.setProperty('--original-page',win.BeeOriginalSkinLayout.pageBackground(state.skin,entry.appearance==='dark'));
  const[w,h]=state.viewport.split('x').map(Number),host=phone.parentElement;
  host.style.position='relative';Object.assign(entry.native.frame.style,{width:w+'px',height:h+'px',left:phone.offsetLeft+'px',top:phone.offsetTop+'px',display:active&&!state.plain?'block':'none'});
- const topbar=phone.querySelector('.bc-topbar'),topbarY=topbar?relativeRect(topbar,phone)[1]:43,scrollOffset=topbarY-43;
- const summary=phone.querySelector('.bc-summary,.u-ledger-summary')||main.querySelector('.bc-surface'),summaryRect=summary?relativeRect(summary,phone):[18,113,w-36,284];
- let headerSlot,headerArtRect=null,headerRadius=0;
- if(scheme==='folio'&&entry.demo.state.page==='home'){headerSlot=summaryRect;headerRadius=22;}
- else if(scheme==='folio'){
-  // The compact balance card has no free picture slot. Keep its full content;
-  // the complete original scene is carried by the existing identity area.
-  const top=topbarY,height=Math.max(90,summaryRect[1]-top);headerSlot=[18,top,w-36,height];headerRadius=22;
- }else{
-  // Fit the whole 398x208 original above the first card; never crop a right-
-  // hand cake/constellation fragment or redraw the particles for this strip.
-  const available=Math.max(70,summaryRect[1]-scrollOffset),height=Math.min(208,available),width=height*398/208;
-  const left=entry.demo.state.page==='home'?Math.max(0,(w-320)*.43):Math.max(0,(w-width)/2);
-  headerSlot=[left,scrollOffset,Math.min(width,w-left),height];
- }
- if(scheme==='folio'&&state.placement==='adapt'){
-  // Fit the ENTIRE original composition in the existing right-side free area.
-  // This is uniform placement of the 398x208 source, not a cropped cake cutout.
-  const artWidth=Math.min(240,headerSlot[2]-96),artHeight=artWidth*208/398;
-  const top=entry.demo.state.page==='home'?48:Math.max(0,(headerSlot[3]-artHeight)/2);
-  headerArtRect=[headerSlot[2]-artWidth-12,top,artWidth,artHeight];
- }
+ const topbar=phone.querySelector('.bc-topbar'),summary=phone.querySelector('.bc-summary,.u-ledger-summary')||main.querySelector('.bc-surface');
+ const geometry=win.BeeOriginalSkinLayout.layout({width:w,height:h,page:entry.demo.state.page,scheme,placement:state.placement,summaryRect:summary?relativeRect(summary,phone):[18,113,w-36,284],headerTop:topbar?relativeRect(topbar,phone)[1]:43,navRect:phone.querySelector('.bc-nav')?relativeRect(phone.querySelector('.bc-nav'),phone):null});
+ const {headerSlot,headerArtRect,headerRadius}=geometry;
  const nav=phone.querySelector('.bc-nav'),tabSlot=nav?relativeRect(nav,phone):[17,h-89,w-34,57];
  const hidden=entry.frame.closest('[data-appearance-card]').hidden||document.hidden;
- const draw=headerArtRect||[0,0,headerSlot[2],headerSlot[3]],drawHeight=Math.min(draw[2]/398,draw[3]/208)*208,drawTop=headerSlot[1]+draw[1];
- const headerVisible=active&&!state.plain&&!hidden&&drawTop+drawHeight>36&&drawTop<h-70;
+ const headerVisible=active&&!state.plain&&!hidden&&geometry.headerOnScreen;
  entry.headerSlot=headerSlot;entry.headerArtRect=headerArtRect;
  send(entry.native,{headerSlot,headerArtRect,headerRadius,tabSlot,tabRadius:29,tabBackground:paperColor(entry,nav||phone),headerVisible,tabVisible:active&&!state.plain&&!hidden,motion:modal?'paused':state.motion});
  const target=mainScroll(entry);
@@ -79,7 +58,7 @@ function refresh(entry,resetPage=false){
  if(entry.viewport!==state.viewport){const select=entry.doc.querySelector('#bee-preview-size');if(select){if(![...select.options].some(o=>o.value===state.viewport))select.add(new entry.win.Option(state.viewport,state.viewport));select.value=state.viewport;select.dispatchEvent(new entry.win.Event('change',{bubbles:true}));}entry.viewport=state.viewport;}
  d.render();d.freeze?.();Object.assign(entry.phone.style,{width:w+'px',height:h+'px',maxHeight:h+'px'});decorate(entry);
 }
-function updateLinks(){for(const a of $$('[data-single]'))a.href='skin-application-review.html?'+new URLSearchParams({...state,single:a.dataset.single,plain:state.plain?'1':'0'});}
+function updateLinks(){$('[data-demo-link]').href='../prototype/demo.html?'+new URLSearchParams({originalSkin:state.skin,page:state.page,viewport:state.viewport,appearance:state.appearance==='dark'?'dark':'light'});for(const a of $$('[data-single]'))a.href='skin-application-review.html?'+new URLSearchParams({...state,single:a.dataset.single,plain:state.plain?'1':'0'});}
 function update(resetPage=false){
  for(const key of ['skin','page','viewport','application','placement','appearance','theme','motion'])$('#'+key).value=state[key];
  document.body.dataset.appearance=state.appearance==='dark'?'dark':'light';$('#plain').setAttribute('aria-pressed',String(state.plain));$('#plain').textContent=state.plain?'返回原版皮肤':'无皮肤对照';

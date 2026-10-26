@@ -1,0 +1,18 @@
+/* Original artwork is a separate, bounded render layer. No global opacity or SVG recolouring. */
+#bee-immersive-phone[data-native-application]{isolation:auto!important;z-index:auto!important}
+#bee-immersive-phone[data-native-application] .bc-main{position:relative;z-index:2;background:transparent!important}
+#bee-immersive-phone[data-native-application]>.bc-status{position:relative;z-index:7}
+#bee-immersive-phone[data-native-application] .bc-topbar,#bee-immersive-phone[data-native-application] .bc-subhead{position:relative;z-index:3}
+#bee-immersive-phone[data-native-application] .bc-nav{z-index:15;isolation:isolate}
+#bee-immersive-phone[data-native-application] .bc-nav>button{position:relative;z-index:2}
+.sa-original-stage{position:absolute!important;left:0;top:0;width:398px;height:844px;border:0!important;background:transparent!important;pointer-events:none!important;z-index:1;border-radius:36px;overflow:hidden}
+#bee-immersive-phone[data-native-active=true][data-native-plain=false]{background:var(--original-page)!important}
+#bee-immersive-phone[data-native-active=true][data-native-plain=false] .bc-nav{background:transparent!important;backdrop-filter:none!important}
+#bee-immersive-phone[data-native-active=true][data-native-plain=false][data-native-application=folio][data-page=home] .bc-summary{background:transparent!important;box-shadow:0 0 0 1px #8d6e6310}
+#bee-immersive-phone[data-native-active=true][data-native-plain=false][data-native-application=canopy] .bc-summary{background:var(--bc-paper)!important}
+/* Disable the old full-page imitation only for the two original animated skins. */
+#bee-immersive-phone[data-native-original=true]{--bc-bg:light-dark(#f5f6f7,#111214);--bc-paper:light-dark(#fff,#18191b);--bc-soft:light-dark(#f3f4f5,#272b30);--bc-ink:light-dark(#26282c,#f3f4f5);--bc-muted:light-dark(#81878d,#92979c);--bc-line:light-dark(#eceeef,#30343a)}
+#bee-immersive-phone[data-native-original=true] .sk-canvas:not([data-sk-scene=thumb]){display:none!important}
+#bee-immersive-phone[data-native-original=true] .bc-surface,#bee-immersive-phone[data-native-original=true] .bc-stream{background:var(--bc-paper)!important;backdrop-filter:none!important;box-shadow:none!important}
+#bee-immersive-phone[data-native-original=true][data-native-application=folio][data-page=home] .bc-summary{background:transparent!important}
+#bee-immersive-phone[data-native-original=true] .bc-topbar,#bee-immersive-phone[data-native-original=true] .bc-subhead{text-shadow:none}
