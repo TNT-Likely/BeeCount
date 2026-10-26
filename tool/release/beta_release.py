@@ -16,6 +16,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import unicodedata
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -29,6 +30,74 @@ LOCAL_DELIVERED_FLOOR = 226  # 已实际交付 4.0.0-beta.1；不是由 Beta 序
 PRODUCTION_CERTIFICATE = "0db081285aca34ec4a93137999524c2a3d05f58c5d9ed9899952c6669dab1e9f"
 RECEIPT = "android-release.json"
 RESERVATION = "android-version-reservation.json"
+MAX_SUMMARY_ITEMS = 5
+MAX_SUMMARY_ITEM_LENGTH = 80
+
+
+def unicode_clusters(text):
+    """Keep combining marks, variation selectors, emoji modifiers and ZWJ together."""
+    clusters = []
+    join_next = False
+    for char in text:
+        code = ord(char)
+        extending = unicodedata.category(char).startswith("M") or 0x1F3FB <= code <= 0x1F3FF or 0xE0020 <= code <= 0xE007F
+        regional_pair = (0x1F1E6 <= code <= 0x1F1FF and clusters and len(clusters[-1]) == 1 and
+                         0x1F1E6 <= ord(clusters[-1]) <= 0x1F1FF)
+        if clusters and (extending or char == "\u200d" or join_next or regional_pair):
+            clusters[-1] += char
+        else:
+            clusters.append(char)
+        join_next = char == "\u200d"
+    return clusters
+
+
+def short_summary_item(text):
+    text = re.sub(r"[ \t]+", " ", text).strip()
+    gate.require(text and len(text) <= 4096, "更新摘要条目为空或过长")
+    gate.require(not any(unicodedata.category(c) in {"Cc", "Cs"} for c in text), "更新摘要含控制字符")
+    gate.require(not re.search(r"https?://|(?<![0-9a-f])[0-9a-f]{40,64}(?![0-9a-f])|Merge pull request|Co-authored-by", text, re.I),
+                 "更新摘要应为用户可见变化，不放链接、完整提交 SHA 或提交历史")
+    text = text.replace("**", "").replace("`", "")
+    if len(text) <= MAX_SUMMARY_ITEM_LENGTH:
+        return text
+    result = ""
+    for cluster in unicode_clusters(text):
+        if len(result) + len(cluster) > MAX_SUMMARY_ITEM_LENGTH - 1:
+            break
+        result += cluster
+    gate.require(bool(result), "更新摘要无法安全截断，请缩短条目")
+    return result.rstrip() + "…"
+
+
+def extract_update_summary(notes):
+    """Only the explicitly reviewed per-version section, never git history."""
+    gate.require(isinstance(notes, str), "发布说明缺少 ## 更新摘要")
+    lines = notes.splitlines()
+    starts = [i for i, line in enumerate(lines) if re.fullmatch(r"##[ \t]+更新摘要[ \t]*", line)]
+    gate.require(len(starts) == 1, "发布说明必须包含唯一的 ## 更新摘要")
+    items = []
+    for line in lines[starts[0] + 1:]:
+        if re.match(r"#{1,2}\s", line):
+            break
+        if not line.strip():
+            continue
+        bullet = re.fullmatch(r"[ \t]*[-*][ \t]+(.+)", line)
+        gate.require(bullet is not None, "更新摘要只允许单行短要点，其他说明放到后续章节")
+        items.append(short_summary_item(bullet[1]))
+    gate.require(bool(items), "更新摘要至少需要一条用户可见变化")
+    return items[:MAX_SUMMARY_ITEMS]
+
+
+def telegram_text(context):
+    summary = context.get("notificationSummary")
+    gate.require(isinstance(summary, list) and 1 <= len(summary) <= MAX_SUMMARY_ITEMS,
+                 "缺少已审核更新摘要，拒绝发送空公告")
+    items = [short_summary_item(item) for item in summary]
+    text = (f"🐝 蜜蜂记账 · Beta 内测\n版本：{context['versionName']}（Android {context['versionCode']}）\n\n"
+            + "\n".join("• " + item for item in items)
+            + f"\n\n下载：{context['releaseUrl']}\n反馈：{FEEDBACK}")
+    gate.require(len(text) <= 900 and len(text.splitlines()) <= 12, "Beta 公告超出长度限制")
+    return text
 
 
 class SafeRedirect(urllib.request.HTTPRedirectHandler):
@@ -209,10 +278,13 @@ def plan():
     gate.require(notes.returncode == 0 and len(notes.stdout.strip()) >= 80,
                  "冻结源码缺少完整 Beta 发布说明")
     gate.require(FEEDBACK in notes.stdout, "发布说明缺少固定反馈 issue")
+    summary = extract_update_summary(notes.stdout)
+    telegram_text({"versionName": tag, "versionCode": version.code, "notificationSummary": summary,
+                   "releaseUrl": f"https://github.com/{REPOSITORY}/releases/tag/{tag}"})
     gate.require(not context_path().exists(), "本轮发布上下文已存在，禁止覆盖")
     gate.write_private(context_path(), b"{}")
     save_context({"sourceSha": sha, "versionName": tag, "versionCode": version.code, "floor": floor,
-                  "certificateSha256": certificate, "notes": notes.stdout,
+                  "certificateSha256": certificate, "notes": notes.stdout, "notificationSummary": summary,
                   "repository": REPOSITORY, "status": "planned"})
     print(f"已冻结 {tag}+{version.code} / {sha}，尚未构建或发布")
 
@@ -258,6 +330,8 @@ def build():
 def publish():
     context = read_context()
     gate.require(context["status"] == "verified", "未经签名与产物验证，拒绝发布")
+    context["notificationSummary"] = extract_update_summary(context.get("notes"))
+    telegram_text(dict(context, releaseUrl=f"https://github.com/{REPOSITORY}/releases/tag/{context['versionName']}"))
     client = GitHub()
     releases = client.releases()
     gate.require(not any(r.get("tag_name", "").removeprefix("v") == context["versionName"] for r in releases),
@@ -289,7 +363,7 @@ def publish():
     release = client.request("POST", f"/repos/{REPOSITORY}/releases", {
         "tag_name": context["versionName"], "target_commitish": context["sourceSha"],
         "name": "蜜蜂记账 " + context["versionName"], "body": body,
-        "draft": True, "prerelease": True, "make_latest": "false"})
+        "draft": True, "prerelease": True, "make_latest": "false", "generate_release_notes": False})
     context.update(status="draft-created", releaseId=release["id"], releaseUrl=release["html_url"])
     save_context(context)
     # Store the floor BEFORE exposing an APK. An interrupted draft keeps this
@@ -318,8 +392,7 @@ def notify():
     token, chat = os.environ.get("TELEGRAM_BOT_TOKEN", ""), os.environ.get("TELEGRAM_CHAT_ID", "")
     gate.require(bool(token and chat), "Beta 已发布，但 Telegram secrets 缺失，尚未通知")
     gate.require(re.fullmatch(r"[0-9]+:[A-Za-z0-9_-]+", token), "Telegram token 格式无效")
-    text = (f"蜜蜂记账 {context['versionName']}（Android {context['versionCode']}）已发布\n"
-            f"正式签名 ARM64 APK：{context['releaseUrl']}\n反馈：{FEEDBACK}")
+    text = telegram_text(context)
     payload = urllib.parse.urlencode({"chat_id": chat, "text": text, "disable_web_page_preview": "true"}).encode()
     try:
         request = urllib.request.Request("https://api.telegram.org/bot" + token + "/sendMessage", data=payload, method="POST")
@@ -362,11 +435,16 @@ def notification_plan():
     url = urllib.parse.urlsplit(release.get("html_url", ""))
     gate.require(url.scheme == "https" and url.netloc == "github.com" and not url.query and not url.fragment and
                  url.path == f"/{REPOSITORY}/releases/tag/{release['tag_name']}", "Release 链接身份不正确")
+    # Retry the announcement that was actually published, not today's local
+    # notes or a freshly generated list of commits.
+    summary = extract_update_summary(release.get("body"))
+    telegram_text({"versionName": recorded.name, "versionCode": recorded.code,
+                   "notificationSummary": summary, "releaseUrl": release["html_url"]})
     gate.require(not context_path().exists(), "本轮通知上下文已存在，禁止覆盖")
     gate.write_private(context_path(), b"{}")
     save_context({"status": "published", "mode": "notify-only", "sourceSha": record["sourceSha"],
                   "versionName": recorded.name, "versionCode": recorded.code,
-                  "releaseId": release["id"], "releaseUrl": release["html_url"]})
+                  "releaseId": release["id"], "releaseUrl": release["html_url"], "notificationSummary": summary})
     print("已只读核对发布身份；尚未发送通知")
 
 

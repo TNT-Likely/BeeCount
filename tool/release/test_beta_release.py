@@ -10,6 +10,7 @@ import tempfile
 import unittest
 from unittest import mock
 import urllib.request
+import urllib.parse
 
 import beta_release as beta
 import local_apk as gate
@@ -19,6 +20,48 @@ def receipt(name="4.0.0-beta.2", code=227):
     return {"schemaVersion": 1, "kind": "beecount-beta-release" if "-beta." in name else "beecount-android-release", "package": gate.PACKAGE,
             "versionName": name, "versionCode": code, "sourceSha": "a" * 40,
             "certificateSha256": beta.PRODUCTION_CERTIFICATE, "apkSha256": "b" * 64, "abi": gate.ABI}
+
+
+class SummaryTests(unittest.TestCase):
+    def test_only_reviewed_summary_is_extracted_and_other_sections_are_excluded(self):
+        notes = "# Beta\n\n## 更新摘要\n\n- 首页显示完整。\n- 标签显示更清楚。\n\n## 已知问题\n- 仍待真机验收。\n## 构建身份\n" + "a" * 40
+        self.assertEqual(beta.extract_update_summary(notes), ["首页显示完整。", "标签显示更清楚。"])
+
+    def test_only_five_short_items_are_sent_from_a_large_manual_section(self):
+        notes = "## 更新摘要\n" + "\n".join("- " + str(i) + "很长的改进" * 100 for i in range(10))
+        summary = beta.extract_update_summary(notes)
+        self.assertEqual(len(summary), 5)
+        self.assertTrue(all(len(line) <= 80 and line.endswith("…") for line in summary))
+
+    def test_missing_duplicate_empty_or_non_bullet_summary_is_rejected(self):
+        for notes in ["# No summary", "## 更新摘要\n## 其他\n- no", "## 更新摘要\n- a\n## 更新摘要\n- b",
+                      "## 更新摘要\n```\ncommit\n```", "## 更新摘要\nnot a bullet"]:
+            with self.subTest(notes=notes), self.assertRaises(gate.GateError):
+                beta.extract_update_summary(notes)
+
+    def test_commit_sha_and_links_are_not_user_visible_bullets(self):
+        for value in ["commit " + "a" * 40, "Full log https://example.invalid/log", "Merge pull request #10"]:
+            with self.subTest(value=value), self.assertRaises(gate.GateError):
+                beta.extract_update_summary("## 更新摘要\n- " + value)
+
+    def test_unicode_truncation_preserves_combining_emoji_zwj_and_flag_clusters(self):
+        for cluster in ["e\u0301", "👩🏽‍💻", "👨‍👩‍👧‍👦", "🇨🇳"]:
+            value = "中" * 78 + cluster + "后续内容"
+            shortened = beta.short_summary_item(value)
+            self.assertEqual(shortened, "中" * 78 + "…")
+            shortened.encode("utf-8", errors="strict")
+        self.assertEqual(beta.short_summary_item("中" * 90), "中" * 79 + "…")
+
+    def test_telegram_is_labelled_and_bounded_without_commit_metadata(self):
+        text = beta.telegram_text({"versionName": "4.0.0-beta.2", "versionCode": 227,
+            "notificationSummary": ["变化" * 90] * 5,
+            "releaseUrl": f"https://github.com/{beta.REPOSITORY}/releases/tag/4.0.0-beta.2",
+            "sourceSha": "a" * 40})
+        self.assertIn("Beta 内测", text)
+        self.assertIn(beta.FEEDBACK, text)
+        self.assertNotIn("a" * 40, text)
+        self.assertLessEqual(len(text), 900)
+        self.assertLessEqual(len(text.splitlines()), 12)
 
 
 class FloorTests(unittest.TestCase):
@@ -142,7 +185,8 @@ class DispatchTests(unittest.TestCase):
         with mock.patch.object(beta, "GitHub") as github, self.assertRaises(gate.GateError):
             beta.publish()
         github.assert_not_called()
-        beta.save_context({"status": "verified", "versionName": "4.0.0-beta.2"})
+        beta.save_context({"status": "verified", "versionName": "4.0.0-beta.2", "versionCode": 227,
+                           "notes": "## 更新摘要\n- 用户可见改进。"})
         client = mock.Mock()
         client.releases.return_value = [{"tag_name": "4.0.0-beta.2"}]
         with mock.patch.object(beta, "GitHub", return_value=client), self.assertRaises(gate.GateError):
@@ -159,7 +203,7 @@ class DispatchTests(unittest.TestCase):
             "javaHome": str(self.root), "toolsPath": str(self.root / "build-tools/36.0.0")}))
         self.write_context(status="verified", versionName="4.0.0-beta.2", versionCode=227,
             sourceSha="a" * 40, certificateSha256=beta.PRODUCTION_CERTIFICATE,
-            floor=226, manifest=str(manifest), runParent=str(self.root), notes="Reviewed notes")
+            floor=226, manifest=str(manifest), runParent=str(self.root), notes="## 更新摘要\n- 用户可见改进。\n")
         os.environ["GITHUB_RUN_ID"] = "123"
         client = mock.Mock(); client.releases.return_value = []
         client.request.side_effect = [None, {"id": 1, "html_url": "https://github.com/draft"},
@@ -169,7 +213,10 @@ class DispatchTests(unittest.TestCase):
         names = [call.args[1] for call in client.upload.call_args_list]
         self.assertEqual(names, [beta.RESERVATION, apk.name, apk.name + ".sha256", beta.RECEIPT])
         self.assertEqual(client.request.call_args_list[0].args[1], f"/repos/{beta.REPOSITORY}/git/refs")
+        self.assertEqual(client.request.call_args_list[1].args[2]["make_latest"], "false")
+        self.assertIs(client.request.call_args_list[1].args[2]["generate_release_notes"], False)
         self.assertEqual(client.request.call_args.args[0], "PATCH")
+        self.assertEqual(client.request.call_args.args[2]["make_latest"], "false")
         self.assertEqual(beta.read_context()["status"], "published")
 
     def test_notification_refuses_before_publish_and_never_uses_argv(self):
@@ -178,10 +225,36 @@ class DispatchTests(unittest.TestCase):
             beta.notify()
         request.assert_not_called()
 
+    def test_missing_summary_stops_plan_before_build_or_any_github_write(self):
+        os.environ.update(GITHUB_REPOSITORY=beta.REPOSITORY, GITHUB_EVENT_NAME="workflow_dispatch",
+            BETA_EXPECTED_CERTIFICATE=beta.PRODUCTION_CERTIFICATE, BETA_VERSION="4.0.0-beta.2", BETA_CHANNEL_FLOOR="226")
+        client = mock.Mock(); client.releases.return_value = []
+        results = [subprocess.CompletedProcess([], 1), subprocess.CompletedProcess([], 1),
+                   subprocess.CompletedProcess([], 0, stdout="# 说明\n" + "没有摘要的正文。" * 30 + beta.FEEDBACK)]
+        with mock.patch.object(beta, "source_sha", return_value="a" * 40), mock.patch.object(beta, "GitHub", return_value=client), \
+             mock.patch.object(subprocess, "run", side_effect=results), mock.patch.object(gate, "prepare_or_build") as build, \
+             self.assertRaisesRegex(gate.GateError, "更新摘要"):
+            beta.plan()
+        build.assert_not_called()
+        client.request.assert_not_called()
+        self.assertFalse(self.context.exists())
+
+    def test_notify_payload_contains_original_summary_without_full_history(self):
+        self.write_context(status="published", versionName="4.0.0-beta.2", versionCode=227,
+            releaseUrl=f"https://github.com/{beta.REPOSITORY}/releases/tag/4.0.0-beta.2",
+            notificationSummary=["原公告的改进。"], sourceSha="a" * 40)
+        os.environ.update(TELEGRAM_BOT_TOKEN="123:synthetic", TELEGRAM_CHAT_ID="synthetic-chat")
+        with mock.patch.object(beta, "open_url", return_value=io.BytesIO(b'{"ok":true}')) as request, contextlib.redirect_stdout(io.StringIO()):
+            beta.notify()
+        payload = urllib.parse.parse_qs(request.call_args.args[0].data.decode())
+        self.assertIn("原公告的改进。", payload["text"][0])
+        self.assertNotIn("a" * 40, payload["text"][0])
+
     def notification_fixture(self):
         os.environ.update(GITHUB_REPOSITORY=beta.REPOSITORY, GITHUB_EVENT_NAME="workflow_dispatch",
                           BETA_EXPECTED_CERTIFICATE=beta.PRODUCTION_CERTIFICATE, BETA_VERSION="4.0.0-beta.2")
         release = {"id": 2, "tag_name": "4.0.0-beta.2", "draft": False, "prerelease": True,
+                   "body": "## 更新摘要\n- 原公告的改进。\n## 构建身份\n" + "a" * 40,
                    "html_url": f"https://github.com/{beta.REPOSITORY}/releases/tag/4.0.0-beta.2",
                    "assets": [{"id": 3, "name": beta.RECEIPT},
                               {"id": 4, "name": "beecount-4.0.0-beta.2-arm64-v8a.apk", "size": 100,
@@ -200,10 +273,11 @@ class DispatchTests(unittest.TestCase):
         client.upload.assert_not_called()
         self.assertEqual(beta.read_context()["mode"], "notify-only")
         self.assertEqual(beta.read_context()["versionCode"], 227)
+        self.assertEqual(beta.read_context()["notificationSummary"], ["原公告的改进。"])
         self.assertNotIn("runParent", beta.read_context())
 
     def test_notification_only_refuses_draft_stable_missing_or_tampered_identity(self):
-        for change in ["draft", "stable", "missing", "cert", "sha", "url"]:
+        for change in ["draft", "stable", "missing", "cert", "sha", "url", "summary"]:
             client, release = self.notification_fixture()
             if change == "draft": release["draft"] = True
             if change == "stable": release["prerelease"] = False
@@ -211,6 +285,7 @@ class DispatchTests(unittest.TestCase):
             if change == "cert": client.receipt.return_value["certificateSha256"] = "f" * 64
             if change == "sha": release["assets"][1]["digest"] = "sha256:" + "c" * 64
             if change == "url": release["html_url"] = "https://other.example/download"
+            if change == "summary": release["body"] = "No reviewed summary"
             with self.subTest(change=change), mock.patch.object(beta, "GitHub", return_value=client), self.assertRaises(gate.GateError):
                 beta.notification_plan()
             client.request.assert_not_called()

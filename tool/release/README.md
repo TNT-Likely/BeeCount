@@ -132,7 +132,7 @@ python3 -m unittest discover -s tool/release -p 'test_*.py' -v
 启用前将 workflow 注册到默认分支，并确保 v4 包含这一套已审核工具及目标发布说明。运行时：
 
 - `source_ref` 为 `v4` 或其历史内的完整 40 位 SHA；默认 `v4` 会立即解析并冻结。未提交文件不会进入构建。
-- `version` 默认 `4.0.0-beta.2`；所选提交必须包含 `docs/releases/<version>.md`，正文须有正常变更说明、升级注意及固定反馈 issue 580。
+- `version` 默认 `4.0.0-beta.2`；所选提交必须包含人工整理的 `docs/releases/<version>.md`，正文须有唯一的 `## 更新摘要`、升级注意及固定反馈 issue 580。摘要缺失、为空或格式异常，在 plan 阶段就拒绝；不等到发布后才发现公告不能发送。
 - `android_version_code_floor` 或仓库变量 `ANDROID_VERSION_CODE_FLOOR` 必须提供全部渠道最高已交付 code。Beta1 已实际本地交付 226，因此有效下界至少 226，下一包为 227。流程还取所有已有 Release/失败草稿的机器回执最大 code；版本名不允许倒退。正式版仍由共用计算器从至少 300 开始。
 - 已有 4.x 正式版、新 Beta 或失败草稿缺少可信机器回执时明确拒绝，即使填写了 floor 也不猜测。3.9 等历史旧版可以沿用已核 floor。补回执须先读取实际 APK 的版本/code、包名、证书、ABI 与 hash，核对对应源 SHA；回执 schemaVersion=1、kind=`beecount-android-release`（Beta 为 `beecount-beta-release`），包含 `package`、`versionName`、`versionCode`、`sourceSha`、`certificateSha256`、`apkSha256`、`abi`。不能依据版本名倒推 code 或填写占位 hash。
 - 必填公开仓库变量 `ANDROID_RELEASE_CERT_SHA256`，必须为已核生产证书指纹；缺失或与已核指纹不同会拒绝，不自动接受证书轮换。
@@ -149,3 +149,13 @@ GitHub 的 `GITHUB_TOKEN` 只用于读取版本、创建新 tag/Release 和上�
 若 APK/Release 已发布成功、只有 Telegram 通知失败，重新手动运行该工作流并将 `mode` 选择为 `notify-only`，`version` 填原来已发布的 Beta 版本。默认 `release` 模式仍然禁止覆盖同 tag，不应通过重跑整套发布来补通知。
 
 `notify-only` 使用独立只读 GitHub job：检查目标是唯一、已公开的 prerelease；读取唯一 `android-release.json`，核对正式包名、版本/code、生产证书、ARM64、源 SHA 和 APK hash，并要求对应 APK 存在；GitHub 提供资产摘要时必须匹配回执。核对后仅发送 Telegram。不会分配新 code、构建、访问签名 secrets、创建/修改 tag、上传资产或改写 Release；无需配置 source/floor 或 Android SDK。草稿、正式版、缺失/不可信回执和摘要不匹配均拒绝通知。它复核的是已发布记录与资产身份，不重新下载并执行完整 APK 静态验包。
+
+### 每个 Beta 的更新说明与公告
+
+以 `docs/releases/BETA_TEMPLATE.md` 为模板，为每个版本保留独立 `<version>.md`。只写相对上一个 Beta 的用户可见差异，通常 3–5 条；不要复制所有历史变化、Git 提交列表或完整 SHA。问题、升级注意与待验收范围放到其他章节。发布过的旧版本文档保留，新版本新建文件，不把同一份文档不断覆盖为完整项目历史。
+
+Release 正文使用该版本人工文档并附简短构建身份；明确禁用 GitHub 自动生成 release notes。每个 Beta 建独立 prerelease，`make_latest=false`，不会取代正式版 Latest。
+
+Telegram 显示“Beta 内测”、版本、最多 5 条摘要、Release 下载页及 issue 580。只提取 `## 更新摘要` 直到下一个一级/二级标题，不读取其他章节；每条最多 80 个 Unicode 码点，截断保留组合字符、肤色修饰、旗帜和 ZWJ emoji 的完整组合，加省略号。整条消息最多 900 字符/12 行，不附源码 SHA、完整 commit 或技术清单。摘要链接、完整提交 SHA 和多行内容需移到适合的章节。
+
+仅通知重试从**已经发布的 Release 正文**同一摘要段读取，沿用原公告内容，不从当前 v4 文档或 git log 重新拼历史。缺少有效摘要的旧 Release 会拒绝重发，由维护者先核对并补齐对应版本说明。
