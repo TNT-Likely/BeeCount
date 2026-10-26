@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>蜜蜂记账 · 动态皮肤应用方案</title>
+  <link rel="stylesheet" href="skin-application-svg-history-20261026.css">
+</head>
+<body data-appearance="light">
+  <header class="sa-heading">
+    <div><span class="sa-eyebrow">历史稿 · SVG 重绘，非线上原画</span><h1>历史 · 皮肤应用方式探索</h1><p>此稿使用简化SVG，画面与线上原实现不同，已停止作为实施依据。</p></div>
+    <a href="../prototype/demo.html?page=home" target="_blank" rel="noopener">完整交互 Demo ↗</a>
+  </header>
+  <section class="sa-controls" aria-label="应用方案预览设置">
+    <div class="sa-controls-main">
+      <label>原有皮肤<select id="skin"><option value="constellation">A · 蜜色星光</option><option value="cake">B · 生日烛光</option></select></label>
+      <label>页面<select id="page"><option value="home">明细首页</option><option value="mine">我的</option></select></label>
+      <label>屏幕<select id="viewport"><option value="398x844">398 × 844 · 标准</option><option value="320x568">320 × 568 · 小屏</option><option value="414x932">414 × 932 · 长屏</option></select></label>
+      <label>外观<select id="appearance"><option value="light">浅色</option><option value="dark">深色</option></select></label>
+      <label>主题色<select id="theme"><option value="yellow">蜜蜂黄</option><option value="green">琉璃绿</option><option value="blue">晴空蓝</option><option value="violet">青莲紫</option></select></label>
+      <label>动效<select id="motion"><option value="play">正常播放</option><option value="reduced">减弱 · 只留微光</option><option value="paused">暂停当前画面</option><option value="off">关闭 · 静态构图</option></select></label>
+      <button id="plain" class="sa-outline" aria-pressed="false">无皮肤对照</button>
+    </div>
+    <div class="sa-controls-secondary"><div class="sa-segments" role="group" aria-label="同步滚动预览"><button data-scroll="0" aria-pressed="true">回到顶部</button><button data-scroll="180" aria-pressed="false">半屏过渡</button><button data-scroll="430" aria-pressed="false">滚动看列表</button></div><label class="sa-check"><input type="checkbox" id="linked" checked>同步三个页面的滚动</label><span>手机内可直接操作 · 产品默认仍为无皮肤</span></div>
+  </section>
+  <main class="sa-grid">
+    <article class="sa-candidate" data-scheme="canopy">
+      <header><div class="sa-number">01 <span>主推</span></div><h2>顶部场景，柔幕延展</h2><p>画面在顶部，温度留在整页。</p></header>
+      <div class="sa-phone-holder"><iframe data-frame="canopy" title="方案一：顶部场景柔幕延展"></iframe></div>
+      <div class="sa-rule"><span>顶部动效</span><i></i><span>静态浅底</span><i></i><span>清楚的白卡</span></div>
+      <dl><dt>卡片融合</dt><dd>首卡有一圈很淡的暖光，向下自然回到纸白。</dd><dt>滚动以后</dt><dd>整页上滑时场景退去；只滚列表时保留顶部场景。</dd></dl>
+      <footer><span data-status="canopy">准备交互预览…</span><a data-single="canopy" target="_blank" rel="noopener">单独看 ↗</a></footer>
+    </article>
+    <article class="sa-candidate" data-scheme="folio">
+      <header><div class="sa-number">02 <span>更有纪念感</span></div><h2>首卡共景，像一本封面</h2><p>把皮肤变成第一张卡片的画面。</p></header>
+      <div class="sa-phone-holder"><iframe data-frame="folio" title="方案二：首卡共景"></iframe></div>
+      <div class="sa-rule"><span>主题首卡</span><i></i><span>留白承接</span><i></i><span>日常列表</span></div>
+      <dl><dt>卡片融合</dt><dd>主体缩进首卡留白；“我的”卡片较紧凑，主体回到标题旁。</dd><dt>滚动以后</dt><dd>场景跟首卡同进退，离开可视区才停止播放。</dd></dl>
+      <footer><span data-status="folio">准备交互预览…</span><a data-single="folio" target="_blank" rel="noopener">单独看 ↗</a></footer>
+    </article>
+    <article class="sa-candidate" data-scheme="paper">
+      <header><div class="sa-number">03 <span>更强调层次</span></div><h2>场景在后，纸页在前</h2><p>像把一页账单，轻轻放到场景上。</p></header>
+      <div class="sa-phone-holder"><iframe data-frame="paper" title="方案三：场景在后纸页在前"></iframe></div>
+      <div class="sa-rule"><span>顶部场景</span><i></i><span>纸页覆盖</span><i></i><span>纯净阅读</span></div>
+      <dl><dt>卡片融合</dt><dd>汇总卡略带底色，明细区域由一张纸面承托。</dd><dt>滚动以后</dt><dd>整页上滑时纸页盖住场景，两侧留一丝静态暖色。</dd></dl>
+      <footer><span data-status="paper">准备交互预览…</span><a data-single="paper" target="_blank" rel="noopener">单独看 ↗</a></footer>
+    </article>
+  </main>
+  <section class="sa-notes"><div><span class="sa-eyebrow">建议选择</span><h2>我更推荐 01。</h2><p>它最接近老版“顶部能看见皮肤，整页舒服”的感觉。A 的星光和 B 的烛火有存在感，长列表仍然安静。02 更适合纪念款，03 的纸页层次更明显。</p></div><div><span class="sa-eyebrow">动态边界</span><h2>动的是星光与烛火。</h2><p>标准屏沿用固定顶部与列表局部滚动；小屏与“我的”整页上滑时，场景才退场。不让整页背景漂移，不让卡片缩放。主题色负责按钮与选中态，皮肤保留自己的蜜金与暖杏。系统减弱动效时使用静态构图；打开弹窗时暂停背景，进入记账后收起场景。</p></div></section>
+  <script src="skin-application-svg-history-20261026.js"></script>
+</body>
+</html>
