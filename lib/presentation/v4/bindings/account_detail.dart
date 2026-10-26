@@ -163,3 +163,12 @@ final accountRowMetadataProvider = FutureProvider.autoDispose
     attachments: await repo.getAttachmentCountsForTransactions(parsed)
   );
 });
+
+final accountPeriodCategoryStatsProvider = FutureProvider.autoDispose.family<
+    List<({int? id, String name, String? icon, double total})>,
+    ({int accountId, String type, DateTime? start, DateTime? end})>((ref, p) {
+  ref.watch(statsRefreshProvider);
+  ref.watch(syncGenerationProvider);
+  return ref.watch(repositoryProvider).getAccountCategoryStats(p.accountId,
+      type: p.type, startDate: p.start, endExclusive: p.end);
+});

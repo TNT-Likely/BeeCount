@@ -11,6 +11,7 @@ import '../../../utils/currencies.dart';
 import '../../../widgets/biz/format_money.dart';
 import '../../../utils/category_utils.dart';
 import 'account_detail.dart';
+import '../../../services/currency/rate_math.dart';
 
 class AccountDetailSummary extends ConsumerWidget {
   const AccountDetailSummary(
@@ -19,15 +20,24 @@ class AccountDetailSummary extends ConsumerWidget {
       required this.stats,
       required this.onRetry,
       required this.onRepay,
-      required this.onValue});
+      required this.onValue,
+      this.ledgerCount = 0,
+      this.onLedgers,
+      this.onInfo,
+      this.actions});
   final db.Account account;
   final AsyncValue<({double balance, double income, double expense})> stats;
   final VoidCallback onRetry, onRepay, onValue;
+  final int ledgerCount;
+  final VoidCallback? onLedgers, onInfo;
+  final Widget? actions;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context),
         hidden = ref.watch(hideAmountsProvider);
     final compact = ref.watch(compactAmountProvider);
+    final base = ref.watch(baseCurrencyProvider);
+    final rates = ref.watch(effectiveRatesProvider).valueOrNull;
     final valuation = isValuationOnlyType(account.type),
         credit = account.type == 'credit_card';
     final liability = isLiabilityType(account.type),
@@ -78,41 +88,67 @@ class AccountDetailSummary extends ConsumerWidget {
             return Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  BeeResourceHero(
+                  BeeAccountSummaryCard(
                       title: account.name,
                       caption:
                           '${getAccountTypeLabel(context, account.type)} · ${account.currency}',
-                      icon: AccountTypeIcon(type: account.type, size: 24),
-                      amountLabel: label,
+                      icon: AccountTypeIcon(type: account.type, size: 32),
+                      balanceLabel: label,
+                      currency: account.currency,
                       prefix: hidden ? '' : symbol,
                       amount: number(value),
-                      metrics: credit
-                          ? [
-                              if (available != null) ...[
-                                BeeResourceMetric(
-                                    label: l.creditLimit,
-                                    value: money(account.creditLimit!)),
-                                BeeResourceMetric(
-                                    label: l.creditAvailable,
-                                    value: money(available))
-                              ]
-                            ]
-                          : valuation
-                              ? [
-                                  if (account.updatedAt != null)
-                                    BeeResourceMetric(
-                                        label: l.valuationLastUpdated(''),
-                                        value:
-                                            '${account.updatedAt!.year}-${account.updatedAt!.month.toString().padLeft(2, '0')}-${account.updatedAt!.day.toString().padLeft(2, '0')}')
-                                ]
-                              : [
-                                  BeeResourceMetric(
-                                      label: l.homeIncome,
-                                      value: money(s.income)),
-                                  BeeResourceMetric(
-                                      label: l.homeExpense,
-                                      value: money(s.expense))
-                                ]),
+                      privacyLabel: hidden ? l.v4AmountsShow : l.v4AmountsHide,
+                      onPrivacy: () => ref
+                          .read(hideAmountsProvider.notifier)
+                          .state = !hidden,
+                      properties: [
+                        BeeAccountProperty(
+                            label: l.accountTypeLabel,
+                            value: getAccountTypeLabel(context, account.type),
+                            onPressed: onInfo),
+                        BeeAccountProperty(
+                            label: l.v4AccountNetWorthLabel,
+                            value: l.v4AccountIncluded,
+                            icon: const BeeLineIcon('Check', size: 11),
+                            onPressed: onInfo),
+                        BeeAccountProperty(
+                            label: l.v4AccountLinkedBooks,
+                            value: l.v4AccountLedgerCount(ledgerCount),
+                            onPressed: onLedgers),
+                      ],
+                      conversion: account.currency.toUpperCase() ==
+                              base.toUpperCase()
+                          ? null
+                          : TextButton(
+                              onPressed: () => showBeeSheet<void>(context,
+                                  title: l.v4AccountNetWorthLabel,
+                                  child:
+                                      Text(l.netWorthTrendMultiCurrencyNote)),
+                              child: Row(children: [
+                                Expanded(
+                                    child: Text(l.v4DetailConvertedScope(base),
+                                        style: const TextStyle(fontSize: 10))),
+                                Text(
+                                    hidden
+                                        ? '••••'
+                                        : rates == null ||
+                                                computeNativeAmount(
+                                                        amount: s.balance,
+                                                        accountCurrency:
+                                                            account.currency,
+                                                        ledgerBase: base,
+                                                        rates: rates) ==
+                                                    null
+                                            ? l.unconvertedBadge
+                                            : '≈ ${getDistinctCurrencySymbol(base)}${number(computeNativeAmount(amount: s.balance, accountCurrency: account.currency, ledgerBase: base, rates: rates)!)}',
+                                    style: const TextStyle(fontSize: 11)),
+                                const SizedBox(width: 4),
+                                const BeeLineIcon('ChevronRight', size: 12)
+                              ]))),
+                  if (actions != null) ...[
+                    const SizedBox(height: 12),
+                    actions!
+                  ],
                   if (metadata.isNotEmpty) ...[
                     const SizedBox(height: 12),
                     BeeSurface(
@@ -124,6 +160,18 @@ class AccountDetailSummary extends ConsumerWidget {
                   ],
                   if (credit) ...[
                     const SizedBox(height: 12),
+                    if (account.creditLimit != null)
+                      BeeSurface(
+                          child: Row(children: [
+                        Expanded(
+                            child: Text(
+                                '${l.creditLimit}\n${money(account.creditLimit ?? 0)}')),
+                        if (available != null)
+                          Expanded(
+                              child: Text(
+                                  '${l.creditAvailable}\n${money(available)}')),
+                      ])),
+                    const SizedBox(height: 8),
                     BeeCreditCardTerms(
                         usage: hidden ? null : usage,
                         usageColor: usage == null
@@ -152,6 +200,7 @@ class AccountDetailSummary extends ConsumerWidget {
                                 : due <= 7
                                     ? const Color(0xffaa8b29)
                                     : scheme.primary,
+                        showRepayButton: actions == null,
                         repayLabel: l.creditCardQuickRepay,
                         onRepay: onRepay),
                   ],
@@ -183,11 +232,14 @@ class AccountDetailDistribution extends ConsumerStatefulWidget {
       required this.accountId,
       required this.credit,
       required this.value,
-      required this.onChanged});
+      required this.onChanged,
+      this.startDate,
+      this.endExclusive});
   final int accountId;
   final bool credit;
   final String value;
   final ValueChanged<String> onChanged;
+  final DateTime? startDate, endExclusive;
   @override
   ConsumerState<AccountDetailDistribution> createState() =>
       _AccountDistributionState();
@@ -214,7 +266,14 @@ class _AccountDistributionState
     final hidden = ref.watch(hideAmountsProvider);
     final kind = widget.credit ? 'expense' : widget.value;
     final params = (accountId: widget.accountId, type: kind);
-    final data = ref.watch(accountCategoryStatsProvider(params));
+    final data = widget.startDate == null && widget.endExclusive == null
+        ? ref.watch(accountCategoryStatsProvider(params))
+        : ref.watch(accountPeriodCategoryStatsProvider((
+            accountId: widget.accountId,
+            type: kind,
+            start: widget.startDate,
+            end: widget.endExclusive
+          )));
     return BeeSurface(
         child:
             Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [

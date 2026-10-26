@@ -641,32 +641,81 @@ class LocalAccountRepository implements AccountRepository {
   }
 
   @override
-  Future<List<Transaction>> getAccountTransactions(
-    int accountId, {int limit = 50, int offset = 0, String? flow}) async {
-    // flow 过滤按资金流向:支出视图含转出,收入视图含转入,null 为全部
+  Future<List<Transaction>> getAccountTransactions(int accountId,
+      {int limit = 50,
+      int offset = 0,
+      String? flow,
+      DateTime? startDate,
+      DateTime? endExclusive,
+      String query = '',
+      bool ascending = false,
+      bool orderByAmount = false}) async {
     final where = switch (flow) {
-      'expense' => "account_id = ?1 AND type IN ('expense', 'transfer')",
+      'expense' => "t.account_id = ?1 AND t.type IN ('expense', 'transfer')",
       'income' =>
-        "(type = 'income' AND account_id = ?1) OR (type = 'transfer' AND to_account_id = ?1)",
-      _ => 'account_id = ?1 OR to_account_id = ?1',
+        "(t.type = 'income' AND t.account_id = ?1) OR (t.type = 'transfer' AND t.to_account_id = ?1)",
+      _ => 't.account_id = ?1 OR t.to_account_id = ?1',
     };
+    final order = orderByAmount ? 't.amount' : 't.happened_at';
+    final direction = ascending ? 'ASC' : 'DESC';
     final results = await db.customSelect(
-      '''
-      SELECT * FROM transactions
-      WHERE ($where) AND $_kExcludeJoinedSharedLedgerSql
-      ORDER BY happened_at DESC
-      LIMIT ?2 OFFSET ?3
-      ''',
+      """
+      SELECT t.* FROM transactions t
+      LEFT JOIN categories c ON c.id = t.category_id
+      LEFT JOIN ledgers l ON l.id = t.ledger_id
+      WHERE ($where) AND t.$_kExcludeJoinedSharedLedgerSql
+        AND (?2 IS NULL OR t.happened_at >= ?2)
+        AND (?3 IS NULL OR t.happened_at < ?3)
+        AND (?4 = '' OR instr(lower(COALESCE(t.note, '')), lower(?4)) > 0
+          OR instr(lower(COALESCE(c.name, '')), lower(?4)) > 0
+          OR instr(lower(COALESCE(l.name, '')), lower(?4)) > 0)
+      ORDER BY $order $direction, t.id $direction LIMIT ?5 OFFSET ?6
+      """,
       variables: [
         d.Variable.withInt(accountId),
+        d.Variable<DateTime>(startDate),
+        d.Variable<DateTime>(endExclusive),
+        d.Variable.withString(query),
         d.Variable.withInt(limit),
-        d.Variable.withInt(offset),
+        d.Variable.withInt(offset)
       ],
-      readsFrom: {db.transactions},
+      readsFrom: {db.transactions, db.categories, db.ledgers},
     ).get();
-
-    // Generated mapping retains every snapshot/reference column for editing.
     return results.map((row) => db.transactions.map(row.data)).toList();
+  }
+
+  @override
+  Future<({int count, double income, double expense, DateTime? firstDate})>
+      getAccountPeriodTotals(int accountId,
+          {DateTime? startDate, DateTime? endExclusive}) async {
+    final row = await db.customSelect("""
+      SELECT COUNT(*) AS entries, MIN(happened_at) AS first_at,
+        COALESCE(SUM(CASE WHEN exclude_from_stats = 0 AND
+          ((type = 'income' AND account_id = ?1) OR
+           (type = 'transfer' AND to_account_id = ?1)) THEN amount ELSE 0 END),0) AS incoming,
+        COALESCE(SUM(CASE WHEN exclude_from_stats = 0 AND account_id = ?1 AND
+          type IN ('expense','transfer') THEN amount ELSE 0 END),0) AS outgoing
+      FROM transactions WHERE (account_id = ?1 OR to_account_id = ?1)
+        AND $_kExcludeJoinedSharedLedgerSql
+        AND (?2 IS NULL OR happened_at >= ?2)
+        AND (?3 IS NULL OR happened_at < ?3)
+    """, variables: [
+      d.Variable.withInt(accountId),
+      d.Variable<DateTime>(startDate),
+      d.Variable<DateTime>(endExclusive)
+    ], readsFrom: {
+      db.transactions,
+      db.ledgers
+    }).getSingle();
+    final first = row.data['first_at'] as int?;
+    return (
+      count: (row.data['entries'] as num).toInt(),
+      income: (row.data['incoming'] as num).toDouble(),
+      expense: (row.data['outgoing'] as num).toDouble(),
+      firstDate: first == null
+          ? null
+          : DateTime.fromMillisecondsSinceEpoch(first * 1000)
+    );
   }
 
   @override
@@ -758,7 +807,10 @@ class LocalAccountRepository implements AccountRepository {
 
   @override
   Future<List<({int? id, String name, String? icon, double total})>>
-      getAccountCategoryStats(int accountId, {required String type}) async {
+      getAccountCategoryStats(int accountId,
+          {required String type,
+          DateTime? startDate,
+          DateTime? endExclusive}) async {
     final results = await db.customSelect(
       '''
       SELECT c.id, c.name, c.icon, SUM(t.amount) as total
@@ -766,12 +818,16 @@ class LocalAccountRepository implements AccountRepository {
       LEFT JOIN categories c ON t.category_id = c.id
       WHERE t.account_id = ?1 AND t.type = ?2
         AND t.$_kExcludeJoinedSharedLedgerSql
+        AND (?3 IS NULL OR t.happened_at >= ?3)
+        AND (?4 IS NULL OR t.happened_at < ?4)
       GROUP BY c.id
       ORDER BY total DESC
       ''',
       variables: [
         d.Variable.withInt(accountId),
         d.Variable.withString(type),
+        d.Variable<DateTime>(startDate),
+        d.Variable<DateTime>(endExclusive),
       ],
       readsFrom: {db.transactions, db.categories},
     ).get();
@@ -779,7 +835,8 @@ class LocalAccountRepository implements AccountRepository {
     return results.map((row) {
       return (
         id: row.data['id'] as int?,
-        name: (row.data['name'] as String?) ?? resolveAppLocalizations(null).commonUncategorized,
+        name: (row.data['name'] as String?) ??
+            resolveAppLocalizations(null).commonUncategorized,
         icon: row.data['icon'] as String?,
         total: (row.data['total'] as num).toDouble(),
       );

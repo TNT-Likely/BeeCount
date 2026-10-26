@@ -1,4 +1,6 @@
 import 'package:beecount/data/db.dart';
+import 'package:beecount/presentation/v4/bindings/account_detail_controller.dart';
+import 'package:beecount/services/currency/exchange_rate_service.dart';
 import 'package:beecount/data/repositories/local/local_repository.dart';
 import 'package:beecount/l10n/app_localizations.dart';
 import 'package:beecount/pages/account/account_detail_page.dart';
@@ -14,18 +16,41 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+class _LocalRates extends ExchangeRateService {
+  @override
+  Future<RateFetchResult> fetch(String base) async => RateFetchResult(
+      rateDate: '2026-10-26',
+      source: 'synthetic-widget-transport',
+      ratesBaseToQuote:
+          base == 'CNY' ? {'USD': '0.1408450704'} : {'CNY': '7.1'});
+}
+
 class AccountDetailTestRepository extends LocalRepository {
   AccountDetailTestRepository(super.db);
   bool failPageOnce = false;
   @override
   Future<List<Transaction>> getAccountTransactions(int id,
-      {int limit = 50, int offset = 0, String? flow}) {
+      {int limit = 50,
+      int offset = 0,
+      String? flow,
+      DateTime? startDate,
+      DateTime? endExclusive,
+      String query = '',
+      bool ascending = false,
+      bool orderByAmount = false}) {
     if (failPageOnce) {
       failPageOnce = false;
       throw StateError('Synthetic page error');
     }
-    return super
-        .getAccountTransactions(id, limit: limit, offset: offset, flow: flow);
+    return super.getAccountTransactions(id,
+        limit: limit,
+        offset: offset,
+        flow: flow,
+        startDate: startDate,
+        endExclusive: endExclusive,
+        query: query,
+        ascending: ascending,
+        orderByAmount: orderByAmount);
   }
 }
 
@@ -47,6 +72,7 @@ void main() {
     food = await repo.createCategory(name: '餐饮', kind: 'expense');
     salary = await repo.createCategory(name: '工资', kind: 'income');
     container = ProviderContainer(overrides: [
+      exchangeRateServiceProvider.overrideWithValue(_LocalRates()),
       databaseProvider.overrideWithValue(db),
       repositoryProvider.overrideWithValue(repo)
     ]);
@@ -77,6 +103,18 @@ void main() {
           categoryId: category,
           note: note,
           happenedAt: at ?? DateTime(2026, 10, 24, 12, 34, 56));
+  AccountDetailController model(WidgetTester tester) =>
+      (tester.state(find.byType(AccountDetailPage)) as dynamic).c
+          as AccountDetailController;
+  Future<void> waitLoaded(WidgetTester tester) async {
+    await tester.runAsync(() async {
+      for (var i = 0; i < 100 && model(tester).loading; i++) {
+        await Future<void>.delayed(const Duration(milliseconds: 5));
+      }
+    });
+    await tester.pumpAndSettle();
+  }
+
   Future<void> open(WidgetTester tester, int id,
       {double scale = 1, Size size = const Size(398, 844)}) async {
     tester.view.devicePixelRatio = 1;
@@ -107,6 +145,7 @@ void main() {
                         child: const Text('打开真实账户')))))));
     await tester.tap(find.text('打开真实账户'));
     await tester.pumpAndSettle();
+    await waitLoaded(tester);
     await tester
         .runAsync(() => container.read(accountDetailReferencesProvider.future));
     await tester.pumpAndSettle();
@@ -134,9 +173,15 @@ void main() {
         transactionId: id, fileName: 'synthetic.png', fileSize: 20);
     final before = await repo.getTransactionsByLedger(1);
     await open(tester, cash);
-    expect(tester.widget<BeeResourceHero>(find.byType(BeeResourceHero)).amount,
+    expect(
+        tester
+            .widget<BeeAccountSummaryCard>(find.byType(BeeAccountSummaryCard))
+            .amount,
         '1,058.00');
-    await tester.drag(find.byType(ListView).first, const Offset(0, -500));
+    for (var i = 0; i < 3; i++) {
+      await tester.drag(find.byType(ListView).first, const Offset(0, -500));
+      await tester.pumpAndSettle();
+    }
     await tester.pumpAndSettle();
     final visible = rows(tester);
     expect(visible.any((r) => r.amount == '−¥20.00'), isTrue);
@@ -171,12 +216,13 @@ void main() {
           billingDay: 12,
           paymentDueDay: 28);
       await open(tester, id);
-      final hero = tester.widget<BeeResourceHero>(find.byType(BeeResourceHero));
-      expect(hero.amountLabel, sample.label);
+      final hero = tester
+          .widget<BeeAccountSummaryCard>(find.byType(BeeAccountSummaryCard));
+      expect(hero.balanceLabel, sample.label);
       if (sample.available != null) {
-        expect(hero.metrics.any((m) => m.value == sample.available), isTrue);
+        expect(find.textContaining(sample.available!), findsOneWidget);
       } else {
-        expect(hero.metrics, isEmpty);
+        expect(find.byType(BeeCreditCardTerms), findsOneWidget);
       }
       await tester.ensureVisible(find.text('记一笔还款'));
       await tester.tap(find.text('记一笔还款'));
@@ -237,10 +283,14 @@ void main() {
         native: 5,
         category: food);
     await open(tester, usd);
-    final hero = tester.widget<BeeResourceHero>(find.byType(BeeResourceHero));
+    final hero = tester
+        .widget<BeeAccountSummaryCard>(find.byType(BeeAccountSummaryCard));
     expect(hero.prefix, 'US\$');
     expect(hero.amount, '83.00');
-    await tester.drag(find.byType(ListView).first, const Offset(0, -550));
+    for (var i = 0; i < 3; i++) {
+      await tester.drag(find.byType(ListView).first, const Offset(0, -550));
+      await tester.pumpAndSettle();
+    }
     await tester.pumpAndSettle();
     final actual = rows(tester);
     expect(
@@ -269,20 +319,14 @@ void main() {
           at: DateTime(2026, 10, 24, 12, i));
     }
     await open(tester, cash);
-    const params = (accountId: 1, flow: null);
-    expect(
-        container
-            .read(accountTransactionsPaginatedProvider(params))
-            .transactions
-            .length,
-        50);
+    expect(model(tester).rows.length, 50);
     for (var i = 0; i < 18; i++) {
       await tester.drag(find.byType(ListView).first, const Offset(0, -900));
       await tester.pumpAndSettle();
     }
-    final loaded = container.read(accountTransactionsPaginatedProvider(params));
-    expect(loaded.transactions.length, 53);
-    expect(loaded.transactions.map((t) => t.id).toSet().length, 53);
+    final loaded = model(tester);
+    expect(loaded.rows.length, 53);
+    expect(loaded.rows.map((t) => t.id).toSet().length, 53);
     expect(loaded.hasMore, isFalse);
     expect(tester.takeException(), isNull);
     await close(tester);
@@ -296,13 +340,8 @@ void main() {
     await tester.ensureVisible(find.text('重试'));
     await tester.tap(find.text('重试'));
     await tester.pumpAndSettle();
-    expect(
-        container
-            .read(accountTransactionsPaginatedProvider(
-                (accountId: cash, flow: null)))
-            .transactions
-            .length,
-        1);
+    await waitLoaded(tester);
+    expect(model(tester).rows.length, 1);
     expect(find.text('重试'), findsNothing);
     expect(tester.takeException(), isNull);
     await close(tester);
@@ -319,9 +358,10 @@ void main() {
         paymentDueDay: 28);
     container.read(hideAmountsProvider.notifier).state = true;
     await open(tester, id, scale: 1.4, size: const Size(320, 568));
-    final hero = tester.widget<BeeResourceHero>(find.byType(BeeResourceHero));
+    final hero = tester
+        .widget<BeeAccountSummaryCard>(find.byType(BeeAccountSummaryCard));
     expect(hero.amount, '••••');
-    expect(hero.metrics.every((m) => m.value == '••••'), isTrue);
+    expect(find.textContaining('20,000.00'), findsNothing);
     await tester.ensureVisible(find.text('记一笔还款'));
     expect(find.textContaining('12日出账'), findsOneWidget);
     expect(tester.takeException(), isNull);
@@ -341,28 +381,28 @@ void main() {
     await open(tester, cash);
     final l =
         AppLocalizations.of(tester.element(find.byType(AccountDetailPage)));
-    await tester.ensureVisible(find.text(l.accountOutflows));
+    await tester.ensureVisible(find.byWidgetPredicate(
+        (w) => w is BeeIconButton && w.label == l.accountAllFlows));
+    await tester.drag(find.byType(ListView).first, const Offset(0, -120));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byWidgetPredicate(
+        (w) => w is BeeIconButton && w.label == l.accountAllFlows));
+    await tester.pumpAndSettle();
     await tester.tap(find.text(l.accountOutflows));
+    await tester.tap(find.text(l.commonConfirm));
+    await waitLoaded(tester);
+    expect(model(tester).rows.map((t) => t.id).toSet(), {expense, outgoing});
+    await tester.ensureVisible(find.byWidgetPredicate(
+        (w) => w is BeeIconButton && w.label == l.accountAllFlows));
+    await tester.drag(find.byType(ListView).first, const Offset(0, -120));
     await tester.pumpAndSettle();
-    expect(
-        container
-            .read(accountTransactionsPaginatedProvider(
-                (accountId: cash, flow: 'expense')))
-            .transactions
-            .map((t) => t.id)
-            .toSet(),
-        {expense, outgoing});
-    await tester.ensureVisible(find.text(l.accountInflows));
+    await tester.tap(find.byWidgetPredicate(
+        (w) => w is BeeIconButton && w.label == l.accountAllFlows));
+    await tester.pumpAndSettle();
     await tester.tap(find.text(l.accountInflows));
-    await tester.pumpAndSettle();
-    expect(
-        container
-            .read(accountTransactionsPaginatedProvider(
-                (accountId: cash, flow: 'income')))
-            .transactions
-            .map((t) => t.id)
-            .toSet(),
-        {income, incoming});
+    await tester.tap(find.text(l.commonConfirm));
+    await waitLoaded(tester);
+    expect(model(tester).rows.map((t) => t.id).toSet(), {income, incoming});
     expect(await repo.getTransactionsByLedger(1), before);
     expect(tester.takeException(), isNull);
     await close(tester);
@@ -378,6 +418,11 @@ void main() {
           category: category);
     }
     await open(tester, cash);
+    final l =
+        AppLocalizations.of(tester.element(find.byType(AccountDetailPage)));
+    await tester.ensureVisible(find.text(l.accountCategoryBreakdown));
+    await tester.tap(find.text(l.accountCategoryBreakdown));
+    await tester.pumpAndSettle();
     await tester.ensureVisible(find.byType(BeeDonutChart));
     await tester.pumpAndSettle();
     final chart = tester.widget<BeeDonutChart>(find.byType(BeeDonutChart));

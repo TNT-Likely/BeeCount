@@ -2237,9 +2237,30 @@ class LocalRepository extends BaseRepository {
 
   @override
   Future<List<Transaction>> getAccountTransactions(int accountId,
-          {int limit = 50, int offset = 0, String? flow}) =>
+          {int limit = 50,
+          int offset = 0,
+          String? flow,
+          DateTime? startDate,
+          DateTime? endExclusive,
+          String query = '',
+          bool ascending = false,
+          bool orderByAmount = false}) =>
       _accountRepo.getAccountTransactions(accountId,
-          limit: limit, offset: offset, flow: flow);
+          limit: limit,
+          offset: offset,
+          flow: flow,
+          startDate: startDate,
+          endExclusive: endExclusive,
+          query: query,
+          ascending: ascending,
+          orderByAmount: orderByAmount);
+
+  @override
+  Future<({int count, double income, double expense, DateTime? firstDate})>
+      getAccountPeriodTotals(int accountId,
+              {DateTime? startDate, DateTime? endExclusive}) =>
+          _accountRepo.getAccountPeriodTotals(accountId,
+              startDate: startDate, endExclusive: endExclusive);
 
   @override
   Future<List<({DateTime date, double balance})>> getAccountDailyBalances(
@@ -2251,8 +2272,12 @@ class LocalRepository extends BaseRepository {
 
   @override
   Future<List<({int? id, String name, String? icon, double total})>>
-      getAccountCategoryStats(int accountId, {required String type}) =>
-          _accountRepo.getAccountCategoryStats(accountId, type: type);
+      getAccountCategoryStats(int accountId,
+              {required String type,
+              DateTime? startDate,
+              DateTime? endExclusive}) =>
+          _accountRepo.getAccountCategoryStats(accountId,
+              type: type, startDate: startDate, endExclusive: endExclusive);
 
   @override
   Future<({double totalAssets, double totalLiabilities, double netWorth})>
