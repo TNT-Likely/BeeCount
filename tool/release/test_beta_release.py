@@ -329,7 +329,9 @@ class Arm64ContractTests(unittest.TestCase):
         self.assertIn('"${TARGET_TAG,,}" == *beta*', stable_yaml)
         self.assertNotIn("|| github.event_name == 'push'", stable_yaml)
         gradle = (root / "android/app/build.gradle").read_text()
-        self.assertIn("ndk { abiFilters 'arm64-v8a' }", gradle)
+        # A real ARM64 build rejected the former combination of NDK filters
+        # and ABI splits. The single-ABI split and artifact gate own this rule.
+        self.assertNotIn("ndk { abiFilters", gradle)
         self.assertIn("universalApk !arm64OnlyApk", gradle)
         self.assertNotRegex(beta_yaml, r"run:.*\$\{\{ inputs\.")
         notification = beta_yaml.split("\n  notify-only:", 1)[1]

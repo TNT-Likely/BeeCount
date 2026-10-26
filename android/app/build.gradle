@@ -57,9 +57,6 @@ android {
         versionName = flutter.versionName
         manifestPlaceholders += [appName: "@string/app_name"]
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        if (arm64OnlyApk) {
-            ndk { abiFilters 'arm64-v8a' }
-        }
     // 当未在命令行指定 --flavor 时，默认选择 dev 风味，避免 Flutter 调试找不到 APK。
     missingDimensionStrategy "env", "dev"
     }
@@ -92,6 +89,8 @@ android {
     // - bundleProdRelease(AAB):splits 关,正常 AAB
     splits {
         abi {
+            // AGP rejects simultaneous ndk.abiFilters and ABI splits. Keep
+            // APK filtering here; Flutter's target selects the AOT build.
             enable = !buildingAppBundle
             reset()
             if (arm64OnlyApk) {
