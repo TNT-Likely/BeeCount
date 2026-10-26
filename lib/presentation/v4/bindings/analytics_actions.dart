@@ -3,7 +3,7 @@ part of '../../../pages/main/analytics_page.dart';
 mixin _AnalyticsActions on ConsumerState<AnalyticsPage> {
   String _scope = 'month', _type = 'expense';
   Object? _queryKey;
-  Future<AnalyticsResult>? _query;
+  Future<Map<String, AnalyticsResult>>? _query;
 
   void _selectType(String value) => setState(() => _type = value);
 

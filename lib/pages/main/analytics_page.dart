@@ -32,24 +32,12 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
         month = ref.watch(selectedMonthProvider),
         sd = ref.watch(currentMonthStartDayProvider),
         tick = ref.watch(statsRefreshProvider);
-    final key = (
-      repo,
-      id,
-      month,
-      _scope,
-      _type,
-      sd,
-      tick,
-      DateUtils.dateOnly(DateTime.now())
-    );
+    final key =
+        (repo, id, month, _scope, sd, tick, DateUtils.dateOnly(DateTime.now()));
     if (_queryKey != key) {
       _queryKey = key;
-      _query = loadAnalyticsData(repo,
-          ledgerId: id,
-          scope: _scope,
-          type: _type,
-          selMonth: month,
-          startDay: sd);
+      _query = loadAnalyticsViews(repo,
+          ledgerId: id, scope: _scope, selMonth: month, startDay: sd);
     }
     return V4PageScaffold(
         body: Column(children: [
@@ -86,8 +74,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
               ],
               onChanged: (v) => setState(() => _scope = v))),
       Expanded(
-          child: FutureBuilder<AnalyticsResult>(
-              key: ValueKey('analytics_$_type'),
+          child: FutureBuilder<Map<String, AnalyticsResult>>(
               future: _query,
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
@@ -103,7 +90,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
                   return const Center(child: CircularProgressIndicator());
                 }
                 return AnalyticsContent(
-                    data: snapshot.data!,
+                    data: snapshot.data![_type]!,
                     scope: _scope,
                     type: _type,
                     month: month,

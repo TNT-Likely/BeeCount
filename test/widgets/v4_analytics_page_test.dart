@@ -19,6 +19,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class _Repo extends LocalRepository {
   _Repo(super.db);
   bool fail = false;
+  int countReads = 0;
   Completer<void>? gate;
   @override
   Future<int> countByTypeInRange(
@@ -26,6 +27,7 @@ class _Repo extends LocalRepository {
       required String type,
       required DateTime start,
       required DateTime end}) async {
+    countReads++;
     await gate?.future;
     if (fail) throw StateError('synthetic analytics unavailable');
     return super.countByTypeInRange(
@@ -172,6 +174,32 @@ void main() {
     expect(composition.income, '¥12,000');
     expect(composition.expense, '¥95.2');
     expect((await db.select(db.transactions).get()).length, 5);
+    await close(t);
+  });
+  testWidgets('同周期视角切换同步显示正确值且不卸载页面或重新请求', (t) async {
+    await open(t);
+    final beforeReads = repo.countReads;
+    final summaryElement = t.element(find.byType(BeeAnalyticsSummary));
+    repo.gate = Completer<void>();
+    for (final view in [
+      ('收入', 'income', 12000.0),
+      ('结余', 'balance', 11904.8),
+      ('支出', 'expense', 95.2),
+    ]) {
+      await t.tap(find
+          .descendant(
+              of: find.byType(BeeAnalyticsSummary),
+              matching: find.text(view.$1))
+          .first);
+      await t.pump();
+      expect(find.byType(CircularProgressIndicator), findsNothing);
+      final content = t.widget<AnalyticsContent>(find.byType(AnalyticsContent));
+      expect(content.type, view.$2);
+      expect(content.data.total, closeTo(view.$3, 1e-8));
+      expect(t.element(find.byType(BeeAnalyticsSummary)), same(summaryElement));
+      expect(repo.countReads, beforeReads);
+    }
+    repo.gate!.complete();
     await close(t);
   });
   testWidgets('月年全部切换、原年月滚轮取消与不允许未来', (t) async {

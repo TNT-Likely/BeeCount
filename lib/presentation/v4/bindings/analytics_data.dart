@@ -32,6 +32,28 @@ class AnalyticsResult {
   List<double> get values => analyticsSeriesValues(series);
 }
 
+/// A period has three views of the same data. Load them together so changing
+/// the selected view never tears down the page or labels stale expense values
+/// as income while another request is in flight.
+Future<Map<String, AnalyticsResult>> loadAnalyticsViews(dynamic repo,
+    {required int ledgerId,
+    required String scope,
+    required DateTime selMonth,
+    required int startDay,
+    DateTime? clock}) async {
+  const types = ['expense', 'income', 'balance'];
+  final results = await Future.wait(types.map((type) => loadAnalyticsData(repo,
+      ledgerId: ledgerId,
+      scope: scope,
+      type: type,
+      selMonth: selMonth,
+      startDay: startDay,
+      clock: clock)));
+  return Map.unmodifiable({
+    for (var i = 0; i < types.length; i++) types[i]: results[i],
+  });
+}
+
 Future<AnalyticsResult> loadAnalyticsData(dynamic repo,
     {required int ledgerId,
     required String scope,
