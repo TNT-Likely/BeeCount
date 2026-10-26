@@ -273,7 +273,9 @@ class _LiveBusinessPreviewState extends ConsumerState<LiveBusinessPreview> {
                                               balance: d.balances
                                                       .containsKey(a.id)
                                                   ? '${getCurrencySymbol(a.currency)}${d.balances[a.id]!.toStringAsFixed(2)}'
-                                                  : '余额暂不可用'))
+                                                  : '余额暂不可用',
+                                              icon: AccountTypeIcon(
+                                                  type: a.type, size: 24)))
                                           .toList(),
                                       selected: accountId,
                                       searchLabel: '搜索账户',

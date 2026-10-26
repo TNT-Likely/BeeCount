@@ -742,7 +742,7 @@ void main() {
     expect(find.textContaining('12,860.50', findRichText: true), findsNothing);
     expect(find.text('268'), findsOneWidget);
   });
-  testWidgets('可点击交易标签仍是紧凑色块，选择器标签保留大触控块', (tester) async {
+  testWidgets('可点击交易标签保持紧凑，选择器视觉26且触控44', (tester) async {
     var tapped = 0;
     await open(
         tester,
@@ -774,7 +774,8 @@ void main() {
     final choice = find.descendant(
         of: find.widgetWithText(BeeTag, '选择器标签'),
         matching: find.byKey(const ValueKey('bee-tag-pill')));
-    expect(tester.getSize(choice).height, 44);
+    expect(tester.getSize(choice).height, 26);
+    expect(tester.getSize(find.widgetWithText(BeeTag, '选择器标签')).height, 44);
     expect(tester.takeException(), isNull);
   });
   testWidgets('标签搜索、清空和确认；关闭弹层不提交草稿', (tester) async {

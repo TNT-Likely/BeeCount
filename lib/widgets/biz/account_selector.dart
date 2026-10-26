@@ -1,5 +1,4 @@
 import 'package:beecount_business_ui/beecount_business_ui.dart';
-import 'package:beecount_ui/beecount_ui.dart';
 import '../../utils/currencies.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -230,15 +229,7 @@ class _AccountSelectorState extends ConsumerState<AccountSelector> {
                   detail: a.hidden
                       ? l10n.accountHiddenTag
                       : getAccountTypeLabel(context, a.type),
-                  icon: BeeLineIcon(
-                      a.hidden
-                          ? 'EyeOff'
-                          : a.type == 'cash'
-                              ? 'Banknote'
-                              : a.type.contains('card')
-                                  ? 'CreditCard'
-                                  : 'Wallet',
-                      size: 21)))
+                  icon: AccountTypeIcon(type: a.type, size: 24)))
               .toList(),
           currency: widget.filterCurrency ?? '',
           // All filtering and historical pinning has already happened above.
@@ -274,6 +265,7 @@ class _AccountSelectorState extends ConsumerState<AccountSelector> {
 
           return _buildAccountChip(
             label: account.name,
+            accountType: account.type,
             isSelected: isSelected,
             // account.hidden 只可能在 E1 钉住场景为 true(其余隐藏账户已被
             // 过滤,不会出现在 sortedAccounts 里),借该字段直接打灰标。
@@ -290,6 +282,7 @@ class _AccountSelectorState extends ConsumerState<AccountSelector> {
     required bool isSelected,
     required VoidCallback onTap,
     bool isHidden = false,
+    String? accountType,
   }) {
     final primaryColor = ref.watch(primaryColorProvider);
 
@@ -305,6 +298,10 @@ class _AccountSelectorState extends ConsumerState<AccountSelector> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
+              if (accountType != null) ...[
+                AccountTypeIcon(type: accountType, size: 18),
+                const SizedBox(width: 5),
+              ],
               if (isHidden) ...[
                 Icon(
                   Icons.visibility_off,

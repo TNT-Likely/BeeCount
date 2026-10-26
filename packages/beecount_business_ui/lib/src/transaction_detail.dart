@@ -151,10 +151,11 @@ class BeeTransactionDetail extends StatelessWidget {
                 Text(tagsLabel!, style: TextStyle(fontSize: 12, color: muted)),
                 const SizedBox(height: 8)
               ],
-              Wrap(spacing: 8, runSpacing: 8, children: [
+              Wrap(spacing: 6, runSpacing: 0, children: [
                 for (final tag in tags)
                   BeeTag(
                       tag: tag,
+                      compact: true,
                       onTap: busy ||
                               onTag == null ||
                               readOnlyTagIds.contains(tag.id)

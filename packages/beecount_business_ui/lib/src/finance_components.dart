@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'transaction_presentation.dart';
 
+export 'tag.dart';
+
 export 'transaction_presentation.dart';
 export 'transaction_row.dart';
 
@@ -54,62 +56,6 @@ class BeeCategoryIcon extends StatelessWidget {
                                         child: CircularProgressIndicator(
                                             strokeWidth: 1.5))),
                         errorBuilder: (_, error, stack) => fallback()))));
-  }
-}
-
-class BeeTag extends StatelessWidget {
-  const BeeTag(
-      {super.key,
-      required this.tag,
-      this.selected = false,
-      this.onTap,
-      this.compact = false});
-  final BeeTagData tag;
-  final bool selected;
-  final VoidCallback? onTap;
-
-  /// Compact inline pills keep their 21px visual size when tappable.
-  /// The larger choice style belongs to the tag picker.
-  final bool compact;
-  @override
-  Widget build(BuildContext context) {
-    final inline = compact || onTap == null;
-    final radius = BorderRadius.circular(inline ? 20 : 12);
-    Widget pill = Container(
-      key: const ValueKey('bee-tag-pill'),
-      constraints: BoxConstraints(minHeight: inline ? 21 : 44),
-      padding: EdgeInsets.symmetric(horizontal: inline ? 8 : 12, vertical: 3),
-      decoration: BoxDecoration(
-          color: tag.color.withValues(alpha: .12),
-          border: selected ? Border.all(color: tag.color) : null,
-          borderRadius: radius),
-      child: Row(mainAxisSize: MainAxisSize.min, children: [
-        if (!inline) ...[
-          BeeLineIcon(selected ? 'Check' : 'Tag', size: 13, color: tag.color),
-          const SizedBox(width: 4)
-        ],
-        Flexible(
-            child: Text(tag.label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                    fontSize: inline ? 10 : 12,
-                    height: 1.5,
-                    color: tag.color))),
-      ]),
-    );
-    if (compact && onTap != null) {
-      pill = ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: 28, minWidth: 44),
-          child: Center(widthFactor: 1, heightFactor: 1, child: pill));
-    }
-    return Semantics(
-        selected: selected,
-        button: onTap != null,
-        child: Material(
-            color: Colors.transparent,
-            borderRadius: radius,
-            child: InkWell(onTap: onTap, borderRadius: radius, child: pill)));
   }
 }
 

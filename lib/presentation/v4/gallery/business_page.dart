@@ -743,7 +743,7 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
                     onChanged: (v) => recordingNote = v),
                 account: TextButton.icon(
                     onPressed: () => record('选择账户'),
-                    icon: const BeeLineIcon('Wallet', size: 16),
+                    icon: const AccountTypeIcon(type: 'wechat', size: 18),
                     label: const Text('微信', style: TextStyle(fontSize: 11))),
                 date: TextButton.icon(
                     onPressed: () => record('选择日期'),
@@ -787,12 +787,17 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
                     child: BeeTagPicker(
                         tags: [
                           ...demoTags,
+                          const BeeTagData(
+                              'disabled-tag', '停用标签', Color(0xff819268)),
+                          const BeeTagData('long-tag', '项目报销·跨城商务差旅与客户交流',
+                              Color(0xff6b92bd)),
                           ...List.generate(
                               35,
                               (i) => BeeTagData('custom$i', '自定义标签 $i',
                                   demoTags[i % 5].color))
                         ],
                         initial: tags,
+                        disabledIds: const {'disabled-tag'},
                         recent: [demoTags[0], demoTags[2]],
                         recentLabel: '最近使用',
                         allLabel: '全部标签',
@@ -1551,17 +1556,20 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
                           id: 'wechat',
                           name: '微信',
                           currency: 'CNY',
-                          balance: '¥2,680.00'),
+                          balance: '¥2,680.00',
+                          icon: AccountTypeIcon(type: 'wechat', size: 24)),
                       BeeAccountChoice(
                           id: 'bank',
                           name: '招商银行',
                           currency: 'CNY',
-                          balance: '¥12,800.00'),
+                          balance: '¥12,800.00',
+                          icon: AccountTypeIcon(type: 'bank_card', size: 24)),
                       BeeAccountChoice(
                           id: 'usd',
                           name: '美元账户',
                           currency: 'USD',
-                          balance: 'US\$300.00')
+                          balance: 'US\$300.00',
+                          icon: AccountTypeIcon(type: 'cash', size: 24))
                     ],
                     currency: 'CNY',
                     selected: chosenAccount,
@@ -1664,6 +1672,8 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
                 toLabel: '转入账户',
                 fromName: '人民币现金',
                 toName: '招商银行',
+                fromIcon: const AccountTypeIcon(type: 'cash', size: 24),
+                toIcon: const AccountTypeIcon(type: 'bank_card', size: 24),
                 onFrom: () => record('选择转出账户'),
                 onTo: () => record('选择转入账户')),
             const SizedBox(height: 12),
@@ -1674,6 +1684,8 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
                 toLabel: '转入账户',
                 fromName: '人民币现金',
                 toName: '旧银行卡',
+                fromIcon: const AccountTypeIcon(type: 'cash', size: 24),
+                toIcon: const AccountTypeIcon(type: 'bank_card', size: 24),
                 toDetail: '已隐藏',
                 onFrom: () => record('选择转出账户'),
                 onTo: () => record('保留历史隐藏账户')),
@@ -1757,7 +1769,7 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
             const BeeResourceHero(
                 title: '日常信用卡',
                 caption: '信用卡 · CNY · 尾号8862',
-                icon: BeeLineIcon('CreditCard', size: 22),
+                icon: AccountTypeIcon(type: 'credit_card', size: 24),
                 amountLabel: '当前欠款',
                 prefix: '¥',
                 amount: '3,200.00',

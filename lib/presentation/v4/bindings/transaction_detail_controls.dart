@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import '../../../utils/account_type_utils.dart';
+
 import 'package:beecount_business_ui/transaction_detail.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';
@@ -198,7 +200,13 @@ class _TransactionDetailControlsState
         style: const TextStyle(fontSize: 13, height: 1.5));
     BeeDetailItem accountItem(String label, Account? account) => BeeDetailItem(
         label: label,
-        value: value(account?.name ?? l.accountNone),
+        value: account == null
+            ? value(l.accountNone)
+            : Row(mainAxisSize: MainAxisSize.min, children: [
+                AccountTypeIcon(type: account.type, size: 20),
+                const SizedBox(width: 6),
+                Flexible(child: value(account.name)),
+              ]),
         onTap:
             !widget.previewOnly && account != null && account.id > 0 && !_busy
                 ? () => _open(AccountDetailPage(account: account))

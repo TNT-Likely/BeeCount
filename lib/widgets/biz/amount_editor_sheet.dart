@@ -20,6 +20,7 @@ import '../../services/attachment_service.dart';
 import '../../providers.dart';
 import '../../utils/ui_scale_extensions.dart';
 import '../../utils/currencies.dart';
+import '../../utils/account_type_utils.dart';
 import '../../data/repositories/local/local_repository.dart';
 import '../../utils/shared_ledger_picker_filter.dart';
 import '../../pages/tag/widgets/tag_selector.dart';
@@ -1821,9 +1822,13 @@ class AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
               child:
                   BeeLineIcon('ImagePlus', size: 18, color: theme.hintColor))),
       account: accountsEnabled
-          ? meta('recording-account', compact ? '' : 'Wallet',
-              account?.name ?? l10n.accountNone, _pickCardAccount,
+          ? meta('recording-account', '', account?.name ?? l10n.accountNone,
+              _pickCardAccount,
               child: Row(children: [
+                if (account != null) ...[
+                  AccountTypeIcon(type: account.type, size: 18),
+                  const SizedBox(width: 5),
+                ],
                 Flexible(
                     child: Text(account?.name ?? l10n.accountNone,
                         maxLines: 1,

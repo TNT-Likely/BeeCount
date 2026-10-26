@@ -28,9 +28,11 @@ class BeeTagPicker extends StatefulWidget {
       this.placeholder,
       this.footer,
       this.confirmEnabled = true,
+      this.disabledIds = const {},
       this.compact = false});
   final List<BeeTagData> tags, recent;
   final Set<String> initial;
+  final Set<String> disabledIds;
   final Set<String>? selection;
   final String searchLabel, clearLabel, confirmLabel, emptyLabel;
   final String Function(int) countLabel;
@@ -68,12 +70,14 @@ class _BeeTagPickerState extends State<BeeTagPicker> {
                   style: TextStyle(
                       fontSize: 12, color: Theme.of(context).hintColor))),
         Wrap(
-            spacing: 9,
-            runSpacing: 9,
+            spacing: 6,
+            runSpacing: 0,
             children: items
                 .map((t) => BeeTag(
                     tag: t,
                     selected: selected.contains(t.id),
+                    choice: true,
+                    enabled: !widget.disabledIds.contains(t.id),
                     onTap: () {
                       final next = {...selected};
                       if (!next.remove(t.id)) next.add(t.id);

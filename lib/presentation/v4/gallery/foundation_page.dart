@@ -1,4 +1,5 @@
 import 'refresh_foundation_samples.dart';
+import '../../../utils/account_type_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'gallery_catalog.dart';
@@ -412,11 +413,13 @@ class _FoundationAcceptancePageState extends State<FoundationAcceptancePage> {
                     value: sort,
                     items: const [
                       BeeIconChoice(
-                          value: 0, label: '现金', icon: BeeLineIcon('Wallet')),
+                          value: 0,
+                          label: '现金',
+                          icon: AccountTypeIcon(type: 'cash')),
                       BeeIconChoice(
                           value: 1,
                           label: '银行卡',
-                          icon: BeeLineIcon('CreditCard')),
+                          icon: AccountTypeIcon(type: 'bank_card')),
                       BeeIconChoice(
                           value: 2,
                           label: '禁用',
@@ -431,7 +434,9 @@ class _FoundationAcceptancePageState extends State<FoundationAcceptancePage> {
                     value: sort,
                     items: const [
                       BeeIconChoice(
-                          value: 0, label: '现金', icon: BeeLineIcon('Wallet')),
+                          value: 0,
+                          label: '现金',
+                          icon: AccountTypeIcon(type: 'cash')),
                       BeeIconChoice(
                           value: 1,
                           label: '银行卡',

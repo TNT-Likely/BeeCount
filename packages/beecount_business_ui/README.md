@@ -18,7 +18,7 @@ App 内验收：[ComponentGalleryPage](../../lib/presentation/v4/gallery/compone
 
 详情与扩展：`BeeDetailList`、`BeeAccountCard`、`BeeBudgetCard`、`BeeChatMessage`、`BeeExecutionTimeline`、`BeePinPad`。这些组件只处理输入与展示，认证、网络和写入仍由宿主负责。
 
-`RecordingDetailsCard` 提供固定在键盘上方的两行表单，备注、账户、日期、标签、附件由宿主传入；小屏支持备注折叠与直接展开编辑。`BeeTag(compact: true)` 保留 21px 可见色块，选择器默认使用 44px 选择项。
+`RecordingDetailsCard` 提供固定在键盘上方的两行表单，备注、账户、日期、标签、附件由宿主传入；小屏支持备注折叠与直接展开编辑。`BeeTag(compact: true)` 保留 21px 可见胶囊；选择器为 26px 胶囊，外部使用至少 44px 的透明触控区域。两行长名称可增高，选择颜色、勾、禁用与完整语义保持不变。`BeeTagPicker.disabledIds` 由宿主提供禁用项；清空和选择只改草稿，取消不提交。账户图片由宿主统一传入原色 `AccountTypeIcon`，主题色只标记选中边框。
 
 `RecordingConversionSummary` 保持左侧说明、右侧金额/箭头的双列紧布局；短金额、长金额、小屏、大字体均固定右边界。汇率和折算数值由宿主提供。
 
