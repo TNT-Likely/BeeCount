@@ -399,7 +399,9 @@ class BeeTransactionRow extends StatelessWidget {
             : -1;
         return Padding(
             key: ValueKey('transaction-line-${index + 1}'),
-            padding: EdgeInsets.only(left: plan.wide && index == 0 ? 25 : 0),
+            // The overlaid category target is 20px. A fixed extra gap can
+            // overflow a complete amount that otherwise fits beside it.
+            padding: EdgeInsets.only(left: plan.wide && index == 0 ? 20 : 0),
             child: Row(children: [
               for (var i = 0; i < ids.length; i++) ...[
                 if (i > 0) const SizedBox(width: 5),
