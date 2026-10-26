@@ -206,6 +206,13 @@
         "title": "主题与系统状态栏",
         "nativeCase": 25,
         "nativeLabel": "主题与系统状态栏"
+      },
+      {
+        "id": "spec-2101",
+        "code": "F30",
+        "title": "详情周期与时间范围",
+        "nativeCase": 22,
+        "nativeLabel": "紧凑页签与柱状图"
       }
     ]
   },
@@ -745,6 +752,13 @@
         "title": "资产账户工具栏",
         "nativeCase": 40,
         "nativeLabel": "资产总览与账户设置"
+      },
+      {
+        "id": "spec-2102",
+        "code": "B77",
+        "title": "分类上级与账户摘要",
+        "nativeCase": 35,
+        "nativeLabel": "分类账户标签详情"
       }
     ]
   }

@@ -1,6 +1,6 @@
 # 分类详情精修交互稿
 
-状态：**独立 HTML 待用户确认，未改 Flutter，未替换主 demo。**
+状态：**用户已确认；已按方案实现 Flutter 组件与页面，并同步主 demo。原生真机验收由主任务统一执行。**
 
 预览：`http://127.0.0.1:8374/boards/category-detail-refinement.html`
 
@@ -46,7 +46,7 @@
 - `lib/presentation/v4/bindings/category_detail.dart`：当前默认全部时间及汇总规则。
 - `prototype/src/detail-currency.js`：当前 HTML 的日期、重复父分类、跨账本提示与交易展示。
 
-仅新增本页 HTML / CSS / JS / Markdown；确认后再决定提炼紧凑周期、范围条和上级入口组件，并迁移 Flutter / 主 demo。此次不计为 Flutter 页面重新验收通过。
+仅新增本页 HTML / CSS / JS / Markdown；已提炼紧凑周期、范围条和上级入口组件，并迁移 Flutter / 主 demo。浏览器检查不计为原生页面重新验收通过。
 
 ## 本地验证
 
@@ -54,3 +54,13 @@
 - 387 项断言：页面与主体无横向溢出；Tab 视觉 / 触控尺寸；父名不重复；默认全部；父子跳转；范围实际筛选；滚轮与前后切换；弹窗关闭滚动位置；管理 / 搜索 / 编辑；外币字段；移动端画板。
 - 浏览器截图人工检查：标准屏、长名称小屏、空态、一级分类，以及小屏深色放大字体滚轮。
 - 未运行 Flutter 或真机。验收证据存放于忽略目录 `.docs/v4-ui-migration/category-detail-refinement/`。
+
+
+## 已实现映射（2026-10-26）
+
+- 基础：`BeeCompactTabs(trackHeight: 32, tapHeight: 44)`、`BeeDateRangeBar`、`BeeYearMonthWheel`。
+- 业务：`BeeResourceParentLink`；`BeeResourceHero.beforeIdentity` 保持上级入口只出现一次。
+- App：`detail_period_controls.dart` 负责本地化和弹层草稿，`CategoryDetailController` 一次应用周期与日期，不新增数据请求到组件包。
+- Flutter 验收页：基础“紧凑页签与柱状图”、业务“分类账户标签详情”已加入交互样例。
+- 主 HTML 与组件规范：通过 `detail-refinement.js/css` 和 `resource-detail-samples.cjs` 更新，独立评审稿保留用于核对。
+- 静态与 Widget 回归已执行；不把它等同于完成真机验收。
