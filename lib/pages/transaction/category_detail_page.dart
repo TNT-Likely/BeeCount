@@ -11,7 +11,7 @@ import '../../providers.dart';
 import '../../providers/budget_providers.dart';
 import '../../services/billing/post_processor.dart';
 import '../../utils/category_utils.dart';
-import '../../widgets/ui/wheel_date_picker.dart';
+import '../../presentation/v4/bindings/detail_period_controls.dart';
 import '../category/category_edit_page.dart';
 import '../category/category_manage_page.dart';
 import 'search_page.dart';
@@ -147,14 +147,12 @@ class _CategoryDetailState extends ConsumerState<CategoryDetailPage> {
 
   Future<void> _date() async {
     final c = _data!;
-    final date = await showWheelDatePicker(context,
-        initial: c.anchor,
-        mode: c.period == CategoryDetailPeriod.year
-            ? WheelDatePickerMode.y
-            : WheelDatePickerMode.ym,
-        minDate: DateTime(2000),
-        maxDate: DateTime(2100));
-    if (date != null && mounted) c.chooseAnchor(date);
+    final chosen = await showResourcePeriodPicker(context,
+        period: c.period.name, anchor: c.anchor);
+    if (chosen != null && mounted) {
+      c.choosePeriod(CategoryDetailPeriod.values.byName(chosen.period),
+          anchor: chosen.anchor);
+    }
   }
 
   Future<void> _delete(int id, int ledgerId) async {
@@ -215,8 +213,10 @@ class _CategoryDetailState extends ConsumerState<CategoryDetailPage> {
                 Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 17),
                     child: Column(children: [
-                      BeeSegmented<CategoryDetailPeriod>(
+                      BeeCompactTabs<CategoryDetailPeriod>(
                           value: c.period,
+                          trackHeight: 32,
+                          tapHeight: 44,
                           items: [
                             BeeSegment(
                                 CategoryDetailPeriod.month, l.v4DetailMonth),
@@ -225,49 +225,35 @@ class _CategoryDetailState extends ConsumerState<CategoryDetailPage> {
                             BeeSegment(
                                 CategoryDetailPeriod.all, l.analyticsAll),
                             if (c.period == CategoryDetailPeriod.custom)
-                              BeeSegment(
-                                  CategoryDetailPeriod.custom, l.v4DetailCustom)
+                              BeeSegment(CategoryDetailPeriod.custom,
+                                  l.v4DetailCustom),
                           ],
                           onChanged: (value) {
                             setState(() => _showAll = false);
                             c.choosePeriod(value);
                           }),
-                      if (c.period == CategoryDetailPeriod.month ||
-                          c.period == CategoryDetailPeriod.year)
-                        Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              BeeIconButton(
-                                  label: MaterialLocalizations.of(context)
-                                      .previousMonthTooltip,
-                                  icon: const BeeLineIcon('ChevronLeft',
-                                      size: 16),
-                                  onPressed: () => c.chooseAnchor(c.period ==
-                                          CategoryDetailPeriod.year
-                                      ? DateTime(
-                                          c.anchor.year - 1, c.anchor.month)
-                                      : DateTime(
-                                          c.anchor.year, c.anchor.month - 1))),
-                              TextButton.icon(
-                                  onPressed: _date,
-                                  icon: const BeeLineIcon('CalendarDays',
-                                      size: 14),
-                                  label: Text(c.period ==
-                                          CategoryDetailPeriod.year
-                                      ? '${c.anchor.year}'
-                                      : '${c.anchor.year}-${c.anchor.month.toString().padLeft(2, '0')}')),
-                              BeeIconButton(
-                                  label: MaterialLocalizations.of(context)
-                                      .nextMonthTooltip,
-                                  icon: const BeeLineIcon('ChevronRight',
-                                      size: 16),
-                                  onPressed: () => c.chooseAnchor(c.period ==
-                                          CategoryDetailPeriod.year
-                                      ? DateTime(
-                                          c.anchor.year + 1, c.anchor.month)
-                                      : DateTime(
-                                          c.anchor.year, c.anchor.month + 1)))
-                            ]),
+                      BeeDateRangeBar(
+                          label: c.period == CategoryDetailPeriod.custom
+                              ? widget.periodLabel ?? l.v4DetailCustom
+                              : detailRangeLabel(
+                                  context, c.period.name, c.anchor),
+                          onChoose: _date,
+                          previousLabel: c.period == CategoryDetailPeriod.month ||
+                                  c.period == CategoryDetailPeriod.year
+                              ? MaterialLocalizations.of(context)
+                                  .previousMonthTooltip
+                              : null,
+                          nextLabel: c.period == CategoryDetailPeriod.month ||
+                                  c.period == CategoryDetailPeriod.year
+                              ? MaterialLocalizations.of(context)
+                                  .nextMonthTooltip
+                              : null,
+                          onPrevious: () => c.chooseAnchor(c.period == CategoryDetailPeriod.year
+                              ? DateTime(c.anchor.year - 1, c.anchor.month)
+                              : DateTime(c.anchor.year, c.anchor.month - 1)),
+                          onNext: () => c.chooseAnchor(c.period == CategoryDetailPeriod.year
+                              ? DateTime(c.anchor.year + 1, c.anchor.month)
+                              : DateTime(c.anchor.year, c.anchor.month + 1))),
                     ])),
               const SizedBox(height: 8),
               Expanded(

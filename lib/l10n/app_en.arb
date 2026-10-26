@@ -4670,5 +4670,19 @@
   "v4SharePosterOpenSourceAction": "Explore the source",
   "v4SharePosterRecommend": "Recommend to a friend",
   "v4SharePosterTopIncome": "TOP 3 income",
-  "v4SharePosterAverageRecords": "Daily records"
+  "v4SharePosterAverageRecords": "Daily records",
+  "v4ResourceParent": "Parent",
+  "v4AccountNetWorthLabel": "Net worth",
+  "v4AccountIncluded": "Included",
+  "v4AccountLinkedBooks": "Related ledgers",
+  "v4AccountCashflow": "Account cash flow",
+  "v4AccountNetFlow": "Net inflow",
+  "v4AccountFlowRules": "Includes transfers; respects excluded statistics",
+  "v4AccountBalanceRangeNote": "Current balance is unaffected by the selected range.",
+  "v4AccountNoTrend": "No historical records in this range",
+  "v4AccountNoPeer": "Add another account in this currency before transferring.",
+  "v4AccountActions": "Account actions",
+  "v4DetailAllTime": "All time",
+  "v4AccountLedgerCount": "{count} ledgers",
+  "@v4AccountLedgerCount": {"placeholders": {"count": {"type": "int"}}}
 }

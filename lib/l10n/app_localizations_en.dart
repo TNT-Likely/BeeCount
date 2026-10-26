@@ -9218,4 +9218,45 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get v4SharePosterAverageRecords => 'Daily records';
+
+  @override
+  String get v4ResourceParent => 'Parent';
+
+  @override
+  String get v4AccountNetWorthLabel => 'Net worth';
+
+  @override
+  String get v4AccountIncluded => 'Included';
+
+  @override
+  String get v4AccountLinkedBooks => 'Related ledgers';
+
+  @override
+  String get v4AccountCashflow => 'Account cash flow';
+
+  @override
+  String get v4AccountNetFlow => 'Net inflow';
+
+  @override
+  String get v4AccountFlowRules => 'Includes transfers; respects excluded statistics';
+
+  @override
+  String get v4AccountBalanceRangeNote => 'Current balance is unaffected by the selected range.';
+
+  @override
+  String get v4AccountNoTrend => 'No historical records in this range';
+
+  @override
+  String get v4AccountNoPeer => 'Add another account in this currency before transferring.';
+
+  @override
+  String get v4AccountActions => 'Account actions';
+
+  @override
+  String get v4DetailAllTime => 'All time';
+
+  @override
+  String v4AccountLedgerCount(int count) {
+    return '$count ledgers';
+  }
 }

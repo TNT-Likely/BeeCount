@@ -141,8 +141,9 @@ class CategoryDetailController extends ChangeNotifier {
             end: DateTime(anchor.year + 1)
           ),
       };
-  void choosePeriod(CategoryDetailPeriod value) {
+  void choosePeriod(CategoryDetailPeriod value, {DateTime? anchor}) {
     period = value;
+    if (anchor != null) this.anchor = DateTime(anchor.year, anchor.month);
     unawaited(_refresh());
   }
 

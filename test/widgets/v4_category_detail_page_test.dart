@@ -188,12 +188,11 @@ void main() {
     await tester.pumpAndSettle();
     expect(model(tester).count, 2);
     final anchor = model(tester).anchor;
-    await tester.tap(
-        find.text('${anchor.year}-${anchor.month.toString().padLeft(2, '0')}'));
+    await tester.tap(find.byType(BeeDateRangeBar));
     await tester.pumpAndSettle();
     await tester.drag(find.byType(CupertinoPicker).last, const Offset(0, -44));
     await tester.pumpAndSettle();
-    await tester.tap(find.text(l.commonCancel));
+    await tester.tap(find.byType(CloseButton).last);
     await tester.pumpAndSettle();
     expect(model(tester).anchor, anchor);
     expect(model(tester).count, 2);

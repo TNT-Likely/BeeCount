@@ -14,15 +14,40 @@ class _RefreshTabsAndChartState extends State<RefreshTabsAndChartSample> {
   int tab = 0;
   int? selected;
   String feedback = '点选柱形或平均线';
+  DateTime date = DateTime(2026, 10);
+  Future<void> chooseDate() async {
+    var draft = date;
+    final chosen = await showBeeSheet<DateTime>(context,
+        title: '时间范围',
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          BeeYearMonthWheel(value: date, onChanged: (value) => draft = value),
+          BeeButton(
+              label: '确认', onPressed: () => Navigator.pop(context, draft)),
+        ]));
+    if (mounted && chosen != null) {
+      setState(() {
+        date = chosen;
+        feedback = '选择日期 ${date.year}-${date.month}';
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) => BeeSurface(
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        BeeCompactTabs(items: const [
-          BeeSegment(0, '月'),
-          BeeSegment(1, '年'),
-          BeeSegment(2, '全部')
-        ], value: tab, onChanged: (v) => setState(() => tab = v)),
+        BeeCompactTabs(
+            items: const [
+              BeeSegment(0, '月'),
+              BeeSegment(1, '年'),
+              BeeSegment(2, '全部')
+            ],
+            value: tab,
+            trackHeight: 32,
+            tapHeight: 44,
+            onChanged: (v) => setState(() => tab = v)),
+        BeeDateRangeBar(
+            label: '${date.year} 年 ${date.month} 月', onChoose: chooseDate),
         BeeUnderlineTabs(items: const [
           BeeSegment(0, '支出'),
           BeeSegment(1, '收入'),

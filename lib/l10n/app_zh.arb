@@ -4217,5 +4217,19 @@
   "v4SharePosterOpenSourceAction": "了解开源",
   "v4SharePosterRecommend": "推荐给朋友",
   "v4SharePosterTopIncome": "TOP 3 收入",
-  "v4SharePosterAverageRecords": "日均记账"
+  "v4SharePosterAverageRecords": "日均记账",
+  "v4ResourceParent": "上级",
+  "v4AccountNetWorthLabel": "计入净资产",
+  "v4AccountIncluded": "已计入",
+  "v4AccountLinkedBooks": "关联账本",
+  "v4AccountCashflow": "账户收支",
+  "v4AccountNetFlow": "净流入",
+  "v4AccountFlowRules": "含转入与转出 · 按收支计入规则汇总",
+  "v4AccountBalanceRangeNote": "当前余额不随时间范围改变。",
+  "v4AccountNoTrend": "当前范围暂无历史记录",
+  "v4AccountNoPeer": "请先添加另一个同币种账户，再进行转账。",
+  "v4AccountActions": "账户操作",
+  "v4DetailAllTime": "全部时间",
+  "v4AccountLedgerCount": "{count} 个账本",
+  "@v4AccountLedgerCount": {"placeholders": {"count": {"type": "int"}}}
 }

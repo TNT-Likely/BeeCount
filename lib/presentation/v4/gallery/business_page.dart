@@ -1,4 +1,5 @@
 import 'refresh_business_samples.dart';
+import 'resource_period_sample.dart';
 import '../bindings/mine_avatar.dart';
 import 'poster_catalog_sample.dart';
 import 'transaction_fixture.dart';
@@ -1729,6 +1730,8 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
             ]),
           ]),
         35 => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            const ResourcePeriodSample(),
+            const AccountDetailComponentsSample(),
             const BeeResourceHero(
                 title: '餐饮',
                 caption: '一级分类 · 4 个二级分类 · 日常生活',

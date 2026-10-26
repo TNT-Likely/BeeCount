@@ -82,18 +82,16 @@ class CategoryDetailSections extends ConsumerWidget {
     }
     final header =
         Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      if (c.parent != null)
-        Padding(
-            padding: const EdgeInsets.only(bottom: 6),
-            child: TextButton.icon(
-                onPressed: () => onChild(c.parent!),
-                icon: const BeeLineIcon('ChevronLeft', size: 14),
-                label: Text(name(c.parent!),
-                    style: const TextStyle(fontSize: 12)))),
       BeeResourceHero(
+          beforeIdentity: c.parent == null
+              ? null
+              : BeeResourceParentLink(
+                  label: l.v4ResourceParent,
+                  name: name(c.parent!),
+                  onPressed: () => onChild(c.parent!)),
           title: name(category),
           caption:
-              '${c.parent == null ? l.v4DetailCategoryChildren(c.children.length) : name(c.parent!)} · $scope',
+              '${c.parent == null ? l.v4DetailCategoryChildren(c.children.length) : l.categorySubCategoryTitle} · $scope',
           icon: RecordingCategoryIcon(category: category, size: 22),
           amountLabel: l.v4DetailAmountLabel(period, kind),
           prefix: hide || !complete ? '' : symbol,

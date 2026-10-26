@@ -9210,6 +9210,47 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get v4SharePosterAverageRecords => '日均记账';
+
+  @override
+  String get v4ResourceParent => '上级';
+
+  @override
+  String get v4AccountNetWorthLabel => '计入净资产';
+
+  @override
+  String get v4AccountIncluded => '已计入';
+
+  @override
+  String get v4AccountLinkedBooks => '关联账本';
+
+  @override
+  String get v4AccountCashflow => '账户收支';
+
+  @override
+  String get v4AccountNetFlow => '净流入';
+
+  @override
+  String get v4AccountFlowRules => '含转入与转出 · 按收支计入规则汇总';
+
+  @override
+  String get v4AccountBalanceRangeNote => '当前余额不随时间范围改变。';
+
+  @override
+  String get v4AccountNoTrend => '当前范围暂无历史记录';
+
+  @override
+  String get v4AccountNoPeer => '请先添加另一个同币种账户，再进行转账。';
+
+  @override
+  String get v4AccountActions => '账户操作';
+
+  @override
+  String get v4DetailAllTime => '全部时间';
+
+  @override
+  String v4AccountLedgerCount(int count) {
+    return '$count 个账本';
+  }
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).

@@ -17335,6 +17335,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Daily records'**
   String get v4SharePosterAverageRecords;
+
+  /// No description provided for @v4ResourceParent.
+  ///
+  /// In en, this message translates to:
+  /// **'Parent'**
+  String get v4ResourceParent;
+
+  /// No description provided for @v4AccountNetWorthLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Net worth'**
+  String get v4AccountNetWorthLabel;
+
+  /// No description provided for @v4AccountIncluded.
+  ///
+  /// In en, this message translates to:
+  /// **'Included'**
+  String get v4AccountIncluded;
+
+  /// No description provided for @v4AccountLinkedBooks.
+  ///
+  /// In en, this message translates to:
+  /// **'Related ledgers'**
+  String get v4AccountLinkedBooks;
+
+  /// No description provided for @v4AccountCashflow.
+  ///
+  /// In en, this message translates to:
+  /// **'Account cash flow'**
+  String get v4AccountCashflow;
+
+  /// No description provided for @v4AccountNetFlow.
+  ///
+  /// In en, this message translates to:
+  /// **'Net inflow'**
+  String get v4AccountNetFlow;
+
+  /// No description provided for @v4AccountFlowRules.
+  ///
+  /// In en, this message translates to:
+  /// **'Includes transfers; respects excluded statistics'**
+  String get v4AccountFlowRules;
+
+  /// No description provided for @v4AccountBalanceRangeNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Current balance is unaffected by the selected range.'**
+  String get v4AccountBalanceRangeNote;
+
+  /// No description provided for @v4AccountNoTrend.
+  ///
+  /// In en, this message translates to:
+  /// **'No historical records in this range'**
+  String get v4AccountNoTrend;
+
+  /// No description provided for @v4AccountNoPeer.
+  ///
+  /// In en, this message translates to:
+  /// **'Add another account in this currency before transferring.'**
+  String get v4AccountNoPeer;
+
+  /// No description provided for @v4AccountActions.
+  ///
+  /// In en, this message translates to:
+  /// **'Account actions'**
+  String get v4AccountActions;
+
+  /// No description provided for @v4DetailAllTime.
+  ///
+  /// In en, this message translates to:
+  /// **'All time'**
+  String get v4DetailAllTime;
+
+  /// No description provided for @v4AccountLedgerCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} ledgers'**
+  String v4AccountLedgerCount(int count);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
