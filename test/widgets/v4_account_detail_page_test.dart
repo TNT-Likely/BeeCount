@@ -55,6 +55,7 @@ class AccountDetailTestRepository extends LocalRepository {
 }
 
 void main() {
+  final currentMonth = DateTime.now();
   late BeeDatabase db;
   late AccountDetailTestRepository repo;
   late ProviderContainer container;
@@ -102,7 +103,8 @@ void main() {
           nativeAmount: native,
           categoryId: category,
           note: note,
-          happenedAt: at ?? DateTime(2026, 10, 24, 12, 34, 56));
+          happenedAt: at ??
+              DateTime(currentMonth.year, currentMonth.month, 24, 12, 34, 56));
   AccountDetailController model(WidgetTester tester) =>
       (tester.state(find.byType(AccountDetailPage)) as dynamic).c
           as AccountDetailController;
@@ -316,7 +318,7 @@ void main() {
           amount: i + 1,
           from: cash,
           category: food,
-          at: DateTime(2026, 10, 24, 12, i));
+          at: DateTime(currentMonth.year, currentMonth.month, 24, 12, i));
     }
     await open(tester, cash);
     expect(model(tester).rows.length, 50);
