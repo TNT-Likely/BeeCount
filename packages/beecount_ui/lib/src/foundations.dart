@@ -269,6 +269,8 @@ class BeeSegmented<T> extends StatelessWidget {
                       shadowColor: Colors.black12,
                       borderRadius: BorderRadius.circular(9),
                       child: InkWell(
+                          splashFactory: NoSplash.splashFactory,
+                          highlightColor: Colors.transparent,
                           onTap: enabled ? () => onChanged!(item.value) : null,
                           borderRadius: BorderRadius.circular(9),
                           child: ConstrainedBox(
@@ -742,6 +744,8 @@ class BeeBottomBar extends StatelessWidget {
                           child: Semantics(
                               selected: e.key == index,
                               child: InkWell(
+                                  splashFactory: NoSplash.splashFactory,
+                                  highlightColor: Colors.transparent,
                                   onTap: () => onChanged(e.key),
                                   onLongPress: e.key == items.length ~/ 2
                                       ? onRecordLongPress

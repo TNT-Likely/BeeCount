@@ -38,6 +38,8 @@ class BeeCompactTabs<T> extends StatelessWidget {
                 child: Tooltip(
                   message: item.label,
                   child: InkWell(
+                    splashFactory: NoSplash.splashFactory,
+                    highlightColor: Colors.transparent,
                     borderRadius: BorderRadius.circular(10),
                     onTap: item.enabled && onChanged != null
                         ? () => onChanged!(item.value)

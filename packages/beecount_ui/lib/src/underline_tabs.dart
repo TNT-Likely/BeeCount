@@ -25,6 +25,8 @@ class BeeUnderlineTabs<T> extends StatelessWidget {
               child: Tooltip(
                   message: item.label,
                   child: InkWell(
+                      splashFactory: NoSplash.splashFactory,
+                      highlightColor: Colors.transparent,
                       onTap: item.enabled ? () => onChanged(item.value) : null,
                       borderRadius: BorderRadius.circular(7),
                       child: ConstrainedBox(
