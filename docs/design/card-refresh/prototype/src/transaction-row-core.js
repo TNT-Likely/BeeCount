@@ -26,17 +26,35 @@ function fitRows(elements){
  const saved=row.__tokens||{primary:row.querySelector('.primary'),amount:row.querySelector('.amount'),account:row.querySelector('.account-token'),attachment:row.querySelector('.attachment'),ledger:row.querySelector('.ledger-chip'),flags:[...row.querySelectorAll('.status-label')],readonly:row.querySelector('.readonly-label'),converted:row.querySelector('.converted'),tags:row.querySelector('.tag-strip'),time:row.querySelector('.timestamp')};row.__tokens=saved;
  l1.replaceChildren(saved.primary,saved.amount);l2.replaceChildren(...[saved.account,saved.attachment,saved.converted].filter(Boolean));l3.replaceChildren(...[saved.ledger,...saved.flags,saved.readonly,saved.tags,saved.time].filter(Boolean));
  if(saved.tags){saved.tags.innerHTML=tagsHtml(r,r.key,Math.min(2,r.tags.length));saved.tags.dataset.visible=String(Math.min(2,r.tags.length));saved.tags.style.flex='0 0 auto'}
- if(saved.ledger)saved.ledger.style.maxWidth='';if(saved.account)saved.account.style.maxWidth='';
+ if(saved.ledger)saved.ledger.style.maxWidth='';if(saved.account){saved.account.style.maxWidth='';saved.account.style.flex=''}
  }
  const widthOf=e=>e?e.getBoundingClientRect().width:0, sum=(els,gap=5)=>els.reduce((n,e)=>n+widthOf(e),0)+Math.max(0,els.length-1)*gap;
  // Decisions read all row geometry together before committing the next layout phase.
- const widePlan=all.map(row=>{const t=row.__tokens,w=row.querySelector('.slot1').getBoundingClientRect().width;return widthOf(t.amount)+Math.min(53*scale,Math.max(30*scale,t.primary.textContent.length*12*scale))+6>w||sum([t.ledger,...t.flags,t.time].filter(Boolean))>w});
+ const widePlan=all.map(row=>{const t=row.__tokens,w=row.querySelector('.slot1').getBoundingClientRect().width;return widthOf(t.amount)+Math.min(53*scale,Math.max(30*scale,t.primary.textContent.length*12*scale))+6>w||sum([t.ledger,...t.flags,t.time].filter(Boolean))-Math.max(0,widthOf(t.ledger)-42)>w});
  for(let i=0;i<all.length;i++)if(widePlan[i]){const row=all[i],t=row.__tokens;row.classList.add('wide-layout');row.dataset.layout='wide';row.querySelector('.slot2').prepend(t.primary);const l3=row.querySelector('.slot3');l3.prepend(...[t.account,t.attachment].filter(Boolean));}
  // Hard fields: original amount, conversion, literal flags, ledger chip and original preferred time are never folded.
  for(const row of all){const r=rows.get(row.dataset.key),t=row.__tokens,l1=row.querySelector('.slot1'),l2=row.querySelector('.slot2'),l3=row.querySelector('.slot3');const wide=row.dataset.layout==='wide';const available=l3.getBoundingClientRect().width;
  if(t.ledger){const fixed=sum([...t.flags,t.time].filter(Boolean),4);t.ledger.style.maxWidth=Math.max(42,Math.min(105,available-fixed-([t.flags.length,t.time].filter(Boolean).length+1)*4))+'px'}
- // The ordinary case deliberately puts its entire metadata/tags/time onto the second line when it fits.
- if(!wide&&!t.ledger&&!t.flags.length&&!t.readonly){const second=[t.account,t.attachment,t.tags,t.converted,t.time].filter(Boolean);if(sum(second,6)<=l2.getBoundingClientRect().width){l2.replaceChildren(...second);l3.replaceChildren();continue}}
+ // Try two baselines for every ordinary-width row, including ledger/status/read-only.
+ // Keep real labels: two tags first, then one plus +N; never hide all tags to force two lines.
+ if(!wide){
+  const second=[t.account,t.attachment,t.ledger,...t.flags,t.readonly,t.tags,t.converted,t.time].filter(Boolean);
+  const availableSecond=l2.getBoundingClientRect().width;
+  const originalAccountMax=t.account?.style.maxWidth||'',originalLedgerMax=t.ledger?.style.maxWidth||'';
+  if(t.account)t.account.style.flex='0 0 auto';
+  let compact=false;const maxTags=Math.min(2,r.tags.length);
+  for(let limit=maxTags;limit>=Math.min(1,maxTags);limit--){
+   if(t.account)t.account.style.maxWidth='105px';if(t.ledger)t.ledger.style.maxWidth='105px';
+   if(t.tags){t.tags.innerHTML=tagsHtml(r,r.key,limit);t.tags.dataset.visible=String(limit)}
+   const names=[t.account,t.ledger].filter(Boolean).map(e=>({e,width:widthOf(e),minimum:Math.min(widthOf(e),60)}));
+   const required=sum(second,6),excess=required-availableSecond,capacity=names.reduce((n,v)=>n+v.width-v.minimum,0);
+   if(excess>0&&excess<=capacity+.01)for(const v of names){const reduction=capacity?excess*(v.width-v.minimum)/capacity:0;v.e.style.maxWidth=Math.max(v.minimum,v.width-reduction)+'px'}
+   if(sum(second,6)<=availableSecond+.15){l2.replaceChildren(...second);l3.replaceChildren();compact=true;break}
+  }
+  if(compact)continue;
+  if(t.account){t.account.style.maxWidth=originalAccountMax;t.account.style.flex=''}if(t.ledger)t.ledger.style.maxWidth=originalLedgerMax;
+  if(t.tags){t.tags.innerHTML=tagsHtml(r,r.key,maxTags);t.tags.dataset.visible=String(maxTags)}
+ }
  // In standard three-line form keep account/attachments beside conversion, tags and hard metadata below.
  const overflow=[];const fold=(name,e)=>{if(!e)return;e.remove();overflow.push(name)};
  const lineWidth=l=>l.getBoundingClientRect().width;
