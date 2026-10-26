@@ -1,6 +1,6 @@
 # 账户图标一致性 · 两种方案确认稿
 
-状态：待用户确认，只新增独立 HTML Demo，没有修改 Flutter 或主交互稿。
+状态：用户已确认，已同步 Flutter 组件、Gallery 与主 HTML Demo。此独立稿继续保留合成数据以便复核。
 
 打开：<http://127.0.0.1:8374/boards/account-icon-consistency-review.html>
 
@@ -9,7 +9,7 @@
 ## 为什么需要统一
 
 - `lib/utils/account_type_utils.dart`：`AccountTypeIcon` 已统一各类型 SVG，默认保留原色。`monochrome: true` 与 `color` 会使用 `BlendMode.srcIn` 整体染色。未知类型回退到 `other_account.svg`。
-- `lib/widgets/biz/account_selector.dart`：expanded picker 当前构造 `BeeLineIcon`，将账户归为 Banknote / CreditCard / Wallet，绕过原 SVG。这是选择器与其他账户入口不一致的直接原因。
+- `lib/widgets/biz/account_selector.dart`：已将 expanded picker 的 Banknote / CreditCard / Wallet 通用图标改为 `AccountTypeIcon`。横滑选择器、记账摘要、账单详情及 Gallery 同步传入原 SVG，原有筛选与回调不变。
 - Demo 使用仓库 `assets/icons/` 中原始 SVG 的 Base64 字节快照，保证通过现有局部 HTTP 服务和本地文件均可打开。没有改写图片颜色，也不依赖外网图片。
 
 ## 两种方案
@@ -34,4 +34,4 @@ B 使用 CSS alpha mask 模拟 `BlendMode.srcIn` 的实际整体染色效果，�
 
 Chrome / Playwright 检查 398 与 320 两种宽度 × 浅深主题四个组合：两种图标模式的四个入口均能显示真实 SVG，搜索、账户切换、未知类型兜底、隐藏账户、USD 过滤、类型分组及保存、同屏对比、无横向溢出。底部导航保持 66px。
 
-只使用合成数据，设计方案尚未应用到 Flutter。
+只使用合成数据，已按用户确认的 A 原色方案应用到 Flutter。

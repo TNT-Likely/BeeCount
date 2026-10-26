@@ -31,7 +31,7 @@
     const date=btn('record-date',`${icon('calendar-days')}<span>${qPreview.width<=340?`${state.month}.${String(state.day).padStart(2,'0')}`:`${state.month}月${state.day}日`}</span>`,'选择日期与时间','z-date z-date-reference');
     const attachment=btn('record-attachment',icon('image-plus'),'添加附件','z-attachment-reference');
     const tagChoice=btn('record-tag',`${tags.length?tag(tags[0]):icon('tag')+'<span>标签</span>'}${tags.length>1?`<small>+${tags.length-1}</small>`:''}`,'选择标签','z-tag-reference');
-    const account=btn('record-account',`${icon('wallet')}<span>${esc(state.recordAccount||'选择账户')}</span>`,'选择账户','z-account');
+    const account=btn('record-account',`${state.recordAccount?bcAccountVisual(state.recordAccount,18):icon('wallet')}<span>${esc(state.recordAccount||'选择账户')}</span>`,'选择账户','z-account');
     const noteToggle=compact?btn('z-note-toggle',`${icon(state.zNoteExpanded?'chevron-up':'pencil-line')}${state.note?'<i class="z-note-dot" aria-hidden="true"></i>':''}`,state.zNoteExpanded?'收起备注':'展开备注，直接编辑','z-note-toggle'):'';
     meta.dataset.noteExpanded=String(expanded);
     meta.innerHTML=expanded?`<div class="z-note-top"><label class="z-note-field">${btn('z-note-history',icon('pencil-line'),'历史备注','z-note-history')}<input data-z-note value="${esc(state.note)}" placeholder="添加备注" aria-label="直接编辑账单备注" maxlength="120" autocomplete="off"></label>${noteToggle}${attachment}</div><div class="z-reference-row">${account}${date}${tagChoice}</div>`:`<div class="z-reference-row z-reference-folded">${noteToggle}${account}${date}${tagChoice}${attachment}</div>`;

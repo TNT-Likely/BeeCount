@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>BeeCount · 紧凑标签设计确认</title><link rel="stylesheet" href="selection-review-base.css"><link rel="stylesheet" href="tag-density-review.css"></head>
 <body>
-<header class="review-head"><a class="brand" href="tag-density-review.html"><span class="brand-mark">B</span>BeeCount <small>DESIGN REVIEW / TAGS</small></a><span class="review-state"><i></i>独立交互提案 · 待确认</span></header>
+<header class="review-head"><a class="brand" href="tag-density-review.html"><span class="brand-mark">B</span>BeeCount <small>DESIGN REVIEW / TAGS</small></a><span class="review-state"><i></i>设计已确认 · 同步组件实现</span></header>
 <div class="intro"><div><p class="eyebrow">LESS WEIGHT, SAME RECOGNITION</p><h1>让标签退回信息本身。</h1><p>颜色帮助辨认，尺寸服从内容。账单详情更轻，选择时更容易扫读。</p></div><a class="doc-link" href="tag-density-review.md">查看尺寸与交互说明 ↗</a></div>
 <main class="workspace">
 <aside class="controls"><h2>查看位置</h2><nav class="scene-list" aria-label="预览页面"><button class="scene-button" data-scene="detail" aria-pressed="true"><span>01</span>账单详情</button><button class="scene-button" data-scene="picker" aria-pressed="false"><span>02</span>标签选择器</button></nav>
@@ -9,11 +9,11 @@
 <label class="control-label">预览尺寸<select id="size"><option value="398x844">标准屏 · 398 × 844</option><option value="320x568">小屏 · 320 × 568</option></select></label>
 <label class="control-label">主题色<select id="accent"><option value="honey">蜜蜂黄</option><option value="purple">青莲紫</option><option value="green">松柏绿</option></select></label>
 <div class="mode-buttons" aria-label="外观"><button data-appearance="light" aria-pressed="true">浅色</button><button data-appearance="dark" aria-pressed="false">深色</button></div>
-<button class="control-button" id="show-hit" aria-pressed="false">显示透明点击区域</button><hr class="control-separator"><p class="tiny-note">此页只供设计确认。<br>未修改 Flutter，所有内容均为合成数据。</p></aside>
+<button class="control-button" id="show-hit" aria-pressed="false">显示透明点击区域</button><hr class="control-separator"><p class="tiny-note">已确认并同步 Flutter 组件。<br>所有内容均为合成数据。</p></aside>
 <section class="preview" aria-label="标签交互预览"><div class="preview-label"><span id="scene-caption">账单详情 / 内容态</span><button id="reset">重置示例 ↻</button></div><div class="phone" id="phone"></div><p class="preview-footnote"><span id="size-caption">398 × 844</span> · 原始像素预览<br>点击标签可查看完整名称；点击「编辑」体验选择器。</p></section>
 <aside class="notes"><h2>设计决策</h2><h3>视觉轻一点，<br>操作依然从容。</h3><div class="note-item"><strong>详情 21px，选择 26px</strong><p>详情用紧凑文字胶囊。选择器保留同一形状，只增加选中勾、细描边与 1 级字重。</p><div class="pill-spec"><span class="spec-pill detail">工作日</span><span>21px</span><span class="spec-pill choice">✓ 工作日</span><span>26px</span></div></div>
 <div class="note-item"><strong>44px 点击区域，透明留白</strong><p>彩色只覆盖内容胶囊，周围透明区域接收点击。标签换行后区域不重叠，避免密集排列导致误触。</p></div>
 <div class="note-item"><strong>长名可读，结果可撤回</strong><p>详情可展开完整名称；选择器长标签占一行。清空只修改草稿，取消还原，确认才回写详情。</p></div>
 <div class="quick-tests"><p class="note-label">试一下</p><button class="small-action" data-test="many">18 个标签 → 展开全部 ↗</button><button class="small-action" data-test="long">检查长名称 ↗</button><button class="small-action" data-test="search">搜索「旅行」 ↗</button></div></aside>
-</main><footer class="footer-note"><span>BeeTag / BeeTagPicker · 依据当前 V4 组件与真实交互能力</span><span>设计草稿，不应用到产品 · <a href="account-icon-consistency-review.html">查看账户图标提案 →</a></span></footer>
+</main><footer class="footer-note"><span>BeeTag / BeeTagPicker · 依据当前 V4 组件与真实交互能力</span><span>已确认方案 · 同步 Flutter · <a href="account-icon-consistency-review.html">查看账户图标提案 →</a></span></footer>
 <script src="selection-review-base.js"></script><script src="tag-density-review.js"></script></body></html>

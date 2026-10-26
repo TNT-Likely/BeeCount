@@ -1,6 +1,6 @@
 # 紧凑标签 · 设计确认稿
 
-状态：待用户确认，只新增独立 HTML Demo，没有修改 Flutter 或主交互稿。
+状态：用户已确认，已同步 Flutter 组件、Gallery 与主 HTML Demo。此独立稿继续保留合成数据以便复核。
 
 打开：<http://127.0.0.1:8374/boards/tag-density-review.html>
 
@@ -8,7 +8,7 @@
 
 ## 依据
 
-- `packages/beecount_business_ui/lib/src/finance_components.dart`：当前 `BeeTag` 可点击且不为 compact 时会进入 44px 的彩色样式。compact / 只读展示为 21px。
+- `packages/beecount_business_ui/lib/src/tag.dart`：已将 `BeeTag` 从 finance_components.dart 抽出。详情/只读视觉为 21px，选择器视觉为 26px，交互外壳至少 44px；`choice` 与 `enabled` 分开表达选择样式和可用状态。
 - `packages/beecount_business_ui/lib/src/picker_components.dart`：`BeeTagPicker` 具备最近使用、全部、搜索、多选、清空、确认、新建等能力。
 - `lib/pages/tag/widgets/tag_selector.dart`：对接真实标签、最近使用、创建权限及本地选择草稿。
 - `lib/presentation/v4/bindings/transaction_detail_controls.dart` 与业务 UI 的 `transaction_detail.dart`：详情标签具备独立跳转与只读来源。
@@ -26,4 +26,4 @@
 
 Chrome / Playwright 检查 398 与 320 两种宽度 × 浅深主题四个组合：搜索命中与空结果、停用状态、清空取消回滚、确认、18 标签展开、长名换行与滚动、无横向溢出。原始标签名保留，视觉胶囊为 21px / 26px（长名允许到 44px）。
 
-仅使用合成数据。没有接入真实账户、数据库或写入产品设置。
+仅使用合成数据。独立稿没有接入真实账户、数据库或写入产品设置。
