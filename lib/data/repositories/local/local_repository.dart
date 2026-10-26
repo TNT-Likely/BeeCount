@@ -8,6 +8,7 @@ import '../../../utils/shared_ledger_picker_filter.dart';
 import '../../../utils/app_localizations_resolver.dart';
 import '../../../services/system/logger_service.dart';
 import '../../../models/note_history.dart';
+import '../../../models/home_transaction_preview.dart';
 import '../base_repository.dart';
 import '../account_repository.dart' show AccountBalanceUpdateResult;
 import '../budget_repository.dart';
@@ -889,6 +890,73 @@ class LocalRepository extends BaseRepository {
   }) =>
       _transactionRepo.getRecentTransactionsWithCategory(
           ledgerId: ledgerId, limit: limit);
+
+  @override
+  Future<HomeTransactionPreview> getHomeTransactionPreview({
+    required int ledgerId,
+    int limit = 20,
+  }) {
+    if (limit < 1 || limit > 100) {
+      throw ArgumentError.value(limit, 'limit', 'Preview must remain bounded');
+    }
+    return db.transaction(() async {
+      final recent = await getRecentTransactionsWithCategory(
+          ledgerId: ledgerId, limit: limit);
+      final ids = recent.map((row) => row.t.id).toList(growable: false);
+      final tags = await getTagsForTransactions(ids);
+      final attachments = await getAttachmentCountsForTransactions(ids);
+      final count = await db.customSelect(
+          'SELECT COUNT(*) AS count FROM transactions WHERE ledger_id = ?',
+          variables: [d.Variable.withInt(ledgerId)],
+          readsFrom: {db.transactions}).getSingle();
+      final days = <String, DateTime>{};
+      for (final row in recent) {
+        final date = row.t.happenedAt.toLocal();
+        final day = DateTime(date.year, date.month, date.day);
+        days[day.toIso8601String().substring(0, 10)] = day;
+      }
+      final totals = <String, TransactionDayTotals>{};
+      for (final entry in days.entries) {
+        final start = entry.value;
+        final end = DateTime(start.year, start.month, start.day + 1);
+        // Match the existing journal day header: exclude flags do not filter
+        // these totals, transfers do not contribute, refunds keep their sign.
+        final total = await db.customSelect('''
+          SELECT
+            COALESCE(SUM(CASE WHEN type = 'income'
+              THEN COALESCE(native_amount, amount) ELSE 0 END), 0) AS income,
+            COALESCE(SUM(CASE WHEN type = 'expense'
+              THEN COALESCE(native_amount, amount) ELSE 0 END), 0) AS expense
+          FROM transactions
+          WHERE ledger_id = ? AND happened_at >= ? AND happened_at < ?
+          ''', variables: [
+          d.Variable.withInt(ledgerId),
+          d.Variable.withDateTime(start),
+          d.Variable.withDateTime(end),
+        ], readsFrom: {
+          db.transactions
+        }).getSingle();
+        totals[entry.key] = (
+          income: total.read<double>('income'),
+          expense: total.read<double>('expense'),
+        );
+      }
+      return HomeTransactionPreview(
+          ledgerId: ledgerId,
+          totalCount: count.read<int>('count'),
+          dayTotals: Map.unmodifiable(totals),
+          rows: List.unmodifiable(recent.map((row) => (
+                t: row.t,
+                category: row.category,
+                account: row.account,
+                toAccount: row.toAccount,
+                tags: List<Tag>.unmodifiable(tags[row.t.id] ?? const []),
+                attachmentCount: attachments[row.t.id] ?? 0,
+                accountName: row.account?.name,
+                toAccountName: row.toAccount?.name,
+              ))));
+    });
+  }
 
   @override
   Future<

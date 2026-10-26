@@ -223,7 +223,8 @@ void main() {
     await tester.pump(const Duration(seconds: 3));
   });
 
-  testWidgets('a partial splash collection never renders partial day totals',
+  testWidgets(
+      'a complete preview renders full day totals before the full collection',
       (tester) async {
     addTearDown(() async {
       await tester.pumpWidget(const SizedBox.shrink());
@@ -240,6 +241,7 @@ void main() {
     final complete =
         await repo.getRecentTransactionsWithCategory(ledgerId: 1, limit: 100);
     expect(complete.length, 41);
+    final preview = await repo.getHomeTransactionPreview(ledgerId: 1);
     final ready = ValueNotifier(false);
     addTearDown(ready.dispose);
     await tester.pumpWidget(host(ValueListenableBuilder<bool>(
@@ -247,11 +249,23 @@ void main() {
         builder: (_, sourceReady, __) => TransactionList(
             ledgerId: 1,
             sourceReady: sourceReady,
+            previewDayTotals: preview.dayTotals,
+            transactionsWithDetails: preview.rows,
             transactions: sourceReady ? complete : complete.take(20).toList(),
             hideAmounts: false))));
-    await flush(tester);
-    expect(find.byType(TransactionListItem, skipOffstage: false), findsNothing);
-    expect(repo.tagReads, isEmpty);
+    repo.tagReads.clear();
+    await awaitRows(tester);
+    expect(find.byType(TransactionListItem, skipOffstage: false), findsWidgets);
+    expect(repo.tagReads, isEmpty,
+        reason: 'Complete preview needs no late tag reads');
+    expect(
+        tester
+            .widget<DaySectionHeader>(
+                find.byType(DaySectionHeader, skipOffstage: false))
+            .expense,
+        50,
+        reason:
+            'Twenty visible records must include the other 21 in the day total');
     ready.value = true;
     await awaitRows(tester);
     expect(find.byType(TransactionListItem, skipOffstage: false), findsWidgets);

@@ -4,6 +4,7 @@ import '../../presentation/v4/gallery/component_gallery_page.dart';
 import '../../presentation/v4/bindings/home_reminders.dart';
 import '../../presentation/v4/bindings/home_overview.dart';
 import '../../presentation/v4/bindings/home_journal.dart';
+import '../../presentation/v4/bindings/home_transaction_feed.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
@@ -13,13 +14,11 @@ import 'dart:async';
 import '../budget/budget_page.dart';
 import '../../providers.dart';
 import '../../presentation/v4/bindings/home_header.dart';
-import '../../data/db.dart';
 import '../../widgets/ui/ui.dart';
 import '../../widgets/biz/biz.dart';
 import '../transaction/search_page.dart';
 import '../ai/ai_chat_page.dart';
 import '../../l10n/app_localizations.dart';
-import '../../services/system/logger_service.dart';
 import '../../utils/month_range.dart';
 import '../../services/export/share_poster_service.dart';
 import '../report/annual_report_page.dart';
@@ -50,27 +49,6 @@ class _HomePageState extends ConsumerState<HomePage> {
   // 可见性管理
   final Set<String> _visibleHeaders = {}; // 当前可见的日期头部
   Timer? _debounceTimer;
-
-  // StreamBuilder 刷新计数器
-  int _streamBuilderKey = 0;
-  int? _lastLedgerId;
-
-  // home build 缓存的 tx stream。repo.transactionsWithCategoryAll 内部每次调
-  // 都 new StreamController,如果在 build 里直接调,只要 home 因任何 setState
-  // (例如主题或金额隐私偏好变化)重 build,
-  // StreamBuilder 看到 stream 引用变了就重新订阅 → snapshot.data 短暂为 null
-  // → fallback 到 cachedFullData(只有前 20 条预加载)→ 等 Drift 推数据 → 切回
-  // 完整列表,视觉上"整页闪一下"。这里把 stream 缓存到 State,只在 ledgerId
-  // 变化时重建,无关 setState 重 build 时复用同一 stream 引用。
-  Stream<
-      List<
-          ({
-            Transaction t,
-            Category? category,
-            Account? account,
-            Account? toAccount
-          })>>? _txStream;
-  int? _txStreamLedgerId;
 
   @override
   void initState() {
@@ -234,23 +212,8 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final repo = ref.watch(repositoryProvider);
-    // 预加载数据（含标签、附件、账户，仅前 N 条）
-    final cachedFullData = ref.watch(cachedTransactionsProvider);
     final ledgerId = ref.watch(currentLedgerIdProvider);
     final hide = ref.watch(hideAmountsProvider);
-
-    // 检测账本切换，强制刷新 StreamBuilder 并清空缓存
-    if (_lastLedgerId != null && _lastLedgerId != ledgerId) {
-      _streamBuilderKey++;
-      // 清空缓存，避免显示旧账本数据
-      Future.microtask(() {
-        ref.read(cachedTransactionsProvider.notifier).state = null;
-      });
-      logger.info('HomePage',
-          '账本切换: $_lastLedgerId → $ledgerId, 刷新StreamBuilder (key=$_streamBuilderKey)');
-    }
-    _lastLedgerId = ledgerId;
 
     // 监听滚动到顶部的信号
     ref.listen<int>(homeScrollToTopProvider, (previous, next) {
@@ -322,63 +285,16 @@ class _HomePageState extends ConsumerState<HomePage> {
             onCalendar: () => _openHomeTool('calendar'),
             onFilter: () => _openJournalSearch(filters: true),
             onBatch: () => _openJournalSearch(batch: true),
-            child: StreamBuilder<
-                List<
-                    ({
-                      Transaction t,
-                      Category? category,
-                      Account? account,
-                      Account? toAccount
-                    })>>(
-              key: ValueKey('transactions_$_streamBuilderKey'), // 使用递增key强制重建
-              stream: () {
-                // ledgerId 变了或第一次进来才重建 stream;无关 setState(预算
-                // 提示卡片、月度提醒等)的 home rebuild 复用同一 stream 引用,
-                // StreamBuilder 不会重新订阅,不会闪到 fallback 数据。
-                if (_txStream == null || _txStreamLedgerId != ledgerId) {
-                  _txStream =
-                      repo.transactionsWithCategoryAll(ledgerId: ledgerId);
-                  _txStreamLedgerId = ledgerId;
-                }
-                return _txStream;
-              }(),
-              builder: (context, snapshot) {
-                // Stream 数据到来前，使用预加载数据；到来后使用 Stream 数据
-                final streamData = snapshot.data;
-                final hasStreamData = streamData != null;
-
-                // 如果 Stream 没数据，从预加载数据构建基础列表
-                final transactions = hasStreamData
-                    ? streamData
-                    : (cachedFullData
-                            ?.where((item) => item.t.ledgerId == ledgerId)
-                            .map((item) => (
-                                  t: item.t,
-                                  category: item.category,
-                                  account: item.account,
-                                  toAccount: item.toAccount,
-                                ))
-                            .toList() ??
-                        []);
-
-                return TransactionList(
-                  key: _transactionListKey,
-                  transactions: transactions,
-                  ledgerId: ledgerId,
-                  sourceReady: hasStreamData,
-                  // 传入预加载数据供详情使用（标签、附件、账户）
-                  transactionsWithDetails: cachedFullData,
-                  hideAmounts: hide,
-                  flatSurface: true,
-                  enableVisibilityTracking: true,
-                  onDateVisibilityChanged: _onHeaderVisibilityChanged,
-                  controller: _listController,
-                  emptyWidget: BeeEmptyState(
-                    title: AppLocalizations.of(context).homeNoRecords,
-                    message: AppLocalizations.of(context).homeNoRecordsSubtext,
-                  ),
-                );
-              },
+            child: HomeTransactionFeed(
+              ledgerId: ledgerId,
+              hideAmounts: hide,
+              listKey: _transactionListKey,
+              controller: _listController,
+              onDateVisibilityChanged: _onHeaderVisibilityChanged,
+              emptyWidget: BeeEmptyState(
+                title: AppLocalizations.of(context).homeNoRecords,
+                message: AppLocalizations.of(context).homeNoRecordsSubtext,
+              ),
             )),
       ),
     );

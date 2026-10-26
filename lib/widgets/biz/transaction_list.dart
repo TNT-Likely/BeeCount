@@ -24,6 +24,7 @@ import '../../l10n/app_localizations.dart';
 import '../../services/attachment_service.dart';
 import '../../utils/month_range.dart';
 import '../../presentation/v4/bindings/transaction_list_metadata.dart';
+import '../../models/home_transaction_preview.dart';
 
 /// 可复用的交易列表组件
 /// 支持显示分组的交易列表，包含日期头部和交易项
@@ -56,10 +57,14 @@ class TransactionList extends ConsumerStatefulWidget {
   final FlutterListViewController? controller;
   final bool flatSurface;
 
-  /// False while the home stream is still represented by the limited splash
-  /// cache. That cache is metadata, not the complete day/count collection.
+  /// Whether the incoming collection is full. An explicit preview needs full
+  /// day totals; its row count must never be used as a ledger/day aggregate.
   final bool sourceReady;
   final int? ledgerId;
+  final Map<String, TransactionDayTotals>? previewDayTotals;
+  final Object? sourceError;
+  final bool sourceLoading;
+  final VoidCallback? onRetrySource;
 
   const TransactionList({
     super.key,
@@ -73,6 +78,10 @@ class TransactionList extends ConsumerStatefulWidget {
     this.flatSurface = false,
     this.sourceReady = true,
     this.ledgerId,
+    this.previewDayTotals,
+    this.sourceError,
+    this.sourceLoading = false,
+    this.onRetrySource,
   }) : assert(transactionsWithDetails != null || transactions != null,
             'Either transactionsWithDetails or transactions must be provided');
 
@@ -110,6 +119,13 @@ class TransactionListState extends ConsumerState<TransactionList> {
   int? _activeLedgerId;
   bool _loadingDetails = false;
   Object? _detailsError;
+  bool _publishedIsPreview = false;
+  Map<String, TransactionDayTotals> _publishedDayTotals = const {};
+  ({DateTime month, int startDay})? _pendingMonth;
+
+  /// The published phase, distinct from whether raw full-source rows arrived.
+  bool get showingPreview => _publishedIsPreview;
+  int get loadedTransactionCount => _publishedTransactions.length;
 
   // D 方案后:不再需要 _cachedAccountNames / _cachedToAccountNames /
   // _lastSharedResourceRefreshVersion — 账户对象由 watchTransactionsWith*
@@ -217,6 +233,7 @@ class TransactionListState extends ConsumerState<TransactionList> {
   void didUpdateWidget(covariant TransactionList oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.sourceReady != widget.sourceReady ||
+        oldWidget.previewDayTotals != widget.previewDayTotals ||
         oldWidget.ledgerId != widget.ledgerId ||
         oldWidget.transactionsWithDetails != widget.transactionsWithDetails ||
         !_sameRows(oldWidget.transactions, widget.transactions)) {
@@ -248,16 +265,19 @@ class TransactionListState extends ConsumerState<TransactionList> {
       _publishedTransactions = const [];
       _cachedTagsMap = {};
       _cachedAttachmentCounts = {};
+      _publishedDayTotals = const {};
+      _publishedIsPreview = false;
+      _pendingMonth = null;
     }
     _detailsError = null;
     _loadingDetails = true;
     if (mounted) setState(() {});
-    if (!widget.sourceReady) return;
+    if (!widget.sourceReady && widget.previewDayTotals == null) return;
     final tags = <int, List<Tag>>{};
     final counts = <int, int>{};
     final missing = incoming.map((row) => row.t.id).toSet();
-    // A splash cache can avoid reads, but it must cover the entire incoming
-    // collection before it is allowed to determine day totals or row counts.
+    // Complete cached row details can avoid reads. A limited preview is only
+    // publishable with separately supplied full-day totals; it never owns counts.
     if (_usePreloadedData && !force && _publishedTransactions.isEmpty) {
       final current = {for (final row in incoming) row.t.id: row.t};
       for (final cached in widget.transactionsWithDetails ??
@@ -286,7 +306,17 @@ class TransactionListState extends ConsumerState<TransactionList> {
         _cachedAttachmentCounts = counts;
         _loadingDetails = false;
         _detailsError = null;
+        _publishedIsPreview = !widget.sourceReady;
+        _publishedDayTotals =
+            _publishedIsPreview ? Map.of(widget.previewDayTotals!) : const {};
       });
+      if (!_publishedIsPreview && _pendingMonth != null) {
+        final pending = _pendingMonth!;
+        _pendingMonth = null;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) jumpToMonth(pending.month, startDay: pending.startDay);
+        });
+      }
     } catch (error, stack) {
       if (!mounted || generation != _detailsGeneration) return;
       logger.error('TransactionList', '加载完整交易信息失败', error, stack);
@@ -355,6 +385,9 @@ class TransactionListState extends ConsumerState<TransactionList> {
       }
     }
 
+    if (_publishedIsPreview || !widget.sourceReady || _loadingDetails) {
+      _pendingMonth = (month: targetMonth, startDay: startDay);
+    }
     return false; // 没有找到目标月份
   }
 
@@ -399,6 +432,7 @@ class TransactionListState extends ConsumerState<TransactionList> {
 
     // 底部留白，避免被悬浮 Tab 栏遮挡
     if (_flatItems.isNotEmpty) {
+      _flatItems.add(('loadStatus', null, null));
       _flatItems.add(('bottomSpacer', null, null));
     }
   }
@@ -423,17 +457,16 @@ class TransactionListState extends ConsumerState<TransactionList> {
 
     _buildFlatItems();
 
-    if (_flatItems.isEmpty && _detailsError != null) {
+    if (_flatItems.isEmpty &&
+        (_detailsError != null || widget.sourceError != null)) {
       final l = AppLocalizations.of(context);
       return Center(
           child: Column(mainAxisSize: MainAxisSize.min, children: [
         Text(l.commonError),
-        TextButton(
-            onPressed: () => _refreshDetails(force: true),
-            child: Text(l.v4RecordingRetry)),
+        TextButton(onPressed: _retry, child: Text(l.v4RecordingRetry)),
       ]));
     }
-    if (_flatItems.isEmpty && _loadingDetails) {
+    if (_flatItems.isEmpty && (_loadingDetails || !widget.sourceReady)) {
       return const Center(
           child: SizedBox.square(
               dimension: 22, child: CircularProgressIndicator(strokeWidth: 2)));
@@ -455,6 +488,8 @@ class TransactionListState extends ConsumerState<TransactionList> {
         (BuildContext context, int index) {
           final item = _flatItems[index];
           final type = item.$1 as String;
+
+          if (type == 'loadStatus') return _buildLoadStatus(context);
 
           if (type == 'bottomSpacer') {
             // 悬浮 Tab 栏高度(56) + 浮动间距(12) + 安全区 + 额外间距
@@ -481,6 +516,11 @@ class TransactionListState extends ConsumerState<TransactionList> {
               if (it.t.type == 'expense') {
                 dayExpense += it.t.nativeAmount ?? it.t.amount;
               }
+            }
+            if (_publishedIsPreview) {
+              final complete = _publishedDayTotals[dateKey]!;
+              dayIncome = complete.income;
+              dayExpense = complete.expense;
             }
             final isFirst = index == 0;
 
@@ -691,18 +731,50 @@ class TransactionListState extends ConsumerState<TransactionList> {
           }
         },
         childCount: _flatItems.length,
+        keepPosition: true,
+        onItemKey: (index) {
+          final item = _flatItems[index];
+          return item.$1 == 'transaction'
+              ? 'transaction-${(item.$2 as TransactionRowData).t.id}'
+              : '${item.$1}-${widget.ledgerId}-${item.$2}';
+        },
       ),
     );
-    if (_detailsError == null) return list;
+    return list;
+  }
+
+  void _retry() {
+    if (widget.sourceError != null) {
+      widget.onRetrySource?.call();
+    }
+    if (widget.sourceError == null || _detailsError != null) {
+      _refreshDetails(force: true);
+    }
+  }
+
+  Widget _buildLoadStatus(BuildContext context) {
     final l = AppLocalizations.of(context);
-    return Column(children: [
-      Row(children: [
-        Expanded(child: Text(l.commonError)),
-        TextButton(
-            onPressed: () => _refreshDetails(force: true),
-            child: Text(l.v4RecordingRetry)),
-      ]),
-      Expanded(child: list),
-    ]);
+    if (_detailsError != null || widget.sourceError != null) {
+      return Padding(
+          key: const ValueKey('transaction-feed-error'),
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+            Text(l.commonError),
+            TextButton(onPressed: _retry, child: Text(l.v4RecordingRetry)),
+          ]));
+    }
+    if (_loadingDetails ||
+        _publishedIsPreview ||
+        !widget.sourceReady ||
+        widget.sourceLoading) {
+      return const Padding(
+          key: ValueKey('transaction-feed-loading'),
+          padding: EdgeInsets.all(16),
+          child: Center(
+              child: SizedBox.square(
+                  dimension: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2))));
+    }
+    return const SizedBox.shrink();
   }
 }
