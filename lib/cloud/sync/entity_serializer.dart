@@ -34,6 +34,8 @@ class EntitySerializer {
     // apply 时能先按 syncId 找到本地账本，再用 int id 兜底。
     return {
       'syncId': tx.syncId,
+      // 仅同步新增行可恢复接续前历史；服务端不会据此允许编辑旧本金流水。
+      'loanHistoryImport': true,
       'type': tx.type,
       'amount': tx.amount,
       'happenedAt': tx.happenedAt.toUtc().toIso8601String(),
@@ -94,6 +96,12 @@ class EntitySerializer {
       // 账户隐藏(#240)。非空 bool + 默认 false,同账单标记的
       // excludeFromStats/excludeFromBudget 无条件发送(不用 if-null 省略)。
       'hidden': account.hidden,
+      if (account.type == 'loan') ...{
+        'loanBalanceVersion': account.loanBalanceVersion,
+        if (account.loanBalanceSince != null)
+          'loanBalanceSince':
+              account.loanBalanceSince!.toUtc().toIso8601String(),
+      },
     };
   }
 

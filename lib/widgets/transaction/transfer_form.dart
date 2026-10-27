@@ -81,8 +81,7 @@ class _TransferFormState extends ConsumerState<TransferForm> {
     _toAccountId = widget.initialToAccountId;
 
     // 如果是编辑模式且两个账户都已选择，自动打开金额编辑弹窗
-    if (_fromAccountId != null &&
-        _toAccountId != null) {
+    if (_fromAccountId != null && _toAccountId != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         if (mounted && !_autoOpened) {
           _autoOpened = true;
@@ -178,14 +177,14 @@ class _TransferFormState extends ConsumerState<TransferForm> {
         onSubmit: (result) async {
           final attachmentService = ref.read(attachmentServiceProvider);
           // 获取虚拟转账分类ID
-          final transferCategory = await ref.read(transferCategoryProvider.future);
+          final transferCategory =
+              await ref.read(transferCategoryProvider.future);
           final transferCategoryId = transferCategory.id;
 
           // §7 共享账本:Editor picker 给的是 synthetic Account(负数 id)。
           // 写本地 Drift 时 accountId / toAccountId 留 null,override 字段
           // 走 Owner 的 syncId;push 序列化时按 override 输出 payload。
-          final isSyntheticFrom =
-              _fromAccountId != null && _fromAccountId! < 0;
+          final isSyntheticFrom = _fromAccountId != null && _fromAccountId! < 0;
           final isSyntheticTo = _toAccountId != null && _toAccountId! < 0;
           final fromAccountForAdd = isSyntheticFrom ? null : _fromAccountId;
           final toAccountForAdd = isSyntheticTo ? null : _toAccountId;
@@ -199,27 +198,44 @@ class _TransferFormState extends ConsumerState<TransferForm> {
           try {
             if (widget.editingTransactionId != null) {
               // 编辑模式：更新现有转账记录
-              await repo.updateTransaction(
-                id: widget.editingTransactionId!,
-                type: 'transfer',
-                amount: result.amount,
-                categoryId: transferCategoryId, // 使用虚拟转账分类ID
-                note: result.note,
-                happenedAt: result.date,
-                excludeFromStats: result.excludeFromStats,
-                excludeFromBudget: result.excludeFromBudget,
-                currencyCode: result.currencyCode,
-                nativeAmount: result.nativeAmount,
-                accountId: d.Value<int?>(fromAccountForAdd),
-                accountSyncIdOverride: fromOverride,
-              );
-              // 更新 toAccountId(同时写 toAccountSyncIdOverride,共享账本场景)
-              await repo.updateTransactionFields(
-                id: widget.editingTransactionId!,
-                toAccountId: d.Value<int?>(toAccountForAdd),
-                toAccountSyncIdOverride: toOverride,
-                writeToAccountSyncIdOverride: true,
-              );
+              if (repo is LocalRepository) {
+                await repo.updateTransferTransaction(
+                    id: widget.editingTransactionId!,
+                    amount: result.amount,
+                    fromAccountId: fromAccountForAdd,
+                    toAccountId: toAccountForAdd,
+                    happenedAt: result.date,
+                    categoryId: transferCategoryId,
+                    note: result.note,
+                    fromOverride: fromOverride,
+                    toOverride: toOverride,
+                    excludeFromStats: result.excludeFromStats,
+                    excludeFromBudget: result.excludeFromBudget,
+                    currencyCode: result.currencyCode,
+                    nativeAmount: result.nativeAmount);
+              } else {
+                await repo.updateTransaction(
+                  id: widget.editingTransactionId!,
+                  type: 'transfer',
+                  amount: result.amount,
+                  categoryId: transferCategoryId, // 使用虚拟转账分类ID
+                  note: result.note,
+                  happenedAt: result.date,
+                  excludeFromStats: result.excludeFromStats,
+                  excludeFromBudget: result.excludeFromBudget,
+                  currencyCode: result.currencyCode,
+                  nativeAmount: result.nativeAmount,
+                  accountId: d.Value<int?>(fromAccountForAdd),
+                  accountSyncIdOverride: fromOverride,
+                );
+                // 更新 toAccountId(同时写 toAccountSyncIdOverride,共享账本场景)
+                await repo.updateTransactionFields(
+                  id: widget.editingTransactionId!,
+                  toAccountId: d.Value<int?>(toAccountForAdd),
+                  toAccountSyncIdOverride: toOverride,
+                  writeToAccountSyncIdOverride: true,
+                );
+              }
               // 共享账本:回填编辑人,UI 头像组立即展示
               await TxAuthorService.markEdited(
                   ref, widget.editingTransactionId!);
@@ -233,7 +249,8 @@ class _TransferFormState extends ConsumerState<TransferForm> {
                 ref.read(tagListRefreshProvider.notifier).state++;
               } else {
                 // 编辑模式：如果没有选择标签，清除原有标签
-                await repo.removeAllTagsFromTransaction(widget.editingTransactionId!);
+                await repo
+                    .removeAllTagsFromTransaction(widget.editingTransactionId!);
                 ref.read(tagListRefreshProvider.notifier).state++;
               }
 
@@ -349,7 +366,8 @@ class _TransferFormState extends ConsumerState<TransferForm> {
     }
 
     if (widget.editingTransactionId != null ||
-        widget.initialFromAccountId != null || widget.initialToAccountId != null) {
+        widget.initialFromAccountId != null ||
+        widget.initialToAccountId != null) {
       for (final pinnedId in {
         widget.initialFromAccountId,
         widget.initialToAccountId,
@@ -396,9 +414,8 @@ class _TransferFormState extends ConsumerState<TransferForm> {
         // 又被这里的过滤吃掉(跟 AccountSelector 的钉住语义一致)。
         final accounts = allAccounts
             .where((account) =>
-                account.hidden ||
-                (account.currency == currentCurrency &&
-                    isTradableType(account.type)))
+                supportsAccountTransfer(account) &&
+                (account.hidden || account.currency == currentCurrency))
             .toList();
 
         if (accounts.isEmpty) {
@@ -477,9 +494,8 @@ class _TransferFormState extends ConsumerState<TransferForm> {
       itemCount: accounts.length,
       itemBuilder: (context, index) {
         final account = accounts[index];
-        final isSelected = isFrom
-            ? _fromAccountId == account.id
-            : _toAccountId == account.id;
+        final isSelected =
+            isFrom ? _fromAccountId == account.id : _toAccountId == account.id;
 
         return _buildAccountCard(account, isSelected, isFrom, primary);
       },
@@ -572,5 +588,4 @@ class _TransferFormState extends ConsumerState<TransferForm> {
       ),
     );
   }
-
 }

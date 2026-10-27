@@ -8681,4 +8681,58 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get transactionReceiptShareFailed => 'Unable to share. Please try again.';
+
+  @override
+  String get loanCurrentDebt => 'Outstanding principal';
+
+  @override
+  String get loanRepayPrincipal => 'Repay principal';
+
+  @override
+  String get loanBorrowPrincipal => 'Borrow principal';
+
+  @override
+  String get loanPrincipalHint => 'Enter principal only. Record interest and fees as separate expenses.';
+
+  @override
+  String get loanReviewTitle => 'Confirm loan balance';
+
+  @override
+  String get loanReviewHint => 'Confirm the outstanding principal to continue from now. Older transactions stay visible without changing the new principal baseline.';
+
+  @override
+  String get loanBaselineDate => 'Complete records since';
+
+  @override
+  String get loanCalibrationHint => 'Correct the balance without creating income or expenses. Historical trends may change. Use repayment for actual payments.';
+
+  @override
+  String get loanNeedsReview => 'Confirm the loan balance before recording borrowing or repayment.';
+
+  @override
+  String get loanTransferOnly => 'Record loan principal using borrowing or repayment transfers.';
+
+  @override
+  String get loanPersonalLedgerOnly => 'Record loan borrowing and repayment in a personal ledger.';
+
+  @override
+  String get loanSameCurrencyOnly => 'The loan and funding account must use the same currency.';
+
+  @override
+  String get loanBeforeBaseline => 'This transaction predates the loan baseline. Reconcile the baseline and history first.';
+
+  @override
+  String get loanRepaymentExceedsDebt => 'Principal repayment exceeds the outstanding debt. Check principal, interest and the loan balance.';
+
+  @override
+  String get accountGroupDailyAssets => 'Everyday funds';
+
+  @override
+  String get accountGroupValuationAssets => 'Valued assets';
+
+  @override
+  String get loanDebtDecrease => 'Principal decreased';
+
+  @override
+  String get loanDebtIncrease => 'Principal increased';
 }

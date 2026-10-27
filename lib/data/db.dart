@@ -62,6 +62,13 @@ class Accounts extends Table {
   /// 隐藏:true 时该账户不再出现在记账/转账/周期选择器,账户管理页移入「已隐藏」分区。
   /// 仍计入账户余额、净资产、资产构成、净值趋势(.docs/account-archive/01 §二 D1)。
   BoolColumn get hidden => boolean().withDefault(const Constant(false))();
+
+  /// 0 = 旧贷款欠款快照（存在旧流水时待核对）；1 = 本金流水。
+  IntColumn get loanBalanceVersion =>
+      integer().withDefault(const Constant(0))();
+
+  /// 已确认的欠款接续日期；此前不能直接补录并再次影响当前欠款。
+  DateTimeColumn get loanBalanceSince => dateTime().nullable()();
 }
 
 /// 自动汇率本地缓存。日期键 append-only;可随时整表重建 → **不进同步**(README D2)。
@@ -511,7 +518,7 @@ class BeeDatabase extends _$BeeDatabase {
   BeeDatabase.forTesting(QueryExecutor executor) : super(executor);
 
   @override
-  int get schemaVersion => 33; // v33: Agent 本地记忆、摘要与审计表
+  int get schemaVersion => 34; // v34: 贷款本金流水版本与接续日期
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -1258,6 +1265,13 @@ class BeeDatabase extends _$BeeDatabase {
             await _createAgentMemoryFtsTable();
             logger.info('DBMigration', 'v33 迁移完成');
           }
+          if (from < 34) {
+            await _addColumnIfMissing('accounts', 'loan_balance_version',
+                'ALTER TABLE accounts ADD COLUMN loan_balance_version INTEGER NOT NULL DEFAULT 0;');
+            await _addColumnIfMissing('accounts', 'loan_balance_since',
+                'ALTER TABLE accounts ADD COLUMN loan_balance_since INTEGER;');
+            await migrateLegacyLoansWithoutTransactions();
+          }
         },
         onCreate: (m) async {
           await m.createAll();
@@ -1267,6 +1281,34 @@ class BeeDatabase extends _$BeeDatabase {
           await _createAgentMemoryFtsTable();
         },
       );
+
+  /// 仅在数据库升级的完整本地数据上执行，不在页面读取/同步中间态执行。
+  Future<void> migrateLegacyLoansWithoutTransactions() async {
+    final rows = await customSelect("""
+      SELECT a.id FROM accounts a
+      WHERE a.type = 'loan' AND a.loan_balance_version = 0 AND a.initial_balance <= 0
+        AND NOT EXISTS (SELECT 1 FROM transactions t WHERE t.account_id = a.id OR t.to_account_id = a.id)
+    """).get();
+    final now = DateTime.now();
+    final since = DateTime(now.year, now.month, now.day);
+    for (final row in rows) {
+      final id = row.read<int>('id');
+      await (update(accounts)..where((a) => a.id.equals(id))).write(
+          AccountsCompanion(
+              loanBalanceVersion: const Value(1),
+              loanBalanceSince: Value(since)));
+      final account =
+          await (select(accounts)..where((a) => a.id.equals(id))).getSingle();
+      if (account.syncId != null && account.syncId!.isNotEmpty) {
+        await into(localChanges).insert(LocalChangesCompanion.insert(
+            entityType: 'account',
+            entityId: id,
+            entitySyncId: account.syncId!,
+            ledgerId: 0,
+            action: 'update'));
+      }
+    }
+  }
 
   Future<void> _createAgentMemoryFtsTable() => customStatement(
         'CREATE VIRTUAL TABLE IF NOT EXISTS agent_memory_fts '

@@ -1,7 +1,8 @@
 import 'package:drift/drift.dart' as d;
 import '../data/db.dart';
 import '../data/repositories/base_repository.dart';
-import '../data/repositories/transaction_repository.dart' show BatchAttachmentData;
+import '../data/repositories/transaction_repository.dart'
+    show BatchAttachmentData;
 import 'currency/rate_math.dart';
 import 'system/logger_service.dart';
 
@@ -17,12 +18,16 @@ class ImportAccount {
   final String? type;
   final String? currency;
   final double? initialBalance;
+  final int loanBalanceVersion;
+  final DateTime? loanBalanceSince;
 
   const ImportAccount({
     required this.name,
     this.type,
     this.currency,
     this.initialBalance,
+    this.loanBalanceVersion = 0,
+    this.loanBalanceSince,
   });
 }
 
@@ -130,6 +135,7 @@ class ImportData {
 
   /// 账本名称（可选，用于更新账本信息）
   final String? ledgerName;
+
   /// 货币（可选，用于更新账本信息）
   final String? currency;
 
@@ -224,10 +230,8 @@ class DataImportService {
 
   /// 导入账户(全局按名称去重)。public — sync_diff_service 也复用,避免维护两套。
   Future<Map<String, int>> importAccounts(
-    BaseRepository repo,
-    List<ImportAccount> accounts,
-    {String defaultCurrency = 'CNY'}
-  ) async {
+      BaseRepository repo, List<ImportAccount> accounts,
+      {String defaultCurrency = 'CNY'}) async {
     final accountNameToId = <String, int>{};
 
     if (accounts.isEmpty) return accountNameToId;
@@ -243,14 +247,21 @@ class DataImportService {
 
       for (final acc in accounts) {
         if (!accountNameToId.containsKey(acc.name)) {
-          final id = await repo.createAccount(
-            ledgerId: 0, // 账户独立,不绑定账本
-            name: acc.name,
-            type: acc.type ?? 'cash',
-            currency: acc.currency ?? defaultCurrency,
-            initialBalance: acc.initialBalance ?? 0.0,
-          );
-          accountNameToId[acc.name] = id;
+          // 导入先保留原本金基线，待历史流水一同恢复后计算；不能按新建贷款重新归零历史。
+          await repo.batchInsertAccounts([
+            AccountsCompanion.insert(
+              ledgerId: 0,
+              name: acc.name,
+              type: d.Value(acc.type ?? 'cash'),
+              currency: d.Value(acc.currency ?? defaultCurrency),
+              initialBalance: d.Value(acc.initialBalance ?? 0.0),
+              loanBalanceVersion: d.Value(acc.loanBalanceVersion),
+              loanBalanceSince: d.Value(acc.loanBalanceSince),
+            )
+          ]);
+          final imported = (await repo.getAllAccounts())
+              .firstWhere((row) => row.name == acc.name);
+          accountNameToId[acc.name] = imported.id;
           created++;
         }
       }
@@ -291,8 +302,12 @@ class DataImportService {
       }
 
       // 分离一级和二级分类
-      final level1 = categories.where((c) => c.level == 1 || c.parentName == null).toList();
-      final level2 = categories.where((c) => c.level == 2 && c.parentName != null).toList();
+      final level1 = categories
+          .where((c) => c.level == 1 || c.parentName == null)
+          .toList();
+      final level2 = categories
+          .where((c) => c.level == 2 && c.parentName != null)
+          .toList();
 
       // 导入一级分类
       for (final cat in level1) {
@@ -436,17 +451,15 @@ class DataImportService {
     int failed = 0;
     int processed = 0;
     final total = transactions.length;
-    logger.info('TxImport',
-        '开始导入交易: $total 条 (recordChanges=$recordChanges)');
+    logger.info('TxImport', '开始导入交易: $total 条 (recordChanges=$recordChanges)');
 
     // v30 交易级多币种(02 §六导入修补):批量预取本位币/账户币种/有效汇率,
     // 逐条填 currencyCode + nativeAmount,不再落 NULL(NULL 行 L11 检测
     // 需 join 兜底,且外币账户导入折算会静默 1:1)。
     final ledger = await repo.getLedgerById(ledgerId);
-    final ledgerBase = ((ledger?.currency.isNotEmpty ?? false)
-            ? ledger!.currency
-            : 'CNY')
-        .toUpperCase();
+    final ledgerBase =
+        ((ledger?.currency.isNotEmpty ?? false) ? ledger!.currency : 'CNY')
+            .toUpperCase();
     final accountCurrencyById = <int, String>{
       for (final a in await repo.getAllAccounts())
         a.id: (a.currency.isNotEmpty ? a.currency : ledgerBase).toUpperCase(),
@@ -573,11 +586,10 @@ class DataImportService {
 
       // v30:交易币种 = CSV 币种列(显式,反馈10)?? 账户币种 ?? 本位币;
       // 折算快照同币种 = amount,外币按有效汇率,取不到 = amount(L11 可捞回)。
-      final txCurrency = ((tx.currencyCode?.isNotEmpty ?? false)
-              ? tx.currencyCode!
-              : null) ??
-          (accountId != null ? accountCurrencyById[accountId] : null) ??
-          ledgerBase;
+      final txCurrency =
+          ((tx.currencyCode?.isNotEmpty ?? false) ? tx.currencyCode! : null) ??
+              (accountId != null ? accountCurrencyById[accountId] : null) ??
+              ledgerBase;
       final txNative = txCurrency == ledgerBase
           ? tx.amount
           : (computeNativeAmount(
