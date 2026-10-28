@@ -2,6 +2,8 @@
 
 更新：2026-10-28。按用户要求，本轮只列 `presentation/v4` 的归位计划，不搬目录，不删除原页面备份。后续按业务逐批执行。
 
+2026-10-29 补充：[组件目录收敛审计与实施计划](v4-component-organization-audit.md)已逐项覆盖 74 个旧组件、77 个业务包文件和 208 个 presentation 文件，并提供完整的 JSON 路径映射；后续执行以该清单核对最新工作树。本文件保留最初的归位背景。
+
 ## 现状与职责
 
 页面入口已经在原 `lib/pages` 修改，例如 `pages/main/analytics_page.dart`、`pages/account/account_detail_page.dart`；没有另一套 V4 页面路由。迁移时把页面数据适配、分块与动作放入 `presentation/v4`，以保持入口简短、便于逐步对照。它是过渡组织，不应成为长期的版本目录。
