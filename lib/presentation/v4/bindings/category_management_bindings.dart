@@ -109,6 +109,7 @@ class _CategoryGridViewState extends ConsumerState<_CategoryGridView> {
             children: children,
             isDefault: isDefault);
     return BeeCategoryManagementList(
+      reorderLabel: l10n.categoryDetailSortTitle,
       manageLabel: l10n.categoryManageChildren,
       empty: Padding(
           padding: const EdgeInsets.symmetric(vertical: 36),

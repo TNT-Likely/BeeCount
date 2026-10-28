@@ -24,12 +24,13 @@ class BeeCategoryManagementList extends StatefulWidget {
       required this.onManageChildren,
       required this.onReorder,
       required this.manageLabel,
+      required this.reorderLabel,
       this.empty,
       this.footer});
   final List<BeeManagedCategory> items;
   final ValueChanged<String> onEdit, onManageChildren;
   final ReorderCallback onReorder;
-  final String manageLabel;
+  final String manageLabel, reorderLabel;
   final Widget? empty, footer;
   @override
   State<BeeCategoryManagementList> createState() =>
@@ -101,17 +102,15 @@ class _BeeCategoryManagementListState extends State<BeeCategoryManagementList> {
                     const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
                 child: Column(mainAxisSize: MainAxisSize.min, children: [
                   Row(children: [
-                    ReorderableDelayedDragStartListener(
-                        index: index,
-                        child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            child: Container(
-                                width: 36,
-                                height: 36,
-                                decoration: BoxDecoration(
-                                    color: BeeCardTheme.of(context).soft,
-                                    borderRadius: BorderRadius.circular(12)),
-                                child: Center(child: item.icon)))),
+                    Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        child: Container(
+                            width: 36,
+                            height: 36,
+                            decoration: BoxDecoration(
+                                color: BeeCardTheme.of(context).soft,
+                                borderRadius: BorderRadius.circular(12)),
+                            child: Center(child: item.icon))),
                     const SizedBox(width: 10),
                     Expanded(
                         child: InkWell(
@@ -153,6 +152,23 @@ class _BeeCategoryManagementListState extends State<BeeCategoryManagementList> {
                     IconButton(
                         onPressed: () => widget.onEdit(item.id),
                         icon: const BeeLineIcon('ChevronRight', size: 17)),
+                    Tooltip(
+                        message: widget.reorderLabel,
+                        child: Semantics(
+                            label: '${widget.reorderLabel} ${item.name}',
+                            child: ReorderableDragStartListener(
+                                key: ValueKey('category-reorder-${item.id}'),
+                                index: index,
+                                child: SizedBox(
+                                    width: 44,
+                                    height: 44,
+                                    child: ColoredBox(
+                                        color: Colors.transparent,
+                                        child: Center(
+                                            child: BeeLineIcon('GripVertical',
+                                                size: 18,
+                                                color: Theme.of(context)
+                                                    .hintColor))))))),
                   ]),
                   if (expanded)
                     Padding(

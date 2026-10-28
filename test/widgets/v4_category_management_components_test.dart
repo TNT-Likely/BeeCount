@@ -5,12 +5,54 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  testWidgets('把手可见且立即拖动，长按名称不触发排序', (tester) async {
+    var reordered = 0;
+    await tester.pumpWidget(MaterialApp(
+        theme: beeTheme(),
+        home: Scaffold(
+            body: BeeCategoryManagementList(
+                reorderLabel: '拖动排序',
+                manageLabel: '管理',
+                items: const [
+                  BeeManagedCategory(
+                      id: 'a',
+                      name: '咖啡',
+                      icon: Icon(Icons.coffee),
+                      detail: '2笔'),
+                  BeeManagedCategory(
+                      id: 'b',
+                      name: '奶茶',
+                      icon: Icon(Icons.local_drink),
+                      detail: '3笔'),
+                ],
+                onEdit: (_) {},
+                onManageChildren: (_) {},
+                onReorder: (_, __) => reordered++))));
+    expect(find.byType(ReorderableDelayedDragStartListener), findsNothing);
+    expect(find.byType(ReorderableDragStartListener), findsNWidgets(2));
+    final grip = find.byKey(const ValueKey('category-reorder-a'));
+    expect(tester.getSize(grip), const Size(44, 44));
+    await tester.longPress(find.text('咖啡'));
+    await tester.pumpAndSettle();
+    expect(reordered, 0);
+    final gesture = await tester.startGesture(tester.getCenter(grip));
+    await tester.pump(const Duration(milliseconds: 20));
+    for (var step = 0; step < 10; step++) {
+      await gesture.moveBy(const Offset(0, 12));
+      await tester.pump(const Duration(milliseconds: 50));
+    }
+    await gesture.up();
+    await tester.pumpAndSettle();
+    expect(reordered, 1);
+    expect(tester.takeException(), isNull);
+  });
   testWidgets('没有一级分类时仍能看到空态、转账分类和工具入口', (tester) async {
     var transfer = 0, tools = 0;
     await tester.pumpWidget(MaterialApp(
         theme: beeTheme(),
         home: Scaffold(
             body: BeeCategoryManagementList(
+                reorderLabel: '拖动排序',
                 items: const [],
                 onEdit: (_) {},
                 onManageChildren: (_) {},

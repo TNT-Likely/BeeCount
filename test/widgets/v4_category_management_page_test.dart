@@ -240,7 +240,7 @@ void main() {
       await close(tester);
     });
   }
-  testWidgets('长按实际分类图标排序后持久化，收入类型和子分类关系保持不变', (tester) async {
+  testWidgets('拖动可见把手立即排序并持久化，收入类型和子分类关系保持不变', (tester) async {
     final first =
         await repo.createCategory(name: '排序甲', kind: 'expense', sortOrder: 0);
     final second =
@@ -250,9 +250,9 @@ void main() {
     final income =
         await repo.createCategory(name: '保留收入', kind: 'income', sortOrder: 9);
     await open(tester);
-    final handle = find.byType(ReorderableDelayedDragStartListener).first;
+    final handle = find.byType(ReorderableDragStartListener).first;
     final gesture = await tester.startGesture(tester.getCenter(handle));
-    await tester.pump(const Duration(milliseconds: 700));
+    await tester.pump(const Duration(milliseconds: 20));
     for (var step = 0; step < 10; step++) {
       await gesture.moveBy(const Offset(0, 10));
       await tester.pump(const Duration(milliseconds: 50));

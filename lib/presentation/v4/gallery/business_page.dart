@@ -1584,6 +1584,7 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
             SizedBox(
                 height: 330,
                 child: BeeCategoryManagementList(
+                    reorderLabel: '拖动排序',
                     items: categoryEmpty
                         ? const []
                         : [

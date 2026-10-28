@@ -47,20 +47,21 @@ void main() {
         theme: beeTheme(),
         home: Scaffold(
             body: BeeCategoryManagementList(
+                reorderLabel: '拖动排序',
                 items: const [
-              BeeManagedCategory(
-                  id: 'food',
-                  name: '餐饮',
-                  detail: '2 个二级分类',
-                  icon: Icon(Icons.restaurant),
-                  children: [
-                    BeeManagedCategory(
-                        id: 'lunch',
-                        name: '午餐',
-                        detail: '',
-                        icon: Icon(Icons.rice_bowl)),
-                  ]),
-            ],
+                  BeeManagedCategory(
+                      id: 'food',
+                      name: '餐饮',
+                      detail: '2 个二级分类',
+                      icon: Icon(Icons.restaurant),
+                      children: [
+                        BeeManagedCategory(
+                            id: 'lunch',
+                            name: '午餐',
+                            detail: '',
+                            icon: Icon(Icons.rice_bowl)),
+                      ]),
+                ],
                 manageLabel: '管理',
                 onEdit: (v) => events.add('edit:$v'),
                 onManageChildren: (v) => events.add('manage:$v'),

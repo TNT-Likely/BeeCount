@@ -27,3 +27,7 @@ App 内验收：[ComponentGalleryPage](../../lib/presentation/v4/gallery/compone
 `BeeAccountFlowFilter` 提供账户流水方向、排序草稿和整行确认操作。App 持有筛选值，确认后才查询；基础 `BeeSelectField` 使用统一选择弹层。`BeeMoney.alignment` 默认右对齐，账户主余额显式左对齐，折算信息继续右对齐。
 
 `RecordingSubcategoryGrid` 使用四列自适应布局：按实际字体与文字缩放测量，短名称一格，溢出名称两格，特别长的名称在两格内自然换行；不重排补洞。与记账页、更多分类和组件验收共用，选中／禁用／图标／分类详情及完整语义均保留；主记账页由 App 限高并独立滚动。
+
+`BeeAccountTransactionTools` 统一账户流水标题、搜索与筛选入口、34px紧凑筛选胶囊及列表前的留白；`BeeAccountTransactionSearch` 在弹层内持有搜索控制器，等弹层完全卸载后释放，支持键盘提交、确认与取消草稿。查询仍由 App 在确认后执行。
+
+账户主卡只在名称下展示一次类型与币种，底部保留净资产与关联账本。`BeeAccountTransactionTools.sortLabel` 明示当前排序，点击回到筛选；`BeeCategoryManagementList` 在分类行右侧显示44px拖动把手，使用立即拖动监听，名称与图标不再承担隐式长按排序。
