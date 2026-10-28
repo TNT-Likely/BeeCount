@@ -1,0 +1,11 @@
+/* Review-only composition. Original Flutter artwork and product settings stay unchanged. */
+@import url("skin-application-review.css");
+#bee-immersive-suite #bee-immersive-phone[data-native-application=gallery][data-native-active=true][data-native-plain=false] .bc-main{display:block!important;overflow:auto!important;scrollbar-width:none;padding-bottom:20px!important}
+#bee-immersive-suite #bee-immersive-phone[data-native-application=gallery] .bc-main>.sa-art-space{width:100%;aspect-ratio:398/208;margin:2px 0 13px;flex:none}
+#bee-immersive-suite #bee-immersive-phone[data-native-application=gallery] .bc-summary{background:var(--bc-paper)!important;margin:0 0 12px!important;padding:15px 18px!important}
+#bee-immersive-suite #bee-immersive-phone[data-native-application=gallery] .bc-summary .bc-hero-value{font-size:35px!important;margin:5px 0 12px!important}
+#bee-immersive-suite #bee-immersive-phone[data-native-application=gallery] .bc-stream{display:block!important;height:auto!important;min-height:330px;margin-bottom:0}
+#bee-immersive-suite #bee-immersive-phone[data-native-application=gallery] .h-journal-list{overflow:visible!important;height:auto!important}
+#bee-immersive-phone[data-native-application=gallery]{--original-page:linear-gradient(#fcf6e8 0px,#f8f6ef 340px,var(--bc-bg) 680px)!important}
+#bee-immersive-phone[data-native-application=gallery][style*="color-scheme: dark"]{--original-page:linear-gradient(#080705 0px,#181612 320px,var(--bc-bg) 680px)!important}
+.sa-static-section{max-width:1100px;margin:0 auto;padding:8px 30px 50px}.sa-static-section h2{font-size:22px;margin:7px 0}.sa-static-section>p{font-size:12px;color:var(--sa-muted)}.sa-static-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;margin-top:20px}.sa-static-grid a{background:var(--sa-paper);padding:9px;border-radius:16px}.sa-static-grid img{width:100%;aspect-ratio:320/176;border-radius:9px;display:block;object-fit:cover}.sa-static-grid span{display:block;font-size:11px;margin:8px 2px 2px}body[data-single=true] .sa-static-section{display:none}@media(max-width:760px){.sa-static-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.sa-static-section{padding:5px 22px 30px}}
