@@ -197,7 +197,7 @@ class TransactionListState extends ConsumerState<TransactionList> {
             BeeMenuAction(
                 value: 'receipt',
                 label: l.transactionReceiptAction,
-                icon: const BeeLineIcon('Receipt', size: 18)),
+                icon: const BeeLineIcon('ReceiptText', size: 18)),
           ]);
     } finally {
       _showingTransactionActions = false;

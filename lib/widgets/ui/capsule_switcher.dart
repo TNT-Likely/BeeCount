@@ -99,6 +99,8 @@ class CapsuleSwitcher<T> extends StatelessWidget {
             borderRadius: segmentRadius,
             clipBehavior: Clip.antiAlias,
             child: InkWell(
+              splashFactory: NoSplash.splashFactory,
+              highlightColor: Colors.transparent,
               borderRadius: segmentRadius,
               hoverColor: BeeTokens.surfaceHover(context),
               focusColor: BeeTokens.surfaceHover(context),
@@ -113,6 +115,8 @@ class CapsuleSwitcher<T> extends StatelessWidget {
                     if (option.showArrow && option.onTap != null) ...[
                       const SizedBox(width: 4),
                       InkWell(
+                        splashFactory: NoSplash.splashFactory,
+                        highlightColor: Colors.transparent,
                         onTap: option.onTap,
                         borderRadius: BorderRadius.circular(BeeDimens.radius12),
                         child: Icon(Icons.arrow_drop_down, size: 18, color: fg),
