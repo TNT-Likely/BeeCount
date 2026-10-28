@@ -81,6 +81,7 @@ class BeeAccountSummaryCard extends StatelessWidget {
             Text(currency, style: TextStyle(fontSize: 10, color: muted))
           ]),
           BeeMoney(
+              alignment: Alignment.centerLeft,
               amount: amount,
               prefix: prefix.isEmpty ? null : prefix,
               size: MediaQuery.sizeOf(context).width <= 380 ? 29 : 33,

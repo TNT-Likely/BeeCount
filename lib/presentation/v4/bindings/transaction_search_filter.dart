@@ -91,17 +91,12 @@ class _FilterState extends State<TransactionSearchFilterDialog> {
 
   Widget _select<T>(String label, T? value, Map<T, String> choices,
           ValueChanged<T?> onChanged) =>
-      DropdownButtonFormField<T>(
+      BeeSelectField<T?>(
+          label: label,
           value: value,
-          isExpanded: true,
-          decoration: InputDecoration(labelText: label),
           items: [
-            DropdownMenuItem<T>(
-                value: null,
-                child: Text(AppLocalizations.of(context).v4SearchAll)),
-            ...choices.entries.map((e) => DropdownMenuItem<T>(
-                value: e.key,
-                child: Text(e.value, overflow: TextOverflow.ellipsis)))
+            BeeSegment<T?>(null, AppLocalizations.of(context).v4SearchAll),
+            ...choices.entries.map((e) => BeeSegment<T?>(e.key, e.value))
           ],
           onChanged: onChanged);
   @override
@@ -109,6 +104,7 @@ class _FilterState extends State<TransactionSearchFilterDialog> {
     final l = AppLocalizations.of(context);
     return BeeDialog(
         title: Text(l.searchFilterTitle),
+        stackActions: true,
         content: SingleChildScrollView(
             child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -139,18 +135,14 @@ class _FilterState extends State<TransactionSearchFilterDialog> {
                     }
                   }),
               const SizedBox(height: 12),
-              DropdownButtonFormField<SearchAmountBasis>(
+              BeeSelectField<SearchAmountBasis>(
                   value: basis,
-                  isExpanded: true,
-                  decoration: InputDecoration(labelText: l.searchAmountFilter),
+                  label: l.searchAmountFilter,
                   items: [
-                    DropdownMenuItem(
-                        value: SearchAmountBasis.original,
-                        child: Text(l.v4SearchOriginalAmount)),
-                    DropdownMenuItem(
-                        value: SearchAmountBasis.ledger,
-                        child: Text(
-                            '${l.v4SearchLedgerAmount} · ${widget.currency}'))
+                    BeeSegment(
+                        SearchAmountBasis.original, l.v4SearchOriginalAmount),
+                    BeeSegment(SearchAmountBasis.ledger,
+                        '${l.v4SearchLedgerAmount} · ${widget.currency}')
                   ],
                   onChanged: (v) => setState(() => basis = v!)),
               const SizedBox(height: 12),

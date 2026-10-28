@@ -328,16 +328,47 @@ class BeeSelectField<T> extends StatelessWidget {
   final ValueChanged<T?>? onChanged;
   final String? error;
   @override
-  Widget build(BuildContext context) => DropdownButtonFormField<T>(
-      value: value,
-      isExpanded: true,
-      decoration: InputDecoration(labelText: label, errorText: error),
-      items: items
-          .map((item) => DropdownMenuItem(
-              value: item.value,
-              child: Text(item.label,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 13))))
-          .toList(),
-      onChanged: onChanged);
+  Widget build(BuildContext context) {
+    final selected = items.where((item) => item.value == value).firstOrNull;
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      Material(
+        color: BeeCardTheme.of(context).soft,
+        borderRadius: BorderRadius.circular(13),
+        child: BeeMenuRow(
+          title: label,
+          subtitle: selected?.label,
+          trailing: BeeLineIcon('ChevronDown',
+              size: 15, color: Theme.of(context).hintColor),
+          onTap: onChanged == null
+              ? null
+              : () => showBeeSheet<void>(context,
+                  title: label,
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                        maxHeight: MediaQuery.sizeOf(context).height * .55),
+                    child: ListView(
+                        shrinkWrap: true,
+                        padding: EdgeInsets.zero,
+                        children: [
+                          for (final item in items)
+                            BeeMenuRow(
+                              title: item.label,
+                              selected: item.value == value,
+                              onTap: () {
+                                onChanged!(item.value);
+                                Navigator.pop(context);
+                              },
+                            )
+                        ]),
+                  )),
+        ),
+      ),
+      if (error != null)
+        Padding(
+            padding: const EdgeInsets.only(top: 5),
+            child: Text(error!,
+                style: TextStyle(
+                    color: Theme.of(context).colorScheme.error, fontSize: 11))),
+    ]);
+  }
 }

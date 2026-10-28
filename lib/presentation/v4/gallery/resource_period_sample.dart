@@ -25,32 +25,36 @@ class _ResourcePeriodSampleState extends State<ResourcePeriodSample> {
             trackHeight: 32,
             tapHeight: 44,
             onChanged: (value) => setState(() => period = value)),
-        BeeDateRangeBar(
-            label: period == 'all'
-                ? '全部时间'
-                : period == 'year'
-                    ? '${anchor.year} 年'
-                    : '${anchor.year} 年 ${anchor.month} 月',
-            onChoose: () async {
-              var draft = anchor;
-              final value = await showBeeSheet<DateTime>(context,
-                  title: '选择统计时间',
-                  child: Column(mainAxisSize: MainAxisSize.min, children: [
-                    BeeYearMonthWheel(
-                        value: anchor,
-                        showMonth: period != 'year',
-                        onChanged: (value) => draft = value),
-                    BeeButton(
-                        label: '确认',
-                        onPressed: () => Navigator.pop(context, draft)),
-                  ]));
-              if (mounted && value != null) {
-                setState(() {
-                  anchor = value;
-                  if (period == 'all') period = 'month';
-                });
-              }
-            }),
+        if (period != 'all')
+          BeeDateRangeBar(
+              label: period == 'all'
+                  ? '全部时间'
+                  : period == 'year'
+                      ? '${anchor.year} 年'
+                      : '${anchor.year} 年 ${anchor.month} 月',
+              onChoose: () async {
+                var draft = anchor;
+                final value = await showBeeSheet<DateTime>(context,
+                    title: '选择统计时间',
+                    child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          BeeYearMonthWheel(
+                              value: anchor,
+                              showMonth: period != 'year',
+                              onChanged: (value) => draft = value),
+                          BeeButton(
+                              label: '确认',
+                              onPressed: () => Navigator.pop(context, draft)),
+                        ]));
+                if (mounted && value != null) {
+                  setState(() {
+                    anchor = value;
+                    if (period == 'all') period = 'month';
+                  });
+                }
+              }),
         BeeResourceHero(
             title: category,
             beforeIdentity: category == '咖啡'
@@ -70,6 +74,34 @@ class _ResourcePeriodSampleState extends State<ResourcePeriodSample> {
               BeeResourceMetric(label: '占总支出', value: '59.9%'),
             ]),
         const SizedBox(height: 12),
+        BeeButton(
+            label: '交易记录筛选',
+            kind: BeeButtonKind.secondary,
+            onPressed: () async {
+              var flow = 'all', sort = 'timeDesc';
+              await showBeeSheet<void>(context,
+                  title: '交易记录筛选',
+                  child: StatefulBuilder(
+                      builder: (ctx, update) => BeeAccountFlowFilter(
+                          flow: flow,
+                          sort: sort,
+                          sortLabel: '排序',
+                          flows: const [
+                            BeeSegment('all', '全部流水'),
+                            BeeSegment('expense', '支出与转出'),
+                            BeeSegment('income', '收入与转入')
+                          ],
+                          sorts: const [
+                            BeeSegment('timeDesc', '时间从新到旧'),
+                            BeeSegment('timeAsc', '时间从旧到新'),
+                            BeeSegment('amountDesc', '金额从高到低'),
+                            BeeSegment('amountAsc', '金额从低到高')
+                          ],
+                          onFlowChanged: (v) => update(() => flow = v),
+                          onSortChanged: (v) => update(() => sort = v),
+                          confirmLabel: '确认',
+                          onConfirm: () => Navigator.pop(ctx))));
+            }),
       ]);
 }
 
@@ -123,5 +155,33 @@ class _AccountDetailComponentsState
             selectedIndex: point,
             onSelected: (value) => setState(() => point = value)),
         const SizedBox(height: 12),
+        BeeButton(
+            label: '交易记录筛选',
+            kind: BeeButtonKind.secondary,
+            onPressed: () async {
+              var flow = 'all', sort = 'timeDesc';
+              await showBeeSheet<void>(context,
+                  title: '交易记录筛选',
+                  child: StatefulBuilder(
+                      builder: (ctx, update) => BeeAccountFlowFilter(
+                          flow: flow,
+                          sort: sort,
+                          sortLabel: '排序',
+                          flows: const [
+                            BeeSegment('all', '全部流水'),
+                            BeeSegment('expense', '支出与转出'),
+                            BeeSegment('income', '收入与转入')
+                          ],
+                          sorts: const [
+                            BeeSegment('timeDesc', '时间从新到旧'),
+                            BeeSegment('timeAsc', '时间从旧到新'),
+                            BeeSegment('amountDesc', '金额从高到低'),
+                            BeeSegment('amountAsc', '金额从低到高')
+                          ],
+                          onFlowChanged: (v) => update(() => flow = v),
+                          onSortChanged: (v) => update(() => sort = v),
+                          confirmLabel: '确认',
+                          onConfirm: () => Navigator.pop(ctx))));
+            }),
       ]);
 }

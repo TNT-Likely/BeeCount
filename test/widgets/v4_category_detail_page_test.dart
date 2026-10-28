@@ -180,6 +180,21 @@ void main() {
     expect(tester.takeException(), isNull);
     await close(tester);
   });
+  testWidgets('全部不重复展示时间条，月份确认铺满弹层内容宽度', (tester) async {
+    await open(tester);
+    expect(find.byType(BeeDateRangeBar), findsNothing);
+    final l =
+        AppLocalizations.of(tester.element(find.byType(CategoryDetailPage)));
+    await tester.tap(find.text(l.v4DetailMonth));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(BeeDateRangeBar));
+    await tester.pumpAndSettle();
+    final button = find.widgetWithText(BeeButton, l.commonConfirm);
+    expect(tester.getSize(button).width, greaterThan(300));
+    await tester.tap(find.byType(CloseButton).last);
+    await tester.pumpAndSettle();
+    await close(tester);
+  });
   testWidgets('日期滚轮取消保留周期，二级导航保留范围，返回保留原排序', (tester) async {
     await open(tester);
     final l =

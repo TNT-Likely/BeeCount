@@ -915,7 +915,8 @@
       "BeeResourceParentLink",
       "BeeAccountSummaryCard",
       "BeeAccountCashflowCard",
-      "BeeBalanceHistoryCard"
+      "BeeBalanceHistoryCard",
+      "BeeAccountFlowFilter"
     ],
     "page": "business",
     "case": 35,

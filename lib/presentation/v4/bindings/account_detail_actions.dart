@@ -151,41 +151,25 @@ mixin _AccountDetailActions on ConsumerState<AccountDetailPage> {
     final apply = await showBeeSheet<bool>(context,
         title: l.accountAllFlows,
         child: StatefulBuilder(
-            builder: (context, update) =>
-                Column(mainAxisSize: MainAxisSize.min, children: [
-                  BeeCompactTabs<String>(
-                      value: flow,
-                      items: [
-                        BeeSegment('all', l.accountAllFlows),
-                        BeeSegment('expense', l.accountOutflows),
-                        BeeSegment('income', l.accountInflows)
-                      ],
-                      onChanged: (v) => update(() => flow = v),
-                      trackHeight: 32,
-                      tapHeight: 44),
-                  const SizedBox(height: 12),
-                  DropdownButtonFormField<String>(
-                      value: sort,
-                      items: [
-                        DropdownMenuItem(
-                            value: 'timeDesc',
-                            child: Text(l.categoryDetailSortTimeDesc)),
-                        DropdownMenuItem(
-                            value: 'timeAsc',
-                            child: Text(l.categoryDetailSortTimeAsc)),
-                        DropdownMenuItem(
-                            value: 'amountDesc',
-                            child: Text(l.categoryDetailSortAmountDesc)),
-                        DropdownMenuItem(
-                            value: 'amountAsc',
-                            child: Text(l.categoryDetailSortAmountAsc))
-                      ],
-                      onChanged: (v) => sort = v ?? sort),
-                  const SizedBox(height: 16),
-                  BeeButton(
-                      label: l.commonConfirm,
-                      onPressed: () => Navigator.pop(context, true))
-                ])));
+            builder: (context, update) => BeeAccountFlowFilter(
+                flow: flow,
+                sort: sort,
+                sortLabel: l.categoryDetailSortTitle,
+                flows: [
+                  BeeSegment('all', l.accountAllFlows),
+                  BeeSegment('expense', l.accountOutflows),
+                  BeeSegment('income', l.accountInflows)
+                ],
+                sorts: [
+                  BeeSegment('timeDesc', l.categoryDetailSortTimeDesc),
+                  BeeSegment('timeAsc', l.categoryDetailSortTimeAsc),
+                  BeeSegment('amountDesc', l.categoryDetailSortAmountDesc),
+                  BeeSegment('amountAsc', l.categoryDetailSortAmountAsc)
+                ],
+                onFlowChanged: (v) => update(() => flow = v),
+                onSortChanged: (v) => update(() => sort = v),
+                confirmLabel: l.commonConfirm,
+                onConfirm: () => Navigator.pop(context, true))));
     if (apply == true && mounted) {
       await c.filter(
           direction: flow == 'all' ? null : flow, text: c.query, order: sort);

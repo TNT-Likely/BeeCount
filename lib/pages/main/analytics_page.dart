@@ -75,6 +75,14 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
               onChanged: (v) => setState(() => _scope = v))),
       Expanded(
           child: FutureBuilder<Map<String, AnalyticsResult>>(
+              key: ValueKey((
+                repo,
+                id,
+                month,
+                _scope,
+                sd,
+                DateUtils.dateOnly(DateTime.now())
+              )),
               future: _query,
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
@@ -85,8 +93,7 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
                           label: l.v4RecordingRetry,
                           onPressed: () => setState(() => _queryKey = null)));
                 }
-                if (snapshot.connectionState == ConnectionState.waiting ||
-                    !snapshot.hasData) {
+                if (!snapshot.hasData) {
                   return const Center(child: CircularProgressIndicator());
                 }
                 return AnalyticsContent(

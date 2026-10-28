@@ -247,61 +247,70 @@ class BeeDateWheels extends StatelessWidget {
       this.minYear = 1970,
       this.maxYear = 2100,
       this.showDay = true,
-      this.showTime = false});
+      this.showTime = false,
+      this.showMonth = true,
+      this.minimum,
+      this.maximum});
   final DateTime value;
   final ValueChanged<DateTime> onChanged;
   final int minYear, maxYear;
-  final bool showDay, showTime;
-  void change({int? year, int? month, int? day, int? hour, int? minute}) {
-    final y = year ?? value.year, m = month ?? value.month;
-    final d = (day ?? value.day).clamp(1, DateUtils.getDaysInMonth(y, m));
-    onChanged(DateTime(y, m, d, hour ?? value.hour, minute ?? value.minute));
-  }
-
+  final bool showDay, showTime, showMonth;
+  final DateTime? minimum, maximum;
+  DateTime get lower => minimum ?? DateTime(minYear);
+  DateTime get upper => maximum ?? DateTime(maxYear, 12, 31, 23, 59, 59);
+  DateTime clamp(DateTime date) => date.isBefore(lower)
+      ? lower
+      : date.isAfter(upper)
+          ? upper
+          : date;
   @override
-  Widget build(BuildContext context) => Row(children: [
+  Widget build(BuildContext context) {
+    final current = clamp(value);
+    final firstMonth = current.year == lower.year ? lower.month : 1;
+    final lastMonth = current.year == upper.year ? upper.month : 12;
+    final firstDay = current.year == lower.year && current.month == lower.month
+        ? lower.day
+        : 1;
+    final lastDay = current.year == upper.year && current.month == upper.month
+        ? upper.day
+        : DateUtils.getDaysInMonth(current.year, current.month);
+    void change({int? year, int? month, int? day, int? hour, int? minute}) {
+      final y = year ?? current.year, m = month ?? current.month;
+      onChanged(clamp(DateTime(
+          y,
+          m,
+          (day ?? current.day).clamp(1, DateUtils.getDaysInMonth(y, m)),
+          hour ?? current.hour,
+          minute ?? current.minute,
+          current.second)));
+    }
+
+    Widget wheel(List<int> values, int selected, ValueChanged<int> update,
+            {bool pad = false}) =>
         Expanded(
-            flex: 3,
             child: BeeWheel<int>(
-                values:
-                    List.generate(maxYear - minYear + 1, (i) => minYear + i),
-                value: value.year,
-                label: (v) => '$v',
-                onChanged: (v) => change(year: v))),
-        Expanded(
-            flex: 2,
-            child: BeeWheel<int>(
-                values: List.generate(12, (i) => i + 1),
-                value: value.month,
-                label: (v) => '$v',
-                onChanged: (v) => change(month: v))),
-        if (showDay)
-          Expanded(
-              flex: 2,
-              child: BeeWheel<int>(
-                  values: List.generate(
-                      DateUtils.getDaysInMonth(value.year, value.month),
-                      (i) => i + 1),
-                  value: value.day,
-                  label: (v) => '$v',
-                  onChanged: (v) => change(day: v))),
-        if (showTime) ...[
-          Expanded(
-              flex: 2,
-              child: BeeWheel<int>(
-                  values: List.generate(24, (i) => i),
-                  value: value.hour,
-                  label: (v) => v.toString().padLeft(2, '0'),
-                  onChanged: (v) => change(hour: v))),
-          Expanded(
-              flex: 2,
-              child: BeeWheel<int>(
-                  values: List.generate(60, (i) => i),
-                  value: value.minute,
-                  label: (v) => v.toString().padLeft(2, '0'),
-                  onChanged: (v) => change(minute: v)))
-        ],
-      ]);
+                values: values,
+                value: selected,
+                label: (v) => pad ? v.toString().padLeft(2, '0') : '$v',
+                onChanged: update));
+    return Row(children: [
+      wheel(List.generate(upper.year - lower.year + 1, (i) => lower.year + i),
+          current.year, (v) => change(year: v)),
+      if (showMonth)
+        wheel(List.generate(lastMonth - firstMonth + 1, (i) => firstMonth + i),
+            current.month, (v) => change(month: v)),
+      if (showDay && showMonth)
+        wheel(List.generate(lastDay - firstDay + 1, (i) => firstDay + i),
+            current.day, (v) => change(day: v)),
+      if (showTime) ...[
+        wheel(List.generate(24, (i) => i), current.hour, (v) => change(hour: v),
+            pad: true),
+        wheel(List.generate(60, (i) => i), current.minute,
+            (v) => change(minute: v),
+            pad: true)
+      ]
+    ]);
+  }
 }
 
 class BeeIconChoice<T> {
@@ -391,7 +400,13 @@ class BeeIconChoiceGrid<T> extends StatelessWidget {
 /// changing either wheel never persists preferences or schedules a reminder.
 class BeeTimeWheels extends StatelessWidget {
   const BeeTimeWheels(
-      {super.key, required this.value, required this.onChanged});
+      {super.key,
+      required this.value,
+      required this.onChanged,
+      this.second,
+      this.onSecondChanged});
+  final int? second;
+  final ValueChanged<int>? onSecondChanged;
   final TimeOfDay value;
   final ValueChanged<TimeOfDay> onChanged;
   @override
@@ -414,5 +429,16 @@ class BeeTimeWheels extends StatelessWidget {
                 label: (v) => v.toString().padLeft(2, '0'),
                 onChanged: (v) =>
                     onChanged(TimeOfDay(hour: value.hour, minute: v)))),
+        if (second != null) ...[
+          const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 8),
+              child: Text(':', style: TextStyle(fontSize: 20))),
+          Expanded(
+              child: BeeWheel<int>(
+                  values: List.generate(60, (i) => i),
+                  value: second!,
+                  label: (v) => v.toString().padLeft(2, '0'),
+                  onChanged: (v) => onSecondChanged?.call(v))),
+        ],
       ]);
 }

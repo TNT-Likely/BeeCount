@@ -100,7 +100,9 @@ class AnalyticsContent extends ConsumerWidget {
                 child: Text(title,
                     style: const TextStyle(
                         fontSize: 14, fontWeight: FontWeight.w600))),
-            if (action != null) Flexible(child: action)
+            if (action != null)
+              Flexible(
+                  child: Align(alignment: Alignment.centerRight, child: action))
           ]),
           const SizedBox(height: 16),
           child

@@ -2097,7 +2097,8 @@
         "BeeResourceParentLink",
         "BeeAccountSummaryCard",
         "BeeAccountCashflowCard",
-        "BeeBalanceHistoryCard"
+        "BeeBalanceHistoryCard",
+        "BeeAccountFlowFilter"
       ],
       "supportedStates": [
         "parent-link-once",

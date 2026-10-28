@@ -232,28 +232,30 @@ class _CategoryDetailState extends ConsumerState<CategoryDetailPage> {
                             setState(() => _showAll = false);
                             c.choosePeriod(value);
                           }),
-                      BeeDateRangeBar(
-                          label: c.period == CategoryDetailPeriod.custom
-                              ? widget.periodLabel ?? l.v4DetailCustom
-                              : detailRangeLabel(
-                                  context, c.period.name, c.anchor),
-                          onChoose: _date,
-                          previousLabel: c.period == CategoryDetailPeriod.month ||
-                                  c.period == CategoryDetailPeriod.year
-                              ? MaterialLocalizations.of(context)
-                                  .previousMonthTooltip
-                              : null,
-                          nextLabel: c.period == CategoryDetailPeriod.month ||
-                                  c.period == CategoryDetailPeriod.year
-                              ? MaterialLocalizations.of(context)
-                                  .nextMonthTooltip
-                              : null,
-                          onPrevious: () => c.chooseAnchor(c.period == CategoryDetailPeriod.year
-                              ? DateTime(c.anchor.year - 1, c.anchor.month)
-                              : DateTime(c.anchor.year, c.anchor.month - 1)),
-                          onNext: () => c.chooseAnchor(c.period == CategoryDetailPeriod.year
-                              ? DateTime(c.anchor.year + 1, c.anchor.month)
-                              : DateTime(c.anchor.year, c.anchor.month + 1))),
+                      if (c.period != CategoryDetailPeriod.all)
+                        BeeDateRangeBar(
+                            label: c.period == CategoryDetailPeriod.custom
+                                ? widget.periodLabel ?? l.v4DetailCustom
+                                : detailRangeLabel(
+                                    context, c.period.name, c.anchor),
+                            onChoose: _date,
+                            previousLabel: c.period == CategoryDetailPeriod.month ||
+                                    c.period == CategoryDetailPeriod.year
+                                ? MaterialLocalizations.of(context)
+                                    .previousMonthTooltip
+                                : null,
+                            nextLabel: c.period == CategoryDetailPeriod.month ||
+                                    c.period == CategoryDetailPeriod.year
+                                ? MaterialLocalizations.of(context)
+                                    .nextMonthTooltip
+                                : null,
+                            onPrevious: () => c.chooseAnchor(c.period == CategoryDetailPeriod.year
+                                ? DateTime(c.anchor.year - 1, c.anchor.month)
+                                : DateTime(c.anchor.year, c.anchor.month - 1)),
+                            onNext: () => c.chooseAnchor(
+                                c.period == CategoryDetailPeriod.year
+                                    ? DateTime(c.anchor.year + 1, c.anchor.month)
+                                    : DateTime(c.anchor.year, c.anchor.month + 1))),
                     ])),
               const SizedBox(height: 8),
               Expanded(

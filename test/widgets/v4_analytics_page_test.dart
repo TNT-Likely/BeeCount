@@ -202,6 +202,25 @@ void main() {
     repo.gate!.complete();
     await close(t);
   });
+  testWidgets('统计刷新保留当前内容，分类管理入口贴齐卡片右边界', (t) async {
+    await open(t);
+    final element = t.element(find.byType(BeeAnalyticsSummary));
+    final manage = find.widgetWithText(TextButton, '分类管理');
+    await t.ensureVisible(manage);
+    await t.pumpAndSettle();
+    final button = t.getRect(manage);
+    final surface =
+        find.ancestor(of: manage, matching: find.byType(BeeSurface)).first;
+    expect(t.getRect(surface).right - button.right, closeTo(18, 1));
+    repo.gate = Completer<void>();
+    c.read(statsRefreshProvider.notifier).state++;
+    await t.pump();
+    expect(find.byType(CircularProgressIndicator), findsNothing);
+    expect(t.element(find.byType(BeeAnalyticsSummary)), same(element));
+    repo.gate!.complete();
+    await t.pumpAndSettle();
+    await close(t);
+  });
   testWidgets('月年全部切换、原年月滚轮取消与不允许未来', (t) async {
     await open(t);
     await t.tap(find.text('年'));
@@ -210,7 +229,7 @@ void main() {
         'year');
     await t.tap(find.widgetWithText(TextButton, '${now.year}年'));
     await t.pumpAndSettle();
-    await t.tap(find.text('取消'));
+    await t.tap(find.byType(CloseButton).last);
     await t.pumpAndSettle();
     expect(c.read(selectedMonthProvider), month);
     await t.tap(find.text('全部'));

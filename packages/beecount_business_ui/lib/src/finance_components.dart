@@ -69,7 +69,9 @@ class BeeMoney extends StatelessWidget {
       this.hidden = false,
       this.size = 28,
       this.color,
-      this.lineHeight});
+      this.lineHeight,
+      this.alignment = Alignment.centerRight});
+  final Alignment alignment;
   final String amount;
   final String? prefix, converted;
   final bool hidden;
@@ -80,11 +82,13 @@ class BeeMoney extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Column(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.end,
+          crossAxisAlignment: alignment.x < 0
+              ? CrossAxisAlignment.start
+              : CrossAxisAlignment.end,
           children: [
             FittedBox(
                 fit: BoxFit.scaleDown,
-                alignment: Alignment.centerRight,
+                alignment: alignment,
                 child: Text.rich(
                     TextSpan(children: [
                       if (!hidden && prefix != null)
