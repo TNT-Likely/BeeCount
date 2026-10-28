@@ -31,7 +31,7 @@
 - [x] 账户流水筛选抽出 `BeeAccountFlowFilter`；真实查询与草稿由 App 适配。HTML 规范与 Flutter 组件验收页同步。
 - [x] 相关 widget 122 项及新增控件 5 项通过；定向分析只有原有 unused_import 警告。复用原 QA 包原位更新为开发 code 2002，正常入口重启，未替换生产 `Beta3+228`。
 - [x] 原位更新前后 15,072 笔交易与其他 30 张非汇率缓存表逐字段一致；11 个用户媒体文件内容一致。仅新增 14 条查询时汇率缓存与正常重绘桌面预览。独立报告位于忽略目录 `.docs/v4-beta3-followup-qa/report/index.html`。
-- [ ] 二级分类[四列自适应交互稿](../design/card-refresh/boards/subcategory-long-label-review.html)待用户确认：默认一格，放不下占两格。A/B/C 历史稿已保留，Flutter 尚未应用。
+- [x] 二级分类[四列自适应交互稿](../design/card-refresh/boards/subcategory-long-label-review.html)已获确认并落地：抽出 `RecordingSubcategoryGrid`，记账、更多分类、分类选择和组件验收共用；默认一格，放不下占两格，完整换行，原顺序保留。主 Demo 和规范大图同步。121 项相关回归通过（包含复跑），定向分析无问题；同一 QA 开发版更新为 2003，真机确认短名称四列、长名称两格、选中可用、日期和保存区不移动。第二轮安装前现存 15,071 笔，安装与操作后 31 表逐字段一致，未回退到上一轮的 15,072 笔。
 - [ ] 按[展示层归位计划](v4-presentation-consolidation-plan.md)后续分批收回 `presentation/v4`；本轮不搬目录、不删旧页面。`lib/widget` 12 个桌面组件文件仍全部在用，`lib/widgets` 10 个静态不可达项仅列废弃审查候选。
 
 ## P0：数据与发布前核对

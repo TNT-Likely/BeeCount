@@ -321,10 +321,12 @@ class RecordingSubcategoryChip extends StatelessWidget {
       required this.label,
       required this.icon,
       required this.selected,
-      required this.onTap});
+      required this.onTap,
+      this.wrapLabel = false});
   final String label;
   final Widget icon;
   final bool selected;
+  final bool wrapLabel;
   final VoidCallback? onTap;
 
   @override
@@ -340,14 +342,17 @@ class RecordingSubcategoryChip extends StatelessWidget {
             onTap: onTap,
             borderRadius: BorderRadius.circular(12),
             child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 7),
+                padding: EdgeInsets.symmetric(
+                    horizontal: wrapLabel ? 6 : 7, vertical: 7),
                 child: Row(mainAxisSize: MainAxisSize.min, children: [
                   icon,
                   const SizedBox(width: 5),
                   Flexible(
                       child: Text(label,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                          maxLines: wrapLabel ? null : 1,
+                          overflow: wrapLabel
+                              ? TextOverflow.visible
+                              : TextOverflow.ellipsis,
                           style: Theme.of(context)
                               .textTheme
                               .bodySmall

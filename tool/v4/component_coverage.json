@@ -124,6 +124,7 @@
     "components": [
       "RecordingCategoryTile",
       "RecordingSubcategoryChip",
+        "RecordingSubcategoryGrid",
       "BeeCategoryRanking"
     ],
     "page": "business",

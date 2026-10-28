@@ -1809,6 +1809,14 @@
 #bee-immersive-suite .bc-phone .z-history-choices{display:flex;flex-wrap:wrap;gap:8px}
 #bee-immersive-suite .bc-phone .z-history-choices button{padding:8px 12px!important;border-radius:12px}
 
+#bee-immersive-suite .p-subcategories[data-adaptive-subcategories],#bee-immersive-suite .adaptive-subcategories{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:5px;max-height:none;overflow:visible;padding:8px;background:var(--bc-soft);border-radius:14px;margin:8px 0}
+#bee-immersive-suite [data-adaptive-subcategories]>button{min-width:0;min-height:44px!important;display:flex;align-items:center;justify-content:flex-start;gap:5px;padding:7px 6px!important;border:0!important;border-radius:12px!important;background:transparent;color:var(--bc-ink);font-size:calc(11px * var(--q-scale,1));line-height:1.4}
+#bee-immersive-suite [data-adaptive-subcategories]>button>span{min-width:0;white-space:normal!important;overflow:visible!important;text-overflow:clip!important;overflow-wrap:anywhere;text-align:left}
+#bee-immersive-suite [data-adaptive-subcategories]>button>svg,#bee-immersive-suite [data-adaptive-subcategories]>button>.j-category-image{width:16px!important;height:16px!important;flex:none}
+#bee-immersive-suite [data-adaptive-subcategories]>button[aria-pressed=true]{background:var(--bc-paper)!important;font-weight:600;color:var(--bc-accent-ink,#9e7d16)}
+
+#bee-immersive-suite .bc-phone[data-z-editor=true] .p-subcategories[data-adaptive-subcategories],#bee-immersive-suite .adaptive-subcategories{max-height:154px!important;overflow-y:auto!important}
+
 #bee-immersive-suite .s-security{display:flex;flex-direction:column;justify-content:center;padding:24px 10px;text-align:center}#bee-immersive-suite .s-security .w-symbol{margin:0 auto 22px}#bee-immersive-suite .s-security h2{font-size:25px;font-weight:600;margin:0}#bee-immersive-suite .s-security p{font-size:12px;line-height:1.8;color:var(--bc-muted);margin:10px 0 25px}#bee-immersive-suite .s-security .f-pin-dots{padding:0;gap:14px;margin:7px 0 19px}#bee-immersive-suite .s-security .f-pin-grid{margin:0;gap:9px}#bee-immersive-suite .s-security .f-pin-grid button{height:57px;min-height:57px;font-weight:400}#bee-immersive-suite .s-security[data-compact=true]{padding:16px 10px}#bee-immersive-suite .s-security[data-compact=true] .w-symbol{width:50px;height:50px;border-radius:18px;margin-bottom:14px}#bee-immersive-suite .s-security[data-compact=true] h2{font-size:20px}#bee-immersive-suite .s-security[data-compact=true] p{margin-bottom:12px}#bee-immersive-suite .s-security[data-compact=true] .f-pin-grid button{height:48px;min-height:48px;font-size:22px}#bee-immersive-suite .s-security[data-invalid=true] .f-pin-dots span{background:var(--bc-income);border-color:var(--bc-income)}
 
 #bee-immersive-suite .bc-phone:is([data-page="flow-category-edit"],[data-page="flow-category-new"],[data-page="flow-transfer-icon"]) .bc-main{display:flex;flex-direction:column;height:calc(var(--q-height,844px) - 34px);padding:0!important;overflow:hidden}
@@ -5037,6 +5045,7 @@
     meta.querySelector('.z-attachment-reference')?.setAttribute('data-component','RecordingAttachmentControl');
     main.replaceChildren(head,amount,scroll,meta,keypad,...(error?[error]:[]),footer);
     globalThis.lucide?.createIcons({attrs:{width:20,height:20}});
+    requestAnimationFrame(()=>globalThis.beeFitSubcategories?.());
     scroll.scrollTop=zCategoryMemory?.type===state.recordType?zCategoryMemory.top:0;
     if(state.expandedCategory&&zCategoryMemory?.expanded!==state.expandedCategory){
       requestAnimationFrame(()=>{if(!scroll.isConnected)return;const child=scroll.querySelector('.p-subcategories');if(!child)return;const visible=scroll.getBoundingClientRect(),box=child.getBoundingClientRect();if(box.bottom>visible.bottom)scroll.scrollTop+=Math.min(box.bottom-visible.bottom,box.top-visible.top);});
@@ -5066,6 +5075,14 @@
     if(!e.target.matches('[data-z-source-file]')||!e.target.files?.length)return;
     const count=Math.min(e.target.files.length,9);closeSheet();notice(`已选择 ${count} 张图片 · 设计预览`);
   });
+
+// Same four-column / two-cell overflow rule as RecordingSubcategoryGrid.
+(()=>{const observer=new ResizeObserver(entries=>entries.forEach(e=>fit(e.target)));
+function fit(grid){if(!grid.isConnected||!grid.clientWidth)return;const style=getComputedStyle(grid),cell=(grid.clientWidth-parseFloat(style.paddingLeft)-parseFloat(style.paddingRight)-15)/4,ctx=document.createElement('canvas').getContext('2d');for(const button of grid.children){const label=button.querySelector('span')||button,cs=getComputedStyle(label);ctx.font='600 '+cs.fontSize+' '+cs.fontFamily;const width=ctx.measureText(label.textContent).width+33;button.style.gridColumn='span '+(width>cell?2:1);}}
+globalThis.beeFitSubcategories=()=>{observer.disconnect();document.querySelectorAll('.p-subcategories,[data-adaptive-subcategories]').forEach(grid=>{grid.setAttribute('data-adaptive-subcategories','');fit(grid);observer.observe(grid);});};
+requestAnimationFrame(globalThis.beeFitSubcategories);
+document.addEventListener('click',e=>{const b=e.target.closest('[data-adaptive-example]');if(!b)return;b.parentElement.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));});
+})();
 
   // Content and modal boundaries follow the existing Flutter pages.
   Object.assign(state,{nPlatform:'android',nChannel:'direct',nVoice:'auto',nLevels:['DEBUG','INFO','WARN','ERROR'],nLogPlatforms:['Flutter','Android'],nLogQuery:'',nLogCleared:false});

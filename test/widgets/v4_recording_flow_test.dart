@@ -1000,7 +1000,7 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  recordingTest('大量二级分类限制两行，内部滚动可选末项且保存区不移动', (tester) async {
+  recordingTest('大量二级分类限高自适应，内部滚动可选末项且保存区不移动', (tester) async {
     var lastId = lunchId;
     for (var i = 0; i < 16; i++) {
       lastId = await repo.createSubCategory(
@@ -1011,7 +1011,7 @@ void main() {
     final bottom = tester.getBottomRight(save).dy;
     await category(tester, foodId);
     final scroll = find.byKey(const ValueKey('recording-subcategories-scroll'));
-    expect(tester.getSize(scroll).height, 92);
+    expect(tester.getSize(scroll).height, 154);
     await tester.drag(scroll, const Offset(0, -500));
     await tester.pumpAndSettle();
     final last = find.byKey(ValueKey('recording-category-$lastId'));

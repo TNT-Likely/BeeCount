@@ -1,0 +1,3 @@
+const fs=require('fs'),path=require('path');const names=['咖啡','奶茶','果汁','酒水','工作日午餐','交通通勤费用','周末家庭聚餐与朋友生日及节假日外出餐饮费用','Food & groceries'];
+const html='<h4>四列自适应 · 长名称两格</h4><div class="adaptive-subcategories" data-adaptive-subcategories>'+names.map((n,i)=>`<button data-adaptive-example aria-pressed="${i===0}"><i data-lucide="coffee"></i><span>${n}</span></button>`).join('')+'</div><p class="bc-small">保持顺序；按实际字体测量。长名称在两格内自然换行，分类多时独立滚动。</p>';
+module.exports={html,enhance(source){return source.replace('</head>','<style>'+fs.readFileSync(path.join(__dirname,'subcategory-grid.css'),'utf8')+'</style></head>').replace('</body>','<script>'+fs.readFileSync(path.join(__dirname,'subcategory-grid.js'),'utf8')+'</script></body>');}};

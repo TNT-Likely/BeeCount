@@ -652,11 +652,26 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
                 crop: true),
             const BeeCategoryIcon(label: '图片不可用时的默认图标', size: 44),
             if (expanded.contains('food'))
-              ...['午餐', '晚餐'].map((s) => RecordingSubcategoryChip(
-                  label: s,
-                  icon: const BeeLineIcon('Utensils', size: 16),
-                  selected: event == s,
-                  onTap: () => record(s))),
+              SizedBox(
+                  width: double.infinity,
+                  child: RecordingSubcategoryGrid(
+                      items: [
+                        '午餐',
+                        '晚餐',
+                        '早餐',
+                        '零食',
+                        '工作日午餐',
+                        '交通通勤费用',
+                        'Food & groceries',
+                        '周末家庭聚餐与朋友生日'
+                      ]
+                          .map((s) => BeeCategoryChoice(
+                              id: s,
+                              label: s,
+                              icon: const BeeLineIcon('Utensils', size: 16)))
+                          .toList(),
+                      selected: event,
+                      onSelected: record)),
             RecordingCategoryTile(
                 label: '更多分类',
                 icon: const BeeLineIcon('Grid2x2'),

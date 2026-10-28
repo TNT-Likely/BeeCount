@@ -1,0 +1,7 @@
+#bee-immersive-suite .p-subcategories[data-adaptive-subcategories],#bee-immersive-suite .adaptive-subcategories{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:5px;max-height:none;overflow:visible;padding:8px;background:var(--bc-soft);border-radius:14px;margin:8px 0}
+#bee-immersive-suite [data-adaptive-subcategories]>button{min-width:0;min-height:44px!important;display:flex;align-items:center;justify-content:flex-start;gap:5px;padding:7px 6px!important;border:0!important;border-radius:12px!important;background:transparent;color:var(--bc-ink);font-size:calc(11px * var(--q-scale,1));line-height:1.4}
+#bee-immersive-suite [data-adaptive-subcategories]>button>span{min-width:0;white-space:normal!important;overflow:visible!important;text-overflow:clip!important;overflow-wrap:anywhere;text-align:left}
+#bee-immersive-suite [data-adaptive-subcategories]>button>svg,#bee-immersive-suite [data-adaptive-subcategories]>button>.j-category-image{width:16px!important;height:16px!important;flex:none}
+#bee-immersive-suite [data-adaptive-subcategories]>button[aria-pressed=true]{background:var(--bc-paper)!important;font-weight:600;color:var(--bc-accent-ink,#9e7d16)}
+
+#bee-immersive-suite .bc-phone[data-z-editor=true] .p-subcategories[data-adaptive-subcategories],#bee-immersive-suite .adaptive-subcategories{max-height:154px!important;overflow-y:auto!important}

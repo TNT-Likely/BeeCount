@@ -285,50 +285,32 @@ class _RecordingCategorySectionState
                         borderRadius: BorderRadius.circular(16)),
                     child: LayoutBuilder(builder: (context, constraints) {
                       final items = [parent, ...children];
-                      final columns = constraints.maxWidth < 270 ? 2 : 4;
-                      final content = Wrap(
-                          spacing: 4,
-                          runSpacing: 4,
-                          children: items
-                              .map((category) => SizedBox(
-                                    key: category.id == widget.selectedId
-                                        ? _selectedChildAnchor
-                                        : null,
-                                    width: (constraints.maxWidth -
-                                            (columns - 1) * 4) /
-                                        columns,
-                                    height: 44,
-                                    child: Tooltip(
-                                      message: CategoryUtils.getDisplayName(
-                                          category.name, context),
-                                      child: RecordingSubcategoryChip(
-                                        key: ValueKey(
-                                            'recording-category-${category.id}'),
-                                        label: CategoryUtils.getDisplayName(
-                                            category.name, context),
-                                        icon: RecordingCategoryIcon(
-                                            category: category,
-                                            size: 18,
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .onSurface),
-                                        selected:
-                                            widget.selectedId == category.id,
-                                        onTap: () =>
-                                            widget.onSelected(category),
-                                      ),
-                                    ),
-                                  ))
-                              .toList());
+                      final content = RecordingSubcategoryGrid(
+                          items: items
+                              .map((category) => BeeCategoryChoice(
+                                  id: category.id.toString(),
+                                  label: CategoryUtils.getDisplayName(
+                                      category.name, context),
+                                  icon: RecordingCategoryIcon(
+                                      category: category,
+                                      size: 16,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface)))
+                              .toList(),
+                          selected: widget.selectedId?.toString(),
+                          selectedAnchorKey: _selectedChildAnchor,
+                          onSelected: (id) => widget.onSelected(
+                              items.firstWhere((c) => c.id.toString() == id)));
                       if (widget.showAll) return content;
                       _revealChild(parent.id);
-                      // Two touch-sized rows; large taxonomies do not grow the
-                      // main editor. The full picker stays freely expandable.
+                      // The adaptive block scrolls independently; form and keypad stay fixed.
+                      // The full picker remains freely expandable.
                       return ConstrainedBox(
-                          constraints: const BoxConstraints(maxHeight: 92),
+                          constraints: const BoxConstraints(maxHeight: 154),
                           child: Scrollbar(
                               controller: _childScroll,
-                              thumbVisibility: items.length > columns * 2,
+                              thumbVisibility: true,
                               child: SingleChildScrollView(
                                   key: const ValueKey(
                                       'recording-subcategories-scroll'),

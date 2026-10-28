@@ -53,6 +53,7 @@
     meta.querySelector('.z-attachment-reference')?.setAttribute('data-component','RecordingAttachmentControl');
     main.replaceChildren(head,amount,scroll,meta,keypad,...(error?[error]:[]),footer);
     globalThis.lucide?.createIcons({attrs:{width:20,height:20}});
+    requestAnimationFrame(()=>globalThis.beeFitSubcategories?.());
     scroll.scrollTop=zCategoryMemory?.type===state.recordType?zCategoryMemory.top:0;
     if(state.expandedCategory&&zCategoryMemory?.expanded!==state.expandedCategory){
       requestAnimationFrame(()=>{if(!scroll.isConnected)return;const child=scroll.querySelector('.p-subcategories');if(!child)return;const visible=scroll.getBoundingClientRect(),box=child.getBoundingClientRect();if(box.bottom>visible.bottom)scroll.scrollTop+=Math.min(box.bottom-visible.bottom,box.top-visible.top);});

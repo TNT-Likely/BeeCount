@@ -25,3 +25,5 @@ App 内验收：[ComponentGalleryPage](../../lib/presentation/v4/gallery/compone
 `RecordingHeader` 使用基础包的紧凑 `BeeSegmented`，显示收支/转账类型、返回与更多操作。切换草稿前的确认和写入由 App 处理。生产记账页与平铺验收页面使用同一个组件；真实保存、共享资源引用与失败重试放在 App 的 `recording_save.dart` binding。
 
 `BeeAccountFlowFilter` 提供账户流水方向、排序草稿和整行确认操作。App 持有筛选值，确认后才查询；基础 `BeeSelectField` 使用统一选择弹层。`BeeMoney.alignment` 默认右对齐，账户主余额显式左对齐，折算信息继续右对齐。
+
+`RecordingSubcategoryGrid` 使用四列自适应布局：按实际字体与文字缩放测量，短名称一格，溢出名称两格，特别长的名称在两格内自然换行；不重排补洞。与记账页、更多分类和组件验收共用，选中／禁用／图标／分类详情及完整语义均保留；主记账页由 App 限高并独立滚动。
