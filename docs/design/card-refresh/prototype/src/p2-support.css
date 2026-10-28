@@ -17,3 +17,7 @@
 #bee-immersive-suite .b2-about-brand .bc-inline-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 #bee-immersive-suite .b2-about-brand .bc-inline-actions>button{min-width:0;font-size:12px}
 #bee-immersive-suite .b2-about-brand>h2,#bee-immersive-suite .b2-about-brand>p{text-align:center}
+
+/* Keep each platform's original SVG colors, matching the approved Flutter About page. */
+#bee-immersive-suite .ps102-platform-icon{width:23px;height:23px;display:block;object-fit:contain}
+#bee-immersive-suite .bc-phone[style*="color-scheme: dark"] .ps102-platform-github,#bee-immersive-suite .bc-phone[style*="color-scheme: dark"] .ps102-platform-douyin{filter:brightness(0) invert(1)}
