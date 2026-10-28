@@ -50,6 +50,15 @@ class HomeOverview extends ConsumerWidget {
         ref.watch(lastMonthlyTotalsProvider(params)) ?? (0.0, 0.0);
     final hidden = ref.watch(hideAmountsProvider);
     final currency = ledger?.currency ?? 'CNY';
+    final compact = ref.watch(compactAmountProvider);
+    String amount(double value) => compact
+        ? formatDisplayAmount(value,
+            currencyCode: currency,
+            useCompactFormat: true,
+            isChineseLocale:
+                Localizations.localeOf(context).languageCode == 'zh',
+            signed: false)
+        : formatMoneyCompact(value, trimZeros: false);
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       V4HomeSkinHeader(
           child: SizedBox(
@@ -71,13 +80,13 @@ class HomeOverview extends ConsumerWidget {
         title:
             '${l10n.homeYear(month.year)} ${l10n.homeMonth('${month.month}')}${jumping ? ' …' : ''}',
         amountLabel: l10n.v4HomeMonthExpense,
-        amount: formatMoneyCompact(expense, trimZeros: false),
+        amount: amount(expense),
         prefix: getCurrencySymbol(currency),
         currencyLabel: '${getCurrencyName(currency, context)} · $currency',
         expenseLabel: l10n.v4HomeMonthBalance,
-        expense: formatMoneyCompact(income - expense, trimZeros: false),
+        expense: amount(income - expense),
         incomeLabel: l10n.v4HomeMonthIncome,
-        income: formatMoneyCompact(income, trimZeros: false),
+        income: amount(income),
         hidden: hidden,
         onContextTap: jumping ? null : onMonthTap,
         privacyLabel: hidden ? l10n.v4AmountsShow : l10n.v4AmountsHide,

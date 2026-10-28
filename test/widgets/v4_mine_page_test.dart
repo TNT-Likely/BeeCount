@@ -153,6 +153,30 @@ void main() {
     expect(tester.takeException(), isNull);
     await close(tester);
   });
+  testWidgets('余额简写设置即时更新我的账本余额且不重复币种', (tester) async {
+    await repo.addTransaction(
+        ledgerId: 1,
+        type: 'income',
+        amount: 120000,
+        happenedAt: DateTime.now());
+    await open(tester);
+    expect(
+        tester.widget<BeeLedgerBalance>(find.byType(BeeLedgerBalance)).amount,
+        '120,014.8');
+    container.read(compactAmountProvider.notifier).state = true;
+    await tester.pump();
+    final balance =
+        tester.widget<BeeLedgerBalance>(find.byType(BeeLedgerBalance));
+    expect(balance.amount, '12万');
+    expect(balance.prefix, '¥');
+    container.read(compactAmountProvider.notifier).state = false;
+    await tester.pump();
+    expect(
+        tester.widget<BeeLedgerBalance>(find.byType(BeeLedgerBalance)).amount,
+        '120,014.8');
+    await close(tester);
+  });
+
   testWidgets('累计结余为负时保留原语义色，币种和紧凑统计仍可见', (tester) async {
     await repo.addTransaction(
         ledgerId: 1,

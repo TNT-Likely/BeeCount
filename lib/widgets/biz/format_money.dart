@@ -15,8 +15,9 @@ String formatDisplayAmount(double value,
     var formatted =
         formatBalance(value, currencyCode, isChineseLocale: isChineseLocale);
     final symbol = getCurrencySymbol(currencyCode.toUpperCase());
-    if (!showCurrency && symbol.isNotEmpty && formatted.startsWith(symbol)) {
-      formatted = formatted.substring(symbol.length).trimLeft();
+    if (!showCurrency && symbol.isNotEmpty) {
+      // Negative compact values start with the sign before the currency.
+      formatted = formatted.replaceFirst(symbol, '').trimLeft();
     }
     if (useCompactFormat) return formatted;
     final plain =

@@ -121,6 +121,21 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  testWidgets('金额简写偏好切换立即更新首页汇总', (tester) async {
+    await open(tester);
+    await tester.pumpAndSettle();
+    expect(tester.widget<BeeSummaryCard>(find.byType(BeeSummaryCard)).income,
+        '12,000.00');
+    container.read(compactAmountProvider.notifier).state = true;
+    await tester.pump();
+    expect(tester.widget<BeeSummaryCard>(find.byType(BeeSummaryCard)).income,
+        '1.2万');
+    container.read(compactAmountProvider.notifier).state = false;
+    await tester.pump();
+    expect(tester.widget<BeeSummaryCard>(find.byType(BeeSummaryCard)).income,
+        '12,000.00');
+  });
+
   Future<void> close(WidgetTester tester) async {
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump(const Duration(seconds: 3));

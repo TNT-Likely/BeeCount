@@ -322,7 +322,12 @@ class MineProfileBindingState extends ConsumerState<MineProfileBinding> {
         ledger: ledger == null
             ? l10n.ledgersNew
             : translateLedgerName(context, ledger.name),
-        amount: formatMoneyCompact(balance),
+        amount: formatDisplayAmount(balance,
+            currencyCode: ledger?.currency ?? 'CNY',
+            useCompactFormat: ref.watch(compactAmountProvider),
+            isChineseLocale:
+                Localizations.localeOf(context).languageCode == 'zh',
+            signed: false),
         prefix: getCurrencySymbol(ledger?.currency ?? 'CNY'),
         stats: '',
         balanceLabel: l10n.mineCurrentBalance,
