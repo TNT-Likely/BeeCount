@@ -2099,7 +2099,9 @@
         "BeeAccountSummaryCard",
         "BeeAccountCashflowCard",
         "BeeBalanceHistoryCard",
-        "BeeAccountFlowFilter"
+        "BeeAccountFlowFilter",
+        "BeeAccountTransactionSearch",
+        "BeeAccountTransactionTools"
       ],
       "supportedStates": [
         "parent-link-once",

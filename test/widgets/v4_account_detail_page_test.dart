@@ -163,6 +163,20 @@ void main() {
       .widgetList<BeeTransactionRow>(find.byType(BeeTransactionRow))
       .toList();
 
+  testWidgets('账户主卡类型与币种只在名称下展示一次，底部保留净资产和账本', (tester) async {
+    await open(tester, cash);
+    final card = find.byType(BeeAccountSummaryCard);
+    expect(find.descendant(of: card, matching: find.text('CNY')), findsNothing);
+    expect(find.descendant(of: card, matching: find.text('现金 · CNY')),
+        findsOneWidget);
+    final summary = tester.widget<BeeAccountSummaryCard>(card);
+    expect(summary.properties.length, 2);
+    expect(summary.properties.map((p) => p.value), isNot(contains('现金')));
+    expect(summary.properties.every((p) => p.onPressed != null), isTrue);
+    expect(tester.takeException(), isNull);
+    await close(tester);
+  });
+
   testWidgets('账户余额与原币流水一致，转入转出保留方向、来源账本、时间、真实标签附件', (tester) async {
     await tx(type: 'income', amount: 100, from: cash, category: salary);
     final id = await tx(
@@ -370,6 +384,50 @@ void main() {
     await close(tester);
   });
 
+  testWidgets('流水搜索确认取消与键盘提交在关闭动画期间安全且不改账单', (tester) async {
+    final match = await tx(
+        type: 'expense', amount: 32, from: cash, category: food, note: '午餐');
+    await tx(
+        type: 'income', amount: 100, from: cash, category: salary, note: '工资');
+    final before = await repo.getTransactionsByLedger(1);
+    await open(tester, cash);
+    final l =
+        AppLocalizations.of(tester.element(find.byType(AccountDetailPage)));
+    final search = find.byWidgetPredicate(
+        (w) => w is BeeIconButton && w.label == l.searchTitle);
+    Future<void> searchOpen() async {
+      await tester.ensureVisible(search);
+      await tester.drag(find.byType(ListView).first, const Offset(0, -100));
+      await tester.pumpAndSettle();
+      await tester.tap(search);
+      await tester.pumpAndSettle();
+    }
+
+    await searchOpen();
+    await tester.enterText(find.byType(TextField).last, '午餐');
+    await tester.tap(find.text(l.commonConfirm));
+    await tester.pump(const Duration(milliseconds: 40));
+    expect(tester.takeException(), isNull);
+    await waitLoaded(tester);
+    expect(model(tester).rows.map((t) => t.id).toList(), [match]);
+    await searchOpen();
+    await tester.enterText(find.byType(TextField).last, '不提交的草稿');
+    await tester.tap(find.byType(CloseButton).last);
+    await tester.pump(const Duration(milliseconds: 40));
+    expect(tester.takeException(), isNull);
+    await tester.pumpAndSettle();
+    expect(model(tester).query, '午餐');
+    await searchOpen();
+    await tester.enterText(find.byType(TextField).last, '工资');
+    await tester.testTextInput.receiveAction(TextInputAction.search);
+    await tester.pump(const Duration(milliseconds: 40));
+    expect(tester.takeException(), isNull);
+    await waitLoaded(tester);
+    expect(model(tester).query, '工资');
+    expect(await repo.getTransactionsByLedger(1), before);
+    await close(tester);
+  });
+
   testWidgets('资金流向筛选只列本账户支出转出或收入转入', (tester) async {
     final expense =
         await tx(type: 'expense', amount: 32, from: cash, category: food);
@@ -394,6 +452,36 @@ void main() {
     await tester.tap(find.text(l.commonConfirm));
     await waitLoaded(tester);
     expect(model(tester).rows.map((t) => t.id).toSet(), {expense, outgoing});
+    expect(find.byKey(const ValueKey('account-filter-sort')), findsOneWidget);
+    expect(
+        find.text(
+            '${l.categoryDetailSortTitle} · ${l.categoryDetailSortTimeDesc}'),
+        findsOneWidget);
+    await tester
+        .ensureVisible(find.byKey(const ValueKey('account-filter-sort')));
+    await tester.tap(find.byKey(const ValueKey('account-filter-sort')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(BeeSelectField<String>));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(l.categoryDetailSortAmountDesc));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(l.commonConfirm));
+    await waitLoaded(tester);
+    expect(model(tester).sort, 'amountDesc');
+    expect(
+        find.text(
+            '${l.categoryDetailSortTitle} · ${l.categoryDetailSortAmountDesc}'),
+        findsOneWidget);
+    final applied = find
+        .descendant(
+            of: find.byType(BeeAccountTransactionTools),
+            matching: find.byKey(const ValueKey('bee-choice-chip-visual')))
+        .last;
+    expect(tester.getSize(applied).height, lessThan(40));
+    final firstRow = find.byType(BeeTransactionRow).first;
+    expect(tester.getTopLeft(firstRow).dy - tester.getBottomLeft(applied).dy,
+        greaterThanOrEqualTo(12));
+
     await tester.ensureVisible(find.byWidgetPredicate(
         (w) => w is BeeIconButton && w.label == l.accountAllFlows));
     await tester.drag(find.byType(ListView).first, const Offset(0, -120));

@@ -115,6 +115,50 @@ class AccountDetailComponentsSample extends StatefulWidget {
 class _AccountDetailComponentsState
     extends State<AccountDetailComponentsSample> {
   int? point;
+  String query = '';
+  String sort = 'timeDesc';
+  String? flowLabel = '支出与转出';
+  Future<void> chooseFilters() async {
+    var direction = flowLabel == null
+        ? 'all'
+        : flowLabel == '收入与转入'
+            ? 'income'
+            : 'expense';
+    var order = sort;
+    final applied = await showBeeSheet<bool>(context,
+        title: '筛选账户交易',
+        child: StatefulBuilder(
+            builder: (ctx, update) => BeeAccountFlowFilter(
+                flow: direction,
+                sort: order,
+                sortLabel: '排序',
+                flows: const [
+                  BeeSegment('all', '全部流水'),
+                  BeeSegment('expense', '支出与转出'),
+                  BeeSegment('income', '收入与转入')
+                ],
+                sorts: const [
+                  BeeSegment('timeDesc', '时间↓'),
+                  BeeSegment('timeAsc', '时间↑'),
+                  BeeSegment('amountDesc', '金额↓'),
+                  BeeSegment('amountAsc', '金额↑')
+                ],
+                onFlowChanged: (v) => update(() => direction = v),
+                onSortChanged: (v) => update(() => order = v),
+                confirmLabel: '确认',
+                onConfirm: () => Navigator.pop(ctx, true))));
+    if (mounted && applied == true) {
+      setState(() {
+        sort = order;
+        flowLabel = direction == 'all'
+            ? null
+            : direction == 'income'
+                ? '收入与转入'
+                : '支出与转出';
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) => Column(children: [
         const BeeAccountSummaryCard(
@@ -126,7 +170,6 @@ class _AccountDetailComponentsState
             prefix: '¥',
             currency: 'CNY',
             properties: [
-              BeeAccountProperty(label: '账户类型', value: '电子钱包'),
               BeeAccountProperty(label: '计入净资产', value: '已计入'),
               BeeAccountProperty(label: '关联账本', value: '3 个账本'),
             ]),
@@ -155,6 +198,32 @@ class _AccountDetailComponentsState
             selectedIndex: point,
             onSelected: (value) => setState(() => point = value)),
         const SizedBox(height: 12),
+        BeeAccountTransactionTools(
+            title: '交易记录',
+            searchLabel: '搜索',
+            filterLabel: '筛选',
+            query: query,
+            sortLabel: '排序 · ${{
+              'timeDesc': '时间↓',
+              'timeAsc': '时间↑',
+              'amountDesc': '金额↓',
+              'amountAsc': '金额↑'
+            }[sort]}',
+            flowLabel: flowLabel,
+            onClearQuery: () => setState(() => query = ''),
+            onClearFlow: () => setState(() => flowLabel = null),
+            onSearch: () async {
+              final result = await showBeeSheet<String>(context,
+                  title: '搜索',
+                  child: BeeAccountTransactionSearch(
+                      initialQuery: query,
+                      hint: '搜索账户交易',
+                      confirmLabel: '确认',
+                      clearLabel: '清空',
+                      onConfirm: (value) => Navigator.pop(context, value)));
+              if (mounted && result != null) setState(() => query = result);
+            },
+            onFilter: chooseFilters),
         BeeButton(
             label: '交易记录筛选',
             kind: BeeButtonKind.secondary,

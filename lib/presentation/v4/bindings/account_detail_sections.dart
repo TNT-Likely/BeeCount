@@ -103,10 +103,6 @@ class AccountDetailSummary extends ConsumerWidget {
                           .state = !hidden,
                       properties: [
                         BeeAccountProperty(
-                            label: l.accountTypeLabel,
-                            value: getAccountTypeLabel(context, account.type),
-                            onPressed: onInfo),
-                        BeeAccountProperty(
                             label: l.v4AccountNetWorthLabel,
                             value: l.v4AccountIncluded,
                             icon: const BeeLineIcon('Check', size: 11),

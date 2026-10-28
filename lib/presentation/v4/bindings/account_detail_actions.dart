@@ -124,22 +124,15 @@ mixin _AccountDetailActions on ConsumerState<AccountDetailPage> {
   }
 
   Future<void> _search() async {
-    final text = TextEditingController(text: c.query),
-        l = AppLocalizations.of(context);
+    final l = AppLocalizations.of(context);
     final result = await showBeeSheet<String>(context,
         title: l.searchTitle,
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          TextField(
-              controller: text,
-              autofocus: true,
-              decoration: InputDecoration(hintText: l.searchTitle),
-              onSubmitted: (value) => Navigator.pop(context, value)),
-          const SizedBox(height: 12),
-          BeeButton(
-              label: l.commonConfirm,
-              onPressed: () => Navigator.pop(context, text.text))
-        ]));
-    text.dispose();
+        child: BeeAccountTransactionSearch(
+            initialQuery: c.query,
+            hint: l.searchTitle,
+            confirmLabel: l.commonConfirm,
+            clearLabel: l.searchClearFilter,
+            onConfirm: (value) => Navigator.pop(context, value)));
     if (result != null && mounted) {
       await c.filter(direction: c.flow, text: result.trim(), order: c.sort);
     }

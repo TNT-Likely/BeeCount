@@ -917,7 +917,9 @@
       "BeeAccountSummaryCard",
       "BeeAccountCashflowCard",
       "BeeBalanceHistoryCard",
-      "BeeAccountFlowFilter"
+      "BeeAccountFlowFilter",
+        "BeeAccountTransactionSearch",
+        "BeeAccountTransactionTools"
     ],
     "page": "business",
     "case": 35,

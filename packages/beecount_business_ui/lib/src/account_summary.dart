@@ -77,8 +77,6 @@ class BeeAccountSummaryCard extends StatelessWidget {
                       tooltip: privacyLabel,
                       onPressed: onPrivacy,
                       icon: BeeLineIcon('Eye', size: 14, color: muted))),
-            const Spacer(),
-            Text(currency, style: TextStyle(fontSize: 10, color: muted))
           ]),
           BeeMoney(
               alignment: Alignment.centerLeft,

@@ -261,50 +261,38 @@ class _AccountDetailPageState extends ConsumerState<AccountDetailPage>
                                                 onSelected: (i) =>
                                                     setState(() => _point = i)),
                                             const SizedBox(height: 12),
-                                            Row(children: [
-                                              Expanded(
-                                                  child: Text(
-                                                      l
-                                                          .accountTransactionHistory,
-                                                      style: const TextStyle(
-                                                          fontSize: 14,
-                                                          fontWeight: FontWeight
-                                                              .w600))),
-                                              BeeIconButton(
-                                                  label: l.searchTitle,
-                                                  icon: const BeeLineIcon(
-                                                      'Search'),
-                                                  onPressed: _search),
-                                              BeeIconButton(
-                                                  label: l.accountAllFlows,
-                                                  icon: const BeeLineIcon(
-                                                      'SlidersHorizontal'),
-                                                  onPressed: _filter)
-                                            ]),
-                                            if (c.query.isNotEmpty ||
-                                                c.flow != null)
-                                              Wrap(spacing: 6, children: [
-                                                if (c.query.isNotEmpty)
-                                                  BeeChoiceChip(
-                                                      label: c.query,
-                                                      selected: true,
-                                                      onSelected: (_) =>
-                                                          c.filter(
-                                                              direction: c.flow,
-                                                              text: '',
-                                                              order: c.sort)),
-                                                if (c.flow != null)
-                                                  BeeChoiceChip(
-                                                      label: c.flow == 'income'
-                                                          ? l.accountInflows
-                                                          : l.accountOutflows,
-                                                      selected: true,
-                                                      onSelected: (_) =>
-                                                          c.filter(
-                                                              direction: null,
-                                                              text: c.query,
-                                                              order: c.sort))
-                                              ]),
+                                            BeeAccountTransactionTools(
+                                                title:
+                                                    l.accountTransactionHistory,
+                                                searchLabel: l.searchTitle,
+                                                filterLabel: l.accountAllFlows,
+                                                query: c.query,
+                                                sortLabel:
+                                                    '${l.categoryDetailSortTitle} · ${switch (c.sort) {
+                                                  'timeAsc' =>
+                                                    l.categoryDetailSortTimeAsc,
+                                                  'amountAsc' =>
+                                                    l.categoryDetailSortAmountAsc,
+                                                  'amountDesc' =>
+                                                    l.categoryDetailSortAmountDesc,
+                                                  _ =>
+                                                    l.categoryDetailSortTimeDesc,
+                                                }}',
+                                                flowLabel: c.flow == null
+                                                    ? null
+                                                    : c.flow == 'income'
+                                                        ? l.accountInflows
+                                                        : l.accountOutflows,
+                                                onSearch: _search,
+                                                onFilter: _filter,
+                                                onClearQuery: () => c.filter(
+                                                    direction: c.flow,
+                                                    text: '',
+                                                    order: c.sort),
+                                                onClearFlow: () => c.filter(
+                                                    direction: null,
+                                                    text: c.query,
+                                                    order: c.sort)),
                                           ],
                                         ]);
                                   }
