@@ -32,3 +32,5 @@
 #bee-immersive-suite .cm-manager-scroll .d-manage-children{padding:0 0 10px 42px;gap:6px}
 #bee-immersive-suite .cm-manager-scroll .d-manage-children button{font-size:12px;min-height:44px;border-radius:11px}
 #bee-immersive-suite .cm-manager-scroll .d-manage-children :is(svg,img){width:15px;height:15px;object-fit:contain}
+
+#bee-immersive-suite .cm-manager-scroll .cm-drag-handle{display:grid;place-items:center;width:44px;min-width:44px;min-height:44px;background:none;color:var(--bc-muted);cursor:grab;touch-action:none}#bee-immersive-suite .cm-drag-handle svg{width:18px;height:18px}#bee-immersive-suite .cm-drag-handle:active{cursor:grabbing}

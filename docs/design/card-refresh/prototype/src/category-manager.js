@@ -17,7 +17,7 @@
       const toggle=row.querySelector('[data-action^="d-manage-toggle:"]');if(!toggle)continue;
       const name=toggle.dataset.action.split(':')[1];row.dataset.cmCategory=name;
       if(state.cmCleared.includes(name))row.remove();
-      const visual=toggle.querySelector('.bc-entry-icon');if(visual){visual.draggable=true;visual.dataset.cmDrag=name;visual.title='长按图标拖动排序';}
+      const grip=document.createElement('button');grip.className='cm-drag-handle';grip.draggable=true;grip.dataset.cmDrag=name;grip.title='拖动排序';grip.setAttribute('aria-label','拖动排序：'+name);grip.innerHTML=icon('grip-vertical');row.querySelector('.d-manage-row')?.append(grip);
     }
     if(state.page==='flow-category-empty'){
       const panel=t.content.querySelector('.bc-menu-card');
@@ -37,7 +37,7 @@
     }
   };
   function cmChildrenBody(){return `<div class="cm-child-grid">${cmChildren(state.cmParent).map((name,index)=>btn('cm-edit',`<span class="cm-child-icon">${jCategoryVisual(name,pIcon(state.cmParent))}</span><span class="cm-child-name">${esc(name)}</span><small>${[8,14,2,0][index]??0}笔</small>`,'编辑'+name,'',`data-cm-parent="${esc(state.cmParent)}" data-cm-child="${esc(name)}"`)).join('')}</div><div class="cm-peer-actions">${btn('cm-new-child',`${icon('plus')}添加`,'添加二级分类','bc-secondary')}${btn('cm-edit-parent',`${icon('pencil-line')}编辑`,'编辑父分类','bc-secondary')}</div>`;}
-  function cmToolsBody(){return `<p class="cm-tip">长按分类图标拖动可调整顺序，二级分类跟随父分类展示。</p>${menuCard([['cm-share','share-2','分享分类'],['cm-new-category','plus','新建分类'],['cm-import','download','导入分类'],['cm-default','sparkles','生成默认分类'],['cm-clear','trash-2','清空未使用分类']])}`;}
+  function cmToolsBody(){return `<p class="cm-tip">拖动分类行右侧的排序把手调整顺序，点击名称展开二级分类。</p>${menuCard([['cm-share','share-2','分享分类'],['cm-new-category','plus','新建分类'],['cm-import','download','导入分类'],['cm-default','sparkles','生成默认分类'],['cm-clear','trash-2','清空未使用分类']])}`;}
   const cmPreviousModal=rModalBody;
   rModalBody=function(key){
     if(key==='category-tools')return cmToolsBody();

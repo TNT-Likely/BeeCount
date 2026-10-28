@@ -2,3 +2,16 @@
 #bee-immersive-suite .bc-phone .rd-category-detail .rd-parent{min-height:32px}#bee-immersive-suite .rd-category-detail .dc97-identity h3{font-size:18px}#bee-immersive-suite .rd-category-detail .dc97-identity small{font-size:10px}#bee-immersive-suite .rd-category-detail .dc97-amount>b{font-size:33px}#bee-immersive-suite .rd-category-detail .dc97-metrics{border-top:1px solid var(--bc-line);padding-top:13px;margin-top:12px}#bee-immersive-suite .bc-phone[data-q-size="320x568"] .rd-category-detail .dc97-amount>b{font-size:29px}
 
 #bee-immersive-suite .rd-range[hidden]{display:none!important}
+
+#bee-immersive-suite .rd-transaction-actions{display:flex;gap:0}#bee-immersive-suite .rd-transaction-actions>button{width:44px;min-height:44px;display:grid;place-items:center}#bee-immersive-suite .rd-applied-filters{display:flex;flex-wrap:wrap;gap:6px;padding:2px 0 12px}#bee-immersive-suite .rd-applied-chip{display:flex;align-items:center;min-height:44px!important;background:none!important;padding:0!important;border:0!important}#bee-immersive-suite .rd-applied-chip>span{display:inline-flex;align-items:center;gap:6px;min-height:34px;padding:7px 10px;border:1px solid var(--bc-accent);border-radius:10px;background:color-mix(in srgb,var(--bc-accent) 14%,transparent);font-size:11px;line-height:1.5;color:var(--bc-ink)}#bee-immersive-suite .rd-applied-chip svg{width:12px!important;height:12px!important}
+
+#bee-immersive-suite .rd-applied-chip[hidden]{display:none!important}
+
+#bee-immersive-suite .rd-spec-flow-sheet button.bc-primary{background:var(--bc-accent)!important;color:#25282c!important;text-align:center}
+
+#bee-immersive-suite .rd-account-summary .d-hero-stats.rd-properties{grid-template-columns:repeat(2,minmax(0,1fr))}
+
+#bee-immersive-suite .rd-sort-chip>span{background:var(--bc-soft);color:var(--bc-muted);border-color:transparent}
+#bee-immersive-suite .rd-period.rd-flow-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;height:44px}
+#bee-immersive-suite label.rd-flow-sort{display:block;margin-top:12px;padding:12px;border-radius:13px;background:var(--bc-soft);color:var(--bc-muted);font-size:11px}
+#bee-immersive-suite label.rd-flow-sort select{border:0;border-radius:8px;background:var(--bc-paper);color:var(--bc-ink);padding:9px;font-size:13px}

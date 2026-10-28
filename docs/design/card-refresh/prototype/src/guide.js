@@ -27,7 +27,7 @@ for(const adjustment of document.querySelectorAll('[data-balance-adjustment]'))a
 });
 for(const manager of document.querySelectorAll('[data-category-management]'))manager.addEventListener('click',event=>{
  const expand=event.target.closest('[data-management-expand]');
- if(expand){const on=expand.getAttribute('aria-expanded')!=='true';expand.setAttribute('aria-expanded',String(on));manager.querySelector('.g-management-children').hidden=!on;return;}
+ if(expand){const on=expand.getAttribute('aria-expanded')!=='true';expand.setAttribute('aria-expanded',String(on));const children=expand.closest('.g-management-parent').nextElementSibling;if(children?.classList.contains('g-management-children'))children.hidden=!on;return;}
  const edit=event.target.closest('[data-management-edit]');
  if(edit)manager.querySelector('[data-management-result]').textContent='已选择：'+edit.dataset.managementEdit+'（示例草稿）';
  if(event.target.closest('[data-management-open]'))manager.querySelector('.g-management-dialog').scrollIntoView({block:'center'});
