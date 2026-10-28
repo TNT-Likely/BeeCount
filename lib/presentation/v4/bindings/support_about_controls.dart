@@ -86,7 +86,11 @@ class _SupportAboutControlsState extends ConsumerState<SupportAboutControls> {
                 : SvgPicture.asset(asset,
                     width: 23,
                     height: 23,
-                    colorFilter: ColorFilter.mode(primary, BlendMode.srcIn)),
+                    colorFilter: Theme.of(context).brightness ==
+                                Brightness.dark &&
+                            {'github', 'douyin'}.contains(id)
+                        ? const ColorFilter.mode(Colors.white, BlendMode.srcIn)
+                        : null),
             onTap: () => open(url));
     final loading = ref.watch(checkUpdateLoadingProvider),
         progress = ref.watch(updateProgressProvider);

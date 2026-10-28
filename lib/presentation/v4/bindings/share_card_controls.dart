@@ -122,7 +122,7 @@ class _ShareCardControlsState extends ConsumerState<ShareCardControls> {
     if (_image != null) return;
     try {
       if (widget.type != null &&
-          !{'year', 'month', 'ledger'}.contains(widget.type)) {
+          !{'year', 'month', 'ledger', 'app'}.contains(widget.type)) {
         throw StateError('Unsupported poster type');
       }
       final ledgerId =

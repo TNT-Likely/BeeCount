@@ -184,6 +184,16 @@ void main() {
     });
   }
 
+  check('about recommend app request reaches app poster without a ledger',
+      (t) async {
+    await host(t, const ShareCardDialog(type: 'app'), ledger: 0);
+    await t.pumpAndSettle();
+    expect(renderer.calls, [(PosterType.appPromo, false, 0, null, null)]);
+    expect(find.byKey(const ValueKey('share-card-save')), findsOneWidget);
+    expect(find.text(AppLocalizationsEn().sharePosterGenerateFailed),
+        findsNothing);
+  });
+
   check('production carousel dialog keeps profile/app templates and switches',
       (t) async {
     await host(
