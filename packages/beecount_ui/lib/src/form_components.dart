@@ -35,10 +35,11 @@ class BeeSearchField extends StatefulWidget {
       this.controller,
       this.clearLabel,
       this.enabled = true,
+      this.autofocus = false,
       this.onSubmitted});
   final String hint;
   final String? clearLabel;
-  final bool enabled;
+  final bool enabled, autofocus;
   final ValueChanged<String> onChanged;
   final ValueChanged<String>? onSubmitted;
   final TextEditingController? controller;
@@ -65,6 +66,7 @@ class _BeeSearchFieldState extends State<BeeSearchField> {
               child: TextField(
                   controller: controller,
                   enabled: widget.enabled,
+                  autofocus: widget.autofocus,
                   onChanged: widget.onChanged,
                   onSubmitted: widget.onSubmitted,
                   textInputAction: TextInputAction.search,
