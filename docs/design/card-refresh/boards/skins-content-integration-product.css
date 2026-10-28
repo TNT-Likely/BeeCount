@@ -1,0 +1,14 @@
+/* Review-only visual layer. No geometry, padding, margin or content sizing rules. */
+#bee-immersive-phone[data-content-skin]{isolation:auto!important;z-index:auto!important}
+#bee-immersive-phone[data-content-skin] .bc-main{position:relative;z-index:2}
+#bee-immersive-phone[data-content-skin]>.bc-status{position:relative;z-index:9}
+#bee-immersive-phone[data-content-skin] .bc-topbar{position:relative;z-index:3}
+#bee-immersive-phone[data-content-skin] .bc-nav{z-index:15}
+#bee-immersive-phone[data-content-skin][data-content-plain=false]{background:linear-gradient(180deg,var(--content-top) 0%,var(--content-middle) 25%,var(--content-bottom) 61%,var(--bc-bg) 100%)!important}
+#bee-immersive-phone[data-content-skin][data-content-plain=false] .bc-main{background:transparent!important}
+#bee-immersive-phone[data-content-skin][data-content-plain=false] .bc-summary{background:linear-gradient(180deg,transparent 0px,transparent 138px,var(--bc-paper) 174px),linear-gradient(102deg,color-mix(in srgb,var(--bc-paper) 99%,transparent) 0%,color-mix(in srgb,var(--bc-paper) 98%,transparent) 54%,color-mix(in srgb,var(--bc-paper) 2%,transparent) 74%,transparent 100%)!important}
+.content-integration-stage{position:absolute!important;border:0!important;background:transparent!important;pointer-events:none!important;z-index:1;border-radius:36px;overflow:hidden;transform-origin:top left}
+
+/* The original light skin is white starlight over its bound #F8C91C carrier.
+   Continue that carrier locally into the approved page gradient; no recolouring. */
+#bee-immersive-phone[data-content-skin=anniversary][data-content-dark=false][data-content-plain=false]{background:radial-gradient(ellipse var(--content-star-rx,190px) 200px at var(--content-star-x,318px) var(--content-star-y,211px),#f8c91c 0%,#f8c91cf2 30%,#f8c91c8f 58%,#f8c91c00 94%),linear-gradient(180deg,var(--content-top) 0%,var(--content-middle) 25%,var(--content-bottom) 61%,var(--bc-bg) 100%)!important}

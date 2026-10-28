@@ -1,0 +1,20 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:html' as html;
+import 'package:flutter/material.dart';
+import 'header_skins.dart';
+void main(){WidgetsFlutterBinding.ensureInitialized();runApp(const Scene());}
+class Scene extends StatefulWidget{const Scene({super.key});@override State<Scene> createState()=>_SceneState();}
+class _SceneState extends State<Scene> with SingleTickerProviderStateMixin{
+ final p=Uri.base.queryParameters;
+ late String skin=p['skin']??'anniversary',composition=p['composition']??'canopy',page=p['page']??'home',motion=p['motion']??'play';
+ Map<String,dynamic> layout={};
+ late bool dark=p['dark']=='1';
+ late final c=AnimationController(vsync:this,duration:const Duration(seconds:10));
+ StreamSubscription? sub;
+ @override void initState(){super.initState();applyMotion();sub=html.window.onMessage.listen((e){if(e.origin!=html.window.location.origin||e.data is! String)return;dynamic x;try{x=jsonDecode(e.data);}catch(_){return;}if(x is! Map||x['type']!='beecount-skin-integration')return;setState((){if(['anniversary','anniv_cake','mountains'].contains(x['skin']))skin=x['skin'];if(x['dark']is bool)dark=x['dark'];if(['card','canopy'].contains(x['composition']))composition=x['composition'];if(['home','mine'].contains(x['page']))page=x['page'];if(['play','paused','off'].contains(x['motion']))motion=x['motion'];if(x['layout']is Map)layout=Map<String,dynamic>.from(x['layout']);applyMotion();});WidgetsBinding.instance.addPostFrameCallback((_)=>report());});WidgetsBinding.instance.addPostFrameCallback((_)=>report());}
+ void applyMotion(){if(skin=='mountains'){c.stop();return;}if(motion=='off'||html.window.matchMedia('(prefers-reduced-motion: reduce)').matches){c.stop();c.value=skin=='anniversary' ? 0.62 : 0.3;}else if(motion=='paused'){c.stop();}else if(!c.isAnimating){c.repeat();}}
+ void report(){html.window.parent?.postMessage(jsonEncode({'type':'beecount-skin-integration-status','id':p['id'],'skin':skin,'dark':dark,'composition':composition,'motion':motion,'source':'3.9.0 original element methods','periodSeconds':skin=='mountains'?null:10,'transparentCarrier':true,'layout':layout,'inscriptionGeometry':originalInscriptionGeometry(layout),'starPalette':skin=='anniversary'?originalStarPalette(dark):null}),html.window.location.origin);}
+ @override void dispose(){sub?.cancel();c.dispose();super.dispose();}
+ @override Widget build(BuildContext context)=>Directionality(textDirection:TextDirection.ltr,child:RepaintBoundary(child:CustomPaint(painter:IntegrationPainter(skin,dark,page,c,layout),child:const SizedBox.expand())));
+}
