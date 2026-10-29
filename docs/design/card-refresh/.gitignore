@@ -1,8 +1,0 @@
-node_modules/
-/qa/
-/figma/*
-!/figma/README.md
-!/figma/connection.json
-/screens/*
-!/screens/manifest.json
-/prototype/source.fragment.html

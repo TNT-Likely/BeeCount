@@ -1,5 +1,0 @@
-const fs=require('fs'),path=require('path');
-const arb=JSON.parse(fs.readFileSync(path.resolve(__dirname,'../../../../../lib/l10n/app_zh.arb'),'utf8'));
-const keys=Object.keys(arb).filter(k=>/^(sharePoster|userProfilePoster|userProfileJourney|v4ShareCard)/.test(k)||['mineShareApp','helpCenterRetry'].includes(k));
-const texts=Object.fromEntries(keys.filter(k=>!k.startsWith('@')).map(k=>[k,arb[k]]));
-module.exports={css:fs.readFileSync(path.join(__dirname,'share-card.css'),'utf8')+'\n'+fs.readFileSync(path.join(__dirname,'share-cards-layout.css'),'utf8'),javascript:fs.readFileSync(path.join(__dirname,'share-card.js'),'utf8').replace('__SHARE_CARD_TEXTS__',()=>JSON.stringify(texts))+'\n'+fs.readFileSync(path.join(__dirname,'share-cards-layout.js'),'utf8'),sample:require('./share-card-samples.cjs').sample,guideJavascript:fs.readFileSync(path.join(__dirname,'share-card-guide.js'),'utf8'),scenes:['share-card','share-card-app','share-card-month','share-card-year','share-card-ledger','share-card-private','share-card-loading','share-card-error','share-card-long'].map(k=>'flow-'+k)};

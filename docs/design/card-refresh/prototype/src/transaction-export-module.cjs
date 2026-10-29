@@ -1,9 +1,0 @@
-const fs=require('fs'),path=require('path');
-const arb=JSON.parse(fs.readFileSync(path.resolve(__dirname,'../../../../../lib/l10n/app_zh.arb'),'utf8'));
-const texts=Object.fromEntries(Object.entries(arb).filter(([key])=>!key.startsWith('@')&&(key.startsWith('export')||key==='configIncludeLedgers')));
-const css=fs.readFileSync(path.join(__dirname,'transaction-export.css'),'utf8');
-const javascript=fs.readFileSync(path.join(__dirname,'transaction-export.js'),'utf8').replace('__TRANSACTION_EXPORT_TEXTS__',()=>JSON.stringify(texts));
-const fields=['Type','Category','SubCategory','Amount','Currency','Account','FromAccount','ToAccount','Note','Time','Tags','Attachments'].map(k=>texts['exportCsvHeader'+k]);
-const sample=`<div class="ex88-guide"><section class="ex88-card"><div class="ex88-identity"><i data-lucide="file-spreadsheet"></i><b>CSV</b></div><p class="ex88-description">当前账本全部交易 · 固定12列 · UTF-8 BOM</p><div class="ex88-fields">${fields.map(label=>`<span><i data-lucide="check"></i>${label}</span>`).join('')}</div></section><button class="bc-primary" data-ex88-demo>局部完成示例</button><p data-ex88-demo-result>受控示例，不访问真实账本或系统目录</p><a href="../prototype/demo.html?page=flow-export">导出页</a> · <a href="../prototype/demo.html?page=flow-export-running">进度</a> · <a href="../prototype/demo.html?page=flow-export-error">错误</a> · <a href="../prototype/demo.html?page=flow-export-ios">iOS</a></div>`;
-const guideJavascript=`document.addEventListener('click',event=>{const button=event.target.closest('[data-ex88-demo]');if(!button)return;event.preventDefault();const output=button.closest('.ex88-guide')?.querySelector('[data-ex88-demo-result]');if(output)output.textContent='QA 局部导出完成示例，不访问真实数据或系统目录';});`;
-module.exports={css,javascript,sample,guideJavascript,scenes:['flow-export','flow-export-running','flow-export-success','flow-export-error','flow-export-ios','flow-export-share-error','flow-export-long']};

@@ -1,9 +1,0 @@
-const fs=require('fs'),path=require('path'),samples=require('./transaction-detail-samples.cjs');
-const arb=JSON.parse(fs.readFileSync(path.resolve(__dirname,'../../../../../lib/l10n/app_zh.arb'),'utf8'));
-const keys=['v4TransactionDetailTitle','v4TransactionDetailSnapshot','v4TransactionDetailSnapshotRate','v4AmountsShow','v4AmountsHide','v4DetailMissingCategory','v4RecordingRetry','aiChatTransactionNotFound','mineCloudServiceLoading','commonError','commonEdit','categoryDetailTooltip','accountNone','importFieldCategory','importFieldAccount','importFieldDate','transactionReceiptLedger','transactionReceiptTags','transactionCopyAction','transactionReceiptAction','exportTypeIncome','exportTypeExpense','exportTypeTransfer','exportCsvHeaderNote','exportCsvHeaderAttachments','attachmentCount','unconvertedBadge','transferFromAccount','transferToAccount','txFlagExcludeFromStats','txFlagExcludeFromBudget'];
-for(const key of keys)if(!Object.hasOwn(arb,key))throw Error('Missing transaction detail text '+key);
-const texts=Object.fromEntries(keys.map(key=>[key,arb[key]]));
-module.exports={css:fs.readFileSync(path.join(__dirname,'transaction-detail.css'),'utf8'),
- javascript:fs.readFileSync(path.join(__dirname,'transaction-detail.js'),'utf8').replace('__TRANSACTION_DETAIL_TEXTS__',()=>JSON.stringify(texts)).replace('__TRANSACTION_DETAIL_ASSETS__',()=>JSON.stringify({attachments:samples.attachments})),
- sample:samples.sample,guideJavascript:fs.readFileSync(path.join(__dirname,'transaction-detail-guide.js'),'utf8'),
- scenes:['transaction-detail','transaction-detail-income','transaction-detail-transfer','transaction-detail-foreign','transaction-detail-unconverted','transaction-detail-private','transaction-detail-attachments','transaction-detail-missing-image','transaction-detail-long','transaction-detail-loading','transaction-detail-error','transaction-detail-missing','transaction-detail-readonly'].map(key=>'flow-'+key)};
