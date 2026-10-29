@@ -545,7 +545,7 @@
   "categoryIncome": "Income",
   "categoryEmpty": "No categories",
   "categoryDefault": "Default Category",
-  "categoryReorderTip": "Long press to drag and reorder categories",
+  "categoryReorderTip": "Drag the handle on the right to reorder categories",
   "categoryLoadFailed": "Load failed: {error}",
   "@categoryLoadFailed": {
     "placeholders": {

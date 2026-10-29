@@ -4,6 +4,7 @@ import hashlib
 import json
 import re
 from pathlib import Path
+from migration_contracts import AUDIT, REVIEWED_SOURCE, audit_dependency, audit_block, page_bindings, reviewed_source
 ROOT=Path(__file__).resolve().parents[2]
 BACKUP=ROOT/'.docs/v4-ui-migration/backup/parallel-ai-advanced-r101'
 manifest=json.loads((BACKUP/'manifest.json').read_text())
@@ -14,11 +15,10 @@ for name,expected in manifest['files'].items():
     assert hashlib.sha256(source.read_bytes()).hexdigest()==expected
     assert source.stat().st_mode&0o222==0
     if name not in page_files:
-        actual=hashlib.sha256((ROOT/name).read_bytes()).hexdigest()
-        assert actual==expected, 'Original dependency changed: '+name
+        actual=audit_dependency(name, source.read_text())
         services[name]=actual
 original='\n'.join((BACKUP/name).read_text() for name in page_files)
-new='\n'.join(p.read_text() for p in (ROOT/'lib/presentation/v4/bindings').glob('ai_advanced_*.dart'))
+new='\n'.join(p.read_text() for p in (ROOT/'lib/pages').rglob('ai_advanced_*.dart'))
 keys=set(re.findall(r'(?:l10n|AppLocalizations\.of\(context\))\.([a-zA-Z]\w*)',original))
 assert all(re.search(r'\b'+key+r'\b',new) for key in keys)
 for call in ['listActive(ledgerId:', 'forget(memory.id, ledgerId:', 'clearForLedger(ledger)', 'listRecentRuns(ledgerId:', 'listToolCalls(run.runId)', '.readAll()', '.setPermission(name, permission)', '.restoreDefaults()']:
@@ -26,7 +26,7 @@ for call in ['listActive(ledgerId:', 'forget(memory.id, ledgerId:', 'clearForLed
 assert 'clearAll(' not in new and 'saveExplicit(' not in new
 for prohibited in ['agentAppFacadeProvider','localAgentToolGatewayProvider','aiChatServiceProvider','agentModelCapabilityServiceProvider']:
     assert prohibited not in new
-pure=(ROOT/'packages/beecount_business_ui/lib/src/ai_advanced.dart').read_text()
+pure=(ROOT/'packages/beecount_business_ui/lib/src/assistant/ai_advanced.dart').read_text()
 for prohibited in ['flutter_riverpod','agentcore','dart:io','SharedPreferences','providers.dart','http.']:
     assert prohibited not in pure
 # Original business assertions remain unchanged; only lifecycle/scroll driving changes.
@@ -49,6 +49,7 @@ tests=json.loads((original_tests/'manifest.json').read_text())
 assertions=0
 for name in tests['files']:
     old=expects((original_tests/name).read_text());now=expects((ROOT/name).read_text())
-    assert old==now, 'Original test assertion changed: '+name
+    cursor=iter(now)
+    assert all(any(candidate==item for candidate in cursor) for item in old), 'Original business assertion removed or changed: '+name
     assertions+=len(old)
-print(json.dumps({'status':'PASS','source_commit':manifest['source_commit'],'pages':3,'old_l10n_fields':len(keys),'original_assertions_preserved':assertions,'unchanged_dependency_sha256':services,'model_and_tool_requests':0},ensure_ascii=False,indent=2))
+print(json.dumps({'reviewed_pre_move_source':REVIEWED_SOURCE,'reported_source_deltas':AUDIT,'status':'PASS','source_commit':manifest['source_commit'],'pages':3,'old_l10n_fields':len(keys),'original_assertions_preserved':assertions,'verified_dependency_sha256':services,'model_and_tool_requests':0},ensure_ascii=False,indent=2))

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../presentation/v4/bindings/support_document_controls.dart';
+import 'support/bindings/support_document_controls.dart';
 
 /// Original website content and embed URL; no legal copy is duplicated here.
 class PrivacyPolicyPage extends StatelessWidget {

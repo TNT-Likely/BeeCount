@@ -3,12 +3,12 @@ import 'package:beecount/data/repositories/local/local_repository.dart';
 import 'package:beecount/l10n/app_localizations.dart';
 import 'package:beecount/l10n/app_localizations_en.dart';
 import 'package:beecount/pages/report/annual_report_page.dart';
-import 'package:beecount/presentation/v4/bindings/annual_report_sections.dart';
+import 'package:beecount/pages/report/annual/widgets/annual_report_sections.dart';
 import 'package:beecount/providers.dart';
 import 'package:beecount/services/export/share_poster_data_service.dart';
 import 'package:beecount/utils/month_range.dart';
 import 'package:beecount/utils/report_period_elapsed.dart';
-import 'package:beecount/widgets/posters/annual_report_poster.dart';
+import 'package:beecount/pages/report/annual/bindings/annual_poster_projection.dart';
 import 'package:beecount_business_ui/annual_report.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:drift/native.dart';
@@ -185,7 +185,7 @@ void main() {
         await t.pumpAndSettle();
         final monthlyColumn = find
             .ancestor(
-                of: find.text(l.annualReportMonthlyAverage),
+                of: find.text(l.sharePosterAvgMonthlyExpense),
                 matching: find.byType(Column))
             .first;
         final dailyColumn = find
@@ -196,13 +196,14 @@ void main() {
         expect(
             find.descendant(
                 of: monthlyColumn,
-                matching:
-                    find.text(NumberFormat('#,##0', 'en').format(monthly))),
+                matching: find.text(
+                    '¥${NumberFormat('#,##0.00', 'en').format(monthly)}')),
             findsOneWidget);
         expect(
             find.descendant(
                 of: dailyColumn,
-                matching: find.text(NumberFormat('#,##0', 'en').format(daily))),
+                matching: find
+                    .text('¥${NumberFormat('#,##0.00', 'en').format(daily)}')),
             findsOneWidget);
         expect(t.takeException(), isNull);
       } finally {

@@ -1,3 +1,3 @@
 library;
 
-export 'src/share_card.dart';
+export 'src/sharing/share_card.dart';

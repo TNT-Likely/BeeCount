@@ -1,4 +1,4 @@
-import '../../presentation/v4/bindings/page_scaffold.dart';
+import '../shared/scaffold/widgets/page_scaffold.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:beecount_business_ui/beecount_business_ui.dart';
 import 'dart:io';
@@ -9,7 +9,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../widgets/ui/ui.dart';
 import '../../utils/file_picker_helper.dart';
 import '../../providers/font_scale_provider.dart';
 import '../../providers.dart';
@@ -17,8 +16,8 @@ import '../../l10n/app_localizations.dart';
 import '../../services/export/config_export_service.dart';
 import '../../services/system/logger_service.dart';
 
-part '../../presentation/v4/bindings/config_transfer_actions.dart';
-part '../../presentation/v4/bindings/config_transfer_dialogs.dart';
+part 'configuration/bindings/config_transfer_actions.dart';
+part 'configuration/bindings/config_transfer_dialogs.dart';
 
 class ConfigImportExportPage extends ConsumerStatefulWidget {
   const ConfigImportExportPage({super.key});

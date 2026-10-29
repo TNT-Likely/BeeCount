@@ -2,8 +2,8 @@ import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../l10n/app_localizations.dart';
-import '../../presentation/v4/bindings/app_lock_settings_actions.dart';
-import '../../presentation/v4/bindings/page_scaffold.dart';
+import 'app_lock/bindings/app_lock_settings_actions.dart';
+import '../shared/scaffold/widgets/page_scaffold.dart';
 import '../../providers/security_providers.dart';
 
 class AppLockSettingsPage extends ConsumerStatefulWidget {

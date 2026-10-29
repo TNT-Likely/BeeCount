@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../presentation/v4/bindings/cloud_configuration_controls.dart';
+import 'configuration/bindings/cloud_configuration_controls.dart';
 
 class CloudServicePage extends StatelessWidget {
   const CloudServicePage({super.key});

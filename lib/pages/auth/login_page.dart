@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../presentation/v4/bindings/cloud_login_controls.dart';
+import '../cloud/configuration/bindings/cloud_login_controls.dart';
 
 class AuthPage extends StatelessWidget {
   const AuthPage({super.key});

@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/attachment_export_import_service.dart';
-import '../../presentation/v4/bindings/attachment_library_data.dart';
-import '../../presentation/v4/bindings/page_scaffold.dart';
+import 'attachments/bindings/attachment_library_data.dart';
+import '../shared/scaffold/widgets/page_scaffold.dart';
 
 class AttachmentPreviewPage extends ConsumerStatefulWidget {
   const AttachmentPreviewPage(

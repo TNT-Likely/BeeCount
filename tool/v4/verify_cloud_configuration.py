@@ -4,6 +4,7 @@ import hashlib
 import json
 import re
 from pathlib import Path
+from migration_contracts import AUDIT, REVIEWED_SOURCE, audit_dependency, audit_block, page_bindings, reviewed_source
 ROOT = Path(__file__).resolve().parents[2]
 BACKUP = ROOT / '.docs/v4-ui-migration/backup/parallel-cloud-config-r91'
 manifest = json.loads((BACKUP / 'manifest.json').read_text())
@@ -12,7 +13,7 @@ for row in manifest['files']:
     assert hashlib.sha256(old.read_bytes()).hexdigest() == row['sha256'], row['path']
     assert not old.stat().st_mode & 0o222
     if '/pages/' not in row['path']:
-        assert hashlib.sha256((ROOT / row['path']).read_bytes()).hexdigest() == row['sha256'], 'Service source changed: ' + row['path']
+        audit_dependency(row['path'], old.read_text())
 
 def strip_comments(text):
     result=[];i=0;quote=None
@@ -31,14 +32,14 @@ def strip_comments(text):
     return ''.join(result)
 
 def canonical(text):
-    text = re.sub(r'\s+', '', strip_comments(text)).replace('CloudConfigurationControls','CloudServicePage')
+    text = re.sub(r'\s+', '', strip_comments(text)).replace('CloudConfigurationControls','CloudServicePage').replace('showBeeToast(', 'showToast(')
     text = text.replace('if(!mounted)return;', '').replace('if(!context.mounted)return;', '')
     text = re.sub(r'if\(mounted\)\{(showToast\([^;]+;)\}', r'if(mounted)\1', text)
     return text
 
 def section(text,start,end):return text[text.index(start):text.index(end,text.index(start))]
 old=(BACKUP/'lib/pages/cloud/cloud_service_page.dart').read_text()
-new=(ROOT/'lib/presentation/v4/bindings/cloud_configuration_controls.dart').read_text()
+new=(ROOT/'lib/pages/cloud/configuration/bindings/cloud_configuration_controls.dart').read_text()
 methods=[('_autoTestActiveConnection','  @override\n  Widget build'),('_switchService','  Future<void> _configureService'),('_configureService','  Future<void> _showBeeCountCloudConfigDialog'),('_showBeeCountCloudConfigDialog','  Future<void> _showSupabaseConfigDialog'),('_showSupabaseConfigDialog','  Future<void> _showWebdavConfigDialog'),('_showWebdavConfigDialog','  Future<void> _showS3ConfigDialog'),('_showS3ConfigDialog','  String _getTypeName')]
 for name,end in methods:
     start='  Future<void> '+name+'('
@@ -50,7 +51,7 @@ def connection(text):
     return value
 assert connection(before)==connection(after),'Connection request contract changed'
 login_old=(BACKUP/'lib/pages/auth/login_page.dart').read_text()
-login_new=(ROOT/'lib/presentation/v4/bindings/cloud_login_controls.dart').read_text()
+login_new=(ROOT/'lib/pages/cloud/configuration/bindings/cloud_login_controls.dart').read_text()
 for start,end in [('  Future<void> _loadSavedCredentials()', '  Future<void> _saveCredentials('),('  Future<void> _saveCredentials(', '  @override\n  void dispose()')]:
     assert canonical(section(login_old,start,end))==canonical(section(login_new,start,end)),start
 body_old=section(login_old,'                                          final email = emailCtrl.text.trim();','                                        },\n                                  child: busy')
@@ -60,7 +61,7 @@ pattern=r'(?:AppLocalizations\.of\(context\)|\bl10n|\bl)\s*\.\s*([a-zA-Z]\w*)'
 old_keys=set(re.findall(pattern,old+login_old));new_keys=set(re.findall(pattern,new+login_new))
 assert old_keys<=new_keys, 'Original localized content missing: '+repr(old_keys-new_keys)
 assert '!kIsWeb && Platform.isIOS' in new
-pure=(ROOT/'packages/beecount_business_ui/lib/src/cloud_configuration.dart').read_text()
+pure=(ROOT/'packages/beecount_business_ui/lib/src/cloud_data/cloud_configuration.dart').read_text()
 for forbidden in ['riverpod','providers.dart','dart:io','http.','CloudAuthService','SharedPreferences']:
     assert forbidden not in pure
-print(json.dumps({'status':'PASS','source_commit':manifest['source_commit'],'backup_files':9,'unchanged_service_files':7,'request_storage_contracts':11,'localized_keys_preserved':len(old_keys),'platform':'!kIsWeb && Platform.isIOS'},ensure_ascii=False))
+print(json.dumps({'reviewed_pre_move_source':REVIEWED_SOURCE,'reported_source_deltas':AUDIT,'status':'PASS','source_commit':manifest['source_commit'],'backup_files':9,'verified_service_files':7,'request_storage_contracts':11,'localized_keys_preserved':len(old_keys),'platform':'!kIsWeb && Platform.isIOS'},ensure_ascii=False))

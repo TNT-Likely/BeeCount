@@ -1,12 +1,13 @@
+import 'dart:convert';
 import 'dart:io';
-import 'package:beecount/widgets/biz/ledger_selector_dialog.dart';
+import 'package:beecount/pages/shared/selectors/ledger_selector_dialog.dart';
 import 'package:beecount/data/db.dart';
 import 'package:beecount/data/repositories/local/local_repository.dart';
 import 'package:beecount/l10n/app_localizations.dart';
 import 'package:beecount/l10n/app_localizations_en.dart';
-import 'package:beecount/presentation/v4/bindings/ai_conversation_preview.dart';
+import 'package:beecount/dev/component_gallery/bindings/ai_conversation_preview.dart';
 import 'package:beecount/providers/database_providers.dart';
-import 'package:beecount/widgets/ai/agent_tool_authorization_dialog.dart';
+import 'package:beecount/pages/ai/bindings/agent_tool_authorization_dialog.dart';
 import 'package:beecount/agent/permission/agent_authorization_gate.dart';
 import 'package:beecount_business_ui/beecount_business_ui.dart';
 import 'package:beecount_ui/beecount_ui.dart';
@@ -139,11 +140,14 @@ void main() {
         const Size(44, 44));
     expect(
         t.widget<BeeSurface>(surface).borderRadius, BorderRadius.circular(18));
-    final css =
-        File('docs/design/card-refresh/prototype/src/ai-conversation.css')
-            .readAsStringSync();
-    expect(css, contains('margin:8px 17px 0;padding:8px;border-radius:18px'));
-    expect(css, contains('min-height:48px'));
+    final contract = jsonDecode(
+        File('tool/design/contracts/ai-conversation-geometry.json')
+            .readAsStringSync())['input'];
+    expect(frame.left, contract['marginHorizontal']);
+    expect(field.left - frame.left, contract['padding']);
+    expect(field.height, contract['fieldMinHeight']);
+    expect(t.widget<BeeSurface>(surface).borderRadius,
+        BorderRadius.circular((contract['radius'] as num).toDouble()));
     expect(t.takeException(), isNull);
   });
   testWidgets('真实账本选择保留弹窗、当前项与ID返回，不切换或改写原账本', (t) async {

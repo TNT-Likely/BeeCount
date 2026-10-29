@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../presentation/v4/bindings/assistant_settings_controls.dart';
+import 'assistant/bindings/assistant_settings_controls.dart';
 
 /// Original entry and ledger identity; App binding owns local execution settings.
 final class AgentAssistantSettingsPage extends StatelessWidget {

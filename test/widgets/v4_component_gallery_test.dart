@@ -10,10 +10,10 @@ import 'package:beecount/theme.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:beecount_ui/multi_select.dart';
 import 'package:beecount_business_ui/beecount_business_ui.dart';
-import 'package:beecount/presentation/v4/gallery/foundation_page.dart';
-import 'package:beecount/presentation/v4/gallery/business_page.dart';
-import 'package:beecount/presentation/v4/gallery/transaction_row_states.dart';
-import 'package:beecount/presentation/v4/gallery/component_gallery_page.dart';
+import 'package:beecount/dev/component_gallery/foundation_page.dart';
+import 'package:beecount/dev/component_gallery/business_page.dart';
+import 'package:beecount/dev/component_gallery/transaction_row_states.dart';
+import 'package:beecount/dev/component_gallery/component_gallery_page.dart';
 
 const capture = bool.fromEnvironment('BEECOUNT_CAPTURE_UI');
 void main() {

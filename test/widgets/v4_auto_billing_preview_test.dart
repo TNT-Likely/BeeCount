@@ -1,7 +1,7 @@
 import 'package:beecount/l10n/app_localizations.dart';
-import 'package:beecount/presentation/v4/bindings/auto_billing_actions.dart';
-import 'package:beecount/presentation/v4/bindings/auto_billing_preview.dart';
-import 'package:beecount/presentation/v4/bindings/ios_auto_billing_actions.dart';
+import 'package:beecount/pages/automation/android/bindings/auto_billing_actions.dart';
+import 'package:beecount/dev/component_gallery/bindings/auto_billing_preview.dart';
+import 'package:beecount/pages/automation/ios/bindings/ios_auto_billing_actions.dart';
 import 'package:beecount_business_ui/auto_billing.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';

@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
 import '../system/logger_service.dart';
-import '../../widgets/ui/ui.dart';
+import '../../pages/shared/dialogs/app_dialogs.dart';
 import '../../l10n/app_localizations.dart';
 import 'update_permissions.dart';
 import 'update_cache.dart';

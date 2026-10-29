@@ -3,7 +3,7 @@ import 'dart:io';
 import 'dart:async';
 import 'package:beecount/ai/core/prompt_builder.dart';
 import 'package:beecount/ai/providers/ai_provider_manager.dart';
-import 'package:beecount/presentation/v4/bindings/ai_prompt_controller.dart';
+import 'package:beecount/pages/ai/prompt/controllers/ai_prompt_controller.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -13,7 +13,7 @@ void main() {
   tearDown(() => AIProviderManager.onConfigChanged = null);
   test('HTML完整模板和八个变量从原Dart源生成，补丁逐字一致', () {
     final registry = jsonDecode(
-        File('docs/design/card-refresh/tokens/ai-prompt-template.json')
+        File('tool/design/contracts/ai-prompt-template.json')
             .readAsStringSync()) as Map<String, dynamic>;
     expect(registry['template'], PromptBuilder.defaultTemplate);
     expect(registry['snippet'], PromptBuilder.currencySectionSnippet);

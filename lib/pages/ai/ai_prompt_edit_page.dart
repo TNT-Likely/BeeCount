@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../presentation/v4/bindings/ai_prompt_workspace.dart';
+import 'prompt/bindings/ai_prompt_workspace.dart';
 
 /// Production route; App bindings own drafts, clipboard/share and original persistence.
 class AIPromptEditPage extends StatelessWidget {

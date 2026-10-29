@@ -1,5 +1,5 @@
 import 'package:beecount_business_ui/beecount_business_ui.dart';
-import 'package:beecount/presentation/v4/gallery/business_page.dart';
+import 'package:beecount/dev/component_gallery/business_page.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';

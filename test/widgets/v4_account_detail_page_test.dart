@@ -1,12 +1,12 @@
 import 'package:beecount/data/db.dart';
-import 'package:beecount/presentation/v4/bindings/account_detail_controller.dart';
+import 'package:beecount/pages/account/detail/controllers/account_detail_controller.dart';
 import 'package:beecount/services/currency/exchange_rate_service.dart';
 import 'package:beecount/data/repositories/local/local_repository.dart';
 import 'package:beecount/l10n/app_localizations.dart';
 import 'package:beecount/pages/account/account_detail_page.dart';
 import 'package:beecount/pages/account/accounts_page.dart';
 import 'package:beecount/pages/transaction/transaction_editor_page.dart';
-import 'package:beecount/presentation/v4/bindings/account_detail.dart';
+import 'package:beecount/pages/account/detail/bindings/account_detail.dart';
 import 'package:beecount/providers.dart';
 import 'package:beecount_business_ui/beecount_business_ui.dart';
 import 'package:beecount_ui/beecount_ui.dart';

@@ -4,7 +4,7 @@ import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:crypto/crypto.dart';
 import 'package:beecount/services/attachment_service.dart';
-import 'package:beecount/widgets/biz/transaction_list_item.dart';
+import 'package:beecount/pages/shared/transactions/transaction_list_item.dart';
 import 'package:beecount/pages/attachment/attachment_preview_page.dart';
 
 import 'package:beecount/main.dart' show MainApp;

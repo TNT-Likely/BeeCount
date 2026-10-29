@@ -1,0 +1,1589 @@
+import 'dart:async';
+import 'dart:io';
+import 'package:intl/intl.dart';
+
+import 'package:flutter/material.dart';
+import 'package:beecount_ui/beecount_ui.dart';
+import 'package:beecount_business_ui/beecount_business_ui.dart';
+import 'package:flutter/services.dart';
+import 'package:decimal/decimal.dart';
+import 'package:flutter_cloud_sync/flutter_cloud_sync.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:beecount/pages/shared/pickers/wheel_date_picker.dart';
+import '../../../../data/db.dart';
+import '../../../../providers/shared_ledger_providers.dart';
+import '../../../../styles/tokens.dart';
+import '../../../../l10n/app_localizations.dart';
+import '../../../../services/data/note_history_service.dart';
+import '../../../../models/note_history.dart';
+import '../../../../services/attachment_service.dart';
+import '../../../../providers.dart';
+import '../../../../utils/ui_scale_extensions.dart';
+import '../../../../utils/currencies.dart';
+import '../../../../utils/account_type_utils.dart';
+import '../../../../data/repositories/local/local_repository.dart';
+import '../../../../utils/shared_ledger_picker_filter.dart';
+import '../../../tag/widgets/tag_selector.dart';
+import 'note_picker_dialog.dart';
+import '../../../shared/selectors/account_selector.dart';
+import '../../../shared/selectors/currency_picker_sheet.dart';
+import '../../../shared/currency/currency_flag.dart';
+import '../../../shared/appearance/page_skin_scope.dart';
+import '../../../attachment/attachment_preview_page.dart';
+import '../../../attachment/bindings/attachment_source.dart';
+
+final _recordingAccountProvider =
+    FutureProvider.autoDispose.family<Account?, int>((ref, id) async {
+  final repo = ref.watch(repositoryProvider);
+  ref.watch(syncGenerationProvider);
+  if (id < 0 && repo is LocalRepository) {
+    return repo.db.findAccountBySyntheticId(id);
+  }
+  return repo.getAccount(id);
+});
+
+/// 共享账本 tx 作者信息(创建人 + 最后编辑人)— 编辑器底部 sheet 用。
+/// editingTransactionId=null(新建 tx)或非共享账本 → 返 null,widget 不渲染。
+class _TxAuthorInfo {
+  const _TxAuthorInfo({
+    required this.creatorUserId,
+    required this.lastEditedByUserId,
+    required this.currentUserId,
+    required this.members,
+  });
+
+  final String? creatorUserId;
+  final String? lastEditedByUserId;
+  final String? currentUserId;
+  final List<BeeCountCloudLedgerMember> members;
+
+  BeeCountCloudLedgerMember? memberOf(String? userId) {
+    if (userId == null || userId.isEmpty) return null;
+    for (final m in members) {
+      if (m.userId == userId) return m;
+    }
+    return null;
+  }
+}
+
+final _txAuthorInfoProvider =
+    FutureProvider.autoDispose.family<_TxAuthorInfo?, int>((ref, txId) async {
+  final repo = ref.watch(repositoryProvider);
+  final tx = await repo.getTransactionById(txId);
+  if (tx == null) return null;
+  final ledger = await repo.getLedgerById(tx.ledgerId);
+  if (ledger == null || !ledger.isShared) return null;
+  final ledgerSyncId = ledger.syncId;
+  if (ledgerSyncId == null || ledgerSyncId.isEmpty) return null;
+  if (tx.createdByUserId == null && tx.lastEditedByUserId == null) return null;
+
+  final cloud = await ref.watch(beecountCloudProviderInstance.future);
+  if (cloud == null) return null;
+  ref.watch(sharedResourceRefreshProvider);
+  final me = await cloud.auth.currentUser;
+  final members = await cloud.listMembers(ledgerId: ledgerSyncId);
+  return _TxAuthorInfo(
+    creatorUserId: tx.createdByUserId,
+    lastEditedByUserId: tx.lastEditedByUserId,
+    currentUserId: me?.id,
+    members: members,
+  );
+});
+
+/// 紧凑头像组 — UX 规则(用户指定):
+///   - 创建人 != 编辑人:展示两个头像(long-press tooltip 区分"创建" / "最后编辑")
+///   - 创建人 == 编辑人 == 自己:不展示(自己的 tx 看自己头像无意义)
+///   - 创建人 == 编辑人 != 自己:展示一个头像(long-press tooltip "X 创建并编辑")
+class _TxAuthorAvatars extends ConsumerWidget {
+  const _TxAuthorAvatars({required this.editingTransactionId});
+
+  final int editingTransactionId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final infoAsync = ref.watch(_txAuthorInfoProvider(editingTransactionId));
+    final info = infoAsync.valueOrNull;
+    if (info == null) return const SizedBox.shrink();
+
+    final creatorId = info.creatorUserId;
+    final editorId = info.lastEditedByUserId;
+    final meId = info.currentUserId;
+    final sameUser = creatorId != null && creatorId == editorId;
+
+    // 单人(创建 == 编辑)且就是自己 → 整体不显示
+    if (sameUser && creatorId == meId) return const SizedBox.shrink();
+
+    final cloud = ref.watch(beecountCloudProviderInstance).valueOrNull;
+    final baseUrl = cloud?.baseUrl;
+
+    final authors = <RecordingAuthor>[];
+    if (sameUser) {
+      // 同一人(非自己):展示一个头像,tooltip 提示"创建并编辑"
+      authors.add(_author(
+        member: info.memberOf(creatorId),
+        userIdFallback: creatorId,
+        baseUrl: baseUrl,
+        tooltipBuilder: (name) => l10n.sharedTxCreatedAndEditedBy(name),
+      ));
+    } else {
+      // 创建人 + 编辑人是两个人:两个头像都展示
+      if (creatorId != null) {
+        authors.add(_author(
+          member: info.memberOf(creatorId),
+          userIdFallback: creatorId,
+          baseUrl: baseUrl,
+          tooltipBuilder: (name) => l10n.sharedTxCreatedBy(name),
+        ));
+      }
+      if (editorId != null && editorId != creatorId) {
+        authors.add(_author(
+          member: info.memberOf(editorId),
+          userIdFallback: editorId,
+          baseUrl: baseUrl,
+          tooltipBuilder: (name) => l10n.sharedTxEditedBy(name),
+        ));
+      }
+    }
+    if (authors.isEmpty) return const SizedBox.shrink();
+    return RecordingAuthors(authors: authors);
+  }
+}
+
+// Resolve membership and URL semantics in the host; the package draws the avatars.
+RecordingAuthor _author(
+    {required BeeCountCloudLedgerMember? member,
+    required String userIdFallback,
+    required String? baseUrl,
+    required String Function(String) tooltipBuilder}) {
+  final name = member != null
+      ? (member.displayName?.isNotEmpty == true
+          ? member.displayName!
+          : member.email.split('@').first)
+      : userIdFallback;
+  final relative = member?.avatarUrl;
+  final absolute = relative != null && relative.isNotEmpty
+      ? (relative.startsWith('http')
+          ? relative
+          : baseUrl == null
+              ? null
+              : '$baseUrl$relative')
+      : null;
+  return RecordingAuthor(
+      name: name,
+      tooltip: tooltipBuilder(name),
+      image: absolute == null ? null : NetworkImage(absolute));
+}
+
+typedef AmountEditorResult = ({
+  double amount,
+  bool continueAdding,
+  String? note,
+  DateTime date,
+  int? accountId,
+  List<int> tagIds,
+  List<File> pendingAttachments,
+  bool excludeFromStats,
+  bool excludeFromBudget,
+  // v30 交易级多币种:交易币种(有账户=账户币种;无账户=手选,默认本位币)
+  // 与折本位币快照(同币种 == amount;外币 = amount × 汇率,缺汇率已在提交前阻断)。
+  String? currencyCode,
+  double? nativeAmount,
+});
+
+class AmountEditorSheet extends ConsumerStatefulWidget {
+  final String categoryName; // 仅用于上层提交，不在UI展示
+  final int? categoryId; // 当前本地分类ID，用于筛选历史备注
+  final String? categorySyncId; // 共享账本分类同步ID，用于筛选历史备注
+  final DateTime initialDate;
+  final double? initialAmount;
+  final String? initialNote;
+  final int? initialAccountId;
+  final List<int>? initialTagIds; // 初始标签ID列表
+  final bool showAccountPicker; // 是否显示账户选择
+  final bool allowContinueAdding; // 双击完成后回到分类选择继续新建
+  final FutureOr<void> Function(AmountEditorResult) onSubmit;
+  final bool cardLayout;
+  // The page reads this above Scaffold, which removes handled keyboard insets.
+  final bool systemKeyboardVisible;
+  final Widget? categorySection;
+  final bool canSubmit;
+  final bool externalDraftChanged;
+  final Future<void> Function(int ledgerId)? onLedgerChanged;
+  final int ledgerId;
+  final int? editingTransactionId; // 编辑模式时的交易ID，用于显示已有附件
+  final String transactionKind; // 'expense' / 'income' / 'transfer'，决定标记开关可见性
+  final bool initialExcludeFromStats; // 不计入收支，编辑模式回显
+  final bool initialExcludeFromBudget; // 不计入预算，编辑模式回显
+  // v30 编辑模式回显:该笔的原币种与折算快照(用于推隐含汇率,只改备注时
+  // 折算基准不漂移,.docs/multi-currency-ledger 01 §4.2)。
+  final String? initialCurrencyCode;
+  final double? initialNativeAmount;
+  // Controlled transfer currency. Changing it preserves all draft fields while
+  // invalidating only the previous currency's rate / conversion snapshot.
+  final String? fixedCurrencyCode;
+  final String? blockedSubmitLabel;
+
+  const AmountEditorSheet({
+    super.key,
+    required this.categoryName,
+    this.categoryId,
+    this.categorySyncId,
+    required this.initialDate,
+    this.initialAmount,
+    this.initialNote,
+    this.initialAccountId,
+    this.initialTagIds,
+    this.showAccountPicker = false,
+    this.allowContinueAdding = false,
+    required this.onSubmit,
+    this.cardLayout = false,
+    this.systemKeyboardVisible = false,
+    this.categorySection,
+    this.canSubmit = true,
+    this.externalDraftChanged = false,
+    this.onLedgerChanged,
+    required this.ledgerId,
+    this.editingTransactionId,
+    this.transactionKind = 'expense',
+    this.initialExcludeFromStats = false,
+    this.initialExcludeFromBudget = false,
+    this.initialCurrencyCode,
+    this.initialNativeAmount,
+    this.fixedCurrencyCode,
+    this.blockedSubmitLabel,
+  });
+
+  @override
+  ConsumerState<AmountEditorSheet> createState() => AmountEditorSheetState();
+}
+
+class AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
+  late String _amountStr;
+  late DateTime _date;
+  int? _selectedAccountId;
+  bool _accountChoiceTouched = false;
+
+  bool get hasDraftChanges => _hasCardDraft;
+
+  /// A blank new editor can follow the income/expense default. User choices,
+  /// including explicitly choosing no account, remain part of the draft.
+  bool applyDefaultAccountIfUntouched(int? accountId) {
+    if (_isSubmitting || _accountChoiceTouched || _hasCardDraft) return false;
+    setState(() {
+      _selectedAccountId = accountId;
+      _selectedAccountCurrency = null;
+    });
+    if (accountId != null) _loadAccountCurrency(accountId);
+    return true;
+  }
+
+  final TextEditingController _noteCtrl = TextEditingController();
+  // 运算缓存：支持简单 + / - 键入累计
+  double _acc = 0;
+  String? _op; // 最近一次运算符，null 表示尚未进入运算模式
+  // 两个运算符键各自独立的模式(false=加/减,true=乘/除),长按各自切换,互不影响。
+  bool _mulKey1 = false; // 键1:+ ↔ ×
+  bool _mulKey2 = false; // 键2:− ↔ ÷
+
+  // 高频备注列表（包含使用次数）
+  List<NoteHistoryEntry> _frequentNotes = [];
+
+  // 备注框焦点节点
+  final FocusNode _noteFocusNode = FocusNode();
+  bool _noteFieldHasFocus = false;
+  bool _cardNoteExpanded = false;
+
+  // 防重复提交标志
+  bool _isSubmitting = false;
+  Timer? _finishTapTimer;
+  bool _discardConfirmed = false;
+
+  // 已选标签ID列表
+  late List<int> _selectedTagIds;
+
+  // 待上传的附件列表（新建交易时）
+  List<File> _pendingAttachments = [];
+
+  // 交易标记（旗标弹窗）
+  bool _excludeFromStats = false;
+  bool _excludeFromBudget = false;
+
+  // v30 交易级多币种(L7 自动探测 + L12 无账户手选)
+  String? _pickedCurrency; // 无账户时手选的币种;null = 本位币
+  String? _selectedAccountCurrency; // 所选账户的币种(异步查,null = 未选/未知)
+  String? _rateStr; // 本笔汇率(字符串);编辑模式初值=隐含汇率,用户可改
+  bool _rateManuallySet = false; // 手改/隐含汇率后不再被有效汇率覆盖
+  bool _fetchingRate = false; // 正在自动拉取汇率(汇率行显示获取中)
+  String? _rateFetchAttemptedFor; // 已自动拉过的币种(防循环重试)
+
+  @override
+  void initState() {
+    super.initState();
+    _date = widget.initialDate;
+    _excludeFromStats = widget.initialExcludeFromStats;
+    _excludeFromBudget = widget.initialExcludeFromBudget;
+    _selectedAccountId = widget.initialAccountId;
+    _selectedTagIds = List.from(widget.initialTagIds ?? []);
+    _pickedCurrency = widget.initialCurrencyCode?.toUpperCase();
+    // 编辑外币交易:汇率行初值 = 该笔隐含汇率(nativeAmount / amount),
+    // 只改备注/分类时折算基准不漂移(01 §4.2)。
+    final initAmount = widget.initialAmount ?? 0;
+    final initNative = widget.initialNativeAmount;
+    if (initNative != null && initAmount > 0) {
+      // Equal amounts can be a valid historical foreign-currency rate of 1.
+      // Keep the full double precision when changing only metadata.
+      _rateStr = (initNative / initAmount).toString();
+      _rateManuallySet = true;
+    }
+    if (widget.initialAccountId != null) {
+      _loadAccountCurrency(widget.initialAccountId!);
+    }
+    // 保留原始小数（最多两位），避免编辑已有记录时小数被截断为整数
+    final init = widget.initialAmount ?? 0;
+    final s = init.toStringAsFixed(2);
+    // 去除多余 0 和结尾的小数点
+    final trimmed = s.contains('.')
+        ? s.replaceFirst(RegExp(r'0+$'), '').replaceFirst(RegExp(r'\.$'), '')
+        : s;
+    _amountStr = trimmed.isEmpty ? '0' : trimmed;
+    _noteCtrl.text = widget.initialNote ?? '';
+
+    // 监听焦点变化
+    _noteFocusNode.addListener(() {
+      setState(() {
+        _noteFieldHasFocus = _noteFocusNode.hasFocus;
+      });
+    });
+
+    // 加载最近使用的备注
+    _loadRecentNotes();
+  }
+
+  @override
+  void dispose() {
+    _finishTapTimer?.cancel();
+    _noteFocusNode.dispose();
+    _noteCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(covariant AmountEditorSheet oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.transactionKind == 'transfer' &&
+        oldWidget.fixedCurrencyCode?.toUpperCase() !=
+            widget.fixedCurrencyCode?.toUpperCase()) {
+      _rateStr = null;
+      _rateManuallySet = false;
+      _rateFetchAttemptedFor = null;
+    }
+    if (oldWidget.categoryId != widget.categoryId ||
+        oldWidget.transactionKind != widget.transactionKind) {
+      _loadRecentNotes();
+    }
+  }
+
+  Future<void> _loadRecentNotes() async {
+    final requestedCategory = widget.categoryId;
+    final requestedKind = widget.transactionKind;
+    final repo = ref.read(repositoryProvider);
+    final notes = await NoteHistoryService.getHistoryNotes(
+      repository: repo,
+      ledgerId: widget.ledgerId,
+      scope: ref.read(noteHistoryScopeProvider),
+      sort: ref.read(noteHistorySortProvider),
+      categoryId: widget.categoryId,
+      categorySyncId: widget.categorySyncId,
+      limit: ref.read(noteHistoryLimitProvider),
+    ).catchError((_) => <NoteHistoryEntry>[]);
+    if (!mounted ||
+        requestedCategory != widget.categoryId ||
+        requestedKind != widget.transactionKind) {
+      return;
+    }
+    setState(() {
+      _frequentNotes = notes;
+    });
+  }
+
+  Future<void> _loadAccountCurrency(int accountId) async {
+    final repo = ref.read(repositoryProvider);
+    // getAccountCurrencyByAnyId:正数查主表;负数是共享账本 Owner 资源的
+    // synthetic id(§7),查镜像表 —— 否则成员选 Owner 外币账户会被静默
+    // 解析成本位币(审查发现)。
+    final currency =
+        await repo.getAccountCurrencyByAnyId(accountId).catchError((_) => null);
+    if (!mounted || _selectedAccountId != accountId) return;
+    setState(() {
+      _selectedAccountCurrency = currency;
+    });
+  }
+
+  /// 交易币种(币种优先联动,第 6 条):手选币种 → 账户列表按它过滤,所选账户
+  /// 币种必然一致。有账户但其币种尚在异步加载时,fallback 手选币种(而非本位
+  /// 币,避免加载窗口内汇率行闪没)。
+  String _txCurrency() {
+    if (widget.transactionKind == 'transfer' &&
+        widget.fixedCurrencyCode != null) {
+      return widget.fixedCurrencyCode!.toUpperCase();
+    }
+    if (_selectedAccountId != null) {
+      return _selectedAccountCurrency ??
+          _pickedCurrency ??
+          ref.read(currentLedgerCurrencyProvider);
+    }
+    return _pickedCurrency ?? ref.read(currentLedgerCurrencyProvider);
+  }
+
+  /// 本笔汇率:手改/隐含 > 有效汇率(effectiveRatesForLedgerProvider)。
+  double? _currentRate() {
+    if (_rateManuallySet) {
+      final rate = double.tryParse(_rateStr ?? '');
+      return rate != null && rate.isFinite && rate > 0 ? rate : null;
+    }
+    final rates = ref.read(effectiveRatesForLedgerProvider).valueOrNull;
+    final er = rates?[_txCurrency()];
+    final rate = er == null ? null : double.tryParse(er.rate);
+    return rate != null && rate.isFinite && rate > 0 ? rate : null;
+  }
+
+  /// 外币且本地无该币种汇率时,自动拉一次(v30:记账页是汇率的新消费场景,
+  /// 用户可能从没进过资产页/汇率页 → exchange_rates 表为空;且手选币种不在
+  //// usedCurrencies 里,常规 refresh 不会带上它 → extraQuotes 显式传入)。
+  /// 同一币种只自动试一次,失败后由用户手填(L8 缺失阻断仍兜底)。
+  void _maybeAutoFetchRate() {
+    final base = ref.read(currentLedgerCurrencyProvider);
+    final txCurrency = _txCurrency();
+    if (txCurrency == base || _rateManuallySet || _fetchingRate) return;
+    if (_rateFetchAttemptedFor == txCurrency) return;
+    final ratesAsync = ref.read(effectiveRatesForLedgerProvider);
+    final rates = ratesAsync.valueOrNull;
+    if (rates == null) return; // provider 尚未解析,等它先出结果
+    if (rates.containsKey(txCurrency)) return; // 已有汇率
+    _rateFetchAttemptedFor = txCurrency;
+    setState(() => _fetchingRate = true);
+    refreshExchangeRatesFromUi(ref, force: true, extraQuotes: {txCurrency})
+        .whenComplete(() {
+      if (mounted) setState(() => _fetchingRate = false);
+    });
+  }
+
+  Future<void> _pickCurrency() async {
+    FocusManager.instance.primaryFocus?.unfocus();
+    final l10n = AppLocalizations.of(context);
+    final base = ref.read(currentLedgerCurrencyProvider);
+    final picked = await showCurrencyPickerSheet(
+      context,
+      selected: _txCurrency(),
+      primaryColor: Theme.of(context).colorScheme.primary,
+      title: l10n.txCurrencyPickerTitle,
+      rateBase: base, // 展示各币种对账本主币种的汇率
+    );
+    if (picked == null || !mounted) return;
+    setState(() {
+      _pickedCurrency =
+          picked.toUpperCase() == base ? null : picked.toUpperCase();
+      // 换币种后隐含/手改汇率作废,重新带有效汇率
+      _rateStr = null;
+      _rateManuallySet = false;
+      // 币种优先联动(第 6 条):切币种 → 账户重置为不选,账户列表按新币种刷新
+      // (AccountSelector.filterCurrency 变化触发重载)
+      _selectedAccountId = null;
+      _selectedAccountCurrency = null;
+    });
+  }
+
+  Widget _editorDialog(
+          {required Widget title,
+          required Widget content,
+          required List<Widget> actions,
+          Color? backgroundColor}) =>
+      widget.cardLayout
+          ? BeeDialog(title: title, content: content, actions: actions)
+          : AlertDialog(
+              title: title,
+              content: content,
+              actions: actions,
+              backgroundColor: backgroundColor);
+
+  Future<void> _editRate() async {
+    final l10n = AppLocalizations.of(context);
+    if (widget.cardLayout) {
+      final entered = await showBeeDialog<String>(context,
+          title: l10n.txRateLabel,
+          child: BeeValidatedInput(
+              label: l10n.txRateLabel,
+              initial: _rateStr ?? _currentRate()?.toStringAsPrecision(6) ?? '',
+              helper:
+                  '1 ${_txCurrency()} = ? ${ref.read(currentLedgerCurrencyProvider)}',
+              confirmLabel: l10n.commonConfirm,
+              cancelLabel: l10n.commonCancel,
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
+              validate: (text) {
+                final value = double.tryParse(text);
+                return value != null && value.isFinite && value > 0
+                    ? null
+                    : l10n.v4RateInvalid;
+              },
+              onCancel: () => Navigator.pop(context),
+              onConfirm: (value) => Navigator.pop(context, value)));
+      if (entered != null && mounted) {
+        setState(() {
+          _rateStr = entered;
+          _rateManuallySet = true;
+        });
+      }
+      return;
+    }
+    final ctrl = TextEditingController(
+        text: _rateStr ?? _currentRate()?.toStringAsPrecision(6) ?? '');
+    final entered = await showDialog<String>(
+      context: context,
+      builder: (dctx) => _editorDialog(
+        title: Text(l10n.txRateLabel),
+        content: TextField(
+          controller: ctrl,
+          autofocus: true,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          decoration: InputDecoration(
+            hintText:
+                '1 ${_txCurrency()} = ? ${ref.read(currentLedgerCurrencyProvider)}',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dctx),
+            child: Text(AppLocalizations.of(dctx).commonCancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dctx, ctrl.text.trim()),
+            child: Text(AppLocalizations.of(dctx).commonConfirm),
+          ),
+        ],
+      ),
+    );
+    if (entered == null || !mounted) return;
+    final v = double.tryParse(entered);
+    if (v == null || !v.isFinite || v <= 0) return;
+    setState(() {
+      _rateStr = entered;
+      _rateManuallySet = true;
+    });
+  }
+
+  /// 币种标(金额表达式最左):点开即选(币种优先联动:选后账户重置、账户
+  /// 列表按新币种过滤)。转账不显示:转账币种恒=账户币种,选了也会被忽略。
+  Widget _buildCurrencyChip(BuildContext context) {
+    final transfer = widget.transactionKind == 'transfer';
+    if (transfer && !widget.cardLayout) return const SizedBox.shrink();
+    ref.watch(currentLedgerCurrencyProvider);
+    final currency = _txCurrency();
+    return RecordingCurrencyControl(
+        currency: currency,
+        onTap: transfer ? null : _pickCurrency,
+        legacy: !widget.cardLayout,
+        leading: widget.cardLayout
+            ? null
+            : currencyFlag(context, currency,
+                width: 19, height: 14, radius: 4));
+  }
+
+  /// 折算预览(仅外币时出现,金额下方右对齐一行,反馈9):`≈ 86.40 CNY`。
+  /// 汇率数字不展示(自动拉取内部使用);获取失败时本行变错误提示,可点手填(L8)。
+  Widget _buildCurrencySection(BuildContext context) {
+    if (widget.transactionKind == 'transfer' && !widget.cardLayout) {
+      return const SizedBox.shrink();
+    }
+    final l10n = AppLocalizations.of(context);
+    final ledgerBase = ref.watch(currentLedgerCurrencyProvider);
+    ref.watch(effectiveRatesForLedgerProvider);
+    final txCurrency = _txCurrency();
+    final isForeign = txCurrency != ledgerBase;
+    if (!isForeign) return const SizedBox.shrink();
+
+    final rate = _currentRate();
+    if (rate == null && !_fetchingRate) {
+      // 外币无汇率 → 自动拉一次(post-frame 防 build 中副作用;方法内幂等防重)
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _maybeAutoFetchRate();
+      });
+    }
+    final current = double.tryParse(_amountStr) ?? 0.0;
+    final amount = _op == null ? current : _compute(_acc, _op!, current).abs();
+    final preview = (rate != null && rate > 0) ? (amount * rate) : null;
+    final rateMissing = rate == null && !_fetchingRate;
+
+    if (widget.cardLayout) {
+      return RecordingConversionSummary(
+          key: const ValueKey('recording-conversion'),
+          label: l10n.v4RecordingConvertedLabel(ledgerBase),
+          value: preview != null
+              ? '≈ ${getCurrencySymbol(ledgerBase)}${preview.toStringAsFixed(2)}'
+              : _fetchingRate
+                  ? '…'
+                  : l10n.txRateMissingHint,
+          isError: rateMissing,
+          onTap: _editRate);
+    }
+
+    return RecordingConversionHint(
+        text: preview != null
+            ? l10n.txConvertedPreview(preview.toStringAsFixed(2), ledgerBase)
+            : _fetchingRate
+                ? '≈ … $ledgerBase'
+                : l10n.txRateMissingHint,
+        error: rateMissing,
+        onTap: rateMissing ? _editRate : null);
+  }
+
+  void _append(String s) {
+    setState(() {
+      if (s == '.') {
+        if (_amountStr.contains('.')) return;
+      }
+      // 限制两位小数
+      if (_amountStr.contains('.')) {
+        final dot = _amountStr.indexOf('.');
+        final decimals = _amountStr.length - dot - 1;
+        if (s != '.' && decimals >= 2) return;
+      }
+      // 去除前导 0
+      if (_amountStr == '0' && s != '.') {
+        _amountStr = s;
+      } else if (_amountStr == '-0' && s != '.') {
+        _amountStr = '-$s';
+      } else {
+        _amountStr += s;
+      }
+    });
+    SystemSound.play(SystemSoundType.click);
+  }
+
+  void _backspace() {
+    setState(() {
+      if (_amountStr.isEmpty) return;
+      _amountStr = _amountStr.substring(0, _amountStr.length - 1);
+      if (_amountStr.isEmpty) _amountStr = '0';
+    });
+    SystemSound.play(SystemSoundType.click);
+  }
+
+  Future<void> _submit({required bool continueAdding}) async {
+    if (_isSubmitting || !mounted || !widget.canSubmit) return;
+    if (widget.cardLayout &&
+        _selectedAccountId != null &&
+        _selectedAccountCurrency == null) {
+      return;
+    }
+
+    final current = double.tryParse(_amountStr) ?? 0.0;
+    final total = _op == null ? current : _compute(_acc, _op!, current);
+    if (!total.isFinite || total.abs() <= 0) return;
+
+    setState(() => _isSubmitting = true);
+
+    // v30:折本位币快照。外币且汇率无效 → 阻断(L8)。
+    final txCurrency = _txCurrency();
+    final ledgerBase = ref.read(currentLedgerCurrencyProvider);
+    double? nativeAmount;
+    if (txCurrency == ledgerBase) {
+      nativeAmount = total.abs();
+    } else {
+      final rate = _currentRate();
+      if (rate == null || rate <= 0) {
+        if (mounted) {
+          setState(() => _isSubmitting = false);
+          showBeeToast(context, AppLocalizations.of(context).txRateMissingHint,
+              tone: BeeTone.warning);
+        }
+        return;
+      }
+      nativeAmount = total.abs() * rate;
+    }
+    if (!nativeAmount.isFinite) {
+      setState(() => _isSubmitting = false);
+      showBeeToast(context, AppLocalizations.of(context).v4RecordingSaveFailed,
+          tone: BeeTone.error);
+      return;
+    }
+
+    HapticFeedback.lightImpact();
+    SystemSound.play(SystemSoundType.click);
+    try {
+      await widget.onSubmit((
+        amount: total.abs(), // 始终正数
+        continueAdding: continueAdding,
+        note: _noteCtrl.text.isEmpty ? null : _noteCtrl.text,
+        date: _date,
+        accountId: _selectedAccountId,
+        tagIds: _selectedTagIds,
+        pendingAttachments: _pendingAttachments,
+        excludeFromStats: _excludeFromStats,
+        excludeFromBudget: (widget.transactionKind == 'expense' ||
+                widget.transactionKind == 'transfer') &&
+            _excludeFromBudget,
+        currencyCode: txCurrency,
+        nativeAmount: nativeAmount,
+      ));
+    } catch (_) {
+      if (mounted) {
+        showBeeToast(context, AppLocalizations.of(context).v4RecordingSaveFailed,
+            tone: BeeTone.error);
+      }
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
+  }
+
+  // 旧 _toggleSign 已废弃，符号由类别含义决定
+
+  // _setToday 移除，改为点击日历按钮选择日期
+
+  void _pickDate() async {
+    // 关闭键盘，避免选择日期后键盘重新弹出
+    FocusManager.instance.primaryFocus?.unfocus();
+
+    // 等待键盘完全关闭
+    await Future.delayed(const Duration(milliseconds: 100));
+
+    if (!mounted) return;
+
+    final showTime = ref.read(showTransactionTimeProvider);
+
+    if (showTime) {
+      // 显示时间功能开启时，使用两步选择器（先日期后时间）
+      final res = await showWheelDateTimePicker(
+        context,
+        initial: _date,
+        maxDate: DateTime.now(),
+      );
+      if (res != null && mounted) setState(() => _date = res);
+    } else {
+      // 普通模式，只选择日期
+      final res = await showWheelDatePicker(
+        context,
+        initial: _date,
+        mode: WheelDatePickerMode.ymd,
+        maxDate: DateTime.now(),
+      );
+      if (res != null && mounted) setState(() => _date = res);
+    }
+  }
+
+  /// 用 Decimal 精确运算(避免浮点漂移,如 0.1+0.2),左到右无运算符优先级,
+  /// 除零保护;结果四舍五入到最多两位小数(金额精度)。
+  double _compute(double a, String op, double b) {
+    final da = Decimal.parse(a.toStringAsFixed(2));
+    final db = Decimal.parse(b.toStringAsFixed(2));
+    final Decimal r;
+    switch (op) {
+      case '+':
+        r = da + db;
+        break;
+      case '-':
+        r = da - db;
+        break;
+      case '×':
+        r = da * db;
+        break;
+      case '÷':
+        if (db == Decimal.zero) return a; // 除零保护:保持被除数不变
+        r = (da.toRational() / db.toRational())
+            .toDecimal(scaleOnInfinitePrecision: 12);
+        break;
+      default:
+        return b;
+    }
+    return r.round(scale: 2).toDouble();
+  }
+
+  /// 运算符显示字形(减号用真减号 −,而非连字符 -)。
+  String _opGlyph(String op) {
+    switch (op) {
+      case '-':
+        return '−';
+      case '×':
+        return '×';
+      case '÷':
+        return '÷';
+      default:
+        return '+';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+
+    // 如果备注框有焦点且键盘弹出，固定增加100的padding
+    final extraPadding =
+        (_noteFieldHasFocus && keyboardHeight > 0) ? 100.0 : 0.0;
+
+    double parsed() => double.tryParse(_amountStr) ?? 0.0;
+
+    void applyOp(String op) {
+      final cur = parsed();
+      if (_op == null) {
+        // 首次点击运算符，将当前值存入累加器
+        _acc = cur;
+      } else {
+        // 左到右:先把上一个运算符算掉
+        _acc = _compute(_acc, _op!, cur);
+      }
+      _op = op;
+      _amountStr = '0';
+      HapticFeedback.selectionClick();
+      SystemSound.play(SystemSoundType.click);
+      setState(() {});
+    }
+
+    // 计算等号：完成当前运算，将结果存入 _amountStr，清空运算状态
+    void applyEquals() {
+      if (_op == null) return; // 没有运算符，不执行
+      final cur = parsed();
+      final total = _compute(_acc, _op!, cur);
+      // 格式化结果
+      final s = total.abs().toStringAsFixed(2);
+      final trimmed = s.contains('.')
+          ? s.replaceFirst(RegExp(r'0+$'), '').replaceFirst(RegExp(r'\.$'), '')
+          : s;
+      _amountStr = trimmed.isEmpty ? '0' : trimmed;
+      _acc = 0;
+      _op = null;
+      HapticFeedback.selectionClick();
+      SystemSound.play(SystemSoundType.click);
+      setState(() {});
+    }
+
+    String fmtDate(DateTime d) => '${d.year}/${d.month}/${d.day}';
+    String fmtTime(DateTime d) =>
+        '${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}:${d.second.toString().padLeft(2, '0')}';
+    final showTime = ref.watch(showTransactionTimeProvider);
+
+    if (widget.cardLayout) {
+      return _buildCardLayout(context, applyOp, applyEquals);
+    }
+
+    return SafeArea(
+      top: false,
+      child: AnimatedPadding(
+        duration: const Duration(milliseconds: 100),
+        padding: EdgeInsets.fromLTRB(
+          16,
+          12,
+          16,
+          16 + extraPadding,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            RecordingLegacyAmount(
+                amount: _amountStr,
+                currency: _buildCurrencyChip(context),
+                authors: widget.editingTransactionId == null
+                    ? null
+                    : _TxAuthorAvatars(
+                        editingTransactionId: widget.editingTransactionId!),
+                accumulated: _acc
+                    .abs()
+                    .toStringAsFixed(2)
+                    .replaceFirst(RegExp(r'\.?0+$'), ''),
+                operator: _op == null ? null : _opGlyph(_op!),
+                result: _op == null
+                    ? null
+                    : _compute(_acc, _op!, parsed())
+                        .abs()
+                        .toStringAsFixed(2)
+                        .replaceFirst(RegExp(r'\.?0+$'), ''),
+                conversion: _buildCurrencySection(context)),
+            const SizedBox(height: 10),
+            RecordingNoteField(
+                focusNode: _noteFocusNode,
+                controller: _noteCtrl,
+                hint: AppLocalizations.of(context).commonNoteHint,
+                inline: false,
+                historyLabel:
+                    AppLocalizations.of(context).appearanceNoteHistory,
+                onHistory: _frequentNotes.isEmpty
+                    ? null
+                    : () async {
+                        await showDialog(
+                            context: context,
+                            builder: (context) => NotePickerDialog(
+                                ledgerId: widget.ledgerId,
+                                categoryId: widget.categoryId,
+                                categorySyncId: widget.categorySyncId,
+                                onNotePicked: (note) => setState(() {
+                                      _noteCtrl.text = note;
+                                      _noteCtrl.selection =
+                                          TextSelection.collapsed(
+                                              offset: note.length);
+                                    })));
+                      }),
+            // 账户选择（仅在启用时显示）
+            if (widget.showAccountPicker) ...[
+              const SizedBox(height: 8),
+              Consumer(
+                builder: (context, ref, child) {
+                  // 检查账户功能是否启用
+                  final accountFeatureAsync =
+                      ref.watch(accountFeatureEnabledProvider);
+                  return accountFeatureAsync.when(
+                    data: (enabled) {
+                      if (!enabled) return const SizedBox.shrink();
+
+                      // 使用新的横滑账户选择器
+                      return AccountSelector(
+                        selectedAccountId: _selectedAccountId,
+                        ledgerId: widget.ledgerId,
+                        // 币种优先联动:账户列表只显示当前所选币种的账户
+                        filterCurrency: _txCurrency(),
+                        // 账户隐藏(#240)E1 钉住:该笔交易本来挂的账户(编辑
+                        // 态)若已被隐藏,选择器补回并打灰标,可原样保存。
+                        pinnedAccountId: widget.initialAccountId,
+                        onAccountSelected: (accountId) {
+                          setState(() {
+                            _accountChoiceTouched = true;
+                            _selectedAccountId = accountId;
+                            _selectedAccountCurrency = null; // 异步刷新
+                          });
+                          if (accountId != null) {
+                            _loadAccountCurrency(accountId);
+                          }
+                        },
+                      );
+                    },
+                    loading: () => const SizedBox.shrink(),
+                    error: (_, __) => const SizedBox.shrink(),
+                  );
+                },
+              ),
+            ],
+            // 标签和附件选择区域（一行）
+            const SizedBox(height: 8),
+            _buildTagAndAttachmentRow(),
+            const SizedBox(height: 10),
+            RecordingLegacyKeypad(
+                onDigit: _append,
+                onBackspace: _backspace,
+                onOperator: applyOp,
+                firstMultiplies: _mulKey1,
+                secondDivides: _mulKey2,
+                onToggleFirst: () => setState(() => _mulKey1 = !_mulKey1),
+                onToggleSecond: () => setState(() => _mulKey2 = !_mulKey2),
+                onDate: () {
+                  SystemSound.play(SystemSoundType.click);
+                  _pickDate();
+                },
+                dateLabel: fmtDate(_date),
+                timeLabel: showTime ? fmtTime(_date) : null,
+                calculating: _op != null,
+                saving: _isSubmitting,
+                enabled: (_op != null || parsed().abs() > 0) && !_isSubmitting,
+                continueAdding: widget.allowContinueAdding,
+                finishLabel: AppLocalizations.of(context).commonFinish,
+                doubleTapLabel:
+                    AppLocalizations.of(context).transactionDoubleTapHint,
+                onFinish: () {
+                  if (_op != null) {
+                    applyEquals();
+                    return;
+                  }
+                  if (!widget.allowContinueAdding) {
+                    _submit(continueAdding: false);
+                    return;
+                  }
+                  if (_finishTapTimer != null) {
+                    _finishTapTimer!.cancel();
+                    _finishTapTimer = null;
+                    _submit(continueAdding: true);
+                    return;
+                  }
+                  _finishTapTimer =
+                      Timer(const Duration(milliseconds: 300), () {
+                    _finishTapTimer = null;
+                    _submit(continueAdding: false);
+                  });
+                }),
+          ],
+        ),
+      ),
+    );
+  }
+
+  bool get _hasCardDraft =>
+      widget.externalDraftChanged ||
+      _op != null ||
+      (double.tryParse(_amountStr) ?? 0) != (widget.initialAmount ?? 0) ||
+      _noteCtrl.text != (widget.initialNote ?? '') ||
+      _selectedAccountId != widget.initialAccountId ||
+      _pickedCurrency != widget.initialCurrencyCode?.toUpperCase() ||
+      _date != widget.initialDate ||
+      _pendingAttachments.isNotEmpty ||
+      _excludeFromStats != widget.initialExcludeFromStats ||
+      _excludeFromBudget != widget.initialExcludeFromBudget ||
+      _selectedTagIds.length != (widget.initialTagIds?.length ?? 0) ||
+      !_selectedTagIds.toSet().containsAll(widget.initialTagIds ?? []);
+
+  Future<void> _confirmCardDiscard() async {
+    if (_isSubmitting || _discardConfirmed) return;
+    // Android may deliver the same back action after hiding the IME. Dismiss
+    // inline editing first, keeping the draft and custom keypad in place.
+    if (_noteFocusNode.hasFocus) {
+      _noteFocusNode.unfocus();
+      return;
+    }
+    final l10n = AppLocalizations.of(context);
+    final discard = await showDialog<bool>(
+        context: context,
+        builder: (context) => _editorDialog(
+              title: Text(l10n.v4RecordingDiscardTitle),
+              content: Text(l10n.v4RecordingDiscardMessage),
+              actions: [
+                TextButton(
+                    onPressed: () => Navigator.pop(context, false),
+                    child: Text(l10n.commonCancel)),
+                FilledButton(
+                    onPressed: () => Navigator.pop(context, true),
+                    child: Text(l10n.commonConfirm)),
+              ],
+            ));
+    if (discard != true || !mounted) return;
+    setState(() => _discardConfirmed = true);
+    await WidgetsBinding.instance.endOfFrame;
+    if (mounted) Navigator.of(context).pop();
+  }
+
+  void _clearCardAmount() => setState(() {
+        _amountStr = '0';
+        _acc = 0;
+        _op = null;
+      });
+
+  Future<void> showRecordingOptions() => _showFlagsDialog();
+
+  Future<void> _pickCardAccount() async {
+    FocusManager.instance.primaryFocus?.unfocus();
+    await showBeeSheet<void>(
+      context,
+      title: AppLocalizations.of(context).accountSelectTitle,
+      child: SizedBox(
+          height: MediaQuery.sizeOf(context).height * .55,
+          child: AccountSelector(
+              expandedPicker: true,
+              selectedAccountId: _selectedAccountId,
+              ledgerId: widget.ledgerId,
+              filterCurrency: _txCurrency(),
+              pinnedAccountId: widget.initialAccountId,
+              onAccountSelected: (id) {
+                setState(() {
+                  _accountChoiceTouched = true;
+                  _selectedAccountId = id;
+                  _selectedAccountCurrency = null;
+                });
+                if (id != null) _loadAccountCurrency(id);
+                Navigator.pop(context);
+              })),
+    );
+  }
+
+  Future<void> _pickCardHistory() async {
+    FocusManager.instance.primaryFocus?.unfocus();
+    await showDialog<void>(
+        context: context,
+        builder: (_) => NotePickerDialog(
+            useV4: true,
+            ledgerId: widget.ledgerId,
+            categoryId: widget.categoryId,
+            categorySyncId: widget.categorySyncId,
+            onNotePicked: (note) => setState(() {
+                  _noteCtrl.text = note;
+                  _noteCtrl.selection =
+                      TextSelection.collapsed(offset: note.length);
+                })));
+  }
+
+  Future<void> _pickCardTags() async {
+    FocusManager.instance.primaryFocus?.unfocus();
+    final result =
+        await TagSelector.show(context, selectedTagIds: _selectedTagIds);
+    if (result != null && mounted) setState(() => _selectedTagIds = result);
+  }
+
+  Future<void> _pickCardLedger() async {
+    if (widget.onLedgerChanged == null) return;
+    FocusManager.instance.primaryFocus?.unfocus();
+    final l10n = AppLocalizations.of(context);
+    final selected = await showBeeSheet<int>(
+      context,
+      title: l10n.homeSwitchLedger,
+      child: SizedBox(
+        height: MediaQuery.sizeOf(context).height * .55,
+        child: Consumer(
+            builder: (context, ref, _) => ref.watch(ledgersStreamProvider).when(
+                  loading: () =>
+                      const Center(child: CircularProgressIndicator()),
+                  error: (_, __) => Center(child: Text(l10n.commonFailed)),
+                  data: (ledgers) => BeeLedgerPicker(
+                      ledgers: ledgers
+                          .map((ledger) => BeeLedgerChoice(
+                              id: '${ledger.id}',
+                              name: ledger.name,
+                              currency: ledger.currency))
+                          .toList(),
+                      currentId: '${widget.ledgerId}',
+                      searchLabel: l10n.commonSearch,
+                      emptyLabel: l10n.ledgersEmpty,
+                      currentLabel: l10n.commonCurrent,
+                      onSelected: (id) =>
+                          Navigator.pop(context, int.parse(id))),
+                )),
+      ),
+    );
+    if (!mounted || selected == null || selected == widget.ledgerId) return;
+    if (_hasCardDraft) {
+      final discard = await showDialog<bool>(
+          context: context,
+          builder: (context) => _editorDialog(
+                  title: Text(
+                      AppLocalizations.of(context).v4RecordingDiscardTitle),
+                  content: Text(
+                      AppLocalizations.of(context).v4RecordingDiscardMessage),
+                  actions: [
+                    TextButton(
+                        onPressed: () => Navigator.pop(context, false),
+                        child: Text(AppLocalizations.of(context).commonCancel)),
+                    FilledButton(
+                        onPressed: () => Navigator.pop(context, true),
+                        child:
+                            Text(AppLocalizations.of(context).commonConfirm)),
+                  ]));
+      if (discard != true || !mounted) return;
+    }
+    await widget.onLedgerChanged!(selected);
+  }
+
+  Widget _buildCardLayout(BuildContext context, ValueChanged<String> applyOp,
+      VoidCallback applyEquals) {
+    final l10n = AppLocalizations.of(context);
+    final current = double.tryParse(_amountStr) ?? 0;
+    final total = _op == null ? current : _compute(_acc, _op!, current);
+    final valid = widget.canSubmit &&
+        total.isFinite &&
+        total.abs() > 0 &&
+        !_isSubmitting &&
+        (_selectedAccountId == null || _selectedAccountCurrency != null);
+    final ledger = ref.watch(ledgerByIdProvider(widget.ledgerId)).valueOrNull;
+    final accountsEnabled = widget.showAccountPicker &&
+        (ref.watch(accountFeatureEnabledProvider).valueOrNull ?? false);
+    final account = _selectedAccountId == null
+        ? null
+        : ref.watch(_recordingAccountProvider(_selectedAccountId!)).valueOrNull;
+    final tags =
+        (ref.watch(tagsForCurrentLedgerProvider).valueOrNull ?? <Tag>[])
+            .where((tag) => _selectedTagIds.contains(tag.id))
+            .toList();
+    final savedAttachments = widget.editingTransactionId == null
+        ? <TransactionAttachment>[]
+        : ref
+                .watch(transactionAttachmentsProvider(
+                    widget.editingTransactionId!))
+                .valueOrNull ??
+            <TransactionAttachment>[];
+    final attachmentCount =
+        savedAttachments.length + _pendingAttachments.length;
+    final amount = _op == null
+        ? (_amountStr.contains('.') ? _amountStr : current.toStringAsFixed(2))
+        : '${_acc.toStringAsFixed(2)} ${_opGlyph(_op!)} $_amountStr';
+    Widget meta(String key, String icon, String label, VoidCallback onTap,
+            {Widget? child}) =>
+        RecordingMetaControl(
+            key: ValueKey(key),
+            label: label,
+            icon: icon,
+            onTap: onTap,
+            fontSize: MediaQuery.sizeOf(context).width <= 340 ? 11 : 12,
+            child: child);
+    final editingText = widget.systemKeyboardVisible;
+    // Use the full safe viewport, so opening the IME never switches density and
+    // removes a focused inline field on a tall phone.
+    final compact = MediaQuery.sizeOf(context).height -
+            MediaQuery.viewPaddingOf(context).vertical <
+        720;
+    final amountCard = RecordingAmountCard(
+        compact: compact,
+        currency: _buildCurrencyChip(context),
+        symbol:
+            _txCurrency() == 'USD' ? 'US\$' : getCurrencySymbol(_txCurrency()),
+        ledger: RecordingLedgerControl(
+            key: const ValueKey('recording-ledger'),
+            name: ledger?.name ?? '',
+            onTap: widget.onLedgerChanged == null ? null : _pickCardLedger),
+        amount: amount,
+        hint: _op == null
+            ? l10n.v4RecordingCalculationHint
+            : '= ${total.abs().toStringAsFixed(2)}',
+        conversion: _txCurrency() == ref.watch(currentLedgerCurrencyProvider)
+            ? null
+            : _buildCurrencySection(context));
+    final noteExpanded = !compact || _cardNoteExpanded;
+    final narrow = MediaQuery.sizeOf(context).width <= 340;
+    final dateLabel =
+        '${narrow ? '${_date.month}.${_date.day.toString().padLeft(2, '0')}' : DateFormat.MMMd(l10n.localeName).format(_date)}${ref.watch(showTransactionTimeProvider) ? ' ${_date.hour.toString().padLeft(2, '0')}:${_date.minute.toString().padLeft(2, '0')}' : ''}';
+    final metadata = RecordingDetailsCard(
+      noteExpanded: noteExpanded,
+      noteToggle: compact
+          ? RecordingNoteToggle(
+              key: const ValueKey('recording-note-compact'),
+              label: l10n.commonNoteHint,
+              expanded: noteExpanded,
+              onTap: () {
+                if (noteExpanded) _noteFocusNode.unfocus();
+                setState(() => _cardNoteExpanded = !noteExpanded);
+                if (!noteExpanded) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (mounted) _noteFocusNode.requestFocus();
+                  });
+                }
+              })
+          : null,
+      note: RecordingNoteField(
+          fieldKey: const ValueKey('recording-note'),
+          focusNode: _noteFocusNode,
+          controller: _noteCtrl,
+          hint: l10n.commonNoteHint,
+          onChanged: (_) => setState(() {}),
+          historyLabel: l10n.appearanceNoteHistory,
+          historyKey: const ValueKey('recording-note-history'),
+          onHistory: _pickCardHistory),
+      attachment: RecordingAttachmentControl(
+          key: const ValueKey('recording-attachments'),
+          label:
+              '${l10n.attachmentAdd}${attachmentCount == 0 ? '' : ' · $attachmentCount'}',
+          count: attachmentCount,
+          onTap: () => _handleAttachmentTap(savedAttachments)),
+      account: accountsEnabled
+          ? RecordingAccountControl(
+              key: const ValueKey('recording-account'),
+              label: account?.name ?? l10n.accountNone,
+              onTap: _pickCardAccount,
+              fontSize: narrow ? 11 : 12,
+              icon: account == null
+                  ? null
+                  : AccountTypeIcon(type: account.type, size: 18))
+          : null,
+      date: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: narrow ? 83 : 115),
+          child: meta('recording-date', narrow ? '' : 'CalendarDays', dateLabel,
+              _pickDate)),
+      tags: Align(
+          alignment: Alignment.centerRight,
+          widthFactor: noteExpanded ? null : 1,
+          child: meta(
+              'recording-tags',
+              tags.isEmpty ? 'Tag' : '',
+              compact && !noteExpanded ? '' : l10n.tagSelectTitle,
+              _pickCardTags,
+              child: tags.isEmpty
+                  ? null
+                  : RecordingTagSummary(
+                      count: tags.length,
+                      first: BeeTag(
+                          tag: _tagPresentation(tags.first), compact: true)))),
+    );
+
+    return PopScope(
+      canPop: !_isSubmitting && (_discardConfirmed || !_hasCardDraft),
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) _confirmCardDiscard();
+      },
+      child: AbsorbPointer(
+        absorbing: _isSubmitting,
+        child: RecordingFrame(
+            amount: amountCard,
+            details: metadata,
+            category: widget.categorySection ?? const SizedBox.shrink(),
+            authors: widget.editingTransactionId == null
+                ? null
+                : _TxAuthorAvatars(
+                    editingTransactionId: widget.editingTransactionId!),
+            compact: compact,
+            narrow: narrow,
+            transfer: widget.transactionKind == 'transfer',
+            keyboardVisible: editingText,
+            transparentDock: PageSkinBackdropScope.contains(context),
+            keypad: RecordingKeypad(
+                compact: compact,
+                onDigit: _append,
+                onOperator: applyOp,
+                onBackspace: _backspace,
+                onClear: _clearCardAmount,
+                deleteLabel: l10n.commonDelete),
+            actions: RecordingActions(
+                showSaveNext: widget.allowContinueAdding,
+                saveNextLabel: l10n.v4RecordingSaveNext,
+                onSaveNext: valid ? () => _submit(continueAdding: true) : null,
+                onEquals: applyEquals,
+                saving: _isSubmitting,
+                saveLabel: widget.canSubmit
+                    ? l10n.commonSave
+                    : widget.blockedSubmitLabel ??
+                        l10n.v4RecordingSelectCategory,
+                onSave: valid ? () => _submit(continueAdding: false) : null)),
+      ),
+    );
+  }
+
+  /// 构建标签和附件选择行（一行显示）
+  Widget _buildTagAndAttachmentRow() {
+    // §7 共享账本:用按当前 ledger 过滤后的 tags(Editor 视角下走 SharedLedgerTags,
+    // synthetic id 跟 tag picker 一致),否则编辑模式 tx 已选的 synthetic id 在
+    // 主表里找不到,显示"无标签"。
+    final allTagsAsync = ref.watch(tagsForCurrentLedgerProvider);
+    final allTags = allTagsAsync.valueOrNull ?? [];
+
+    // 获取已选中的标签详情
+    final selectedTags =
+        allTags.where((t) => _selectedTagIds.contains(t.id)).toList();
+
+    // 获取附件数量
+    if (widget.editingTransactionId != null) {
+      final attachmentsAsync = ref
+          .watch(transactionAttachmentsProvider(widget.editingTransactionId!));
+      // 同样使用 valueOrNull 避免闪烁
+      final attachments = attachmentsAsync.valueOrNull ?? [];
+      final totalCount = attachments.length + _pendingAttachments.length;
+      return _buildRowContent(selectedTags, totalCount, attachments);
+    }
+    return _buildRowContent(selectedTags, _pendingAttachments.length, []);
+  }
+
+  /// 交易标记弹窗：两个标记开关。
+  /// 可见性(01 §三):不计入收支 对 income/expense 显示;不计入预算 仅 expense。
+  /// 转账两个开关都不显示 → 旗标图标本身不渲染,不会触发此弹窗。
+  Future<void> _showFlagsDialog() async {
+    if (widget.transactionKind == 'transfer') return;
+    final l10n = AppLocalizations.of(context);
+    final primary = ref.watch(primaryColorProvider);
+    final kind = widget.transactionKind;
+    final showStats = kind != 'transfer';
+    final showBudget = kind == 'expense';
+
+    // 弹窗内用临时变量 + StatefulBuilder 实现实时切换,关闭时写回 sheet 状态。
+    bool stats = _excludeFromStats;
+    bool budget = _excludeFromBudget;
+
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (dialogContext, setDialogState) {
+            return _editorDialog(
+              backgroundColor: BeeTokens.surface(context),
+              title: Text(
+                l10n.txFlagDialogTitle,
+                style: TextStyle(
+                  color: BeeTokens.textPrimary(context),
+                  fontSize: 17.0.scaled(context, ref),
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              content: RecordingFlagsForm(
+                  titleSize: 15.0.scaled(context, ref),
+                  hintSize: 12.0.scaled(context, ref),
+                  options: [
+                    if (showStats)
+                      RecordingFlagOption(
+                          title: l10n.txFlagExcludeFromStats,
+                          hint: l10n.txFlagExcludeFromStatsHint,
+                          value: stats,
+                          onChanged: (v) {
+                            setDialogState(() => stats = v);
+                            setState(() => _excludeFromStats = v);
+                          }),
+                    if (showBudget)
+                      RecordingFlagOption(
+                          title: l10n.txFlagExcludeFromBudget,
+                          hint: l10n.txFlagExcludeFromBudgetHint,
+                          value: budget,
+                          onChanged: (v) {
+                            setDialogState(() => budget = v);
+                            setState(() => _excludeFromBudget = v);
+                          })
+                  ]),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(dialogContext).pop(),
+                  child: Text(
+                    AppLocalizations.of(context).commonConfirm,
+                    style: TextStyle(color: primary),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  BeeTagData _tagPresentation(Tag tag) {
+    final hex = tag.color?.replaceFirst('#', '');
+    final parsed = hex == null
+        ? null
+        : int.tryParse(hex.length == 6 ? 'ff$hex' : hex, radix: 16);
+    return BeeTagData('${tag.id}', tag.name,
+        parsed == null ? Theme.of(context).colorScheme.primary : Color(parsed));
+  }
+
+  Widget _buildRowContent(List<Tag> selectedTags, int attachmentCount,
+      List<TransactionAttachment> savedAttachments) {
+    final l10n = AppLocalizations.of(context);
+    return RecordingTagAttachmentBar(
+      tags: selectedTags
+          .map((tag) => BeeTag(tag: _tagPresentation(tag), compact: true))
+          .toList(),
+      emptyLabel: l10n.tagSelectTitle,
+      onTags: () async {
+        final result =
+            await TagSelector.show(context, selectedTagIds: _selectedTagIds);
+        if (result != null) setState(() => _selectedTagIds = result);
+      },
+      attachmentCount: attachmentCount,
+      onAttachments: () => _handleAttachmentTap(savedAttachments),
+      trailing: Row(mainAxisSize: MainAxisSize.min, children: _buildFlagIcon()),
+    );
+  }
+
+  /// 账单标记旗标图标:点击打开标记弹窗。
+  /// 可见性:转账(income/expense 均不适用)时整体不渲染。
+  /// active 态(任一标记为真)用主题色 + 实心旗;否则与附件图标一致的次级灰 + 空心旗。
+  List<Widget> _buildFlagIcon() {
+    final kind = widget.transactionKind;
+    final showStats = kind != 'transfer';
+    final showBudget = kind == 'expense';
+    // 两个开关都不适用(转账)→ 不显示旗标触发器
+    if (!showStats && !showBudget) return const [];
+
+    final active = _excludeFromStats || _excludeFromBudget;
+    return [
+      const SizedBox(width: 16),
+      RecordingFlagControl(
+          active: active,
+          label: AppLocalizations.of(context).txFlagDialogTitle,
+          onTap: _showFlagsDialog),
+    ];
+  }
+
+  Future<void> _handleAttachmentTap(
+      List<TransactionAttachment> savedAttachments) async {
+    final totalCount = savedAttachments.length + _pendingAttachments.length;
+
+    if (totalCount == 0) {
+      // 没有附件，直接添加
+      await _showAddAttachmentOptions();
+    } else {
+      // 有附件，打开预览页（支持添加和删除）
+      final result = await Navigator.push<List<File>?>(
+        context,
+        MaterialPageRoute(
+          builder: (_) => AttachmentPreviewPage(
+            attachments: savedAttachments,
+            initialIndex: 0,
+            allowDelete: true,
+            allowAdd: totalCount < AttachmentService.maxAttachments,
+            pendingFiles: _pendingAttachments,
+            onPendingFilesChanged: (files) {
+              if (mounted) setState(() => _pendingAttachments = files);
+            },
+            transactionId: widget.editingTransactionId,
+          ),
+        ),
+      );
+      // 如果返回了新的待上传文件列表，更新状态
+      if (result != null) {
+        setState(() {
+          _pendingAttachments = result;
+        });
+      }
+    }
+  }
+
+  Future<void> _showAddAttachmentOptions() async {
+    final l10n = AppLocalizations.of(context);
+    final service = ref.read(attachmentServiceProvider);
+    if (widget.cardLayout) {
+      final savedCount = widget.editingTransactionId == null
+          ? 0
+          : await ref.read(
+              attachmentCountProvider(widget.editingTransactionId!).future);
+      if (!mounted) return;
+      final files = await pickAttachmentFiles(context, ref,
+          remaining: AttachmentService.maxAttachments -
+              savedCount -
+              _pendingAttachments.length);
+      if (files.isEmpty || !mounted) return;
+      if (widget.editingTransactionId != null) {
+        await service.saveAttachments(
+            transactionId: widget.editingTransactionId!,
+            sourceFiles: files,
+            startIndex: savedCount);
+        ref.read(attachmentListRefreshProvider.notifier).state++;
+      } else {
+        setState(
+            () => _pendingAttachments = [..._pendingAttachments, ...files]);
+      }
+      return;
+    }
+    Future<void> camera() async {
+      Navigator.pop(context);
+      final file = await service.takePhoto();
+      if (file != null && mounted) {
+        if (widget.editingTransactionId != null) {
+          await service.saveAttachment(
+              transactionId: widget.editingTransactionId!,
+              sourceFile: file,
+              index: 0);
+          ref.read(attachmentListRefreshProvider.notifier).state++;
+        } else {
+          setState(() => _pendingAttachments = [..._pendingAttachments, file]);
+        }
+      }
+    }
+
+    Future<void> gallery() async {
+      Navigator.pop(context);
+      final files = await service.pickFromGallery(
+          maxCount: 9 - _pendingAttachments.length);
+      if (files.isNotEmpty && mounted) {
+        if (widget.editingTransactionId != null) {
+          await service.saveAttachments(
+              transactionId: widget.editingTransactionId!,
+              sourceFiles: files,
+              startIndex: 0);
+          ref.read(attachmentListRefreshProvider.notifier).state++;
+        } else {
+          setState(
+              () => _pendingAttachments = [..._pendingAttachments, ...files]);
+        }
+      }
+    }
+
+    await showModalBottomSheet<void>(
+        context: context,
+        builder: (_) => SafeArea(
+                child: Column(mainAxisSize: MainAxisSize.min, children: [
+              ListTile(
+                  leading: const Icon(Icons.camera_alt),
+                  title: Text(l10n.attachmentTakePhoto),
+                  onTap: camera),
+              ListTile(
+                  leading: const Icon(Icons.photo_library),
+                  title: Text(l10n.attachmentChooseFromGallery),
+                  onTap: gallery),
+            ])));
+  }
+}

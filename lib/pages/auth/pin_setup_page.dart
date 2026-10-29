@@ -1,11 +1,10 @@
-import '../../presentation/v4/bindings/page_scaffold.dart';
+import '../shared/scaffold/widgets/page_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:beecount_ui/beecount_ui.dart';
 import '../../providers/security_providers.dart';
 import '../../services/security/app_lock_service.dart';
-import '../../widgets/ui/ui.dart';
 import 'package:beecount_business_ui/beecount_business_ui.dart';
 import 'package:flutter/services.dart';
 import '../../l10n/app_localizations.dart';
@@ -91,7 +90,7 @@ class _PinSetupPageState extends ConsumerState<PinSetupPage> {
         if (!mounted) return;
         ref.read(appLockEnabledProvider.notifier).state = true;
         if (mounted) {
-          showToast(context, AppLocalizations.of(context).appLockPinSetSuccess);
+          showBeeToast(context, AppLocalizations.of(context).appLockPinSetSuccess);
           Navigator.pop(context, true);
         }
       } else {

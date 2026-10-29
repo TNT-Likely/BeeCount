@@ -9,12 +9,12 @@ import 'package:beecount/data/db.dart';
 import 'package:beecount/data/repositories/local/local_repository.dart';
 import 'package:beecount/l10n/app_localizations.dart';
 import 'package:beecount/pages/transaction/transaction_editor_page.dart';
-import 'package:beecount/presentation/v4/bindings/recording_category_section.dart';
+import 'package:beecount/pages/transaction/recording/bindings/recording_category_section.dart';
 import 'package:beecount/providers.dart';
 import 'package:beecount/utils/shared_ledger_picker_filter.dart';
-import 'package:beecount/widgets/biz/amount_editor_sheet.dart';
-import 'package:beecount/widgets/biz/account_selector.dart';
-import 'package:beecount/widgets/biz/note_picker_dialog.dart';
+import 'package:beecount/pages/transaction/recording/bindings/amount_editor_sheet.dart';
+import 'package:beecount/pages/shared/selectors/account_selector.dart';
+import 'package:beecount/pages/transaction/recording/bindings/note_picker_dialog.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -764,6 +764,36 @@ void main() {
         unorderedEquals([work, travel]));
     expect(tester.takeException(), isNull);
   });
+
+  for (final color in <String?>['#CC6600', '80336699', null, 'not-hex']) {
+    recordingTest('表单紧凑BeeTag保留真实标签全名及颜色回退 $color', (tester) async {
+      const name = '一个需要保留完整语义的很长标签名称';
+      final tagId = await repo.createTag(name: name, color: color);
+      await open(tester,
+          size: const Size(320, 568),
+          textScale: 1.4,
+          page: TransactionEditorPage(
+              initialKind: 'expense', quickAdd: true, initialTagIds: [tagId]));
+      final chip = tester.widget<BeeTag>(find.byType(BeeTag).first);
+      expect(chip.compact, isTrue);
+      expect(chip.tag.label, name);
+      expect(chip.tag.id, '$tagId');
+      final expected = color == '#CC6600'
+          ? const Color(0xffcc6600)
+          : color == '80336699'
+              ? const Color(0x80336699)
+              : Theme.of(tester.element(find.byType(BeeTag).first))
+                  .colorScheme
+                  .primary;
+      expect(chip.tag.color, expected);
+      expect(find.byTooltip(name), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('recording-tags')));
+      await tester.pumpAndSettle();
+      expect(find.byType(BeeTagPicker), findsOneWidget);
+      expect((await db.select(db.transactions).get()), isEmpty);
+      expect(tester.takeException(), isNull);
+    });
+  }
 
   recordingTest('保存期间防连点，后续写入失败可重试且不重复创建账单', (tester) async {
     final failing = RetryRecordingRepository(db);

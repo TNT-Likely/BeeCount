@@ -831,6 +831,21 @@
         "cancel-without-commit"
       ],
       "sampleCoverage": "真实组件在原Flutter分区中声明并渲染；原生验收另列，不以此清单宣称通过。"
+    },
+    {
+      "component": "TypewriterText",
+      "cases": [
+        24
+      ],
+      "supportedStates": [
+        "animated",
+        "immediate",
+        "empty",
+        "text-update",
+        "complete-callback",
+        "dispose-cancels-timer"
+      ],
+      "sampleCoverage": "逐字与关闭动效两种真实构造；重播按钮重新启动展示。"
     }
   ]
 }

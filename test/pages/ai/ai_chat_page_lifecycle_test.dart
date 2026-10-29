@@ -23,10 +23,10 @@ import 'package:beecount/services/ai/ai_bookkeeper.dart';
 import 'package:beecount/services/ai/ai_chat_service.dart';
 import 'package:beecount/services/ai/agent_app_facade.dart';
 import 'package:beecount/services/billing/bill_creation_service.dart';
-import 'package:beecount/widgets/ai/agent_brand_mark.dart';
-import 'package:beecount/widgets/ai/agent_execution_timeline.dart';
-import 'package:beecount/widgets/ai/agent_markdown_text.dart';
-import 'package:beecount/widgets/ai/bill_card_widget.dart';
+import 'package:beecount/pages/ai/chat/widgets/agent_brand_mark.dart';
+import 'package:beecount/pages/ai/chat/bindings/agent_execution_timeline.dart';
+import 'package:beecount/pages/ai/chat/widgets/agent_markdown_text.dart';
+import 'package:beecount/pages/ai/chat/widgets/bill_card_widget.dart';
 import 'package:drift/drift.dart' hide Column, isNull;
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
@@ -124,13 +124,17 @@ void main() {
         closeTo(12.6, .001));
     expect(tester.widget<ListView>(find.byType(ListView).first).padding,
         const EdgeInsets.symmetric(horizontal: 17, vertical: 8));
-    final css =
-        File('docs/design/card-refresh/prototype/src/ai-conversation.css')
-            .readAsStringSync();
+    final contract = jsonDecode(
+        File('tool/design/contracts/ai-conversation-geometry.json')
+            .readAsStringSync());
+    expect(style.fontSize, contract['answer']['fontSize']);
     expect(
-        css,
-        contains(
-            '.a85-messages .bc-chat-answer{font-size:14px;line-height:1.6}'));
+        tester.widget<ListView>(find.byType(ListView).first).padding,
+        EdgeInsets.symmetric(
+            horizontal:
+                (contract['messages']['paddingHorizontal'] as num).toDouble(),
+            vertical:
+                (contract['messages']['paddingVertical'] as num).toDouble()));
     await tester.pumpWidget(const SizedBox());
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
@@ -211,7 +215,10 @@ void main() {
       await tester.ensureVisible(find.text('qa-menu-target'));
       await tester.longPress(find.text('qa-menu-target'));
       await tester.pumpAndSettle();
-      expect(find.byType(PopupMenuItem<int>), findsNWidgets(2));
+      final actions = tester.widgetList<PopupMenuItem<String>>(
+          find.byType(PopupMenuItem<String>));
+      expect(actions.map((item) => item.value), ['copy', 'delete']);
+      expect(actions.every((item) => item.enabled), isTrue);
       await tester.tap(find.text(AppLocalizationsZh().commonDelete));
       await tester.pumpAndSettle();
       expect(find.text(AppLocalizationsZh().aiChatDeleteMessageConfirm),
@@ -701,12 +708,15 @@ void main() {
         find.ancestor(of: answer, matching: find.byType(BeeSurface)).first;
     expect(tester.getSize(card).width, 390 - 17 * 2);
     expect(tester.getSize(markdown).width, 390 - 17 * 2 - 16 * 2);
-    final css =
-        File('docs/design/card-refresh/prototype/src/ai-conversation.css')
-            .readAsStringSync();
-    expect(css, contains('padding:8px 17px'));
-    expect(css,
-        contains('.a85-messages>.bc-surface{margin:6px 0 12px;padding:16px}'));
+    final contract = jsonDecode(
+        File('tool/design/contracts/ai-conversation-geometry.json')
+            .readAsStringSync());
+    final expectedHorizontal =
+        (contract['messages']['paddingHorizontal'] as num).toDouble();
+    final answerPadding = (contract['answer']['padding'] as num).toDouble();
+    expect(tester.getSize(card).width, 390 - expectedHorizontal * 2);
+    expect(tester.getSize(markdown).width,
+        390 - expectedHorizontal * 2 - answerPadding * 2);
     final copy = find.byKey(ValueKey('agent-answer-copy-$messageId'));
     expect(tester.getTopLeft(copy).dy,
         greaterThan(tester.getBottomLeft(markdown).dy));

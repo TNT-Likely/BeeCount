@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:beecount/l10n/app_localizations.dart';
 import 'package:beecount/pages/settings/smart_billing_page.dart';
 import 'package:beecount/providers/attachment_settings_providers.dart';
-import 'package:beecount/widgets/biz/app_list_tile.dart';
+import 'package:beecount_ui/beecount_ui.dart';
 
 void main() {
   testWidgets('original attachment switch follows auto attachment and persists',
@@ -31,7 +31,7 @@ void main() {
     expect(tester.getTopLeft(title).dy,
         greaterThan(tester.getTopLeft(find.text('自动添加附件')).dy));
     expect(find.text('保留原图，增加存储和同步流量'), findsOneWidget);
-    final tile = find.ancestor(of: title, matching: find.byType(AppListTile));
+    final tile = find.ancestor(of: title, matching: find.byType(BeeToggleRow));
     final toggle = find.descendant(of: tile, matching: find.byType(Switch));
     expect(tester.widget<Switch>(toggle).value, isFalse);
     await tester.tap(toggle);

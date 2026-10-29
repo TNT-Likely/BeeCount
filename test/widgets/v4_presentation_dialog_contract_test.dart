@@ -3,7 +3,7 @@ import 'package:beecount/data/db.dart' as db;
 import 'package:beecount/l10n/app_localizations.dart';
 import 'package:beecount/pages/cloud/sync_preview_dialog.dart';
 import 'package:beecount/services/data_import_service.dart';
-import 'package:beecount/widgets/ui/dialog.dart';
+import 'package:beecount/pages/shared/dialogs/app_dialogs.dart';
 import 'package:beecount_business_ui/auto_billing.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';

@@ -1,3 +1,3 @@
 library;
 
-export 'src/support_components.dart';
+export 'src/app_profile/support_components.dart';

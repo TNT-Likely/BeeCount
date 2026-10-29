@@ -1,7 +1,7 @@
 import 'package:beecount/cloud/sync/change_tracker.dart';
 import 'package:beecount/data/db.dart';
 import 'package:beecount/data/repositories/local/local_repository.dart';
-import 'package:beecount/presentation/v4/bindings/transaction_batch.dart';
+import 'package:beecount/pages/transaction/search/bindings/transaction_batch.dart';
 import 'package:beecount/utils/shared_ledger_picker_filter.dart';
 import 'package:drift/drift.dart' as d;
 import 'package:drift/native.dart';

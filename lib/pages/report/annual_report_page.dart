@@ -1,6 +1,6 @@
 import 'package:beecount_business_ui/annual_report.dart';
 import 'package:beecount_ui/beecount_ui.dart';
-import '../../presentation/v4/bindings/annual_report_sections.dart';
+import 'annual/widgets/annual_report_sections.dart';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
@@ -11,8 +11,7 @@ import 'package:intl/intl.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers.dart';
 import '../../utils/month_range.dart';
-import '../../widgets/ui/ui.dart';
-import '../../widgets/posters/annual_report_poster.dart';
+import 'annual/bindings/annual_poster_projection.dart';
 import '../../data/db.dart';
 import '../../services/export/share_poster_types.dart';
 import '../../services/export/share_poster_service.dart';
@@ -472,7 +471,7 @@ class _AnnualReportPageState extends ConsumerState<AnnualReportPage> {
         loadingShown = false;
         Navigator.of(context, rootNavigator: true).pop();
       }
-      showToast(context, '${l10n.commonError}: $e');
+      showBeeToast(context, '${l10n.commonError}: $e');
     } finally {
       if (mounted) setState(() => _generatingPoster = false);
     }
@@ -582,7 +581,7 @@ class _AnnualReportPosterPreviewState
           _isGenerating = false;
           _hideIncome = previousHideIncome;
         });
-        showToast(context, AppLocalizations.of(context).commonError);
+        showBeeToast(context, AppLocalizations.of(context).commonError);
       }
     }
   }
@@ -649,14 +648,14 @@ class _AnnualReportPosterPreviewState
       if (!context.mounted) return;
       switch (result) {
         case SavePosterResult.success:
-          showToast(context, l.annualReportSaveSuccess);
+          showBeeToast(context, l.annualReportSaveSuccess);
           Navigator.pop(context);
           break;
         case SavePosterResult.accessDenied:
-          showToast(context, l.sharePosterPermissionDenied);
+          showBeeToast(context, l.sharePosterPermissionDenied);
           break;
         case SavePosterResult.failed:
-          showToast(context, l.sharePosterSaveFailed);
+          showBeeToast(context, l.sharePosterSaveFailed);
           break;
       }
     } finally {

@@ -6,17 +6,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/db.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers.dart';
-import '../../presentation/v4/bindings/page_scaffold.dart';
-import '../../presentation/v4/bindings/tag_detail.dart' show tagDetailColor;
-import '../../presentation/v4/bindings/tag_library_data.dart';
-import '../../presentation/v4/bindings/tag_library_files.dart';
+import '../shared/scaffold/widgets/page_scaffold.dart';
+import 'detail/bindings/tag_detail.dart' show tagDetailColor;
+import 'manage/bindings/tag_library_data.dart';
+import 'manage/bindings/tag_library_files.dart';
 import '../../services/billing/post_processor.dart';
 import '../../services/export/config_export_service.dart';
 import '../../services/system/logger_service.dart';
 import 'tag_detail_page.dart';
 import 'tag_edit_page.dart';
 
-part '../../presentation/v4/bindings/tag_library_actions.dart';
+part 'manage/bindings/tag_library_actions.dart';
 
 class TagManagePage extends ConsumerStatefulWidget {
   const TagManagePage({super.key, this.files = const TagLibraryFiles()});

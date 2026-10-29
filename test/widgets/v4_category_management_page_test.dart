@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:async';
 import 'dart:convert';
 import 'package:archive/archive.dart';
 import 'package:flutter/services.dart';
@@ -51,6 +52,32 @@ class _RetryCategories extends LocalRepository {
   Future<List<Category>> getSubCategories(int parentId) async {
     if (fail) throw StateError('Synthetic child load failure');
     return super.getSubCategories(parentId);
+  }
+}
+
+class _DelayedCategorySort extends LocalRepository {
+  _DelayedCategorySort(super.db);
+  final release = Completer<void>();
+  int writes = 0;
+  @override
+  Future<void> updateCategorySortOrders(
+      List<({int id, int sortOrder})> updates) async {
+    if (writes++ == 0) await release.future;
+    await super.updateCategorySortOrders(updates);
+  }
+}
+
+class _FailOnceCategorySort extends LocalRepository {
+  _FailOnceCategorySort(super.db);
+  bool fail = true;
+  @override
+  Future<void> updateCategorySortOrders(
+      List<({int id, int sortOrder})> updates) async {
+    if (fail) {
+      fail = false;
+      throw StateError('Synthetic sort write failure');
+    }
+    await super.updateCategorySortOrders(updates);
   }
 }
 
@@ -272,6 +299,148 @@ void main() {
     await ready(tester, find.text('排序乙'));
     expect(tester.getTopLeft(find.text('排序乙')).dy,
         lessThan(tester.getTopLeft(find.text('排序甲')).dy));
+    expect(tester.takeException(), isNull);
+    await close(tester);
+  });
+
+  testWidgets('拖动落位后离开页面，慢速写库完成仍持久化且不会访问已销毁的页面', (tester) async {
+    final first =
+        await repo.createCategory(name: '延迟甲', kind: 'expense', sortOrder: 0);
+    final second =
+        await repo.createCategory(name: '延迟乙', kind: 'expense', sortOrder: 1);
+    final delayed = _DelayedCategorySort(db);
+    repo = delayed;
+    container.dispose();
+    container = ProviderContainer(overrides: [
+      databaseProvider.overrideWithValue(db),
+      repositoryProvider.overrideWithValue(repo),
+      currentLedgerIdProvider.overrideWith((ref) => 1),
+      syncServiceProvider.overrideWithValue(LocalOnlySyncService()),
+    ]);
+    await open(tester);
+    final handle = find.byKey(ValueKey('category-reorder-$first'));
+    final gesture = await tester.startGesture(tester.getCenter(handle));
+    for (var i = 0; i < 10; i++) {
+      await gesture.moveBy(const Offset(0, 10));
+      await tester.pump(const Duration(milliseconds: 30));
+    }
+    await gesture.up();
+    await tester.pumpAndSettle();
+    expect(delayed.writes, 1);
+    await close(tester);
+    delayed.release.complete();
+    await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 100)));
+    await tester.pumpAndSettle();
+    final rows = await repo.getAllCategories();
+    expect(rows.singleWhere((c) => c.id == first).sortOrder, 1);
+    expect(rows.singleWhere((c) => c.id == second).sortOrder, 0);
+    expect(tester.takeException(), isNull);
+    await tester.pump(const Duration(seconds: 3));
+  });
+
+  testWidgets('快速连续拖动且第一次写库较慢，最终保存最后一次顺序并保持展开子分类', (tester) async {
+    final first =
+        await repo.createCategory(name: '连续甲', kind: 'expense', sortOrder: 0);
+    final second =
+        await repo.createCategory(name: '连续乙', kind: 'expense', sortOrder: 1);
+    final third =
+        await repo.createCategory(name: '连续丙', kind: 'expense', sortOrder: 2);
+    final child = await repo.createCategory(
+        name: '原子级', kind: 'expense', parentId: first, level: 2, sortOrder: 7);
+    final delayed = _DelayedCategorySort(db);
+    repo = delayed;
+    container.dispose();
+    container = ProviderContainer(overrides: [
+      databaseProvider.overrideWithValue(db),
+      repositoryProvider.overrideWithValue(repo),
+      currentLedgerIdProvider.overrideWith((ref) => 1),
+      syncServiceProvider.overrideWithValue(LocalOnlySyncService()),
+    ]);
+    await open(tester);
+    await tester.tap(find.text('连续甲'));
+    await tester.pumpAndSettle();
+    Future<void> move() async {
+      final handle = find.byKey(ValueKey('category-reorder-$first'));
+      final gesture = await tester.startGesture(tester.getCenter(handle));
+      for (var i = 0; i < 10; i++) {
+        await gesture.moveBy(const Offset(0, 10));
+        await tester.pump(const Duration(milliseconds: 30));
+      }
+      await gesture.up();
+      await tester.pumpAndSettle();
+    }
+
+    await move();
+    expect(tester.getTopLeft(find.text('连续乙')).dy,
+        lessThan(tester.getTopLeft(find.text('连续甲')).dy));
+    expect(tester.getTopLeft(find.text('连续甲')).dy,
+        lessThan(tester.getTopLeft(find.text('连续丙')).dy));
+    await move();
+    expect(tester.getTopLeft(find.text('连续丙')).dy,
+        lessThan(tester.getTopLeft(find.text('连续甲')).dy));
+    // Give a later write time to finish while the first remains blocked. An
+    // older slow write must never overwrite this latest accepted drop.
+    await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 100)));
+    await tester.pumpAndSettle();
+    delayed.release.complete();
+    await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 100)));
+    await tester.pumpAndSettle();
+    final rows = await repo.getAllCategories();
+    expect(
+        [second, third, first]
+            .map((id) => rows.singleWhere((c) => c.id == id).sortOrder),
+        [0, 1, 2]);
+    expect(rows.singleWhere((c) => c.id == child).parentId, first);
+    expect(rows.singleWhere((c) => c.id == child).sortOrder, 7);
+    expect(find.text('原子级'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await close(tester);
+  });
+
+  testWidgets('分类排序写库失败恢复原顺序并提示，再次拖动能正常保存', (tester) async {
+    final first =
+        await repo.createCategory(name: '失败甲', kind: 'expense', sortOrder: 0);
+    final second =
+        await repo.createCategory(name: '失败乙', kind: 'expense', sortOrder: 1);
+    repo = _FailOnceCategorySort(db);
+    container.dispose();
+    container = ProviderContainer(overrides: [
+      databaseProvider.overrideWithValue(db),
+      repositoryProvider.overrideWithValue(repo),
+      currentLedgerIdProvider.overrideWith((ref) => 1),
+      syncServiceProvider.overrideWithValue(LocalOnlySyncService()),
+    ]);
+    await open(tester);
+    Future<void> move() async {
+      final handle = find.byKey(ValueKey('category-reorder-$first'));
+      final gesture = await tester.startGesture(tester.getCenter(handle));
+      for (var i = 0; i < 10; i++) {
+        await gesture.moveBy(const Offset(0, 10));
+        await tester.pump(const Duration(milliseconds: 30));
+      }
+      await gesture.up();
+      await tester.pumpAndSettle();
+    }
+
+    await move();
+    expect(find.text(strings(tester).commonFailed), findsOneWidget);
+    expect(tester.getTopLeft(find.text('失败甲')).dy,
+        lessThan(tester.getTopLeft(find.text('失败乙')).dy));
+    expect(
+        (await repo.getAllCategories())
+            .singleWhere((c) => c.id == first)
+            .sortOrder,
+        0);
+    await move();
+    await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 100)));
+    await tester.pumpAndSettle();
+    final rows = await repo.getAllCategories();
+    expect(rows.singleWhere((c) => c.id == first).sortOrder, 1);
+    expect(rows.singleWhere((c) => c.id == second).sortOrder, 0);
     expect(tester.takeException(), isNull);
     await close(tester);
   });

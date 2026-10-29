@@ -1,4 +1,4 @@
-import '../../presentation/v4/bindings/page_scaffold.dart';
+import '../shared/scaffold/widgets/page_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

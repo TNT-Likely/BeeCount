@@ -6,7 +6,7 @@
 import 'package:flutter/material.dart';
 
 import '../../l10n/app_localizations.dart';
-import '../../widgets/biz/product_promo_card.dart';
+import '../../pages/settings/support/bindings/product_promo_actions.dart';
 
 /// 蜜蜂家当 BeeAssets — 资产可视化产品。
 ///

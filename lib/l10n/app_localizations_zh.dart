@@ -1027,7 +1027,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get categoryDefault => '默认分类';
 
   @override
-  String get categoryReorderTip => '长按分类可拖拽调整顺序';
+  String get categoryReorderTip => '拖动分类右侧的把手可调整顺序';
 
   @override
   String categoryLoadFailed(String error) {

@@ -17,16 +17,14 @@ class CoverageRejectionTests(unittest.TestCase):
         self.root = Path(self.temp.name)
         for relative in ('packages/beecount_ui/lib',
                          'packages/beecount_business_ui/lib',
-                         'lib/presentation/v4/gallery'):
+                         'lib/dev/component_gallery'):
             shutil.copytree(ROOT / relative, self.root / relative)
         for relative in ('tool/v4/component_coverage.json',
                          'tool/v4/component_catalog_coverage.json',
                          'tool/v4/foundation_inventory.json',
-                         'docs/design/card-refresh/components/samples.json',
-                         'docs/design/card-refresh/components/catalog.json',
-                         'docs/design/card-refresh/scripts/build-guide.cjs',
-                         'docs/design/card-refresh/prototype/src/refresh-component-catalog.cjs',
-                         'docs/design/card-refresh/prototype/src/resource-detail-samples.cjs'):
+                         'tool/design/contracts/card-refresh/components/samples.json',
+                         'tool/design/contracts/card-refresh/components/catalog.json',
+                         'tool/design/contracts/card-refresh/rendering-sources.json'):
             target = self.root / relative
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(ROOT / relative, target)
@@ -53,7 +51,7 @@ class CoverageRejectionTests(unittest.TestCase):
         self.check(1, 'AssertionError')
 
     def test_unknown_sample_rejected(self):
-        self.change('docs/design/card-refresh/components/samples.json',
+        self.change('tool/design/contracts/card-refresh/components/samples.json',
                     lambda value: value.update({'new-unmapped-sample': '<div></div>'}))
         self.check(1, 'AssertionError')
 
@@ -79,14 +77,24 @@ class CoverageRejectionTests(unittest.TestCase):
         self.check(1, 'no source construction/callback witness')
 
     def test_removed_inline_example_rejected(self):
-        path = self.root / 'lib/presentation/v4/gallery/foundation_page.dart'
+        path = self.root / 'lib/dev/component_gallery/foundation_page.dart'
         path.write_text(path.read_text().replace('BeeInlineLabel(', 'UnmappedLabel('))
         self.check(1, 'no source construction/callback witness')
 
     def test_removed_multi_select_example_rejected(self):
-        path = self.root / 'lib/presentation/v4/gallery/foundation_page.dart'
+        path = self.root / 'lib/dev/component_gallery/foundation_page.dart'
         path.write_text(path.read_text().replace('BeeMultiSelect<String>(', 'UnmappedSelect<String>('))
         self.check(1, 'no source construction/callback witness')
+
+    def test_removed_typewriter_example_rejected(self):
+        path = self.root / 'lib/dev/component_gallery/refresh_foundation_samples.dart'
+        path.write_text(path.read_text().replace('TypewriterText(', 'UnmappedText('))
+        self.check(1, 'no source construction/callback witness')
+
+    def test_removed_two_factor_gallery_callback_rejected(self):
+        path = self.root / 'lib/dev/component_gallery/extracted_component_samples.dart'
+        path.write_text(path.read_text().replace('BeeTwoFactorChallengeDialog(', 'UnmappedChallenge('))
+        self.check(1, 'Extracted business view has no gallery construction/callback witness')
 
     def test_missing_enhanced_card_rejected(self):
         self.change('tool/v4/component_catalog_coverage.json',
@@ -94,7 +102,7 @@ class CoverageRejectionTests(unittest.TestCase):
         self.check(1, 'Unmapped or stale HTML catalog cards')
 
     def test_new_unmapped_card_rejected(self):
-        self.change('docs/design/card-refresh/components/catalog.json', lambda value:
+        self.change('tool/design/contracts/card-refresh/components/catalog.json', lambda value:
                     value[0]['cards'].append(dict(value[0]['cards'][0], id='spec-2999')))
         self.check(1, 'Unmapped or stale HTML catalog cards')
 

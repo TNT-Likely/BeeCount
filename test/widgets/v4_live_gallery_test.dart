@@ -1,6 +1,6 @@
 import 'package:beecount/data/db.dart';
 import 'package:beecount/data/repositories/local/local_repository.dart';
-import 'package:beecount/presentation/v4/bindings/live_business_preview.dart';
+import 'package:beecount/dev/component_gallery/bindings/live_business_preview.dart';
 import 'package:beecount/providers.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

@@ -1,5 +1,5 @@
 {
-  "source": "docs/design/card-refresh/prototype/demo.html?page=flow-attachment-grid, then open u-attachment:1:1",
+  "source": "https://github.com/TNT-Likely/BeeCount-Design/blob/766f0a5dfdb6f114ec7f1fb57b3d9daf785a475f/card-refresh/prototype/demo.html?page=flow-attachment-grid, then open u-attachment:1:1",
   "designCommit": "7dbda6a",
   "measurement": "Chromium computed bounding boxes; normalized to the phone, 1 px phone border, no platform safe-area inset",
   "viewport": {"width": 398, "height": 844},

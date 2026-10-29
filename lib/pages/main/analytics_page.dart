@@ -5,14 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers.dart';
-import '../../widgets/ui/wheel_date_picker.dart';
-import '../../widgets/ui/toast.dart';
+import '../shared/pickers/wheel_date_picker.dart';
 import '../../services/export/share_poster_service.dart';
 import '../../utils/month_range.dart';
-import '../../presentation/v4/bindings/analytics_data.dart';
-import '../../presentation/v4/bindings/analytics_content.dart';
-import '../../presentation/v4/bindings/page_scaffold.dart';
-part '../../presentation/v4/bindings/analytics_actions.dart';
+import 'analytics/bindings/analytics_data.dart';
+import 'analytics/widgets/analytics_content.dart';
+import '../shared/scaffold/widgets/page_scaffold.dart';
+part 'analytics/bindings/analytics_actions.dart';
 
 class AnalyticsPage extends ConsumerStatefulWidget {
   const AnalyticsPage({super.key, this.showBack = false});

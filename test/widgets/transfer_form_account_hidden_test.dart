@@ -15,7 +15,7 @@ import 'package:beecount/data/db.dart';
 import 'package:beecount/data/repositories/local/local_repository.dart';
 import 'package:beecount/l10n/app_localizations.dart';
 import 'package:beecount/providers/database_providers.dart';
-import 'package:beecount/widgets/transaction/transfer_form.dart';
+import 'package:beecount/pages/transaction/recording/bindings/transfer_form.dart';
 
 void hiddenTransferTest(String name, Future<void> Function(WidgetTester) body) {
   testWidgets(name, (tester) async {

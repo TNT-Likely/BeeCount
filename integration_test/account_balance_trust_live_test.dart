@@ -9,7 +9,7 @@ import 'package:beecount/pages/account/accounts_page.dart';
 import 'package:beecount/pages/transaction/transaction_editor_page.dart';
 import 'package:beecount/pages/data/import_confirm_page.dart';
 import 'package:beecount/pages/data/import_page.dart';
-import 'package:beecount/widgets/biz/amount_editor_sheet.dart';
+import 'package:beecount/pages/transaction/recording/bindings/amount_editor_sheet.dart';
 import 'package:beecount/data/db.dart' as schema;
 import 'package:beecount/pages/main/home_page.dart';
 import 'package:beecount/providers/database_providers.dart';

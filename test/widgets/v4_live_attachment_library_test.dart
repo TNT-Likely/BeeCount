@@ -1,8 +1,8 @@
 import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:beecount/l10n/app_localizations.dart';
-import 'package:beecount/presentation/v4/bindings/attachment_library_preview.dart';
-import 'package:beecount/presentation/v4/bindings/file_workflow_preview.dart';
+import 'package:beecount/dev/component_gallery/bindings/attachment_library_preview.dart';
+import 'package:beecount/dev/component_gallery/bindings/file_workflow_preview.dart';
 import 'package:beecount/services/attachment_export_import_service.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';

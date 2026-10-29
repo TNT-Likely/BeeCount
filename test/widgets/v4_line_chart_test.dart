@@ -1,4 +1,4 @@
-import 'package:beecount/widgets/charts/line_chart.dart';
+import 'package:beecount/styles/tokens.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -34,7 +34,7 @@ void main() {
       values: <double>[30]
     ),
   ]) {
-    testWidgets('原绘制基准 ${s.name}：抽离后逐像素一致', (t) async {
+    testWidgets('BeeLineChart 保留原绘制基准 ${s.name}，不更新golden', (t) async {
       t.view.devicePixelRatio = 1;
       t.view.physicalSize = const Size(400, 240);
       addTearDown(t.view.resetDevicePixelRatio);
@@ -49,7 +49,7 @@ void main() {
                   child: SizedBox(
                       width: 400,
                       height: 240,
-                      child: LineChart(
+                      child: BeeLineChart(
                         values: s.values,
                         secondaryValues: s.name == 'light-dual'
                             ? const [20, 40, 0, 80]
@@ -61,7 +61,15 @@ void main() {
                         highlightIndex: s.values.length - 1,
                         onSwipeLeft: () {},
                         onSwipeRight: () {},
-                        showHint: false,
+                        averageColor: BeeTokens.secondaryTextStatic
+                            .withValues(alpha: .55),
+                        gridColor: BeeTokens.dividerStatic,
+                        backgroundColor: BeeTokens.dividerStatic,
+                        textColor:
+                            s.dark ? Colors.white : BeeTokens.primaryTextStatic,
+                        mutedColor: s.dark
+                            ? Colors.white70
+                            : BeeTokens.secondaryTextStatic,
                         themeColor: const Color(0xfff8c91c),
                         isDark: s.dark,
                         whiteBg: !s.dark,

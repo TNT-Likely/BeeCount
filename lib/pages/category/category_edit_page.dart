@@ -7,21 +7,20 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/db.dart' as db;
 import '../../l10n/app_localizations.dart';
 import '../../providers.dart';
-import '../../presentation/v4/bindings/category_icon_catalog.dart';
-import '../../presentation/v4/bindings/category_icon_draft.dart';
-import '../../presentation/v4/bindings/category_line_icon_names.dart';
-import '../../presentation/v4/bindings/page_scaffold.dart';
-import '../../presentation/v4/bindings/recording_category_icon.dart';
+import 'editor/bindings/category_icon_catalog.dart';
+import 'editor/bindings/category_icon_draft.dart';
+import 'editor/bindings/category_line_icon_names.dart';
+import '../shared/scaffold/widgets/page_scaffold.dart';
+import '../shared/resources/bindings/recording_category_icon.dart';
 import '../../services/billing/post_processor.dart';
 import '../../services/system/logger_service.dart';
 import '../../utils/category_utils.dart';
 import '../../data/repositories/local/local_repository.dart';
 import '../../utils/shared_ledger_picker_filter.dart';
-import '../../widgets/ui/ui.dart' show showToast;
 import '../transaction/category_detail_page.dart';
 import 'category_migration_page.dart';
 
-part '../../presentation/v4/bindings/category_edit_actions.dart';
+part 'editor/bindings/category_edit_actions.dart';
 
 class CategoryEditPage extends ConsumerStatefulWidget {
   const CategoryEditPage(

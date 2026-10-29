@@ -3,7 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../../utils/currencies.dart' show getCurrencySymbol;
-import '../../widgets/biz/format_money.dart' show formatMoneyCompact;
+import '../../utils/format_money.dart' show formatMoneyCompact;
 import '../widget_data_service.dart' show NetWorthAccountItem;
 import '../widget_spec.dart' show HWSize;
 import 'widget_view_style.dart';

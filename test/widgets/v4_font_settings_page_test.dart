@@ -1,7 +1,7 @@
 import 'package:beecount/l10n/app_localizations.dart';
 import 'package:beecount/pages/settings/font_settings_page.dart';
 import 'package:beecount/providers/font_scale_provider.dart';
-import 'package:beecount/presentation/v4/sections/font_settings_sections.dart';
+import 'package:beecount/pages/settings/font/widgets/font_settings_sections.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

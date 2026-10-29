@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:beecount/presentation/v4/bindings/category_line_icon_names.dart';
+import 'package:beecount/pages/category/editor/bindings/category_line_icon_names.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 

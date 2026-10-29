@@ -1,6 +1,6 @@
 import 'package:beecount/data/db.dart';
 import 'package:beecount/data/repositories/local/local_repository.dart';
-import 'package:beecount/presentation/v4/bindings/category_detail.dart';
+import 'package:beecount/pages/transaction/category_detail/bindings/category_detail.dart';
 import 'package:beecount/utils/shared_ledger_picker_filter.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';

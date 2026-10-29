@@ -3,12 +3,25 @@ from pathlib import Path
 import json
 import re
 import argparse
+import hashlib
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--root', type=Path,
                     default=Path(__file__).resolve().parents[2],
                     help='Repository root; an isolated metadata fixture may be used for rejection tests.')
-root = parser.parse_args().root.resolve()
+parser.add_argument('--design-root', type=Path, help='Optional BeeCount-Design/card-refresh directory for strict cross-repository source verification.')
+args = parser.parse_args()
+root = args.root.resolve()
+contract_root = root / 'tool/design/contracts/card-refresh'
+rendering = json.loads((contract_root / 'rendering-sources.json').read_text())
+assert rendering['schema'] == 1
+if args.design_root:
+    design_root = args.design_root.resolve()
+    for name in ('samples.json', 'catalog.json'):
+        assert (contract_root / 'components' / name).read_bytes() == (design_root / 'components' / name).read_bytes(), ('Design contract differs from locked snapshot', name)
+    for name, expected in rendering['sourceFiles'].items():
+        assert hashlib.sha256((design_root / name).read_bytes()).hexdigest() == expected, ('Design rendering source differs from locked snapshot', name)
+    print('PASS: independent design repository matches the local component contract snapshot.')
 coverage = json.loads((root / 'tool/v4/component_coverage.json').read_text())
 assert len({c['design_key'] for c in coverage}) == len(coverage)
 source = '\n'.join(p.read_text() for name in ('beecount_ui', 'beecount_business_ui')
@@ -16,16 +29,15 @@ source = '\n'.join(p.read_text() for name in ('beecount_ui', 'beecount_business_
 classes = set(re.findall(r'(?:class|enum)\s+(\w+)', source))
 case_counts = {}
 for page in ('foundation','business'):
-    dart = (root / f'lib/presentation/v4/gallery/{page}_page.dart').read_text()
+    dart = (root / f'lib/dev/component_gallery/{page}_page.dart').read_text()
     catalog = re.search(r'const '+page+r'Cases = \[(.*?)\];',dart,re.S).group(1)
     case_counts[page] = len(re.findall(r"'[^']*'",catalog))
 for row in coverage:
     assert set(row['components']) <= classes, row
     assert row['page'] in ('foundation', 'business')
     assert 0 <= row['case'] < case_counts[row['page']]
-design = root / 'docs/design/card-refresh/components/samples.json'
-if design.exists():
-    assert set(json.loads(design.read_text())) == {c['design_key'] for c in coverage}
+design = contract_root / 'components/samples.json'
+assert set(json.loads(design.read_text())) == {c['design_key'] for c in coverage}
 for name in ('beecount_ui', 'beecount_business_ui'):
     allowed = ('package:flutter/', 'package:beecount_ui/', 'dart:')
     if name == 'beecount_ui':
@@ -66,8 +78,8 @@ def close_delimiter(text, start, opening='{', closing='}'):
 
 nodes = {}
 helper_names = {'showBeeDialog', 'showBeeSheet', 'showBeeContextMenu'}
-gallery = root / 'lib/presentation/v4/gallery'
-for path in list((root / 'packages/beecount_ui/lib').rglob('*.dart')) + list(gallery.glob('*.dart')):
+gallery = root / 'lib/dev/component_gallery'
+for path in list((root / 'packages/beecount_ui/lib').rglob('*.dart')) + list((root / 'packages/beecount_business_ui/lib').rglob('*.dart')) + list(gallery.rglob('*.dart')):
     code = mask_dart(path.read_text())
     for match in re.finditer(r'\bclass\s+(\w+)', code):
         start = code.find('{', match.end())
@@ -128,24 +140,35 @@ unreachable = [{'component': row['component'], 'case': case}
 assert not unreachable, ('Foundational inventory has no source construction/callback witness', unreachable)
 print(f'PASS: all {len(base_widgets)} foundational widgets are source-reachable from their declared groups.')
 
-catalog = json.loads((root / 'docs/design/card-refresh/components/catalog.json').read_text())
+# Newly extracted views must remain reachable through their real host samples,
+# including a callback-opened dialog or screenshot browser.
+business_code = mask_dart((gallery / 'business_page.dart').read_text())
+start = business_code.index('{', business_code.index('=> switch (index)'))
+end = close_delimiter(business_code, start)
+switch = business_code[start:end]
+branches = list(re.finditer(r'^        (\d+|_)\s*=>', switch, re.M))
+business_sources = {match[1]: switch[match.end():branches[i + 1].start() if i + 1 < len(branches) else len(switch)]
+                    for i, match in enumerate(branches)}
+extracted_views = {
+    26: {'BeeTwoFactorChallengeDialog'},
+    63: {'BeeAnnualReportPoster'},
+    73: {'BeePromotionCard', 'BeePromotionCompact', 'BeePromotionDialog',
+         'BeePromotionScreenshot', 'BeePromotionGallery'},
+}
+for case, expected in extracted_views.items():
+    actual = reachable(business_sources[str(case)])
+    assert expected <= actual, ('Extracted business view has no gallery construction/callback witness', case, expected - actual)
+print('PASS: all 7 newly extracted business views have reachable gallery hosts.')
+
+catalog = json.loads((contract_root / 'components/catalog.json').read_text())
 actual_cards = {card['id']: (group['id'], card) for group in catalog for card in group['cards']}
 assert len(actual_cards) == sum(len(group['cards']) for group in catalog), 'Duplicate catalog ID'
 mapping = json.loads((root / 'tool/v4/component_catalog_coverage.json').read_text())['cards']
 assert len({card['id'] for card in mapping}) == len(mapping), 'Duplicate mapped catalog ID'
 assert {card['id'] for card in mapping} == actual_cards.keys(), 'Unmapped or stale HTML catalog cards'
-guide_source = (root / 'docs/design/card-refresh/scripts/build-guide.cjs').read_text()
-guide_ids = {'spec-' + str(int(value)) for value in re.findall(r"card\('(\d+) · ", guide_source)}
-enhanced = {}
-enhanced_paths = {}
-for source in ('refresh-component-catalog.cjs', 'resource-detail-samples.cjs'):
-    source_path = 'docs/design/card-refresh/prototype/src/' + source
-    enhanced_source = (root / source_path).read_text()
-    for ident, page, case in re.findall(r"\{id:(\d+),group:'(foundation|business)',case:(\d+),", enhanced_source):
-        key = 'spec-' + ident
-        assert key not in enhanced, ('Duplicate enhanced source', key)
-        enhanced[key] = (page, int(case))
-        enhanced_paths[key] = source_path
+guide_ids = set(rendering['guide_ids'])
+enhanced = {ident: (row['page'], row['case']) for ident, row in rendering['enhanced'].items()}
+enhanced_paths = {ident: row['source'] for ident, row in rendering['enhanced'].items()}
 assert guide_ids | enhanced.keys() == actual_cards.keys(), 'Catalog diverges from its rendering sources'
 assert not guide_ids & enhanced.keys(), 'Enhanced cards overwrite existing anchors'
 contracts = {row['design_key']: row for row in coverage}
@@ -158,7 +181,7 @@ for card in mapping:
     assert labels[card['case']] == card['nativeLabel'], ('Stale Flutter label/index', card['id'])
     assert card['components'] and set(card['components']) <= classes, card
     assert card['supportedStates'] and all(isinstance(s, str) and s.strip() for s in card['supportedStates']), card
-    assert (root / card['source']).is_file(), card
+    assert card['source'] in rendering['sourceFiles'], ('Unknown locked rendering source', card)
     assert set(card['design_keys']) <= contracts.keys(), card
     used_keys.update(card['design_keys'])
     if card['id'] in enhanced:

@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:beecount/l10n/app_localizations_zh.dart';
 import 'package:beecount/models/assistant_execution_metadata.dart';
-import 'package:beecount/widgets/ai/agent_execution_timeline.dart';
+import 'package:beecount/pages/ai/chat/bindings/agent_execution_timeline.dart';
 import 'package:flutter_agent_ui/flutter_agent_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';

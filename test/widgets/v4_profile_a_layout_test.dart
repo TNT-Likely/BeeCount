@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:beecount/presentation/v4/bindings/mine_avatar.dart';
-import 'package:beecount/widgets/biz/bee_icon.dart';
+import 'package:beecount/pages/main/mine/widgets/mine_avatar.dart';
+import 'package:beecount/pages/shared/branding/bee_artwork.dart';
 import 'package:beecount_business_ui/beecount_business_ui.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';

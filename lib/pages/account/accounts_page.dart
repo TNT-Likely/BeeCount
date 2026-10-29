@@ -1,8 +1,8 @@
-import '../../presentation/v4/bindings/account_sections.dart';
-import '../../presentation/v4/bindings/page_scaffold.dart';
+import 'overview/widgets/account_sections.dart';
+import '../shared/scaffold/widgets/page_scaffold.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:beecount_business_ui/beecount_business_ui.dart';
-import '../../widgets/biz/format_money.dart';
+import '../../utils/format_money.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -12,7 +12,6 @@ import 'package:collection/collection.dart';
 import '../../providers.dart';
 import '../../services/billing/post_processor.dart';
 import '../../services/currency/rate_math.dart';
-import '../../widgets/ui/ui.dart';
 import '../../data/db.dart' as db;
 import '../../l10n/app_localizations.dart';
 import '../../styles/tokens.dart';
@@ -25,8 +24,8 @@ import 'account_edit_page.dart';
 import 'account_detail_page.dart';
 import 'net_worth_trend_page.dart';
 
-part '../../presentation/v4/bindings/account_overview.dart';
-part '../../presentation/v4/bindings/assets_card_actions.dart';
+part 'overview/bindings/account_overview.dart';
+part 'overview/bindings/assets_card_actions.dart';
 
 class AccountsPage extends ConsumerStatefulWidget {
   final bool asTab;

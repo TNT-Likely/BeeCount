@@ -5,7 +5,7 @@ import 'package:beecount/l10n/app_localizations.dart';
 import 'package:beecount/providers.dart';
 import 'package:beecount/providers/shared_ledger_providers.dart';
 import 'package:beecount/utils/shared_ledger_picker_filter.dart';
-import 'package:beecount/widgets/biz/category_selector_dialog.dart';
+import 'package:beecount/pages/shared/selectors/category_selector_dialog.dart';
 import 'package:beecount_business_ui/beecount_business_ui.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:drift/native.dart';

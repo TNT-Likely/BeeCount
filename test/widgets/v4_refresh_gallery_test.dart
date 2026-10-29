@@ -1,7 +1,7 @@
 import 'package:beecount/l10n/app_localizations.dart';
-import 'package:beecount/presentation/v4/gallery/foundation_page.dart';
-import 'package:beecount/presentation/v4/gallery/business_page.dart';
-import 'package:beecount/presentation/v4/gallery/refresh_business_samples.dart';
+import 'package:beecount/dev/component_gallery/foundation_page.dart';
+import 'package:beecount/dev/component_gallery/business_page.dart';
+import 'package:beecount/dev/component_gallery/refresh_business_samples.dart';
 import 'package:beecount_business_ui/card_refinements.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';

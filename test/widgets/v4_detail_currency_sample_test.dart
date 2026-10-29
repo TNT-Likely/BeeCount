@@ -1,8 +1,8 @@
 import 'package:beecount/data/db.dart';
 import 'package:beecount/data/repositories/local/local_repository.dart';
 import 'package:beecount/l10n/app_localizations.dart';
-import 'package:beecount/presentation/v4/bindings/detail_currency_preview.dart';
-import 'package:beecount/presentation/v4/gallery/detail_currency_sample.dart';
+import 'package:beecount/dev/component_gallery/bindings/detail_currency_preview.dart';
+import 'package:beecount/dev/component_gallery/detail_currency_sample.dart';
 import 'package:beecount/providers.dart';
 import 'package:beecount_business_ui/beecount_business_ui.dart';
 import 'package:beecount_business_ui/detail_currency.dart';

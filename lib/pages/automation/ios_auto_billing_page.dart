@@ -4,8 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../l10n/app_localizations.dart';
-import '../../presentation/v4/bindings/ios_auto_billing_actions.dart';
-import '../../widgets/ui/toast.dart';
+import 'ios/bindings/ios_auto_billing_actions.dart';
 
 /// iOS screenshot recognition retains its existing Shortcuts import and manual
 /// fallback. This page never enables Android screenshot monitoring.
@@ -28,10 +27,10 @@ class _IOSAutoBillingPageState extends ConsumerState<IOSAutoBillingPage> {
       final actions = ref.read(iosAutoBillingActionsProvider);
       final ok =
           await (shortcut ? actions.openShortcut() : actions.openTutorial());
-      if (!ok && shortcut && mounted) showToast(context, l.iosAutoImportFailed);
+      if (!ok && shortcut && mounted) showBeeToast(context, l.iosAutoImportFailed);
     } catch (error) {
       if (mounted) {
-        showToast(context, shortcut ? l.iosAutoImportFailed : l.commonError);
+        showBeeToast(context, shortcut ? l.iosAutoImportFailed : l.commonError);
       }
     } finally {
       if (mounted) {

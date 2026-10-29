@@ -25,12 +25,12 @@ from android_version_code import MAX_VERSION_CODE, parse_version, validate_candi
 PACKAGE = "com.tntlikely.beecount"
 ABI = "arm64-v8a"
 REGISTRY_HEADER = {"kind": "beecount-delivered-apk-registry", "schemaVersion": 1}
-GALLERY = "lib/presentation/v4/gallery"
+GALLERY = "lib/dev/component_gallery"
 GALLERY_ENTRY = GALLERY + "/component_gallery_page.dart"
 GENERATED_REGISTRANT = "android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java"
 GALLERY_IMPORTERS = {
     "lib/pages/main/home_page.dart",
-    "lib/presentation/v4/bindings/support_about_controls.dart",
+    "lib/pages/settings/about/bindings/support_about_controls.dart",
 }
 CREDENTIAL_ENV = {
     "storeFile": "BEECOUNT_APK_STORE_FILE",
@@ -368,7 +368,7 @@ def release_overlay(source: Path):
                     "发现未审核的 gallery 入口，拒绝自动发布 overlay")
             guards = {
                 "lib/pages/main/home_page.dart": r"case\s+'components':\s*if\s*\(kDebugMode\)\s*\{[^}]{0,500}\bComponentGalleryPage\s*\(",
-                "lib/presentation/v4/bindings/support_about_controls.dart": r"if\s*\(kDebugMode\)\s*BeeSupportActions\([\s\S]{0,1000}\bComponentGalleryPage\s*\(",
+                "lib/pages/settings/about/bindings/support_about_controls.dart": r"if\s*\(kDebugMode\)\s*BeeSupportActions\([\s\S]{0,1000}\bComponentGalleryPage\s*\(",
             }
             require(len(re.findall(r"\bComponentGalleryPage\s*\(", content)) == 1 and re.search(guards[relative], content),
                     "gallery 入口不再由已审查的 kDebugMode 分支保护")

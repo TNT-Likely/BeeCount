@@ -4,7 +4,7 @@ import 'package:beecount/data/repositories/local/local_repository.dart';
 import 'package:beecount/l10n/app_localizations.dart';
 import 'package:beecount/providers.dart';
 import 'package:beecount/utils/shared_ledger_picker_filter.dart';
-import 'package:beecount/widgets/transaction/transfer_form.dart';
+import 'package:beecount/pages/transaction/recording/bindings/transfer_form.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:beecount_business_ui/beecount_business_ui.dart';
 import 'package:drift/native.dart';

@@ -2,7 +2,7 @@ import 'package:beecount/ai/providers/ai_constants.dart';
 import 'package:beecount/ai/providers/ai_provider_manager.dart';
 import 'package:beecount/l10n/app_localizations.dart';
 import 'package:beecount/pages/settings/smart_billing_page.dart';
-import 'package:beecount/presentation/v4/bindings/smart_billing_entries.dart';
+import 'package:beecount/pages/settings/smart_billing/bindings/smart_billing_entries.dart';
 import 'package:beecount/providers/attachment_settings_providers.dart';
 import 'package:beecount/providers/smart_billing_providers.dart';
 import 'package:beecount/providers/voice_billing_providers.dart';

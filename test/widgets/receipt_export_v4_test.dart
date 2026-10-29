@@ -1,8 +1,8 @@
 import 'dart:io';
 import 'package:beecount/data/db.dart';
 import 'package:beecount/l10n/app_localizations.dart';
-import 'package:beecount/widgets/biz/transaction_receipt_dialog.dart';
-import 'package:beecount/widgets/posters/transaction_receipt.dart';
+import 'package:beecount/pages/transaction/detail/bindings/transaction_receipt_dialog.dart';
+import 'package:beecount/pages/shared/sharing/bindings/transaction_receipt.dart';
 import 'package:beecount_business_ui/annual_report.dart';
 import 'package:beecount_ui/multi_select.dart';
 import 'package:flutter/material.dart';

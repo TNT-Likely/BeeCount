@@ -1961,7 +1961,7 @@ abstract class AppLocalizations {
   /// No description provided for @categoryReorderTip.
   ///
   /// In en, this message translates to:
-  /// **'Long press to drag and reorder categories'**
+  /// **'Drag the handle on the right to reorder categories'**
   String get categoryReorderTip;
 
   /// No description provided for @categoryLoadFailed.

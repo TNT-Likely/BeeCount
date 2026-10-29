@@ -4,13 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:beecount_business_ui/beecount_business_ui.dart';
-import '../../presentation/v4/bindings/recording_category_icon.dart';
-import '../../presentation/v4/bindings/page_scaffold.dart';
+import '../shared/resources/bindings/recording_category_icon.dart';
+import '../shared/scaffold/widgets/page_scaffold.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../providers.dart';
-import '../../widgets/ui/ui.dart';
 import '../../data/db.dart' as db;
 import '../../services/billing/post_processor.dart';
 import '../../services/category_package_service.dart';
@@ -20,8 +19,8 @@ import '../../l10n/app_localizations.dart';
 import '../../utils/category_utils.dart';
 import 'category_edit_page.dart';
 
-part '../../presentation/v4/bindings/category_management_actions.dart';
-part '../../presentation/v4/bindings/category_management_bindings.dart';
+part 'manage/bindings/category_management_actions.dart';
+part 'manage/bindings/category_management_bindings.dart';
 
 class CategoryManagePage extends ConsumerStatefulWidget {
   final int initialTabIndex; // 0: 支出, 1: 收入

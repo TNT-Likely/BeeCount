@@ -45,8 +45,7 @@ void main() {
       Directory('${root.path}/$dir').createSync();
     }
     final bytes =
-        File('docs/design/card-refresh/prototype/assets/category-coffee.png')
-            .readAsBytesSync();
+        File('test/fixtures/design/category-coffee.png').readAsBytesSync();
     attachment = File('${root.path}/attachments/qa-receipt.png')
       ..writeAsBytesSync(bytes);
     icon = File('${root.path}/custom_icons/qa-icon.png')

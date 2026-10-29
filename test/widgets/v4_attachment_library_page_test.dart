@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'dart:ui' as ui;
 import 'package:beecount/l10n/app_localizations.dart';
 import 'package:beecount/pages/settings/attachment_preview_page.dart';
-import 'package:beecount/presentation/v4/bindings/attachment_library_data.dart';
+import 'package:beecount/pages/settings/attachments/bindings/attachment_library_data.dart';
 import 'package:beecount/services/attachment_export_import_service.dart';
 import 'package:beecount_business_ui/beecount_business_ui.dart';
 import 'package:beecount_ui/beecount_ui.dart';

@@ -1,6 +1,6 @@
 # 原版动态皮肤独立渲染器
 
-仅供 `docs/design/card-refresh/boards/skin-application-review.html` 确认皮肤应用方式。这个入口不导入 BeeCount App、数据库、Provider、Cloud 或 AI，不生成或安装 APK，也不改变产品默认无皮肤设置。
+仅供相邻设计仓 `../BeeCount-Design/card-refresh/boards/skin-application-review.html` 确认皮肤应用方式。这个入口不导入 BeeCount App、数据库、Provider、Cloud 或 AI，不生成或安装 APK，也不改变产品默认无皮肤设置。
 
 ## 本地重建
 
@@ -15,9 +15,9 @@ python3 tool/v4/build_original_skin_renderer.py --flutter /absolute/path/to/flut
 
 要求本地有官方 `3.9.0` tag、Flutter 3.27.3 / Dart 3.6.1，以及该 SDK 已缓存的 Flutter Web 引擎和 Roboto 字体。构建先执行 `pub get --offline`，不引入第三方包。SDK 首次缺少 Web 引擎时仍需先通过 Flutter 工具准备缓存；已生成页面运行时没有 CDN、远程字体或云服务依赖。
 
-将 `docs/design/card-refresh` 作为 HTTP 静态根目录，打开 `/boards/skin-application-review.html`。当前项目已有预览服务：`http://127.0.0.1:8374/boards/skin-application-review.html`。固定的 `/renderers/build/original-skins-390/` base 路径需与此根目录一致。
+将 `../BeeCount-Design/card-refresh` 作为 HTTP 静态根目录，打开 `/boards/skin-application-review.html`。当前项目已有预览服务：`http://127.0.0.1:8374/boards/skin-application-review.html`。固定的 `/renderers/build/original-skins-390/` base 路径需与此根目录一致。
 
-临时 Flutter 工程位于本目录 `build/source_project`，编译结果位于 `docs/design/card-refresh/renderers/build/original-skins-390`。两个 `build/` 均被 Git 忽略；只提交入口、模板、构建器、评审 HTML/CSS/JS。重新构建不会修改产品代码；主 demo 通过现有构建器引用相同原画窗口。
+临时 Flutter 工程位于本目录 `build/source_project`，编译结果位于 `../BeeCount-Design/card-refresh/renderers/build/original-skins-390`。两个 `build/` 均被 Git 忽略；只提交入口、模板、构建器、评审 HTML/CSS/JS。重新构建不会修改产品代码；主 demo 通过现有构建器引用相同原画窗口。
 
 ## 原画来源与完整性
 
@@ -54,3 +54,5 @@ python3 tool/v4/build_original_skin_renderer.py --flutter /absolute/path/to/flut
 原来简化 SVG 的应用稿保存在 `skin-application-svg-history-20261026.*`，用于追溯；它不是线上原素材。旧四方向稿和导出设计图保持历史内容；主 demo 已同步原画应用，默认无皮肤未改变。
 
 入口保存在 `lib/main.dart.in`，仅由构建器写入忽略目录中的独立项目 `lib/main.dart`。模板依赖从固定3.9提交提取的原part，不能作为App仓内可直接分析的Dart入口；这避免尚未提取原part时给主项目引入缺失引用。该组织修正不改变皮肤绘制、设计或已有预览产物。
+
+设计仓默认与 App 相邻；其他位置设置 `BEECOUNT_DESIGN_ROOT` 为其 `card-refresh` 绝对路径。仅构建评审 renderer 时需要设计仓，App 与 `--check-only` 无此依赖。

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../presentation/v4/bindings/maintenance_widgets.dart';
+import 'widgets/bindings/maintenance_widgets.dart';
 
 class WidgetManagementPage extends StatelessWidget {
   const WidgetManagementPage({super.key});

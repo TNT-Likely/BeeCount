@@ -87,9 +87,8 @@ void main() {
   }
 
   test('HTML四档顺序及原运行时范围一致，工具边界仍由运行时派生', () {
-    final x = jsonDecode(
-        File('docs/design/card-refresh/tokens/assistant-execution.json')
-            .readAsStringSync()) as List;
+    final x = jsonDecode(File('tool/design/contracts/assistant-execution.json')
+        .readAsStringSync()) as List;
     expect(x.map((v) => v['turns']).toList(), [
       AgentExecutionSettings.minimumTurns,
       AgentExecutionSettings.standardTurns,
@@ -150,7 +149,8 @@ void main() {
     await t.pump();
     await t.pump(const Duration(milliseconds: 400));
     expect(store.writes, 1);
-    final row = find.byWidgetPredicate((w) => w is BeeMenuRow && w.title == s.agentExecutionDepthEntry);
+    final row = find.byWidgetPredicate(
+        (w) => w is BeeMenuRow && w.title == s.agentExecutionDepthEntry);
     expect(t.widget<BeeMenuRow>(row).onTap, isNull);
     await t.pump(const Duration(milliseconds: 100));
     await t.pump();

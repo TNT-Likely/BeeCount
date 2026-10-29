@@ -5,7 +5,7 @@ import '../pages/transaction/transaction_editor_page.dart';
 import '../data/repositories/local/local_repository.dart';
 import '../providers/database_providers.dart';
 import '../l10n/app_localizations.dart';
-import '../widgets/ui/toast.dart';
+import 'package:beecount_ui/beecount_ui.dart';
 import 'shared_ledger_picker_filter.dart' show syntheticIdForSyncId;
 
 class TransactionEditUtils {
@@ -45,7 +45,7 @@ class TransactionEditUtils {
                 .contains(transaction.type) ||
             (ledger.isShared &&
                 !const {'owner', 'editor'}.contains(ledger.myRole)))) {
-      showToast(
+      showBeeToast(
           context, AppLocalizations.of(context).transactionCopyUnavailable);
       return;
     }
@@ -64,7 +64,7 @@ class TransactionEditUtils {
       if ((transaction.categoryId != null && category == null) ||
           (transaction.accountId != null && account == null) ||
           (transaction.toAccountId != null && toAccount == null)) {
-        showToast(
+        showBeeToast(
             context, AppLocalizations.of(context).transactionCopyUnavailable);
         return;
       }
@@ -104,7 +104,7 @@ class TransactionEditUtils {
                 .any((ov) => !tags.any((tag) => tag.syncId == ov.tagSyncId));
         if (!context.mounted) return;
         if (invalid) {
-          showToast(
+          showBeeToast(
               context, AppLocalizations.of(context).transactionCopyUnavailable);
           return;
         }
@@ -129,7 +129,7 @@ class TransactionEditUtils {
     // loading references so an asynchronously changed selection cannot redirect
     // this new transaction to another ledger.
     if (asCopy && ref.read(currentLedgerIdProvider) != transaction.ledgerId) {
-      showToast(
+      showBeeToast(
           context, AppLocalizations.of(context).transactionCopyUnavailable);
       return;
     }

@@ -2,6 +2,7 @@
 
 from collections import Counter
 from html import escape
+from design_paths import development_root
 import re
 
 
@@ -26,7 +27,7 @@ OPTIONS = {
 
 
 def question_panel(root, config):
-    source = root / 'docs/development/v4-migration-questions.md'
+    source = development_root(root) / 'v4-migration-questions.md'
     records = []
     for line in source.read_text().splitlines():
         if not re.match(r'^\| Q\d+ \|', line):

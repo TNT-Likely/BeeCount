@@ -11,7 +11,7 @@ import 'package:beecount/l10n/app_localizations.dart';
 import 'package:beecount/pages/report/annual_report_page.dart';
 import 'package:beecount/providers.dart';
 import 'package:beecount/services/export/share_poster_types.dart';
-import 'package:beecount/widgets/posters/annual_report_poster.dart';
+import 'package:beecount/pages/report/annual/bindings/annual_poster_projection.dart';
 
 const reportYear = 2025;
 

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../presentation/v4/bindings/cloud_backup_controls.dart';
+import 'backup/bindings/cloud_backup_controls.dart';
 
 class CloudSyncPage extends StatelessWidget {
   const CloudSyncPage({super.key});

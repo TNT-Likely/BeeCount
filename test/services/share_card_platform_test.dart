@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:beecount/presentation/v4/bindings/share_card_platform.dart';
+import 'package:beecount/pages/report/share/bindings/share_card_platform.dart';
 import 'package:beecount/services/export/share_poster_service.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';

@@ -124,7 +124,7 @@
     "components": [
       "RecordingCategoryTile",
       "RecordingSubcategoryChip",
-        "RecordingSubcategoryGrid",
+      "RecordingSubcategoryGrid",
       "BeeCategoryRanking"
     ],
     "page": "business",
@@ -918,8 +918,8 @@
       "BeeAccountCashflowCard",
       "BeeBalanceHistoryCard",
       "BeeAccountFlowFilter",
-        "BeeAccountTransactionSearch",
-        "BeeAccountTransactionTools"
+      "BeeAccountTransactionSearch",
+      "BeeAccountTransactionTools"
     ],
     "page": "business",
     "case": 35,
@@ -952,7 +952,8 @@
     "design_key": "security",
     "components": [
       "BeeSecurityPanel",
-      "BeePinPad"
+      "BeePinPad",
+      "BeeTwoFactorChallengeDialog"
     ],
     "page": "business",
     "case": 26,
@@ -960,7 +961,8 @@
       "spec-55"
     ],
     "supportedStates": [
-      "四位 PIN，修改先验证原密码；数字卡片与错误状态，短屏可滚动且保留完整按键。"
+      "四位 PIN，修改先验证原密码；数字卡片与错误状态，短屏可滚动且保留完整按键。",
+      "双重验证：验证码、恢复码、忙碌、校验失败、取消；受控示例不联系服务端。"
     ],
     "scope": "source and gallery declaration; not a device acceptance claim"
   },
@@ -1418,7 +1420,7 @@
     ],
     "page": "business",
     "case": 59,
-    "gallery_source": "lib/presentation/v4/gallery/recurring_bills_sample.dart",
+    "gallery_source": "lib/dev/component_gallery/recurring_bills_sample.dart",
     "catalog_ids": [
       "spec-81"
     ],
@@ -1443,7 +1445,7 @@
     ],
     "page": "business",
     "case": 60,
-    "gallery_source": "lib/presentation/v4/gallery/import_flow_sample.dart",
+    "gallery_source": "lib/dev/component_gallery/import_flow_sample.dart",
     "catalog_ids": [
       "spec-82"
     ],
@@ -1461,7 +1463,7 @@
     ],
     "page": "business",
     "case": 61,
-    "gallery_source": "lib/presentation/v4/gallery/export_sample.dart",
+    "gallery_source": "lib/dev/component_gallery/export_sample.dart",
     "catalog_ids": [
       "spec-83"
     ],
@@ -1483,7 +1485,7 @@
     ],
     "page": "business",
     "case": 62,
-    "gallery_source": "lib/presentation/v4/gallery/recurring_editor_sample.dart",
+    "gallery_source": "lib/dev/component_gallery/recurring_editor_sample.dart",
     "catalog_ids": [
       "spec-84"
     ],
@@ -1504,16 +1506,20 @@
       "BeeAnnualTrendPoint",
       "BeeButton",
       "BeeLineIcon",
-      "BeeSurface"
+      "BeeSurface",
+      "BeeAnnualReportPoster",
+      "BeeAnnualPosterChapter",
+      "BeeAnnualPosterMoment"
     ],
     "page": "business",
     "case": 63,
-    "gallery_source": "lib/presentation/v4/gallery/annual_report_sample.dart",
+    "gallery_source": "lib/dev/component_gallery/annual_report_sample.dart",
     "catalog_ids": [
       "spec-85"
     ],
     "supportedStates": [
-      "原年度数据、原币与历史折算、七段内容和海报入口。"
+      "原年度数据、原币与历史折算、七段内容和海报入口。",
+      "原年度数据、七段内容；年度长图的受控章节、趋势、高光与未解锁状态。"
     ],
     "scope": "source and gallery declaration; not a device acceptance claim"
   },
@@ -1528,7 +1534,7 @@
     ],
     "page": "business",
     "case": 64,
-    "gallery_source": "lib/presentation/v4/gallery/receipt_sample.dart",
+    "gallery_source": "lib/dev/component_gallery/receipt_sample.dart",
     "catalog_ids": [
       "spec-86"
     ],
@@ -1551,7 +1557,7 @@
     ],
     "page": "business",
     "case": 65,
-    "gallery_source": "lib/presentation/v4/gallery/cloud_configuration_sample.dart",
+    "gallery_source": "lib/dev/component_gallery/cloud_configuration_sample.dart",
     "catalog_ids": [
       "spec-87"
     ],
@@ -1575,7 +1581,7 @@
     ],
     "page": "business",
     "case": 66,
-    "gallery_source": "lib/presentation/v4/gallery/transaction_detail_sample.dart",
+    "gallery_source": "lib/dev/component_gallery/transaction_detail_sample.dart",
     "catalog_ids": [
       "spec-89"
     ],
@@ -1596,7 +1602,7 @@
     ],
     "page": "business",
     "case": 67,
-    "gallery_source": "lib/presentation/v4/gallery/cloud_backup_sample.dart",
+    "gallery_source": "lib/dev/component_gallery/cloud_backup_sample.dart",
     "catalog_ids": [
       "spec-90"
     ],
@@ -1622,7 +1628,7 @@
     ],
     "page": "business",
     "case": 68,
-    "gallery_source": "lib/presentation/v4/gallery/auto_billing_sample.dart",
+    "gallery_source": "lib/dev/component_gallery/auto_billing_sample.dart",
     "catalog_ids": [
       "spec-91"
     ],
@@ -1643,7 +1649,7 @@
     ],
     "page": "business",
     "case": 69,
-    "gallery_source": "lib/presentation/v4/gallery/detail_currency_sample.dart",
+    "gallery_source": "lib/dev/component_gallery/detail_currency_sample.dart",
     "catalog_ids": [
       "spec-92"
     ],
@@ -1663,7 +1669,7 @@
     ],
     "page": "business",
     "case": 70,
-    "gallery_source": "lib/presentation/v4/gallery/cloud_shared_sample.dart",
+    "gallery_source": "lib/dev/component_gallery/cloud_shared_sample.dart",
     "catalog_ids": [
       "spec-93"
     ],
@@ -1681,7 +1687,7 @@
     ],
     "page": "business",
     "case": 71,
-    "gallery_source": "lib/presentation/v4/gallery/share_card_sample.dart",
+    "gallery_source": "lib/dev/component_gallery/share_card_sample.dart",
     "catalog_ids": [
       "spec-94"
     ],
@@ -1704,7 +1710,7 @@
     ],
     "page": "business",
     "case": 72,
-    "gallery_source": "lib/presentation/v4/gallery/ai_advanced_sample.dart",
+    "gallery_source": "lib/dev/component_gallery/ai_advanced_sample.dart",
     "catalog_ids": [
       "spec-95"
     ],
@@ -1725,16 +1731,24 @@
       "BeeSupportDocument",
       "BeeSupportShortcut",
       "BeeSupportText",
-      "BeeSurface"
+      "BeeSurface",
+      "BeePromotionCard",
+      "BeePromotionCompact",
+      "BeePromotionDialog",
+      "BeePromotionScreenshot",
+      "BeePromotionGallery",
+      "BeePromotionData",
+      "BeePromotionTexts"
     ],
     "page": "business",
     "case": 73,
-    "gallery_source": "lib/presentation/v4/gallery/support_sample.dart",
+    "gallery_source": "lib/dev/component_gallery/support_sample.dart",
     "catalog_ids": [
       "spec-96"
     ],
     "supportedStates": [
-      "版本/故事/相关产品、帮助/隐私原文档、六快捷链接和赞助商品；受控示例不打开外链、复制或付款。"
+      "版本/故事/相关产品、帮助/隐私原文档、六快捷链接和赞助商品；受控示例不打开外链、复制或付款。",
+      "产品推荐卡、紧凑卡、介绍弹窗、截图与放大浏览；外部动作仅记录回调。"
     ],
     "scope": "source and gallery declaration; not a device acceptance claim"
   },
@@ -1752,7 +1766,7 @@
     ],
     "page": "business",
     "case": 74,
-    "gallery_source": "lib/presentation/v4/gallery/maintenance_sample.dart",
+    "gallery_source": "lib/dev/component_gallery/maintenance_sample.dart",
     "catalog_ids": [
       "spec-97"
     ],
@@ -1770,7 +1784,7 @@
     ],
     "page": "business",
     "case": 33,
-    "gallery_source": "lib/presentation/v4/gallery/business_page.dart",
+    "gallery_source": "lib/dev/component_gallery/business_page.dart",
     "catalog_ids": [
       "spec-88"
     ],

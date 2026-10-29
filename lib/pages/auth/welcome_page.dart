@@ -17,13 +17,12 @@ import '../../services/export/config_export_service.dart';
 import '../../services/attachment_export_import_service.dart';
 import '../../utils/currencies.dart';
 import '../../utils/file_picker_helper.dart';
-import '../../widgets/biz/bee_icon.dart';
-import '../../widgets/currency/currency_picker_sheet.dart';
-import '../../widgets/ui/ui.dart';
+import '../shared/branding/bee_artwork.dart';
+import '../shared/selectors/currency_picker_sheet.dart';
 import '../settings/privacy_policy_page.dart';
 
-part '../../presentation/v4/bindings/welcome_actions.dart';
-part '../../presentation/v4/bindings/welcome_content.dart';
+part 'welcome/bindings/welcome_actions.dart';
+part 'welcome/widgets/welcome_content.dart';
 
 class WelcomePage extends ConsumerStatefulWidget {
   const WelcomePage({super.key});

@@ -6,7 +6,7 @@ import 'package:beecount/data/repositories/local/local_repository.dart';
 import 'package:beecount/l10n/app_localizations.dart';
 import 'package:beecount/pages/budget/budget_edit_page.dart';
 import 'package:beecount/pages/budget/budget_page.dart';
-import 'package:beecount/presentation/v4/bindings/budget_overview.dart';
+import 'package:beecount/pages/budget/overview/bindings/budget_overview.dart';
 import 'package:beecount/providers.dart';
 import 'package:beecount_business_ui/beecount_business_ui.dart';
 import 'package:beecount_ui/beecount_ui.dart';

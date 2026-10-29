@@ -2,7 +2,7 @@ import 'package:beecount/data/db.dart';
 import 'package:beecount/data/repositories/local/local_repository.dart';
 import 'package:beecount/l10n/app_localizations.dart';
 import 'package:beecount/pages/settings/data_management_page.dart';
-import 'package:beecount/presentation/v4/bindings/attachment_transfer_actions.dart';
+import 'package:beecount/pages/settings/attachments/bindings/attachment_transfer_actions.dart';
 import 'package:beecount/providers.dart';
 import 'package:beecount/services/attachment_export_import_service.dart';
 import 'package:beecount_business_ui/beecount_business_ui.dart';

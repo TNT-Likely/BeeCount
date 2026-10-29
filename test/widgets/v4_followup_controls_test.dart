@@ -1,5 +1,5 @@
 import 'package:beecount/l10n/app_localizations.dart';
-import 'package:beecount/widgets/ui/wheel_date_picker.dart';
+import 'package:beecount/pages/shared/pickers/wheel_date_picker.dart';
 import 'package:beecount_business_ui/beecount_business_ui.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';

@@ -7,10 +7,10 @@ import 'package:beecount/data/repositories/local/local_repository.dart';
 import 'package:beecount/l10n/app_localizations.dart';
 import 'package:beecount/pages/calendar/calendar_page.dart';
 import 'package:beecount/pages/transaction/transaction_editor_page.dart';
-import 'package:beecount/presentation/v4/bindings/calendar_month_view.dart';
+import 'package:beecount/pages/calendar/widgets/calendar_month_view.dart';
 import 'package:beecount/providers.dart';
 import 'package:beecount/providers/calendar_providers.dart';
-import 'package:beecount/widgets/biz/transaction_list_item.dart';
+import 'package:beecount/pages/shared/transactions/transaction_list_item.dart';
 import 'package:beecount_business_ui/beecount_business_ui.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:drift/native.dart';
@@ -138,7 +138,7 @@ void main() {
         c.read(incomeExpenseColorSchemeProvider.notifier).state = redIncome;
         await open(t, narrow: dark);
         final tokens = jsonDecode(
-            File('docs/design/card-refresh/tokens/design-tokens.json')
+            File('tool/design/contracts/design-tokens.json')
                 .readAsStringSync())['color'][dark ? 'dark' : 'light'];
         Color color(String key) =>
             Color(int.parse((tokens[key] as String).replaceFirst('#', 'ff'),

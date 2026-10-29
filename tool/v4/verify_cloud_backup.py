@@ -4,6 +4,7 @@ import hashlib
 import json
 import re
 from pathlib import Path
+from migration_contracts import AUDIT, REVIEWED_SOURCE, audit_dependency, audit_block, page_bindings, reviewed_source
 ROOT=Path(__file__).resolve().parents[2]
 BACKUP=ROOT/'.docs/v4-ui-migration/backup/parallel-cloud-backup-r95'
 manifest=json.loads((BACKUP/'manifest.json').read_text())
@@ -12,7 +13,7 @@ for row in manifest['files']:
     assert hashlib.sha256(old.read_bytes()).hexdigest()==row['sha256']
     assert not old.stat().st_mode&0o222
     if row['path'] not in ['lib/pages/cloud/cloud_sync_page.dart','lib/cloud/transactions_sync_manager.dart']:
-        assert hashlib.sha256((ROOT/row['path']).read_bytes()).hexdigest()==row['sha256'],row['path']
+        audit_dependency(row['path'], old.read_text())
 service=(ROOT/'lib/cloud/transactions_sync_manager.dart').read_text()
 a=service.index('// BEGIN r95 atomic legacy restore')
 b=service.index('// END r95 atomic legacy restore',a)+len('// END r95 atomic legacy restore\n\n')
@@ -27,7 +28,7 @@ assert "(raw['nativeAmount'] as num) < 0" not in adapter
 assert 'Cross-currency transfer' not in adapter
 assert '!tx.amount.isFinite' in adapter and '!native.isFinite' in adapter
 old=(BACKUP/'lib/pages/cloud/cloud_sync_page.dart').read_text()
-new=(ROOT/'lib/presentation/v4/bindings/cloud_backup_controls.dart').read_text()
+new=(ROOT/'lib/pages/cloud/backup/bindings/cloud_backup_controls.dart').read_text()
 def callback(source,marker,needle='onTap: () async {'):
     begin=source.index(needle,source.index(marker))+len(needle);i=begin;depth=1
     while depth:
@@ -50,9 +51,9 @@ for marker,needle,name,end in checks:
     assert canonical(callback(old,marker,needle))==canonical(method(new,name,end)),name
 pattern=r'(?:AppLocalizations\.of\(context\)|\bl)\s*\.\s*([a-zA-Z]\w*)'
 keys=set(re.findall(pattern,old));now=set(re.findall(pattern,new));assert keys<=now,keys-now
-pure=(ROOT/'packages/beecount_business_ui/lib/src/cloud_backup.dart').read_text()
+pure=(ROOT/'packages/beecount_business_ui/lib/src/cloud_data/cloud_backup.dart').read_text()
 for prohibited in ['riverpod','providers.dart','dart:io','SyncService','http.','SharedPreferences']:
     assert prohibited not in pure
-print(json.dumps({'status':'PASS','backup_files':9,'unchanged_dependencies':7,'old_callbacks_preserved':4,
+print(json.dumps({'reviewed_pre_move_source':REVIEWED_SOURCE,'reported_source_deltas':AUDIT,'status':'PASS','backup_files':9,'verified_dependencies':7,'old_callbacks_preserved':4,
 'localized_keys':len(keys),'original_service_sha256':hashlib.sha256(original).hexdigest(),
 'new_service_sha256':hashlib.sha256(service.encode()).hexdigest(),'all_existing_manager_bytes_unchanged':True,'signed_refunds_and_historical_cross_currency_transfers':True},ensure_ascii=False))

@@ -1,5 +1,5 @@
 {
-  "source": "docs/design/card-refresh/boards/recording-review.html · R8; Chromium measured boxes before Flutter alignment",
+  "source": "https://github.com/TNT-Likely/BeeCount-Design/blob/766f0a5dfdb6f114ec7f1fb57b3d9daf785a475f/card-refresh/boards/recording-review.html · R8; Chromium measured boxes before Flutter alignment",
   "coordinateNote": "37/21px top includes the HTML phone 1px border; 12/1px bottom normalizes its safe region. Horizontal frame border is excluded.",
   "cases": [
     {

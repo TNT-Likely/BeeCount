@@ -1,5 +1,5 @@
 import 'package:beecount/l10n/app_localizations.dart';
-import 'package:beecount/widgets/biz/transaction_list_item.dart';
+import 'package:beecount/pages/shared/transactions/transaction_list_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';

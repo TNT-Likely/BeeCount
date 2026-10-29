@@ -1,6 +1,6 @@
 import 'package:beecount/data/db.dart';
 import 'package:beecount/data/repositories/local/local_repository.dart';
-import 'package:beecount/presentation/v4/bindings/account_detail_controller.dart';
+import 'package:beecount/pages/account/detail/controllers/account_detail_controller.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';

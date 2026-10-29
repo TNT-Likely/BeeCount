@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/ui_state_providers.dart';
-import '../../widgets/biz/bee_icon.dart';
+import '../shared/branding/bee_artwork.dart';
 
 /// Initialization and routing remain owned by the application root.
 class SplashPage extends StatelessWidget {

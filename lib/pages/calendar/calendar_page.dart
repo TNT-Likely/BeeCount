@@ -3,14 +3,14 @@ import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../l10n/app_localizations.dart';
-import '../../presentation/v4/bindings/calendar_month_view.dart';
-import '../../presentation/v4/bindings/calendar_transactions.dart';
-import '../../presentation/v4/bindings/page_scaffold.dart';
+import 'widgets/calendar_month_view.dart';
+import 'bindings/calendar_transactions.dart';
+import '../shared/scaffold/widgets/page_scaffold.dart';
 import '../../providers.dart';
 import '../../providers/calendar_providers.dart';
-import '../../widgets/ui/wheel_date_picker.dart';
+import '../shared/pickers/wheel_date_picker.dart';
 import '../transaction/transaction_editor_page.dart';
-part '../../presentation/v4/bindings/calendar_actions.dart';
+part 'bindings/calendar_actions.dart';
 
 class CalendarPage extends ConsumerStatefulWidget {
   const CalendarPage({super.key});

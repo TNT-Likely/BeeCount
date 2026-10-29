@@ -263,8 +263,9 @@ void main() {
 
   test('原parse/import实际接受负支出退款与负收入并保留signed余额语义', () async {
     final rows = await originalImport(signedRefunds());
-    expect(rows.map((x) => x.amount).toList(), [-12.0, -5.0]);
-    expect(rows.map((x) => x.nativeAmount).toList(), [-86.4, -36.0]);
+    expect({for (final row in rows) row.type: (row.amount, row.nativeAmount)},
+        {'expense': (-12.0, -86.4), 'income': (-5.0, -36.0)});
+    expect(rows, hasLength(2));
     expect(await repo.getAccountBalanceInLedger(1, 3), 7.0);
   });
   test('原parse/import实际接受历史USD转EUR且转入仍为原amount', () async {
@@ -345,7 +346,9 @@ void main() {
     final rows = await (db.select(db.transactions)
           ..where((t) => t.ledgerId.equals(1)))
         .get();
-    expect(rows.map((x) => x.nativeAmount), [-86.4, -36.0]);
+    expect({for (final row in rows) row.type: row.nativeAmount},
+        {'expense': -86.4, 'income': -36.0});
+    expect(rows, hasLength(2));
   });
   for (final field in ['amount', 'nativeAmount']) {
     test('signed兼容仍拒绝非有限数并保持全库原状态 $field', () async {

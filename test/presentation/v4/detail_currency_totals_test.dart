@@ -1,8 +1,8 @@
 import 'package:beecount/data/db.dart';
 import 'package:beecount/data/repositories/local/local_repository.dart';
-import 'package:beecount/presentation/v4/bindings/category_detail.dart';
-import 'package:beecount/presentation/v4/bindings/detail_currency_totals.dart';
-import 'package:beecount/presentation/v4/bindings/tag_detail.dart';
+import 'package:beecount/pages/transaction/category_detail/bindings/category_detail.dart';
+import 'package:beecount/pages/shared/currency/bindings/detail_currency_totals.dart';
+import 'package:beecount/pages/tag/detail/bindings/tag_detail.dart';
 import 'package:beecount/providers.dart';
 import 'package:beecount/utils/shared_ledger_picker_filter.dart';
 import 'package:drift/native.dart';

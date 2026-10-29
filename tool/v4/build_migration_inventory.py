@@ -1,11 +1,12 @@
 from pathlib import Path
+from design_paths import design_root, development_root
 import re,json,subprocess,hashlib,tarfile,io,collections,argparse
 parser=argparse.ArgumentParser(description='重建逐页清单；机器状态始终只读。')
 parser.add_argument('--inventory-only',action='store_true',help='只重建清单和备份说明，不刷新进度HTML。')
 options=parser.parse_args()
 root=Path(__file__).resolve().parents[2];d=root/'.docs/v4-ui-migration';d.mkdir(exist_ok=True,parents=True)
 config=json.loads((root/'tool/v4/migration-status.json').read_text())
-flows=json.loads((root/'docs/design/card-refresh/tokens/flow-sources.json').read_text());manifest=json.loads((root/'docs/design/card-refresh/screens/manifest.json').read_text())
+flows=json.loads((design_root(root)/'tokens/flow-sources.json').read_text());manifest=json.loads((design_root(root)/'screens/manifest.json').read_text())
 manual={
  'report/share_card_page.dart':['poster'],
  'transaction/transaction_detail_page.dart':['detail','flow-foreign-detail','flow-attachment-grid'],
@@ -48,7 +49,8 @@ contracts={
 rows=[];helpers=[]
 for p in sorted((root/'lib/pages').rglob('*.dart')):
  s=p.read_text();rel=str(p.relative_to(root/'lib/pages'));classes=re.findall(r'(?:final\s+)?class\s+([A-Z]\w*(?:Page|Screen)\w*)\s+extends',s)
- if not classes:helpers.append(str(p.relative_to(root)));continue
+ # Bindings/widgets/controllers moved beside their pages without becoming new product-page entries.
+ if not classes or {'bindings','widgets','controllers'} & set(p.relative_to(root/'lib/pages').parts[:-1]):helpers.append(str(p.relative_to(root)));continue
  refs=list(manual.get(rel,[]))
  for f in flows:
   source=f['source'].replace('lib/pages/','').lstrip('./')
@@ -58,7 +60,7 @@ for p in sorted((root/'lib/pages').rglob('*.dart')):
 assert set(config['pages']) == {r['source'].removeprefix('lib/pages/') for r in rows}, '新增/删除页面须更新 migration-status.json'
 for r in rows:
     r.update(config['pages'][r['source'].removeprefix('lib/pages/')])
-    r['designLinks'] = ['../../docs/design/card-refresh/prototype/demo.html?page=' + route for route in r['designRoutes']]
+    r['designLinks'] = ['http://127.0.0.1:8374/prototype/demo.html?page=' + route for route in r['designRoutes']]
 for flow in config['associatedFlows']:
     assert (root/flow['source']).is_file(), flow['source']
 priority_counts=collections.Counter(r['priority'] for r in rows)
@@ -96,11 +98,11 @@ git diff --no-index .docs/v4-ui-migration/backup/pre-v4-{head[:12]}/lib/pages/ma
 counts=collections.Counter(r['batch'] for r in rows)
 body='''# 全部页面翻新计划
 
-工作分支：`v4`。面向公开 4.0，内部按完整流程分批验收。原迁移基线与后续 A–E 设计修订分别记录，不能用基线完成数宣称新修订通过。当前时间、优先级和逐页状态见受版本控制的 [页面迁移清单](../../docs/development/v4-page-migration.md)。
+工作分支：`v4`。面向公开 4.0，内部按完整流程分批验收。原迁移基线与后续 A–E 设计修订分别记录，不能用基线完成数宣称新修订通过。当前时间、优先级和逐页状态见受版本控制的 [页面迁移清单](../../.docs/development/v4-page-migration.md)。
 
 ## 当前结论
 
-不能将组件目录齐全等同于全业务覆盖。两个包的组件与样例数量以 [组件包说明](../../docs/development/v4-component-packages.md) 和当前 HTML/Flutter 目录为准。旧 [组件盘点](component-audit.md) 属于历史计划；后续修订仍需逐项明确状态、交互和真实数据绑定，以当前覆盖清单为准。
+不能将组件目录齐全等同于全业务覆盖。两个包的组件与样例数量以 [组件包说明](../../docs/architecture/presentation-packages.md) 和当前 HTML/Flutter 目录为准。旧 [组件盘点](component-audit.md) 属于历史计划；后续修订仍需逐项明确状态、交互和真实数据绑定，以当前覆盖清单为准。
 
 页面清单按当前代码自动盘点，辅助文件单列。设计导出场景与页面不是一对一关系，不能用场景数量当完成率。详见 [逐页清单](page-inventory.json)。
 
@@ -151,7 +153,7 @@ body+='''
 for r in rows:body+=f"| `{r['source']}` | {r['lines']} | {r['priority']} | {r['batch'].split()[0]} | {'、'.join('`'+x+'`' for x in r['designRoutes']) or '待补明确场景映射'} | {r['status']} |\n"
 body+='\n辅助文件：\n\n'+''.join(f'- `{h}`\n' for h in helpers)
 (d/'all-pages-plan.md').write_text(body)
-public=root/'docs/development';public.mkdir(parents=True,exist_ok=True)
+public=development_root(root);public.mkdir(parents=True,exist_ok=True)
 (public/'v4-page-inventory.json').write_text(json.dumps(audit,ensure_ascii=False,indent=2)+'\n')
 counts_text='、'.join(f"{k} {v} 页" for k,v in sorted(priority_counts.items()))
 page=f"""# V4 完整页面迁移清单与优先级
@@ -160,7 +162,7 @@ page=f"""# V4 完整页面迁移清单与优先级
 
 现有 **{len(rows)} 个产品页面源文件**（{counts_text}），当前待新增 Page 占位 **{len(config['plannedPages'])} 个**，另有 {len(helpers)} 个页面旁辅助文件和下方关联弹窗/表单。三个开发验收页不计入产品迁移进度。每个源文件均有设计入口，设计场景与代码页面不是一对一关系。
 
-原迁移基线按机器记录已完整验收 **{completed_count}/{len(rows)} 页**；下方逐页状态属于该基线。已批准的 A–E 后续设计修订另列，仍须各自实现、整页验收和独立报告，不叠加为额外产品页面，也不继承旧版的通过结论。最新进度、问题与报告边界见 [页面完成标准](v4-page-completion.md) 和 [迁移进度](../design/card-refresh/migration-progress.html#design-revisions)。
+原迁移基线按机器记录已完整验收 **{completed_count}/{len(rows)} 页**；下方逐页状态属于该基线。已批准的 A–E 后续设计修订另列，仍须各自实现、整页验收和独立报告，不叠加为额外产品页面，也不继承旧版的通过结论。最新进度、问题与报告边界见 [页面完成标准](v4-page-completion.md) 和 [迁移进度](http://127.0.0.1:8374/migration-progress.html#design-revisions)。
 
 ## 已批准的后续设计修订
 
@@ -172,7 +174,7 @@ page=f"""# V4 完整页面迁移清单与优先级
 """
 page=page.rstrip()+'\n'
 for revision in revisions:
-    page+=f"| {revision['id']} · {revision['name']} | {revision['status']} | [交互稿](../design/card-refresh/{revision['url']}) |\n"
+    page+=f"| {revision['id']} · {revision['name']} | {revision['status']} | [交互稿](http://127.0.0.1:8374/{revision['url']}) |\n"
 page+="""
 ## 优先级与顺序
 

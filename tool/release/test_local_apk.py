@@ -330,7 +330,7 @@ class SourceAndArtifactRefusalTests(TemporaryCase):
         (self.root / "pubspec.yaml").write_text("flutter:\n  assets:\n    - assets/v4_gallery/\n")
         importer = self.root / "lib/pages/main/home_page.dart"
         importer.parent.mkdir(parents=True)
-        importer.write_text("import '../../presentation/v4/gallery/component_gallery_page.dart';\n"
+        importer.write_text("import '../../dev/component_gallery/component_gallery_page.dart';\n"
                             "void unrelated() { if (kDebugMode) print('example'); }\n"
                             "final route = const ComponentGalleryPage();\n")
         with self.assertRaises(gate.GateError):

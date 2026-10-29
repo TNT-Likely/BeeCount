@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/db.dart' as db;
 import '../../l10n/app_localizations.dart';
-import '../../presentation/v4/bindings/category_migration_actions.dart';
-import '../../presentation/v4/bindings/page_scaffold.dart';
-import '../../presentation/v4/bindings/recording_category_icon.dart';
+import 'migration/bindings/category_migration_actions.dart';
+import '../shared/scaffold/widgets/page_scaffold.dart';
+import '../shared/resources/bindings/recording_category_icon.dart';
 import '../../providers/database_providers.dart';
 import '../../utils/category_utils.dart';
 

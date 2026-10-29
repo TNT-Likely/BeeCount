@@ -4,7 +4,7 @@ import 'package:beecount/data/repositories/local/local_repository.dart';
 import 'package:beecount/l10n/app_localizations.dart';
 import 'package:beecount/pages/report/annual_report_page.dart';
 import 'package:beecount/providers.dart';
-import 'package:beecount/presentation/v4/bindings/annual_report_sections.dart';
+import 'package:beecount/pages/report/annual/widgets/annual_report_sections.dart';
 import 'package:beecount_business_ui/annual_report.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:drift/native.dart';

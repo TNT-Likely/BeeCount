@@ -27,6 +27,7 @@ part 'header_skins/skyline_skin.dart';
 part 'header_skins/sunset_skin.dart';
 part 'header_skins/terrazzo_skin.dart';
 part 'header_skins/waves_skin.dart';
+part 'header_skins/page_composition.dart';
 
 /// 皮肤系统:皮肤 = 叠在「主题色底」之上的装饰层(渲染在 PrimaryHeader)。
 ///
@@ -95,7 +96,8 @@ class HeaderSkin {
   /// 返回铺满 header 的装饰层(放进 Positioned.fill)。
   final Widget Function(Color primary, bool isDark) builder;
 
-  /// Reserved legacy adapter hook. V4 paints the unchanged [builder] in a bounded slot.
+  /// Reserved compatibility hook. Page composition reuses the original painters;
+  /// [builder] remains available for every static/image skin and previews.
   final Widget Function(Color primary, bool isDark)? pageBuilder;
 
   /// 可选:悬浮 tab 胶囊内的装饰层(垫在图标之下,见 app.dart _BeeBottomBar)。

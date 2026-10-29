@@ -62,7 +62,7 @@ void main() {
     expect(routeResult!.id, greaterThan(0));
     expect((await db.select(db.tags).get()).single.id, routeResult!.id);
 
-    // showToastOnOverlay 会保留一个 2 秒移除计时器；推进测试时钟，避免泄漏。
+    // showBeeToastOnOverlay 会保留一个 2 秒移除计时器；推进测试时钟，避免泄漏。
     await tester.pump(const Duration(seconds: 3));
   });
 }

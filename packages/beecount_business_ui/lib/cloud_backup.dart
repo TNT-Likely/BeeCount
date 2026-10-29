@@ -1,3 +1,3 @@
 library;
 
-export 'src/cloud_backup.dart';
+export 'src/cloud_data/cloud_backup.dart';

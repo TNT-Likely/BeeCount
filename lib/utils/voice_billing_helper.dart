@@ -15,7 +15,8 @@ import '../ai/providers/ai_provider_manager.dart';
 import '../ai/providers/ai_provider_config.dart';
 import '../services/billing/post_processor.dart';
 import '../services/data/tag_seed_service.dart';
-import '../widgets/ui/ui.dart';
+import '../pages/shared/dialogs/app_dialogs.dart';
+import 'package:beecount_ui/beecount_ui.dart';
 import '../styles/tokens.dart';
 
 /// 语音记账帮助类
@@ -37,7 +38,7 @@ class VoiceBillingHelper {
       final aiConfig = ref.read(aiConfigProvider);
       if (!aiConfig.enabled) {
         if (!context.mounted) return;
-        showToast(context, l10n.fabActionVoiceDisabled);
+        showBeeToast(context, l10n.fabActionVoiceDisabled);
         return;
       }
 
@@ -47,7 +48,7 @@ class VoiceBillingHelper {
       );
       if (speechProvider == null || !speechProvider.isValid) {
         if (!context.mounted) return;
-        showToast(context, l10n.fabActionVoiceDisabled);
+        showBeeToast(context, l10n.fabActionVoiceDisabled);
         return;
       }
 
@@ -67,7 +68,7 @@ class VoiceBillingHelper {
       if (status.isRestricted) {
         logger.warning('VoiceBilling', '麦克风权限被设备管理策略限制');
         if (!context.mounted) return;
-        showToast(context, AppLocalizations.of(context)!.voiceMicPermissionRestricted);
+        showBeeToast(context, AppLocalizations.of(context)!.voiceMicPermissionRestricted);
         return;
       }
 
@@ -102,7 +103,7 @@ class VoiceBillingHelper {
           logger.warning('VoiceBilling', '用户拒绝了权限请求');
           if (!context.mounted) return;
           // 用户拒绝后，显示提示
-          showToast(context, l10n.voiceRecordingPermissionDenied);
+          showBeeToast(context, l10n.voiceRecordingPermissionDenied);
           return;
         }
       }
@@ -132,7 +133,7 @@ class VoiceBillingHelper {
       );
     } catch (e) {
       if (!context.mounted) return;
-      showToast(context, l10n.voiceRecordingStartFailed(e.toString()));
+      showBeeToast(context, l10n.voiceRecordingStartFailed(e.toString()));
     }
   }
 }
@@ -253,7 +254,7 @@ class _VoiceRecordingDialogState extends ConsumerState<_VoiceRecordingDialog> {
       });
       // 按住说话分支 UI 不渲染 _status,启动失败时直接 toast 兜底,避免零反馈。
       if (_isHoldToTalk) {
-        showToast(context, l10n.voiceRecordingFailed(e.toString()));
+        showBeeToast(context, l10n.voiceRecordingFailed(e.toString()));
       }
     }
   }
@@ -270,7 +271,7 @@ class _VoiceRecordingDialogState extends ConsumerState<_VoiceRecordingDialog> {
         } else {
           final l10n = AppLocalizations.of(context);
           Navigator.of(context).pop();
-          showToast(context, l10n.voiceRecordingNoSpeech);
+          showBeeToast(context, l10n.voiceRecordingNoSpeech);
         }
         return;
       }
@@ -342,7 +343,7 @@ class _VoiceRecordingDialogState extends ConsumerState<_VoiceRecordingDialog> {
           if (mounted) {
             final l10n = AppLocalizations.of(context);
             Navigator.of(context).pop();
-            showToast(context, l10n.voiceRecordingNoSpeech);
+            showBeeToast(context, l10n.voiceRecordingNoSpeech);
           }
         }
       } else {
@@ -375,7 +376,7 @@ class _VoiceRecordingDialogState extends ConsumerState<_VoiceRecordingDialog> {
       // 与正常 <500ms 路径体验一致：丢弃时提示录音过短。
       if (mounted) {
         final l10n = AppLocalizations.of(context);
-        showToast(context, l10n.voiceRecordingTooShort);
+        showBeeToast(context, l10n.voiceRecordingTooShort);
       }
     }
   }
@@ -393,7 +394,7 @@ class _VoiceRecordingDialogState extends ConsumerState<_VoiceRecordingDialog> {
       await _discardRecording();
       if (mounted) {
         final l10n = AppLocalizations.of(context);
-        showToast(context, l10n.voiceRecordingTooShort);
+        showBeeToast(context, l10n.voiceRecordingTooShort);
       }
       return;
     }
@@ -472,7 +473,7 @@ class _VoiceRecordingDialogState extends ConsumerState<_VoiceRecordingDialog> {
         final msg = response.recognizedText != null
             ? l10n.voiceRecordingNoInfoDetected(response.recognizedText!)
             : l10n.voiceRecordingNoInfo;
-        showToast(context, msg);
+        showBeeToast(context, msg);
         return;
       }
 
@@ -486,7 +487,7 @@ class _VoiceRecordingDialogState extends ConsumerState<_VoiceRecordingDialog> {
           : l10n.voiceRecordingSuccess;
       // 多币种降级提示(A5):缺汇率已按 1:1 暂记,指路统计页补折算
       final unconverted = response.result.unconvertedCurrencies;
-      showToast(
+      showBeeToast(
         context,
         unconverted.isEmpty
             ? toast

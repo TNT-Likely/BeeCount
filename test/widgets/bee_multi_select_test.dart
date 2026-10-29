@@ -1,4 +1,5 @@
-import 'package:beecount/widgets/ui/bee_multi_select.dart';
+import 'package:beecount_ui/beecount_ui.dart';
+import 'package:beecount_ui/multi_select.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -59,10 +60,12 @@ void main() {
               ], onChanged: null),
             )),
       ));
-      final first = tester
-          .widget<AnimatedContainer>(find.byType(AnimatedContainer).first);
-      expect((first.decoration! as BoxDecoration).color,
-          dark ? primary : Colors.black);
+      final chip = find.byType(BeeChoiceChip).first;
+      final first = tester.widget<Material>(
+          find.descendant(of: chip, matching: find.byType(Material)).first);
+      expect(first.color, primary.withValues(alpha: .14));
+      expect((first.shape as RoundedRectangleBorder).side.color, primary);
+      expect(tester.getSize(chip).height, greaterThanOrEqualTo(44));
       expect(tester.takeException(), isNull);
       final semantics = tester
           .widgetList<Semantics>(find.byType(Semantics))

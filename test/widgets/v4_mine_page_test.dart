@@ -6,7 +6,7 @@ import 'package:beecount/data/db.dart';
 import 'package:beecount/data/repositories/local/local_repository.dart';
 import 'package:beecount/l10n/app_localizations.dart';
 import 'package:beecount/pages/main/mine_page.dart';
-import 'package:beecount/presentation/v4/bindings/mine_cloud.dart';
+import 'package:beecount/pages/main/mine/bindings/mine_cloud.dart';
 import 'package:beecount/providers.dart';
 import 'package:beecount/providers/github_star_provider.dart';
 import 'package:beecount_business_ui/beecount_business_ui.dart';

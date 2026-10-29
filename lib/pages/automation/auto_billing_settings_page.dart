@@ -4,8 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../l10n/app_localizations.dart';
-import '../../presentation/v4/bindings/auto_billing_actions.dart';
-import '../../widgets/ui/toast.dart';
+import 'android/bindings/auto_billing_actions.dart';
 import 'ios_auto_billing_page.dart';
 
 /// The existing platform branch is supplied by the App binding.
@@ -100,7 +99,7 @@ class _AndroidAutoBillingPageState extends ConsumerState<AndroidAutoBillingPage>
         final granted = await _actions.requestScreenshotPermission();
         if (!mounted) return;
         if (!granted) {
-          showToast(context, l.photosPermissionRequired);
+          showBeeToast(context, l.photosPermissionRequired);
           return;
         }
         await _actions.enable();
@@ -110,10 +109,10 @@ class _AndroidAutoBillingPageState extends ConsumerState<AndroidAutoBillingPage>
       if (!mounted) return;
       ++_statusRequest;
       setState(() => _isMonitorEnabled = value);
-      showToast(context, value ? l.enableSuccess : l.disableSuccess);
+      showBeeToast(context, value ? l.enableSuccess : l.disableSuccess);
     } catch (error) {
       if (mounted) {
-        showToast(
+        showBeeToast(
             context, '${value ? l.enableFailed : l.disableFailed}: $error',
             duration: const Duration(seconds: 3));
       }
@@ -156,7 +155,7 @@ class _AndroidAutoBillingPageState extends ConsumerState<AndroidAutoBillingPage>
       if (request == true) await _actions.requestIgnoreBatteryOptimizations();
       if (mounted) await _loadMonitorStatus();
     } catch (error) {
-      if (mounted) showToast(context, '${l.commonError}: $error');
+      if (mounted) showBeeToast(context, '${l.commonError}: $error');
     } finally {
       if (mounted) setState(() => _checkingBattery = false);
     }

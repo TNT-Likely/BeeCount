@@ -2,8 +2,8 @@ import 'package:agentcore/agentcore.dart' show AgentNativeModelPhase;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:beecount/l10n/app_localizations.dart';
-import 'package:beecount/widgets/ai/agent_execution_timeline.dart';
-import 'package:beecount/widgets/ai/agent_markdown_text.dart';
+import 'package:beecount/pages/ai/chat/bindings/agent_execution_timeline.dart';
+import 'package:beecount/pages/ai/chat/widgets/agent_markdown_text.dart';
 
 void main() {
   Widget host(Widget child) => MaterialApp(

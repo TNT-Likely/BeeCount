@@ -2,9 +2,9 @@ import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../l10n/app_localizations.dart';
-import '../../presentation/v4/bindings/page_scaffold.dart';
-import '../../presentation/v4/bindings/smart_billing_entries.dart';
-import '../../presentation/v4/bindings/smart_billing_preferences.dart';
+import '../shared/scaffold/widgets/page_scaffold.dart';
+import 'smart_billing/bindings/smart_billing_entries.dart';
+import 'smart_billing/bindings/smart_billing_preferences.dart';
 
 class SmartBillingPage extends ConsumerWidget {
   const SmartBillingPage({super.key});

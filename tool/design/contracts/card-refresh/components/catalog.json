@@ -1,0 +1,765 @@
+[
+  {
+    "id": "foundation",
+    "title": "基础组件",
+    "package": "beecount_ui",
+    "cards": [
+      {
+        "id": "spec-1",
+        "code": "F01",
+        "title": "基础色与主题",
+        "nativeCase": 8,
+        "nativeLabel": "令牌与图标"
+      },
+      {
+        "id": "spec-2",
+        "code": "F02",
+        "title": "27 种主题色",
+        "nativeCase": 8,
+        "nativeLabel": "令牌与图标"
+      },
+      {
+        "id": "spec-3",
+        "code": "F03",
+        "title": "字体与数字",
+        "nativeCase": 8,
+        "nativeLabel": "令牌与图标"
+      },
+      {
+        "id": "spec-4",
+        "code": "F04",
+        "title": "间距、圆角与触控",
+        "nativeCase": 8,
+        "nativeLabel": "令牌与图标"
+      },
+      {
+        "id": "spec-5",
+        "code": "F05",
+        "title": "操作按钮",
+        "nativeCase": 0,
+        "nativeLabel": "按钮"
+      },
+      {
+        "id": "spec-6",
+        "code": "F06",
+        "title": "胶囊单选",
+        "nativeCase": 1,
+        "nativeLabel": "切换与选择"
+      },
+      {
+        "id": "spec-8",
+        "code": "F07",
+        "title": "输入与校验",
+        "nativeCase": 2,
+        "nativeLabel": "表单"
+      },
+      {
+        "id": "spec-9",
+        "code": "F08",
+        "title": "列表与开关",
+        "nativeCase": 3,
+        "nativeLabel": "分组列表"
+      },
+      {
+        "id": "spec-14",
+        "code": "F09",
+        "title": "底部导航",
+        "nativeCase": 7,
+        "nativeLabel": "底部导航"
+      },
+      {
+        "id": "spec-17",
+        "code": "F10",
+        "title": "日期与月份滚轮",
+        "nativeCase": 5,
+        "nativeLabel": "滚轮"
+      },
+      {
+        "id": "spec-26",
+        "code": "F11",
+        "title": "持续状态与空态",
+        "nativeCase": 4,
+        "nativeLabel": "反馈与空态"
+      },
+      {
+        "id": "spec-33",
+        "code": "F12",
+        "title": "成功与失败轻提示",
+        "nativeCase": 9,
+        "nativeLabel": "菜单与轻提示"
+      },
+      {
+        "id": "spec-34",
+        "code": "F13",
+        "title": "图标按钮与角标",
+        "nativeCase": 12,
+        "nativeLabel": "图标按钮与角标"
+      },
+      {
+        "id": "spec-35",
+        "code": "F14",
+        "title": "标签块与通用多选",
+        "nativeCase": 13,
+        "nativeLabel": "标签块与多选"
+      },
+      {
+        "id": "spec-36",
+        "code": "F15",
+        "title": "搜索选择与长列表",
+        "nativeCase": 14,
+        "nativeLabel": "搜索选择"
+      },
+      {
+        "id": "spec-37",
+        "code": "F16",
+        "title": "表单完整状态",
+        "nativeCase": 15,
+        "nativeLabel": "输入与校验状态"
+      },
+      {
+        "id": "spec-38",
+        "code": "F17",
+        "title": "页头、卡片与分隔",
+        "nativeCase": 16,
+        "nativeLabel": "卡片、分隔与页头"
+      },
+      {
+        "id": "spec-39",
+        "code": "F18",
+        "title": "固定底部操作栏",
+        "nativeCase": 17,
+        "nativeLabel": "底部操作栏"
+      },
+      {
+        "id": "spec-40",
+        "code": "F19",
+        "title": "加载与进度状态",
+        "nativeCase": 18,
+        "nativeLabel": "加载与进度状态"
+      },
+      {
+        "id": "spec-42",
+        "code": "F20",
+        "title": "确认与编辑弹窗",
+        "nativeCase": 6,
+        "nativeLabel": "弹窗与弹层"
+      },
+      {
+        "id": "spec-43",
+        "code": "F21",
+        "title": "单选、开关与滑杆",
+        "nativeCase": 11,
+        "nativeLabel": "单选与滑杆"
+      },
+      {
+        "id": "spec-44",
+        "code": "F22",
+        "title": "筛选与折叠",
+        "nativeCase": 10,
+        "nativeLabel": "折叠与筛选"
+      },
+      {
+        "id": "spec-61",
+        "code": "F23",
+        "title": "折线图",
+        "nativeCase": 19,
+        "nativeLabel": "折线图"
+      },
+      {
+        "id": "spec-62",
+        "code": "F24",
+        "title": "时间滚轮",
+        "nativeCase": 20,
+        "nativeLabel": "时间滚轮"
+      },
+      {
+        "id": "spec-65",
+        "code": "F25",
+        "title": "HSV配色与命名色板",
+        "nativeCase": 21,
+        "nativeLabel": "HSV配色与命名色板"
+      },
+      {
+        "id": "spec-2001",
+        "code": "F26",
+        "title": "紧凑页签与柱状图",
+        "nativeCase": 22,
+        "nativeLabel": "紧凑页签与柱状图"
+      },
+      {
+        "id": "spec-2002",
+        "code": "F27",
+        "title": "纸面、卡框与状态胶囊",
+        "nativeCase": 23,
+        "nativeLabel": "纸面、卡框与状态胶囊"
+      },
+      {
+        "id": "spec-2003",
+        "code": "F28",
+        "title": "启动描线、活动与局部弹层",
+        "nativeCase": 24,
+        "nativeLabel": "启动描线、活动与局部弹层"
+      },
+      {
+        "id": "spec-2004",
+        "code": "F29",
+        "title": "主题与系统状态栏",
+        "nativeCase": 25,
+        "nativeLabel": "主题与系统状态栏"
+      },
+      {
+        "id": "spec-2101",
+        "code": "F30",
+        "title": "详情周期与时间范围",
+        "nativeCase": 22,
+        "nativeLabel": "紧凑页签与柱状图"
+      }
+    ]
+  },
+  {
+    "id": "business",
+    "title": "业务组件",
+    "package": "beecount_business_ui",
+    "cards": [
+      {
+        "id": "spec-7",
+        "code": "B01",
+        "title": "语义标签与横排选择",
+        "nativeCase": 6,
+        "nativeLabel": "标签多选"
+      },
+      {
+        "id": "spec-10",
+        "code": "B02",
+        "title": "金额汇总卡片",
+        "nativeCase": 1,
+        "nativeLabel": "金额与预算"
+      },
+      {
+        "id": "spec-11",
+        "code": "B03",
+        "title": "账单行",
+        "nativeCase": 2,
+        "nativeLabel": "账单行与批量操作"
+      },
+      {
+        "id": "spec-12",
+        "code": "B04",
+        "title": "分类与二级分类",
+        "nativeCase": 3,
+        "nativeLabel": "分类与自定义图标"
+      },
+      {
+        "id": "spec-13",
+        "code": "B05",
+        "title": "自定义分类图片",
+        "nativeCase": 3,
+        "nativeLabel": "分类与自定义图标"
+      },
+      {
+        "id": "spec-15",
+        "code": "B06",
+        "title": "金额计算器",
+        "nativeCase": 5,
+        "nativeLabel": "计算器与记账表单"
+      },
+      {
+        "id": "spec-16",
+        "code": "B07",
+        "title": "账单辅助信息",
+        "nativeCase": 5,
+        "nativeLabel": "计算器与记账表单"
+      },
+      {
+        "id": "spec-18",
+        "code": "B08",
+        "title": "授权弹窗",
+        "nativeCase": 16,
+        "nativeLabel": "AI 授权与配置"
+      },
+      {
+        "id": "spec-19",
+        "code": "B09",
+        "title": "配置编辑弹窗",
+        "nativeCase": 16,
+        "nativeLabel": "AI 授权与配置"
+      },
+      {
+        "id": "spec-20",
+        "code": "B10",
+        "title": "账本选中态",
+        "nativeCase": 9,
+        "nativeLabel": "账本与操作菜单"
+      },
+      {
+        "id": "spec-21",
+        "code": "B11",
+        "title": "账本操作菜单",
+        "nativeCase": 9,
+        "nativeLabel": "账本与操作菜单"
+      },
+      {
+        "id": "spec-22",
+        "code": "B12",
+        "title": "同步状态",
+        "nativeCase": 10,
+        "nativeLabel": "同步全部状态"
+      },
+      {
+        "id": "spec-23",
+        "code": "B13",
+        "title": "紧凑导入字段",
+        "nativeCase": 14,
+        "nativeLabel": "导入字段映射"
+      },
+      {
+        "id": "spec-24",
+        "code": "B14",
+        "title": "初始化选择",
+        "nativeCase": 15,
+        "nativeLabel": "初始化五步"
+      },
+      {
+        "id": "spec-25",
+        "code": "B15",
+        "title": "小票与分享",
+        "nativeCase": 18,
+        "nativeLabel": "小票与分享"
+      },
+      {
+        "id": "spec-27",
+        "code": "B16",
+        "title": "首页品牌",
+        "nativeCase": 0,
+        "nativeLabel": "首页品牌"
+      },
+      {
+        "id": "spec-28",
+        "code": "B17",
+        "title": "币种选择",
+        "nativeCase": 7,
+        "nativeLabel": "币种与账户选择"
+      },
+      {
+        "id": "spec-29",
+        "code": "B18",
+        "title": "汇率缺失弹窗",
+        "nativeCase": 8,
+        "nativeLabel": "补充汇率"
+      },
+      {
+        "id": "spec-30",
+        "code": "B19",
+        "title": "昵称与当前账本",
+        "nativeCase": 11,
+        "nativeLabel": "资料与紧凑余额"
+      },
+      {
+        "id": "spec-31",
+        "code": "B20",
+        "title": "昵称编辑弹窗",
+        "nativeCase": 12,
+        "nativeLabel": "昵称编辑"
+      },
+      {
+        "id": "spec-32",
+        "code": "B21",
+        "title": "附件图片与来源选择",
+        "nativeCase": 13,
+        "nativeLabel": "附件平铺与预览"
+      },
+      {
+        "id": "spec-41",
+        "code": "B22",
+        "title": "记账快捷入口",
+        "nativeCase": 20,
+        "nativeLabel": "快捷记账"
+      },
+      {
+        "id": "spec-45",
+        "code": "B23",
+        "title": "分类选择器",
+        "nativeCase": 27,
+        "nativeLabel": "分类选择器"
+      },
+      {
+        "id": "spec-46",
+        "code": "B24",
+        "title": "账户选择器",
+        "nativeCase": 28,
+        "nativeLabel": "账户选择器"
+      },
+      {
+        "id": "spec-47",
+        "code": "B25",
+        "title": "交易行状态全集",
+        "nativeCase": 29,
+        "nativeLabel": "交易行状态全集"
+      },
+      {
+        "id": "spec-48",
+        "code": "B26",
+        "title": "真实账本数据联动",
+        "nativeCase": 30,
+        "nativeLabel": "真实账本联动"
+      },
+      {
+        "id": "spec-49",
+        "code": "B27",
+        "title": "账本选择器",
+        "nativeCase": 31,
+        "nativeLabel": "账本选择器"
+      },
+      {
+        "id": "spec-50",
+        "code": "B28",
+        "title": "分类管理列表",
+        "nativeCase": 32,
+        "nativeLabel": "分类管理列表"
+      },
+      {
+        "id": "spec-51",
+        "code": "B29",
+        "title": "转账账户对",
+        "nativeCase": 33,
+        "nativeLabel": "转账账户对"
+      },
+      {
+        "id": "spec-52",
+        "code": "B30",
+        "title": "搜索汇总与批量操作",
+        "nativeCase": 34,
+        "nativeLabel": "搜索汇总与批量操作"
+      },
+      {
+        "id": "spec-53",
+        "code": "B31",
+        "title": "分类账户标签详情",
+        "nativeCase": 35,
+        "nativeLabel": "分类账户标签详情"
+      },
+      {
+        "id": "spec-54",
+        "code": "B32",
+        "title": "配置选择与预览",
+        "nativeCase": 36,
+        "nativeLabel": "配置选择与预览"
+      },
+      {
+        "id": "spec-55",
+        "code": "B33",
+        "title": "安全输入与验证",
+        "nativeCase": 26,
+        "nativeLabel": "安全输入"
+      },
+      {
+        "id": "spec-56",
+        "code": "B34",
+        "title": "分类图标编辑",
+        "nativeCase": 37,
+        "nativeLabel": "分类图标编辑"
+      },
+      {
+        "id": "spec-57",
+        "code": "B35",
+        "title": "账户类型选择",
+        "nativeCase": 38,
+        "nativeLabel": "账户类型选择"
+      },
+      {
+        "id": "spec-58",
+        "code": "B36",
+        "title": "账户余额调整",
+        "nativeCase": 39,
+        "nativeLabel": "账户余额调整"
+      },
+      {
+        "id": "spec-59",
+        "code": "B37",
+        "title": "资产总览与账户设置",
+        "nativeCase": 40,
+        "nativeLabel": "资产总览与账户设置"
+      },
+      {
+        "id": "spec-60",
+        "code": "B38",
+        "title": "标签管理库",
+        "nativeCase": 41,
+        "nativeLabel": "标签管理库"
+      },
+      {
+        "id": "spec-63",
+        "code": "B39",
+        "title": "记账提醒设置",
+        "nativeCase": 42,
+        "nativeLabel": "记账提醒设置"
+      },
+      {
+        "id": "spec-64",
+        "code": "B40",
+        "title": "历史备注偏好",
+        "nativeCase": 43,
+        "nativeLabel": "历史备注偏好"
+      },
+      {
+        "id": "spec-66",
+        "code": "B41",
+        "title": "皮肤预览与选择",
+        "nativeCase": 44,
+        "nativeLabel": "皮肤预览与选择"
+      },
+      {
+        "id": "spec-67",
+        "code": "B42",
+        "title": "文件导入导出任务",
+        "nativeCase": 45,
+        "nativeLabel": "文件导入导出任务"
+      },
+      {
+        "id": "spec-68",
+        "code": "B43",
+        "title": "附件与图标预览库",
+        "nativeCase": 46,
+        "nativeLabel": "附件与图标预览库"
+      },
+      {
+        "id": "spec-69",
+        "code": "B44",
+        "title": "分类迁移选择对",
+        "nativeCase": 47,
+        "nativeLabel": "分类迁移选择对"
+      },
+      {
+        "id": "spec-70",
+        "code": "B45",
+        "title": "全局汇率与编辑",
+        "nativeCase": 48,
+        "nativeLabel": "全局汇率与编辑"
+      },
+      {
+        "id": "spec-71",
+        "code": "B46",
+        "title": "预算概览与分类预算",
+        "nativeCase": 49,
+        "nativeLabel": "预算概览与分类进度"
+      },
+      {
+        "id": "spec-72",
+        "code": "B47",
+        "title": "预算编辑与分类草稿",
+        "nativeCase": 50,
+        "nativeLabel": "预算编辑与分类草稿"
+      },
+      {
+        "id": "spec-73",
+        "code": "B48",
+        "title": "账单日历与按日汇总",
+        "nativeCase": 51,
+        "nativeLabel": "账单日历与按日汇总"
+      },
+      {
+        "id": "spec-74",
+        "code": "B49",
+        "title": "洞察汇总与分类排行",
+        "nativeCase": 52,
+        "nativeLabel": "洞察汇总与分类排行"
+      },
+      {
+        "id": "spec-75",
+        "code": "B50",
+        "title": "智能记账引导与语音偏好",
+        "nativeCase": 53,
+        "nativeLabel": "智能记账引导与语音偏好"
+      },
+      {
+        "id": "spec-76",
+        "code": "B51",
+        "title": "AI能力绑定与原授权",
+        "nativeCase": 54,
+        "nativeLabel": "AI能力绑定与授权"
+      },
+      {
+        "id": "spec-77",
+        "code": "B52",
+        "title": "AI服务商与连接测试",
+        "nativeCase": 55,
+        "nativeLabel": "AI服务商与连接测试"
+      },
+      {
+        "id": "spec-78",
+        "code": "B53",
+        "title": "提示词草稿与变量",
+        "nativeCase": 56,
+        "nativeLabel": "提示词草稿与变量"
+      },
+      {
+        "id": "spec-79",
+        "code": "B54",
+        "title": "助手执行深度",
+        "nativeCase": 57,
+        "nativeLabel": "助手执行深度"
+      },
+      {
+        "id": "spec-80",
+        "code": "B55",
+        "title": "AI对话与记账卡",
+        "nativeCase": 58,
+        "nativeLabel": "AI对话与记账卡"
+      },
+      {
+        "id": "spec-81",
+        "code": "B56",
+        "title": "周期账单卡与真实模板",
+        "nativeCase": 59,
+        "nativeLabel": "周期账单卡与真实模板"
+      },
+      {
+        "id": "spec-82",
+        "code": "B57",
+        "title": "导入映射与任务状态",
+        "nativeCase": 60,
+        "nativeLabel": "导入映射与任务状态"
+      },
+      {
+        "id": "spec-83",
+        "code": "B58",
+        "title": "CSV导出与固定字段",
+        "nativeCase": 61,
+        "nativeLabel": "CSV导出与固定字段"
+      },
+      {
+        "id": "spec-84",
+        "code": "B59",
+        "title": "周期编辑与完整频率",
+        "nativeCase": 62,
+        "nativeLabel": "周期编辑与完整频率"
+      },
+      {
+        "id": "spec-85",
+        "code": "B60",
+        "title": "年度账单七段内容",
+        "nativeCase": 63,
+        "nativeLabel": "年度账单七段内容"
+      },
+      {
+        "id": "spec-86",
+        "code": "B61",
+        "title": "小票弹窗与字段选择",
+        "nativeCase": 64,
+        "nativeLabel": "小票弹窗与字段选择"
+      },
+      {
+        "id": "spec-87",
+        "code": "B62",
+        "title": "云配置与登录表单",
+        "nativeCase": 65,
+        "nativeLabel": "云配置与登录表单"
+      },
+      {
+        "id": "spec-88",
+        "code": "B63",
+        "title": "转账同屏与原币快照",
+        "nativeCase": 33,
+        "nativeLabel": "转账账户对"
+      },
+      {
+        "id": "spec-89",
+        "code": "B64",
+        "title": "账单详情与历史快照",
+        "nativeCase": 66,
+        "nativeLabel": "账单详情与历史快照"
+      },
+      {
+        "id": "spec-90",
+        "code": "B65",
+        "title": "备份同步与差异选择",
+        "nativeCase": 67,
+        "nativeLabel": "备份同步与差异选择"
+      },
+      {
+        "id": "spec-91",
+        "code": "B66",
+        "title": "两端自动记账与原引导",
+        "nativeCase": 68,
+        "nativeLabel": "两端自动记账与原引导"
+      },
+      {
+        "id": "spec-92",
+        "code": "B67",
+        "title": "汇总币种与缺失状态",
+        "nativeCase": 69,
+        "nativeLabel": "汇总币种与缺失状态"
+      },
+      {
+        "id": "spec-93",
+        "code": "B68",
+        "title": "共享云与成员权限",
+        "nativeCase": 70,
+        "nativeLabel": "共享云与成员权限"
+      },
+      {
+        "id": "spec-94",
+        "code": "B69",
+        "title": "分享卡与原海报预览",
+        "nativeCase": 71,
+        "nativeLabel": "分享卡与原海报预览"
+      },
+      {
+        "id": "spec-95",
+        "code": "B70",
+        "title": "AI记忆权限与活动",
+        "nativeCase": 72,
+        "nativeLabel": "AI记忆权限与活动"
+      },
+      {
+        "id": "spec-96",
+        "code": "B71",
+        "title": "关于帮助与支持",
+        "nativeCase": 73,
+        "nativeLabel": "关于帮助与支持"
+      },
+      {
+        "id": "spec-97",
+        "code": "B72",
+        "title": "日志存储与维护",
+        "nativeCase": 74,
+        "nativeLabel": "日志存储与维护"
+      },
+      {
+        "id": "spec-2005",
+        "code": "B73",
+        "title": "启动品牌、状态与安全说明",
+        "nativeCase": 75,
+        "nativeLabel": "启动品牌、状态与安全说明"
+      },
+      {
+        "id": "spec-2006",
+        "code": "B74",
+        "title": "七类分享海报平铺",
+        "nativeCase": 76,
+        "nativeLabel": "七类分享海报平铺"
+      },
+      {
+        "id": "spec-2007",
+        "code": "B75",
+        "title": "云同步健康状态",
+        "nativeCase": 77,
+        "nativeLabel": "云同步健康状态"
+      },
+      {
+        "id": "spec-2008",
+        "code": "B76",
+        "title": "资产账户工具栏",
+        "nativeCase": 40,
+        "nativeLabel": "资产总览与账户设置"
+      },
+      {
+        "id": "spec-2102",
+        "code": "B77",
+        "title": "分类上级与账户摘要",
+        "nativeCase": 35,
+        "nativeLabel": "分类账户标签详情"
+      }
+    ]
+  }
+]

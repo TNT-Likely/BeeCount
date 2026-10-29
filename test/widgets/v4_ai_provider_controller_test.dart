@@ -4,7 +4,7 @@ import 'package:agentcore/agentcore.dart';
 import 'package:beecount/ai/providers/ai_provider_config.dart';
 import 'package:beecount/ai/providers/ai_provider_manager.dart';
 import 'package:beecount/l10n/app_localizations.dart';
-import 'package:beecount/presentation/v4/bindings/ai_provider_editor_controller.dart';
+import 'package:beecount/pages/ai/providers/controllers/ai_provider_editor_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';

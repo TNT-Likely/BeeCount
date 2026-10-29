@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:beecount/presentation/v4/bindings/category_line_icon_names.dart';
+import 'package:beecount/pages/category/editor/bindings/category_line_icon_names.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -35,8 +35,7 @@ void main() {
     final registry =
         jsonDecode(File('tool/v4/lucide-icon-names.json').readAsStringSync())
             as Map;
-    final vendor =
-        File('docs/design/card-refresh/prototype/vendor/lucide.min.js');
+    final vendor = File('tool/vendor/lucide/lucide.min.js');
     expect(sha256.convert(vendor.readAsBytesSync()).toString(),
         registry['vendorSha256']);
     final knownNames = (registry['names'] as List).cast<String>().toSet();

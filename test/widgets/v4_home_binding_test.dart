@@ -1,9 +1,9 @@
 import 'dart:ui' show SemanticsFlag;
-import 'package:beecount/widgets/biz/transaction_list.dart';
-import 'package:beecount/presentation/v4/bindings/page_skin_composition.dart';
+import 'package:beecount/pages/main/home/bindings/transaction_list.dart';
+import 'package:beecount/styles/header_skins.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import 'package:beecount/pages/main/home_page.dart';
-import 'package:beecount/widgets/biz/transaction_list_item.dart';
+import 'package:beecount/pages/shared/transactions/transaction_list_item.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'package:beecount/cloud/sync_service.dart';
@@ -11,12 +11,12 @@ import 'package:beecount/data/db.dart';
 import 'package:beecount/data/repositories/budget_repository.dart';
 import 'package:beecount/data/repositories/local/local_repository.dart';
 import 'package:beecount/l10n/app_localizations.dart';
-import 'package:beecount/presentation/v4/bindings/home_journal.dart';
-import 'package:beecount/presentation/v4/bindings/home_overview.dart';
+import 'package:beecount/pages/main/home/widgets/home_journal.dart';
+import 'package:beecount/pages/main/home/widgets/home_overview.dart';
 import 'package:beecount/providers.dart';
 import 'package:beecount/providers/budget_providers.dart';
-import 'package:beecount/widgets/biz/bee_icon.dart';
-import 'package:beecount/widgets/ui/primary_header.dart';
+import 'package:beecount/pages/shared/branding/bee_artwork.dart';
+import 'package:beecount/pages/shared/appearance/primary_header.dart';
 import 'package:beecount_business_ui/beecount_business_ui.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:drift/native.dart';
@@ -218,7 +218,7 @@ void main() {
 
   for (final skin in ['anniversary', 'anniv_cake']) {
     for (final dark in [false, true]) {
-      testWidgets('首页原画落在正确承载区 $skin dark=$dark', (tester) async {
+      testWidgets('首页原画复用完整背景且不挤压首卡 $skin dark=$dark', (tester) async {
         tester.view.physicalSize = const Size(320, 568);
         tester.view.devicePixelRatio = 1;
         addTearDown(tester.view.resetPhysicalSize);
@@ -239,20 +239,20 @@ void main() {
                 supportedLocales: AppLocalizations.supportedLocales,
                 home: const HomePage())));
         await tester.pumpAndSettle();
-        final scene = tester
-            .widget<V4OriginalSkinScene>(find.byType(V4OriginalSkinScene));
-        expect(scene.inCard, !dark);
-        if (dark) {
-          expect(tester.getSize(find.byType(V4OriginalSkinScene)).height, 112);
-        }
-        expect(
-            tester
-                .getSize(find.byKey(const ValueKey('v4-original-skin-canvas'))),
-            const Size(398, 208));
+        final artwork = tester
+            .widget<HeaderSkinPageArtwork>(find.byType(HeaderSkinPageArtwork));
+        expect(artwork.role, HeaderSkinPageRole.home);
+        expect(artwork.skin.id, skin);
+        expect(artwork.dark, dark);
+        expect(tester.getSize(find.byType(HeaderSkinPageArtwork)),
+            const Size(320, 568));
         final summary = find.byType(BeeSummaryCard);
-        expect(
-            tester.widget<BeeSummaryCard>(summary).background != null, !dark);
-        expect(find.byType(V4OriginalSkinScene), findsOneWidget);
+        expect(tester.widget<BeeSummaryCard>(summary).background, isNotNull);
+        final original = tester.getRect(summary);
+        container.read(headerSkinProvider.notifier).state = 'none';
+        await tester.pumpAndSettle();
+        expect(tester.getRect(summary), original);
+        expect(find.byType(HeaderSkinPageArtwork), findsNothing);
         expect(tester.takeException(), isNull);
         await close(tester);
       });

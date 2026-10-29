@@ -1,5 +1,5 @@
 import 'package:beecount/data/db.dart';
-import 'package:beecount/presentation/v4/bindings/transaction_list_metadata.dart';
+import 'package:beecount/pages/shared/transactions/bindings/transaction_list_metadata.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

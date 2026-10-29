@@ -18,8 +18,9 @@ import 'pages/transaction/transaction_editor_page.dart';
 import 'providers.dart';
 import 'l10n/app_localizations.dart';
 import 'widget/widget_manager.dart';
-import 'widgets/ui/ui.dart';
-import 'widgets/ui/speed_dial_fab.dart';
+import 'pages/shared/appearance/skin_animation_scope.dart';
+import 'pages/shared/widgets/feature_dot.dart';
+import 'pages/shared/navigation/quick_add_actions.dart';
 import 'cloud/sync_service.dart';
 import 'cloud/transactions_sync_manager.dart';
 import 'cloud/sync/sync_engine.dart';
@@ -802,7 +803,7 @@ class _BeeAppState extends ConsumerState<BeeApp>
         if (_lastBackPressTime == null ||
             now.difference(_lastBackPressTime!) > const Duration(seconds: 2)) {
           _lastBackPressTime = now;
-          showToast(context, l10n.commonPressAgainToExit);
+          showBeeToast(context, l10n.commonPressAgainToExit);
         } else {
           SystemNavigator.pop();
         }

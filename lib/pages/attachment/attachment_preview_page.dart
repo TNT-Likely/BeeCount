@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 import '../../data/db.dart';
-import '../../presentation/v4/bindings/attachment_viewer.dart';
+import 'widgets/attachment_viewer.dart';
 
 /// 附件图片预览页面
 /// 支持左右滑动查看多张图片，支持手势缩放

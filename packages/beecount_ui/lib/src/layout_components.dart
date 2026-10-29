@@ -60,10 +60,14 @@ class BeeBadge extends StatelessWidget {
       required this.child,
       required this.label,
       this.count,
+      this.offset = Offset.zero,
+      this.color,
       this.visible = true});
   final Widget child;
   final String label;
   final int? count;
+  final Offset offset;
+  final Color? color;
   final bool visible;
   @override
   Widget build(BuildContext context) {
@@ -73,8 +77,8 @@ class BeeBadge extends StatelessWidget {
         child: Stack(clipBehavior: Clip.none, children: [
           child,
           Positioned(
-              top: 0,
-              right: 0,
+              top: offset.dy,
+              right: offset.dx,
               child: IgnorePointer(
                   child: ExcludeSemantics(
                       child: Container(
@@ -86,7 +90,7 @@ class BeeBadge extends StatelessWidget {
                               minWidth: count == null ? 8 : 18,
                               minHeight: count == null ? 8 : 18),
                           decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.error,
+                              color: color ?? Theme.of(context).colorScheme.error,
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
                                   color: BeeCardTheme.of(context).surface,

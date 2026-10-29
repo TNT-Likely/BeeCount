@@ -1,4 +1,3 @@
-import 'package:beecount/widgets/ui/toast.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -17,7 +16,7 @@ void main() {
                   TextField(focusNode: focus),
                   TextButton(
                       onPressed: () =>
-                          showToast(context, '保存成功', tone: BeeTone.success),
+                          showBeeToast(context, '保存成功', tone: BeeTone.success),
                       child: const Text('显示结果')),
                 ])))));
     focus.requestFocus();
@@ -27,7 +26,7 @@ void main() {
     expect(
         tester.widget<BeeToast>(find.byType(BeeToast)).tone, BeeTone.success);
     expect(focus.hasFocus, isTrue);
-    showToastOnOverlay(nav.currentState!.overlay!, '保存失败', tone: BeeTone.error);
+    showBeeToastOnOverlay(nav.currentState!.overlay!, '保存失败', tone: BeeTone.error);
     await tester.pump();
     expect(find.byType(BeeToast), findsOneWidget);
     expect(find.text('保存成功'), findsNothing);
@@ -44,7 +43,7 @@ void main() {
     final nav = GlobalKey<NavigatorState>();
     await tester.pumpWidget(
         MaterialApp(navigatorKey: nav, home: const Scaffold(body: Text('页面'))));
-    showToastOnOverlay(nav.currentState!.overlay!, '测试完成', isDark: true);
+    showBeeToastOnOverlay(nav.currentState!.overlay!, '测试完成', brightness: Brightness.dark);
     await tester.pump();
     final context = tester.element(find.byType(BeeToast));
     expect(Theme.of(context).brightness, Brightness.dark);

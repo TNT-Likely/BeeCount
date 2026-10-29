@@ -7,8 +7,8 @@ import 'package:beecount/data/repositories/local/local_repository.dart';
 import 'package:beecount/l10n/app_localizations.dart';
 import 'package:beecount/pages/account/account_detail_page.dart';
 import 'package:beecount/providers/database_providers.dart';
-import 'package:beecount/styles/tokens.dart';
-import 'package:beecount/widgets/biz/amount_text.dart';
+import 'package:beecount_business_ui/beecount_business_ui.dart';
+import 'package:beecount_ui/beecount_ui.dart';
 
 void main() {
   for (final incoming in [true, false]) {
@@ -60,23 +60,44 @@ void main() {
           findsOneWidget);
       expect(
           find.descendant(
-              of: row, matching: find.text('转账  (信用卡还款)', findRichText: true)),
+              of: row, matching: find.text('信用卡还款', findRichText: true)),
           findsOneWidget);
-      final amount = tester.widget<AmountText>(
-          find.descendant(of: row, matching: find.byType(AmountText)));
-      expect(amount.value, incoming ? 135 : -135);
-      expect(amount.signed, isTrue);
-      expect(amount.style?.color, BeeTokens.textPrimary(tester.element(row)));
+      final presentation = tester.widget<BeeTransactionRow>(
+          find.descendant(of: row, matching: find.byType(BeeTransactionRow)));
+      expect(presentation.kind, BeeTransactionKind.transfer);
+      expect(presentation.ledgerName, '很长的跨账本名称用于确认不会挤掉转账标题');
+      expect(presentation.amount, incoming ? '+¥135.00' : '−¥135.00');
+      final renderedAmount = tester.widget<RichText>(find.descendant(
+          of: row,
+          matching: find.byWidgetPredicate((widget) =>
+              widget is RichText &&
+              widget.text.toPlainText() == presentation.amount)));
+      expect(renderedAmount.text.style?.color,
+          Theme.of(tester.element(row)).colorScheme.onSurface);
       expect(tester.takeException(), isNull);
       expect(await repo.getAccountBalance(accountId), incoming ? 0 : 865);
-      expect(await repo.getAccountCategoryStats(accountId, type: 'income'), isEmpty);
-      expect(await repo.getAccountCategoryStats(accountId, type: 'expense'), isEmpty);
-      await tester.ensureVisible(find.text(incoming ? '支出与转出' : '收入与转入'));
-      await tester.tap(find.text(incoming ? '支出与转出' : '收入与转入'));
-      await tester.pumpAndSettle();
+      expect(await repo.getAccountCategoryStats(accountId, type: 'income'),
+          isEmpty);
+      expect(await repo.getAccountCategoryStats(accountId, type: 'expense'),
+          isEmpty);
+      final l = AppLocalizations.of(tester.element(row));
+      Future<void> filter(String value) async {
+        final control = find.byWidgetPredicate(
+            (w) => w is BeeIconButton && w.label == l.accountAllFlows);
+        await tester.ensureVisible(control);
+        await tester.drag(find.byType(ListView).first, const Offset(0, -100));
+        await tester.pumpAndSettle();
+        await tester.tap(control);
+        await tester.pumpAndSettle();
+        await tester.tap(find.descendant(
+            of: find.byType(BeeAccountFlowFilter), matching: find.text(value)));
+        await tester.tap(find.text(l.commonConfirm));
+        await tester.pumpAndSettle();
+      }
+
+      await filter(incoming ? l.accountOutflows : l.accountInflows);
       expect(row, findsNothing);
-      await tester.tap(find.text('全部流水'));
-      await tester.pumpAndSettle();
+      await filter(l.accountAllFlows);
       expect(row, findsOneWidget);
       expect(await repo.getAccountBalance(accountId), incoming ? 0 : 865);
       await tester.pumpWidget(const SizedBox());

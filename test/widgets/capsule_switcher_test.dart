@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:beecount/widgets/ui/ui.dart';
+import 'package:beecount_ui/beecount_ui.dart';
 
 void main() {
   testWidgets('nullable 全部选项可切换，向辅助技术提供选中状态', (tester) async {
@@ -10,11 +10,11 @@ void main() {
     await tester.pumpWidget(MaterialApp(
         home: StatefulBuilder(
       builder: (context, setState) => Scaffold(
-          body: CapsuleSwitcher<String?>(
-        selectedValue: selected,
-        options: const [
-          CapsuleOption(value: null, label: '全部流水'),
-          CapsuleOption(value: 'income', label: '收入与转入'),
+          body: BeeSegmented<String?>(
+        value: selected,
+        items: const [
+          BeeSegment(null, '全部流水'),
+          BeeSegment('income', '收入与转入'),
         ],
         onChanged: (value) => setState(() => selected = value),
       )),
@@ -38,20 +38,23 @@ void main() {
     semantics.dispose();
   });
 
-  testWidgets('箭头打开周期选择器，不触发选项切换', (tester) async {
+  testWidgets('当前独立日期入口打开选择器，不触发周期Tab切换', (tester) async {
     var opened = 0;
     var changed = 0;
     await tester.pumpWidget(MaterialApp(
         home: Scaffold(
-            body: CapsuleSwitcher<int>(
-      selectedValue: 0,
-      options: [
-        CapsuleOption(
-            value: 0, label: '月', showArrow: true, onTap: () => opened++)
-      ],
-      onChanged: (_) => changed++,
-    ))));
-    await tester.tap(find.byIcon(Icons.arrow_drop_down));
+            body: Column(children: [
+      BeeSegmented<int>(
+          value: 0,
+          items: const [BeeSegment(0, '月'), BeeSegment(1, '年')],
+          onChanged: (_) => changed++),
+      BeeDateRangeBar(label: '2026 年 10 月', onChoose: () => opened++)
+    ]))));
+    final arrow = find.descendant(
+        of: find.byType(BeeDateRangeBar),
+        matching: find.byWidgetPredicate(
+            (widget) => widget is BeeLineIcon && widget.name == 'ChevronDown'));
+    await tester.tap(arrow);
     await tester.pumpAndSettle();
     expect(opened, 1);
     expect(changed, 0);
@@ -69,12 +72,12 @@ void main() {
         child: Scaffold(
             body: SizedBox(
                 width: 200,
-                child: CapsuleSwitcher<String?>(
-                  selectedValue: null,
-                  options: const [
-                    CapsuleOption(value: null, label: '全部流水'),
-                    CapsuleOption(value: 'expense', label: '支出与转出'),
-                    CapsuleOption(value: 'income', label: '收入与转入'),
+                child: BeeSegmented<String?>(
+                  value: null,
+                  items: const [
+                    BeeSegment(null, '全部流水'),
+                    BeeSegment('expense', '支出与转出'),
+                    BeeSegment('income', '收入与转入'),
                   ],
                   onChanged: (value) => selected = value,
                 ))),

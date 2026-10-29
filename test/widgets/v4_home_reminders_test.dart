@@ -1,5 +1,5 @@
 import 'package:beecount/l10n/app_localizations.dart';
-import 'package:beecount/presentation/v4/bindings/home_reminders.dart';
+import 'package:beecount/pages/main/home/widgets/home_reminders.dart';
 import 'package:beecount/providers.dart';
 import 'package:beecount/providers/budget_providers.dart';
 import 'package:beecount_ui/beecount_ui.dart';

@@ -12,7 +12,7 @@ import '../services/ai/billing_image_service.dart';
 import '../services/attachment_service.dart';
 import '../services/billing/post_processor.dart';
 import '../services/data/tag_seed_service.dart';
-import '../widgets/ui/ui.dart';
+import 'package:beecount_ui/beecount_ui.dart';
 
 /// 图片记账入口(相册/相机)。瘦身后:UI 流程 + 兜底,业务调 [AiBookkeeper]。
 class ImageBillingHelper {
@@ -74,7 +74,7 @@ class ImageBillingHelper {
           AICapabilityType.vision)) {
         if (!context.mounted) return;
         Navigator.of(context).pop();
-        showToast(context, l10n.aiNotConfiguredHint);
+        showBeeToast(context, l10n.aiNotConfiguredHint);
         return;
       }
 
@@ -83,7 +83,7 @@ class ImageBillingHelper {
       if (currentLedger == null) {
         if (!context.mounted) return;
         Navigator.of(context).pop();
-        showToast(context, l10n.aiOcrNoLedger);
+        showBeeToast(context, l10n.aiOcrNoLedger);
         return;
       }
 
@@ -122,7 +122,7 @@ class ImageBillingHelper {
       // 6. 提示用户
       if (!result.success) {
         // failedCount>0:提取到账单但入库失败(真·错误);否则=AI 判定不是账单/没提取到
-        showToast(context,
+        showBeeToast(context,
             result.failedCount > 0 ? l10n.aiOcrCheckLog : l10n.aiOcrNoBill);
         return;
       }
@@ -144,7 +144,7 @@ class ImageBillingHelper {
           ? '${l10n.aiOcrSuccess(typeText, amountStr)} × ${result.savedCount}'
           : l10n.aiOcrSuccess(typeText, amountStr);
       // 多币种降级提示(A5):缺汇率已按 1:1 暂记,指路统计页补折算
-      showToast(
+      showBeeToast(
         context,
         result.unconvertedCurrencies.isEmpty
             ? toastText
@@ -153,7 +153,7 @@ class ImageBillingHelper {
     } catch (e) {
       if (!context.mounted) return;
       Navigator.of(context).popUntil((route) => route.isFirst);
-      showToast(context, l10n.aiOcrFailed(e.toString()));
+      showBeeToast(context, l10n.aiOcrFailed(e.toString()));
     } finally {
       await images?.dispose();
     }

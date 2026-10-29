@@ -1,6 +1,6 @@
 import 'package:beecount/l10n/app_localizations.dart';
-import 'package:beecount/presentation/v4/gallery/component_gallery_page.dart';
-import 'package:beecount/presentation/v4/gallery/business_page.dart'
+import 'package:beecount/dev/component_gallery/component_gallery_page.dart';
+import 'package:beecount/dev/component_gallery/business_page.dart'
     show businessCases;
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';

@@ -1,4 +1,4 @@
-import 'package:beecount/widgets/biz/tag_chip.dart';
+import 'package:beecount_business_ui/beecount_business_ui.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -10,7 +10,8 @@ void main() {
         'An exceptionally long English tag name',
         '一个需要完整朗读但是视觉可省略的中文标签名称'
       ]) {
-        testWidgets('标签有限宽度保留高度字号颜色与完整语义 $brightness $scale $name', (t) async {
+        testWidgets('当前紧凑BeeTag有限宽、大字、颜色与全名语义 $brightness $scale $name',
+            (t) async {
           t.view.physicalSize = const Size(320, 568);
           t.view.devicePixelRatio = 1;
           addTearDown(t.view.resetPhysicalSize);
@@ -24,30 +25,41 @@ void main() {
                     data: MediaQueryData(textScaler: TextScaler.linear(scale)),
                     child: Scaffold(
                         body: Column(children: [
-                      for (final size in TagChipSize.values)
+                      for (final interactive in [false, true])
                         SizedBox(
                             width: 96,
-                            child: TagChip(
-                                key: ValueKey(size),
-                                name: name,
-                                color: '#CC6600',
-                                size: size,
-                                onTap: () => tapped++)),
+                            child: BeeTag(
+                                key: ValueKey(interactive),
+                                tag: BeeTagData(
+                                    '1', name, const Color(0xffcc6600)),
+                                compact: true,
+                                onTap: interactive ? () => tapped++ : null))
                     ])))));
             await t.pumpAndSettle();
-            final heights = [20.0, 28.0, 36.0], fonts = [11.0, 13.0, 15.0];
-            for (var i = 0; i < TagChipSize.values.length; i++) {
-              final chip = find.byKey(ValueKey(TagChipSize.values[i]));
-              expect(t.getSize(chip).height, heights[i]);
+            for (final interactive in [false, true]) {
+              final chip = find.byKey(ValueKey(interactive));
               final text = find.descendant(of: chip, matching: find.text(name));
-              final widget = t.widget<Text>(text);
-              expect(widget.style!.fontSize, fonts[i]);
-              expect(widget.style!.color, const Color(0xffcc6600));
-              expect(widget.maxLines, 1);
-              expect(widget.overflow, TextOverflow.ellipsis);
+              final label = t.widget<Text>(text);
+              expect(label.style!.fontSize, 10);
+              expect(
+                  label.style!.color,
+                  brightness == Brightness.dark
+                      ? Color.lerp(const Color(0xffcc6600), Colors.white, .3)
+                      : const Color(0xffcc6600));
+              expect(label.maxLines, 1);
+              expect(label.overflow, TextOverflow.ellipsis);
               expect(t.getSemantics(text).label, name);
+              final pill = find.descendant(
+                  of: chip,
+                  matching: find.byKey(const ValueKey('bee-tag-pill')));
+              final height = t.getSize(pill).height;
+              expect(height, greaterThanOrEqualTo(21));
+              expect(height, lessThanOrEqualTo(32));
+              if (scale == 1) expect(height, 21);
+              expect(t.getSize(chip).height, interactive ? 44 : height);
             }
-            await t.tap(find.byKey(const ValueKey(TagChipSize.small)));
+            expect(find.byTooltip(name), findsNWidgets(2));
+            await t.tap(find.byKey(const ValueKey(true)));
             expect(tapped, 1);
             expect(t.takeException(), isNull);
           } finally {
@@ -58,14 +70,15 @@ void main() {
       }
     }
   }
-  testWidgets('320宽140%多标签加一和compact单标签回调保留完整名称', (t) async {
+  testWidgets('320宽140%当前表单摘要+N与长名点击保留真实回调', (t) async {
     t.view.physicalSize = const Size(320, 568);
     t.view.devicePixelRatio = 1;
     addTearDown(t.view.resetPhysicalSize);
     addTearDown(t.view.resetDevicePixelRatio);
-    const long = 'One very long original tag name with spaces';
+    const name = 'One very long original tag name with spaces';
+    const tag = BeeTagData('1', name, Color(0xff123456));
     String? picked;
-    var more = 0;
+    var pickerOpened = 0;
     await t.pumpWidget(MaterialApp(
         theme: beeTheme(),
         home: MediaQuery(
@@ -76,32 +89,34 @@ void main() {
                     child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          TagChipList(
-                              tags: const [
-                                (id: 1, name: long, color: '#123456'),
-                                (id: 2, name: '中文标签', color: null),
-                                (id: 3, name: 'third', color: null)
-                              ],
-                              maxDisplay: 2,
-                              onTagTap: (id, name) => picked = '$id:$name',
-                              onMoreTap: () => more++),
+                          SizedBox(
+                              width: 140,
+                              child: RecordingMetaControl(
+                                  label: '选择标签',
+                                  onTap: () => pickerOpened++,
+                                  child: const RecordingTagSummary(
+                                      first: BeeTag(tag: tag, compact: true),
+                                      count: 3))),
                           const SizedBox(height: 16),
                           SizedBox(
                               width: 90,
                               child: Row(children: [
                                 Flexible(
-                                    child: TagChip(
-                                        name: long, onTap: () => picked = long))
-                              ])),
+                                    child: BeeTag(
+                                        tag: tag,
+                                        compact: true,
+                                        onTap: () =>
+                                            picked = '${tag.id}:${tag.label}'))
+                              ]))
                         ]))))));
     await t.pumpAndSettle();
-    expect(find.text('+1'), findsOneWidget);
-    await t.tap(find.text('+1'));
-    expect(more, 1);
-    await t.tap(find.text(long).first);
-    expect(picked, '1:$long');
-    await t.tap(find.text(long).last);
-    expect(picked, long);
+    expect(find.text('+2'), findsOneWidget);
+    await t.tap(find.text('+2'));
+    expect(pickerOpened, 1);
+    await t.tap(find.text(name).first);
+    expect(pickerOpened, 2);
+    await t.tap(find.text(name).last);
+    expect(picked, '1:$name');
     expect(t.takeException(), isNull);
   });
 }

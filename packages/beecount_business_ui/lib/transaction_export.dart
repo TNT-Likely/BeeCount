@@ -1,4 +1,4 @@
 /// CSV transaction export presentation with data and callbacks only.
 library;
 
-export 'src/transaction_export.dart';
+export 'src/cloud_data/transaction_export.dart';

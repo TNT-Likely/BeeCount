@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../presentation/v4/bindings/transaction_detail_controls.dart';
+import 'detail/bindings/transaction_detail_controls.dart';
 
 /// Reopening resolves the latest local record from stable transaction/ledger IDs.
 class TransactionDetailPage extends StatelessWidget {

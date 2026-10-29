@@ -5,28 +5,28 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/db.dart' as db;
 import '../../l10n/app_localizations.dart';
-import '../../presentation/v4/bindings/account_detail.dart';
-import '../../presentation/v4/bindings/account_detail_controller.dart';
-import '../../presentation/v4/bindings/account_detail_sections.dart';
-import '../../presentation/v4/bindings/detail_period_controls.dart';
-import '../../presentation/v4/bindings/page_scaffold.dart';
-import '../../presentation/v4/bindings/transaction_tile.dart';
+import 'detail/bindings/account_detail.dart';
+import 'detail/controllers/account_detail_controller.dart';
+import 'detail/widgets/account_detail_sections.dart';
+import '../shared/resources/widgets/detail_period_controls.dart';
+import '../shared/scaffold/widgets/page_scaffold.dart';
+import '../shared/transactions/bindings/transaction_tile.dart';
 import '../../providers.dart';
 import '../../services/billing/post_processor.dart';
 import '../../utils/account_type_utils.dart';
 import '../../utils/currencies.dart';
-import '../../widgets/biz/format_money.dart';
+import '../../utils/format_money.dart';
 import '../transaction/transaction_editor_page.dart';
 import 'account_edit_page.dart';
 
-export '../../presentation/v4/bindings/account_detail.dart'
+export 'detail/bindings/account_detail.dart'
     show
         AccountTransactionsPaginationState,
         AccountTransactionsPaginationNotifier,
         accountTransactionsPaginatedProvider,
         accountCategoryStatsProvider;
 
-part '../../presentation/v4/bindings/account_detail_actions.dart';
+part 'detail/bindings/account_detail_actions.dart';
 
 class AccountDetailPage extends ConsumerStatefulWidget {
   const AccountDetailPage({super.key, required this.account});

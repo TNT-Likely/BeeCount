@@ -1,5 +1,5 @@
-import 'package:beecount/presentation/v4/gallery/budget_editor_sample.dart';
-import 'package:beecount/presentation/v4/gallery/gallery_still_asset.dart';
+import 'package:beecount/dev/component_gallery/budget_editor_sample.dart';
+import 'package:beecount/dev/component_gallery/gallery_still_asset.dart';
 import 'package:beecount_business_ui/beecount_business_ui.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';

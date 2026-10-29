@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "repository": "https://github.com/TNT-Likely/BeeCount-Design",
+  "commit": "766f0a5dfdb6f114ec7f1fb57b3d9daf785a475f",
+  "contractVersion": 1,
+  "appContractHashes": {
+    "test/fixtures/design/category-coffee.png": "0ce533c72f28290ace665c82dc0040d2e1c9d4e3c60ef807948ff3fa5edc3865",
+    "tool/design/contracts/ai-conversation-geometry.json": "cd3b70207d3d44b77c64201d2026e85f55252e2664d4baa96cb9d8a58406f978",
+    "tool/design/contracts/ai-prompt-template.json": "2d0495ebce47379416bbaa3366990aba9dfeeb7a9a60620268e0b5293d7f10c9",
+    "tool/design/contracts/assistant-execution.json": "a04fa9f3b5b0a05fc8eb0282dea65cc86ed77228c37b5e2e21f3a17a7454fb97",
+    "tool/design/contracts/card-refresh/components/catalog.json": "5fb24ef6de88a6e179ec41c63434c488ec5c0bc0e70a7e9efda9a714b2f546e4",
+    "tool/design/contracts/card-refresh/components/samples.json": "08aa0aceef0bead81ead0135885537eb65dd094206d6d5ad6da08f4a342972a7",
+    "tool/design/contracts/card-refresh/rendering-sources.json": "dc5b10bf6290abf721d92d28aeb3a9ffbbde477a3e53b575e8cc9c4f1409e99c",
+    "tool/design/contracts/design-tokens.json": "6a877cc16284facb22c483a07d52757e00fc15a0670c7cc5fe538ec959467591",
+    "tool/vendor/lucide/LUCIDE-LICENSE": "b495047bd93a9b06913511076f504daba17d5bbeb3e0650f3bb53a4220329c57",
+    "tool/vendor/lucide/lucide.min.js": "5e943127343691a9b640d959bbfbdeb742f4a99e0ebc17a4fa77e94654e5318b"
+  },
+  "designSources": {
+    "tool/design/contracts/design-tokens.json": "card-refresh/tokens/design-tokens.json",
+    "tool/design/contracts/assistant-execution.json": "card-refresh/tokens/assistant-execution.json",
+    "tool/design/contracts/ai-prompt-template.json": "card-refresh/tokens/ai-prompt-template.json",
+    "test/fixtures/design/category-coffee.png": "card-refresh/prototype/assets/category-coffee.png",
+    "tool/vendor/lucide/lucide.min.js": "card-refresh/prototype/vendor/lucide.min.js",
+    "tool/vendor/lucide/LUCIDE-LICENSE": "card-refresh/prototype/vendor/LUCIDE-LICENSE"
+  }
+}

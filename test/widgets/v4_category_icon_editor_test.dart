@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:beecount/l10n/app_localizations_zh.dart';
-import 'package:beecount/presentation/v4/bindings/category_icon_catalog.dart';
-import 'package:beecount/presentation/v4/bindings/category_line_icon_names.dart';
+import 'package:beecount/pages/category/editor/bindings/category_icon_catalog.dart';
+import 'package:beecount/pages/category/editor/bindings/category_line_icon_names.dart';
 import 'package:beecount_business_ui/beecount_business_ui.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';

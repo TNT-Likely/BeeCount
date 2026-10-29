@@ -1,7 +1,7 @@
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';
 import '../../l10n/app_localizations.dart';
-import '../../presentation/v4/bindings/page_scaffold.dart';
+import '../shared/scaffold/widgets/page_scaffold.dart';
 import '../transaction/recurring_transaction_page.dart';
 import 'reminder_settings_page.dart';
 

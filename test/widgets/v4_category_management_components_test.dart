@@ -1,4 +1,5 @@
-import 'package:beecount/presentation/v4/gallery/business_page.dart';
+import 'dart:convert';
+import 'package:beecount/dev/component_gallery/business_page.dart';
 import 'package:beecount_business_ui/beecount_business_ui.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';
@@ -31,7 +32,7 @@ void main() {
     expect(find.byType(ReorderableDelayedDragStartListener), findsNothing);
     expect(find.byType(ReorderableDragStartListener), findsNWidgets(2));
     final grip = find.byKey(const ValueKey('category-reorder-a'));
-    expect(tester.getSize(grip), const Size(44, 44));
+    expect(tester.getSize(grip), const Size(48, 60));
     await tester.longPress(find.text('咖啡'));
     await tester.pumpAndSettle();
     expect(reordered, 0);
@@ -46,6 +47,85 @@ void main() {
     expect(reordered, 1);
     expect(tester.takeException(), isNull);
   });
+
+  for (final offset in [const Offset(2, 2), const Offset(46, 58)]) {
+    testWidgets('拖动把手边缘 $offset 可抓取，小屏深色展开项长按后仍可拖动', (tester) async {
+      tester.view.physicalSize = const Size(320, 568);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      var rows = [
+        BeeManagedCategory(
+            id: 'a',
+            name: '咖啡',
+            icon: Image.memory(
+                base64Decode(
+                    'iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAFUlEQVR4nGN4EzrxPwgz/Dgp8x+EAWX8C1sjhSyIAAAAAElFTkSuQmCC'),
+                width: 20,
+                height: 20,
+                fit: BoxFit.cover),
+            detail: '2笔',
+            children: [
+              BeeManagedCategory(
+                  id: 'child',
+                  name: '自定义图片分类',
+                  icon: Image.memory(
+                      base64Decode(
+                          'iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAFUlEQVR4nGN4EzrxPwgz/Dgp8x+EAWX8C1sjhSyIAAAAAElFTkSuQmCC'),
+                      width: 15,
+                      height: 15,
+                      fit: BoxFit.cover),
+                  detail: '2笔')
+            ]),
+        BeeManagedCategory(
+            id: 'b', name: '奶茶', icon: Icon(Icons.local_drink), detail: '3笔'),
+        BeeManagedCategory(
+            id: 'c', name: '其他', icon: Icon(Icons.more_horiz), detail: '1笔'),
+      ];
+      var edited = 0;
+      await tester.pumpWidget(MaterialApp(
+        theme: beeTheme(brightness: Brightness.dark),
+        builder: (context, child) => MediaQuery(
+            data: MediaQuery.of(context)
+                .copyWith(textScaler: const TextScaler.linear(1.4)),
+            child: child!),
+        home: Scaffold(
+            body: StatefulBuilder(
+                builder: (context, setState) => BeeCategoryManagementList(
+                      items: rows,
+                      reorderLabel: '拖动排序',
+                      manageLabel: '管理',
+                      onEdit: (_) => edited++,
+                      onManageChildren: (_) {},
+                      onReorder: (a, b) {
+                        if (a < b) b--;
+                        final next = rows.toList();
+                        final moved = next.removeAt(a);
+                        next.insert(b, moved);
+                        setState(() => rows = next);
+                      },
+                    ))),
+      ));
+      await tester.tap(find.text('咖啡'));
+      await tester.pumpAndSettle();
+      final handle = find.byKey(const ValueKey('category-reorder-a'));
+      final gesture =
+          await tester.startGesture(tester.getTopLeft(handle) + offset);
+      await tester.pump(const Duration(milliseconds: 900));
+      for (var i = 0; i < 15; i++) {
+        await gesture.moveBy(const Offset(0, 10));
+        await tester.pump(const Duration(milliseconds: 30));
+      }
+      await gesture.up();
+      await tester.pumpAndSettle();
+      expect(rows.first.id, 'b');
+      expect(find.text('自定义图片分类'), findsOneWidget);
+      expect(find.byType(Image), findsNWidgets(2));
+      expect(edited, 0);
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox.shrink());
+    });
+  }
   testWidgets('没有一级分类时仍能看到空态、转账分类和工具入口', (tester) async {
     var transfer = 0, tools = 0;
     await tester.pumpWidget(MaterialApp(

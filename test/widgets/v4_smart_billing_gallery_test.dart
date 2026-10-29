@@ -1,5 +1,5 @@
 import 'package:beecount/l10n/app_localizations.dart';
-import 'package:beecount/presentation/v4/gallery/billing_guide_sample.dart';
+import 'package:beecount/dev/component_gallery/billing_guide_sample.dart';
 import 'package:beecount_business_ui/beecount_business_ui.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';

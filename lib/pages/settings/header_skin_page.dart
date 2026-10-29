@@ -5,8 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/theme_providers.dart';
 import '../../providers/feature_highlight_providers.dart';
-import '../../presentation/v4/bindings/page_scaffold.dart';
-import '../../presentation/v4/bindings/skin_choices.dart';
+import '../shared/scaffold/widgets/page_scaffold.dart';
+import 'appearance/bindings/skin_choices.dart';
 import '../../styles/header_skins.dart';
 
 class HeaderSkinPage extends ConsumerStatefulWidget {

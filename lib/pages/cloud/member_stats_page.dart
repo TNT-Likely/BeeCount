@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../presentation/v4/bindings/cloud_shared_member_stats.dart';
+import 'shared/bindings/cloud_shared_member_stats.dart';
 
 class MemberStatsPage extends StatelessWidget {
   const MemberStatsPage(

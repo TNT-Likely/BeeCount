@@ -1,22 +1,22 @@
-import '../../presentation/v4/bindings/page_scaffold.dart';
+import '../shared/scaffold/widgets/page_scaffold.dart';
 import 'dart:async';
 import 'package:beecount_business_ui/beecount_business_ui.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../l10n/app_localizations.dart';
-import '../../presentation/v4/bindings/search_results.dart';
-import '../../presentation/v4/bindings/transaction_batch.dart';
-import '../../presentation/v4/bindings/transaction_search.dart';
-import '../../presentation/v4/bindings/transaction_search_filter.dart';
+import 'search/bindings/search_results.dart';
+import 'search/bindings/transaction_batch.dart';
+import 'search/bindings/transaction_search.dart';
+import 'search/bindings/transaction_search_filter.dart';
 import '../../providers.dart';
 import '../../providers/budget_providers.dart';
 import '../../services/billing/post_processor.dart';
 import '../../utils/category_utils.dart';
-import '../../widgets/biz/category_selector_dialog.dart';
+import '../shared/selectors/category_selector_dialog.dart';
 import '../tag/widgets/tag_selector.dart';
 
-export '../../presentation/v4/bindings/transaction_search.dart'
+export 'search/bindings/transaction_search.dart'
     show SearchTransaction;
 
 class SearchPage extends ConsumerStatefulWidget {

@@ -1,5 +1,5 @@
 /// Controlled recurring-template editing presentation.
 library;
 
-export 'src/recurring_editor.dart';
-export 'src/recurring_editor_date_wheels.dart';
+export 'src/automation/recurring_editor.dart';
+export 'src/automation/recurring_editor_date_wheels.dart';

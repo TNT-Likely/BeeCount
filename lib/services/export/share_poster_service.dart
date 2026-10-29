@@ -12,11 +12,11 @@ import 'package:path_provider/path_provider.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../../providers.dart';
-import '../../presentation/v4/bindings/share_card_controls.dart';
-import '../../widgets/posters/app_promo_poster.dart';
-import '../../widgets/posters/year_summary_poster.dart';
-import '../../widgets/posters/month_summary_poster.dart';
-import '../../widgets/posters/ledger_summary_poster.dart';
+import '../../pages/report/share/bindings/share_card_controls.dart';
+import '../../pages/shared/sharing/bindings/app_promo_poster.dart';
+import '../../pages/shared/sharing/bindings/year_summary_poster.dart';
+import '../../pages/shared/sharing/bindings/month_summary_poster.dart';
+import '../../pages/shared/sharing/bindings/ledger_summary_poster.dart';
 import 'share_poster_data_service.dart';
 
 /// 保存海报结果

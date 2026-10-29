@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:beecount/l10n/app_localizations.dart';
 import 'package:beecount/pages/settings/widget_management_page.dart';
-import 'package:beecount/presentation/v4/bindings/maintenance_access.dart';
+import 'package:beecount/pages/settings/data/bindings/maintenance_access.dart';
 import 'package:beecount/providers/font_scale_provider.dart';
 import 'package:beecount/theme.dart';
 import 'package:beecount/widget/views/glance_view.dart';

@@ -2,6 +2,10 @@
 
 V4 业务展示组件包。仅依赖 Flutter 和 `beecount_ui`，不依赖主 App、Riverpod、数据库、HTTP 或 Cloud SDK。
 
+`lib/src` 按业务领域分组：`shared`、`recording`、`transactions`、`resources`、`insights`、`automation`、`assistant`、`cloud_data`、`sharing`、`app_profile`。`resources` 再按账户、分类、账本、标签、附件、币种和详情组织。
+
+App 和验收页面继续使用根入口 `beecount_business_ui.dart` 或现有专题入口（如 `transaction_detail.dart`、`share_posters.dart`），不直接导入 `src`。包内按实际声明直接依赖领域文件，不依赖根 barrel；旧平铺私有文件已退役，没有保留第二套转发入口。真实查询和保存继续由 App binding 注入。
+
 - 记账：`RecordingHeader`、`RecordingAmountCard`、`RecordingCategoryTile`、`RecordingSubcategoryChip`、`RecordingKeypad`。
 - 明细与统计：`BeeMoney`、`BeeTransactionRow`、`BeeBatchBar`、`BeeSummaryCard`、`BeeCategoryRanking`、`BeeBarChart`、`BeeDonutChart`、`BeeTrendChart`。
 - 分类与选择：`BeeCategoryIcon`、`BeeTag`、`BeeTagPicker`、`BeeChoicePicker<T>`、`BeeCurrencyPicker`、`BeeValidatedInput`、`BeeDateWheels`。
@@ -14,7 +18,7 @@ V4 业务展示组件包。仅依赖 Flutter 和 `beecount_ui`，不依赖主 Ap
 
 同步状态、加载和失败均由上层传入，不在 widget 中发请求。权限可见性由宿主先过滤操作列表；破坏性操作仍需宿主确认。
 
-App 内验收：[ComponentGalleryPage](../../lib/presentation/v4/gallery/component_gallery_page.dart)。完整映射：[组件覆盖文档](../../docs/development/v4-component-packages.md)。
+App 内验收：[ComponentGalleryPage](../../lib/dev/component_gallery/component_gallery_page.dart)。完整映射：[组件覆盖文档](../../docs/architecture/presentation-packages.md)。
 
 详情与扩展：`BeeDetailList`、`BeeAccountCard`、`BeeBudgetCard`、`BeeChatMessage`、`BeeExecutionTimeline`、`BeePinPad`。这些组件只处理输入与展示，认证、网络和写入仍由宿主负责。
 
@@ -30,4 +34,10 @@ App 内验收：[ComponentGalleryPage](../../lib/presentation/v4/gallery/compone
 
 `BeeAccountTransactionTools` 统一账户流水标题、搜索与筛选入口、34px紧凑筛选胶囊及列表前的留白；`BeeAccountTransactionSearch` 在弹层内持有搜索控制器，等弹层完全卸载后释放，支持键盘提交、确认与取消草稿。查询仍由 App 在确认后执行。
 
-账户主卡只在名称下展示一次类型与币种，底部保留净资产与关联账本。`BeeAccountTransactionTools.sortLabel` 明示当前排序，点击回到筛选；`BeeCategoryManagementList` 在分类行右侧显示44px拖动把手，使用立即拖动监听，名称与图标不再承担隐式长按排序。
+账户主卡只在名称下展示一次类型与币种，底部保留净资产与关联账本。`BeeAccountTransactionTools.sortLabel` 明示当前排序，点击回到筛选；`BeeCategoryManagementList` 在分类行右侧显示48×60px抓取区及32×38px可见拖柄，使用立即拖动监听，名称与图标不再承担隐式长按排序。
+
+`BeeTwoFactorChallengeDialog`（`app_profile/auth`）接收输入控制器、方法、错误与忙状态；验证码验证、授权与关闭结果留给 App。`BeePromotionCard` / `BeePromotionCompact` / `BeePromotionDialog` / `BeePromotionScreenshot` / `BeePromotionGallery`（`app_profile/support`）只展示宿主传入的产品与渠道状态，点击、复制、打开截图路由均以回调交还 App。两组使用根公开入口。
+
+`share_posters.dart` 新增 `BeeAnnualReportPoster`、`BeeAnnualPosterChapter`、`BeeAnnualPosterMoment`：完整年度海报章节和间距在业务包，宿主提供已本地化、格式化、隐藏收入处理后的值及页眉页脚。账本年度范围、已发生天/月分母、汇率和原币交易投影仍只在 App 计算；预览和导出使用相同模型。
+
+HTML 设计目录：[BeeCount-Design/card-refresh](https://github.com/TNT-Likely/BeeCount-Design/tree/main/card-refresh)。App 验证使用随源码提交的小型契约，不要求检出设计仓。

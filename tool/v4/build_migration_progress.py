@@ -9,6 +9,8 @@ import html
 import json
 import re
 from migration_question_dashboard import question_panel
+from design_paths import design_root, development_root
+import os
 
 
 def build_progress_page(root, config, inventory_rows, scenes):
@@ -240,17 +242,17 @@ search.oninput=filter;status.onchange=filter;unfinished.onchange=filter;document
             '<br>页面名使用中文；每页的“交互设计”进入对应可操作设计稿。'
             '已实现、部分完成和整页验收完成保持独立，不以设计场景数量代替页面数量。</footer>'
             '</main><script>' + script + '</script></html>')
-    output = root / 'docs/design/card-refresh/migration-progress.html'
+    output = design_root(root) / 'migration-progress.html'
     output.write_text(page)
     return {'pages': total, 'completed': done, 'inProgress': counts['active'],
             'partial': counts['partial'], 'notStarted': counts['todo'],
             'priorities': priority_counts, 'questions': questions['total'],
-            'pendingQuestions': questions['pending'], 'output': str(output.relative_to(root))}
+            'pendingQuestions': questions['pending'], 'output': os.path.relpath(output, root)}
 
 
 if __name__ == '__main__':
     root = Path(__file__).resolve().parents[2]
     config = json.loads((root / 'tool/v4/migration-status.json').read_text())
-    inventory = json.loads((root / 'docs/development/v4-page-inventory.json').read_text())
-    scenes = json.loads((root / 'docs/design/card-refresh/screens/manifest.json').read_text())
+    inventory = json.loads((development_root(root) / 'v4-page-inventory.json').read_text())
+    scenes = json.loads((design_root(root) / 'screens/manifest.json').read_text())
     print(json.dumps(build_progress_page(root, config, inventory['rows'], scenes), ensure_ascii=False))

@@ -10,7 +10,6 @@ import '../services/ai/ai_bookkeeper.dart';
 import '../services/ai/ai_chat_service.dart';
 import '../services/ai/agent_app_facade.dart';
 import '../utils/app_localizations_resolver.dart';
-import 'language_provider.dart';
 import '../services/billing/bill_creation_service.dart';
 import '../providers.dart';
 import '../data/db.dart';

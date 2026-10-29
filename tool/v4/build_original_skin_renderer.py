@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Build the isolated local-only original 3.9.0 skin renderer; never the App."""
 from __future__ import annotations
+from design_paths import design_root
 import argparse, hashlib, json, os, pathlib, shutil, subprocess
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
@@ -12,7 +13,7 @@ PARTS = {
 }
 TEMPLATE = ROOT / 'tool/v4/original_skin_renderer'
 PROJECT = TEMPLATE / 'build/source_project'
-OUTPUT = ROOT / 'docs/design/card-refresh/renderers/build/original-skins-390'
+OUTPUT = design_root(ROOT) / 'renderers/build/original-skins-390'
 
 
 def git_source(path: str) -> bytes:

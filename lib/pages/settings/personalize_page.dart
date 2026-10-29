@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/theme_providers.dart';
-import '../../presentation/v4/bindings/page_scaffold.dart';
-import '../../presentation/v4/bindings/theme_color_options.dart';
-import '../../presentation/v4/sections/theme_color_dialog.dart';
+import '../shared/scaffold/widgets/page_scaffold.dart';
+import 'appearance/bindings/theme_color_options.dart';
+import 'appearance/widgets/theme_color_dialog.dart';
 import '../../styles/header_skins.dart';
 import 'header_skin_page.dart';
 

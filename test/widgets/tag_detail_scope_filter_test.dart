@@ -11,7 +11,7 @@ import 'package:beecount/data/repositories/local/local_repository.dart';
 import 'package:beecount/l10n/app_localizations.dart';
 import 'package:beecount/pages/tag/tag_detail_page.dart';
 import 'package:beecount/providers/database_providers.dart';
-import 'package:beecount/presentation/v4/bindings/tag_detail_sections.dart';
+import 'package:beecount/pages/tag/detail/widgets/tag_detail_sections.dart';
 
 void main() {
   late BeeDatabase db;

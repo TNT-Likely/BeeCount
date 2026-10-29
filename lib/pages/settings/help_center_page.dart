@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../presentation/v4/bindings/support_document_controls.dart';
+import 'support/bindings/support_document_controls.dart';
 
 /// Existing review fallback; mine_page still selects browser versus embedded.
 const bool kHelpCenterInApp = true;

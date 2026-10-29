@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../presentation/v4/bindings/maintenance_logs.dart';
+import 'logs/bindings/maintenance_logs.dart';
 
 class LogCenterPage extends StatelessWidget {
   const LogCenterPage({super.key});

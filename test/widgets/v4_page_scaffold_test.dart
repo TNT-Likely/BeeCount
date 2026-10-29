@@ -1,8 +1,9 @@
-import 'package:beecount/presentation/v4/bindings/page_scaffold.dart';
-import 'package:beecount/presentation/v4/bindings/page_skin_composition.dart';
+import 'package:beecount/pages/shared/scaffold/widgets/page_scaffold.dart';
+import 'package:beecount/pages/shared/appearance/bindings/page_skin_composition.dart';
 import 'package:beecount/providers/theme_providers.dart';
-import 'package:beecount/widgets/ui/skin_animation_scope.dart';
-import 'package:beecount/widgets/ui/primary_header.dart';
+import 'package:beecount/styles/header_skins.dart';
+import 'package:beecount/pages/shared/appearance/skin_animation_scope.dart';
+import 'package:beecount/pages/shared/appearance/primary_header.dart';
 import 'package:beecount/l10n/app_localizations.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';
@@ -124,26 +125,41 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
   });
   for (final dark in [false, true]) {
-    testWidgets('我的页浅首卡深顶部，原画保持有界 $dark', (t) async {
+    testWidgets('我的页皮肤铺满背景且不占用资料空间 $dark', (t) async {
+      t.view.physicalSize = const Size(398, 844);
+      t.view.devicePixelRatio = 1;
+      addTearDown(t.view.resetPhysicalSize);
+      addTearDown(t.view.resetDevicePixelRatio);
       final c = ProviderContainer(overrides: [
-        headerSkinProvider.overrideWith((ref) => 'anniv_cake'),
+        headerSkinProvider.overrideWith((ref) => 'none'),
         skinAnimationEnabledProvider.overrideWith((ref) => false),
       ]);
       addTearDown(c.dispose);
+      const contentKey = ValueKey('profile-content');
       await t.pumpWidget(UncontrolledProviderScope(
           container: c,
           child: MaterialApp(
               theme: beeTheme(
                   brightness: dark ? Brightness.dark : Brightness.light),
               home: const V4PageScaffold(
-                  profileHeaderSkin: true, body: Text('原有资料和账本')))));
+                  profileHeaderSkin: true,
+                  body: Column(children: [
+                    SizedBox(height: 48, child: Text('我的')),
+                    SizedBox(
+                        key: contentKey, height: 120, child: Text('原有资料和账本')),
+                  ])))));
+      await t.pumpAndSettle();
+      final original = t.getRect(find.byKey(contentKey));
+      c.read(headerSkinProvider.notifier).state = 'anniv_cake';
       await t.pumpAndSettle();
       final scene =
-          t.widget<V4OriginalSkinScene>(find.byType(V4OriginalSkinScene));
-      expect(scene.inCard, !dark);
-      expect(t.getSize(find.byType(V4OriginalSkinScene)).height, 140);
-      expect(t.getSize(find.byKey(const ValueKey('v4-original-skin-canvas'))),
-          const Size(398, 208));
+          t.widget<HeaderSkinPageArtwork>(find.byType(HeaderSkinPageArtwork));
+      expect(scene.role, HeaderSkinPageRole.profile);
+      expect(scene.dark, dark);
+      expect(
+          t.getSize(find.byType(HeaderSkinPageArtwork)), const Size(398, 844));
+      expect(t.getRect(find.byKey(contentKey)), original);
+      expect(find.byType(V4OriginalSkinScene), findsNothing);
       expect(find.text('原有资料和账本'), findsOneWidget);
       expect(t.takeException(), isNull);
       await t.pumpWidget(const SizedBox());

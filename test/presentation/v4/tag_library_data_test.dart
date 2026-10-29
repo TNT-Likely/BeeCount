@@ -1,7 +1,7 @@
 import 'package:beecount/data/db.dart';
 import 'package:beecount/data/repositories/local/local_repository.dart';
 import 'package:beecount/l10n/app_localizations_zh.dart';
-import 'package:beecount/presentation/v4/bindings/tag_library_data.dart';
+import 'package:beecount/pages/tag/manage/bindings/tag_library_data.dart';
 import 'package:beecount/services/data/tag_seed_service.dart';
 import 'package:beecount/services/export/config_export_service.dart';
 import 'package:drift/native.dart';

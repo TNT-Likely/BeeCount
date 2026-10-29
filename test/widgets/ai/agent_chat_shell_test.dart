@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:beecount/widgets/ai/agent_chat_shell.dart';
-import 'package:beecount/widgets/ai/agent_brand_mark.dart';
+import 'package:beecount/pages/ai/chat/widgets/agent_chat_shell.dart';
+import 'package:beecount/pages/ai/chat/widgets/agent_brand_mark.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 
 void main() {

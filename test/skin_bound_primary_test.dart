@@ -1,4 +1,3 @@
-import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:beecount/providers/sync_providers.dart' show resolvePrimaryFromSync;
 import 'package:beecount/providers/theme_providers.dart';
 import 'package:beecount/styles/header_skins.dart';
-import 'package:beecount/widgets/ui/skin_animation_scope.dart';
+import 'package:beecount/pages/shared/appearance/skin_animation_scope.dart';
 
 /// 皮肤绑定主题色的交互:
 /// 选中自带配色的皮肤 → 主题色自动切成皮肤色并锁定;

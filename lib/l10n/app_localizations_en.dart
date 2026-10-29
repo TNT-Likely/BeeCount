@@ -1027,7 +1027,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get categoryDefault => 'Default Category';
 
   @override
-  String get categoryReorderTip => 'Long press to drag and reorder categories';
+  String get categoryReorderTip => 'Drag the handle on the right to reorder categories';
 
   @override
   String categoryLoadFailed(String error) {

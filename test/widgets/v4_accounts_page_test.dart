@@ -7,7 +7,7 @@ import 'package:beecount/pages/account/account_edit_page.dart';
 import 'package:beecount/pages/account/account_detail_page.dart';
 import 'package:beecount/utils/account_type_utils.dart';
 import 'package:beecount/providers.dart';
-import 'package:beecount/presentation/v4/bindings/account_sections.dart';
+import 'package:beecount/pages/account/overview/widgets/account_sections.dart';
 import 'package:beecount_business_ui/beecount_business_ui.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:drift/native.dart';

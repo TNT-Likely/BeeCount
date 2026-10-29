@@ -14,7 +14,7 @@
       "supportedStates": [
         "中性色构建层次；主题色作用于主操作、进度与选中态。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-2",
@@ -29,7 +29,7 @@
       "supportedStates": [
         "主题色沿用原有预设；标签颜色与收支语义色独立。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-3",
@@ -44,7 +44,7 @@
       "supportedStates": [
         "系统字体；金额使用等宽数字，正文保持清晰层级。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-4",
@@ -59,7 +59,7 @@
       "supportedStates": [
         "页面内边距 17；卡片 22；主要触控目标至少 44。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-5",
@@ -76,7 +76,7 @@
       "supportedStates": [
         "主操作、次要操作、禁用、处理中及危险文字操作。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-6",
@@ -93,7 +93,7 @@
       "supportedStates": [
         "长标签可横向滚动；禁用项不参与选择。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-8",
@@ -113,7 +113,7 @@
       "supportedStates": [
         "标签、输入值、提示文字与错误信息分层显示。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-9",
@@ -131,7 +131,7 @@
       "supportedStates": [
         "统一图标槽、主副标题、分隔线、尾部操作与开关。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-14",
@@ -148,7 +148,7 @@
       "supportedStates": [
         "五项胶囊布局、选中态与 44 点击区；业务快捷入口单独组合。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-17",
@@ -166,7 +166,7 @@
       "supportedStates": [
         "44 高行、五行可视区、居中选中带；取消不写入。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-26",
@@ -185,7 +185,7 @@
       "supportedStates": [
         "成功、警告、失败均使用图标和文字；失败原因与重试入口保留在页面。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-33",
@@ -202,7 +202,7 @@
       "supportedStates": [
         "安全区下 12；最小高 44，最大宽 340；圆角 14；图标 20，正文 13 / 1.5；2 秒自动消失，新提示替换旧提示。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-34",
@@ -220,7 +220,7 @@
       "supportedStates": [
         "默认、选中、禁用、危险、处理中与角标；操作区至少 44。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-35",
@@ -241,7 +241,7 @@
       "supportedStates": [
         "自动换行、选择与禁用，复选半选和全选。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-36",
@@ -258,7 +258,7 @@
       "supportedStates": [
         "通用数据模型；支持副标题、选中项、搜索、空态与重试。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-37",
@@ -281,7 +281,7 @@
       "supportedStates": [
         "聚焦、只读、禁用、密码、校验、数字过滤、计数与IME组合输入。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-38",
@@ -301,7 +301,7 @@
       "supportedStates": [
         "主页面与二级页头、分组、头像、普通及内缩分隔。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-39",
@@ -318,7 +318,7 @@
       "supportedStates": [
         "主次操作、单操作、禁用和处理中，尊重安全区。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-40",
@@ -337,7 +337,7 @@
       "supportedStates": [
         "未知进度不显示百分比；占位、完成与刷新状态分别表达。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-42",
@@ -352,7 +352,7 @@
       "supportedStates": [
         "确认、取消、关闭保留上下文；等宽操作与表单编辑。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-43",
@@ -369,7 +369,7 @@
       "supportedStates": [
         "选中、未选、禁用；滑杆支持边界值和步进。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-44",
@@ -386,7 +386,7 @@
       "supportedStates": [
         "横向筛选与折叠字段保留选择；不隐藏主要操作。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-61",
@@ -403,7 +403,7 @@
       "supportedStates": [
         "保留主副线、负值和零值、金额隐藏与手势，纯展示组件不请求数据。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-62",
@@ -421,7 +421,7 @@
       "supportedStates": [
         "小时0–23与分钟0–59，草稿与保存由宿主负责。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-65",
@@ -439,7 +439,7 @@
       "supportedStates": [
         "完整名称、选中与禁用、RGB字节预览，以及色相/饱和度/亮度草稿。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-2001",
@@ -460,7 +460,7 @@
         "selection",
         "average-action"
       ],
-      "source": "docs/design/card-refresh/prototype/src/refresh-component-catalog.cjs"
+      "source": "prototype/src/refresh-component-catalog.cjs"
     },
     {
       "id": "spec-2002",
@@ -482,7 +482,7 @@
         "outline",
         "success-warning-error-neutral-busy"
       ],
-      "source": "docs/design/card-refresh/prototype/src/refresh-component-catalog.cjs"
+      "source": "prototype/src/refresh-component-catalog.cjs"
     },
     {
       "id": "spec-2003",
@@ -494,14 +494,17 @@
       "components": [
         "BeeTrailBackdrop",
         "BeeActivityIndicator",
-        "BeeLocalSheet"
+        "BeeLocalSheet",
+        "TypewriterText"
       ],
       "supportedStates": [
         "replay",
         "reduced-motion-static",
-        "local-open-close"
+        "local-open-close",
+        "typewriter-replay",
+        "typewriter-reduced-motion-immediate"
       ],
-      "source": "docs/design/card-refresh/prototype/src/refresh-component-catalog.cjs"
+      "source": "prototype/src/refresh-component-catalog.cjs"
     },
     {
       "id": "spec-2004",
@@ -518,7 +521,7 @@
         "inner-override",
         "navigation-fields-preserved"
       ],
-      "source": "docs/design/card-refresh/prototype/src/refresh-component-catalog.cjs"
+      "source": "prototype/src/refresh-component-catalog.cjs"
     },
     {
       "id": "spec-7",
@@ -537,7 +540,7 @@
       "supportedStates": [
         "语义色保持一致；选择器保留最近使用、横排多选、搜索与确认草稿。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-10",
@@ -556,7 +559,7 @@
       "supportedStates": [
         "首页收支、预算进度与账本切换共用视觉层次。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-11",
@@ -579,7 +582,7 @@
       "supportedStates": [
         "原币为主，折算与标签为辅；分类图标与账单内容使用独立点击区。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-12",
@@ -599,7 +602,7 @@
       "supportedStates": [
         "一级、二级分类都展示图标；展开后仍保持选择上下文。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-13",
@@ -616,7 +619,7 @@
       "supportedStates": [
         "透明 PNG 完整显示；方形图片裁切；加载和失败有固定占位。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-15",
@@ -639,7 +642,7 @@
       "supportedStates": [
         "加减乘除、退格、等号、再记一笔与保存。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-16",
@@ -671,7 +674,7 @@
       "supportedStates": [
         "两行表单：备注直接编辑、附件右上角；账户 / 日期 / 紧凑标签在下。与键盘保留 8px 间距。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-18",
@@ -689,7 +692,7 @@
       "supportedStates": [
         "写入前展示金额、分类、账户与备注，明确拒绝与允许范围。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-19",
@@ -709,7 +712,7 @@
       "supportedStates": [
         "原为弹窗的流程保持弹窗；测试连接后回到原草稿。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-20",
@@ -728,7 +731,7 @@
       "supportedStates": [
         "边框、勾选和“当前账本”共同表达；不依赖颜色单独识别。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-21",
@@ -746,7 +749,7 @@
       "supportedStates": [
         "卡片右下角与长按共用；区分本地/共享与创建者/成员。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-22",
@@ -763,7 +766,7 @@
       "supportedStates": [
         "原有八种 SyncDiff + 检查中、同步中与离线细分。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-23",
@@ -780,7 +783,7 @@
       "supportedStates": [
         "双列映射，核心字段和原始数据预览同屏，额外字段展开。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-24",
@@ -801,7 +804,7 @@
       "supportedStates": [
         "品牌、标题、说明居中；选择内容左对齐，选中态保持主题一致。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-25",
@@ -819,7 +822,7 @@
       "supportedStates": [
         "收支、分类、账户、标签和原始备注完整传递。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-27",
@@ -838,7 +841,7 @@
       "supportedStates": [
         "有品牌与无品牌两种状态；预览和个性化设置均可切换，其他功能共用。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-28",
@@ -856,7 +859,7 @@
       "supportedStates": [
         "常用币种、搜索、汇率提示与选中态；切换币种后清空不兼容账户。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-29",
@@ -875,7 +878,7 @@
       "supportedStates": [
         "保留账单上下文，正数校验；取消不写入，确认后恢复折算预览。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-30",
@@ -895,7 +898,7 @@
       "supportedStates": [
         "昵称可点按编辑；当前账本累计余额、记账天数和账单笔数同卡展示，金额可隐藏。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-31",
@@ -912,7 +915,7 @@
       "supportedStates": [
         "保留页面上下文；最多 20 字，空白不可保存，取消不改动原昵称。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-32",
@@ -932,7 +935,7 @@
       "supportedStates": [
         "拍照与相册沿用底部弹层；图片沿用全屏浏览，支持滑动、缩放与缩略图切换；来源选择不占用独立页面。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-41",
@@ -951,7 +954,7 @@
       "supportedStates": [
         "长按记账后滑向拍照、相册或语音；命令由 App 执行。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-45",
@@ -968,7 +971,7 @@
       "supportedStates": [
         "一级与二级图标、自定义图片、搜索、草稿确认，以及保留笔数/禁用规则的即时选择。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-46",
@@ -985,7 +988,7 @@
       "supportedStates": [
         "当前记账币种、账户余额、暂不设置、搜索与选中。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-47",
@@ -1002,7 +1005,7 @@
       "supportedStates": [
         "支出、收入、转账、外币、标签附件、统计标记、共享、隐私、批量、只读与长文本。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-48",
@@ -1023,7 +1026,7 @@
       "supportedStates": [
         "真实数据绑定在 App；展示组件接收参数与回调，写入复用现有业务。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-49",
@@ -1040,7 +1043,7 @@
       "supportedStates": [
         "当前账本勾选、个人与共享信息、币种、搜索与切换；与账本管理分开展示。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-50",
@@ -1059,7 +1062,7 @@
       "supportedStates": [
         "一级二级图标预览、展开、编辑、子分类管理与拖动排序。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-51",
@@ -1076,7 +1079,7 @@
       "supportedStates": [
         "转出、转入独立选择；不在展示包中发起请求或改写余额。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-52",
@@ -1095,7 +1098,7 @@
       "supportedStates": [
         "真实结果合计、全选/反选、调整范围和固定底部操作栏；批量操作保留字段与关联。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-53",
@@ -1115,7 +1118,7 @@
       "supportedStates": [
         "统一身份、原币与本位币汇总、三项指标；分布行支持预设图标和自定义图片，趋势使用历史快照；信用卡保留额度估算、还款日期、溢缴款和无额度还款。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-54",
@@ -1133,7 +1136,7 @@
       "supportedStates": [
         "导出八项范围；导入只显示文件实际包含的内容。YAML 可选中复制，确认与取消保持标准弹窗。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-55",
@@ -1146,12 +1149,14 @@
       ],
       "components": [
         "BeeSecurityPanel",
-        "BeePinPad"
+        "BeePinPad",
+        "BeeTwoFactorChallengeDialog"
       ],
       "supportedStates": [
-        "四位 PIN，修改先验证原密码；数字卡片与错误状态，短屏可滚动且保留完整按键。"
+        "四位 PIN，修改先验证原密码；数字卡片与错误状态，短屏可滚动且保留完整按键。",
+        "双重验证：验证码、恢复码、忙碌、校验失败、取消；受控示例不联系服务端。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-56",
@@ -1171,7 +1176,7 @@
       "supportedStates": [
         "完整预设分组、紧凑图标网格、自定义图片原色预览与裁剪入口。选择只修改草稿，保存由 App binding 原子提交。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-57",
@@ -1189,7 +1194,7 @@
       "supportedStates": [
         "日常与估值 12 种原有类型；编辑限制由 App 提供，浏览分组不改变账户草稿。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-58",
@@ -1206,7 +1211,7 @@
       "supportedStates": [
         "当前值、目标值和差额；取消返回 null，只改余额返回 false，生成平账记录返回 true。真实写入由 App 执行。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-59",
@@ -1233,7 +1238,7 @@
       "supportedStates": [
         "紧凑资产卡、只读原币 Tab、单色构成、完整类型筛选、欠款/溢缴款与默认账户；真实计算由 App 提供。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-60",
@@ -1251,7 +1256,7 @@
       "supportedStates": [
         "双色标签身份、真实关联笔数、详情和删除；工具菜单保留默认生成、合并/覆盖导入、清理和分享。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-63",
@@ -1270,7 +1275,7 @@
       "supportedStates": [
         "真实偏好、启停与时间选择；系统调度由App负责。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-64",
@@ -1288,7 +1293,7 @@
       "supportedStates": [
         "范围、排序与数量的完整受控状态；有效值即时保存，查询与校验由App负责。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-66",
@@ -1306,7 +1311,7 @@
       "supportedStates": [
         "实际预览、选中、动态与固定配色标记，长名称和只读状态。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-67",
@@ -1325,7 +1330,7 @@
       "supportedStates": [
         "就绪、处理中、成功、部分失败与失败；原归档信息与跳过/覆盖草稿。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-68",
@@ -1344,7 +1349,7 @@
       "supportedStates": [
         "真实本地文件与归档字节、两个分组、实际尺寸大小、空错与只读缩放。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-69",
@@ -1361,7 +1366,7 @@
       "supportedStates": [
         "原类型、来源和目标约束；一级与二级图标、自定义图片、禁用、长名称和只读预览。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-70",
@@ -1379,7 +1384,7 @@
       "supportedStates": [
         "手动优先、自动/陈旧/缺失、反向参考、有效范围与恢复自动；精度及写入由App保留。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-71",
@@ -1399,7 +1404,7 @@
       "supportedStates": [
         "原70/90/100风险阈值；128环形、负剩余、自定义分类图标、账本周期及共享只读权限。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-72",
@@ -1416,7 +1421,7 @@
       "supportedStates": [
         "原始金额精度回填、两位新输入、父分类底部选择和自定义图片；App保留原预算身份与保存/删除范围。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-73",
@@ -1435,7 +1440,7 @@
       "supportedStates": [
         "年月滚轮、前后切月与今天；双收支、转账排除、原币换算和当天记账由App绑定原仓库。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-74",
@@ -1457,7 +1462,7 @@
       "supportedStates": [
         "月/年/全部、原收支/结余、原年月滚轮、按层级聚合与环图；数据和隐私仍由App绑定。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-75",
@@ -1476,7 +1481,7 @@
       "supportedStates": [
         "原图片/拍照/语音/分享使用说明保持弹窗，原文与前置能力不省略；语音触发与松手提交由App绑定原偏好。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-76",
@@ -1496,7 +1501,7 @@
       "supportedStates": [
         "三种能力、只读与长名称，完整授权正文与短路径弹窗；实际保存与授权版本由App绑定。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-77",
@@ -1516,7 +1521,7 @@
       "supportedStates": [
         "紧凑只读能力标签、内置/自定义卡与六字段弹窗；逐项/并行请求、缓存和真实保存由App绑定。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-78",
@@ -1536,7 +1541,7 @@
       "supportedStates": [
         "原完整模板与登记表，缺失能力只提示和安全追加；编辑/粘贴/分享/预览/重置与真实保存由App绑定。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-79",
@@ -1554,7 +1559,7 @@
       "supportedStates": [
         "保留原四档2/4/6/8选择，底部弹层即时保存/取消；运行时上限和真实Store留App。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-80",
@@ -1577,7 +1582,7 @@
       "supportedStates": [
         "直接输入/停止、消息、原外币账单字段及撤销、授权弹窗；原真实请求与权限留App。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-81",
@@ -1599,7 +1604,7 @@
       "supportedStates": [
         "跨账本、分类图片、原币ISO码、频率/间隔、最近生成日和启停；真正生成及写入由App原服务负责。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-82",
@@ -1625,7 +1630,7 @@
       "supportedStates": [
         "原12项字段、分类映射、账户币种确认和结果；取消沿用原流程，不宣称事务撤销。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-83",
@@ -1644,7 +1649,7 @@
       "supportedStates": [
         "当前账本全部交易、12列与UTF-8 BOM；文件写入及系统分享由App处理。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-84",
@@ -1667,7 +1672,7 @@
       "supportedStates": [
         "原四种频率、间隔、起止日期、151币种与账户；真实调度留在App原服务。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-85",
@@ -1688,12 +1693,16 @@
         "BeeAnnualTrendPoint",
         "BeeButton",
         "BeeLineIcon",
-        "BeeSurface"
+        "BeeSurface",
+        "BeeAnnualReportPoster",
+        "BeeAnnualPosterChapter",
+        "BeeAnnualPosterMoment"
       ],
       "supportedStates": [
-        "原年度数据、原币与历史折算、七段内容和海报入口。"
+        "原年度数据、原币与历史折算、七段内容和海报入口。",
+        "原年度数据、七段内容；年度长图的受控章节、趋势、高光与未解锁状态。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-86",
@@ -1714,7 +1723,7 @@
       "supportedStates": [
         "保留原弹窗与字段默认值；截图和分享使用原服务。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-87",
@@ -1738,7 +1747,7 @@
       "supportedStates": [
         "六类服务、四配置弹窗、原登录与记住账号；示例不初始化鉴权或发起网络。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-88",
@@ -1757,7 +1766,7 @@
       "supportedStates": [
         "账户与金额同屏，新建同币种、异本位币账本同外币账户对，缺失汇率阻止提交，历史快照保留。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-89",
@@ -1782,7 +1791,7 @@
       "supportedStates": [
         "完整原币字段、历史折算、标记、附件与独立编辑入口；本地加载和动作由App绑定。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-90",
@@ -1804,7 +1813,7 @@
       "supportedStates": [
         "原缓存状态、自动同步、上传和预览确认；取消与错误恢复由App保留。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-91",
@@ -1831,7 +1840,7 @@
       "supportedStates": [
         "Android监听/电池卡、iOS教程/旧版本/手动六步，全部组件平铺；权限与平台动作留App。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-92",
@@ -1853,7 +1862,7 @@
       "supportedStates": [
         "当前账本币种、原账本native、缺失和陈旧提示；完整/缺失/陈旧加隐私状态平铺。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-93",
@@ -1874,7 +1883,7 @@
       "supportedStates": [
         "原同步状态、邀请码、加入确认、成员与统计，保留owner/editor边界；只读目录不访问服务端。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-94",
@@ -1893,7 +1902,7 @@
       "supportedStates": [
         "保留档案/应用/月年/账本原海报；五种选择、隐私、加载错误与保存分享仍交原App服务。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-95",
@@ -1917,7 +1926,7 @@
       "supportedStates": [
         "本地记忆、逐工具权限和原活动/工具执行日志；真实只读预览由App注入，不主动执行模型或工具。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-96",
@@ -1938,12 +1947,20 @@
         "BeeSupportDocument",
         "BeeSupportShortcut",
         "BeeSupportText",
-        "BeeSurface"
+        "BeeSurface",
+        "BeePromotionCard",
+        "BeePromotionCompact",
+        "BeePromotionDialog",
+        "BeePromotionScreenshot",
+        "BeePromotionGallery",
+        "BeePromotionData",
+        "BeePromotionTexts"
       ],
       "supportedStates": [
-        "版本/故事/相关产品、帮助/隐私原文档、六快捷链接和赞助商品；受控示例不打开外链、复制或付款。"
+        "版本/故事/相关产品、帮助/隐私原文档、六快捷链接和赞助商品；受控示例不打开外链、复制或付款。",
+        "产品推荐卡、紧凑卡、介绍弹窗、截图与放大浏览；外部动作仅记录回调。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-97",
@@ -1967,7 +1984,7 @@
       "supportedStates": [
         "日志筛选/详情/清空、模型/APK清理、平台组件引导和孤儿确认；目录真实预览只读本地，不扫描清理。"
       ],
-      "source": "docs/design/card-refresh/scripts/build-guide.cjs"
+      "source": "scripts/build-guide.cjs"
     },
     {
       "id": "spec-2005",
@@ -1988,7 +2005,7 @@
         "local-sheet",
         "static-motion"
       ],
-      "source": "docs/design/card-refresh/prototype/src/refresh-component-catalog.cjs"
+      "source": "prototype/src/refresh-component-catalog.cjs"
     },
     {
       "id": "spec-2006",
@@ -2024,7 +2041,7 @@
         "enlarge",
         "income-toggle"
       ],
-      "source": "docs/design/card-refresh/prototype/src/refresh-component-catalog.cjs"
+      "source": "prototype/src/refresh-component-catalog.cjs"
     },
     {
       "id": "spec-2007",
@@ -2042,7 +2059,7 @@
         "difference",
         "error"
       ],
-      "source": "docs/design/card-refresh/prototype/src/refresh-component-catalog.cjs"
+      "source": "prototype/src/refresh-component-catalog.cjs"
     },
     {
       "id": "spec-2008",
@@ -2059,7 +2076,7 @@
         "search-callback",
         "order-callback"
       ],
-      "source": "docs/design/card-refresh/prototype/src/refresh-component-catalog.cjs"
+      "source": "prototype/src/refresh-component-catalog.cjs"
     },
     {
       "id": "spec-2101",
@@ -2079,7 +2096,7 @@
         "controlled-wheel",
         "cancel-without-write"
       ],
-      "source": "docs/design/card-refresh/prototype/src/resource-detail-samples.cjs"
+      "source": "prototype/src/resource-detail-samples.cjs"
     },
     {
       "id": "spec-2102",
@@ -2110,7 +2127,7 @@
         "real-history-range",
         "credit-valuation"
       ],
-      "source": "docs/design/card-refresh/prototype/src/resource-detail-samples.cjs"
+      "source": "prototype/src/resource-detail-samples.cjs"
     }
   ]
 }

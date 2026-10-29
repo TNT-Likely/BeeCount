@@ -1,5 +1,5 @@
-import 'package:beecount/presentation/v4/gallery/business_page.dart';
-import 'package:beecount/widgets/biz/format_money.dart';
+import 'package:beecount/dev/component_gallery/business_page.dart';
+import 'package:beecount/utils/format_money.dart';
 import 'package:beecount_business_ui/beecount_business_ui.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';

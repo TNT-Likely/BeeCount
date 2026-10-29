@@ -4,10 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/ai_config_providers.dart';
 import '../../ai/privacy/ai_privacy_consent.dart';
-import '../../widgets/ai/ai_privacy_consent_dialog.dart';
-import '../../presentation/v4/bindings/page_scaffold.dart';
-import '../../presentation/v4/bindings/ai_settings_controls.dart';
-import '../../presentation/v4/bindings/ai_settings_capabilities.dart';
+import 'bindings/ai_privacy_consent_dialog.dart';
+import '../shared/scaffold/widgets/page_scaffold.dart';
+import 'settings/bindings/ai_settings_controls.dart';
+import 'settings/bindings/ai_settings_capabilities.dart';
 
 class AISettingsPage extends ConsumerStatefulWidget {
   const AISettingsPage({super.key});

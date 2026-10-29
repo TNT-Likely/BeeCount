@@ -514,7 +514,7 @@
   "categoryIncome": "收入",
   "categoryEmpty": "暂无分类",
   "categoryDefault": "默认分类",
-  "categoryReorderTip": "长按分类可拖拽调整顺序",
+  "categoryReorderTip": "拖动分类右侧的把手可调整顺序",
   "categoryGenerateDefault": "生成默认分类",
   "categoryGenerateDefaultFlat": "一级分类",
   "categoryGenerateDefaultHierarchical": "二级分类",

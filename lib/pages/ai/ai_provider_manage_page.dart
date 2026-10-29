@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../ai/providers/ai_provider_config.dart';
 import '../../l10n/app_localizations.dart';
-import '../../presentation/v4/bindings/page_scaffold.dart';
-import '../../presentation/v4/bindings/ai_provider_catalog.dart';
-import '../../presentation/v4/bindings/ai_provider_editor.dart';
-export '../../presentation/v4/bindings/ai_provider_catalog.dart'
+import '../shared/scaffold/widgets/page_scaffold.dart';
+import 'providers/bindings/ai_provider_catalog.dart';
+import 'providers/bindings/ai_provider_editor.dart';
+export 'providers/bindings/ai_provider_catalog.dart'
     show aiProviderListRefreshProvider, aiProvidersProvider;
-export '../../presentation/v4/bindings/ai_provider_editor_controller.dart'
+export 'providers/controllers/ai_provider_editor_controller.dart'
     show TestStatus;
 
 class AIProviderManagePage extends ConsumerWidget {

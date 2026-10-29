@@ -1,4 +1,4 @@
-import '../../presentation/v4/bindings/page_scaffold.dart';
+import '../shared/scaffold/widgets/page_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
@@ -10,11 +10,10 @@ import '../../providers.dart';
 import '../../data/db.dart';
 import '../../data/repositories/local/local_repository.dart';
 import '../../utils/shared_ledger_picker_filter.dart';
-import '../../widgets/ui/ui.dart';
-import '../../widgets/biz/amount_editor_sheet.dart';
-import '../../widgets/transaction/transfer_form.dart';
-import '../../presentation/v4/bindings/recording_category_section.dart';
-import '../../presentation/v4/bindings/recording_save.dart';
+import 'recording/bindings/amount_editor_sheet.dart';
+import 'recording/bindings/transfer_form.dart';
+import 'recording/bindings/recording_category_section.dart';
+import 'recording/bindings/recording_save.dart';
 
 /// 交易编辑器页面
 /// 支持创建/编辑收入、支出和转账记录
@@ -419,7 +418,7 @@ class _TransactionEditorPageState extends ConsumerState<TransactionEditorPage> {
       Navigator.of(context).pop();
     }
     if (res.continueAdding && mounted) {
-      showToast(
+      showBeeToast(
         context,
         AppLocalizations.of(context).transactionSavedNextCategory,
         tone: BeeTone.success,

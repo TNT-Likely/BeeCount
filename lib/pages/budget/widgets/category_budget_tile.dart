@@ -5,7 +5,7 @@ import '../../../data/repositories/budget_repository.dart';
 import '../../../services/data/category_service.dart';
 import '../../../styles/tokens.dart';
 import '../../../utils/ui_scale_extensions.dart';
-import '../../../widgets/category_icon.dart';
+import '../../shared/resources/category_icon_adapter.dart';
 import 'budget_progress_bar.dart';
 
 /// 分类预算条目组件

@@ -7,18 +7,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app.dart';
-import 'widgets/biz/login_2fa_challenge_view.dart';
-import 'widgets/ui/toast.dart';
+import 'pages/auth/bindings/login_2fa_challenge_view.dart';
 import 'theme.dart';
 import 'providers.dart';
-import 'providers/currency_providers.dart';
 import 'providers/font_scale_provider.dart';
 import 'utils/app_localizations_resolver.dart';
 import 'providers/cloud_mode_providers.dart';
-import 'providers/ui_state_providers.dart';
 import 'utils/notification_factory.dart';
 import 'pages/auth/splash_page.dart';
-import 'presentation/v4/bindings/home_startup_gate.dart';
+import 'pages/main/home/bindings/home_startup_gate.dart';
 import 'pages/auth/welcome_page.dart';
 import 'pages/auth/app_lock_screen.dart';
 import 'providers/security_providers.dart';
@@ -382,7 +379,7 @@ void _setupUrlListener(ProviderContainer container) {
     void showAppLinkToast(String message) {
       final overlay = globalNavigatorKey.currentState?.overlay;
       if (overlay != null) {
-        showToastOnOverlay(overlay, message);
+        showBeeToastOnOverlay(overlay, message);
       } else {
         logger.warning('AppLink', 'overlay 未就绪,toast 改记日志: $message');
       }

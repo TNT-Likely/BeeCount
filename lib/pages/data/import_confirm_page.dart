@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../presentation/v4/bindings/import_confirm_controls.dart';
+import 'import/bindings/import_confirm_controls.dart';
 import 'import_page.dart' show BillSourceType;
 
 class ImportConfirmPage extends StatelessWidget {

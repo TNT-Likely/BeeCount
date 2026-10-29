@@ -9,8 +9,8 @@ import '../../models/ledger_display_item.dart';
 import '../../cloud/transactions_sync_manager.dart';
 import '../../cloud/sync_service.dart';
 import '../../cloud/sync/sync_engine.dart';
-import '../../widgets/ui/ui.dart';
-import '../../widgets/biz/biz.dart';
+import 'package:beecount_ui/beecount_ui.dart';
+import 'ledgers/widgets/ledger_card.dart';
 import '../cloud/member_list_page.dart';
 import '../cloud/member_stats_page.dart';
 import '../cloud/join_shared_ledger_page.dart';
@@ -24,13 +24,12 @@ import '../../l10n/app_localizations.dart';
 import '../../providers/budget_providers.dart';
 import '../../widget/widget_manager.dart';
 
-import 'package:beecount_ui/beecount_ui.dart';
 import 'package:beecount_business_ui/beecount_business_ui.dart';
-import '../../widgets/currency/currency_picker_sheet.dart';
-import '../../presentation/v4/bindings/page_scaffold.dart';
+import '../shared/selectors/currency_picker_sheet.dart';
+import '../shared/scaffold/widgets/page_scaffold.dart';
 
-part '../../presentation/v4/bindings/ledger_actions.dart';
-part '../../presentation/v4/bindings/ledger_overview.dart';
+part 'ledgers/bindings/ledger_actions.dart';
+part 'ledgers/widgets/ledger_overview.dart';
 
 class LedgersPageNew extends ConsumerStatefulWidget {
   const LedgersPageNew({super.key, this.autoOpenCreateDialog = false});

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../presentation/v4/bindings/cloud_shared_invite.dart';
+import 'shared/bindings/cloud_shared_invite.dart';
 
 class InvitePage extends StatelessWidget {
   const InvitePage(

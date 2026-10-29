@@ -762,7 +762,7 @@
   "associatedFlows": [
     {
       "name": "转账表单（新增同币种／兼容历史跨币种）",
-      "source": "lib/widgets/transaction/transfer_form.dart",
+      "source": "lib/pages/transaction/recording/bindings/transfer_form.dart",
       "priority": "P0",
       "status": "已完成·P0生产消费者按固定版本累积验收；其他页面继续各自核对",
       "designRoutes": [
@@ -772,7 +772,7 @@
     },
     {
       "name": "金额与元信息表单",
-      "source": "lib/widgets/biz/amount_editor_sheet.dart",
+      "source": "lib/pages/transaction/recording/bindings/amount_editor_sheet.dart",
       "priority": "P0",
       "status": "已完成·P0生产消费者按固定版本累积验收；其他页面继续各自核对",
       "designRoutes": [
@@ -783,7 +783,7 @@
     },
     {
       "name": "账单行、长按与滑动菜单",
-      "source": "lib/widgets/biz/transaction_list.dart",
+      "source": "lib/pages/main/home/bindings/transaction_list.dart",
       "priority": "P0",
       "status": "已完成·P0生产消费者按固定版本累积验收；其他页面继续各自核对",
       "designRoutes": [
@@ -795,7 +795,7 @@
     },
     {
       "name": "分类选择弹窗",
-      "source": "lib/widgets/biz/category_selector_dialog.dart",
+      "source": "lib/pages/shared/selectors/category_selector_dialog.dart",
       "priority": "P0",
       "status": "已完成·P0生产消费者按固定版本累积验收；其他页面继续各自核对",
       "designRoutes": [
@@ -805,7 +805,7 @@
     },
     {
       "name": "账户选择弹窗",
-      "source": "lib/widgets/biz/account_selector.dart",
+      "source": "lib/pages/shared/selectors/account_selector.dart",
       "priority": "P0",
       "status": "已完成·P0生产消费者按固定版本累积验收；其他页面继续各自核对",
       "designRoutes": [
@@ -815,7 +815,7 @@
     },
     {
       "name": "账本选择弹层",
-      "source": "lib/widgets/biz/ledger_picker_sheet.dart",
+      "source": "lib/pages/shared/selectors/ledger_picker_sheet.dart",
       "priority": "P0",
       "status": "已完成·本地真实选择与原管理入口",
       "designRoutes": [
@@ -825,7 +825,7 @@
     },
     {
       "name": "币种选择弹层与汇率编辑",
-      "source": "lib/widgets/currency/currency_picker_sheet.dart",
+      "source": "lib/pages/shared/selectors/currency_picker_sheet.dart",
       "priority": "P0",
       "status": "已完成·P0生产消费者按固定版本累积验收；其他页面继续各自核对",
       "designRoutes": [
@@ -846,7 +846,7 @@
     },
     {
       "name": "日期与时间滚轮",
-      "source": "lib/widgets/ui/wheel_date_picker.dart",
+      "source": "lib/pages/shared/pickers/wheel_date_picker.dart",
       "priority": "P0",
       "status": "已复用·正式消费者随各页固定版本验收；日期边界与未原生重跑组合分列",
       "designRoutes": [
@@ -856,7 +856,7 @@
     },
     {
       "name": "历史备注选择",
-      "source": "lib/widgets/biz/note_picker_dialog.dart",
+      "source": "lib/pages/transaction/recording/bindings/note_picker_dialog.dart",
       "priority": "P1",
       "status": "已完成UI迁移·原服务/方法体保持；本轮未新增原生历史选择重跑，边界保留",
       "designRoutes": [
@@ -866,7 +866,7 @@
     },
     {
       "name": "账单小票弹窗",
-      "source": "lib/widgets/biz/transaction_receipt_dialog.dart",
+      "source": "lib/pages/transaction/detail/bindings/transaction_receipt_dialog.dart",
       "priority": "P1",
       "status": "已完成·原小票R108/R111固定范围已封存；D新版R116实际PNG/四字段与系统取消，报告另列",
       "designRoutes": [
@@ -876,7 +876,7 @@
     },
     {
       "name": "AI 授权弹窗",
-      "source": "lib/widgets/ai/agent_tool_authorization_dialog.dart",
+      "source": "lib/pages/ai/bindings/agent_tool_authorization_dialog.dart",
       "priority": "P1",
       "status": "已完成·R85正式消费者与真实拒绝/一次允许闭环",
       "designRoutes": [

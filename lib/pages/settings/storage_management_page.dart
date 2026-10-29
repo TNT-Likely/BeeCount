@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../presentation/v4/bindings/maintenance_storage.dart';
+import 'storage/bindings/maintenance_storage.dart';
 
 class StorageManagementPage extends StatelessWidget {
   const StorageManagementPage({super.key});

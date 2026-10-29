@@ -2,8 +2,8 @@ import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../l10n/app_localizations.dart';
-import '../../presentation/v4/bindings/page_scaffold.dart';
-import '../../presentation/v4/sections/font_settings_sections.dart';
+import '../shared/scaffold/widgets/page_scaffold.dart';
+import 'font/widgets/font_settings_sections.dart';
 import '../../providers/font_scale_provider.dart';
 import '../../services/ui/ui_scale_service.dart';
 

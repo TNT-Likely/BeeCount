@@ -4,7 +4,7 @@ import 'package:beecount/data/db.dart';
 import 'package:beecount/data/repositories/local/local_repository.dart';
 import 'package:beecount/l10n/app_localizations.dart';
 import 'package:beecount/pages/category/category_edit_page.dart';
-import 'package:beecount/presentation/v4/bindings/category_icon_draft.dart';
+import 'package:beecount/pages/category/editor/bindings/category_icon_draft.dart';
 import 'package:beecount/providers.dart';
 import 'package:beecount/services/custom_icon_service.dart';
 import 'package:beecount_business_ui/beecount_business_ui.dart';

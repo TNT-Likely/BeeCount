@@ -6,8 +6,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:beecount_business_ui/beecount_business_ui.dart';
 import 'package:beecount/l10n/app_localizations.dart';
 import 'package:beecount/providers/theme_providers.dart';
-import 'package:beecount/widgets/biz/transaction_list_item.dart';
-import 'package:beecount/presentation/v4/gallery/transaction_row_states.dart';
+import 'package:beecount/pages/shared/transactions/transaction_list_item.dart';
+import 'package:beecount/dev/component_gallery/transaction_row_states.dart';
 
 void main() {
   late List<Map<String, dynamic>> cases;

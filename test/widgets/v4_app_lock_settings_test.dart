@@ -1,7 +1,7 @@
 import 'package:beecount/l10n/app_localizations.dart';
 import 'package:beecount/pages/auth/pin_setup_page.dart';
 import 'package:beecount/pages/settings/app_lock_settings_page.dart';
-import 'package:beecount/presentation/v4/bindings/pin_verification.dart';
+import 'package:beecount/pages/auth/bindings/pin_verification.dart';
 import 'package:beecount/providers/security_providers.dart';
 import 'package:beecount/services/security/app_lock_service.dart';
 import 'package:beecount_business_ui/beecount_business_ui.dart';

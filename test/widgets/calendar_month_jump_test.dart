@@ -21,7 +21,7 @@ import 'package:beecount/data/repositories/local/local_repository.dart';
 import 'package:beecount/l10n/app_localizations.dart';
 import 'package:beecount/pages/calendar/calendar_page.dart';
 import 'package:beecount/providers/database_providers.dart';
-import 'package:beecount/widgets/ui/wheel_date_picker.dart';
+import 'package:beecount/pages/shared/pickers/wheel_date_picker.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

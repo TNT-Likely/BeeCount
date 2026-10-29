@@ -1,4 +1,4 @@
-import 'package:beecount/widgets/biz/format_money.dart';
+import 'package:beecount/utils/format_money.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

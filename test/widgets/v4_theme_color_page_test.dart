@@ -5,7 +5,7 @@ import 'package:beecount/data/repositories/local/local_repository.dart';
 import 'package:beecount/l10n/app_localizations.dart';
 import 'package:beecount/pages/settings/personalize_page.dart';
 import 'package:beecount/pages/settings/header_skin_page.dart';
-import 'package:beecount/presentation/v4/bindings/theme_color_options.dart';
+import 'package:beecount/pages/settings/appearance/bindings/theme_color_options.dart';
 import 'package:beecount/providers.dart';
 import 'package:beecount/styles/header_skins.dart';
 import 'package:beecount_ui/beecount_ui.dart';

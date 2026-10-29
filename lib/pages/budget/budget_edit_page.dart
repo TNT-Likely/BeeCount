@@ -5,15 +5,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/db.dart';
 import '../../l10n/app_localizations.dart';
-import '../../presentation/v4/bindings/budget_overview.dart';
-import '../../presentation/v4/bindings/page_scaffold.dart';
-import '../../presentation/v4/bindings/recording_category_icon.dart';
+import 'overview/bindings/budget_overview.dart';
+import '../shared/scaffold/widgets/page_scaffold.dart';
+import '../shared/resources/bindings/recording_category_icon.dart';
 import '../../providers.dart';
 import '../../providers/budget_providers.dart';
 import '../../services/billing/post_processor.dart';
 import '../../utils/category_utils.dart';
 import '../../utils/currencies.dart';
-part '../../presentation/v4/bindings/budget_editor_actions.dart';
+part 'editor/bindings/budget_editor_actions.dart';
 
 class BudgetEditPage extends ConsumerStatefulWidget {
   const BudgetEditPage({super.key, this.budget, this.isCategory = false});

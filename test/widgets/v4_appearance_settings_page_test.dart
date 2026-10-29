@@ -10,7 +10,7 @@ import 'package:beecount/pages/settings/header_skin_page.dart';
 import 'package:beecount/pages/settings/widget_management_page.dart';
 import 'package:beecount/pages/settings/app_lock_settings_page.dart';
 import 'package:beecount/pages/currency/exchange_rate_page.dart';
-import 'package:beecount/presentation/v4/bindings/note_history_preview.dart';
+import 'package:beecount/dev/component_gallery/bindings/note_history_preview.dart';
 import 'package:beecount/providers.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:drift/native.dart';

@@ -1,21 +1,21 @@
-import '../../presentation/v4/bindings/page_scaffold.dart';
+import '../shared/scaffold/widgets/page_scaffold.dart';
 import 'dart:async';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/db.dart' show Category;
 import '../../l10n/app_localizations.dart';
-import '../../presentation/v4/bindings/category_detail.dart';
-import '../../presentation/v4/bindings/category_detail_sections.dart';
+import 'category_detail/bindings/category_detail.dart';
+import 'category_detail/widgets/category_detail_sections.dart';
 import '../../providers.dart';
 import '../../providers/budget_providers.dart';
 import '../../services/billing/post_processor.dart';
 import '../../utils/category_utils.dart';
-import '../../presentation/v4/bindings/detail_period_controls.dart';
+import '../shared/resources/widgets/detail_period_controls.dart';
 import '../category/category_edit_page.dart';
 import '../category/category_manage_page.dart';
 import 'search_page.dart';
-import '../../presentation/v4/bindings/transaction_search.dart';
+import 'search/bindings/transaction_search.dart';
 import '../category/category_migration_page.dart';
 import 'transaction_editor_page.dart';
 

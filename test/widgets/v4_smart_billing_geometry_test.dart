@@ -8,10 +8,10 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   test('正式智能记账行的所有图标均随包提供', () {
     final entries =
-        File('lib/presentation/v4/bindings/smart_billing_entries.dart')
+        File('lib/pages/settings/smart_billing/bindings/smart_billing_entries.dart')
             .readAsStringSync();
     final preferences =
-        File('lib/presentation/v4/bindings/smart_billing_preferences.dart')
+        File('lib/pages/settings/smart_billing/bindings/smart_billing_preferences.dart')
             .readAsStringSync();
     final icons = <String>{
       ...RegExp(r"(?:row|guide)\(\s*'([A-Za-z0-9]+)'", multiLine: true)

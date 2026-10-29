@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers.dart';
-import '../../presentation/v4/bindings/net_worth_trend.dart';
-import '../../presentation/v4/bindings/page_scaffold.dart';
+import 'net_worth/bindings/net_worth_trend.dart';
+import '../shared/scaffold/widgets/page_scaffold.dart';
 
 class NetWorthTrendPage extends ConsumerStatefulWidget {
   const NetWorthTrendPage({super.key});

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../providers.dart';
-import '../../widgets/ui/ui.dart';
 import '../../data/db.dart' as db;
 import '../../data/repositories/local/local_repository.dart';
 import '../../l10n/app_localizations.dart';
@@ -12,11 +11,11 @@ import '../../services/billing/post_processor.dart';
 import '../../utils/currencies.dart';
 import '../../styles/tokens.dart';
 import '../../utils/account_type_utils.dart';
-import '../../widgets/currency/currency_picker_sheet.dart';
+import '../shared/selectors/currency_picker_sheet.dart';
 import '../../providers/credit_card_reminder_providers.dart';
-import '../../presentation/v4/bindings/page_scaffold.dart';
+import '../shared/scaffold/widgets/page_scaffold.dart';
 
-part '../../presentation/v4/bindings/account_edit_actions.dart';
+part 'edit/bindings/account_edit_actions.dart';
 
 class AccountEditPage extends ConsumerStatefulWidget {
   final db.Account? account; // null表示新建

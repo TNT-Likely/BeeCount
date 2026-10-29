@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../presentation/v4/bindings/page_scaffold.dart';
-import '../../presentation/v4/bindings/share_card_controls.dart';
+import '../shared/scaffold/widgets/page_scaffold.dart';
+import 'share/bindings/share_card_controls.dart';
 
 /// Optional standalone route; production share entry points remain dialogs.
 class ShareCardPage extends StatelessWidget {
