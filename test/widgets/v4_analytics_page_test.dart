@@ -152,10 +152,20 @@ void main() {
   }
   test('空历史周期与自定义起始日边界保持', () async {
     expect((await load('month', 'expense', at: DateTime(2020, 2))).empty, true);
-    final d = await load('month', 'expense', sd: 8);
-    expect(d.start, DateTime(month.year, month.month, 8));
-    expect(d.end,
-        DateTime(now.year, now.month, now.day).add(const Duration(days: 1)));
+    // 每月 8 日开始：11 月 4 日仍属于 10 月周期，不能假定自然月就是当前周期。
+    Future<AnalyticsResult> period(int labelMonth) => loadAnalyticsData(repo,
+        ledgerId: 1,
+        scope: 'month',
+        type: 'expense',
+        selMonth: DateTime(2026, labelMonth),
+        startDay: 8,
+        clock: DateTime(2026, 11, 4));
+    final current = await period(10);
+    expect(current.start, DateTime(2026, 10, 8));
+    expect(current.end, DateTime(2026, 11, 5));
+    final future = await period(11);
+    expect(future.start, DateTime(2026, 11, 8));
+    expect(future.end, DateTime(2026, 12, 8));
   });
   testWidgets('默认月支出/三视角Tab/结余收支构成且不写账单', (t) async {
     await open(t);

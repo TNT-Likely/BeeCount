@@ -791,7 +791,7 @@ class _BeeAppState extends ConsumerState<BeeApp>
     final bottomPadding = MediaQuery.of(context).padding.bottom;
     final avatarPath = ref.watch(avatarPathProvider).asData?.value;
     // 头部皮肤可附带悬浮 tab 装饰层(如一周年皮肤),随皮肤选择联动。
-    final headerSkin = headerSkinById(ref.watch(headerSkinProvider));
+    final headerSkin = headerSkinById(ref.watch(effectiveHeaderSkinProvider));
 
     return PopScope(
       canPop: false,

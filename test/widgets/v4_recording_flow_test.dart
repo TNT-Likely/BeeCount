@@ -139,6 +139,7 @@ void main() {
     }
     await tester.pumpWidget(ProviderScope(
         overrides: [
+          headerSkinsEnabledProvider.overrideWith((_) => true),
           headerSkinProvider.overrideWith((ref) => skin),
           skinAnimationEnabledProvider.overrideWith((ref) => false),
           databaseProvider.overrideWithValue(db),

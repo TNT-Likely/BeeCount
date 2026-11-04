@@ -10,3 +10,10 @@
 6. 报告固定源码、产物、实际数据规模和独立证据。原始日志、真实库、签名、密钥和备份只保存在 `.docs` 或私有 run；公开发布说明只描述已交付行为和用户应知限制。
 
 设计资源在 [独立设计仓](https://github.com/TNT-Likely/BeeCount-Design)，App 只保留构建与回归所需最小契约。临时进度和迁移问答在本机 `.docs/development`，长期产品行为与技术兼容约定应整理到 `docs/decisions` 和 `docs/architecture`。
+
+
+## 皮肤发布开关
+
+当前 Beta 暂停皮肤，`headerSkinsEnabledProvider` 默认关闭。开发预览可通过 `--dart-define=BEECOUNT_SKINS_ENABLED=true` 重新启用；正式构建未显式启用时保持关闭。
+
+页面、Header、首卡、底栏装饰和配色绑定读取 `effectiveHeaderSkinProvider`；选择入口及直接旧路由受同一开关保护。原始 `headerSkinProvider` 只负责保留和同步用户偏好，不能用将其重置为 `none` 的方式关闭功能。恢复皮肤前需重新完成视觉和交互验收，旧版皮肤视觉失败尚未解决。

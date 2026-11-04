@@ -37,6 +37,11 @@ class _HeaderSkinPageState extends ConsumerState<HeaderSkinPage> {
     final l = AppLocalizations.of(context),
         primary = ref.watch(primaryColorProvider),
         current = ref.watch(headerSkinProvider);
+    if (!ref.watch(headerSkinsEnabledProvider)) {
+      return V4PageScaffold(
+          body: BeePageHeader(
+              title: l.headerSkinTitle, leading: const BackButton()));
+    }
     final skins = kVisibleHeaderSkins
         .where((s) => switch (filter) {
               HeaderSkinFilter.all => true,

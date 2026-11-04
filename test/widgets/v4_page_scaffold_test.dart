@@ -13,6 +13,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   testWidgets('整页皮肤不重复绘制头部，旧路由仍保留原头部与显式装饰', (tester) async {
     final container = ProviderContainer(overrides: [
+      headerSkinsEnabledProvider.overrideWith((_) => true),
       headerSkinProvider.overrideWith((ref) => 'anniv_cake'),
       skinAnimationEnabledProvider.overrideWith((ref) => false)
     ]);
@@ -58,6 +59,7 @@ void main() {
   });
   testWidgets('无皮肤与两款动态皮肤共用原偏好，切换不重置列表位置或吞掉操作', (tester) async {
     final container = ProviderContainer(overrides: [
+      headerSkinsEnabledProvider.overrideWith((_) => true),
       headerSkinProvider.overrideWith((ref) => 'none'),
       skinAnimationEnabledProvider.overrideWith((ref) => false)
     ]);
@@ -131,6 +133,7 @@ void main() {
       addTearDown(t.view.resetPhysicalSize);
       addTearDown(t.view.resetDevicePixelRatio);
       final c = ProviderContainer(overrides: [
+        headerSkinsEnabledProvider.overrideWith((_) => true),
         headerSkinProvider.overrideWith((ref) => 'none'),
         skinAnimationEnabledProvider.overrideWith((ref) => false),
       ]);

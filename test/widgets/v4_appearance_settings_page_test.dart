@@ -31,6 +31,7 @@ void main() {
     await db.customStatement(
         "INSERT INTO ledgers(id,name,currency) VALUES(1,'外观验收','CNY')");
     container = ProviderContainer(overrides: [
+      headerSkinsEnabledProvider.overrideWith((_) => true),
       databaseProvider.overrideWithValue(db),
       repositoryProvider.overrideWithValue(LocalRepository(db))
     ]);

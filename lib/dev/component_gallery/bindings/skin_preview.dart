@@ -12,6 +12,9 @@ class LiveSkinPreview extends ConsumerWidget {
   const LiveSkinPreview({super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    if (!ref.watch(headerSkinsEnabledProvider)) {
+      return const SizedBox.shrink();
+    }
     final l = AppLocalizations.of(context);
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       const Text('当前真实皮肤（只读）'),

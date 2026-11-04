@@ -55,7 +55,7 @@ class PrimaryHeader extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final primary = ref.watch(primaryColorProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final skin = headerSkinById(ref.watch(headerSkinProvider));
+    final skin = headerSkinById(ref.watch(effectiveHeaderSkinProvider));
     final pageOwnsSkin = PageSkinBackdropScope.contains(context);
     final header = BeePageHeader(
       title: title,

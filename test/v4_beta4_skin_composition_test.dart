@@ -189,6 +189,7 @@ void main() {
         addTearDown(t.view.resetPhysicalSize);
         addTearDown(t.view.resetDevicePixelRatio);
         final c = ProviderContainer(overrides: [
+          headerSkinsEnabledProvider.overrideWith((_) => true),
           headerSkinProvider.overrideWith((_) => 'none'),
           skinAnimationEnabledProvider.overrideWith((_) => false)
         ]);
@@ -239,6 +240,7 @@ void main() {
           addTearDown(t.view.resetPhysicalSize);
           addTearDown(t.view.resetDevicePixelRatio);
           final c = ProviderContainer(overrides: [
+            headerSkinsEnabledProvider.overrideWith((_) => true),
             headerSkinProvider.overrideWith((_) => 'none'),
             skinAnimationEnabledProvider.overrideWith((_) => false)
           ]);
@@ -303,6 +305,7 @@ void main() {
     addTearDown(t.view.resetPhysicalSize);
     addTearDown(t.view.resetDevicePixelRatio);
     final c = ProviderContainer(overrides: [
+      headerSkinsEnabledProvider.overrideWith((_) => true),
       headerSkinProvider.overrideWith((_) => 'none'),
       skinAnimationEnabledProvider.overrideWith((_) => false)
     ]);
@@ -323,6 +326,7 @@ void main() {
       addTearDown(t.view.resetPhysicalSize);
       addTearDown(t.view.resetDevicePixelRatio);
       final c = ProviderContainer(overrides: [
+        headerSkinsEnabledProvider.overrideWith((_) => true),
         headerSkinProvider.overrideWith((_) => id),
         skinAnimationEnabledProvider.overrideWith((_) => true)
       ]);
@@ -351,8 +355,10 @@ void main() {
     testWidgets('原底栏皮肤动效随开关联动且操作仍可点 $id', (t) async {
       addTearDown(t.view.resetPhysicalSize);
       addTearDown(t.view.resetDevicePixelRatio);
-      final c = ProviderContainer(
-          overrides: [skinAnimationEnabledProvider.overrideWith((_) => true)]);
+      final c = ProviderContainer(overrides: [
+        headerSkinsEnabledProvider.overrideWith((_) => true),
+        skinAnimationEnabledProvider.overrideWith((_) => true)
+      ]);
       addTearDown(c.dispose);
       var taps = 0;
       final skin = headerSkinById(id)!;

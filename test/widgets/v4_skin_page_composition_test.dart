@@ -40,6 +40,7 @@ void main() {
         addTearDown(t.view.resetPhysicalSize);
         addTearDown(t.view.resetDevicePixelRatio);
         final c = ProviderContainer(overrides: [
+          headerSkinsEnabledProvider.overrideWith((_) => true),
           skinAnimationEnabledProvider.overrideWith((ref) => false)
         ]);
         addTearDown(c.dispose);
@@ -93,6 +94,7 @@ void main() {
       addTearDown(t.view.resetPhysicalSize);
       addTearDown(t.view.resetDevicePixelRatio);
       final c = ProviderContainer(overrides: [
+        headerSkinsEnabledProvider.overrideWith((_) => true),
         skinAnimationEnabledProvider.overrideWith((ref) => false)
       ]);
       addTearDown(c.dispose);

@@ -51,6 +51,7 @@ void main() {
         amount: 3286.5,
         happenedAt: DateTime(2026, 10, 20));
     container = ProviderContainer(overrides: [
+      headerSkinsEnabledProvider.overrideWith((_) => true),
       databaseProvider.overrideWithValue(db),
       repositoryProvider.overrideWithValue(repo),
       currentLedgerIdProvider.overrideWith((ref) => 1),

@@ -1,8 +1,8 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:beecount/providers/sync_providers.dart' show resolvePrimaryFromSync;
+import 'package:beecount/providers/sync_providers.dart'
+    show resolvePrimaryFromSync;
 import 'package:beecount/providers/theme_providers.dart';
 import 'package:beecount/styles/header_skins.dart';
 import 'package:beecount/pages/shared/appearance/skin_animation_scope.dart';
@@ -15,7 +15,8 @@ void main() {
   late WidgetRef ref;
 
   setUp(() {
-    container = ProviderContainer();
+    container = ProviderContainer(
+        overrides: [headerSkinsEnabledProvider.overrideWith((_) => true)]);
     ref = _TestRef(container);
   });
   tearDown(() => container.dispose());
@@ -60,7 +61,8 @@ void main() {
       expect(s.boundPrimary, isNotNull, reason: '$id 应有绑定色');
     }
     for (final id in ['aurora', 'waves', 'galaxy']) {
-      expect(headerSkinById(id)!.hasFixedPalette, isFalse, reason: '$id 应跟随主题色');
+      expect(headerSkinById(id)!.hasFixedPalette, isFalse,
+          reason: '$id 应跟随主题色');
     }
   });
 
@@ -247,7 +249,10 @@ void main() {
     testWidgets('关掉后子树 disableAnimations 置真', (tester) async {
       var disabled = false;
       await tester.pumpWidget(ProviderScope(
-        overrides: [skinAnimationEnabledProvider.overrideWith((ref) => false)],
+        overrides: [
+          headerSkinsEnabledProvider.overrideWith((_) => true),
+          skinAnimationEnabledProvider.overrideWith((ref) => false)
+        ],
         child: MediaQuery(
           data: const MediaQueryData(),
           child: SkinAnimationScope(child: probe((v) => disabled = v)),

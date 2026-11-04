@@ -118,7 +118,7 @@ class V4HomeSkinHeader extends StatelessWidget {
 }
 
 Widget? homeSkinCardBackground(BuildContext context, WidgetRef ref) {
-  if (headerSkinById(ref.watch(headerSkinProvider)) == null) return null;
+  if (headerSkinById(ref.watch(effectiveHeaderSkinProvider)) == null) return null;
   return _HomeSkinCardScrim(surface: BeeCardTheme.of(context).surface);
 }
 

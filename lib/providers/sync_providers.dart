@@ -147,8 +147,8 @@ final s3ConfigProvider = FutureProvider<CloudServiceConfig?>((ref) async {
   return store.loadS3();
 });
 
-typedef CloudServicesFactory = Future<
-    ({CloudProvider? provider, CloudAuthService? auth})> Function(
+typedef CloudServicesFactory
+    = Future<({CloudProvider? provider, CloudAuthService? auth})> Function(
   CloudServiceConfig config,
 );
 
@@ -294,8 +294,7 @@ class ActiveCloudRuntimeController extends AsyncNotifier<ActiveCloudRuntime?> {
         return true;
       });
 
-  Future<void> saveAndActivate(CloudServiceConfig config) =>
-      _enqueue(() async {
+  Future<void> saveAndActivate(CloudServiceConfig config) => _enqueue(() async {
         await _ensureReady();
         await ref.read(cloudServiceStoreProvider).saveAndActivate(config);
         await _refreshConfigProviders(config.type);
@@ -446,8 +445,8 @@ class ActiveCloudRuntimeController extends AsyncNotifier<ActiveCloudRuntime?> {
             logger.info('CloudSync', 'BeeCount Cloud 未登录,等首次 API 触发恢复');
           }
         } catch (error, stack) {
-          logger.warning('CloudSync',
-              'BeeCount Cloud 初始 currentUser 失败: $error', stack);
+          logger.warning(
+              'CloudSync', 'BeeCount Cloud 初始 currentUser 失败: $error', stack);
         }
         final engine = SyncEngine(
           db: db,
@@ -1041,7 +1040,7 @@ void _scheduleThemeSettle(Ref ref) {
     _pendingServerTheme = null;
     _skinLeftBoundPalette = false;
     try {
-      final bound = boundPrimaryOf(ref.read(headerSkinProvider));
+      final bound = boundPrimaryOf(ref.read(effectiveHeaderSkinProvider));
       // 本地颜色还在推往 server 的路上时,server 这一份多半就是我们**还没
       // 覆盖掉的旧值** —— 采信它就会「跳到旧色,等 push 落地再跳回来」闪一下。
       // 用户刚做出的选择比它可信。绑定色皮肤不受影响:那种情况下颜色由皮肤
@@ -1170,8 +1169,11 @@ void _applyAppearanceFields(Ref ref, Map<String, dynamic> appearance) {
       // 这里**只换皮肤 + 登记颜色意图**,颜色本身交给 _scheduleThemeSettle
       // 统一结算 —— 直接调 applyHeaderSkinWith 会和同批的 theme_color 事件
       // 各写一次 primaryColorProvider,用户看到主题色闪两下。
-      final prevBound = boundPrimaryOf(current);
-      if (prevBound == null && boundPrimaryOf(skin) != null) {
+      final prevBound =
+          ref.read(headerSkinsEnabledProvider) ? boundPrimaryOf(current) : null;
+      if (ref.read(headerSkinsEnabledProvider) &&
+          prevBound == null &&
+          boundPrimaryOf(skin) != null) {
         // 离开自由配色前记住用户当前的颜色,换回普通皮肤时才恢复得对
         ref.read(userChosenPrimaryProvider.notifier).state =
             ref.read(primaryColorProvider);

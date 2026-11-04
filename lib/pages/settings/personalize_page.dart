@@ -27,7 +27,7 @@ class _PersonalizePageState extends ConsumerState<PersonalizePage> {
   }
 
   void select(Color color, {bool remember = true}) {
-    if (headerSkinById(ref.read(headerSkinProvider))?.hasFixedPalette ??
+    if (headerSkinById(ref.read(effectiveHeaderSkinProvider))?.hasFixedPalette ??
         false) {
       return;
     }
@@ -54,7 +54,7 @@ class _PersonalizePageState extends ConsumerState<PersonalizePage> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context),
         primary = ref.watch(primaryColorProvider),
-        skin = headerSkinById(ref.watch(headerSkinProvider));
+        skin = headerSkinById(ref.watch(effectiveHeaderSkinProvider));
     final locked = skin?.hasFixedPalette ?? false;
     return V4PageScaffold(
         body: Column(children: [

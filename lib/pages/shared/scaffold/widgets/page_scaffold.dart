@@ -35,7 +35,7 @@ class _V4PageScaffoldState extends ConsumerState<V4PageScaffold> {
 
   @override
   Widget build(BuildContext context) {
-    final skin = headerSkinById(ref.watch(headerSkinProvider));
+    final skin = headerSkinById(ref.watch(effectiveHeaderSkinProvider));
     final dark = Theme.of(context).brightness == Brightness.dark;
     final primary = skin?.boundPrimary ?? Theme.of(context).colorScheme.primary;
     final top = MediaQuery.paddingOf(context).top;

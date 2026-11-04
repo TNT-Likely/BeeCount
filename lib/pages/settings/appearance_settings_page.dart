@@ -125,22 +125,24 @@ class _AppearanceSettingsPageState
                       (v) => ref.read(themeModeProvider.notifier).state = v)),
               entry('Palette', l.personalizeTitle, l.personalizeSubtitle,
                   () => open(const PersonalizePage())),
-              entry(
-                  'Image',
-                  l.headerSkinTitle,
-                  skinId == kHeaderSkinNone
-                      ? l.headerSkinNone
-                      : headerSkinById(skinId)?.nameOf(l) ?? l.headerSkinNone,
-                  () => open(const HeaderSkinPage()),
-                  dot: true),
-              BeeToggleRow(
-                  title: l.appearanceSkinAnimation,
-                  leading: const BeeLineIcon('Sparkles'),
-                  subtitle: l.appearanceSkinAnimationDesc,
-                  value: ref.watch(skinAnimationEnabledProvider),
-                  onChanged: (v) => ref
-                      .read(skinAnimationEnabledProvider.notifier)
-                      .state = v),
+              if (ref.watch(headerSkinsEnabledProvider))
+                entry(
+                    'Image',
+                    l.headerSkinTitle,
+                    skinId == kHeaderSkinNone
+                        ? l.headerSkinNone
+                        : headerSkinById(skinId)?.nameOf(l) ?? l.headerSkinNone,
+                    () => open(const HeaderSkinPage()),
+                    dot: true),
+              if (ref.watch(headerSkinsEnabledProvider))
+                BeeToggleRow(
+                    title: l.appearanceSkinAnimation,
+                    leading: const BeeLineIcon('Sparkles'),
+                    subtitle: l.appearanceSkinAnimationDesc,
+                    value: ref.watch(skinAnimationEnabledProvider),
+                    onChanged: (v) => ref
+                        .read(skinAnimationEnabledProvider.notifier)
+                        .state = v),
               entry('Maximize', l.mineDisplayScale, l.mineDisplayScaleSubtitle,
                   () => open(const FontSettingsPage())),
             ]),
