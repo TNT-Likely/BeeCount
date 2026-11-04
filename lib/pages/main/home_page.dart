@@ -281,11 +281,14 @@ class _HomePageState extends ConsumerState<HomePage> {
   // 日期选择处理
   Future<void> _handleDateSelection() async {
     final month = ref.read(selectedMonthProvider);
+    // 上界与日历页一致取「今天 + 1 年」,支持跳到未来预记账所在月份(#581)
+    final now = DateTime.now();
     final res = await showWheelDatePicker(
       context,
       initial: month,
       mode: WheelDatePickerMode.ym,
-      maxDate: DateTime.now(),
+      maxDate: DateTime(now.year, now.month, now.day)
+          .add(const Duration(days: 365)),
     );
 
     if (res != null) {
