@@ -80,6 +80,20 @@ class VersionAndInputTests(unittest.TestCase):
             with mock.patch.dict(os.environ,values,clear=True):self.assertEqual(ios.api_key(),KEY)
         values=env();values['APPLE_API_KEY_CONTENT']='not a key'
         with mock.patch.dict(os.environ,values,clear=True),self.assertRaises(gate.GateError):ios.api_key()
+    def test_api_key_normalizes_json_env_and_base64_escaped_newlines(self):
+        import json
+        escaped = KEY.decode().replace('\n', r'\n')
+        for value in [escaped, json.dumps(KEY.decode()),
+                      base64.b64encode(escaped.encode()).decode(),
+                      '\ufeff' + KEY.decode(), KEY.decode().replace('\n', '\r\n')]:
+            values = env(); values['APPLE_API_KEY_CONTENT'] = value
+            with self.subTest(encoding=value[:8]), mock.patch.dict(os.environ,values,clear=True):
+                self.assertEqual(ios.api_key(),KEY)
+        for value in ['"not a key"', '{"key":"not a PEM"}', 'AuthKey_SYNTHETIC.p8']:
+            values = env(); values['APPLE_API_KEY_CONTENT'] = value
+            with mock.patch.dict(os.environ,values,clear=True), self.assertRaises(gate.GateError):
+                ios.api_key()
+
     def test_build_subprocess_environment_excludes_all_credentials(self):
         values={**env(),'GH_TOKEN':'secret','GITHUB_TOKEN':'secret','TELEGRAM_BOT_TOKEN':'secret',
                 'TELEGRAM_CHAT_ID':'private','PATH':'/bin','FLUTTER_ROOT':'/sdk'}

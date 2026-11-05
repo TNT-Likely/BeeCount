@@ -62,14 +62,25 @@ def api_key():
     gate.require(all(os.environ.get(k) for k in API_KEYS), 'TestFlight需要现有APPLE_API_KEY_CONTENT/ID/ISSUER_ID')
     gate.require(re.fullmatch(r'[A-Z0-9]{10}', os.environ['APPLE_API_KEY_ID']), 'App Store Connect Key ID 格式错误')
     gate.require(re.fullmatch(r'[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}', os.environ['APPLE_API_ISSUER_ID']), 'App Store Connect Issuer ID 格式错误')
-    value = os.environ['APPLE_API_KEY_CONTENT'].strip().encode()
+    raw = os.environ['APPLE_API_KEY_CONTENT'].strip().lstrip('\ufeff')
+    # GitHub secrets created from JSON/env files can retain escaped newlines or
+    # the quotes of a JSON string. Normalize transport encoding only; the PEM
+    # identity check below remains mandatory and never logs private material.
+    if raw.startswith('"'):
+        try:
+            raw = json.loads(raw)
+        except (ValueError, TypeError):
+            raise gate.GateError('App Store Connect私钥JSON字符串格式无效') from None
+        gate.require(isinstance(raw, str), 'App Store Connect私钥必须是字符串')
+    value = raw.encode()
     if not value.startswith(b'-----BEGIN PRIVATE KEY-----'):
         try:
             value = base64.b64decode(b''.join(value.split()), validate=True)
         except ValueError:
             raise gate.GateError('App Store Connect私钥须为PKCS8 PEM或其Base64') from None
+    value = value.replace(b'\\r\\n', b'\n').replace(b'\\n', b'\n').replace(b'\r\n', b'\n').strip() + b'\n'
     gate.require(re.fullmatch(rb'-----BEGIN PRIVATE KEY-----\s+[A-Za-z0-9+/=\s]+-----END PRIVATE KEY-----\s*', value) is not None
-                 and len(value) <= 16384, 'App Store Connect私钥格式无效')
+                 and len(value) <= 16384, 'App Store Connect私钥格式无效；需要完整PKCS8 .p8内容，不能填文件名或其他凭据')
     return value
 
 
