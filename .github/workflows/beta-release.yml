@@ -4,39 +4,35 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "发布新 Beta，或只重发已发布 Beta 的 Telegram 通知"
+        description: "发布完整双端 Beta，或在完整交付后补发唯一通知"
         type: choice
-        options:
-          - release
-          - notify-only
+        options: [release, notify-only]
         required: true
         default: release
       source_ref:
-        description: "发布模式：v4 或 v4 历史中的完整 40 位提交 SHA；仅通知模式忽略"
+        description: "发布模式：v4 或其历史完整40位SHA；仅通知忽略"
         required: true
         default: "v4"
       version:
-        description: "Beta 版本名；发布需已提交说明，仅通知填原来已发布的版本"
+        description: "新Beta需已提交独立更新说明；仅通知填已发布版本"
         required: true
-        default: "4.0.0-beta.5"
+        default: "4.0.0-beta.6"
       android_version_code_floor:
-        description: "发布模式：全部渠道/本地最高已交付 code；留空读仓库变量，仅通知忽略"
+        description: "全部渠道最高已交付Android code；留空读仓库变量"
         required: false
         default: ""
       ios_delivery:
-        description: "iOS 与 Android 一起发布；默认同时上传 TestFlight"
+        description: "默认签名IPA并完成Apple TestFlight处理；或仅归档签名IPA"
         type: choice
-        options:
-          - testflight
-          - ipa
+        options: [testflight, ipa]
         required: true
         default: testflight
       ios_build_number:
-        description: "留空与 Android 版本码一致；仅 Apple 要求更高 build 时填写"
+        description: "留空与Android code一致；仅Apple需要更高build时填写"
         required: false
         default: ""
 
-# 与旧正式发布共用一把锁，不能被后一次 dispatch 取消。
+# 与正式版共用串行锁。两端候选留在同一私有Runner，全部成功才公开。
 concurrency:
   group: beecount-android-delivery
   cancel-in-progress: false
@@ -45,81 +41,19 @@ permissions:
   contents: read
 
 jobs:
-  beta:
+  release:
     if: inputs.mode == 'release'
-    name: Verify and publish ARM64 Beta APK
+    name: Verify both platforms then publish one Beta
+    runs-on: macos-15
+    timeout-minutes: 120
     permissions:
       contents: write
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
     env:
+      BETA_ATOMIC: "1"
       BETA_SOURCE_REF: ${{ inputs.source_ref }}
       BETA_VERSION: ${{ inputs.version }}
       BETA_CHANNEL_FLOOR: ${{ inputs.android_version_code_floor || vars.ANDROID_VERSION_CODE_FLOOR }}
       BETA_EXPECTED_CERTIFICATE: ${{ vars.ANDROID_RELEASE_CERT_SHA256 }}
-    steps:
-      - name: Checkout trusted v4 release tooling
-        uses: actions/checkout@v4
-        with:
-          ref: v4
-          fetch-depth: 0
-          fetch-tags: true
-          persist-credentials: false
-      - name: Set private build context path
-        run: echo "BETA_CONTEXT=$RUNNER_TEMP/beecount-beta-context.json" >> "$GITHUB_ENV"
-      - name: Test release gates
-        run: python3 -m unittest discover -s tool/release -p 'test_*.py' -v
-      - name: Check mandatory signing inputs before SDK setup
-        env:
-          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
-          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
-        run: python3 tool/release/beta_release.py credentials
-      - name: Freeze source, version floor and release notes
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: python3 tool/release/beta_release.py plan
-      - name: Setup Java 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: zulu
-          java-version: "17"
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v4
-      - name: Install locked Android build tools
-        run: sdkmanager --install "platform-tools" "platforms;android-36" "build-tools;36.0.0" "ndk;27.0.12077973"
-      - name: Setup Flutter 3.27.3
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: "3.27.3"
-          channel: stable
-          cache: true
-      - name: Build and verify formally signed ARM64 APK
-        env:
-          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
-          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
-        run: python3 tool/release/beta_release.py build
-      - name: Create verified GitHub prerelease
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: python3 tool/release/beta_release.py publish
-      - name: Remove temporary signing inputs
-        if: always()
-        run: python3 tool/release/beta_release.py cleanup
-
-  ios-beta:
-    needs: beta
-    if: inputs.mode == 'release' && needs.beta.result == 'success'
-    name: Verify signed IPA and optionally upload TestFlight
-    runs-on: macos-15
-    timeout-minutes: 90
-    permissions:
-      contents: write
-    env:
-      BETA_VERSION: ${{ inputs.version }}
       IOS_BETA_MODE: ${{ inputs.ios_delivery }}
       IOS_BUILD_NUMBER: ${{ inputs.ios_build_number }}
       IOS_BUILD_NUMBER_FLOOR: ${{ vars.IOS_BUILD_NUMBER_FLOOR || '225' }}
@@ -137,12 +71,47 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
           persist-credentials: false
-      - name: Set private iOS build context
-        run: echo "IOS_BETA_CONTEXT=$RUNNER_TEMP/beecount-ios-beta-context.json" >> "$GITHUB_ENV"
-      - name: Test iOS release gates
-        run: python3 -m unittest discover -s tool/release -p 'test_ios_beta_release.py' -v
-      - name: Freeze published Beta identity and check mandatory signing inputs
-        id: plan
+      - name: Set private platform contexts
+        id: contexts
+        run: |
+          echo "BETA_CONTEXT=$RUNNER_TEMP/beecount-beta-context.json" >> "$GITHUB_ENV"
+          echo "IOS_BETA_CONTEXT=$RUNNER_TEMP/beecount-ios-beta-context.json" >> "$GITHUB_ENV"
+      - name: Test release gates
+        run: python3 -m unittest discover -s tool/release -p 'test_*.py' -v
+      - name: Check mandatory Android signing inputs
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: python3 tool/release/beta_release.py credentials
+      - name: Freeze one source, version floor and curated notes
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 tool/release/beta_release.py plan
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: zulu
+          java-version: "17"
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v4
+      - name: Install locked Android build tools
+        run: sdkmanager --install "platform-tools" "platforms;android-36" "build-tools;36.0.0" "ndk;27.0.12077973"
+      - name: Setup locked Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.27.3"
+          channel: stable
+          cache: true
+      - name: Build and verify signed ARM64 APK privately
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: python3 tool/release/beta_release.py build
+      - name: Freeze iOS from the verified private Android candidate
         env:
           GH_TOKEN: ${{ github.token }}
           APPLE_API_KEY_CONTENT: ${{ secrets.APPLE_API_KEY_CONTENT }}
@@ -157,17 +126,11 @@ jobs:
           echo "DEVELOPER_DIR=$DEVELOPER_DIR" >> "$GITHUB_ENV"
           xcodebuild -version
           xcrun --sdk iphoneos --show-sdk-version
-      - name: Setup locked Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: "3.27.3"
-          channel: stable
-          cache: true
-      - name: Setup Ruby for the isolated CocoaPods toolchain
+      - name: Setup Ruby for isolated CocoaPods
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: "3.3"
-      - name: Install locked CocoaPods into this run only
+      - name: Install fixed CocoaPods into this private run
         run: |
           export GEM_HOME="$RUNNER_TEMP/ios-beta-gems"
           export GEM_PATH="$GEM_HOME"
@@ -175,48 +138,40 @@ jobs:
           echo "GEM_HOME=$GEM_HOME" >> "$GITHUB_ENV"
           echo "GEM_PATH=$GEM_PATH" >> "$GITHUB_ENV"
           echo "$GEM_HOME/bin" >> "$GITHUB_PATH"
-      - name: Build and verify App Store signed IPA
+      - name: Build and verify App Store signed IPA privately
         run: python3 tool/release/ios_beta_release.py build
-      - name: Attach verified IPA and receipt to the existing Beta prerelease
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: python3 tool/release/ios_beta_release.py publish
-      - name: Explicitly upload to TestFlight and wait for Apple processing
+      - name: Upload TestFlight and require valid Apple processing
         if: inputs.ios_delivery == 'testflight'
         env:
-          GH_TOKEN: ${{ github.token }}
           APPLE_API_KEY_CONTENT: ${{ secrets.APPLE_API_KEY_CONTENT }}
           APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
           APPLE_API_ISSUER_ID: ${{ secrets.APPLE_API_ISSUER_ID }}
         run: python3 tool/release/ios_beta_release.py upload
-      - name: Preserve verified public artifact only
-        if: always() && steps.plan.outputs.artifact_dir != ''
-        uses: actions/upload-artifact@v4
-        with:
-          name: ios-beta-${{ steps.plan.outputs.version }}-${{ steps.plan.outputs.build_number }}
-          path: |
-            ${{ steps.plan.outputs.artifact_dir }}/*.ipa
-            ${{ steps.plan.outputs.artifact_dir }}/*.sha256
-            ${{ steps.plan.outputs.artifact_dir }}/*.json
-          if-no-files-found: ignore
-          retention-days: 14
-      - name: Remove only this run's temporary signing inputs
-        if: always()
-        run: python3 tool/release/ios_beta_release.py cleanup
+      - name: Publish one Release only after both platforms succeed
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 tool/release/beta_atomic.py publish
+      - name: Remove this run's signing inputs
+        if: always() && steps.contexts.outcome == 'success'
+        run: |
+          python3 tool/release/ios_beta_release.py cleanup
+          python3 tool/release/beta_release.py cleanup
 
   notify:
-    needs: [beta, ios-beta]
-    if: always() && (inputs.mode == 'notify-only' || needs.beta.result == 'success')
-    name: Announce verified Android and iOS delivery together
+    needs: release
+    if: always() && (inputs.mode == 'notify-only' || needs.release.result == 'success')
+    name: Announce complete Beta once
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
-      contents: read
+      contents: write
     env:
       BETA_VERSION: ${{ inputs.version }}
       BETA_EXPECTED_CERTIFICATE: ${{ vars.ANDROID_RELEASE_CERT_SHA256 }}
       IOS_BUILD_NUMBER: ${{ inputs.ios_build_number }}
-      IOS_DELIVERY_RESULT: ${{ needs.ios-beta.result }}
+      IOS_DELIVERY_RESULT: "success"
+      BETA_EXPECT_TESTFLIGHT: ${{ inputs.ios_delivery == 'testflight' && '1' || '0' }}
+      BETA_NOTIFICATION_MANUAL_RETRY: ${{ inputs.mode == 'notify-only' && '1' || '0' }}
       TESTFLIGHT_PUBLIC_URL: ${{ vars.TESTFLIGHT_PUBLIC_URL }}
     steps:
       - name: Checkout reviewed unified notification tool
@@ -225,16 +180,13 @@ jobs:
           ref: v4
           fetch-depth: 0
           persist-credentials: false
-      - name: Set private notification contexts
+      - name: Set fresh private notification contexts
         run: |
           echo "BETA_CONTEXT=$RUNNER_TEMP/beecount-beta-notification.json" >> "$GITHUB_ENV"
           echo "IOS_BETA_CONTEXT=$RUNNER_TEMP/beecount-ios-beta-notification.json" >> "$GITHUB_ENV"
-      - name: Verify existing platform receipts without builds or writes
+      - name: Verify full platform receipts and send idempotent announcement
         env:
           GH_TOKEN: ${{ github.token }}
-        run: python3 tool/release/beta_delivery.py notification_plan
-      - name: Send one curated Beta announcement
-        env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: python3 tool/release/beta_release.py notify
+        run: python3 tool/release/beta_atomic.py announce
