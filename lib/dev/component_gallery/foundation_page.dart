@@ -32,7 +32,8 @@ const foundationCases = [
   '紧凑页签与柱状图',
   '纸面、卡框与状态胶囊',
   '启动描线、活动与局部弹层',
-  '主题与系统状态栏'
+  '主题与系统状态栏',
+  '皮肤卡片透明度与模糊'
 ];
 
 class FoundationAcceptancePage extends StatefulWidget {
@@ -86,6 +87,7 @@ class _FoundationAcceptancePageState extends State<FoundationAcceptancePage> {
         23 => const PaperComponentsSample(),
         24 => const StartupPrimitivesSample(),
         25 => const SystemBarsSample(),
+        26 => const PageMaterialSample(),
         0 => BeeSurface(
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,

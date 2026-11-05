@@ -98,11 +98,12 @@ void main() {
     expect(find.byType(BeeDialog), findsNothing);
   }
 
-  testWidgets('原15项/四组与五种弹窗、即时偏好及取消不改值', (t) async {
+  testWidgets('原设置与新增材质入口保持四组、紧凑间距和即时偏好', (t) async {
     await mount(t);
-    expect(t.getSize(find.byType(BeeSurface).first).height, lessThan(300),
-        reason: 'HTML同卡片使用紧凑分隔，防止默认24px分组间距混入五行菜单');
+    expect(t.getSize(find.byType(BeeSurface).first).height, lessThan(360),
+        reason: '新增材质入口后的六行组仍用紧凑分隔，不能混入24px分组间距');
     final s = l(t);
+    expect(find.text(s.appearanceCardMaterial), findsOneWidget);
     await choose(t, s.appearanceThemeMode, s.appearanceThemeModeDark);
     expect(container.read(themeModeProvider), ThemeMode.dark);
     expect(prefs.getString('themeMode'), 'dark');

@@ -514,6 +514,8 @@ class AppSettingsConfig {
   final String? themeMode;
   final String? darkModePatternStyle;
   final String? headerSkin; // 头部皮肤
+  final double? skinCardOpacity;
+  final double? skinCardBlur;
   final bool? compactAmount;
   final bool? showTransactionTime;
   final String? noteDisplayMode; // 备注显示方式:'category' | 'note'
@@ -545,6 +547,8 @@ class AppSettingsConfig {
     this.themeMode,
     this.darkModePatternStyle,
     this.headerSkin,
+    this.skinCardOpacity,
+    this.skinCardBlur,
     this.compactAmount,
     this.showTransactionTime,
     this.noteDisplayMode,
@@ -603,6 +607,8 @@ class AppSettingsConfig {
     if (headerSkin != null && headerSkin!.isNotEmpty) {
       map['header_skin'] = headerSkin;
     }
+    if (skinCardOpacity != null) map['skin_card_opacity'] = skinCardOpacity;
+    if (skinCardBlur != null) map['skin_card_blur'] = skinCardBlur;
     if (compactAmount != null) {
       map['compact_amount'] = compactAmount;
     }
@@ -640,6 +646,14 @@ class AppSettingsConfig {
     return map;
   }
 
+  static double? _materialNumber(dynamic value, double min, double max) {
+    if (value == null) return null;
+    if (value is! num || !value.toDouble().isFinite) {
+      throw const FormatException('Card material values must be finite numbers');
+    }
+    return value.toDouble().clamp(min, max).toDouble();
+  }
+
   static AppSettingsConfig fromMap(Map<String, dynamic> map) =>
       AppSettingsConfig(
         accountFeatureEnabled: map['account_feature_enabled'] as bool?,
@@ -658,6 +672,8 @@ class AppSettingsConfig {
         themeMode: map['theme_mode'] as String?,
         darkModePatternStyle: map['dark_mode_pattern_style'] as String?,
         headerSkin: map['header_skin'] as String?,
+        skinCardOpacity: _materialNumber(map['skin_card_opacity'], .1, 1),
+        skinCardBlur: _materialNumber(map['skin_card_blur'], 0, 16),
         compactAmount: map['compact_amount'] as bool?,
         showTransactionTime: map['show_transaction_time'] as bool?,
         noteDisplayMode: map['note_display_mode'] as String?,
@@ -1417,6 +1433,8 @@ class ConfigExportService {
     final themeMode = prefs.getString('themeMode');
     final darkModePatternStyle = prefs.getString('darkModePatternStyle');
     final headerSkin = prefs.getString('headerSkin');
+    final skinCardOpacity = prefs.getDouble('skinCardOpacity');
+    final skinCardBlur = prefs.getDouble('skinCardBlur');
     final compactAmount = prefs.getBool('compactAmount');
     final showTransactionTime = prefs.getBool('showTransactionTime');
     final noteDisplayMode = prefs.getString('noteDisplayMode');
@@ -1464,6 +1482,8 @@ class ConfigExportService {
         themeMode != null ||
         darkModePatternStyle != null ||
         headerSkin != null ||
+        skinCardOpacity != null ||
+        skinCardBlur != null ||
         compactAmount != null ||
         showTransactionTime != null ||
         noteDisplayMode != null ||
@@ -1490,6 +1510,8 @@ class ConfigExportService {
         themeMode: themeMode,
         darkModePatternStyle: darkModePatternStyle,
         headerSkin: headerSkin,
+        skinCardOpacity: skinCardOpacity,
+        skinCardBlur: skinCardBlur,
         compactAmount: compactAmount,
         showTransactionTime: showTransactionTime,
         noteDisplayMode: noteDisplayMode,
@@ -1949,6 +1971,8 @@ class ConfigExportService {
 
       if (settings.containsKey('theme_mode') ||
           settings.containsKey('dark_mode_pattern_style') ||
+          settings.containsKey('skin_card_opacity') ||
+          settings.containsKey('skin_card_blur') ||
           settings.containsKey('compact_amount') ||
           settings.containsKey('show_transaction_time') ||
           settings.containsKey('note_display_mode') ||
@@ -1961,6 +1985,12 @@ class ConfigExportService {
         }
         if (settings.containsKey('dark_mode_pattern_style')) {
           buffer.writeln('  dark_mode_pattern_style: "${settings['dark_mode_pattern_style']}"');
+        }
+        if (settings.containsKey('skin_card_opacity')) {
+          buffer.writeln('  skin_card_opacity: ${settings['skin_card_opacity']}');
+        }
+        if (settings.containsKey('skin_card_blur')) {
+          buffer.writeln('  skin_card_blur: ${settings['skin_card_blur']}');
         }
         if (settings.containsKey('compact_amount')) {
           buffer.writeln('  compact_amount: ${settings['compact_amount']}');
@@ -2421,6 +2451,12 @@ class ConfigExportService {
       }
       if (settings.headerSkin != null) {
         await prefs.setString('headerSkin', settings.headerSkin!);
+      }
+      if (settings.skinCardOpacity != null) {
+        await prefs.setDouble('skinCardOpacity', settings.skinCardOpacity!.clamp(.1, 1).toDouble());
+      }
+      if (settings.skinCardBlur != null) {
+        await prefs.setDouble('skinCardBlur', settings.skinCardBlur!.clamp(0, 16).toDouble());
       }
       if (settings.compactAmount != null) {
         await prefs.setBool('compactAmount', settings.compactAmount!);

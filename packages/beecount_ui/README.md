@@ -24,3 +24,5 @@ HTML 设计目录：[BeeCount-Design/card-refresh](https://github.com/TNT-Likely
 悬浮导航使用不透明底色及独立重绘边界，保留原版 Tab 装饰与前景控件，避免动态皮肤、列表和磨砂采样一起重绘时闪烁。页面卡片仍使用统一的半透明材质。
 
 `BeeButton` 的图标与文字共用同一前景色及禁用色，亮暗模式、按下和禁用状态保持一致。
+
+`BeePageMaterial` 接收 `opacity`（0.1–1，默认0.4）与 `blur`（0–16，默认0），只改变皮肤卡片材质。`BeeSurface` 为外层半透明卡片裁切模糊，嵌套卡片不重复滤镜，默认和不透明卡片不创建滤镜。弹层、对话框与底栏保持不透明。`BeeMaterialControls` 是受控滑杆与重置操作；`BeeMaterialPreview` 只在限定示例范围内预览背景和卡片。偏好持久化与导入导出由App绑定负责，基础包不读本地存储。

@@ -395,6 +395,17 @@ class BeeMenuRow extends StatelessWidget {
               ]))));
 }
 
+/// Quiet label above a settings or information group.
+class BeeSectionLabel extends StatelessWidget {
+  const BeeSectionLabel(this.label, {super.key});
+  final String label;
+  @override
+  Widget build(BuildContext context) => Padding(
+      padding: const EdgeInsets.fromLTRB(3, 3, 3, 0),
+      child: Text(label,
+          style: TextStyle(fontSize: 11, color: Theme.of(context).hintColor)));
+}
+
 class BeeSection extends StatelessWidget {
   const BeeSection(
       {super.key, required this.title, required this.child, this.action});

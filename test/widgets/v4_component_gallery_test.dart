@@ -461,7 +461,7 @@ void main() {
     expect(tester.widget<BeeCheckTile>(all).mixed, isTrue);
   });
   testWidgets('原标签分区真实展示集合多选与紧凑标签，保留禁用和提示', (tester) async {
-    expect(foundationCases.length, 26);
+    expect(foundationCases.length, 27);
     expect(foundationCases[13], '标签块与多选');
     for (final width in [320.0, 398.0]) {
       for (final brightness in [Brightness.light, Brightness.dark]) {

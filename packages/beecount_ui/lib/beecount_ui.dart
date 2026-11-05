@@ -1,5 +1,6 @@
 library;
 
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'src/page_material.dart';
 export 'src/line_icon.dart';
@@ -21,6 +22,7 @@ export 'src/launch_motion.dart';
 export 'src/local_sheet.dart';
 export 'src/system_bars.dart';
 export 'src/page_material.dart';
+export 'src/material_controls.dart';
 export 'src/motion/typewriter_text.dart';
 
 /// Local v4 surfaces. The app supplies its existing accent and brightness.
@@ -30,7 +32,8 @@ class BeeCardTheme extends ThemeExtension<BeeCardTheme> {
       {required this.canvas,
       required this.surface,
       required this.soft,
-      this.divider = const Color(0xffeceeef)});
+      this.divider = const Color(0xffeceeef),
+      this.surfaceBlur = 0});
 
   factory BeeCardTheme.fromBrightness(Brightness brightness) =>
       brightness == Brightness.dark
@@ -49,6 +52,9 @@ class BeeCardTheme extends ThemeExtension<BeeCardTheme> {
   final Color soft;
   final Color divider;
 
+  /// Decoration-only blur for an outer page card; zero creates no filter.
+  final double surfaceBlur;
+
   static BeeCardTheme of(BuildContext context) => ofTheme(Theme.of(context));
   static BeeCardTheme ofTheme(ThemeData theme) =>
       theme.extension<BeeCardTheme>() ??
@@ -59,12 +65,17 @@ class BeeCardTheme extends ThemeExtension<BeeCardTheme> {
 
   @override
   BeeCardTheme copyWith(
-          {Color? canvas, Color? surface, Color? soft, Color? divider}) =>
+          {Color? canvas,
+          Color? surface,
+          Color? soft,
+          Color? divider,
+          double? surfaceBlur}) =>
       BeeCardTheme(
           canvas: canvas ?? this.canvas,
           surface: surface ?? this.surface,
           soft: soft ?? this.soft,
-          divider: divider ?? this.divider);
+          divider: divider ?? this.divider,
+          surfaceBlur: surfaceBlur ?? this.surfaceBlur);
 
   @override
   BeeCardTheme lerp(covariant BeeCardTheme? other, double t) => other == null
@@ -73,7 +84,8 @@ class BeeCardTheme extends ThemeExtension<BeeCardTheme> {
           canvas: Color.lerp(canvas, other.canvas, t)!,
           surface: Color.lerp(surface, other.surface, t)!,
           soft: Color.lerp(soft, other.soft, t)!,
-          divider: Color.lerp(divider, other.divider, t)!);
+          divider: Color.lerp(divider, other.divider, t)!,
+          surfaceBlur: ui.lerpDouble(surfaceBlur, other.surfaceBlur, t)!);
 }
 
 class BeeSurface extends StatelessWidget {
@@ -91,21 +103,46 @@ class BeeSurface extends StatelessWidget {
   final Widget? background;
 
   @override
-  Widget build(BuildContext context) => BeeSceneSurface(
-      controller: BeeSceneScope.maybeOf(context),
-      child: Material(
-        color: background == null
-            ? BeeCardTheme.of(context).surface
-            : Colors.transparent,
-        borderRadius: borderRadius,
-        clipBehavior: background == null ? Clip.none : Clip.antiAlias,
-        child: background == null
-            ? Padding(padding: padding, child: child)
-            : Stack(children: [
-                Positioned.fill(
-                    child: IgnorePointer(
-                        child: ExcludeSemantics(child: background!))),
-                Padding(padding: padding, child: child)
-              ]),
-      ));
+  Widget build(BuildContext context) {
+    final cards = BeeCardTheme.of(context);
+    final ownsBackdrop =
+        context.dependOnInheritedWidgetOfExactType<_BeeSurfaceBackdrop>() ==
+            null;
+    final blur = cards.surfaceBlur;
+    final needsBlur = ownsBackdrop &&
+        background == null &&
+        cards.surface.a < 1 &&
+        blur > 0 &&
+        ModalRoute.of(context) is! PopupRoute;
+    Widget content = Material(
+      color: background == null ? cards.surface : Colors.transparent,
+      borderRadius: borderRadius,
+      clipBehavior: background == null ? Clip.none : Clip.antiAlias,
+      child: background == null
+          ? Padding(padding: padding, child: child)
+          : Stack(children: [
+              Positioned.fill(
+                  child: IgnorePointer(
+                      child: ExcludeSemantics(child: background!))),
+              Padding(padding: padding, child: child)
+            ]),
+    );
+    if (needsBlur) {
+      content = ClipRRect(
+          borderRadius: borderRadius,
+          child: BackdropFilter(
+              filter: ui.ImageFilter.blur(sigmaX: blur, sigmaY: blur),
+              child: content));
+    }
+    return BeeSceneSurface(
+        controller: BeeSceneScope.maybeOf(context),
+        child: _BeeSurfaceBackdrop(child: content));
+  }
+}
+
+/// Nested surfaces inherit their outer card's already-filtered backdrop.
+class _BeeSurfaceBackdrop extends InheritedWidget {
+  const _BeeSurfaceBackdrop({required super.child});
+  @override
+  bool updateShouldNotify(_BeeSurfaceBackdrop oldWidget) => false;
 }

@@ -17413,6 +17413,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} ledgers'**
   String v4AccountLedgerCount(int count);
+
+  /// No description provided for @appearanceCardMaterial.
+  ///
+  /// In en, this message translates to:
+  /// **'Skin card material'**
+  String get appearanceCardMaterial;
+
+  /// No description provided for @appearanceCardMaterialDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjust cards over a skin. List rows share their outer card; the bottom navigation stays opaque.'**
+  String get appearanceCardMaterialDescription;
+
+  /// No description provided for @appearanceCardTransparency.
+  ///
+  /// In en, this message translates to:
+  /// **'Card transparency'**
+  String get appearanceCardTransparency;
+
+  /// No description provided for @appearanceCardOpaque.
+  ///
+  /// In en, this message translates to:
+  /// **'Opaque'**
+  String get appearanceCardOpaque;
+
+  /// No description provided for @appearanceCardTransparent.
+  ///
+  /// In en, this message translates to:
+  /// **'More transparent'**
+  String get appearanceCardTransparent;
+
+  /// No description provided for @appearanceCardBlur.
+  ///
+  /// In en, this message translates to:
+  /// **'Blur strength'**
+  String get appearanceCardBlur;
+
+  /// No description provided for @appearanceCardBlurOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get appearanceCardBlurOff;
+
+  /// No description provided for @appearanceCardBlurStrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Stronger'**
+  String get appearanceCardBlurStrong;
+
+  /// No description provided for @appearanceCardMaterialReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore default material'**
+  String get appearanceCardMaterialReset;
+
+  /// No description provided for @appearanceCardMaterialPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Live preview'**
+  String get appearanceCardMaterialPreview;
+
+  /// No description provided for @appearanceCardMaterialPreviewBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Text and icons stay clear'**
+  String get appearanceCardMaterialPreviewBody;
+
+  /// No description provided for @appearanceCardMaterialSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Transparency {transparency}% · Blur {blur}'**
+  String appearanceCardMaterialSummary(int transparency, int blur);
+
+  /// No description provided for @aboutBrandStatement.
+  ///
+  /// In en, this message translates to:
+  /// **'Record life. Keep your data yours.'**
+  String get aboutBrandStatement;
+
+  /// No description provided for @aboutHelpSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Help & support'**
+  String get aboutHelpSupport;
+
+  /// No description provided for @aboutProductDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Explore this product'**
+  String get aboutProductDetails;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

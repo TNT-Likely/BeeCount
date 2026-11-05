@@ -6,23 +6,41 @@ import '../beecount_ui.dart' show BeeCardTheme;
 /// One material for every card over a page scene. It never changes constraints
 /// or the platform/dialog surfaces, and does not own artwork or user settings.
 class BeePageMaterial extends StatelessWidget {
-  const BeePageMaterial({super.key, required this.enabled, required this.child})
+  const BeePageMaterial(
+      {super.key,
+      required this.enabled,
+      required this.child,
+      this.opacity = defaultOpacity,
+      this.blur = defaultBlur})
       : frosted = false;
 
   /// Place inside the host's rounded clip, beneath its navigation controls.
   const BeePageMaterial.frosted(
-      {super.key, required this.enabled, required this.child})
+      {super.key,
+      required this.enabled,
+      required this.child,
+      this.opacity = defaultOpacity,
+      this.blur = 8})
       : frosted = true;
+  static const defaultOpacity = .4, defaultBlur = 0.0;
+  static const minOpacity = .1, maxBlur = 16.0;
+  static double normalizeOpacity(double value) =>
+      value.isFinite ? value.clamp(minOpacity, 1).toDouble() : defaultOpacity;
+  static double normalizeBlur(double value) =>
+      value.isFinite ? value.clamp(0, maxBlur).toDouble() : defaultBlur;
+  final double opacity, blur;
   final bool enabled;
   final bool frosted;
   final Widget child;
 
-  static ThemeData theme(ThemeData source) {
+  static ThemeData theme(ThemeData source,
+      {double opacity = defaultOpacity, double blur = defaultBlur}) {
     final dark = source.brightness == Brightness.dark;
     final cards = BeeCardTheme.ofTheme(source).copyWith(
       canvas: Colors.transparent,
-      surface:
-          (dark ? const Color(0xff1d1f1f) : Colors.white).withValues(alpha: .4),
+      surfaceBlur: normalizeBlur(blur),
+      surface: (dark ? const Color(0xff1d1f1f) : Colors.white)
+          .withValues(alpha: normalizeOpacity(opacity)),
       soft: Colors.white.withValues(alpha: dark ? .06 : .28),
       divider: (dark ? const Color(0xffded4b7) : const Color(0xff7a673d))
           .withValues(alpha: .13),
@@ -41,11 +59,14 @@ class BeePageMaterial extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Theme(
-      data: enabled ? theme(Theme.of(context)) : Theme.of(context),
+      data: enabled
+          ? theme(Theme.of(context), opacity: opacity, blur: frosted ? 0 : blur)
+          : Theme.of(context),
       child: frosted
           ? BackdropFilter(
               enabled: enabled,
-              filter: ui.ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+              filter: ui.ImageFilter.blur(
+                  sigmaX: normalizeBlur(blur), sigmaY: normalizeBlur(blur)),
               child: child)
           : child);
 }

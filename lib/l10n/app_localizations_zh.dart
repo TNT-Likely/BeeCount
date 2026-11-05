@@ -9251,6 +9251,53 @@ class AppLocalizationsZh extends AppLocalizations {
   String v4AccountLedgerCount(int count) {
     return '$count 个账本';
   }
+
+  @override
+  String get appearanceCardMaterial => '皮肤卡片材质';
+
+  @override
+  String get appearanceCardMaterialDescription => '调整皮肤上卡片的透明度和磨砂。列表行共用外层卡片，底部导航保持清晰。';
+
+  @override
+  String get appearanceCardTransparency => '卡片透明度';
+
+  @override
+  String get appearanceCardOpaque => '不透明';
+
+  @override
+  String get appearanceCardTransparent => '更透明';
+
+  @override
+  String get appearanceCardBlur => '磨砂强度';
+
+  @override
+  String get appearanceCardBlurOff => '关闭';
+
+  @override
+  String get appearanceCardBlurStrong => '更强';
+
+  @override
+  String get appearanceCardMaterialReset => '恢复默认材质';
+
+  @override
+  String get appearanceCardMaterialPreview => '即时预览';
+
+  @override
+  String get appearanceCardMaterialPreviewBody => '卡片文字与图标保持清晰';
+
+  @override
+  String appearanceCardMaterialSummary(int transparency, int blur) {
+    return '透明度 $transparency% · 磨砂 $blur';
+  }
+
+  @override
+  String get aboutBrandStatement => '记下生活，也把数据留给自己。';
+
+  @override
+  String get aboutHelpSupport => '帮助与支持';
+
+  @override
+  String get aboutProductDetails => '了解这款产品';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).

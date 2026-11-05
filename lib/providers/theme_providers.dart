@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:beecount_ui/beecount_ui.dart' show BeePageMaterial;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/note_history.dart';
@@ -301,6 +302,50 @@ final skinAnimationInitProvider = FutureProvider<void>((ref) async {
     }
   });
 });
+
+/// Local-only page-card material. It does not change the Cloud appearance schema.
+final skinCardOpacityProvider =
+    StateProvider<double>((ref) => BeePageMaterial.defaultOpacity);
+final skinCardBlurProvider =
+    StateProvider<double>((ref) => BeePageMaterial.defaultBlur);
+
+final skinCardMaterialInitProvider = FutureProvider<void>((ref) async {
+  final prefs = await SharedPreferences.getInstance();
+  final alpha = prefs.get('skinCardOpacity');
+  final sigma = prefs.get('skinCardBlur');
+  ref.read(skinCardOpacityProvider.notifier).state =
+      BeePageMaterial.normalizeOpacity(
+          alpha is num ? alpha.toDouble() : BeePageMaterial.defaultOpacity);
+  ref.read(skinCardBlurProvider.notifier).state = BeePageMaterial.normalizeBlur(
+      sigma is num ? sigma.toDouble() : BeePageMaterial.defaultBlur);
+  Timer? pending;
+  void schedule() {
+    pending?.cancel();
+    pending = Timer(const Duration(milliseconds: 150), () {
+      // Capture both values before awaiting platform I/O.
+      final opacity =
+          BeePageMaterial.normalizeOpacity(ref.read(skinCardOpacityProvider));
+      final blur =
+          BeePageMaterial.normalizeBlur(ref.read(skinCardBlurProvider));
+      unawaited(prefs.setDouble('skinCardOpacity', opacity));
+      unawaited(prefs.setDouble('skinCardBlur', blur));
+    });
+  }
+
+  ref.listen<double>(skinCardOpacityProvider, (_, __) => schedule());
+  ref.listen<double>(skinCardBlurProvider, (_, __) => schedule());
+  ref.onDispose(() => pending?.cancel());
+});
+
+/// Flush on gesture completion/reset so closing the sheet immediately is safe.
+Future<void> saveSkinCardMaterial(WidgetRef ref) async {
+  final opacity =
+      BeePageMaterial.normalizeOpacity(ref.read(skinCardOpacityProvider));
+  final blur = BeePageMaterial.normalizeBlur(ref.read(skinCardBlurProvider));
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setDouble('skinCardOpacity', opacity);
+  await prefs.setDouble('skinCardBlur', blur);
+}
 
 // 显示交易时间Provider（默认不显示）
 // false = 只显示日期

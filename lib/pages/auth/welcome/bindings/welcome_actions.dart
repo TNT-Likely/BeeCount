@@ -157,6 +157,7 @@ mixin _WelcomeActions on ConsumerState<WelcomePage> {
       ref.invalidate(themeModeInitProvider);
       ref.invalidate(compactAmountInitProvider);
       ref.invalidate(skinAnimationInitProvider);
+      ref.invalidate(skinCardMaterialInitProvider);
       ref.invalidate(showTransactionTimeInitProvider);
       ref.invalidate(noteDisplayModeInitProvider);
       ref.invalidate(fontScaleInitProvider);

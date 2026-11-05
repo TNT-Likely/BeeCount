@@ -247,6 +247,9 @@ mixin _ConfigTransferActions on ConsumerState<ConfigImportExportPage> {
     try {
       final prefs = await SharedPreferences.getInstance();
 
+      ref.invalidate(skinCardMaterialInitProvider);
+      await ref.read(skinCardMaterialInitProvider.future);
+
       // 刷新主题色
       final primaryColor = prefs.getInt('primaryColor');
       if (primaryColor != null) {

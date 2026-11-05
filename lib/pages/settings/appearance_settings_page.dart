@@ -5,6 +5,7 @@ import '../../l10n/app_localizations.dart';
 import '../../providers.dart';
 import '../../providers/feature_highlight_providers.dart';
 import 'appearance/bindings/appearance_dialogs.dart';
+import 'appearance/bindings/skin_material_sheet.dart';
 import '../shared/scaffold/widgets/page_scaffold.dart';
 import '../../styles/header_skins.dart';
 import '../../utils/currencies.dart';
@@ -134,6 +135,20 @@ class _AppearanceSettingsPageState
                         : headerSkinById(skinId)?.nameOf(l) ?? l.headerSkinNone,
                     () => open(const HeaderSkinPage()),
                     dot: true),
+              if (ref.watch(headerSkinsEnabledProvider))
+                entry(
+                    'Layers',
+                    l.appearanceCardMaterial,
+                    l.appearanceCardMaterialSummary(
+                        ((1 -
+                                    BeePageMaterial.normalizeOpacity(
+                                        ref.watch(skinCardOpacityProvider))) *
+                                100)
+                            .round(),
+                        BeePageMaterial.normalizeBlur(
+                                ref.watch(skinCardBlurProvider))
+                            .round()),
+                    () => showSkinMaterialSheet(context)),
               if (ref.watch(headerSkinsEnabledProvider))
                 BeeToggleRow(
                     title: l.appearanceSkinAnimation,

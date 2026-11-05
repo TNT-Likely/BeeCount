@@ -123,6 +123,8 @@ class _V4PageScaffoldState extends ConsumerState<V4PageScaffold> {
                             )),
                           BeePageMaterial(
                               enabled: skin != null,
+                              opacity: ref.watch(skinCardOpacityProvider),
+                              blur: ref.watch(skinCardBlurProvider),
                               child: Scaffold(
                                   backgroundColor: Colors.transparent,
                                   bottomNavigationBar:

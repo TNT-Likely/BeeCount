@@ -4231,5 +4231,36 @@
   "v4AccountActions": "账户操作",
   "v4DetailAllTime": "全部时间",
   "v4AccountLedgerCount": "{count} 个账本",
-  "@v4AccountLedgerCount": {"placeholders": {"count": {"type": "int"}}}
+  "@v4AccountLedgerCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "appearanceCardMaterial": "皮肤卡片材质",
+  "appearanceCardMaterialDescription": "调整皮肤上卡片的透明度和磨砂。列表行共用外层卡片，底部导航保持清晰。",
+  "appearanceCardTransparency": "卡片透明度",
+  "appearanceCardOpaque": "不透明",
+  "appearanceCardTransparent": "更透明",
+  "appearanceCardBlur": "磨砂强度",
+  "appearanceCardBlurOff": "关闭",
+  "appearanceCardBlurStrong": "更强",
+  "appearanceCardMaterialReset": "恢复默认材质",
+  "appearanceCardMaterialPreview": "即时预览",
+  "appearanceCardMaterialPreviewBody": "卡片文字与图标保持清晰",
+  "appearanceCardMaterialSummary": "透明度 {transparency}% · 磨砂 {blur}",
+  "@appearanceCardMaterialSummary": {
+    "placeholders": {
+      "transparency": {
+        "type": "int"
+      },
+      "blur": {
+        "type": "int"
+      }
+    }
+  },
+  "aboutBrandStatement": "记下生活，也把数据留给自己。",
+  "aboutHelpSupport": "帮助与支持",
+  "aboutProductDetails": "了解这款产品"
 }

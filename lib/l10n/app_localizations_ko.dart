@@ -9259,4 +9259,51 @@ class AppLocalizationsKo extends AppLocalizations {
   String v4AccountLedgerCount(int count) {
     return '$count ledgers';
   }
+
+  @override
+  String get appearanceCardMaterial => 'Skin card material';
+
+  @override
+  String get appearanceCardMaterialDescription => 'Adjust cards over a skin. List rows share their outer card; the bottom navigation stays opaque.';
+
+  @override
+  String get appearanceCardTransparency => 'Card transparency';
+
+  @override
+  String get appearanceCardOpaque => 'Opaque';
+
+  @override
+  String get appearanceCardTransparent => 'More transparent';
+
+  @override
+  String get appearanceCardBlur => 'Blur strength';
+
+  @override
+  String get appearanceCardBlurOff => 'Off';
+
+  @override
+  String get appearanceCardBlurStrong => 'Stronger';
+
+  @override
+  String get appearanceCardMaterialReset => 'Restore default material';
+
+  @override
+  String get appearanceCardMaterialPreview => 'Live preview';
+
+  @override
+  String get appearanceCardMaterialPreviewBody => 'Text and icons stay clear';
+
+  @override
+  String appearanceCardMaterialSummary(int transparency, int blur) {
+    return 'Transparency $transparency% · Blur $blur';
+  }
+
+  @override
+  String get aboutBrandStatement => 'Record life. Keep your data yours.';
+
+  @override
+  String get aboutHelpSupport => 'Help & support';
+
+  @override
+  String get aboutProductDetails => 'Explore this product';
 }

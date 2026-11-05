@@ -238,41 +238,46 @@ class PageMaterialSample extends StatefulWidget {
 }
 
 class _PageMaterialSampleState extends State<PageMaterialSample> {
-  bool enabled = true;
+  double opacity = BeePageMaterial.defaultOpacity,
+      blur = BeePageMaterial.defaultBlur;
   @override
   Widget build(BuildContext context) =>
       Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        BeeToggleRow(
-            title: 'BeePageMaterial · 通透卡片',
-            value: enabled,
-            onChanged: (next) => setState(() => enabled = next)),
-        ClipRRect(
-            borderRadius: BorderRadius.circular(22),
-            child: DecoratedBox(
-                decoration: const BoxDecoration(
+        BeeMaterialPreview(
+            opacity: opacity,
+            blur: blur,
+            background: const DecoratedBox(
+                decoration: BoxDecoration(
                     gradient: LinearGradient(
-                        colors: [Color(0xffffe5a0), Color(0xfffaf8f0)])),
-                child: BeePageMaterial(
-                    enabled: enabled,
-                    child: Builder(
-                        builder: (context) => Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: BeeSurface(
-                                child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.stretch,
-                                    children: [
-                                  BeePageMaterial.frosted(
-                                      enabled: enabled,
-                                      child: const Text('统一 40% 材质 · 内容不移位')),
-                                  const SizedBox(height: 12),
-                                  BeeButton(
-                                      label: '检查不透明弹层',
-                                      kind: BeeButtonKind.secondary,
-                                      onPressed: () => showBeeSheet<void>(
-                                          context,
-                                          title: '弹层保持清晰',
-                                          child: const Text('页面材质不影响弹层与选择器。'))),
-                                ]))))))),
+                        colors: [Color(0xffffdf89), Color(0xffb8ddcf)]))),
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Text('共享页面材质 · 内容不移位'),
+                  const SizedBox(height: 12),
+                  BeeButton(
+                      label: '检查不透明弹层',
+                      kind: BeeButtonKind.secondary,
+                      onPressed: () => showBeeSheet<void>(context,
+                          title: '弹层保持清晰',
+                          child: const Text('页面材质不影响弹层与选择器。'))),
+                ])),
+        const SizedBox(height: 20),
+        BeeMaterialControls(
+            opacity: opacity,
+            blur: blur,
+            transparencyLabel: '卡片透明度',
+            blurLabel: '背景模糊',
+            opaqueLabel: '不透明',
+            transparentLabel: '通透',
+            blurOffLabel: '关闭',
+            blurStrongLabel: '柔和',
+            resetLabel: '恢复默认',
+            onOpacityChanged: (v) => setState(() => opacity = v),
+            onBlurChanged: (v) => setState(() => blur = v),
+            onReset: () => setState(() {
+                  opacity = BeePageMaterial.defaultOpacity;
+                  blur = BeePageMaterial.defaultBlur;
+                })),
       ]);
 }
