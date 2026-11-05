@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "repository": "https://github.com/TNT-Likely/BeeCount-Design",
-  "commit": "7856af3d0f423bc7428c3cbaf2933acb661b5e81",
+  "commit": "2cef721363ad0c50052918ed0d9743ed373ae243",
   "contractVersion": 1,
   "appContractHashes": {
     "test/fixtures/design/category-coffee.png": "0ce533c72f28290ace665c82dc0040d2e1c9d4e3c60ef807948ff3fa5edc3865",
