@@ -1,4 +1,4 @@
-name: Android Beta Release
+name: Beta Release
 
 on:
   workflow_dispatch:
@@ -18,9 +18,21 @@ on:
       version:
         description: "Beta 版本名；发布需已提交说明，仅通知填原来已发布的版本"
         required: true
-        default: "4.0.0-beta.2"
+        default: "4.0.0-beta.5"
       android_version_code_floor:
         description: "发布模式：全部渠道/本地最高已交付 code；留空读仓库变量，仅通知忽略"
+        required: false
+        default: ""
+      ios_delivery:
+        description: "iOS 与 Android 一起发布；默认同时上传 TestFlight"
+        type: choice
+        options:
+          - testflight
+          - ipa
+        required: true
+        default: testflight
+      ios_build_number:
+        description: "留空与 Android 版本码一致；仅 Apple 要求更高 build 时填写"
         required: false
         default: ""
 
@@ -94,18 +106,108 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: python3 tool/release/beta_release.py publish
-      - name: Notify Telegram after publication
-        env:
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: python3 tool/release/beta_release.py notify
       - name: Remove temporary signing inputs
         if: always()
         run: python3 tool/release/beta_release.py cleanup
 
-  notify-only:
-    if: inputs.mode == 'notify-only'
-    name: Retry Telegram notification only
+  ios-beta:
+    needs: beta
+    if: inputs.mode == 'release' && needs.beta.result == 'success'
+    name: Verify signed IPA and optionally upload TestFlight
+    runs-on: macos-15
+    timeout-minutes: 90
+    permissions:
+      contents: write
+    env:
+      BETA_VERSION: ${{ inputs.version }}
+      IOS_BETA_MODE: ${{ inputs.ios_delivery }}
+      IOS_BUILD_NUMBER: ${{ inputs.ios_build_number }}
+      IOS_BUILD_NUMBER_FLOOR: ${{ vars.IOS_BUILD_NUMBER_FLOOR || '225' }}
+      TESTFLIGHT_PUBLIC_URL: ${{ vars.TESTFLIGHT_PUBLIC_URL }}
+      APPLE_CERTIFICATE_P12: ${{ secrets.APPLE_CERTIFICATE_P12 }}
+      APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+      APPLE_PROVISIONING_PROFILE: ${{ secrets.APPLE_PROVISIONING_PROFILE }}
+      APPLE_PROVISIONING_PROFILE_WIDGET: ${{ secrets.APPLE_PROVISIONING_PROFILE_WIDGET }}
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+    steps:
+      - name: Checkout trusted v4 release tooling
+        uses: actions/checkout@v4
+        with:
+          ref: v4
+          fetch-depth: 0
+          fetch-tags: true
+          persist-credentials: false
+      - name: Set private iOS build context
+        run: echo "IOS_BETA_CONTEXT=$RUNNER_TEMP/beecount-ios-beta-context.json" >> "$GITHUB_ENV"
+      - name: Test iOS release gates
+        run: python3 -m unittest discover -s tool/release -p 'test_ios_beta_release.py' -v
+      - name: Freeze published Beta identity and check mandatory signing inputs
+        id: plan
+        env:
+          GH_TOKEN: ${{ github.token }}
+          APPLE_API_KEY_CONTENT: ${{ secrets.APPLE_API_KEY_CONTENT }}
+          APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
+          APPLE_API_ISSUER_ID: ${{ secrets.APPLE_API_ISSUER_ID }}
+        run: python3 tool/release/ios_beta_release.py plan
+      - name: Select Xcode 26 and verify iOS SDK
+        env:
+          DEVELOPER_DIR: /Applications/Xcode_26.3.app/Contents/Developer
+        run: |
+          test -d "$DEVELOPER_DIR"
+          echo "DEVELOPER_DIR=$DEVELOPER_DIR" >> "$GITHUB_ENV"
+          xcodebuild -version
+          xcrun --sdk iphoneos --show-sdk-version
+      - name: Setup locked Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.27.3"
+          channel: stable
+          cache: true
+      - name: Setup Ruby for the isolated CocoaPods toolchain
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+      - name: Install locked CocoaPods into this run only
+        run: |
+          export GEM_HOME="$RUNNER_TEMP/ios-beta-gems"
+          export GEM_PATH="$GEM_HOME"
+          gem install cocoapods -v 1.16.2 --no-document --install-dir "$GEM_HOME"
+          echo "GEM_HOME=$GEM_HOME" >> "$GITHUB_ENV"
+          echo "GEM_PATH=$GEM_PATH" >> "$GITHUB_ENV"
+          echo "$GEM_HOME/bin" >> "$GITHUB_PATH"
+      - name: Build and verify App Store signed IPA
+        run: python3 tool/release/ios_beta_release.py build
+      - name: Attach verified IPA and receipt to the existing Beta prerelease
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 tool/release/ios_beta_release.py publish
+      - name: Explicitly upload to TestFlight and wait for Apple processing
+        if: inputs.ios_delivery == 'testflight'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          APPLE_API_KEY_CONTENT: ${{ secrets.APPLE_API_KEY_CONTENT }}
+          APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
+          APPLE_API_ISSUER_ID: ${{ secrets.APPLE_API_ISSUER_ID }}
+        run: python3 tool/release/ios_beta_release.py upload
+      - name: Preserve verified public artifact only
+        if: always() && steps.plan.outputs.artifact_dir != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-beta-${{ steps.plan.outputs.version }}-${{ steps.plan.outputs.build_number }}
+          path: |
+            ${{ steps.plan.outputs.artifact_dir }}/*.ipa
+            ${{ steps.plan.outputs.artifact_dir }}/*.sha256
+            ${{ steps.plan.outputs.artifact_dir }}/*.json
+          if-no-files-found: ignore
+          retention-days: 14
+      - name: Remove only this run's temporary signing inputs
+        if: always()
+        run: python3 tool/release/ios_beta_release.py cleanup
+
+  notify:
+    needs: [beta, ios-beta]
+    if: always() && (inputs.mode == 'notify-only' || needs.beta.result == 'success')
+    name: Announce verified Android and iOS delivery together
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -113,19 +215,25 @@ jobs:
     env:
       BETA_VERSION: ${{ inputs.version }}
       BETA_EXPECTED_CERTIFICATE: ${{ vars.ANDROID_RELEASE_CERT_SHA256 }}
+      IOS_BUILD_NUMBER: ${{ inputs.ios_build_number }}
+      IOS_DELIVERY_RESULT: ${{ needs.ios-beta.result }}
+      TESTFLIGHT_PUBLIC_URL: ${{ vars.TESTFLIGHT_PUBLIC_URL }}
     steps:
-      - name: Checkout reviewed notification tool
+      - name: Checkout reviewed unified notification tool
         uses: actions/checkout@v4
         with:
           ref: v4
+          fetch-depth: 0
           persist-credentials: false
-      - name: Set private notification context path
-        run: echo "BETA_CONTEXT=$RUNNER_TEMP/beecount-beta-notification.json" >> "$GITHUB_ENV"
-      - name: Verify published prerelease and receipt identity without writes
+      - name: Set private notification contexts
+        run: |
+          echo "BETA_CONTEXT=$RUNNER_TEMP/beecount-beta-notification.json" >> "$GITHUB_ENV"
+          echo "IOS_BETA_CONTEXT=$RUNNER_TEMP/beecount-ios-beta-notification.json" >> "$GITHUB_ENV"
+      - name: Verify existing platform receipts without builds or writes
         env:
           GH_TOKEN: ${{ github.token }}
-        run: python3 tool/release/beta_release.py notification_plan
-      - name: Retry Telegram notification
+        run: python3 tool/release/beta_delivery.py notification_plan
+      - name: Send one curated Beta announcement
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
