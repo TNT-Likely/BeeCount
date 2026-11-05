@@ -143,7 +143,7 @@ class PodDeploymentTests(unittest.TestCase):
             capture=root/'arguments.json'
             original.write_text('#!/usr/bin/env python3\nimport json,sys\nopen('+repr(str(capture))+',"w").write(json.dumps(sys.argv[1:]))\n')
             original.chmod(0o700)
-            with mock.patch.dict(os.environ,dict(PATH=os.environ.get('PATH',''))),mock.patch.object(ios.shutil,'which',return_value=str(original)),mock.patch.object(ios,'command',return_value=b'1.16.2\n'):
+            with mock.patch.dict(os.environ,dict(PATH=os.environ.get('PATH',''))),mock.patch.object(ios.shutil,'which',return_value=str(original)),mock.patch.object(ios,'command',side_effect=lambda args,**kw: b'2.7.2\n' if args[0]=='ruby' else b'1.16.2\n'):
                 ios.enforce_locked_pods(root)
                 subprocess.run([str(root/'tools/pod'),'install','--verbose'],check=True)
                 self.assertEqual(json.loads(capture.read_text()),['install','--verbose','--deployment'])

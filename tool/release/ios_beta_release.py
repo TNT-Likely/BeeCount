@@ -407,6 +407,19 @@ def enforce_locked_pods(run):
     gate.require(version == '1.16.2', '必须使用固定CocoaPods 1.16.2')
     tools = run/'tools'
     tools.mkdir(mode=0o700)
+    # JSON >=2.8 changed empty-array pretty printing, which changes Podspec
+    # checksums despite identical dependency versions. Match the committed lock
+    # with a private serializer instead of rewriting its SPEC CHECKSUMS.
+    json_gems = run/'json-gems'
+    command(['gem', 'install', 'json', '-v', '2.7.2', '--no-document',
+             '--install-dir', json_gems], label='json-serializer-install', run=run)
+    bootstrap = tools/'json-compat.rb'
+    gate.write_private(bootstrap,b"gem 'json', '= 2.7.2'\nrequire 'json'\n")
+    os.environ['GEM_PATH'] = str(json_gems) + os.pathsep + os.environ.get('GEM_PATH', os.environ.get('GEM_HOME', ''))
+    os.environ['RUBYOPT'] = '-r' + shlex.quote(str(bootstrap)) + (' ' + os.environ['RUBYOPT'] if os.environ.get('RUBYOPT') else '')
+    version = command(['ruby', '-e', 'require "json"; puts JSON::VERSION'],
+                      label='json-serializer-version',run=run).decode().strip()
+    gate.require(version == '2.7.2', 'Podspec序列化必须固定JSON 2.7.2，不能修改依赖锁绕过')
     # Flutter 3.27 config-only also invokes pod install. Enforce deployment
     # on that implicit invocation, before an unlocked resolver could run.
     wrapper = tools/'pod'
