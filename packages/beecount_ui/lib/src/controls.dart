@@ -24,7 +24,7 @@ Future<T?> showBeeContextMenu<T>(BuildContext context,
       context: context,
       position: RelativeRect.fromLTRB(point.dx, point.dy,
           overlay.size.width - point.dx, overlay.size.height - point.dy),
-      color: BeeCardTheme.of(context).surface,
+      color: BeeCardTheme.of(context).overlay,
       surfaceTintColor: Colors.transparent,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       items: items

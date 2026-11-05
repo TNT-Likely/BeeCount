@@ -14,6 +14,6 @@
 
 ## 皮肤发布开关
 
-当前 Beta 暂停皮肤，`headerSkinsEnabledProvider` 默认关闭。开发预览可通过 `--dart-define=BEECOUNT_SKINS_ENABLED=true` 重新启用；正式构建未显式启用时保持关闭。
+Beta.4 的已发布包暂停皮肤；后续源码在页面材质方案通过验收后恢复皮肤，`headerSkinsEnabledProvider` 默认启用。需要紧急暂停时使用 `--dart-define=BEECOUNT_SKINS_ENABLED=false`。
 
-页面、Header、首卡、底栏装饰和配色绑定读取 `effectiveHeaderSkinProvider`；选择入口及直接旧路由受同一开关保护。原始 `headerSkinProvider` 只负责保留和同步用户偏好，不能用将其重置为 `none` 的方式关闭功能。恢复皮肤前需重新完成视觉和交互验收，旧版皮肤视觉失败尚未解决。
+页面、Header、首卡、底栏装饰和配色绑定读取 `effectiveHeaderSkinProvider`；选择入口及直接旧路由受同一开关保护。原始 `headerSkinProvider` 只负责保留和同步用户偏好，不能用将其重置为 `none` 的方式关闭功能。页面装饰统一放在 PageLayout 背景，基础包 `BeePageMaterial` 提供 40% 卡片材质，弹窗使用不透明 `overlay`；不再按文字矩形裁切图案，也不为图案增加顶部占位。新版与历史 Beta.4 视觉失败必须分别记录。

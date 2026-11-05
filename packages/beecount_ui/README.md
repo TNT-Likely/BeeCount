@@ -18,3 +18,7 @@ App 内测试页：[ComponentGalleryPage](../../lib/dev/component_gallery/compon
 HTML 设计目录：[BeeCount-Design/card-refresh](https://github.com/TNT-Likely/BeeCount-Design/tree/main/card-refresh)。App 验证使用随源码提交的小型契约，不要求检出设计仓。
 
 `TypewriterText` 属于基础动效组件：支持逐字播放、立即显示、文字更新、完成回调和卸载时取消计时器。真实示例位于基础组件第25组；宿主负责根据减少动态效果偏好选择播放方式。
+
+页面皮肤材质：`BeePageMaterial` 为卡片统一提供40%半透明 surface，`BeeCardTheme.overlay` 保持弹窗/弹层/菜单不透明；普通模式不变。`BeeSceneScope` / `BeeSceneController` 只报告首张大卡的文档坐标，不读取业务文字，不参与布局，滚动和卡片离开缓存时不重置场景。App 自己提供免费皮肤画层、偏好与生命周期。真实材质开关及弹层示例位于基础组件第24组（HTML F27），完整组合见[交互稿](https://github.com/TNT-Likely/BeeCount-Design/blob/main/card-refresh/boards/skins-page-material-review.html)。
+
+悬浮导航在自身圆角裁切内使用 `BeePageMaterial.frosted`，启用皮肤时对栏后图案与列表施加8px模糊，保留原版Tab装饰与前景控件。不能用未模糊的40%背景直接叠在可滚动文字上。

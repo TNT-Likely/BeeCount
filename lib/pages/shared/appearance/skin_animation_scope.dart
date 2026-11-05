@@ -15,19 +15,48 @@ import '../../../providers/theme_providers.dart';
 ///
 /// 注意是 `||` 而不是覆盖:系统开了「减弱动态效果」时,不管 App 里这个开关
 /// 是什么都必须停 —— 那是无障碍设置,优先级高于皮肤偏好。
-class SkinAnimationScope extends ConsumerWidget {
+class SkinAnimationScope extends ConsumerStatefulWidget {
   const SkinAnimationScope({super.key, required this.child});
 
   final Widget child;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SkinAnimationScope> createState() => _SkinAnimationScopeState();
+}
+
+class _SkinAnimationScopeState extends ConsumerState<SkinAnimationScope>
+    with WidgetsBindingObserver {
+  late AppLifecycleState? _lifecycle = WidgetsBinding.instance.lifecycleState;
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (_lifecycle != state && mounted) setState(() => _lifecycle = state);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final enabled = ref.watch(skinAnimationEnabledProvider);
-    if (enabled) return child; // 开着就什么都不做,少一层 MediaQuery
     final mq = MediaQuery.of(context);
-    return MediaQuery(
-      data: mq.copyWith(disableAnimations: true),
-      child: child,
-    );
+    final active =
+        (_lifecycle == null || _lifecycle == AppLifecycleState.resumed) &&
+            (ModalRoute.isCurrentOf(context) ?? true) &&
+            TickerMode.of(context);
+    return TickerMode(
+        enabled: active,
+        child: MediaQuery(
+            data: mq.copyWith(
+                disableAnimations: mq.disableAnimations || !enabled),
+            child: widget.child));
   }
 }

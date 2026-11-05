@@ -155,6 +155,22 @@ void main() {
       expect(t.takeException(), isNull);
     });
   }
+  testWidgets('皮肤缩略图中心与文字都可以直接选择', (t) async {
+    await mount(t);
+    final loc = l(t);
+    await t.tap(find.text(loc.headerSkinTabAnimated));
+    await t.pump(const Duration(milliseconds: 300));
+    final cards = find.byType(BeeSkinCard);
+    await t.tapAt(t.getRect(cards.first).center);
+    await t.pump(const Duration(milliseconds: 300));
+    expect(container.read(headerSkinProvider), 'anniversary');
+    expect(prefs.getString('headerSkin'), 'anniversary');
+    await t.tap(find.text(headerSkinById('anniv_cake')!.nameOf(loc)));
+    await t.pump(const Duration(milliseconds: 300));
+    expect(container.read(headerSkinProvider), 'anniv_cake');
+    expect(t.takeException(), isNull);
+  });
+
   testWidgets('原预览实际绑定色、暗底、移除状态栏留白，纯组件回调不写真实偏好', (t) async {
     await mount(t);
     final context = t.element(find.byType(HeaderSkinPage));

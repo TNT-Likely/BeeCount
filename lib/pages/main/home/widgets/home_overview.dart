@@ -76,7 +76,6 @@ class HomeOverview extends ConsumerWidget {
                   showBrand: ref.watch(homeBrandVisibleProvider)))),
       const SizedBox(height: 5),
       BeeSummaryCard(
-        background: homeSkinCardBackground(context, ref),
         title:
             '${l10n.homeYear(month.year)} ${l10n.homeMonth('${month.month}')}${jumping ? ' …' : ''}',
         amountLabel: l10n.v4HomeMonthExpense,

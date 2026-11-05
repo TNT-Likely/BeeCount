@@ -1,52 +1,31 @@
 part of '../header_skins.dart';
 
-/// Placement only: the original parts still own every figure, colour and motion.
+/// Page scenes are independent of business content and never reserve space.
 enum HeaderSkinPageRole { home, profile, detail }
 
 @immutable
 class HeaderSkinPageLayout {
-  const HeaderSkinPageLayout({
-    this.topInset = 0,
-    this.card,
-    this.protectedRegions = const [],
-    this.inscription,
-  });
+  const HeaderSkinPageLayout({this.topInset = 0, this.card});
   final double topInset;
   final Rect? card;
-  final List<Rect> protectedRegions;
-  final Offset? inscription;
 }
 
-/// Shorter summary cards move artwork upward within its own layer, so the
-/// original figure clears the lower metric row without moving any content.
 Offset headerSkinPageAnchor(
-    Size size, HeaderSkinPageRole role, HeaderSkinPageLayout layout,
-    {bool cake = false}) {
-  if (role == HeaderSkinPageRole.home) {
-    final card = layout.card;
-    final offset = card == null
-        ? (cake ? 122.0 : 98.0)
-        : cake
-            ? (card.height * .48).clamp(100.0, 122.0)
-            : (card.height * .40).clamp(74.0, 98.0);
-    return Offset(
-        size.width * .80, (card?.top ?? layout.topInset + 75) + offset);
-  }
-  return Offset(size.width * .79,
-      layout.topInset + (role == HeaderSkinPageRole.profile ? 104 : 86));
-}
+        Size size, HeaderSkinPageRole role, HeaderSkinPageLayout layout,
+        {bool cake = false}) =>
+    Offset(size.width * .8,
+        (layout.card?.top ?? layout.topInset + 78) + (cake ? 124 : 119));
 
-/// Independent, non-interactive decoration. It never participates in page layout.
-/// The host applies its existing animation preference through MediaQuery.
+/// The original free figures and animation, carried by the entire page rather
+/// than individual cards. No content rectangles are used to clip the artwork.
 class HeaderSkinPageArtwork extends StatelessWidget {
-  const HeaderSkinPageArtwork({
-    super.key,
-    required this.skin,
-    required this.primary,
-    required this.dark,
-    required this.role,
-    required this.layout,
-  });
+  const HeaderSkinPageArtwork(
+      {super.key,
+      required this.skin,
+      required this.primary,
+      required this.dark,
+      required this.role,
+      required this.layout});
   final HeaderSkin skin;
   final Color primary;
   final bool dark;
@@ -55,17 +34,19 @@ class HeaderSkinPageArtwork extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final animated = skin.id == 'anniversary' || skin.id == 'anniv_cake';
-    if (animated) {
+    if (skin.isAnimated) {
       return KeyedSubtree(
-        key: ValueKey('page-art-${skin.id}'),
-        child: _AnimSkinShell(
-          seconds: 10,
-          staticFrame: skin.id == 'anniversary' ? _kAnnivStaticFrame : .3,
-          painterFor: (animation) => _PageSkinPainter(skin.id,
-              skin.boundPrimary ?? primary, dark, role, layout, animation),
-        ),
-      );
+          key: ValueKey('page-art-${skin.id}'),
+          child: _AnimSkinShell(
+              seconds: 10,
+              staticFrame: skin.id == 'anniversary' ? _kAnnivStaticFrame : .3,
+              painterFor: (animation) => _PageSkinPainter(
+                  skin.id,
+                  skin.boundPrimary ?? primary,
+                  dark,
+                  role,
+                  layout,
+                  animation)));
     }
     if (skin.id == 'mountains') {
       return RepaintBoundary(
@@ -74,15 +55,15 @@ class HeaderSkinPageArtwork extends StatelessWidget {
                   const AlwaysStoppedAnimation<double>(0)),
               child: const SizedBox.expand()));
     }
-    // All 19 static designs and the existing SVG/image builder stay available.
-    // Fade the complete original builder at the same boundary as the scene.
+    // Keep every pre-existing static/SVG design, fading its entire original
+    // builder into the page instead of ending at a hard header rectangle.
     return LayoutBuilder(builder: (context, box) {
-      final end =
-          layout.topInset + (role == HeaderSkinPageRole.home ? 306 : 264);
+      final end = math.min(
+          box.maxHeight, (layout.card?.bottom ?? layout.topInset + 280) + 190);
       return Align(
           alignment: Alignment.topCenter,
           child: SizedBox(
-              height: math.min(end, box.maxHeight),
+              height: end,
               width: box.maxWidth,
               child: ShaderMask(
                   blendMode: BlendMode.dstIn,
@@ -96,7 +77,6 @@ class HeaderSkinPageArtwork extends StatelessWidget {
   }
 }
 
-/// Approved B carrier colours. Static skins continue to follow the chosen theme.
 List<Color> headerSkinPageColors(HeaderSkin skin, Color primary, bool dark) {
   if (skin.id == 'anniversary') {
     return dark
@@ -112,71 +92,14 @@ List<Color> headerSkinPageColors(HeaderSkin skin, Color primary, bool dark) {
     return [
       Color.lerp(const Color(0xff222622), primary, .09)!,
       Color.lerp(const Color(0xff202320), primary, .04)!,
-      const Color(0xff1d221d),
+      const Color(0xff1d221d)
     ];
   }
   return [
     Color.lerp(const Color(0xfff1f3ed), primary, .18)!,
     Color.lerp(const Color(0xfff6f7f1), primary, .08)!,
-    const Color(0xfff7f7f0),
+    const Color(0xfff7f7f0)
   ];
-}
-
-/// A clean left/lower financial area with artwork visible at the card's edge.
-class HeaderSkinCardScrim extends StatelessWidget {
-  const HeaderSkinCardScrim({super.key, required this.surface});
-  final Color surface;
-  @override
-  Widget build(BuildContext context) => CustomPaint(
-      painter: _SkinCardScrimPainter(surface), child: const SizedBox.expand());
-}
-
-class _SkinCardScrimPainter extends CustomPainter {
-  _SkinCardScrimPainter(this.surface);
-  final Color surface;
-  @override
-  void paint(Canvas canvas, Size size) {
-    if (size.isEmpty) return;
-    final rect = Offset.zero & size;
-    canvas.drawRect(
-        rect,
-        Paint()
-          ..shader = LinearGradient(
-              begin: const Alignment(-1, -.2),
-              end: const Alignment(1, .2),
-              colors: [
-                surface.withValues(alpha: .99),
-                surface.withValues(alpha: .98),
-                surface.withValues(alpha: .02),
-                surface.withValues(alpha: 0),
-              ],
-              stops: const [
-                0,
-                .54,
-                .74,
-                1
-              ]).createShader(rect));
-    canvas.drawRect(
-        rect,
-        Paint()
-          ..shader = LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                surface.withValues(alpha: 0),
-                surface,
-                surface
-              ],
-              stops: [
-                (math.min(138.0, size.height * .60) / size.height).clamp(0, 1),
-                (math.min(174.0, size.height * .72) / size.height).clamp(0, 1),
-                1
-              ]).createShader(rect));
-  }
-
-  @override
-  bool shouldRepaint(covariant _SkinCardScrimPainter old) =>
-      old.surface != surface;
 }
 
 class _PageSkinPainter extends CustomPainter {
@@ -193,104 +116,72 @@ class _PageSkinPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     if (size.isEmpty) return;
-    final zoom = size.width / 398;
-    final top = layout.topInset;
-    final home = role == HeaderSkinPageRole.home;
+    final zoom = size.width / 398, t = animation.value;
     final profile = role == HeaderSkinPageRole.profile;
-    final end = math.min(
-            size.height,
-            top +
-                (home
-                    ? 306
-                    : profile
-                        ? 266
-                        : 220)) /
-        zoom;
-    final rawAnchor =
-        headerSkinPageAnchor(size, role, layout, cake: id == 'anniv_cake');
-    final anchor = rawAnchor / zoom;
-    final h = (home
-            ? 88.0
-            : profile
-                ? 77.0
-                : 62.0) /
+    final end = math.min(size.height - 100,
+            (layout.card?.bottom ?? layout.topInset + 280) + 190) /
         zoom;
     final scene = Size(398, end);
-    final t = animation.value;
+    final anchor =
+        headerSkinPageAnchor(size, role, layout, cake: id == 'anniv_cake') /
+            zoom;
+    final h =
+        math.min(profile ? 118.0 : 156.0, size.width * (profile ? .36 : .42)) /
+            zoom;
     canvas.save();
     canvas.scale(zoom);
-    final all = Path()..addRect(Rect.fromLTWH(0, 0, 398, size.height / zoom));
-    final status = Path()..addRect(Rect.fromLTWH(0, 0, 398, top / zoom));
-    final clear = Path()..addPath(status, Offset.zero);
-    for (final region in layout.protectedRegions) {
-      clear.addRect(Rect.fromLTRB(region.left / zoom, region.top / zoom,
-          region.right / zoom, region.bottom / zoom));
-    }
-    // Soft carrier light stays continuous. Only sharp decorative figures avoid
-    // text; clipping glow to text boxes would leave visible rectangular holes.
-    void protectText() =>
-        canvas.clipPath(Path.combine(PathOperation.difference, all, clear));
+    // Only the platform status bar is clear. Business text has no cut-out mask.
+    canvas.clipRect(Rect.fromLTWH(0, layout.topInset / zoom, 398,
+        (size.height - layout.topInset) / zoom));
     if (id == 'anniversary') {
-      final painter = _ConstellationPainter(primary, dark, animation, 0);
+      final p = _ConstellationPainter(primary, dark, animation, 0);
       canvas.saveLayer(Rect.fromLTWH(0, 0, 398, end + 20), Paint());
-      painter._paintBaseGlow(canvas, scene, anchor);
-      painter._paintMilkyWay(canvas, scene, t);
-      painter._paintNebulae(canvas, scene, t);
-      painter._paintStardust(canvas, scene, t);
+      p._paintBaseGlow(canvas, scene, anchor);
+      p._paintMilkyWay(canvas, scene, t);
+      p._paintNebulae(canvas, scene, t);
+      p._paintStardust(canvas, scene, t);
       canvas.save();
-      protectText();
       final moon = Offset(size.width * (profile ? .62 : .84) / zoom,
-          (top + (profile ? 56 : 74)) / zoom);
+          (layout.topInset + (profile ? 56 : 74)) / zoom);
       canvas.translate(moon.dx - 398 * .13, moon.dy - 208 * .17);
-      painter._paintMoon(canvas, const Size(398, 208), t);
+      p._paintMoon(canvas, const Size(398, 208), t);
       canvas.restore();
-      canvas.save();
-      protectText();
-      painter._paintCrossStars(canvas, scene, t);
-      painter._paintShootingStars(canvas, scene, t);
-      canvas.restore();
+      p._paintCrossStars(canvas, scene, t);
+      p._paintShootingStars(canvas, scene, t);
       _fade(canvas, end);
       canvas.restore();
-      canvas.save();
-      protectText();
       final scale = (h / 144).clamp(.5, 1.0);
-      painter._paintConstellation(canvas, anchor, h, scale, t);
-      painter._paintBee(canvas, scene, anchor, h, scale, t);
-      painter._paintBee(canvas, scene, anchor, h, scale * .62, t,
+      p._paintConstellation(canvas, anchor, h, scale, t);
+      p._paintBee(canvas, scene, anchor, h, scale, t);
+      p._paintBee(canvas, scene, anchor, h, scale * .62, t,
           lag: .055, alphaFactor: .72);
-      _inscription(canvas, size, painter._inscription, zoom);
-      canvas.restore();
+      _inscription(canvas, size, p._inscription, zoom);
     } else if (id == 'anniv_cake') {
-      final painter = _AnnivCakePainter(dark, animation, 0);
+      final p = _AnnivCakePainter(dark, animation, 0);
       const original = Size(398, 208);
       canvas.saveLayer(Rect.fromLTWH(0, 0, 398, end + 20), Paint());
       _paintRadialGlow(
           canvas, scene, anchor, 208, _kCakeFlame, dark ? .5 : .25);
       canvas.save();
-      protectText();
-      canvas.translate(0, (top + 46) / zoom);
-      painter._paintRibbons(canvas, original, t, 1);
-      painter._paintSprinkles(canvas, Size(398, end - 32 / zoom), t);
+      canvas.translate(0, (layout.topInset + 46) / zoom);
+      p._paintRibbons(canvas, original, t, 1);
+      p._paintSprinkles(canvas, Size(398, end - 32 / zoom), t);
       canvas.restore();
       _fade(canvas, end);
       canvas.restore();
       canvas.save();
-      protectText();
       canvas.translate(anchor.dx, anchor.dy);
       canvas.scale(profile ? .82 : .78);
       canvas.translate(-_ax(original, 246), -_ay(original, 150));
-      painter._paintCake(canvas, original, t, 1);
+      p._paintCake(canvas, original, t, 1);
       canvas.restore();
-      canvas.save();
-      protectText();
-      _inscription(canvas, size, painter._mark, zoom);
-      canvas.restore();
+      _inscription(canvas, size, p._mark, zoom);
     } else {
-      final y = (top + 26) / zoom;
+      final top = (layout.topInset + 26) / zoom;
       canvas.saveLayer(Rect.fromLTWH(0, 0, 398, end + 20), Paint());
       canvas.save();
-      canvas.translate(0, y);
-      _MountainsPainter(primary, dark).paint(canvas, Size(398, end - y));
+      canvas.translate(0, top);
+      _MountainsPainter(primary, dark).paint(canvas, Size(398, end - top));
       canvas.restore();
       _fade(canvas, end);
       canvas.restore();
@@ -319,11 +210,10 @@ class _PageSkinPainter extends CustomPainter {
         ..blendMode = BlendMode.dstIn);
 
   void _inscription(Canvas canvas, Size size, Color color, double zoom) {
-    final mark =
-        layout.inscription ?? Offset(size.width / 2 - 36, layout.topInset + .5);
     final scale = .82 / zoom;
     canvas.save();
-    canvas.translate(mark.dx / zoom - 199 * scale, mark.dy / zoom - 22 * scale);
+    canvas.translate(size.width * .46 / zoom - 199 * scale,
+        (layout.topInset + 3) / zoom - 22 * scale);
     canvas.scale(scale);
     _paintAnnivInscription(canvas, const Size(398, 208), color, 0);
     canvas.restore();
@@ -335,5 +225,6 @@ class _PageSkinPainter extends CustomPainter {
       old.primary != primary ||
       old.dark != dark ||
       old.role != role ||
-      old.layout != layout;
+      old.layout.topInset != layout.topInset ||
+      old.layout.card != layout.card;
 }

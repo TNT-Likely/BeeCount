@@ -20,7 +20,7 @@ class TagSelector extends ConsumerStatefulWidget {
           context: context,
           isScrollControlled: true,
           useSafeArea: true,
-          backgroundColor: BeeCardTheme.of(context).surface,
+          backgroundColor: BeeCardTheme.of(context).overlay,
           shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.vertical(top: Radius.circular(25))),
           builder: (_) => TagSelector(selectedTagIds: selectedTagIds));

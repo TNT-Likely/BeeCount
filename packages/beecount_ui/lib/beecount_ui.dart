@@ -1,6 +1,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'src/page_material.dart';
 export 'src/line_icon.dart';
 export 'src/line_chart.dart';
 export 'src/column_chart.dart';
@@ -19,6 +20,7 @@ export 'src/page_components.dart';
 export 'src/launch_motion.dart';
 export 'src/local_sheet.dart';
 export 'src/system_bars.dart';
+export 'src/page_material.dart';
 export 'src/motion/typewriter_text.dart';
 
 /// Local v4 surfaces. The app supplies its existing accent and brightness.
@@ -47,9 +49,13 @@ class BeeCardTheme extends ThemeExtension<BeeCardTheme> {
   final Color soft;
   final Color divider;
 
-  static BeeCardTheme of(BuildContext context) =>
-      Theme.of(context).extension<BeeCardTheme>() ??
-      BeeCardTheme.fromBrightness(Theme.of(context).brightness);
+  static BeeCardTheme of(BuildContext context) => ofTheme(Theme.of(context));
+  static BeeCardTheme ofTheme(ThemeData theme) =>
+      theme.extension<BeeCardTheme>() ??
+      BeeCardTheme.fromBrightness(theme.brightness);
+
+  /// Modal content stays opaque even over a translucent page scene.
+  Color get overlay => surface.withValues(alpha: 1);
 
   @override
   BeeCardTheme copyWith(
@@ -85,7 +91,9 @@ class BeeSurface extends StatelessWidget {
   final Widget? background;
 
   @override
-  Widget build(BuildContext context) => Material(
+  Widget build(BuildContext context) => BeeSceneSurface(
+      controller: BeeSceneScope.maybeOf(context),
+      child: Material(
         color: background == null
             ? BeeCardTheme.of(context).surface
             : Colors.transparent,
@@ -99,5 +107,5 @@ class BeeSurface extends StatelessWidget {
                         child: ExcludeSemantics(child: background!))),
                 Padding(padding: padding, child: child)
               ]),
-      );
+      ));
 }

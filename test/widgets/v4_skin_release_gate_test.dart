@@ -4,7 +4,6 @@ import 'package:beecount/pages/settings/appearance_settings_page.dart';
 import 'package:beecount/pages/settings/header_skin_page.dart';
 import 'package:beecount/pages/settings/personalize_page.dart';
 import 'package:beecount/pages/shared/scaffold/widgets/page_scaffold.dart';
-import 'package:beecount/pages/shared/appearance/bindings/page_skin_composition.dart';
 import 'package:beecount/styles/header_skins.dart';
 import 'package:beecount_business_ui/beecount_business_ui.dart';
 import 'package:beecount_ui/beecount_ui.dart';
@@ -20,8 +19,10 @@ void main() {
         'userChosenPrimaryColor': 0xff123456,
       }));
 
-  test('Beta 默认关闭；已保存皮肤仍保留，重新启用不需要迁移偏好', () async {
-    final c = ProviderContainer();
+  test('紧急关闭时已保存皮肤仍保留，重新启用不需要迁移偏好', () async {
+    final c = ProviderContainer(overrides: [
+      headerSkinsEnabledProvider.overrideWith((_) => false),
+    ]);
     addTearDown(c.dispose);
     expect(c.read(headerSkinsEnabledProvider), isFalse);
     c.read(primaryColorProvider.notifier).state = const Color(0xff123456);
@@ -60,6 +61,7 @@ void main() {
 
   testWidgets('外观页隐藏皮肤及动画入口，主题色仍能选择且不被旧皮肤锁定', (t) async {
     final c = ProviderContainer(overrides: [
+      headerSkinsEnabledProvider.overrideWith((_) => false),
       headerSkinProvider.overrideWith((_) => 'anniv_cake'),
     ]);
     addTearDown(c.dispose);
@@ -86,6 +88,7 @@ void main() {
 
   testWidgets('直接访问旧皮肤路由也无法选择；已有皮肤不产生页面背景或卡片遮罩', (t) async {
     final c = ProviderContainer(overrides: [
+      headerSkinsEnabledProvider.overrideWith((_) => false),
       headerSkinProvider.overrideWith((_) => 'anniversary'),
     ]);
     addTearDown(c.dispose);
@@ -97,10 +100,8 @@ void main() {
         c,
         V4PageScaffold(
             body: Consumer(
-                builder: (context, ref, _) => Center(
-                    child: BeeSurface(
-                        background: homeSkinCardBackground(context, ref),
-                        child: const Text('账单内容'))))));
+                builder: (context, ref, _) =>
+                    Center(child: BeeSurface(child: const Text('账单内容'))))));
     expect(find.byType(HeaderSkinPageArtwork), findsNothing);
     expect(t.widget<BeeSurface>(find.byType(BeeSurface)).background, isNull);
     final before = t.getRect(find.text('账单内容'));

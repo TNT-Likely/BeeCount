@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:beecount/pages/shared/scaffold/widgets/page_scaffold.dart';
-import 'package:beecount/pages/shared/appearance/bindings/page_skin_composition.dart';
 import 'package:beecount/providers/theme_providers.dart';
 import 'package:beecount/styles/header_skins.dart';
 import 'package:beecount/pages/shared/appearance/primary_header.dart';
@@ -47,7 +46,6 @@ class _Home extends ConsumerWidget {
                   income: '12,000.00',
                   expenseLabel: '本月结余',
                   expense: '8,713.50',
-                  background: homeSkinCardBackground(context, ref),
                   onContextTap: onTap),
             ])),
         Expanded(
@@ -90,7 +88,7 @@ void main() {
   const capture = bool.fromEnvironment('BEECOUNT_CAPTURE_SKIN');
   tearDownAll(() {
     if (capture) {
-      final out = File('.docs/v4-beta4-skin/geometry-check.json');
+      final out = File('.docs/v4-beta5-skin/geometry-check.json');
       out.parent.createSync(recursive: true);
       out.writeAsStringSync(const JsonEncoder.withIndent('  ').convert({
         'status': geometryRecords.length == 54 ? 'PASS' : 'INCOMPLETE',
@@ -185,7 +183,7 @@ void main() {
 
   for (final width in [320.0, 398.0, 414.0]) {
     for (final dark in [false, true]) {
-      testWidgets('B整页皮肤保持原品牌、首卡、列表几何与点击 $width dark=$dark', (t) async {
+      testWidgets('通透材质皮肤保持原品牌、首卡、列表几何与点击 $width dark=$dark', (t) async {
         addTearDown(t.view.resetPhysicalSize);
         addTearDown(t.view.resetDevicePixelRatio);
         final c = ProviderContainer(overrides: [
@@ -213,16 +211,16 @@ void main() {
             'baseline': rects(plain),
             'skinned': rects(boxes())
           });
-          final scope = t.widget<V4PageSkinLayoutScope>(
-              find.byType(V4PageSkinLayoutScope));
-          expect(scope.controller.value.card, isNotNull);
-          expect(scope.controller.value.protectedRegions, isNotEmpty);
+          final scope = t.widget<BeeSceneScope>(find.byType(BeeSceneScope));
+          expect(scope.controller.value, isNotNull);
+          final material = t.element(find.byKey(const ValueKey('summary')));
+          expect(BeeCardTheme.of(material).surface.a, closeTo(.4, .001));
           await t.tap(find.text('2026年10月'));
           await t.pump();
           if (capture) {
             await pixels(t,
                 path:
-                    '.docs/v4-beta4-skin/skin-$id-$width-${dark ? 'dark' : 'light'}.png');
+                    '.docs/v4-beta5-skin/skin-$id-$width-${dark ? 'dark' : 'light'}.png');
           }
           expect(t.takeException(), isNull);
         }
@@ -292,7 +290,7 @@ void main() {
             if (capture && width == 398) {
               await pixels(t,
                   path:
-                      '.docs/v4-beta4-skin/${profile ? 'mine' : 'detail'}-$id-${dark ? 'dark' : 'light'}.png');
+                      '.docs/v4-beta5-skin/${profile ? 'mine' : 'detail'}-$id-${dark ? 'dark' : 'light'}.png');
             }
           }
           await t.pumpWidget(const SizedBox());
@@ -390,7 +388,7 @@ void main() {
       await t.pump(const Duration(milliseconds: 600));
       expect(await pixels(t), orderedEquals(off));
       if (capture) {
-        await pixels(t, path: '.docs/v4-beta4-skin/tab-$id.png');
+        await pixels(t, path: '.docs/v4-beta5-skin/tab-$id.png');
       }
       await t.tap(find.text('记账'));
       await t.pump();

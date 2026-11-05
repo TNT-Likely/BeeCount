@@ -597,7 +597,7 @@ Future<T?> showBeeSheet<T>(BuildContext context,
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
-      backgroundColor: BeeCardTheme.of(context).surface,
+      backgroundColor: BeeCardTheme.of(context).overlay,
       constraints:
           BoxConstraints(maxHeight: MediaQuery.sizeOf(context).height * .9),
       shape: const RoundedRectangleBorder(

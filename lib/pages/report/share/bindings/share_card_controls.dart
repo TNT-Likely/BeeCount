@@ -25,7 +25,7 @@ class ShareCardDialog extends StatelessWidget {
   final Uint8List? imageBytes;
   @override
   Widget build(BuildContext context) => Dialog(
-        backgroundColor: BeeCardTheme.of(context).surface,
+        backgroundColor: BeeCardTheme.of(context).overlay,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),

@@ -5,10 +5,9 @@ import '../../../../providers/theme_providers.dart';
 import '../../../../styles/header_skins.dart';
 import '../../appearance/page_skin_scope.dart';
 import '../../appearance/skin_animation_scope.dart';
-import '../../appearance/bindings/page_skin_composition.dart';
 
-/// The skin is a background sibling: switching it never adds header space,
-/// changes body constraints or recreates the page's scroll/data subtree.
+/// The scene and shared material never reserve header space, change the body's
+/// constraints, or recreate its scroll/data subtree when a skin changes.
 class V4PageScaffold extends ConsumerStatefulWidget {
   const V4PageScaffold(
       {super.key,
@@ -26,10 +25,10 @@ class V4PageScaffold extends ConsumerStatefulWidget {
 }
 
 class _V4PageScaffoldState extends ConsumerState<V4PageScaffold> {
-  final layout = V4PageSkinLayoutController();
+  final scene = BeeSceneController();
   @override
   void dispose() {
-    layout.dispose();
+    scene.dispose();
     super.dispose();
   }
 
@@ -44,89 +43,82 @@ class _V4PageScaffoldState extends ConsumerState<V4PageScaffold> {
         : widget.profileHeaderSkin
             ? HeaderSkinPageRole.profile
             : HeaderSkinPageRole.detail;
-    layout.topInset = top;
-    layout.scheduleMeasure();
+    final canvas = widget.backgroundColor ?? BeeCardTheme.of(context).canvas;
+    scene.scheduleMeasure();
+    Widget decoration(Widget child) => Positioned.fill(
+        child: IgnorePointer(child: ExcludeSemantics(child: child)));
     return PageSkinBackdropScope(
-      topInset: top,
-      child: V4PageSkinLayoutScope(
-        controller: layout,
-        child: ColoredBox(
-          color: widget.backgroundColor ?? BeeCardTheme.of(context).canvas,
-          child: LayoutBuilder(builder: (context, bounds) {
-            final gradient = skin == null
-                ? null
-                : pageSkinGradient(context, skin,
-                    headerHeight: top + 208,
-                    pageHeight: bounds.maxHeight,
-                    locallyComposed: true);
-            final art = skin == null
-                ? null
-                : SkinAnimationScope(
-                    child: ValueListenableBuilder<HeaderSkinPageLayout>(
-                      valueListenable: layout,
-                      builder: (context, geometry, _) => Stack(
-                        fit: StackFit.expand,
-                        children: [
-                          if (skin.id == 'anniversary' && !dark)
-                            DecoratedBox(
-                              decoration: BoxDecoration(
-                                gradient: RadialGradient(
-                                  center: Alignment(
-                                      .60,
-                                      headerSkinPageAnchor(bounds.biggest, role,
-                                                      geometry)
-                                                  .dy /
-                                              bounds.maxHeight *
-                                              2 -
-                                          1),
-                                  radius: .55,
-                                  colors: const [
-                                    Color(0xfff8c91c),
-                                    Color(0xf2f8c91c),
-                                    Color(0x8ff8c91c),
-                                    Color(0x00f8c91c)
-                                  ],
-                                  stops: const [0, .30, .58, .94],
-                                ),
-                              ),
-                            ),
-                          HeaderSkinPageArtwork(
-                              skin: skin,
-                              primary: primary,
-                              dark: dark,
-                              role: role,
-                              layout: geometry),
-                        ],
-                      ),
-                    ),
-                  );
-            Widget decoration(Widget child) => Positioned.fill(
-                child: IgnorePointer(child: ExcludeSemantics(child: child)));
-            return Stack(
-              key: layout.rootKey,
-              fit: StackFit.expand,
-              children: [
-                if (gradient != null)
-                  decoration(DecoratedBox(
-                      decoration: BoxDecoration(gradient: gradient))),
-                if (art != null) decoration(art),
-                Scaffold(
-                  backgroundColor: Colors.transparent,
-                  bottomNavigationBar: widget.bottomNavigationBar,
-                  body: NotificationListener<ScrollNotification>(
-                    onNotification: (_) {
-                      layout.scheduleMeasure();
-                      return false;
-                    },
-                    child:
-                        KeyedSubtree(key: layout.bodyKey, child: widget.body),
-                  ),
-                ),
-              ],
-            );
-          }),
-        ),
-      ),
-    );
+        topInset: top,
+        child: BeeSceneScope(
+            controller: scene,
+            child: ColoredBox(
+                color: canvas,
+                child: Stack(
+                    key: scene.canvasKey,
+                    fit: StackFit.expand,
+                    children: [
+                      if (skin != null)
+                        decoration(DecoratedBox(
+                            decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                    colors: [
+                                      ...headerSkinPageColors(
+                                          skin, primary, dark),
+                                      canvas
+                                    ],
+                                    stops: dark
+                                        ? const [0, .34, .76, 1]
+                                        : const [0, .29, .68, 1])))),
+                      if (skin != null)
+                        decoration(SkinAnimationScope(
+                          child: ValueListenableBuilder<Rect?>(
+                              valueListenable: scene,
+                              builder: (context, card, _) =>
+                                  LayoutBuilder(builder: (context, box) {
+                                    final geometry = HeaderSkinPageLayout(
+                                        topInset: top, card: card);
+                                    return Stack(
+                                        fit: StackFit.expand,
+                                        children: [
+                                          if (skin.id == 'anniversary' && !dark)
+                                            DecoratedBox(
+                                                decoration: BoxDecoration(
+                                                    gradient: RadialGradient(
+                                                        center: Alignment(
+                                                            .66,
+                                                            225 /
+                                                                    box.maxHeight *
+                                                                    2 -
+                                                                1),
+                                                        // An ellipse matching the approved 330×340 canopy.
+                                                        radius: 340 / box.biggest.shortestSide,
+                                                        colors: const [
+                                                  Color(0xe8f8c91c),
+                                                  Color(0x7df8c91c),
+                                                  Color(0x00f8c91c)
+                                                ],
+                                                        stops: const [
+                                                  0,
+                                                  .39,
+                                                  .9
+                                                ]))),
+                                          HeaderSkinPageArtwork(
+                                              skin: skin,
+                                              primary: primary,
+                                              dark: dark,
+                                              role: role,
+                                              layout: geometry),
+                                        ]);
+                                  })),
+                        )),
+                      BeePageMaterial(
+                          enabled: skin != null,
+                          child: Scaffold(
+                              backgroundColor: Colors.transparent,
+                              bottomNavigationBar: widget.bottomNavigationBar,
+                              body: widget.body)),
+                    ]))));
   }
 }

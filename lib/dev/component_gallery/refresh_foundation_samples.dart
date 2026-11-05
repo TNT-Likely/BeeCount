@@ -77,6 +77,8 @@ class PaperComponentsSample extends StatelessWidget {
   @override
   Widget build(BuildContext context) =>
       Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        const PageMaterialSample(),
+        const SizedBox(height: 12),
         const BeeCardFrame(child: Text('BeeCardFrame · 描边卡片')),
         const SizedBox(height: 12),
         const BeePaper(
@@ -225,5 +227,52 @@ class _SystemBarsSampleState extends State<SystemBarsSample> {
                                     Theme.of(ctx).colorScheme.onSurface)))))),
         const Text('局部示例不覆盖整页；真实默认样式由 App 根部提供，旧页头可继续覆写。',
             style: TextStyle(fontSize: 11))
+      ]);
+}
+
+/// Shares the actual page material; no App skin or settings are required.
+class PageMaterialSample extends StatefulWidget {
+  const PageMaterialSample({super.key});
+  @override
+  State<PageMaterialSample> createState() => _PageMaterialSampleState();
+}
+
+class _PageMaterialSampleState extends State<PageMaterialSample> {
+  bool enabled = true;
+  @override
+  Widget build(BuildContext context) =>
+      Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        BeeToggleRow(
+            title: 'BeePageMaterial · 通透卡片',
+            value: enabled,
+            onChanged: (next) => setState(() => enabled = next)),
+        ClipRRect(
+            borderRadius: BorderRadius.circular(22),
+            child: DecoratedBox(
+                decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                        colors: [Color(0xffffe5a0), Color(0xfffaf8f0)])),
+                child: BeePageMaterial(
+                    enabled: enabled,
+                    child: Builder(
+                        builder: (context) => Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: BeeSurface(
+                                child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
+                                    children: [
+                                  BeePageMaterial.frosted(
+                                      enabled: enabled,
+                                      child: const Text('统一 40% 材质 · 内容不移位')),
+                                  const SizedBox(height: 12),
+                                  BeeButton(
+                                      label: '检查不透明弹层',
+                                      kind: BeeButtonKind.secondary,
+                                      onPressed: () => showBeeSheet<void>(
+                                          context,
+                                          title: '弹层保持清晰',
+                                          child: const Text('页面材质不影响弹层与选择器。'))),
+                                ]))))))),
       ]);
 }

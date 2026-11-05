@@ -47,7 +47,7 @@ class TransactionReceiptDialog extends StatefulWidget {
       await showDialog<void>(
           context: context,
           builder: (_) => Dialog(
-                backgroundColor: BeeCardTheme.of(context).surface,
+                backgroundColor: BeeCardTheme.of(context).overlay,
                 surfaceTintColor: Colors.transparent,
                 insetPadding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 28),

@@ -21,6 +21,7 @@ class _TransactionSwipeActionState extends State<TransactionSwipeAction>
   late final _reveal = AnimationController(
       vsync: this, duration: const Duration(milliseconds: 180));
   bool _busy = false;
+  bool _pointerCancelled = false;
   static const extent = 78.0;
 
   @override
@@ -74,38 +75,56 @@ class _TransactionSwipeActionState extends State<TransactionSwipeAction>
         borderRadius: BorderRadius.circular(12),
         child: AnimatedBuilder(
           animation: _reveal,
-          builder: (context, _) => GestureDetector(
-              key: const ValueKey('transaction-swipe'),
-              onTap: _reveal.value > 0 ? () => _reveal.reverse() : null,
-              onHorizontalDragUpdate: _busy
-                  ? null
-                  : (d) {
-                      _reveal.value =
-                          (_reveal.value + direction * d.delta.dx / extent)
-                              .clamp(0, 1);
-                    },
-              onHorizontalDragCancel: () => _reveal.reverse(),
-              onHorizontalDragEnd: (d) {
-                final v = direction * d.velocity.pixelsPerSecond.dx;
-                if (v > 250 || (v >= -250 && _reveal.value > .45)) {
-                  _reveal.forward();
-                } else {
-                  _reveal.reverse();
-                }
+          builder: (context, _) => Listener(
+              onPointerDown: (_) => _pointerCancelled = false,
+              onPointerCancel: (_) {
+                _pointerCancelled = true;
+                _reveal.reverse();
               },
-              child: Stack(children: [
-                Positioned.fill(
-                    child: Align(
-                        alignment: AlignmentDirectional.centerEnd,
-                        child: _deleteButton(context))),
-                Transform.translate(
-                    offset: Offset(direction * extent * _reveal.value, 0),
-                    child: AbsorbPointer(
-                        absorbing: _reveal.value > .01,
-                        child: ColoredBox(
-                            color: BeeCardTheme.of(context).surface,
-                            child: widget.child))),
-              ])),
+              child: GestureDetector(
+                  key: const ValueKey('transaction-swipe'),
+                  onTap: _reveal.value > 0 ? () => _reveal.reverse() : null,
+                  onHorizontalDragUpdate: _busy
+                      ? null
+                      : (d) {
+                          _reveal.value =
+                              (_reveal.value + direction * d.delta.dx / extent)
+                                  .clamp(0, 1);
+                        },
+                  onHorizontalDragCancel: () => _reveal.reverse(),
+                  onHorizontalDragEnd: (d) {
+                    if (_pointerCancelled) {
+                      _reveal.reverse();
+                      return;
+                    }
+                    final v = direction * d.velocity.pixelsPerSecond.dx;
+                    if (v > 250 || (v >= -250 && _reveal.value > .45)) {
+                      _reveal.forward();
+                    } else {
+                      _reveal.reverse();
+                    }
+                  },
+                  child: Stack(children: [
+                    Positioned.fill(
+                        child: Align(
+                            alignment: AlignmentDirectional.centerEnd,
+                            // Paint only the revealed strip. A translucent page row must
+                            // not show the red action through its resting surface.
+                            child: ClipRect(
+                                child: Align(
+                                    alignment: AlignmentDirectional.centerEnd,
+                                    widthFactor: _reveal.value,
+                                    child: _deleteButton(context))))),
+                    Transform.translate(
+                        offset: Offset(direction * extent * _reveal.value, 0),
+                        child: AbsorbPointer(
+                            absorbing: _reveal.value > .01,
+                            child: ColoredBox(
+                                color: BeeCardTheme.of(context).surface.a < 1
+                                    ? Colors.transparent
+                                    : BeeCardTheme.of(context).surface,
+                                child: widget.child))),
+                  ]))),
         ));
   }
 }

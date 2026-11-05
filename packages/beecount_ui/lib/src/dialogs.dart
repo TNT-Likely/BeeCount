@@ -44,7 +44,7 @@ class BeeDialog extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(13)))));
     return Dialog(
-        backgroundColor: BeeCardTheme.of(context).surface,
+        backgroundColor: BeeCardTheme.of(context).overlay,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),

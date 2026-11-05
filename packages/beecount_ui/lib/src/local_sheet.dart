@@ -60,7 +60,7 @@ class BeeLocalSheet extends StatelessWidget {
                                         MediaQuery.sizeOf(context).height *
                                             .76),
                                 child: Material(
-                                    color: BeeCardTheme.of(context).surface,
+                                    color: BeeCardTheme.of(context).overlay,
                                     clipBehavior: Clip.antiAlias,
                                     borderRadius: const BorderRadius.vertical(
                                         top: Radius.circular(25)),

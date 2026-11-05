@@ -846,6 +846,21 @@
         "dispose-cancels-timer"
       ],
       "sampleCoverage": "逐字与关闭动效两种真实构造；重播按钮重新启动展示。"
+    },
+    {
+      "component": "BeePageMaterial",
+      "cases": [
+        23
+      ],
+      "supportedStates": [
+        "light",
+        "dark",
+        "uniform-40-percent",
+        "disabled-identical-geometry",
+        "opaque-modal",
+        "frosted-navigation"
+      ],
+      "sampleCoverage": "F27真实基础材质开关与弹层预览；场景画层由宿主提供，不访问App状态。"
     }
   ]
 }

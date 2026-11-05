@@ -434,10 +434,10 @@ final headerDecorationStyleInitProvider = FutureProvider<void>((ref) async {
 // 本地持久化 + 并入 appearance 包,随 BeeCount Cloud 多设备同步。
 final headerSkinProvider = StateProvider<String>((ref) => 'none');
 
-/// 发布开关：Beta 暂停皮肤。恢复只需构建时传
-/// --dart-define=BEECOUNT_SKINS_ENABLED=true，无需清除或迁移用户偏好。
+/// 发布开关：统一页面皮肤已启用。紧急暂停可在构建时传
+/// --dart-define=BEECOUNT_SKINS_ENABLED=false，无需清除或迁移用户偏好。
 final headerSkinsEnabledProvider = Provider<bool>((ref) =>
-    const bool.fromEnvironment('BEECOUNT_SKINS_ENABLED', defaultValue: false));
+    const bool.fromEnvironment('BEECOUNT_SKINS_ENABLED', defaultValue: true));
 
 /// 所有视觉和绑定配色使用此值；原始 headerSkinProvider 继续保存/同步偏好。
 final effectiveHeaderSkinProvider = Provider<String>((ref) =>

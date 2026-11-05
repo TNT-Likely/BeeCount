@@ -160,7 +160,7 @@ class BeeAnnualPosterPreview extends StatelessWidget {
   final bool busy, hideIncome;
   @override
   Widget build(BuildContext context) => Dialog(
-      backgroundColor: BeeCardTheme.of(context).surface,
+      backgroundColor: BeeCardTheme.of(context).overlay,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),

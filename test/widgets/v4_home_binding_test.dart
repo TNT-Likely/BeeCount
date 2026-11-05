@@ -219,7 +219,7 @@ void main() {
 
   for (final skin in ['anniversary', 'anniv_cake']) {
     for (final dark in [false, true]) {
-      testWidgets('首页原画复用完整背景且不挤压首卡 $skin dark=$dark', (tester) async {
+      testWidgets('首页整页原画与共享材质不挤压首卡 $skin dark=$dark', (tester) async {
         tester.view.physicalSize = const Size(320, 568);
         tester.view.devicePixelRatio = 1;
         addTearDown(tester.view.resetPhysicalSize);
@@ -248,7 +248,10 @@ void main() {
         expect(tester.getSize(find.byType(HeaderSkinPageArtwork)),
             const Size(320, 568));
         final summary = find.byType(BeeSummaryCard);
-        expect(tester.widget<BeeSummaryCard>(summary).background, isNotNull);
+        expect(tester.widget<BeeSummaryCard>(summary).background, isNull,
+            reason: '首卡不再有独立渐变遮罩，统一消费页面材质');
+        expect(BeeCardTheme.of(tester.element(summary)).surface.a,
+            closeTo(.4, .001));
         final original = tester.getRect(summary);
         container.read(headerSkinProvider.notifier).state = 'none';
         await tester.pumpAndSettle();
