@@ -112,6 +112,19 @@ class VersionAndInputTests(unittest.TestCase):
         values=env();values['APPLE_API_KEY_CONTENT']=base64.b64encode(b'\x30invalid').decode()
         with mock.patch.dict(os.environ,values,clear=True),self.assertRaises(gate.GateError):ios.api_key()
 
+    def test_build_failure_diagnostics_redact_secrets_and_never_show_signer_output(self):
+        with mock.patch.dict(os.environ,dict(APPLE_API_KEY_CONTENT='private-key-value',
+                APPLE_CERTIFICATE_PASSWORD='private-password')):
+            output=b'Error: private-key-value private-password https://user:password@example.com\nPod lock failed'
+            text=ios.build_diagnostic(output,'flutter-config')
+            self.assertIn('Pod lock failed',text)
+            for secret in ['private-key-value','private-password','user:password']:
+                self.assertNotIn(secret,text)
+            self.assertEqual(ios.build_diagnostic(output,'p12-certificate'),'')
+            self.assertEqual(ios.build_diagnostic(output,'keychain-import'),'')
+        text=ios.build_diagnostic(b'Error: -----BEGIN PRIVATE KEY-----\nYWJj\n-----END PRIVATE KEY-----','archive')
+        self.assertNotIn('YWJj',text)
+
     def test_build_subprocess_environment_excludes_all_credentials(self):
         values={**env(),'GH_TOKEN':'secret','GITHUB_TOKEN':'secret','TELEGRAM_BOT_TOKEN':'secret',
                 'TELEGRAM_CHAT_ID':'private','PATH':'/bin','FLUTTER_ROOT':'/sdk'}

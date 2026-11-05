@@ -178,6 +178,22 @@ def context_write(value):
     gate.write_json(context_path(), value)
 
 
+def build_diagnostic(output, label):
+    """Only source-build tools may emit bounded, redacted failure diagnostics."""
+    if label not in {'flutter-config', 'pod-install', 'archive', 'export', 'pub-get'}:
+        return ''
+    text = output.decode('utf-8', errors='replace')
+    for key in (*SIGNING_KEYS, *API_KEYS, 'GH_TOKEN', 'GITHUB_TOKEN', 'TELEGRAM_BOT_TOKEN', 'TELEGRAM_CHAT_ID'):
+        value = os.environ.get(key, '')
+        if value:
+            text = text.replace(value, '[REDACTED]')
+    text = re.sub(r'-----BEGIN [A-Z ]*PRIVATE KEY-----.*?-----END [A-Z ]*PRIVATE KEY-----',
+                  '[REDACTED PRIVATE KEY]', text, flags=re.S)
+    text = re.sub(r'https?://[^\s/@]+:[^\s/@]+@', 'https://[REDACTED]@', text)
+    text = text.replace(str(Path.home()), '$HOME').replace(os.environ.get('RUNNER_TEMP', '\x00'), '$RUNNER_TEMP')
+    return '\n'.join(text.splitlines()[-70:])[-10000:]
+
+
 def command(args, *, cwd=None, env=None, label='command', run=None):
     """Capture commands privately. Never print raw signer/API errors or secrets."""
     result = subprocess.run([str(x) for x in args], cwd=cwd, env=env or build_environment(), capture_output=True)
@@ -187,6 +203,10 @@ def command(args, *, cwd=None, env=None, label='command', run=None):
         path = logs / (label + '.log')
         path.write_bytes(result.stdout + result.stderr)
         path.chmod(0o600)
+    if result.returncode != 0:
+        diagnostic = build_diagnostic(result.stdout + result.stderr, label)
+        if diagnostic:
+            print('已脱敏构建诊断：\n' + diagnostic)
     gate.require(result.returncode == 0, label + '失败；私有日志保留，未输出签名或账号材料')
     return result.stdout
 
