@@ -44,6 +44,11 @@ def notification_plan():
         android.save_context(context)
         print('两端未全部成功，不创建安装公告、不发送Telegram')
         return
+    if os.environ.get('BETA_ATOMIC_NOTIFY') != '1':
+        context['status'] = 'notification-deferred'
+        android.save_context(context)
+        print('旧通知入口已停用，请使用统一双端去重通知入口')
+        return
     context['platformLines'] = platform_lines(ios_context,
         os.environ.get('IOS_DELIVERY_RESULT', ''), os.environ.get('TESTFLIGHT_PUBLIC_URL', ''))
     android.telegram_text(context)

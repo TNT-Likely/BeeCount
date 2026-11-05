@@ -125,49 +125,35 @@ python3 -m unittest discover -s tool/release -p 'test_*.py' -v
 
 额外设置本机`JAVA_HOME`可运行真实Java Properties Unicode往返检查。设置`ANDROID_SDK_ROOT`及`BEECOUNT_FLUTTER_FOR_PREFLIGHT_TEST`可运行“无任何真实密钥的损坏keystore”真实Java拒绝测试，确认临时文件清理，绝不执行Flutter。设置`BEECOUNT_PUBLIC_APK_FIXTURE`为已核SHA的公开3.9.0 APK可用实际aapt/apksigner/zipalign只读核验产物；没有提供时明确skip，不下载也不伪造成功APK。单元测试中的subprocess替身仅验证签名口令/证书错误分支，不能冒称真实签名构建已通过。
 
-## 独立 Android Beta CI
-
-工作流 `.github/workflows/beta-release.yml` 仅接受 `workflow_dispatch`，只创建 GitHub prerelease 并提供一份正式签名 ARM64 APK。它不构建 AAB/iOS，不上传 Play 或 TestFlight。旧 `release.yml` 在触发过滤和前置 job 两层拒绝 Beta；两条流程共用 `beecount-android-delivery` 串行组，运行中不互相取消。
-
-启用前将 workflow 注册到默认分支，并确保 v4 包含这一套已审核工具及目标发布说明。运行时：
-
-- `source_ref` 为 `v4` 或其历史内的完整 40 位 SHA；默认 `v4` 会立即解析并冻结。未提交文件不会进入构建。
-- `version` 默认 `4.0.0-beta.2`；所选提交必须包含人工整理的 `docs/releases/<version>.md`，正文须有唯一的 `## 更新摘要`、升级注意及固定反馈 issue 580。摘要缺失、为空或格式异常，在 plan 阶段就拒绝；不等到发布后才发现公告不能发送。
-- `android_version_code_floor` 或仓库变量 `ANDROID_VERSION_CODE_FLOOR` 必须提供全部渠道最高已交付 code。Beta1 已实际本地交付 226，因此有效下界至少 226，下一包为 227。流程还取所有已有 Release/失败草稿的机器回执最大 code；版本名不允许倒退。正式版仍由共用计算器从至少 300 开始。
-- 已有 4.x 正式版、新 Beta 或失败草稿缺少可信机器回执时明确拒绝，即使填写了 floor 也不猜测。3.9 等历史旧版可以沿用已核 floor。补回执须先读取实际 APK 的版本/code、包名、证书、ABI 与 hash，核对对应源 SHA；回执 schemaVersion=1、kind=`beecount-android-release`（Beta 为 `beecount-beta-release`），包含 `package`、`versionName`、`versionCode`、`sourceSha`、`certificateSha256`、`apkSha256`、`abi`。不能依据版本名倒推 code 或填写占位 hash。
-- 必填公开仓库变量 `ANDROID_RELEASE_CERT_SHA256`，必须为已核生产证书指纹；缺失或与已核指纹不同会拒绝，不自动接受证书轮换。
-- 必填四项签名 secrets：`ANDROID_KEYSTORE_BASE64`、`ANDROID_KEYSTORE_PASSWORD`、`ANDROID_KEY_ALIAS`、`ANDROID_KEY_PASSWORD`。沿用现有 `TELEGRAM_BOT_TOKEN`、`TELEGRAM_CHAT_ID`，成功发布后发送下载页和反馈链接；缺失或发送失败会明确报错，已发布 Release 不回滚。
-
-GitHub 的 `GITHUB_TOKEN` 只用于读取版本、创建新 tag/Release 和上传验证过的产物，无需新增私密 PAT。输入全部经环境变量和 Python 校验传递，不插入 shell。签名四字段只写入本次临时私有文件，签名探针、Flutter、验包共享原门禁，正常/失败退出都清理，最后还有 `always()` 清理步骤。不上传构建日志或临时源码/签名资料。
-
-产物验证通过后再次核对水位，原子创建新 tag 指向冻结 SHA，再建 draft prerelease。先上传 `android-version-reservation.json`，再上传 APK、SHA256 和 `android-release.json`，最后公开 Release；回执记录源 SHA、版本/code、APK hash、证书及 ABI。它表示静态门禁通过，不冒称完整功能验收。成功后回执成为后续自动水位，同时应将仓库 floor 变量同步为该 code，供本地及旧正式发布流程使用。
-
-同名 tag/Release（含失败草稿）绝不覆盖。发布中断后的 tag、draft 与版本回执保留供排查；有回执的 code 会被后续流程计入，下一次使用新 Beta 名称/code。若中断在回执上传之前，不得自行删除资料重试：先核对是否已对外交付任何 APK，再由维护者处理。全渠道/本地发布不受 GitHub 并发锁控制，必须在下一次运行前更新 floor；机器回执不能替代这个外部确认。此变更只实现流程，未设置远端变量/secrets，也未触发或发布。
-
-### 仅重发 Telegram 通知
-
-若 APK/Release 已发布成功、只有 Telegram 通知失败，重新手动运行该工作流并将 `mode` 选择为 `notify-only`，`version` 填原来已发布的 Beta 版本。默认 `release` 模式仍然禁止覆盖同 tag，不应通过重跑整套发布来补通知。
-
-`notify-only` 使用独立只读 GitHub job：检查目标是唯一、已公开的 prerelease；读取唯一 `android-release.json`，核对正式包名、版本/code、生产证书、ARM64、源 SHA 和 APK hash，并要求对应 APK 存在；GitHub 提供资产摘要时必须匹配回执。核对后仅发送 Telegram。不会分配新 code、构建、访问签名 secrets、创建/修改 tag、上传资产或改写 Release；无需配置 source/floor 或 Android SDK。草稿、正式版、缺失/不可信回执和摘要不匹配均拒绝通知。它复核的是已发布记录与资产身份，不重新下载并执行完整 APK 静态验包。
-
-### 每个 Beta 的更新说明与公告
-
-以 `docs/releases/BETA_TEMPLATE.md` 为模板，为每个版本保留独立 `<version>.md`。只写相对上一个 Beta 的用户可见差异，通常 3–5 条；不要复制所有历史变化、Git 提交列表或完整 SHA。问题、升级注意与待验收范围放到其他章节。发布过的旧版本文档保留，新版本新建文件，不把同一份文档不断覆盖为完整项目历史。
-
-Release 正文使用该版本人工文档并附简短构建身份；明确禁用 GitHub 自动生成 release notes。每个 Beta 建独立 prerelease，`make_latest=false`，不会取代正式版 Latest。
-
-Telegram 显示“Beta 内测”、版本、最多 5 条摘要、Release 下载页及 issue 580。只提取 `## 更新摘要` 直到下一个一级/二级标题，不读取其他章节；每条最多 80 个 Unicode 码点，截断保留组合字符、肤色修饰、旗帜和 ZWJ emoji 的完整组合，加省略号。整条消息（含双端状态）最多 1400 字符/15 行，不附源码 SHA、完整 commit 或技术清单。摘要链接、完整提交 SHA 和多行内容需移到适合的章节。
-
-仅通知重试从**已经发布的 Release 正文**同一摘要段读取，沿用原公告内容，不从当前 v4 文档或 git log 重新拼历史。缺少有效摘要的旧 Release 会拒绝重发，由维护者先核对并补齐对应版本说明。
-
 ## Android / iOS 统一 Beta 发布
 
-只使用 `.github/workflows/beta-release.yml` 的 **Beta Release** 手动入口，在 Actions 选择 `v4` 分支。`mode=release` 先冻结同一源码、版本和短说明，生成正式签名 ARM64 APK，再生成同一 tag 的 arm64 IPA；默认 `ios_delivery=testflight` 同时上传并等待 Apple 处理。只需归档时选择 `ipa`。两端资产归入同一个 prerelease，最后只发送一条 TG 摘要；iOS 失败时整个流程仍失败，通知明确标记部分交付，不冒称双端成功。
+只使用 `.github/workflows/beta-release.yml` 的 **Beta Release** 手动入口，在 Actions 选择 `v4` 分支。默认新版本为 `4.0.0-beta.6`；发布前提交对应的 `docs/releases/<version>.md`，不能用默认值跳过版本核对。
 
-`mode=notify-only` 只读取已公开 Android / 可选 iOS 回执重发这条通知，不构建、分配版本、改 tag 或重新上传。独立 iOS 手动 workflow 已移除。
+`mode=release` 在同一私有 macOS Runner 冻结源码、版本和短说明，依次验证正式签名 ARM64 APK 与 App Store 签名 arm64 IPA。默认 `ios_delivery=testflight` 还要求上传成功、Apple processingState=VALID、内测说明更新成功；选择 `ipa` 时只归档已签名 IPA，不宣称 TestFlight 可用。
 
-Flutter3.27.3 / Xcode26.3 / CocoaPods1.16.2 固定。App 和 Widget 的签名、版本、权限、架构均从 IPA 核验，锁文件漂移会拒绝。沿用 APPLE_CERTIFICATE_* / APPLE_PROVISIONING_PROFILE* / APPLE_TEAM_ID 与 APPLE_API_* secrets，签名凭据不会传入 Flutter/Pods 子进程。
+**两端全部成功后才创建 tag 和 draft prerelease；全部 APK、IPA、校验文件及回执上传成功后才公开 Release。** 任何构建、签名或 Apple 处理失败都不创建公开 Release、不上传失败候选到 Actions artifacts、不发送 TG。上传中断留下私有草稿及版本预留回执供核对，禁止覆盖 tag、资产或重复使用版本。已公开的历史 Beta 保持原内容。
 
-iOS 数字版本使用 `4.0.0`，默认 build 沿用对应 Android code。4.0.0 Beta 为226..299，正式版300起；上传前还读取 ASC 最高 build。显式填写更高 `ios_build_number` 仅用于 Apple build 不能复用的重试，不允许替换已公开资产。正式 workflow 的历史 run_number 策略仍需在正式4.0.0前改为300起严格递增。
+### 版本与身份
 
-App Store 签名 IPA 不能直接侧载，安装走 TestFlight；Apple处理成功与测试组、加密合规、外测审核是不同状态。可选 `TESTFLIGHT_PUBLIC_URL` 只能填已配置测试组的真实邀请地址，没有时不虚构安装链接。没有 Google Play 或正式 App Store 提审步骤。
+- `source_ref` 只接受 `v4` 或其历史完整40位SHA，立即冻结；未提交文件不进入构建。
+- `android_version_code_floor` 或仓库变量 `ANDROID_VERSION_CODE_FLOOR` 必须是全部渠道最高已交付 code。再取 Release/失败草稿机器回执的最大值；Beta5 已交付230，下一新包至少231。4.0.0 Beta只使用226..299，正式版从300起。
+- `ANDROID_RELEASE_CERT_SHA256` 必须匹配已核生产证书。沿用四项 `ANDROID_KEYSTORE_*` / `ANDROID_KEY_*` secrets，以及 `APPLE_CERTIFICATE_*`、`APPLE_PROVISIONING_PROFILE*`、`APPLE_TEAM_ID`、`APPLE_API_*`。不打印或上传签名资料，Flutter/Pods子进程不继承凭据。
+- Flutter3.27.3 / Xcode26.3 / CocoaPods1.16.2 / Ruby JSON2.7.2固定；依赖锁漂移拒绝。App与Widget的实际签名、权限、版本、架构均从IPA核验。
+- iOS数字版本为4.0.0，默认build沿用Android code；上传前读取ASC最高build。显式更高 `ios_build_number` 仅用于Apple不能复用build的重试，不能替换已公开资产。正式流程历史run_number策略仍须在4.0.0前统一为300起严格递增。
+- 与正式发布共用 `beecount-android-delivery` 串行锁，不取消运行中的发布；其他本地渠道交付仍须及时更新floor。GitHub机器回执不能替代全渠道核查。
+
+App Store签名IPA不能直接侧载，安装走TestFlight。Apple处理成功、测试组、加密合规和外测审核是不同状态；可选 `TESTFLIGHT_PUBLIC_URL` 只能使用真实邀请地址。流程不上传Google Play、不提交正式App Store审核。
+
+### 唯一通知与失败重试
+
+只有完整双端Release可以通知。通知job重新读取并核对两端公开回执和资产身份；需要TestFlight时还要求真实处理完成回执。先上传不可覆盖的 `beta-notification-intent.json`，发送一条TG，再保存包含真实message_id的 `beta-notification.json`。成功回执存在时重跑直接跳过。
+
+如果已留下通知意图却没有成功回执，自动重跑拒绝发送，避免网络超时造成重复消息。维护者先核对TG群，再显式选择 `mode=notify-only`、原版本和实际iOS build补发；已有成功回执时手动模式也不会重发。通知模式不构建、不分配code、不访问签名secrets、不改tag或二进制，只追加通知意图/回执。旧的按平台或部分成功通知入口已停用。
+
+发布中断留下草稿时不能靠重跑整套流程覆盖，先核对是否已有任何对外交付，再处理版本预留。构建与签名失败时不会为了公告而创建Release。
+
+### 每个 Beta 的说明
+
+使用 `docs/releases/BETA_TEMPLATE.md`，每版独立文档。`## 更新摘要` 只列相对上一Beta的3–5项用户可见差异，不拼接全部commit。摘要缺失或无效时plan即拒绝。升级注意、待验收范围和反馈issue580另列。
+
+Release禁用自动生成日志，`make_latest=false`，不替代正式Latest。TG沿用已发布正文的同一摘要，最多5项、每项80个Unicode码点，总长最多1400字符/15行，附双端状态、Release与反馈链接，不堆积历史提交。

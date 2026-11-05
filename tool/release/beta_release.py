@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import base64
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -333,9 +334,22 @@ def build():
         shutil.rmtree(signing)
 
 
-def publish():
+def publish(*, additional_assets=None):
     context = read_context()
     gate.require(context["status"] == "verified", "未经签名与产物验证，拒绝发布")
+    additional_assets = additional_assets or []
+    if os.environ.get("BETA_ATOMIC") == "1":
+        gate.require(bool(additional_assets), "双端原子发布缺少已校验iOS产物，禁止创建Release")
+    seen = {"android-release.json", "android-version-reservation.json",
+            f"beecount-{context['versionName']}-arm64-v8a.apk",
+            f"beecount-{context['versionName']}-arm64-v8a.apk.sha256"}
+    for item in additional_assets:
+        path = Path(item["path"])
+        gate.require(path.is_file() and not path.is_symlink() and path.name == item["name"]
+                     and item["name"] not in seen and re.fullmatch(r"[A-Za-z0-9._-]+", item["name"]),
+                     "附加平台产物路径或名称无效")
+        gate.require(gate.sha256(path) == item["sha256"], "附加平台产物在发布前变化")
+        seen.add(item["name"])
     context["notificationSummary"] = extract_update_summary(context.get("notes"))
     telegram_text(dict(context, releaseUrl=f"https://github.com/{REPOSITORY}/releases/tag/{context['versionName']}"))
     client = GitHub()
@@ -379,6 +393,13 @@ def publish():
     client.upload(release["id"], apk.name, apk.read_bytes(), "application/vnd.android.package-archive")
     client.upload(release["id"], apk.name + ".sha256", (verified["apkSha256"] + "  " + apk.name + "\n").encode(), "text/plain")
     client.upload(release["id"], RECEIPT, payload)
+    # Both platforms have already passed build/signature/optional Apple gates.
+    # Keep the release private until every checked iOS asset has been uploaded.
+    for item in additional_assets:
+        contents = Path(item["path"]).read_bytes()
+        gate.require(hashlib.sha256(contents).hexdigest() == item["sha256"],
+                     "附加平台产物在上传前变化")
+        client.upload(release["id"], item["name"], contents, item["contentType"])
     remote_tag = client.request("GET", f"/repos/{REPOSITORY}/git/ref/tags/{context['versionName']}")
     gate.require(remote_tag.get("object", {}).get("sha") == context["sourceSha"], "发布前 tag 源码已改变")
     published = client.request("PATCH", f"/repos/{REPOSITORY}/releases/{release['id']}",
@@ -413,6 +434,7 @@ def notify():
     except Exception:
         raise gate.GateError("Beta 已发布，但 Telegram 通知失败；凭据未输出") from None
     print("Telegram 已确认送达")
+    return result.get("result", {}).get("message_id")
 
 
 def notification_plan():

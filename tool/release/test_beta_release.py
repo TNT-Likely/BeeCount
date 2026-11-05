@@ -219,6 +219,29 @@ class DispatchTests(unittest.TestCase):
         self.assertEqual(client.request.call_args.args[2]["make_latest"], "false")
         self.assertEqual(beta.read_context()["status"], "published")
 
+    def test_failed_ios_asset_upload_never_undrafts_release(self):
+        # Synthetic bytes exercise only publication ordering, not signing.
+        apk = self.root / "synthetic.apk"; apk.write_bytes(b"not an apk")
+        artifact = {"apkSha256": "a" * 64}
+        manifest = self.root / "manifest.json"
+        manifest.write_text(json.dumps({"artifactRelativePath": apk.name, "artifact": artifact,
+            "javaHome": str(self.root), "toolsPath": str(self.root / "build-tools/36.0.0")}))
+        self.write_context(status="verified", versionName="4.0.0-beta.2", versionCode=227,
+            sourceSha="a" * 40, certificateSha256=beta.PRODUCTION_CERTIFICATE,
+            floor=226, manifest=str(manifest), runParent=str(self.root), notes="## 更新摘要\n- 用户可见改进。\n")
+        ipa = self.root / "candidate.ipa"; ipa.write_bytes(b"synthetic IPA")
+        os.environ.update(GITHUB_RUN_ID="123", BETA_ATOMIC="1")
+        client = mock.Mock(); client.releases.return_value = []
+        client.request.side_effect = [None, {"id": 1, "html_url": "https://github.com/draft"}]
+        def upload(_, name, *args):
+            if name == ipa.name: raise gate.GateError("synthetic upload failure")
+        client.upload.side_effect = upload
+        with mock.patch.object(beta, "GitHub", return_value=client), mock.patch.object(gate, "verify_apk", return_value=artifact):
+            with self.assertRaises(gate.GateError):
+                beta.publish(additional_assets=[dict(name=ipa.name,path=str(ipa),sha256=gate.sha256(ipa),contentType="application/octet-stream")])
+        self.assertEqual(beta.read_context()["status"], "draft-created")
+        self.assertFalse(any(c.args[0] == "PATCH" for c in client.request.call_args_list))
+
     def test_notification_refuses_before_publish_and_never_uses_argv(self):
         self.write_context(status="verified")
         with mock.patch.object(beta, "open_url") as request, self.assertRaises(gate.GateError):
@@ -340,8 +363,8 @@ class Arm64ContractTests(unittest.TestCase):
         self.assertNotIn("BETA_CONTEXT: ${{ runner.", beta_yaml)
         self.assertGreaterEqual(beta_yaml.count('>> "$GITHUB_ENV"'), 3)
         notification = beta_yaml.split("\n  notify:", 1)[1]
-        self.assertIn("contents: read", notification)
-        self.assertIn("notification_plan", notification)
+        self.assertIn("contents: write", notification)
+        self.assertIn("beta_atomic.py announce", notification)
         self.assertNotIn("ANDROID_KEYSTORE", notification)
         self.assertNotIn("beta_release.py build", notification)
         self.assertNotIn("beta_release.py publish", notification)

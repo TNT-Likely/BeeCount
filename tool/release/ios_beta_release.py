@@ -498,6 +498,7 @@ def build():
 
 def publish():
     context = context_read()
+    gate.require(not context.get('atomic'), '私有双端候选只能通过统一原子发布入口公开')
     gate.require(context['status'] == 'verified', '仅允许已验包IPA进入GitHub prerelease')
     client = beta.GitHub()
     release, record = get_release(client, context['versionName'])
