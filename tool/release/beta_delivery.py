@@ -39,6 +39,11 @@ def notification_plan():
     if ready:
         ios.notification_plan()
         ios_context = ios.context_read()
+    if ios_context is None or os.environ.get('IOS_DELIVERY_RESULT', '') in ('failure', 'cancelled'):
+        context['status'] = 'notification-deferred'
+        android.save_context(context)
+        print('两端未全部成功，不创建安装公告、不发送Telegram')
+        return
     context['platformLines'] = platform_lines(ios_context,
         os.environ.get('IOS_DELIVERY_RESULT', ''), os.environ.get('TESTFLIGHT_PUBLIC_URL', ''))
     android.telegram_text(context)

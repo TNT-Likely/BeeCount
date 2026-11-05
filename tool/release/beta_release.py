@@ -394,6 +394,9 @@ def publish():
 
 def notify():
     context = read_context()
+    if context["status"] == "notification-deferred":
+        print("双端尚未完整交付，本次不发送Telegram通知")
+        return
     gate.require(context["status"] == "published", "仅成功发布后通知 Telegram")
     token, chat = os.environ.get("TELEGRAM_BOT_TOKEN", ""), os.environ.get("TELEGRAM_CHAT_ID", "")
     gate.require(bool(token and chat), "Beta 已发布，但 Telegram secrets 缺失，尚未通知")

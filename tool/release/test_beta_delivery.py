@@ -11,6 +11,12 @@ import local_apk as gate
 
 
 class DeliveryTests(unittest.TestCase):
+    def test_incomplete_delivery_never_calls_telegram(self):
+        with mock.patch.object(android,'read_context',return_value={'status':'notification-deferred'}), \
+             mock.patch.object(android,'open_url') as network:
+            android.notify()
+            network.assert_not_called()
+
     def test_missing_ios_is_an_explicit_partial_delivery(self):
         for status in ('failure', 'cancelled', 'skipped', ''):
             lines = delivery.platform_lines(None, status)
