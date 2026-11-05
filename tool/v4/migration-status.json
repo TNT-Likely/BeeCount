@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26T08:49:55.523434+08:00",
+  "updated": "2026-11-06T07:25:34.628807+08:00",
   "branch": "v4",
   "baselineCommit": "6616066247a8738a42996c496e1b99106820e59f",
   "pages": {
@@ -1398,23 +1398,63 @@
       "status": "已修正并在R122真机确认",
       "detail": "去掉容器与行重复左右留白，图标盒与星期表头对齐，点击范围保持。21项相关回归、HTML和静态检查通过；Root已在R122正常MAIN的15000笔首页亲看对齐。R121未安装的历史记录保留，实际当前是R122。",
       "url": "prototype/demo.html?page=home"
+    },
+    {
+      "id": "M11",
+      "name": "Beta5 双端发布与通知",
+      "status": "已交付",
+      "detail": "Android230与iOS4.0.0(230)同源发布；TestFlight真实VALID，单条TG通知及去重回执保存。测试组及外测审核另由ASC确认。"
+    },
+    {
+      "id": "M12",
+      "name": "交易行元数据自适应",
+      "status": "已实现·自动回归通过，待真机",
+      "detail": "账户、账本及标签在原两/三行布局内使用余宽，单独长名称不再固定105/84px截断；不删除折算、时间或文字状态。",
+      "url": "boards/transaction-rows-task-c-review.html"
+    },
+    {
+      "id": "M13",
+      "name": "账户全部周期免整页闪烁",
+      "status": "已实现·自动回归通过，待真机",
+      "detail": "首次成功后保留页面；空月份切到全部时不再换成全屏加载，数据在原列表更新。",
+      "url": "prototype/demo.html?page=accountDetail"
+    },
+    {
+      "id": "M14",
+      "name": "关于与更多产品刷新",
+      "status": "已确认并实现·待真机",
+      "detail": "Hero及故事入口居中，使用轻量品牌行和独立产品卡；组件、主Demo、链接、分享、更新与产品说明回调保留。",
+      "url": "boards/about-products-refresh-review.html"
+    },
+    {
+      "id": "M15",
+      "name": "全部明细单层卡片材质",
+      "status": "已实现·亮暗像素回归通过，待真机",
+      "detail": "flatSurface交易行不重复绘制透明底色；实际列表绑定的浅深像素检查证明单层材质。",
+      "url": "prototype/demo.html?page=home"
+    },
+    {
+      "id": "M16",
+      "name": "卡片透明度与模糊",
+      "status": "已实现·持久化及大小屏回归通过，待真机",
+      "detail": "透明度0–90%、模糊0–16、重置；本地保存与配置导入导出。基础组件、组件Demo和主Demo同步；底栏与弹层保持不透明。",
+      "url": "prototype/demo.html?page=appearance"
     }
   ],
   "manualAcceptanceProgress": {
-    "updatedAt": "2026-10-26T12:47:51.436007+08:00",
-    "engineeringEstimatePercent": 95,
+    "updatedAt": "2026-11-06T07:25:34.628807+08:00",
+    "engineeringEstimatePercent": 90,
     "engineeringEstimateRange": [
-      92,
-      98
+      85,
+      95
     ],
     "remainingEffortEstimateHours": [
-      0.25,
-      0.75
+      0.5,
+      1.5
     ],
-    "estimateKind": "后续SVG显示细节的工作量估计；本次Beta交付剩余0小时，皮肤暂缓",
-    "basis": "本次Beta必要收口已经完成并交付226：R122首20完整元数据、官方3.9同机对照、签名验包、真实原位升级与Root31表直读核对、本地CI及交付记录全部完成。原73页不重计，皮肤已暂缓；唯一明确保留的显示细节为约0.10秒SVG首用晚绘，列后续Beta项，不把本次包宣称无任何已知问题。",
+    "estimateKind": "本轮5项后续修复的实际工作小时，等待真机可用不计入",
+    "basis": "原73页基线不重计。Beta5双端已交付；新5项已实现并同步组件与HTML，完整Flutter2583通过、1原有联网跳过，相关HTML布局及交互通过。隔离2017已构建，手机留给用户测试，尚未进行新版本整页原生验收，不能用旧报告或自动测试代替。",
     "scopeComplete": false,
-    "estimateChangeReason": "生产包已真实覆盖升级、重启核对并交付，取消上一快照中的升级等待；当前剩余仅已披露的后续显示细节。",
     "betaDeliveryComplete": true,
     "betaDeliveryRemainingHours": 0
   },
