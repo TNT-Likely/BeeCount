@@ -159,3 +159,13 @@ Release 正文使用该版本人工文档并附简短构建身份；明确禁用
 Telegram 显示“Beta 内测”、版本、最多 5 条摘要、Release 下载页及 issue 580。只提取 `## 更新摘要` 直到下一个一级/二级标题，不读取其他章节；每条最多 80 个 Unicode 码点，截断保留组合字符、肤色修饰、旗帜和 ZWJ emoji 的完整组合，加省略号。整条消息最多 900 字符/12 行，不附源码 SHA、完整 commit 或技术清单。摘要链接、完整提交 SHA 和多行内容需移到适合的章节。
 
 仅通知重试从**已经发布的 Release 正文**同一摘要段读取，沿用原公告内容，不从当前 v4 文档或 git log 重新拼历史。缺少有效摘要的旧 Release 会拒绝重发，由维护者先核对并补齐对应版本说明。
+
+## 独立 iOS Beta（IPA / TestFlight）
+
+`.github/workflows/beta-ios-release.yml` 只补充一个已发布 Android Beta 的同一源码和简短说明，不创建新版本 tag，也不进入正式审核。`delivery=ipa` 生成 App Store 分发签名的 arm64 IPA、SHA256 与回执；`delivery=testflight` 另外上传并等待 Apple 处理、更新内测说明；`notify-only` 只重发已核对交付的 TG。App Store 签名 IPA 不能直接侧载，用户安装走 TestFlight。测试组、加密合规和外测审核状态需另行核对。
+
+Flutter3.27.3 / Xcode26.3 / CocoaPods1.16.2 固定，主App与Widget签名、版本和权限都从实际IPA核验。沿用现有 APPLE_CERTIFICATE_* / APPLE_PROVISIONING_PROFILE* / APPLE_TEAM_ID 与 APPLE_API_* secrets，不加入未签名回退。构建源码与签名在本轮私密目录，pub和Pod锁文件漂移会拒绝。公告继续复用最多5条更新摘要及反馈issue，不拼完整commit。
+
+iOS主版本字段使用 `4.0.0`，Beta标识保留在CI_VERSION和公开说明。默认build沿用对应Android Beta的实际code，4.0.0 Beta限制226..299；已交付水位取仓库变量 `IOS_BUILD_NUMBER_FLOOR`、iOS资产回执，TestFlight模式还实际读取ASC最高build。显式重试build仍须更高，不能覆盖资产或复用上传号。正式4.0.0 iOS流程应在上线前一起改为300起步，现有正式流程不在本次Beta改动内。
+
+可选仓库变量 `TESTFLIGHT_PUBLIC_URL` 提供已配置测试组的邀请地址；没有时不虚构安装链接。GitHub要求手动workflow先在默认main注册；v4新增文件及本地测试通过，不代表远程已启用或TestFlight已发布。先提交v4工具，再单独注册薄入口，明确目标Beta/version后首次实跑签名和上传。
