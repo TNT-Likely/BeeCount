@@ -2,5 +2,6 @@ include: package:flutter_lints/flutter.yaml
 
 analyzer:
   exclude:
+    - .docs/**
     - docs/design/card-refresh/archive/**
     - tool/v4/original_skin_renderer/build/**
