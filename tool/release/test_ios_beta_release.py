@@ -94,6 +94,24 @@ class VersionAndInputTests(unittest.TestCase):
             with mock.patch.dict(os.environ,values,clear=True), self.assertRaises(gate.GateError):
                 ios.api_key()
 
+    def test_api_key_accepts_real_bare_der_and_double_base64(self):
+        generated = subprocess.run(['openssl','genpkey','-algorithm','EC',
+            '-pkeyopt','ec_paramgen_curve:P-256','-outform','DER'],
+            check=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE).stdout
+        for i,value in enumerate([base64.b64encode(generated).decode(),
+                base64.b64encode(base64.b64encode(KEY)).decode(),
+                KEY.decode().replace('\n','')]):
+            values=env();values['APPLE_API_KEY_CONTENT']=value
+            with self.subTest(case=i),mock.patch.dict(os.environ,values,clear=True):
+                normalized=ios.api_key()
+                self.assertTrue(normalized.startswith(b'-----BEGIN PRIVATE KEY-----\n'))
+                if i == 0:
+                    check=subprocess.run(['openssl','pkey','-pubout'],input=normalized,
+                        stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+                    self.assertEqual(check.returncode,0)
+        values=env();values['APPLE_API_KEY_CONTENT']=base64.b64encode(b'\x30invalid').decode()
+        with mock.patch.dict(os.environ,values,clear=True),self.assertRaises(gate.GateError):ios.api_key()
+
     def test_build_subprocess_environment_excludes_all_credentials(self):
         values={**env(),'GH_TOKEN':'secret','GITHUB_TOKEN':'secret','TELEGRAM_BOT_TOKEN':'secret',
                 'TELEGRAM_CHAT_ID':'private','PATH':'/bin','FLUTTER_ROOT':'/sdk'}

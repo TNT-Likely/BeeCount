@@ -73,14 +73,30 @@ def api_key():
             raise gate.GateError('App Store Connect私钥JSON字符串格式无效') from None
         gate.require(isinstance(raw, str), 'App Store Connect私钥必须是字符串')
     value = raw.encode()
-    if not value.startswith(b'-----BEGIN PRIVATE KEY-----'):
+    for _ in range(2):
+        if value.startswith(b'-----BEGIN ') or value.startswith(b'\x30'):
+            break
         try:
             value = base64.b64decode(b''.join(value.split()), validate=True)
         except ValueError:
-            raise gate.GateError('App Store Connect私钥须为PKCS8 PEM或其Base64') from None
+            raise gate.GateError('App Store Connect私钥须为PKCS8 PEM/DER或其Base64') from None
+    gate.require(0 < len(value) <= 16384, 'App Store Connect私钥大小无效')
+    # Apple .p8 content is sometimes stored as its bare base64 DER body.
+    # OpenSSL must parse it as a real key before canonical PEM is accepted.
+    if value.startswith(b'\x30'):
+        converted = subprocess.run(['openssl', 'pkey', '-inform', 'DER', '-outform', 'PEM'],
+            input=value, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=15)
+        gate.require(converted.returncode == 0, 'App Store Connect DER私钥无法解析')
+        value = converted.stdout.strip()
     value = value.replace(b'\\r\\n', b'\n').replace(b'\\n', b'\n').replace(b'\r\n', b'\n').strip()
-    gate.require(re.fullmatch(rb'-----BEGIN PRIVATE KEY-----\s+[A-Za-z0-9+/=\s]+-----END PRIVATE KEY-----\s*', value) is not None
-                 and len(value) <= 16384, 'App Store Connect私钥格式无效；需要完整PKCS8 .p8内容，不能填文件名或其他凭据')
+    match = re.fullmatch(rb'-----BEGIN PRIVATE KEY-----\s*([A-Za-z0-9+/=\s]+)-----END PRIVATE KEY-----\s*', value)
+    gate.require(match is not None and len(value) <= 16384,
+        'App Store Connect私钥格式无效（PEM边界=' + str(value.startswith(b'-----BEGIN ')) +
+        '）；需要完整PKCS8 .p8内容，不能填文件名或其他凭据')
+    # Canonical line breaks also support a single-line copied PEM.
+    body = b''.join(match[1].split())
+    value = b'-----BEGIN PRIVATE KEY-----\n' + b'\n'.join(body[i:i+64] for i in range(0,len(body),64)) + b'\n-----END PRIVATE KEY-----'
+
     return value
 
 
