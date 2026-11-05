@@ -1459,16 +1459,31 @@
     "betaDeliveryRemainingHours": 0
   },
   "latestLocalBetaDelivery": {
-    "versionName": "4.0.0-beta.1",
-    "versionCode": 226,
-    "sourceCommit": "dce8b5dc613fba8d6fb599b23c1e461dbe87ec33",
-    "apkSha256": "c864ef78c993da253080cfb5f6dac9a0b59fac0d3dd66f3c513efb8dcc7e503f",
-    "bytes": 20740011,
+    "versionName": "4.0.0-beta.5",
+    "versionCode": 230,
+    "sourceCommit": "30aca9f90d2cf79dfdcb3bda3fdffa4343fae47b",
+    "apkSha256": "cf7d8f37c0aa29b120f3d962ca0d4363f1aee01f9045b861ade91d6aabd35ceb",
+    "bytes": 20798720,
     "abi": "arm64-v8a",
-    "actualProductionSignedUpgradeFrom225": "PASS",
-    "root31TableDirectReadAudit": "PASS",
+    "actualProductionSignedUpgradeFrom229": "PASS",
+    "logicalCsvConfigAttachmentsUpgradeAudit": "PASS",
+    "directProductionSqlReadAudit": "NOT_RUN：正式包不可调试，使用完整逻辑导出对照",
     "delivered": true,
     "stable4StartsAtCode": 300,
-    "noReleaseCIOrTag": true
+    "noReleaseCIOrTag": false,
+    "releaseUrl": "https://github.com/TNT-Likely/BeeCount/releases/tag/4.0.0-beta.5"
+  },
+  "latestPublishedBetaDelivery": {
+    "versionName": "4.0.0-beta.5",
+    "androidCode": 230,
+    "iosVersion": "4.0.0",
+    "iosBuild": 230,
+    "sourceCommit": "30aca9f90d2cf79dfdcb3bda3fdffa4343fae47b",
+    "testflightProcessingState": "VALID",
+    "testNotesUpdated": true,
+    "testerGroupAvailability": "NOT_VERIFIED",
+    "notificationAcknowledged": true,
+    "releaseRun": "42029438848",
+    "notificationRun": "42127585850"
   }
 }
