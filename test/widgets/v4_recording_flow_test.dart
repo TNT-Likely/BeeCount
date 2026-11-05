@@ -410,6 +410,51 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  recordingTest('空白和零金额切换转账无提示，已有草稿可取消并保留', (tester) async {
+    await open(tester);
+    await key(tester, '0');
+    await tester.tap(find.text('转账'));
+    await tester.pumpAndSettle();
+    expect(find.text('放弃本次记账？'), findsNothing);
+    expect(
+        find.byKey(const ValueKey('transfer-empty-accounts')), findsOneWidget);
+    final header = find.byType(RecordingHeader);
+    final amount = find.byKey(const ValueKey('recording-amount'));
+    expect(tester.getRect(amount).top - tester.getRect(header).bottom,
+        greaterThanOrEqualTo(8));
+    await tester.tap(find.text('支出'));
+    await tester.pumpAndSettle();
+    expect(find.text('放弃本次记账？'), findsNothing);
+    await key(tester, '8');
+    await tester.tap(find.text('转账'));
+    await tester.pumpAndSettle();
+    expect(find.text('放弃本次记账？'), findsOneWidget);
+    await tester.tap(find.text('取消'));
+    await tester.pumpAndSettle();
+    expect(
+        tester
+            .widget<Text>(find.byKey(const ValueKey('recording-amount')))
+            .data,
+        '8.00');
+    expect(await db.select(db.transactions).get(), isEmpty);
+  });
+
+  recordingTest('预填备注与金额尚未编辑，切换转账仍保护内容', (tester) async {
+    await open(tester,
+        page: const TransactionEditorPage(
+            initialKind: 'expense',
+            quickAdd: true,
+            initialNote: '预填的备注',
+            initialAmount: 12));
+    await tester.tap(find.text('转账'));
+    await tester.pumpAndSettle();
+    expect(find.text('放弃本次记账？'), findsOneWidget);
+    await tester.tap(find.text('取消'));
+    await tester.pumpAndSettle();
+    expect(find.text('预填的备注'), findsOneWidget);
+    expect(await db.select(db.transactions).get(), isEmpty);
+  });
+
   recordingTest('原位备注的首次返回收起键盘，第二次返回才确认放弃草稿', (tester) async {
     await open(tester);
     await key(tester, '3');

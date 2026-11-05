@@ -110,15 +110,20 @@ class AnalyticsContent extends ConsumerWidget {
     final children = <Widget>[
       if (unconverted > 0)
         BeeSurface(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             child: Row(children: [
-              const BeeLineIcon('ArrowLeftRight', size: 18),
+              const BeeLineIcon('ArrowLeftRight', size: 16),
               const SizedBox(width: 8),
               Expanded(
                   child: Text(l.recalcForeignTxBanner,
                       style: const TextStyle(fontSize: 11))),
               TextButton(
                   onPressed: () => onRecalculate(unconverted),
+                  style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      minimumSize: const Size(44, 40),
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      textStyle: const TextStyle(fontSize: 11)),
                   child: Text(l.v4AnalyticsRecalculate))
             ])),
       BeeAnalyticsSummary(

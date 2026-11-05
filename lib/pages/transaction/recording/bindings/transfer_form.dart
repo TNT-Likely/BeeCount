@@ -58,6 +58,9 @@ class TransferFormState extends ConsumerState<TransferForm> {
       _toAccountId != widget.initialToAccountId;
   bool get hasDraftChanges =>
       _accountsChanged || (_editorKey.currentState?.hasDraftChanges ?? false);
+  bool get hasContentToDiscard =>
+      _accountsChanged ||
+      (_editorKey.currentState?.hasContentToDiscard ?? false);
   bool get _originalPair =>
       !_reset &&
       widget.editingTransactionId != null &&

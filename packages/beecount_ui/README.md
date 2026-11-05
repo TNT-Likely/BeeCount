@@ -21,4 +21,6 @@ HTML 设计目录：[BeeCount-Design/card-refresh](https://github.com/TNT-Likely
 
 页面皮肤材质：`BeePageMaterial` 为卡片统一提供40%半透明 surface，`BeeCardTheme.overlay` 保持弹窗/弹层/菜单不透明；普通模式不变。`BeeSceneScope` / `BeeSceneController` 只报告首张大卡的文档坐标，不读取业务文字，不参与布局，滚动和卡片离开缓存时不重置场景。App 自己提供免费皮肤画层、偏好与生命周期。真实材质开关及弹层示例位于基础组件第24组（HTML F27），完整组合见[交互稿](https://github.com/TNT-Likely/BeeCount-Design/blob/main/card-refresh/boards/skins-page-material-review.html)。
 
-悬浮导航在自身圆角裁切内使用 `BeePageMaterial.frosted`，启用皮肤时对栏后图案与列表施加8px模糊，保留原版Tab装饰与前景控件。不能用未模糊的40%背景直接叠在可滚动文字上。
+悬浮导航使用不透明底色及独立重绘边界，保留原版 Tab 装饰与前景控件，避免动态皮肤、列表和磨砂采样一起重绘时闪烁。页面卡片仍使用统一的半透明材质。
+
+`BeeButton` 的图标与文字共用同一前景色及禁用色，亮暗模式、按下和禁用状态保持一致。

@@ -189,7 +189,7 @@ class TagDetailSections extends ConsumerWidget {
               DateUtils.dateOnly(rows[i - 1].t.happenedAt.toLocal()) != date;
           final total = days[date]!;
           return Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               decoration: BoxDecoration(
                   color: BeeCardTheme.of(context).surface,
                   borderRadius: BorderRadius.vertical(

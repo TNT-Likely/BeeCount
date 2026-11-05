@@ -28,6 +28,7 @@ class RecordingFrame extends StatelessWidget {
             ? 6.0
             : 8.0;
     return Column(children: [
+      if (transfer) const SizedBox(height: 8),
       Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16), child: amount),
       SizedBox(height: gap),
@@ -99,6 +100,8 @@ class RecordingActions extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                     backgroundColor: background ?? colors.surface,
                     foregroundColor: foreground ?? theme.colorScheme.onSurface,
+                    iconColor: foreground ?? theme.colorScheme.onSurface,
+                    disabledIconColor: theme.hintColor,
                     disabledBackgroundColor:
                         background?.withValues(alpha: .45) ?? colors.surface,
                     disabledForegroundColor: theme.hintColor,

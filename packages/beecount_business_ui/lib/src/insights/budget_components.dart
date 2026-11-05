@@ -1,4 +1,3 @@
-import 'package:beecount_ui/card_frame.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';
 
@@ -91,76 +90,101 @@ class BeeBudgetOverview extends StatelessWidget {
                     fontFeatures: const [FontFeature.tabularFigures()])));
     Widget caption(String text) => Text(text,
         style: TextStyle(fontSize: 11, height: 1.5, color: theme.hintColor));
-    return BeeCardFrame(
+    return BeeSurface(
+        padding: const EdgeInsets.all(20),
         child:
             Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: 44),
-          child: Row(children: [
+          ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 44),
+              child: Row(children: [
+                Expanded(
+                    child: Text(title,
+                        style: const TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.w600))),
+                if (onEdit != null)
+                  TextButton(onPressed: onEdit, child: Text(editLabel))
+              ])),
+          const SizedBox(height: 12),
+          LayoutBuilder(builder: (context, box) {
+            final ringSize = box.maxWidth < 290 ? 104.0 : 128.0;
+            final color = tone == BeeBudgetTone.normal
+                ? theme.colorScheme.primary
+                : statusColor;
+            return Row(children: [
+              SizedBox.square(
+                  key: const ValueKey('budget-usage-ring'),
+                  dimension: ringSize,
+                  child: Semantics(
+                      label: '$usedLabel $progressLabel',
+                      child: ExcludeSemantics(
+                          child: Stack(alignment: Alignment.center, children: [
+                        Positioned.fill(
+                            child: Padding(
+                                padding: const EdgeInsets.all(5),
+                                child: CircularProgressIndicator(
+                                    value: progress.isFinite
+                                        ? progress.clamp(0, 1)
+                                        : 0,
+                                    strokeWidth: 10,
+                                    color: color,
+                                    backgroundColor:
+                                        color.withValues(alpha: .14)))),
+                        Padding(
+                            padding: const EdgeInsets.all(22),
+                            child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      caption(usedLabel),
+                                      const SizedBox(height: 4),
+                                      money(progressLabel, 24,
+                                          alignment: Alignment.center)
+                                    ])))
+                      ])))),
+              const SizedBox(width: 18),
+              Expanded(
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                    caption(remainingLabel),
+                    const SizedBox(height: 5),
+                    money(remaining, 24,
+                        color:
+                            negativeRemaining ? theme.colorScheme.error : null),
+                    const SizedBox(height: 8),
+                    caption('$totalLabel $amount')
+                  ]))
+            ]);
+          }),
+          const SizedBox(height: 18),
+          Divider(height: 1, color: BeeCardTheme.of(context).divider),
+          const SizedBox(height: 16),
+          Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Expanded(
-                child: Text(title,
-                    style: const TextStyle(
-                        fontSize: 14, fontWeight: FontWeight.w600))),
-            if (onEdit != null)
-              TextButton(
-                  onPressed: onEdit,
-                  style: TextButton.styleFrom(
-                      minimumSize: const Size(0, 44),
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap),
-                  child: Text(editLabel))
-          ])),
-      const SizedBox(height: 14),
-      Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
-        Expanded(
-            flex: 6,
-            child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
                   caption(usedLabel),
-                  const SizedBox(height: 8),
-                  money(used, 31)
+                  const SizedBox(height: 5),
+                  money(used, 20)
                 ])),
-        const SizedBox(width: 17),
-        Expanded(
-            flex: 4,
-            child:
-                Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-              caption(remainingLabel),
-              const SizedBox(height: 8),
-              money(remaining, 15,
-                  alignment: Alignment.centerRight,
-                  color: negativeRemaining ? theme.colorScheme.error : null)
-            ]))
-      ]),
-      const SizedBox(height: 22),
-      BeeBudgetProgress(
-          progress: progress,
-          tone: tone,
-          height: 6,
-          label: '$usedLabel $progressLabel',
-          accentForNormal: true),
-      const SizedBox(height: 11),
-      Wrap(
-          alignment: WrapAlignment.spaceBetween,
-          spacing: 16,
-          runSpacing: 7,
-          children: [
-            Text('$usedLabel $progressLabel',
-                style: TextStyle(fontSize: 10, color: statusColor)),
-            caption('$totalLabel $amount')
-          ]),
-      const SizedBox(height: 16),
-      Divider(height: 1, color: BeeCardTheme.of(context).divider),
-      const SizedBox(height: 14),
-      Wrap(
-          alignment: WrapAlignment.spaceBetween,
-          spacing: 16,
-          runSpacing: 7,
-          children: [
-            caption(daysLabel),
-            Text(dailyLabel, style: const TextStyle(fontSize: 11, height: 1.5))
+            const SizedBox(width: 16),
+            Expanded(
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                  caption(daysLabel),
+                  const SizedBox(height: 5),
+                  Text(dailyLabel,
+                      textAlign: TextAlign.end,
+                      style: const TextStyle(
+                          fontSize: 13,
+                          height: 1.4,
+                          fontWeight: FontWeight.w500))
+                ]))
           ])
-    ]));
+        ]));
   }
 }
 

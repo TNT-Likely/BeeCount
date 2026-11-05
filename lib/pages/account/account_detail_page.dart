@@ -330,7 +330,7 @@ class _AccountDetailPageState extends ConsumerState<AccountDetailPage>
                                               : 0;
                                   return Container(
                                       padding: const EdgeInsets.symmetric(
-                                          horizontal: 12),
+                                          horizontal: 16),
                                       decoration: BoxDecoration(
                                           color:
                                               BeeCardTheme.of(context).surface,

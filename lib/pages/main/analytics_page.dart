@@ -63,8 +63,8 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
           padding:
               EdgeInsets.fromLTRB(compact ? 15 : 19, 0, compact ? 15 : 19, 2),
           child: BeeCompactTabs<String>(
-              trackHeight: compact ? 29 : 31,
-              fontSize: compact ? 11 : 12,
+              trackHeight: compact ? 33 : 35,
+              fontSize: compact ? 12 : 13,
               value: _scope,
               items: [
                 BeeSegment('month', l.analyticsMonth),

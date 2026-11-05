@@ -82,7 +82,8 @@ class _SupportAboutControlsState extends ConsumerState<SupportAboutControls> {
             key: ValueKey('support-social-$id'),
             title: name,
             leading: asset == null
-                ? BeeLineIcon(icon, size: 23, color: primary)
+                ? BeeLineIcon(icon,
+                    size: 23, color: Theme.of(context).colorScheme.onSurface)
                 : SvgPicture.asset(asset,
                     width: 23,
                     height: 23,

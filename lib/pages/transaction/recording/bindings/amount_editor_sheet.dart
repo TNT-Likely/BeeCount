@@ -266,6 +266,16 @@ class AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
 
   bool get hasDraftChanges => _hasCardDraft;
 
+  // Switching into/out of transfer destroys the other editor. Prefilled copy
+  // and historical values need protection even before they have been edited.
+  bool get hasContentToDiscard =>
+      _hasCardDraft ||
+      (double.tryParse(_amountStr) ?? 0) != 0 ||
+      _noteCtrl.text.trim().isNotEmpty ||
+      _selectedTagIds.isNotEmpty ||
+      _excludeFromStats ||
+      _excludeFromBudget;
+
   /// A blank new editor can follow the income/expense default. User choices,
   /// including explicitly choosing no account, remain part of the draft.
   bool applyDefaultAccountIfUntouched(int? accountId) {
@@ -729,7 +739,8 @@ class AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
       ));
     } catch (_) {
       if (mounted) {
-        showBeeToast(context, AppLocalizations.of(context).v4RecordingSaveFailed,
+        showBeeToast(
+            context, AppLocalizations.of(context).v4RecordingSaveFailed,
             tone: BeeTone.error);
       }
     } finally {

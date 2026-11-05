@@ -109,7 +109,7 @@ class BeeTransactionDayHeader extends StatelessWidget {
   Widget build(BuildContext context) => Semantics(
       label: semanticLabel,
       child: Padding(
-          padding: const EdgeInsets.only(top: 13, bottom: 1),
+          padding: const EdgeInsets.only(top: 8, bottom: 1),
           child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
             Expanded(
                 child: Wrap(

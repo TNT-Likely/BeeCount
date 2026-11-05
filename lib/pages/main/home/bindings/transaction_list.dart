@@ -533,7 +533,7 @@ class TransactionListState extends ConsumerState<TransactionList> {
 
             Widget header = Column(
               children: [
-                if (!isFirst) const SizedBox(height: 10),
+                if (!isFirst) const SizedBox(height: 4),
                 DaySectionHeader(
                   dateText: dateKey,
                   income: dayIncome,

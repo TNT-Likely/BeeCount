@@ -136,7 +136,7 @@ class SearchResults extends ConsumerWidget {
                   DateUtils.dateOnly(c.results[i - 1].t.happenedAt) !=
                       DateUtils.dateOnly(row.t.happenedAt));
           return Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               decoration: BoxDecoration(
                   color: BeeCardTheme.of(context).surface,
                   borderRadius: BorderRadius.vertical(

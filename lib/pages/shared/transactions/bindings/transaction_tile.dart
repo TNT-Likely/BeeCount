@@ -58,6 +58,7 @@ class TransactionTileBinding extends ConsumerWidget {
     }
 
     return TransactionListItem(
+        horizontalInset: 0,
         icon: getCategoryIconData(category: row.category, categoryName: name),
         category: row.category,
         ledgerName: ledgerName,

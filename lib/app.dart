@@ -936,10 +936,7 @@ class _BeeBottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bgColor = skin == null
-        ? BeeTokens.tabBarBackground(context)
-        : BeeCardTheme.ofTheme(BeePageMaterial.theme(Theme.of(context)))
-            .surface;
+    final bgColor = BeeTokens.tabBarBackground(context).withValues(alpha: 1);
     final inactiveColor = isDark ? Colors.white70 : Colors.black54;
 
     const barHeight = 56.0;
@@ -960,40 +957,39 @@ class _BeeBottomBar extends StatelessWidget {
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(28),
-            child: BeePageMaterial.frosted(
-                enabled: skin != null,
+            child: RepaintBoundary(
                 child: Stack(
+              children: [
+                // 皮肤的悬浮 tab 装饰层(垫在图标之下,不影响点按)
+                if (skin?.tabBarBuilder != null)
+                  Positioned.fill(
+                      child: IgnorePointer(
+                          child: SkinAnimationScope(
+                              child:
+                                  skin!.tabBarBuilder!(primaryColor, isDark)))),
+                Row(
                   children: [
-                    // 皮肤的悬浮 tab 装饰层(垫在图标之下,不影响点按)
-                    if (skin?.tabBarBuilder != null)
-                      Positioned.fill(
-                          child: IgnorePointer(
-                              child: SkinAnimationScope(
-                                  child: skin!.tabBarBuilder!(
-                                      primaryColor, isDark)))),
-                    Row(
-                      children: [
-                        _buildTabItem(0, Icons.receipt_long_outlined,
-                            Icons.receipt_long, l10n.tabHome, inactiveColor),
-                        _buildTabItem(
-                            1,
-                            Icons.pie_chart_outline_rounded,
-                            Icons.pie_chart_rounded,
-                            l10n.tabInsights,
-                            inactiveColor),
-                        // 中间记账按钮（作为 Tab 样式）
-                        _buildCenterTabItem(inactiveColor),
-                        _buildTabItem(
-                            2,
-                            Icons.account_balance_wallet_outlined,
-                            Icons.account_balance_wallet,
-                            l10n.tabAssets,
-                            inactiveColor),
-                        _buildAvatarTabItem(3, l10n.tabMine, inactiveColor),
-                      ],
-                    ),
+                    _buildTabItem(0, Icons.receipt_long_outlined,
+                        Icons.receipt_long, l10n.tabHome, inactiveColor),
+                    _buildTabItem(
+                        1,
+                        Icons.pie_chart_outline_rounded,
+                        Icons.pie_chart_rounded,
+                        l10n.tabInsights,
+                        inactiveColor),
+                    // 中间记账按钮（作为 Tab 样式）
+                    _buildCenterTabItem(inactiveColor),
+                    _buildTabItem(
+                        2,
+                        Icons.account_balance_wallet_outlined,
+                        Icons.account_balance_wallet,
+                        l10n.tabAssets,
+                        inactiveColor),
+                    _buildAvatarTabItem(3, l10n.tabMine, inactiveColor),
                   ],
-                )),
+                ),
+              ],
+            )),
           ),
         ),
       ),

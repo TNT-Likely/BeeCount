@@ -339,7 +339,12 @@ class _TransactionEditorPageState extends ConsumerState<TransactionEditorPage> {
     if (!_cardReady || _cardSaving || _selectedType == index) return;
     final previousIndex = _selectedType;
     final previousLedger = _cardLedgerId;
-    if (index == 2 || _selectedType == 2) {
+    final crossesTransfer = index == 2 || previousIndex == 2;
+    final hasInput = previousIndex == 2
+        ? (_transferEditorKey.currentState?.hasContentToDiscard ?? false)
+        : _cardCategory != null ||
+            (_cardEditorKey.currentState?.hasContentToDiscard ?? false);
+    if (crossesTransfer && hasInput) {
       final l10n = AppLocalizations.of(context);
       final discard = await showBeeConfirm(context,
           title: l10n.v4RecordingDiscardTitle,
@@ -382,7 +387,7 @@ class _TransactionEditorPageState extends ConsumerState<TransactionEditorPage> {
     setState(() {
       _selectedType = index;
       _cardCategory = null;
-      _cardDirty = hadChanges;
+      _cardDirty = crossesTransfer ? false : hadChanges;
     });
   }
 

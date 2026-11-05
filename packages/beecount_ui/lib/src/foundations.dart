@@ -93,6 +93,9 @@ class BeeButton extends StatelessWidget {
             style: FilledButton.styleFrom(
                 backgroundColor: bg,
                 foregroundColor: fg,
+                iconColor: fg,
+                disabledIconColor:
+                    loading ? fg : scheme.onSurface.withValues(alpha: .35),
                 minimumSize: const Size(44, 44),
                 disabledBackgroundColor:
                     loading ? bg : BeeCardTheme.of(context).soft,

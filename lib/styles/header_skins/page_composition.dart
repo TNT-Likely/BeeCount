@@ -130,9 +130,8 @@ class _PageSkinPainter extends CustomPainter {
             zoom;
     canvas.save();
     canvas.scale(zoom);
-    // Only the platform status bar is clear. Business text has no cut-out mask.
-    canvas.clipRect(Rect.fromLTWH(0, layout.topInset / zoom, 398,
-        (size.height - layout.topInset) / zoom));
+    // The scene continues behind the transparent system status bar.
+    canvas.clipRect(Rect.fromLTWH(0, 0, 398, size.height / zoom));
     if (id == 'anniversary') {
       final p = _ConstellationPainter(primary, dark, animation, 0);
       canvas.saveLayer(Rect.fromLTWH(0, 0, 398, end + 20), Paint());
