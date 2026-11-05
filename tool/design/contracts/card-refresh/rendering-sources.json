@@ -153,8 +153,8 @@
     }
   },
   "sourceFiles": {
-    "scripts/build-guide.cjs": "7d09bd2bd6859f74a2f8f8a9072c0d97540e12d412c33251e45aca2929413221",
-    "prototype/src/refresh-component-catalog.cjs": "b645a56a04bb75e864fad5d683ae065d412ff5ba6ffc0b7c3735564ab7ab6ad0",
+    "scripts/build-guide.cjs": "c323e5e39eb7bb2f2c1c2ae13a40c80a607a9e6cd99710342c2faf8982c630a6",
+    "prototype/src/refresh-component-catalog.cjs": "19dcf0abaf26f23b7457e019b67bfbb7929c9046a746244c6fdb8908581a6ad3",
     "prototype/src/resource-detail-samples.cjs": "436e4e161c5f9c3fa49bd2ab89eadc1c02133dc9ae288b5c92497e11fd65c5f8",
     "prototype/src/extracted-component-samples.cjs": "9e18130d783ad54209284971d74eb0a0172fbb0d2b9ef24354a96d1221573fb8"
   }
