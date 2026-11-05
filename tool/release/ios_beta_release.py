@@ -269,9 +269,21 @@ def plan():
     signing_inputs(mode)
     version = parse_version(os.environ.get('BETA_VERSION', '')).name
     client = beta.GitHub()
-    release, record = get_release(client, version)
-    sha = beta.source_sha(record['sourceSha'], Path.cwd())
-    require_tag(client, version, sha)
+    atomic = os.environ.get('BETA_ATOMIC') == '1'
+    if atomic:
+        android = beta.read_context()
+        gate.require(android.get('status') == 'verified' and android.get('versionName') == version
+                     and android.get('certificateSha256') == beta.PRODUCTION_CERTIFICATE,
+                     'iOS必须引用同一轮已经验包的Android私有候选')
+        gate.require(str(android.get('workflowRun', os.environ.get('GITHUB_RUN_ID'))) == os.environ.get('GITHUB_RUN_ID'),
+                     '双端候选不属于同一次发布作业')
+        sha = beta.source_sha(android['sourceSha'], Path.cwd())
+        record = dict(sourceSha=sha, versionCode=android['versionCode'])
+        release = dict(id=None, html_url=None, body=android['notes'], assets=[])
+    else:
+        release, record = get_release(client, version)
+        sha = beta.source_sha(record['sourceSha'], Path.cwd())
+        require_tag(client, version, sha)
     floor = published_ios_floor(client,os.environ.get('IOS_BUILD_NUMBER_FLOOR','225'))
     app_version, number = ios_version(version, record['versionCode'],
         os.environ.get('IOS_BUILD_NUMBER', ''), floor)
@@ -284,7 +296,7 @@ def plan():
     gate.require(not context_path().exists(), 'iOS发布上下文已存在，拒绝覆盖')
     run = Path(tempfile.mkdtemp(prefix='beecount-ios-beta-run-', dir=os.environ['RUNNER_TEMP']))
     run.chmod(0o700)
-    state = dict(status='planned', run=str(run), mode=mode, sourceSha=sha,
+    state = dict(status='planned', atomic=atomic, run=str(run), mode=mode, sourceSha=sha,
                  versionName=version, appVersion=app_version, buildNumber=number,
                  androidVersionCode=record['versionCode'], releaseId=release['id'],
                  releaseUrl=release['html_url'], notificationSummary=summary,
@@ -392,7 +404,7 @@ def verify_ipa(path, context, certificate, run):
         profile = plistlib.loads(command(['security', 'cms', '-D', '-i', app / 'embedded.mobileprovision'], label=f'verify-profile-{index}', run=run))
         profile_gate(profile, bundle, os.environ['APPLE_TEAM_ID'])
         prefix = extracted / f'certificate-{index}-'
-        command(['codesign', '-d', '--extract-certificates', prefix, app], label=f'extract-certificate-{index}', run=run)
+        command(['codesign', '-d', '--extract-certificates=' + str(prefix), app], label=f'extract-certificate-{index}', run=run)
         gate.require(gate.sha256(Path(str(prefix) + '0')) == certificate, 'IPA实际签名证书与已验证P12不一致')
     return dict(ipaSha256=gate.sha256(path), bytes=path.stat().st_size,
                 bundleId=BUNDLE, widgetBundleId=WIDGET, appVersion=context['appVersion'],
@@ -587,7 +599,9 @@ def app_store_preflight(client, context):
 
 def upload():
     context = context_read()
-    gate.require(context['status'] == 'published' and context['mode'] == 'testflight', 'TestFlight需显式选择testflight且IPA已发布')
+    expected = 'verified' if context.get('atomic') else 'published'
+    gate.require(context['status'] == expected and context['mode'] == 'testflight',
+                 'TestFlight需已签名验包；私有原子候选不得提前发布')
     run = Path(context['run'])
     key_dir = run / 'api'
     key_dir.mkdir(mode=0o700,exist_ok=True)
@@ -638,7 +652,8 @@ def upload():
                   workflowRun=os.environ['GITHUB_RUN_ID'])
     receipt_name = f'ios-testflight-{context["buildNumber"]}.json'
     payload = json.dumps(record,ensure_ascii=False,indent=2).encode()
-    beta.GitHub().upload(context['releaseId'],receipt_name,payload)
+    if not context.get('atomic'):
+        beta.GitHub().upload(context['releaseId'],receipt_name,payload)
     (Path(context['dist'])/receipt_name).write_bytes(payload)
     context.update(status='testflight-processed',testflight=record)
     context_write(context)
