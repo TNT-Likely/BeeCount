@@ -16,8 +16,9 @@ void main() {
   ];
   Finder chip(String name) =>
       find.widgetWithText(RecordingSubcategoryChip, name);
-  Future<void> open(WidgetTester t, double width, double scale) async {
-    String? selected = labels.first;
+  Future<void> open(WidgetTester t, double width, double scale,
+      {List<String> names = labels}) async {
+    String? selected = names.first;
     await t.pumpWidget(MaterialApp(
         theme: beeTheme(
             brightness: scale > 1 ? Brightness.dark : Brightness.light),
@@ -32,7 +33,7 @@ void main() {
                         child: StatefulBuilder(
                             builder: (context, update) =>
                                 RecordingSubcategoryGrid(
-                                    items: labels
+                                    items: names
                                         .map((name) => BeeCategoryChoice(
                                             id: name,
                                             label: name,
@@ -63,7 +64,7 @@ void main() {
       expect(t.takeException(), isNull);
     });
     for (final scale in [1.0, 1.4]) {
-      testWidgets('长名称完整换行，选择不跳格，禁用与图标保留 $width/$scale', (t) async {
+      testWidgets('兼容历史导入超长名称：完整换行、选择不跳格、禁用与图标保留 $width/$scale', (t) async {
         await open(t, width, scale);
         final before = {for (final name in labels) name: t.getRect(chip(name))};
         await t.tap(chip('工作日午餐'));
@@ -83,6 +84,31 @@ void main() {
             find.descendant(
                 of: chip(labels[6]), matching: find.byType(BeeLineIcon)),
             findsOneWidget);
+        expect(t.takeException(), isNull);
+      });
+    }
+  }
+  for (final width in [244.0, 320.0]) {
+    for (final scale in [1.0, 1.4]) {
+      testWidgets('合法十字符分类占两格并完整可选 $width/$scale', (t) async {
+        const maximum = '十字分类名称边界检查';
+        expect(maximum.length, 10);
+        await open(t, width, scale,
+            names: const ['咖啡', '奶茶', '果汁', '酒水', maximum]);
+        // 大字体时两字短名也可能占两格，按四列契约计算基准格宽。
+        final cell = (width - 3 * RecordingSubcategoryGrid.spacing) / 4;
+        expect(t.getSize(chip(maximum)).width,
+            closeTo(cell * 2 + RecordingSubcategoryGrid.spacing, .1));
+        final bounds = t.getRect(chip(maximum));
+        await t.tap(chip(maximum));
+        await t.pumpAndSettle();
+        expect(
+            t.widget<RecordingSubcategoryChip>(chip(maximum)).selected, isTrue);
+        expect(t.getRect(chip(maximum)), bounds);
+        final text = t.widget<Text>(
+            find.descendant(of: chip(maximum), matching: find.text(maximum)));
+        expect(text.maxLines, isNull);
+        expect(text.overflow, isNot(TextOverflow.ellipsis));
         expect(t.takeException(), isNull);
       });
     }
