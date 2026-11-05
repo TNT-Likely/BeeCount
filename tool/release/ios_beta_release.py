@@ -78,7 +78,7 @@ def api_key():
             value = base64.b64decode(b''.join(value.split()), validate=True)
         except ValueError:
             raise gate.GateError('App Store Connect私钥须为PKCS8 PEM或其Base64') from None
-    value = value.replace(b'\\r\\n', b'\n').replace(b'\\n', b'\n').replace(b'\r\n', b'\n').strip() + b'\n'
+    value = value.replace(b'\\r\\n', b'\n').replace(b'\\n', b'\n').replace(b'\r\n', b'\n').strip()
     gate.require(re.fullmatch(rb'-----BEGIN PRIVATE KEY-----\s+[A-Za-z0-9+/=\s]+-----END PRIVATE KEY-----\s*', value) is not None
                  and len(value) <= 16384, 'App Store Connect私钥格式无效；需要完整PKCS8 .p8内容，不能填文件名或其他凭据')
     return value
