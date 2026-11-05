@@ -23,6 +23,7 @@ class AccountDetailController extends ChangeNotifier {
   ({double balance, double income, double expense}) stats =
       (balance: 0, income: 0, expense: 0);
   bool loading = true, loadingMore = false, hasMore = true, _disposed = false;
+  bool hasLoaded = false;
   Object? error;
   int _generation = 0;
   static const pageSize = 50;
@@ -81,6 +82,7 @@ class AccountDetailController extends ChangeNotifier {
         }
         history = months.values.toList();
       }
+      hasLoaded = true;
       loading = false;
       loadingMore = false;
       hasMore = nextRows.length == pageSize;

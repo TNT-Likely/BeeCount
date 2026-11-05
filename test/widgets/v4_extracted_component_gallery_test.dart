@@ -74,7 +74,9 @@ void main() {
     await t.tap(screenshot);
     await t.pumpAndSettle();
     expect(find.byType(BeePromotionGallery), findsOneWidget);
-    await t.tap(find.byIcon(Icons.close));
+    await t.tap(find.descendant(
+        of: find.byType(BeePromotionGallery),
+        matching: find.byIcon(Icons.close)));
     await t.pumpAndSettle();
     expect(find.byType(BeePromotionGallery), findsNothing);
     expect(find.byType(BeePromotionDialog), findsOneWidget);

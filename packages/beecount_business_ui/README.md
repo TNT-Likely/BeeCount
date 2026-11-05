@@ -41,3 +41,7 @@ App 内验收：[ComponentGalleryPage](../../lib/dev/component_gallery/component
 `share_posters.dart` 新增 `BeeAnnualReportPoster`、`BeeAnnualPosterChapter`、`BeeAnnualPosterMoment`：完整年度海报章节和间距在业务包，宿主提供已本地化、格式化、隐藏收入处理后的值及页眉页脚。账本年度范围、已发生天/月分母、汇率和原币交易投影仍只在 App 计算；预览和导出使用相同模型。
 
 HTML 设计目录：[BeeCount-Design/card-refresh](https://github.com/TNT-Likely/BeeCount-Design/tree/main/card-refresh)。App 验证使用随源码提交的小型契约，不要求检出设计仓。
+
+`BeeSupportBrand` 使用紧凑品牌行与居中的主张、介绍，开发者故事、开源、推荐与社交平台均由宿主注入。`BeeSupportBanner` 承载支持入口；`BeePromotionCard` 使用原色标志、轻量品牌光晕和受控的资产柱形／网络装饰，`BeePromotionDialog` 复用统一弹窗，商店、官网、邮件及截图回调保持原有职责。
+
+交易行先决定优先两行、最多三行的布局，再将各行余宽分给账户、账本和标签。仅有一个长名称时不再受105/84px固定上限截断；复杂组合仍保留折算、时间和文字状态，必要时通过明确的更多项入口查看。

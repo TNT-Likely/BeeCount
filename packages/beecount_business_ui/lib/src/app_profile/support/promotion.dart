@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:beecount_ui/beecount_ui.dart';
+
+enum BeePromotionVisual { bars, network }
 
 /// Presentation data only; store URLs, mail templates and launch policy stay App-side.
 class BeePromotionData {
@@ -9,10 +12,12 @@ class BeePromotionData {
       required this.introBody,
       required this.brandColor,
       required this.contactEmail,
-      this.screenshotAssets = const []});
+      this.screenshotAssets = const [],
+      this.visual = BeePromotionVisual.bars});
   final String logoAsset, title, subtitle, introBody, contactEmail;
   final Color brandColor;
   final List<String> screenshotAssets;
+  final BeePromotionVisual visual;
 }
 
 class BeePromotionTexts {
@@ -57,178 +62,143 @@ class BeePromotionDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final ctx = context;
     final themeColor = Theme.of(context).colorScheme.primary;
-    return AlertDialog(
-      // TF+商店并排那一支 actions 只剩一个"前往官网",居中放视觉更平衡;
-      // 其他场景仍是 [官网] + [商店/邮箱] 两个按钮,默认 end 对齐就好
-      actionsAlignment:
-          dualStore ? MainAxisAlignment.center : MainAxisAlignment.end,
-      contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
-      // SizedBox(width: maxFinite) 给 ScrollView 显式 width,否则下面
-      // Image.asset 用 width: infinity + fitWidth 时 layout 算不出来,
-      // 弹窗会渲染成空阴影。
+    return BeeDialog(
+      title: Row(children: [
+        _ProductLogo(
+            asset: info.logoAsset,
+            color: info.brandColor,
+            size: 42,
+            radius: 10),
+        const SizedBox(width: 12),
+        Expanded(
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(info.title,
+              style:
+                  const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+          const SizedBox(height: 2),
+          Text(info.subtitle,
+              style: TextStyle(
+                  fontSize: 11,
+                  color: Theme.of(ctx).colorScheme.onSurfaceVariant)),
+        ])),
+      ]),
       content: SizedBox(
         width: double.maxFinite,
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // 产品标题区:logo + 标题 + 副标
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // 产品介绍正文
+            Text(
+              info.introBody,
+              style: TextStyle(
+                fontSize: 14,
+                height: 1.55,
+                color: Theme.of(ctx).colorScheme.onSurface,
+              ),
+            ),
+            // 产品截图缩略图(横向 Row,9:16 手机比例),点击全屏预览。
+            if (info.screenshotAssets.isNotEmpty) ...[
+              const SizedBox(height: 14),
               Row(
                 children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: Image.asset(
-                      info.logoAsset,
-                      width: 44,
-                      height: 44,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Icon(
-                        Icons.apps_rounded,
-                        color: info.brandColor,
-                        size: 28,
+                  for (var i = 0; i < info.screenshotAssets.length; i++) ...[
+                    if (i > 0) const SizedBox(width: 10),
+                    Expanded(
+                      child: BeePromotionScreenshot(
+                        asset: info.screenshotAssets[i],
+                        onPressed: () => onScreenshot(i),
                       ),
                     ),
+                  ],
+                ],
+              ),
+            ],
+            // 未上架时:展开内测说明 + 邮箱卡
+            if (!hasStore) ...[
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color:
+                      Theme.of(ctx).colorScheme.surface.withValues(alpha: 0.5),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: themeColor.withValues(alpha: 0.15),
                   ),
-                  const SizedBox(width: 12),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      texts.betaDialogTitle,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: themeColor,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      texts.betaDialogMessage,
+                      style: TextStyle(
+                        fontSize: 12,
+                        height: 1.5,
+                        color: Theme.of(ctx).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+              _CopyableEmailRow(
+                email: info.contactEmail,
+                label: texts.emailLabel,
+                accentColor: themeColor,
+                onCopied: onCopyEmail,
+              ),
+            ],
+            // iOS + 有 TestFlight URL + 已上架:把 [TestFlight 内测] 和
+            // [前往应用商店] 并排放进 content 顶部第一排;[前往官网] 落到
+            // 下面的 actions 区单独成第二排。
+            // 视觉上"两个分发渠道"同权,官网作为可选辅助。
+            if (dualStore) ...[
+              const SizedBox(height: 18),
+              Row(
+                children: [
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          info.title,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                          ),
+                    child: OutlinedButton(
+                      onPressed: onTestFlight,
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: themeColor,
+                        side: BorderSide(color: themeColor),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
                         ),
-                        const SizedBox(height: 2),
-                        Text(
-                          info.subtitle,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Theme.of(ctx).colorScheme.onSurfaceVariant,
-                          ),
+                      ),
+                      child: Text(texts.testFlightButton),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: FilledButton(
+                      onPressed: onStore,
+                      style: FilledButton.styleFrom(
+                        backgroundColor: themeColor,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
                         ),
-                      ],
+                      ),
+                      child: Text(texts.openStoreButton),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
-              // 产品介绍正文
-              Text(
-                info.introBody,
-                style: TextStyle(
-                  fontSize: 14,
-                  height: 1.55,
-                  color: Theme.of(ctx).colorScheme.onSurface,
-                ),
-              ),
-              // 产品截图缩略图(横向 Row,9:16 手机比例),点击全屏预览。
-              if (info.screenshotAssets.isNotEmpty) ...[
-                const SizedBox(height: 14),
-                Row(
-                  children: [
-                    for (var i = 0; i < info.screenshotAssets.length; i++) ...[
-                      if (i > 0) const SizedBox(width: 10),
-                      Expanded(
-                        child: BeePromotionScreenshot(
-                          asset: info.screenshotAssets[i],
-                          onPressed: () => onScreenshot(i),
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ],
-              // 未上架时:展开内测说明 + 邮箱卡
-              if (!hasStore) ...[
-                const SizedBox(height: 16),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Theme.of(ctx)
-                        .colorScheme
-                        .surface
-                        .withValues(alpha: 0.5),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                      color: themeColor.withValues(alpha: 0.15),
-                    ),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        texts.betaDialogTitle,
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: themeColor,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        texts.betaDialogMessage,
-                        style: TextStyle(
-                          fontSize: 12,
-                          height: 1.5,
-                          color: Theme.of(ctx).colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 12),
-                _CopyableEmailRow(
-                  email: info.contactEmail,
-                  label: texts.emailLabel,
-                  accentColor: themeColor,
-                  onCopied: onCopyEmail,
-                ),
-              ],
-              // iOS + 有 TestFlight URL + 已上架:把 [TestFlight 内测] 和
-              // [前往应用商店] 并排放进 content 顶部第一排;[前往官网] 落到
-              // 下面的 actions 区单独成第二排。
-              // 视觉上"两个分发渠道"同权,官网作为可选辅助。
-              if (dualStore) ...[
-                const SizedBox(height: 18),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: onTestFlight,
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: themeColor,
-                          side: BorderSide(color: themeColor),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                        child: Text(texts.testFlightButton),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: FilledButton(
-                        onPressed: onStore,
-                        style: FilledButton.styleFrom(
-                          backgroundColor: themeColor,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                        child: Text(texts.openStoreButton),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
             ],
-          ),
+          ],
         ),
       ),
       actions: [
@@ -463,127 +433,106 @@ class _CopyableEmailRow extends StatelessWidget {
   }
 }
 
-class BeePromotionCard extends StatefulWidget {
+class BeePromotionCard extends StatelessWidget {
+  const BeePromotionCard(
+      {super.key, required this.info, required this.onOpen, this.detailsLabel});
   final BeePromotionData info;
   final VoidCallback onOpen;
-
-  const BeePromotionCard({
-    super.key,
-    required this.info,
-    required this.onOpen,
-  });
-
+  final String? detailsLabel;
   @override
-  State<BeePromotionCard> createState() => _BeePromotionCardState();
+  Widget build(BuildContext context) => Semantics(
+      button: true,
+      child: GestureDetector(
+          onTap: onOpen,
+          child: BeeSurface(
+              padding: const EdgeInsets.fromLTRB(14, 13, 12, 13),
+              background: DecoratedBox(
+                  decoration: BoxDecoration(
+                      color: BeeCardTheme.of(context).surface,
+                      gradient: RadialGradient(
+                          center: Alignment.topRight,
+                          radius: 1.1,
+                          colors: [
+                            info.brandColor.withValues(alpha: .12),
+                            Colors.transparent
+                          ]))),
+              child: Row(children: [
+                _ProductLogo(
+                    asset: info.logoAsset,
+                    color: info.brandColor,
+                    size: 42,
+                    radius: 12),
+                const SizedBox(width: 11),
+                Expanded(
+                    child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                      Text(info.title,
+                          style: const TextStyle(
+                              fontSize: 14, fontWeight: FontWeight.w600)),
+                      const SizedBox(height: 5),
+                      Text(info.subtitle,
+                          style: TextStyle(
+                              fontSize: 11,
+                              height: 1.5,
+                              color: Theme.of(context).hintColor)),
+                      if (detailsLabel != null) ...[
+                        const SizedBox(height: 7),
+                        Row(children: [
+                          Flexible(
+                              child: Text(detailsLabel!,
+                                  style: TextStyle(
+                                      fontSize: 10,
+                                      color: Theme.of(context).brightness ==
+                                              Brightness.dark
+                                          ? const Color(0xffccae51)
+                                          : const Color(0xff927724)))),
+                          const BeeLineIcon('ChevronRight', size: 11)
+                        ]),
+                      ],
+                    ])),
+                const SizedBox(width: 6),
+                ExcludeSemantics(
+                    child: CustomPaint(
+                        size: const Size(48, 60),
+                        painter: _PromotionMark(info.brandColor, info.visual))),
+              ]))));
 }
 
-class _BeePromotionCardState extends State<BeePromotionCard>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _scaleAnimation;
-  late Animation<double> _fadeAnimation;
-  bool _isPressed = false;
-
+class _PromotionMark extends CustomPainter {
+  const _PromotionMark(this.color, this.visual);
+  final Color color;
+  final BeePromotionVisual visual;
   @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 600),
-      vsync: this,
-    );
-    _scaleAnimation = Tween<double>(begin: 0.95, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOutBack),
-    );
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-    );
-    Future.delayed(const Duration(milliseconds: 200), () {
-      if (mounted) _controller.forward();
-    });
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()..color = color.withValues(alpha: .5);
+    if (visual == BeePromotionVisual.bars) {
+      const heights = [15.0, 23.0, 33.0, 44.0];
+      for (var i = 0; i < heights.length; i++) {
+        canvas.drawRRect(
+            RRect.fromRectAndRadius(
+                Rect.fromLTWH(i * 12, 50 - heights[i], 8, heights[i]),
+                const Radius.circular(3)),
+            paint);
+      }
+    } else {
+      const nodes = [Offset(7, 12), Offset(38, 23), Offset(12, 47)];
+      paint
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.2;
+      for (var i = 0; i < 3; i++) {
+        canvas.drawLine(nodes[i], nodes[(i + 1) % 3], paint);
+      }
+      paint.style = PaintingStyle.fill;
+      for (final node in nodes) {
+        canvas.drawCircle(node, 5, paint);
+      }
+    }
   }
 
   @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final color = widget.info.brandColor;
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) {
-        return Transform.scale(
-          scale: _scaleAnimation.value,
-          child: Opacity(opacity: _fadeAnimation.value, child: child),
-        );
-      },
-      child: GestureDetector(
-        onTapDown: (_) => setState(() => _isPressed = true),
-        onTapUp: (_) => setState(() => _isPressed = false),
-        onTapCancel: () => setState(() => _isPressed = false),
-        onTap: widget.onOpen,
-        child: AnimatedScale(
-          scale: _isPressed ? 0.98 : 1.0,
-          duration: const Duration(milliseconds: 100),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  color.withValues(alpha: 0.12),
-                  color.withValues(alpha: 0.05),
-                ],
-              ),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: color.withValues(alpha: 0.3), width: 1),
-            ),
-            child: Row(
-              children: [
-                _ProductLogo(
-                    asset: widget.info.logoAsset,
-                    color: color,
-                    size: 52,
-                    radius: 12),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        widget.info.title,
-                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                              fontWeight: FontWeight.w600,
-                              color: color,
-                            ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        widget.info.subtitle,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSurfaceVariant,
-                            ),
-                      ),
-                    ],
-                  ),
-                ),
-                Icon(
-                  Icons.arrow_forward_ios_rounded,
-                  color: color.withValues(alpha: 0.6),
-                  size: 16,
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+  bool shouldRepaint(_PromotionMark oldDelegate) =>
+      oldDelegate.color != color || oldDelegate.visual != visual;
 }
 
 // ============================================================================

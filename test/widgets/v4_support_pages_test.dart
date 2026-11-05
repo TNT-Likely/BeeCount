@@ -318,6 +318,11 @@ void main() {
     await host(t, const AboutPage());
     await t.pumpAndSettle();
     expect(find.text('dev-9.0.0 (QA)'), findsOneWidget);
+    expect(
+        t
+            .widget<Text>(find.byKey(const ValueKey('support-headline')))
+            .textAlign,
+        TextAlign.center);
     expect(find.byKey(const ValueKey('support-gallery')), findsOneWidget);
     await tap(t, const ValueKey('support-story'));
     expect(find.text(l.aboutDeveloperStory), findsOneWidget);

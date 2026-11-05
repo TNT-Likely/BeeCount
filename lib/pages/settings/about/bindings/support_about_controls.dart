@@ -1,5 +1,7 @@
 import '../../../report/share/bindings/share_card_controls.dart';
 import 'package:beecount_business_ui/support.dart';
+import 'package:beecount_business_ui/beecount_business_ui.dart'
+    show BeePromotionCard, BeePromotionData;
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
@@ -101,14 +103,15 @@ class _SupportAboutControlsState extends ConsumerState<SupportAboutControls> {
     ];
     return SupportFrame(
         title: l.aboutPageTitle,
-        subtitle: l.aboutPageSubtitle,
         body: BeePageBody(eager: true, children: [
           BeeSupportBrand(
-              logo: BeeIcon(color: primary, size: 80),
+              logo: BeeIcon(color: primary, size: 57),
               title: l.appName,
               version: version ??
                   (versionFailed ? l.commonError : l.aboutPageLoadingVersion),
               onStory: _story,
+              headline: l.aboutBrandStatement,
+              storyLabel: l.aboutDeveloperStoryTitle,
               description: l.v4SharePosterOpenSourceBody,
               tag: '${l.appPromoTagOpenSource} · ${l.appPromoTagFree}',
               sourceLabel: l.v4SharePosterOpenSourceAction,
@@ -132,6 +135,7 @@ class _SupportAboutControlsState extends ConsumerState<SupportAboutControls> {
                     'https://v.douyin.com/YG7tUweYYyQ/',
                     asset: 'assets/icons/social/douyin.svg'),
               ]),
+          BeeSectionLabel(l.aboutHelpSupport),
           BeeSupportActions(actions: [
             if (!platform.isIOS && !platform.isGooglePlay)
               BeeSupportAction(
@@ -172,14 +176,6 @@ class _SupportAboutControlsState extends ConsumerState<SupportAboutControls> {
                                       : UpdateProgress.active(value, status));
                         }),
             BeeSupportAction(
-                key: const ValueKey('support-development'),
-                title: l.aboutSupportDevelopment,
-                subtitle: l.aboutSupportDevelopmentSubtitle,
-                leading: const BeeLineIcon('Heart'),
-                onTap: () => open(locale.languageCode == 'zh'
-                    ? 'https://github.com/TNT-Likely/BeeCount/blob/main/docs/donate/README_ZH.md'
-                    : 'https://github.com/TNT-Likely/BeeCount/blob/main/docs/donate/README_EN.md')),
-            BeeSupportAction(
                 key: const ValueKey('support-feedback'),
                 title: l.mineFeedback,
                 subtitle: l.mineFeedbackSubtitle,
@@ -187,12 +183,24 @@ class _SupportAboutControlsState extends ConsumerState<SupportAboutControls> {
                 onTap: () =>
                     open('https://github.com/TNT-Likely/BeeCount/issues')),
             BeeSupportAction(
+                key: const ValueKey('support-help'),
+                title: l.mineHelp,
+                leading: const BeeLineIcon('BookOpen'),
+                onTap: () => _page(const HelpCenterPage())),
+            BeeSupportAction(
                 key: const ValueKey('support-logs'),
                 title: l.logCenterTitle,
                 subtitle: l.logCenterSubtitle,
                 leading: const BeeLineIcon('Bug'),
                 onTap: () => _page(const LogCenterPage())),
           ]),
+          BeeSupportBanner(
+              key: const ValueKey('support-development'),
+              title: l.aboutSupportDevelopment,
+              description: l.aboutSupportDevelopmentSubtitle,
+              onTap: () => open(locale.languageCode == 'zh'
+                  ? 'https://github.com/TNT-Likely/BeeCount/blob/main/docs/donate/README_ZH.md'
+                  : 'https://github.com/TNT-Likely/BeeCount/blob/main/docs/donate/README_EN.md')),
           if (kDebugMode)
             BeeSupportActions(actions: [
               BeeSupportAction(
@@ -202,21 +210,22 @@ class _SupportAboutControlsState extends ConsumerState<SupportAboutControls> {
                   leading: const BeeLineIcon('PanelsTopLeft'),
                   onTap: () => _page(const ComponentGalleryPage()))
             ]),
-          BeeSupportText(title: l.aboutRelatedProducts, children: [
-            const SizedBox(height: 8),
-            for (final product in products)
-              BeeMenuRow(
-                  key: ValueKey('support-product-${product.$1.appStoreId}'),
-                  title: product.$1.title,
-                  subtitle: product.$1.subtitle,
-                  leading: ClipRRect(
-                      borderRadius: BorderRadius.circular(7),
-                      child: Image.asset(product.$1.logoAsset,
-                          errorBuilder: (_, error, stack) =>
-                              const BeeLineIcon('PanelsTopLeft'))),
-                  onTap: () =>
-                      platform.product(context, product.$1, product.$2))
-          ]),
+          BeeSectionLabel(l.aboutRelatedProducts),
+          for (final product in products)
+            BeePromotionCard(
+                key: ValueKey('support-product-${product.$1.appStoreId}'),
+                info: BeePromotionData(
+                    logoAsset: product.$1.logoAsset,
+                    title: product.$1.title,
+                    subtitle: product.$1.subtitle,
+                    introBody: product.$1.introBody,
+                    brandColor: product.$1.brandColor,
+                    contactEmail: product.$1.contactEmail,
+                    screenshotAssets: product.$1.screenshotAssets,
+                    visual: product.$1.visual),
+                detailsLabel: l.aboutProductDetails,
+                onOpen: () =>
+                    platform.product(context, product.$1, product.$2)),
           Wrap(alignment: WrapAlignment.center, spacing: 8, children: [
             TextButton(
                 key: const ValueKey('support-changelog'),

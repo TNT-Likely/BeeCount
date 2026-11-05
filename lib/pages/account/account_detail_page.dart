@@ -90,7 +90,7 @@ class _AccountDetailPageState extends ConsumerState<AccountDetailPage>
                           onPressed: () => _perform(_menu))
                     ]),
                 Expanded(
-                    child: c.error != null && c.rows.isEmpty
+                    child: c.error != null && !c.hasLoaded
                         ? Center(
                             child: BeeStatus(
                                 label: l.commonError,
@@ -98,9 +98,10 @@ class _AccountDetailPageState extends ConsumerState<AccountDetailPage>
                                 action: BeeButton(
                                     label: l.v4RecordingRetry,
                                     onPressed: _refresh)))
-                        : c.loading && c.rows.isEmpty
+                        : c.loading && !c.hasLoaded
                             ? const Center(child: CircularProgressIndicator())
                             : ListView.builder(
+                                key: const ValueKey('account-detail-content'),
                                 controller: _scroll,
                                 padding:
                                     const EdgeInsets.fromLTRB(17, 4, 17, 28),

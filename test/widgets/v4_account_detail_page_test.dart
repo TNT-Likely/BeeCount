@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:beecount/data/db.dart';
 import 'package:beecount/pages/account/detail/controllers/account_detail_controller.dart';
 import 'package:beecount/services/currency/exchange_rate_service.dart';
@@ -28,6 +29,7 @@ class _LocalRates extends ExchangeRateService {
 class AccountDetailTestRepository extends LocalRepository {
   AccountDetailTestRepository(super.db);
   bool failPageOnce = false;
+  Completer<void>? pageGate;
   @override
   Future<List<Transaction>> getAccountTransactions(int id,
       {int limit = 50,
@@ -37,7 +39,8 @@ class AccountDetailTestRepository extends LocalRepository {
       DateTime? endExclusive,
       String query = '',
       bool ascending = false,
-      bool orderByAmount = false}) {
+      bool orderByAmount = false}) async {
+    await pageGate?.future;
     if (failPageOnce) {
       failPageOnce = false;
       throw StateError('Synthetic page error');
@@ -162,6 +165,31 @@ void main() {
   List<BeeTransactionRow> rows(WidgetTester tester) => tester
       .widgetList<BeeTransactionRow>(find.byType(BeeTransactionRow))
       .toList();
+
+  testWidgets('空月份切换全部时保留整页与滚动树，加载结束原位更新', (tester) async {
+    await tx(
+        type: 'expense',
+        amount: 12,
+        from: cash,
+        category: food,
+        at: DateTime(currentMonth.year, currentMonth.month - 1, 12));
+    await open(tester, cash);
+    expect(model(tester).rows, isEmpty);
+    final content = find.byKey(const ValueKey('account-detail-content'));
+    final element = tester.element(content);
+    repo.pageGate = Completer<void>();
+    final pending = model(tester).choosePeriod('all');
+    await tester.pump();
+    expect(model(tester).loading, isTrue);
+    expect(tester.element(content), same(element));
+    expect(find.text('日常现金'), findsWidgets);
+    repo.pageGate!.complete();
+    await tester.runAsync(() => pending);
+    await tester.pumpAndSettle();
+    expect(model(tester).rows, hasLength(1));
+    expect(tester.element(content), same(element));
+    expect(tester.takeException(), isNull);
+  });
 
   testWidgets('账户主卡类型与币种只在名称下展示一次，底部保留净资产和账本', (tester) async {
     await open(tester, cash);

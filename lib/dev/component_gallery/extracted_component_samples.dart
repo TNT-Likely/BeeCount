@@ -130,7 +130,7 @@ class _PromotionComponentsState extends State<PromotionComponentsSample> {
       Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         Text(event, key: const ValueKey('promotion-sample-event')),
         const SizedBox(height: 8),
-        BeePromotionCard(info: info, onOpen: details),
+        BeePromotionCard(info: info, onOpen: details, detailsLabel: '了解这款产品'),
         const SizedBox(height: 10),
         BeePromotionCompact(info: info, onOpen: details),
         const SizedBox(height: 10),

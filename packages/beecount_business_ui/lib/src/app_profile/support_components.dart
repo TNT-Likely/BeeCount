@@ -1,4 +1,3 @@
-import 'package:beecount_ui/card_frame.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';
 
@@ -79,6 +78,8 @@ class BeeSupportBrand extends StatelessWidget {
       required this.onStory,
       required this.socials,
       this.description,
+      this.headline,
+      this.storyLabel,
       this.tag,
       this.sourceLabel,
       this.recommendLabel,
@@ -88,106 +89,178 @@ class BeeSupportBrand extends StatelessWidget {
   final String title, version;
   final VoidCallback onStory;
   final List<BeeSupportAction> socials;
-  final String? description, tag, sourceLabel, recommendLabel;
+  final String? description,
+      headline,
+      storyLabel,
+      tag,
+      sourceLabel,
+      recommendLabel;
   final VoidCallback? onSource, onRecommend;
   @override
-  Widget build(BuildContext context) => Column(children: [
-        BeeCardFrame(
-            padding: const EdgeInsets.fromLTRB(20, 22, 20, 20),
+  Widget build(BuildContext context) =>
+      Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        Padding(
+            padding: const EdgeInsets.fromLTRB(3, 5, 3, 0),
             child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Center(
-                      child: InkResponse(
-                          key: const ValueKey('support-story'),
-                          onTap: onStory,
-                          radius: 38,
-                          child: SizedBox(width: 64, height: 64, child: logo))),
-                  const SizedBox(height: 12),
-                  Text(title,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                          fontSize: 22, fontWeight: FontWeight.w700)),
-                  const SizedBox(height: 8),
-                  Wrap(
-                      alignment: WrapAlignment.center,
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      spacing: 8,
-                      runSpacing: 6,
-                      children: [
-                        Text(version,
-                            style: TextStyle(
-                                fontSize: 11,
-                                color: Theme.of(context).hintColor)),
-                        if (tag != null)
-                          Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 3),
-                              decoration: BoxDecoration(
-                                  color: BeeCardTheme.of(context).soft,
-                                  borderRadius: BorderRadius.circular(99)),
-                              child: Text(tag!,
-                                  style: TextStyle(
-                                      fontSize: 10,
-                                      color: Theme.of(context).hintColor)))
-                      ]),
+                  Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                    InkWell(
+                        key: const ValueKey('support-story'),
+                        onTap: onStory,
+                        borderRadius: BorderRadius.circular(16),
+                        child: SizedBox(width: 58, height: 58, child: logo)),
+                    const SizedBox(width: 12),
+                    Flexible(
+                        child: Column(children: [
+                      Text(title,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                              fontSize: 22, fontWeight: FontWeight.w700)),
+                      const SizedBox(height: 4),
+                      Wrap(
+                          alignment: WrapAlignment.center,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          spacing: 8,
+                          runSpacing: 4,
+                          children: [
+                            Text(version,
+                                style: TextStyle(
+                                    fontSize: 11,
+                                    color: Theme.of(context).hintColor)),
+                            if (tag != null)
+                              Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 5, vertical: 2),
+                                  decoration: BoxDecoration(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .primary
+                                          .withValues(alpha: .12),
+                                      borderRadius: BorderRadius.circular(5)),
+                                  child: Text(tag!,
+                                      style: TextStyle(
+                                          fontSize: 9,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onSurfaceVariant))),
+                          ]),
+                    ])),
+                  ]),
+                  if (headline != null) ...[
+                    const SizedBox(height: 16),
+                    Text(headline!,
+                        key: const ValueKey('support-headline'),
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w600,
+                            height: 1.6)),
+                  ],
                   if (description != null) ...[
-                    const SizedBox(height: 14),
+                    const SizedBox(height: 5),
                     Text(description!,
                         textAlign: TextAlign.center,
                         style: TextStyle(
                             fontSize: 12,
-                            height: 1.7,
-                            color: Theme.of(context).hintColor))
+                            height: 1.8,
+                            color: Theme.of(context).hintColor)),
                   ],
+                  if (storyLabel != null)
+                    Align(
+                        alignment: Alignment.center,
+                        child: TextButton(
+                            onPressed: onStory,
+                            style: TextButton.styleFrom(
+                                minimumSize: const Size(44, 32),
+                                foregroundColor: Theme.of(context).hintColor),
+                            child:
+                                Row(mainAxisSize: MainAxisSize.min, children: [
+                              Flexible(
+                                  child: Text(storyLabel!,
+                                      style: const TextStyle(fontSize: 11))),
+                              const BeeLineIcon('ChevronRight', size: 12),
+                            ]))),
                   if (sourceLabel != null || recommendLabel != null) ...[
-                    const SizedBox(height: 18),
+                    const SizedBox(height: 7),
                     Row(children: [
                       if (sourceLabel != null)
                         Expanded(
                             child: BeeButton(
                                 label: sourceLabel!,
                                 kind: BeeButtonKind.secondary,
-                                icon: const BeeLineIcon('Code', size: 17),
+                                icon: const BeeLineIcon('Code', size: 16),
                                 onPressed: onSource)),
                       if (sourceLabel != null && recommendLabel != null)
-                        const SizedBox(width: 8),
+                        const SizedBox(width: 9),
                       if (recommendLabel != null)
                         Expanded(
                             child: BeeButton(
                                 label: recommendLabel!,
-                                icon: const BeeLineIcon('Share', size: 17),
-                                onPressed: onRecommend))
-                    ])
-                  ]
+                                icon: const BeeLineIcon('Share', size: 16),
+                                onPressed: onRecommend)),
+                    ]),
+                  ],
                 ])),
-        const SizedBox(height: 15),
-        Wrap(
-            alignment: WrapAlignment.center,
-            spacing: 14,
-            runSpacing: 10,
-            children: [
-              for (final action in socials)
-                SizedBox(
-                    width: 64,
-                    child: InkWell(
-                        key: action.key,
-                        onTap: action.onTap,
-                        borderRadius: BorderRadius.circular(16),
-                        child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 7),
-                            child: Column(children: [
-                              SizedBox(
-                                  width: 42,
-                                  height: 42,
-                                  child: Center(child: action.leading)),
-                              const SizedBox(height: 5),
-                              Text(action.title,
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(fontSize: 11))
-                            ]))))
-            ]),
+        const SizedBox(height: 14),
+        if (socials.isNotEmpty)
+          Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            for (final action in socials)
+              Expanded(
+                  child: InkWell(
+                      key: action.key,
+                      onTap: action.onTap,
+                      borderRadius: BorderRadius.circular(12),
+                      child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 7),
+                          child: Column(children: [
+                            SizedBox(
+                                width: 23, height: 23, child: action.leading),
+                            const SizedBox(height: 5),
+                            Text(action.title,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    fontSize: 10,
+                                    color: Theme.of(context).hintColor))
+                          ])))),
+          ]),
       ]);
+}
+
+/// A quiet, theme-aware support invitation; navigation remains host-owned.
+class BeeSupportBanner extends StatelessWidget {
+  const BeeSupportBanner(
+      {super.key,
+      required this.title,
+      required this.description,
+      required this.onTap});
+  final String title, description;
+  final VoidCallback onTap;
+  @override
+  Widget build(BuildContext context) => Material(
+      color: Theme.of(context).colorScheme.primary.withValues(alpha: .12),
+      borderRadius: BorderRadius.circular(17),
+      child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(17),
+          child: Padding(
+              padding: const EdgeInsets.all(13),
+              child: Row(children: [
+                const BeeLineIcon('Heart', size: 20),
+                const SizedBox(width: 11),
+                Expanded(
+                    child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                      Text(title, style: const TextStyle(fontSize: 12)),
+                      const SizedBox(height: 3),
+                      Text(description,
+                          style: TextStyle(
+                              fontSize: 10,
+                              color: Theme.of(context).hintColor)),
+                    ])),
+                const BeeLineIcon('ChevronRight', size: 14),
+              ]))));
 }
 
 /// The host supplies the actual platform WebView and original URL/navigation.

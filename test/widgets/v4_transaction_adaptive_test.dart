@@ -415,4 +415,39 @@ void main() {
     expect(edits, 0);
     expect(tester.takeException(), isNull);
   });
+  testWidgets('只有账户或长标签时使用空余宽度，不受固定上限截断', (tester) async {
+    const account = '招商银行家庭日常银行卡';
+    await open(
+        tester,
+        BeeTransactionRow(
+            title: '午餐',
+            onCategoryTap: () {},
+            onTap: () {},
+            amount: '−32.00',
+            kind: BeeTransactionKind.expense,
+            accountName: account,
+            icon: Icon(Icons.restaurant)));
+    expect(tester.getSize(find.text(account)).width, greaterThan(105));
+    expect(
+        tester
+            .renderObject<RenderParagraph>(find.text(account))
+            .didExceedMaxLines,
+        isFalse);
+    const tag = '旅行途中和家人一起的午餐';
+    await open(
+        tester,
+        BeeTransactionRow(
+            title: '午餐',
+            onCategoryTap: () {},
+            onTap: () {},
+            amount: '−32.00',
+            kind: BeeTransactionKind.expense,
+            tags: [BeeTagData('long', tag, Colors.orange)],
+            icon: Icon(Icons.restaurant)));
+    expect(tester.getSize(find.text(tag)).width, greaterThan(84));
+    expect(
+        tester.renderObject<RenderParagraph>(find.text(tag)).didExceedMaxLines,
+        isFalse);
+    expect(tester.takeException(), isNull);
+  });
 }

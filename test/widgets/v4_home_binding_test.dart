@@ -1,4 +1,5 @@
-import 'dart:ui' show SemanticsFlag;
+import 'dart:ui' as ui;
+import 'package:flutter/rendering.dart';
 import 'package:beecount/pages/main/home/bindings/transaction_list.dart';
 import 'package:beecount/styles/header_skins.dart';
 import 'package:visibility_detector/visibility_detector.dart';
@@ -186,6 +187,101 @@ void main() {
       expect(icon.width, 34);
       expect(tester.takeException(), isNull);
       await close(tester);
+    });
+  }
+
+  for (final dark in [false, true]) {
+    testWidgets('全部明细行只透过一层共享材质 dark=$dark', (t) async {
+      const backdrop = Color(0xff336699);
+      final boundary = GlobalKey();
+      t.view.physicalSize = const Size(398, 1000);
+      t.view.devicePixelRatio = 1;
+      addTearDown(t.view.resetPhysicalSize);
+      addTearDown(t.view.resetDevicePixelRatio);
+      final interval = VisibilityDetectorController.instance.updateInterval;
+      VisibilityDetectorController.instance.updateInterval = Duration.zero;
+      addTearDown(() =>
+          VisibilityDetectorController.instance.updateInterval = interval);
+      final recent =
+          await repo.getRecentTransactionsWithCategory(ledgerId: 1, limit: 20);
+      final details = recent
+          .map((row) => (
+                t: row.t,
+                category: row.category,
+                account: row.account,
+                toAccount: row.toAccount,
+                tags: <Tag>[],
+                attachmentCount: 0,
+                accountName: row.account?.name,
+                toAccountName: row.toAccount?.name,
+              ))
+          .toList();
+      final list = TransactionList(
+          transactionsWithDetails: details,
+          flatSurface: true,
+          hideAmounts: false,
+          ledgerId: 1);
+      final page = Center(
+          child: SizedBox(
+              width: 364, height: 300, child: BeeSurface(child: list)));
+      final material = BeePageMaterial(enabled: true, child: page);
+      final imageHost = RepaintBoundary(
+          key: boundary, child: ColoredBox(color: backdrop, child: material));
+      await t.pumpWidget(UncontrolledProviderScope(
+          container: container,
+          child: MaterialApp(
+              theme: beeTheme(
+                  brightness: dark ? Brightness.dark : Brightness.light),
+              locale: const Locale('zh'),
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              supportedLocales: AppLocalizations.supportedLocales,
+              home: imageHost)));
+      await t.pumpAndSettle();
+      for (var i = 0;
+          i < 40 &&
+              find
+                  .byType(BeeTransactionRow, skipOffstage: false)
+                  .evaluate()
+                  .isEmpty;
+          i++) {
+        await t.runAsync(
+            () => Future<void>.delayed(const Duration(milliseconds: 10)));
+        await t.pump(const Duration(milliseconds: 16));
+      }
+      final row = find.byType(BeeTransactionRow, skipOffstage: false).first;
+      final tile = find
+          .ancestor(
+              of: row,
+              matching: find.byWidgetPredicate(
+                  (w) => w is Container && w.key.toString().contains('tx-'),
+                  skipOffstage: false))
+          .first;
+      expect((t.widget<Container>(tile).decoration! as BoxDecoration).color,
+          Colors.transparent);
+      final origin = t.getTopLeft(find.byKey(boundary));
+      final rect = t.getRect(tile).shift(-origin);
+      final surface = BeeCardTheme.of(t.element(row)).surface;
+      final expected = Color.alphaBlend(surface, backdrop);
+      final color = await t.runAsync(() async {
+        final box = boundary.currentContext!.findRenderObject()!
+            as RenderRepaintBoundary;
+        final image = await box.toImage(pixelRatio: 1);
+        final bytes =
+            (await image.toByteData(format: ui.ImageByteFormat.rawRgba))!
+                .buffer
+                .asUint8List();
+        final offset =
+            (rect.center.dy.floor() * image.width + rect.left.floor() + 39) * 4;
+        final value = Color.fromARGB(bytes[offset + 3], bytes[offset],
+            bytes[offset + 1], bytes[offset + 2]);
+        image.dispose();
+        return value;
+      });
+      expect((color!.r - expected.r).abs(), lessThanOrEqualTo(1 / 255));
+      expect((color.g - expected.g).abs(), lessThanOrEqualTo(1 / 255));
+      expect((color.b - expected.b).abs(), lessThanOrEqualTo(1 / 255));
+      expect(t.takeException(), isNull);
+      await close(t);
     });
   }
 

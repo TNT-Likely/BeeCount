@@ -14,6 +14,7 @@ class TransactionRowMetrics {
     this.readOnly = 0,
     this.statuses = const [],
     this.tags = const [0, 0, 0],
+    this.naturalTags = const [],
     required this.moreLabelWidth,
   });
   final double amount, minimumTitle;
@@ -22,6 +23,7 @@ class TransactionRowMetrics {
 
   /// Width for zero, one and two visible labels, including the +N remainder.
   final List<double> tags;
+  final List<double> naturalTags;
   final double Function(int count) moreLabelWidth;
 }
 
@@ -105,6 +107,30 @@ TransactionRowPlan planTransactionRow(double width, TransactionRowMetrics m,
     sizes['ledger'] = math.min(sizes['ledger']!,
         math.max(42, available - occupied(rest) - (rest.isEmpty ? 0 : gap)));
   }
+  void expandNames(List<List<String>> lines, Map<String, double> widths,
+      {int tagCount = 0}) {
+    for (final line in lines) {
+      if (line.contains('title')) continue;
+      final used = line.fold(0.0, (sum, id) => sum + (widths[id] ?? 0)) +
+          math.max(0, line.length - 1) * gap;
+      final room = math.max(0.0, available - used - .1);
+      final needs = <String, double>{
+        if (line.contains('account'))
+          'account': math.max(0, m.account - widths['account']!),
+        if (line.contains('ledger'))
+          'ledger': math.max(0, m.ledger - widths['ledger']!),
+        if (line.contains('tags') && m.naturalTags.length > tagCount)
+          'tags': math.max(0, m.naturalTags[tagCount] - widths['tags']!),
+      };
+      final total = needs.values.fold(0.0, (sum, v) => sum + v);
+      if (total <= 0) continue;
+      final extra = math.min(room, total);
+      for (final item in needs.entries) {
+        widths[item.key] = widths[item.key]! + extra * item.value / total;
+      }
+    }
+  }
+
   // Try all ordinary metadata on the second baseline before introducing a
   // third. A ledger, text status or read-only state is not itself complex.
   final hasTags = m.tags.any((w) => w > 0);
@@ -147,6 +173,7 @@ TransactionRowPlan planTransactionRow(double width, TransactionRowMetrics m,
         }
       }
       if (used() <= available) {
+        expandNames([candidates], compact, tagCount: count);
         return TransactionRowPlan(
             wide: false,
             inset: inset,
@@ -206,6 +233,7 @@ TransactionRowPlan planTransactionRow(double width, TransactionRowMetrics m,
       }
     }
   }
+  expandNames(lines, sizes, tagCount: visibleTags);
   return TransactionRowPlan(
       wide: wide,
       inset: inset,

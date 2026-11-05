@@ -606,7 +606,9 @@ class TransactionListState extends ConsumerState<TransactionList> {
                   ? EdgeInsets.zero
                   : const EdgeInsets.symmetric(horizontal: 17),
               decoration: BoxDecoration(
-                  color: BeeCardTheme.of(context).surface,
+                  color: widget.flatSurface
+                      ? Colors.transparent
+                      : BeeCardTheme.of(context).surface,
                   borderRadius: BorderRadius.vertical(
                       top: !widget.flatSurface &&
                               allItemsInDay.first.t.id == it.t.id

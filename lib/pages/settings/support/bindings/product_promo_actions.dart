@@ -53,6 +53,7 @@ class ProductPromo {
   /// 截图资产路径列表。介绍弹窗里横向排列展示缩略图,点击任意一张全屏预览。
   /// 空 list 时弹窗不显示截图区。
   final List<String> screenshotAssets;
+  final BeePromotionVisual visual;
 
   const ProductPromo({
     required this.logoAsset,
@@ -66,6 +67,7 @@ class ProductPromo {
     required this.websiteUrl,
     required this.contactEmail,
     this.screenshotAssets = const [],
+    this.visual = BeePromotionVisual.bars,
   });
 }
 
@@ -274,7 +276,8 @@ BeePromotionData _promotionData(ProductPromo value) => BeePromotionData(
     introBody: value.introBody,
     brandColor: value.brandColor,
     contactEmail: value.contactEmail,
-    screenshotAssets: value.screenshotAssets);
+    screenshotAssets: value.screenshotAssets,
+    visual: value.visual);
 BeePromotionTexts _promotionTexts(ProductPromoTexts value) => BeePromotionTexts(
     betaDialogTitle: value.betaDialogTitle,
     betaDialogMessage: value.betaDialogMessage,

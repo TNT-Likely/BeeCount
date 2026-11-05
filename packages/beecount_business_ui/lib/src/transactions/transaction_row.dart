@@ -222,12 +222,14 @@ class BeeTransactionRow extends StatelessWidget {
     final time = formatBeeTransactionTimestamp(happenedAt,
         showTime: showTime, showFullDate: showFullDate);
     final account = _account?.isNotEmpty == true ? _account : null;
-    double tagWidth(BeeTagData tag) =>
-        math.min(84, measure(tag.label, smallStyle) + 10);
-    double tagsWidth(int limit) {
+    double tagWidth(BeeTagData tag, {bool capped = true}) => capped
+        ? math.min(84, measure(tag.label, smallStyle) + 10)
+        : measure(tag.label, smallStyle) + 10;
+    double tagsWidth(int limit, {bool capped = true}) {
       if (tags.isEmpty) return 0;
       final count = math.min(limit, tags.length);
-      final tokens = tags.take(count).map(tagWidth).toList();
+      final tokens =
+          tags.take(count).map((tag) => tagWidth(tag, capped: capped)).toList();
       if (tags.length > count) {
         tokens.add(measure('+${tags.length - count}', smallStyle) +
             (count == 0 ? 8 : 4));
@@ -258,6 +260,7 @@ class BeeTransactionRow extends StatelessWidget {
           : 0,
       statuses: statusLabels.map((s) => measure(s, smallStyle)).toList(),
       tags: [for (var i = 0; i <= 2; i++) tagsWidth(i)],
+      naturalTags: [for (var i = 0; i <= 2; i++) tagsWidth(i, capped: false)],
       moreLabelWidth: (count) => measure(labels.more(count), smallStyle),
     );
     final content = LayoutBuilder(builder: (context, constraints) {
@@ -275,13 +278,24 @@ class BeeTransactionRow extends StatelessWidget {
 
       Widget tagStrip() {
         final count = math.min(plan.visibleTags, tags.length);
+        final extra = math.max(0.0,
+            (plan.widths['tags'] ?? metrics.tags[count]) - metrics.tags[count]);
+        final needed =
+            math.max(0.0, metrics.naturalTags[count] - metrics.tags[count]);
+        double tagLimit(BeeTagData tag) =>
+            tagWidth(tag) +
+            (needed == 0
+                ? 0
+                : extra *
+                    math.max(0, tagWidth(tag, capped: false) - tagWidth(tag)) /
+                    needed);
         return Row(mainAxisSize: MainAxisSize.min, children: [
           for (var i = 0; i < count; i++) ...[
             if (i > 0) const SizedBox(width: 5),
             BeeInlineLabel(
                 key: ValueKey('transaction-tag-${tags[i].id}'),
                 label: tags[i].label,
-                maxWidth: 84,
+                maxWidth: tagLimit(tags[i]),
                 foreground: tags[i].color,
                 background: tags[i].color.withValues(alpha: .12),
                 hitPadding: const EdgeInsets.symmetric(vertical: 3),
