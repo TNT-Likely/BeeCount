@@ -96,7 +96,13 @@ def telegram_text(context):
     text = (f"🐝 蜜蜂记账 · Beta 内测\n版本：{context['versionName']}（Android {context['versionCode']}）\n\n"
             + "\n".join("• " + item for item in items)
             + f"\n\n下载：{context['releaseUrl']}\n反馈：{FEEDBACK}")
-    gate.require(len(text) <= 900 and len(text.splitlines()) <= 12, "Beta 公告超出长度限制")
+    platforms = context.get("platformLines", [])
+    gate.require(isinstance(platforms, list) and len(platforms) <= 3 and
+                 all(isinstance(x, str) and "\n" not in x and len(x) <= 180 for x in platforms),
+                 "平台交付摘要无效")
+    if platforms:
+        text += "\n" + "\n".join(platforms)
+    gate.require(len(text) <= 1400 and len(text.splitlines()) <= 15, "Beta 公告超出长度限制")
     return text
 
 

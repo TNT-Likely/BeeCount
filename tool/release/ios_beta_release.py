@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Independent, opt-in iOS Beta delivery; never enters the stable release flow.
+"""iOS stage of the unified Beta delivery; never enters the stable release flow.
 
 Only an already published, receipted Android Beta may supply source/version/notes.
 Private source/signing copies live under RUNNER_TEMP. No debug/unsigned fallback.
@@ -217,7 +217,7 @@ def require_tag(client, version, source):
 def plan():
     gate.require(os.environ.get('GITHUB_REPOSITORY') == beta.REPOSITORY
                  and os.environ.get('GITHUB_EVENT_NAME') == 'workflow_dispatch'
-                 and os.environ.get('GITHUB_REF_NAME') == 'v4', '独立iOS Beta只接受目标仓库v4的手动运行')
+                 and os.environ.get('GITHUB_REF_NAME') == 'v4', '统一iOS Beta阶段只接受目标仓库v4的手动运行')
     mode = os.environ.get('IOS_BETA_MODE', 'ipa')
     signing_inputs(mode)
     version = parse_version(os.environ.get('BETA_VERSION', '')).name

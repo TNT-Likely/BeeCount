@@ -338,8 +338,8 @@ class Arm64ContractTests(unittest.TestCase):
         self.assertNotRegex(beta_yaml, r"run:.*\$\{\{ inputs\.")
         # runner is unavailable in job-level env during workflow validation.
         self.assertNotIn("BETA_CONTEXT: ${{ runner.", beta_yaml)
-        self.assertEqual(beta_yaml.count('>> "$GITHUB_ENV"'), 2)
-        notification = beta_yaml.split("\n  notify-only:", 1)[1]
+        self.assertGreaterEqual(beta_yaml.count('>> "$GITHUB_ENV"'), 3)
+        notification = beta_yaml.split("\n  notify:", 1)[1]
         self.assertIn("contents: read", notification)
         self.assertIn("notification_plan", notification)
         self.assertNotIn("ANDROID_KEYSTORE", notification)

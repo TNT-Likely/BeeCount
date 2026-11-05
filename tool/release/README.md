@@ -156,18 +156,18 @@ GitHub 的 `GITHUB_TOKEN` 只用于读取版本、创建新 tag/Release 和上�
 
 Release 正文使用该版本人工文档并附简短构建身份；明确禁用 GitHub 自动生成 release notes。每个 Beta 建独立 prerelease，`make_latest=false`，不会取代正式版 Latest。
 
-Telegram 显示“Beta 内测”、版本、最多 5 条摘要、Release 下载页及 issue 580。只提取 `## 更新摘要` 直到下一个一级/二级标题，不读取其他章节；每条最多 80 个 Unicode 码点，截断保留组合字符、肤色修饰、旗帜和 ZWJ emoji 的完整组合，加省略号。整条消息最多 900 字符/12 行，不附源码 SHA、完整 commit 或技术清单。摘要链接、完整提交 SHA 和多行内容需移到适合的章节。
+Telegram 显示“Beta 内测”、版本、最多 5 条摘要、Release 下载页及 issue 580。只提取 `## 更新摘要` 直到下一个一级/二级标题，不读取其他章节；每条最多 80 个 Unicode 码点，截断保留组合字符、肤色修饰、旗帜和 ZWJ emoji 的完整组合，加省略号。整条消息（含双端状态）最多 1400 字符/15 行，不附源码 SHA、完整 commit 或技术清单。摘要链接、完整提交 SHA 和多行内容需移到适合的章节。
 
 仅通知重试从**已经发布的 Release 正文**同一摘要段读取，沿用原公告内容，不从当前 v4 文档或 git log 重新拼历史。缺少有效摘要的旧 Release 会拒绝重发，由维护者先核对并补齐对应版本说明。
 
-## 独立 iOS Beta（IPA / TestFlight）
+## Android / iOS 统一 Beta 发布
 
-`.github/workflows/beta-ios-release.yml` 只补充一个已发布 Android Beta 的同一源码和简短说明，不创建新版本 tag，也不进入正式审核。`delivery=ipa` 生成 App Store 分发签名的 arm64 IPA、SHA256 与回执；`delivery=testflight` 另外上传并等待 Apple 处理、更新内测说明；`notify-only` 只重发已核对交付的 TG。App Store 签名 IPA 不能直接侧载，用户安装走 TestFlight。测试组、加密合规和外测审核状态需另行核对。
+只使用 `.github/workflows/beta-release.yml` 的 **Beta Release** 手动入口，在 Actions 选择 `v4` 分支。`mode=release` 先冻结同一源码、版本和短说明，生成正式签名 ARM64 APK，再生成同一 tag 的 arm64 IPA；默认 `ios_delivery=testflight` 同时上传并等待 Apple 处理。只需归档时选择 `ipa`。两端资产归入同一个 prerelease，最后只发送一条 TG 摘要；iOS 失败时整个流程仍失败，通知明确标记部分交付，不冒称双端成功。
 
-Flutter3.27.3 / Xcode26.3 / CocoaPods1.16.2 固定，主App与Widget签名、版本和权限都从实际IPA核验。沿用现有 APPLE_CERTIFICATE_* / APPLE_PROVISIONING_PROFILE* / APPLE_TEAM_ID 与 APPLE_API_* secrets，不加入未签名回退。构建源码与签名在本轮私密目录，pub和Pod锁文件漂移会拒绝。公告继续复用最多5条更新摘要及反馈issue，不拼完整commit。
+`mode=notify-only` 只读取已公开 Android / 可选 iOS 回执重发这条通知，不构建、分配版本、改 tag 或重新上传。独立 iOS 手动 workflow 已移除。
 
-iOS主版本字段使用 `4.0.0`，Beta标识保留在CI_VERSION和公开说明。默认build沿用对应Android Beta的实际code，4.0.0 Beta限制226..299；已交付水位取仓库变量 `IOS_BUILD_NUMBER_FLOOR`、iOS资产回执，TestFlight模式还实际读取ASC最高build。显式重试build仍须更高，不能覆盖资产或复用上传号。正式4.0.0 iOS流程应在上线前一起改为300起步，现有正式流程不在本次Beta改动内。
+Flutter3.27.3 / Xcode26.3 / CocoaPods1.16.2 固定。App 和 Widget 的签名、版本、权限、架构均从 IPA 核验，锁文件漂移会拒绝。沿用 APPLE_CERTIFICATE_* / APPLE_PROVISIONING_PROFILE* / APPLE_TEAM_ID 与 APPLE_API_* secrets，签名凭据不会传入 Flutter/Pods 子进程。
 
-可选仓库变量 `TESTFLIGHT_PUBLIC_URL` 提供已配置测试组的邀请地址；没有时不虚构安装链接。GitHub要求手动workflow先在默认main注册；v4新增文件及本地测试通过，不代表远程已启用或TestFlight已发布。先提交v4工具，再单独注册薄入口，明确目标Beta/version后首次实跑签名和上传。
+iOS 数字版本使用 `4.0.0`，默认 build 沿用对应 Android code。4.0.0 Beta 为226..299，正式版300起；上传前还读取 ASC 最高 build。显式填写更高 `ios_build_number` 仅用于 Apple build 不能复用的重试，不允许替换已公开资产。正式 workflow 的历史 run_number 策略仍需在正式4.0.0前改为300起严格递增。
 
-当前 iOS 手动入口已注册到默认 main；在 Actions 中选择 `v4` 分支运行（或 `gh workflow run beta-ios-release.yml --ref v4`）。注册入口不触发签名构建或上传，仍需明确已发布的 Beta 版本与交付模式。
+App Store 签名 IPA 不能直接侧载，安装走 TestFlight；Apple处理成功与测试组、加密合规、外测审核是不同状态。可选 `TESTFLIGHT_PUBLIC_URL` 只能填已配置测试组的真实邀请地址，没有时不虚构安装链接。没有 Google Play 或正式 App Store 提审步骤。
