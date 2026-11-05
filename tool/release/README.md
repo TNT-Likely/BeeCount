@@ -169,3 +169,5 @@ Flutter3.27.3 / Xcode26.3 / CocoaPods1.16.2 固定，主App与Widget签名、版
 iOS主版本字段使用 `4.0.0`，Beta标识保留在CI_VERSION和公开说明。默认build沿用对应Android Beta的实际code，4.0.0 Beta限制226..299；已交付水位取仓库变量 `IOS_BUILD_NUMBER_FLOOR`、iOS资产回执，TestFlight模式还实际读取ASC最高build。显式重试build仍须更高，不能覆盖资产或复用上传号。正式4.0.0 iOS流程应在上线前一起改为300起步，现有正式流程不在本次Beta改动内。
 
 可选仓库变量 `TESTFLIGHT_PUBLIC_URL` 提供已配置测试组的邀请地址；没有时不虚构安装链接。GitHub要求手动workflow先在默认main注册；v4新增文件及本地测试通过，不代表远程已启用或TestFlight已发布。先提交v4工具，再单独注册薄入口，明确目标Beta/version后首次实跑签名和上传。
+
+当前 iOS 手动入口已注册到默认 main；在 Actions 中选择 `v4` 分支运行（或 `gh workflow run beta-ios-release.yml --ref v4`）。注册入口不触发签名构建或上传，仍需明确已发布的 Beta 版本与交付模式。
