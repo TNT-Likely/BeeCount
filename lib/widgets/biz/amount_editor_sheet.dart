@@ -651,7 +651,6 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
       final res = await showWheelDateTimePicker(
         context,
         initial: _date,
-        maxDate: DateTime.now(),
       );
       if (res != null) setState(() => _date = res);
     } else {
@@ -660,7 +659,6 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
         context,
         initial: _date,
         mode: WheelDatePickerMode.ymd,
-        maxDate: DateTime.now(),
       );
       if (res != null) setState(() => _date = res);
     }
