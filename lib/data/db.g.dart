@@ -654,6 +654,20 @@ class $AccountsTable extends Accounts with TableInfo<$AccountsTable, Account> {
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('CHECK ("hidden" IN (0, 1))'),
       defaultValue: const Constant(false));
+  static const VerificationMeta _loanBalanceVersionMeta =
+      const VerificationMeta('loanBalanceVersion');
+  @override
+  late final GeneratedColumn<int> loanBalanceVersion = GeneratedColumn<int>(
+      'loan_balance_version', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  static const VerificationMeta _loanBalanceSinceMeta =
+      const VerificationMeta('loanBalanceSince');
+  @override
+  late final GeneratedColumn<DateTime> loanBalanceSince =
+      GeneratedColumn<DateTime>('loan_balance_since', aliasedName, true,
+          type: DriftSqlType.dateTime, requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -672,7 +686,9 @@ class $AccountsTable extends Accounts with TableInfo<$AccountsTable, Account> {
         cardLastFour,
         note,
         syncId,
-        hidden
+        hidden,
+        loanBalanceVersion,
+        loanBalanceSince
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -765,6 +781,18 @@ class $AccountsTable extends Accounts with TableInfo<$AccountsTable, Account> {
       context.handle(_hiddenMeta,
           hidden.isAcceptableOrUnknown(data['hidden']!, _hiddenMeta));
     }
+    if (data.containsKey('loan_balance_version')) {
+      context.handle(
+          _loanBalanceVersionMeta,
+          loanBalanceVersion.isAcceptableOrUnknown(
+              data['loan_balance_version']!, _loanBalanceVersionMeta));
+    }
+    if (data.containsKey('loan_balance_since')) {
+      context.handle(
+          _loanBalanceSinceMeta,
+          loanBalanceSince.isAcceptableOrUnknown(
+              data['loan_balance_since']!, _loanBalanceSinceMeta));
+    }
     return context;
   }
 
@@ -808,6 +836,10 @@ class $AccountsTable extends Accounts with TableInfo<$AccountsTable, Account> {
           .read(DriftSqlType.string, data['${effectivePrefix}sync_id']),
       hidden: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}hidden'])!,
+      loanBalanceVersion: attachedDatabase.typeMapping.read(
+          DriftSqlType.int, data['${effectivePrefix}loan_balance_version'])!,
+      loanBalanceSince: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}loan_balance_since']),
     );
   }
 
@@ -838,6 +870,12 @@ class Account extends DataClass implements Insertable<Account> {
   /// 隐藏:true 时该账户不再出现在记账/转账/周期选择器,账户管理页移入「已隐藏」分区。
   /// 仍计入账户余额、净资产、资产构成、净值趋势(.docs/account-archive/01 §二 D1)。
   final bool hidden;
+
+  /// 0 = 旧贷款欠款快照（存在旧流水时待核对）；1 = 本金流水。
+  final int loanBalanceVersion;
+
+  /// 已确认的欠款接续日期；此前不能直接补录并再次影响当前欠款。
+  final DateTime? loanBalanceSince;
   const Account(
       {required this.id,
       required this.ledgerId,
@@ -855,7 +893,9 @@ class Account extends DataClass implements Insertable<Account> {
       this.cardLastFour,
       this.note,
       this.syncId,
-      required this.hidden});
+      required this.hidden,
+      required this.loanBalanceVersion,
+      this.loanBalanceSince});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -894,6 +934,10 @@ class Account extends DataClass implements Insertable<Account> {
       map['sync_id'] = Variable<String>(syncId);
     }
     map['hidden'] = Variable<bool>(hidden);
+    map['loan_balance_version'] = Variable<int>(loanBalanceVersion);
+    if (!nullToAbsent || loanBalanceSince != null) {
+      map['loan_balance_since'] = Variable<DateTime>(loanBalanceSince);
+    }
     return map;
   }
 
@@ -931,6 +975,10 @@ class Account extends DataClass implements Insertable<Account> {
       syncId:
           syncId == null && nullToAbsent ? const Value.absent() : Value(syncId),
       hidden: Value(hidden),
+      loanBalanceVersion: Value(loanBalanceVersion),
+      loanBalanceSince: loanBalanceSince == null && nullToAbsent
+          ? const Value.absent()
+          : Value(loanBalanceSince),
     );
   }
 
@@ -955,6 +1003,9 @@ class Account extends DataClass implements Insertable<Account> {
       note: serializer.fromJson<String?>(json['note']),
       syncId: serializer.fromJson<String?>(json['syncId']),
       hidden: serializer.fromJson<bool>(json['hidden']),
+      loanBalanceVersion: serializer.fromJson<int>(json['loanBalanceVersion']),
+      loanBalanceSince:
+          serializer.fromJson<DateTime?>(json['loanBalanceSince']),
     );
   }
   @override
@@ -978,6 +1029,8 @@ class Account extends DataClass implements Insertable<Account> {
       'note': serializer.toJson<String?>(note),
       'syncId': serializer.toJson<String?>(syncId),
       'hidden': serializer.toJson<bool>(hidden),
+      'loanBalanceVersion': serializer.toJson<int>(loanBalanceVersion),
+      'loanBalanceSince': serializer.toJson<DateTime?>(loanBalanceSince),
     };
   }
 
@@ -998,7 +1051,9 @@ class Account extends DataClass implements Insertable<Account> {
           Value<String?> cardLastFour = const Value.absent(),
           Value<String?> note = const Value.absent(),
           Value<String?> syncId = const Value.absent(),
-          bool? hidden}) =>
+          bool? hidden,
+          int? loanBalanceVersion,
+          Value<DateTime?> loanBalanceSince = const Value.absent()}) =>
       Account(
         id: id ?? this.id,
         ledgerId: ledgerId ?? this.ledgerId,
@@ -1019,6 +1074,10 @@ class Account extends DataClass implements Insertable<Account> {
         note: note.present ? note.value : this.note,
         syncId: syncId.present ? syncId.value : this.syncId,
         hidden: hidden ?? this.hidden,
+        loanBalanceVersion: loanBalanceVersion ?? this.loanBalanceVersion,
+        loanBalanceSince: loanBalanceSince.present
+            ? loanBalanceSince.value
+            : this.loanBalanceSince,
       );
   Account copyWithCompanion(AccountsCompanion data) {
     return Account(
@@ -1047,6 +1106,12 @@ class Account extends DataClass implements Insertable<Account> {
       note: data.note.present ? data.note.value : this.note,
       syncId: data.syncId.present ? data.syncId.value : this.syncId,
       hidden: data.hidden.present ? data.hidden.value : this.hidden,
+      loanBalanceVersion: data.loanBalanceVersion.present
+          ? data.loanBalanceVersion.value
+          : this.loanBalanceVersion,
+      loanBalanceSince: data.loanBalanceSince.present
+          ? data.loanBalanceSince.value
+          : this.loanBalanceSince,
     );
   }
 
@@ -1069,7 +1134,9 @@ class Account extends DataClass implements Insertable<Account> {
           ..write('cardLastFour: $cardLastFour, ')
           ..write('note: $note, ')
           ..write('syncId: $syncId, ')
-          ..write('hidden: $hidden')
+          ..write('hidden: $hidden, ')
+          ..write('loanBalanceVersion: $loanBalanceVersion, ')
+          ..write('loanBalanceSince: $loanBalanceSince')
           ..write(')'))
         .toString();
   }
@@ -1092,7 +1159,9 @@ class Account extends DataClass implements Insertable<Account> {
       cardLastFour,
       note,
       syncId,
-      hidden);
+      hidden,
+      loanBalanceVersion,
+      loanBalanceSince);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1113,7 +1182,9 @@ class Account extends DataClass implements Insertable<Account> {
           other.cardLastFour == this.cardLastFour &&
           other.note == this.note &&
           other.syncId == this.syncId &&
-          other.hidden == this.hidden);
+          other.hidden == this.hidden &&
+          other.loanBalanceVersion == this.loanBalanceVersion &&
+          other.loanBalanceSince == this.loanBalanceSince);
 }
 
 class AccountsCompanion extends UpdateCompanion<Account> {
@@ -1134,6 +1205,8 @@ class AccountsCompanion extends UpdateCompanion<Account> {
   final Value<String?> note;
   final Value<String?> syncId;
   final Value<bool> hidden;
+  final Value<int> loanBalanceVersion;
+  final Value<DateTime?> loanBalanceSince;
   const AccountsCompanion({
     this.id = const Value.absent(),
     this.ledgerId = const Value.absent(),
@@ -1152,6 +1225,8 @@ class AccountsCompanion extends UpdateCompanion<Account> {
     this.note = const Value.absent(),
     this.syncId = const Value.absent(),
     this.hidden = const Value.absent(),
+    this.loanBalanceVersion = const Value.absent(),
+    this.loanBalanceSince = const Value.absent(),
   });
   AccountsCompanion.insert({
     this.id = const Value.absent(),
@@ -1171,6 +1246,8 @@ class AccountsCompanion extends UpdateCompanion<Account> {
     this.note = const Value.absent(),
     this.syncId = const Value.absent(),
     this.hidden = const Value.absent(),
+    this.loanBalanceVersion = const Value.absent(),
+    this.loanBalanceSince = const Value.absent(),
   })  : ledgerId = Value(ledgerId),
         name = Value(name);
   static Insertable<Account> custom({
@@ -1191,6 +1268,8 @@ class AccountsCompanion extends UpdateCompanion<Account> {
     Expression<String>? note,
     Expression<String>? syncId,
     Expression<bool>? hidden,
+    Expression<int>? loanBalanceVersion,
+    Expression<DateTime>? loanBalanceSince,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -1210,6 +1289,9 @@ class AccountsCompanion extends UpdateCompanion<Account> {
       if (note != null) 'note': note,
       if (syncId != null) 'sync_id': syncId,
       if (hidden != null) 'hidden': hidden,
+      if (loanBalanceVersion != null)
+        'loan_balance_version': loanBalanceVersion,
+      if (loanBalanceSince != null) 'loan_balance_since': loanBalanceSince,
     });
   }
 
@@ -1230,7 +1312,9 @@ class AccountsCompanion extends UpdateCompanion<Account> {
       Value<String?>? cardLastFour,
       Value<String?>? note,
       Value<String?>? syncId,
-      Value<bool>? hidden}) {
+      Value<bool>? hidden,
+      Value<int>? loanBalanceVersion,
+      Value<DateTime?>? loanBalanceSince}) {
     return AccountsCompanion(
       id: id ?? this.id,
       ledgerId: ledgerId ?? this.ledgerId,
@@ -1249,6 +1333,8 @@ class AccountsCompanion extends UpdateCompanion<Account> {
       note: note ?? this.note,
       syncId: syncId ?? this.syncId,
       hidden: hidden ?? this.hidden,
+      loanBalanceVersion: loanBalanceVersion ?? this.loanBalanceVersion,
+      loanBalanceSince: loanBalanceSince ?? this.loanBalanceSince,
     );
   }
 
@@ -1306,6 +1392,12 @@ class AccountsCompanion extends UpdateCompanion<Account> {
     if (hidden.present) {
       map['hidden'] = Variable<bool>(hidden.value);
     }
+    if (loanBalanceVersion.present) {
+      map['loan_balance_version'] = Variable<int>(loanBalanceVersion.value);
+    }
+    if (loanBalanceSince.present) {
+      map['loan_balance_since'] = Variable<DateTime>(loanBalanceSince.value);
+    }
     return map;
   }
 
@@ -1328,7 +1420,9 @@ class AccountsCompanion extends UpdateCompanion<Account> {
           ..write('cardLastFour: $cardLastFour, ')
           ..write('note: $note, ')
           ..write('syncId: $syncId, ')
-          ..write('hidden: $hidden')
+          ..write('hidden: $hidden, ')
+          ..write('loanBalanceVersion: $loanBalanceVersion, ')
+          ..write('loanBalanceSince: $loanBalanceSince')
           ..write(')'))
         .toString();
   }
@@ -12811,6 +12905,8 @@ typedef $$AccountsTableCreateCompanionBuilder = AccountsCompanion Function({
   Value<String?> note,
   Value<String?> syncId,
   Value<bool> hidden,
+  Value<int> loanBalanceVersion,
+  Value<DateTime?> loanBalanceSince,
 });
 typedef $$AccountsTableUpdateCompanionBuilder = AccountsCompanion Function({
   Value<int> id,
@@ -12830,6 +12926,8 @@ typedef $$AccountsTableUpdateCompanionBuilder = AccountsCompanion Function({
   Value<String?> note,
   Value<String?> syncId,
   Value<bool> hidden,
+  Value<int> loanBalanceVersion,
+  Value<DateTime?> loanBalanceSince,
 });
 
 class $$AccountsTableFilterComposer
@@ -12892,6 +12990,14 @@ class $$AccountsTableFilterComposer
 
   ColumnFilters<bool> get hidden => $composableBuilder(
       column: $table.hidden, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get loanBalanceVersion => $composableBuilder(
+      column: $table.loanBalanceVersion,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get loanBalanceSince => $composableBuilder(
+      column: $table.loanBalanceSince,
+      builder: (column) => ColumnFilters(column));
 }
 
 class $$AccountsTableOrderingComposer
@@ -12956,6 +13062,14 @@ class $$AccountsTableOrderingComposer
 
   ColumnOrderings<bool> get hidden => $composableBuilder(
       column: $table.hidden, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get loanBalanceVersion => $composableBuilder(
+      column: $table.loanBalanceVersion,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get loanBalanceSince => $composableBuilder(
+      column: $table.loanBalanceSince,
+      builder: (column) => ColumnOrderings(column));
 }
 
 class $$AccountsTableAnnotationComposer
@@ -13017,6 +13131,12 @@ class $$AccountsTableAnnotationComposer
 
   GeneratedColumn<bool> get hidden =>
       $composableBuilder(column: $table.hidden, builder: (column) => column);
+
+  GeneratedColumn<int> get loanBalanceVersion => $composableBuilder(
+      column: $table.loanBalanceVersion, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get loanBalanceSince => $composableBuilder(
+      column: $table.loanBalanceSince, builder: (column) => column);
 }
 
 class $$AccountsTableTableManager extends RootTableManager<
@@ -13059,6 +13179,8 @@ class $$AccountsTableTableManager extends RootTableManager<
             Value<String?> note = const Value.absent(),
             Value<String?> syncId = const Value.absent(),
             Value<bool> hidden = const Value.absent(),
+            Value<int> loanBalanceVersion = const Value.absent(),
+            Value<DateTime?> loanBalanceSince = const Value.absent(),
           }) =>
               AccountsCompanion(
             id: id,
@@ -13078,6 +13200,8 @@ class $$AccountsTableTableManager extends RootTableManager<
             note: note,
             syncId: syncId,
             hidden: hidden,
+            loanBalanceVersion: loanBalanceVersion,
+            loanBalanceSince: loanBalanceSince,
           ),
           createCompanionCallback: ({
             Value<int> id = const Value.absent(),
@@ -13097,6 +13221,8 @@ class $$AccountsTableTableManager extends RootTableManager<
             Value<String?> note = const Value.absent(),
             Value<String?> syncId = const Value.absent(),
             Value<bool> hidden = const Value.absent(),
+            Value<int> loanBalanceVersion = const Value.absent(),
+            Value<DateTime?> loanBalanceSince = const Value.absent(),
           }) =>
               AccountsCompanion.insert(
             id: id,
@@ -13116,6 +13242,8 @@ class $$AccountsTableTableManager extends RootTableManager<
             note: note,
             syncId: syncId,
             hidden: hidden,
+            loanBalanceVersion: loanBalanceVersion,
+            loanBalanceSince: loanBalanceSince,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))

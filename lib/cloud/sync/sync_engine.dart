@@ -751,6 +751,14 @@ class SyncEngine implements app.SyncService {
       _userGlobalLegacyBackfilled = true;
     }
 
+    final upgradedLoan = await (db.select(db.accounts)
+          ..where(
+              (a) => a.type.equals('loan') & a.loanBalanceVersion.equals(1)))
+        .get();
+    if (upgradedLoan.isNotEmpty &&
+        (await provider.fetchServerVersion()).loanAccountingVersion < 1) {
+      throw StateError('请先升级 BeeCount Cloud，以支持贷款本金流水。');
+    }
     final globalChanges = await changeTracker.getUnpushedChangesForLedger(0);
     if (globalChanges.isEmpty) {
       logger.debug(

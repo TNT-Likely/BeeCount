@@ -232,7 +232,7 @@ void main() {
         sortOrder: 1, level: 1, iconType: 'material');
     const acc = Account(
         id: 1, ledgerId: 1, name: '招商银行', type: 'bank', currency: 'CNY',
-        initialBalance: 0, sortOrder: 1, hidden: false);
+        initialBalance: 0, sortOrder: 1, hidden: false, loanBalanceVersion: 0);
     final items = [
       for (var i = 1; i <= 6; i++)
         RecentTransactionItem(transaction: tx(i), category: cat, account: acc),

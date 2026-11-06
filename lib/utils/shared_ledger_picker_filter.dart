@@ -248,6 +248,7 @@ extension SharedLedgerPickerFilter on BeeDatabase {
       // SharedLedgerAccounts 镜像表没有 hidden 概念(隐藏是 Owner 侧个人状态,
       // 不随共享账本镜像同步),synthetic 账户固定按「未隐藏」处理。
       hidden: false,
+      loanBalanceVersion: 0,
     );
   }
 

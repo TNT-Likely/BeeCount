@@ -18,9 +18,11 @@ class AccountSelector extends ConsumerStatefulWidget {
   final int? selectedAccountId;
   final ValueChanged<int?> onAccountSelected;
   final int ledgerId;
+
   /// v30 多币种:按币种过滤可选账户(记账币种优先联动,选 JPY → 只显示 JPY
   /// 账户)。null = 账本本位币(旧行为)。变更时列表自动重载。
   final String? filterCurrency;
+
   /// 账户隐藏(#240)E1 钉住:编辑历史交易时传入该交易当前挂的账户 id。若该
   /// 账户已被隐藏(因而被下方过滤排除),补回候选并打「已隐藏」灰标,让用户
   /// 能原样保存;其余隐藏账户仍不出现。null = 不钉住(新建交易场景)。
@@ -91,11 +93,11 @@ class _AccountSelectorState extends ConsumerState<AccountSelector> {
       }
 
       // v30:过滤币种 = 显式传入(记账所选币种)?? 账本本位币(旧行为)
-      final wanted =
-          (widget.filterCurrency ?? ledger.currency).toUpperCase();
+      final wanted = (widget.filterCurrency ?? ledger.currency).toUpperCase();
       var accounts = allAccounts
           .where((a) =>
-              a.currency.toUpperCase() == wanted && isTradableType(a.type))
+              a.currency.toUpperCase() == wanted &&
+              supportsDirectIncomeExpense(a.type))
           .toList();
 
       // 账户隐藏(#240)E1 钉住:above 的 filterAccountsForLedger 已排除隐藏
@@ -104,7 +106,7 @@ class _AccountSelectorState extends ConsumerState<AccountSelector> {
       final pinnedId = widget.pinnedAccountId;
       if (pinnedId != null && !accounts.any((a) => a.id == pinnedId)) {
         final pinned = await repo.getAccount(pinnedId);
-        if (pinned != null && pinned.hidden) {
+        if (pinned != null && pinned.hidden && pinned.type != 'loan') {
           accounts = [...accounts, pinned];
         }
       }
@@ -112,7 +114,8 @@ class _AccountSelectorState extends ConsumerState<AccountSelector> {
       // 获取 LRU 排序
       final lruOrder = await _lruCache.getOrderedIds();
 
-      logger.debug('AccountSelector', '加载账户完成，初始选中: $_initialSelectedAccountId, LRU顺序: $lruOrder');
+      logger.debug('AccountSelector',
+          '加载账户完成，初始选中: $_initialSelectedAccountId, LRU顺序: $lruOrder');
 
       if (mounted) {
         setState(() {
@@ -139,7 +142,8 @@ class _AccountSelectorState extends ConsumerState<AccountSelector> {
 
     // 将初始选中的账户放在第一个（如果存在）
     if (_initialSelectedAccountId != null) {
-      final selected = _accounts.where((a) => a.id == _initialSelectedAccountId).firstOrNull;
+      final selected =
+          _accounts.where((a) => a.id == _initialSelectedAccountId).firstOrNull;
       if (selected != null) {
         sorted.add(selected);
       }
@@ -147,7 +151,9 @@ class _AccountSelectorState extends ConsumerState<AccountSelector> {
 
     // 按 LRU 顺序添加其他账户
     for (final id in _lruOrder) {
-      final account = _accounts.where((a) => a.id == id && a.id != _initialSelectedAccountId).firstOrNull;
+      final account = _accounts
+          .where((a) => a.id == id && a.id != _initialSelectedAccountId)
+          .firstOrNull;
       if (account != null && !sorted.contains(account)) {
         sorted.add(account);
       }
@@ -268,7 +274,9 @@ class _AccountSelectorState extends ConsumerState<AccountSelector> {
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                  color: isSelected ? Colors.white : BeeTokens.textSecondary(context),
+                  color: isSelected
+                      ? Colors.white
+                      : BeeTokens.textSecondary(context),
                   height: 1.2,
                 ),
               ),

@@ -1808,6 +1808,7 @@ class BeeCountCloudAuthService implements CloudAuthService {
     final uri = Uri.parse('$baseUrl$apiPrefix$path');
     final request = http.Request(method, uri);
     request.headers['Content-Type'] = 'application/json';
+    request.headers['X-BeeCount-Capabilities'] = 'loan-flow-v1';
     if (accessToken != null && accessToken.isNotEmpty) {
       request.headers['Authorization'] = 'Bearer $accessToken';
     }
@@ -3327,6 +3328,7 @@ class BeeCountCloudStorageService implements CloudStorageService {
     final request = http.Request(method, uri);
     request.headers['Authorization'] = 'Bearer $token';
     request.headers['Content-Type'] = 'application/json';
+    request.headers['X-BeeCount-Capabilities'] = 'loan-flow-v1';
     if (headers != null && headers.isNotEmpty) {
       request.headers.addAll(headers);
     }
@@ -3679,15 +3681,18 @@ class BeeCountCloudServerVersion {
   const BeeCountCloudServerVersion({
     required this.name,
     required this.version,
+    this.loanAccountingVersion = 0,
   });
 
   final String name;
   final String version;
+  final int loanAccountingVersion;
 
   factory BeeCountCloudServerVersion.fromJson(Map<String, dynamic> json) {
     return BeeCountCloudServerVersion(
       name: (json['name'] as String?)?.trim() ?? 'BeeCount Cloud',
       version: (json['version'] as String?)?.trim() ?? '',
+      loanAccountingVersion: (json['loan_accounting_version'] as num?)?.toInt() ?? 0,
     );
   }
 }

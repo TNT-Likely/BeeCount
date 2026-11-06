@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../l10n/app_localizations.dart';
+import '../data/db.dart' show Account;
 
 /// 账户分类：资产 vs 负债
 enum AccountClassification { asset, liability }
@@ -32,11 +33,15 @@ bool isLiabilityType(String type) {
 
 /// 估值账户类型（资产类）
 const valuationOnlyAssetTypes = [
-  'real_estate', 'vehicle', 'investment', 'insurance', 'social_fund',
+  'real_estate',
+  'vehicle',
+  'investment',
+  'insurance',
+  'social_fund',
 ];
 
 /// 估值账户类型（负债类）
-const valuationOnlyLiabilityTypes = ['loan'];
+const valuationOnlyLiabilityTypes = <String>[];
 
 /// 所有估值账户类型
 const valuationOnlyTypes = [
@@ -50,16 +55,46 @@ bool isValuationOnlyType(String type) => valuationOnlyTypes.contains(type);
 /// 是否为可交易账户类型（参与日常记账）
 bool isTradableType(String type) => !isValuationOnlyType(type);
 
+/// 贷款只走本金转账；旧快照先核对，不进入新借还选择器。
+bool supportsAccountTransfer(Account account) =>
+    isTradableType(account.type) &&
+    (account.type != 'loan' || account.loanBalanceVersion == 1);
+
+bool supportsDirectIncomeExpense(String type) =>
+    isTradableType(type) && type != 'loan';
+
+bool usesSnapshotBalance(Account account) =>
+    isValuationOnlyType(account.type) ||
+    (account.type == 'loan' && account.loanBalanceVersion != 1);
+
 /// 账户类型常量（完整排序）
 const accountTypeOrder = [
-  'cash', 'bank_card', 'credit_card', 'alipay', 'wechat', 'other',
-  'real_estate', 'vehicle', 'investment', 'insurance', 'social_fund', 'loan',
+  'cash',
+  'bank_card',
+  'credit_card',
+  'alipay',
+  'wechat',
+  'other',
+  'real_estate',
+  'vehicle',
+  'investment',
+  'insurance',
+  'social_fund',
+  'loan',
 ];
 
 /// 资产类型排序
 const assetTypeOrder = [
-  'cash', 'bank_card', 'alipay', 'wechat', 'other',
-  'real_estate', 'vehicle', 'investment', 'insurance', 'social_fund',
+  'cash',
+  'bank_card',
+  'alipay',
+  'wechat',
+  'other',
+  'real_estate',
+  'vehicle',
+  'investment',
+  'insurance',
+  'social_fund',
 ];
 
 /// 负债类型排序
@@ -209,6 +244,7 @@ class AccountTypeIcon extends StatelessWidget {
   final String type;
   final double size;
   final Color? color;
+
   /// 是否以单色模式渲染（忽略 SVG 原始颜色，统一用 [color] 着色）
   final bool monochrome;
 

@@ -228,16 +228,17 @@ void main() {
       if (!overpayment) {
         final group = find.byKey(const ValueKey('account-type-group'));
         final valuation = find.descendant(
-            of: group, matching: find.text('估值账户'));
+            of: group, matching: find.text('资产账户'));
         await waitUi(() => valuation.evaluate().isNotEmpty);
         await tester.ensureVisible(valuation);
         await tester.tap(valuation);
         await tester.pump(const Duration(milliseconds: 600));
         expect(find.text('信用卡'), findsNothing);
         await tester.tap(find.descendant(
-            of: group, matching: find.text('日常账户')));
+            of: group, matching: find.text('资产账户')));
         await tester.pump(const Duration(milliseconds: 600));
       }
+      await tap('负债账户');
       await tap('信用卡');
       await fill('account-name', name);
       if (overpayment) {

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:drift/drift.dart' as d;
 import 'package:uuid/uuid.dart';
 
@@ -6,6 +7,7 @@ import '../../../cloud/sync/change_tracker.dart';
 import '../../../services/currency/rate_math.dart';
 import '../../../utils/shared_ledger_picker_filter.dart';
 import '../../../utils/app_localizations_resolver.dart';
+import '../../../utils/account_type_utils.dart';
 import '../../../services/system/logger_service.dart';
 import '../../../models/note_history.dart';
 import '../base_repository.dart';
@@ -17,6 +19,7 @@ import 'local_ledger_repository.dart';
 import 'local_transaction_repository.dart';
 import 'local_category_repository.dart';
 import 'local_account_repository.dart';
+import 'loan_accounting.dart';
 import 'local_statistics_repository.dart';
 import 'local_recurring_transaction_repository.dart';
 import 'local_ai_repository.dart';
@@ -362,46 +365,200 @@ class LocalRepository extends BaseRepository {
     String? currencyCode,
     double? nativeAmount,
   }) async {
-    // v30 带折算兜底(02 §六):任何调用方(单币种记账/AI/周期模板)未传两字段
-    // 时在此补齐 —— 外币先查有效汇率,取不到才 =amount(命中 L11 检测可捞回)。
-    final (cc, na) = await _resolveTxCurrency(
-      ledgerId: ledgerId,
-      accountId: accountId,
-      amount: amount,
-      currencyCode: currencyCode,
-      nativeAmount: nativeAmount,
-    );
-    final id = await _transactionRepo.addTransaction(
-      ledgerId: ledgerId,
-      type: type,
-      amount: amount,
-      categoryId: categoryId,
-      accountId: accountId,
-      toAccountId: toAccountId,
-      happenedAt: happenedAt,
-      note: note,
-      syncId: syncId,
-      categorySyncIdOverride: categorySyncIdOverride,
-      accountSyncIdOverride: accountSyncIdOverride,
-      toAccountSyncIdOverride: toAccountSyncIdOverride,
-      excludeFromStats: excludeFromStats,
-      excludeFromBudget: excludeFromBudget,
-      currencyCode: cc,
-      nativeAmount: na,
-    );
-    if (changeTracker != null) {
-      final tx = await _transactionRepo.getTransactionById(id);
-      if (tx != null) {
-        await changeTracker!.recordLedgerChange(
-          entityType: 'transaction',
-          entityId: id,
-          entitySyncId: tx.syncId!,
-          ledgerId: ledgerId,
-          action: 'create',
-        );
+    return db.transaction(() async {
+      await LoanAccountingGuard(db).validate(
+          type: type,
+          amount: amount,
+          accountId: accountId,
+          toAccountId: toAccountId,
+          happenedAt: happenedAt,
+          ledgerId: ledgerId);
+
+      // v30 带折算兜底(02 §六):任何调用方(单币种记账/AI/周期模板)未传两字段
+      // 时在此补齐 —— 外币先查有效汇率,取不到才 =amount(命中 L11 检测可捞回)。
+      final (cc, na) = await _resolveTxCurrency(
+        ledgerId: ledgerId,
+        accountId: accountId,
+        amount: amount,
+        currencyCode: currencyCode,
+        nativeAmount: nativeAmount,
+      );
+      final id = await _transactionRepo.addTransaction(
+        ledgerId: ledgerId,
+        type: type,
+        amount: amount,
+        categoryId: categoryId,
+        accountId: accountId,
+        toAccountId: toAccountId,
+        happenedAt: happenedAt,
+        note: note,
+        syncId: syncId,
+        categorySyncIdOverride: categorySyncIdOverride,
+        accountSyncIdOverride: accountSyncIdOverride,
+        toAccountSyncIdOverride: toAccountSyncIdOverride,
+        excludeFromStats: excludeFromStats,
+        excludeFromBudget: excludeFromBudget,
+        currencyCode: cc,
+        nativeAmount: na,
+      );
+      if (changeTracker != null) {
+        final tx = await _transactionRepo.getTransactionById(id);
+        if (tx != null) {
+          await changeTracker!.recordLedgerChange(
+            entityType: 'transaction',
+            entityId: id,
+            entitySyncId: tx.syncId!,
+            ledgerId: ledgerId,
+            action: 'create',
+          );
+        }
       }
+      return id;
+    });
+  }
+
+  static final Object _loanSnapshotZone = Object();
+  bool get _restoringLoanSnapshot => Zone.current[_loanSnapshotZone] == true;
+
+  /// 原生快照整体恢复后再检查本金；历史记录可能早于接续日，不能逐笔当成新交易。
+  Future<T> restoreLoanSnapshot<T>(Future<T> Function() restore) =>
+      db.transaction(() async {
+        final result =
+            await runZoned(restore, zoneValues: {_loanSnapshotZone: true});
+        for (final loan in (await _accountRepo.getAllAccounts())
+            .where((a) => a.type == 'loan' && a.loanBalanceVersion == 1)) {
+          final balance = await _accountRepo.getAccountBalance(loan.id);
+          if (!balance.isFinite ||
+              balance > 0.0000001 ||
+              loan.loanBalanceSince == null ||
+              loan.loanBalanceSince!.isAfter(DateTime.now())) {
+            throw const LoanAccountingException('loanRepaymentExceedsDebt');
+          }
+          final txs = await (db.select(db.transactions)
+                ..where((t) =>
+                    (t.accountId.equals(loan.id) |
+                        t.toAccountId.equals(loan.id)) &
+                    t.happenedAt.isBiggerOrEqualValue(loan.loanBalanceSince!)))
+              .get();
+          for (final tx in txs) {
+            if (tx.type != 'transfer' ||
+                !tx.amount.isFinite ||
+                tx.amount <= 0 ||
+                tx.accountId == null ||
+                tx.toAccountId == null) {
+              throw const LoanAccountingException('loanTransferOnly');
+            }
+            final pair = await (db.select(db.accounts)
+                  ..where((a) => a.id.isIn([tx.accountId!, tx.toAccountId!])))
+                .get();
+            final ledger = await getLedgerById(tx.ledgerId);
+            if (ledger?.isShared == true)
+              throw const LoanAccountingException('loanPersonalLedgerOnly');
+            if (pair.length != 2 ||
+                pair.any((a) => isValuationOnlyType(a.type)))
+              throw const LoanAccountingException('loanTransferOnly');
+            if (pair[0].currency != pair[1].currency)
+              throw const LoanAccountingException('loanSameCurrencyOnly');
+          }
+        }
+        return result;
+      });
+
+  Future<bool> _hasLoanEndpoints(Iterable<int?> ids) async {
+    final keys = ids.whereType<int>().toSet().toList();
+    if (keys.isEmpty) return false;
+    return (await (db.select(db.accounts)
+              ..where((a) => a.id.isIn(keys) & a.type.equals('loan')))
+            .get())
+        .isNotEmpty;
+  }
+
+  Future<void> _validateLoanInsert(TransactionsCompanion item) =>
+      LoanAccountingGuard(db).validate(
+          type: item.type.value,
+          amount: item.amount.value,
+          accountId: item.accountId.value,
+          toAccountId: item.toAccountId.value,
+          happenedAt:
+              item.happenedAt.present ? item.happenedAt.value : DateTime.now(),
+          ledgerId: item.ledgerId.value);
+
+  Future<int> _insertGuardedBatch(List<TransactionsCompanion> items) async {
+    if (_restoringLoanSnapshot ||
+        !await _hasLoanEndpoints(
+            items.expand((t) => [t.accountId.value, t.toAccountId.value]))) {
+      return _transactionRepo.insertTransactionsBatch(items);
     }
-    return id;
+    return db.transaction(() async {
+      var count = 0;
+      for (final item in items) {
+        await _validateLoanInsert(item);
+        count += await _transactionRepo.insertTransactionsBatch([item]);
+      }
+      return count;
+    });
+  }
+
+  Future<Map<String, int>> _updateGuardedBatch(
+      List<TransactionUpdateBySyncIdData> updates) async {
+    return db.transaction(() async {
+      final result = <String, int>{};
+      for (final update in updates) {
+        final before =
+            await _transactionRepo.getTransactionBySyncId(update.syncId);
+        await LoanAccountingGuard(db).validate(
+            before: before,
+            type: update.type,
+            amount: update.amount,
+            accountId: update.accountId,
+            toAccountId: update.toAccountId,
+            happenedAt: update.happenedAt,
+            ledgerId: before?.ledgerId);
+        result.addAll(
+            await _transactionRepo.updateTransactionsBatchBySyncId([update]));
+      }
+      return result;
+    });
+  }
+
+  Future<int> _deleteGuardedBatch(List<String> ids) async {
+    return db.transaction(() async {
+      var count = 0;
+      for (final id in ids) {
+        final before = await _transactionRepo.getTransactionBySyncId(id);
+        if (before != null)
+          await LoanAccountingGuard(db).validate(before: before);
+        count += await _transactionRepo.deleteTransactionsBatchBySyncIds([id]);
+      }
+      return count;
+    });
+  }
+
+  Future<List<int>> _insertGuardedRelations({
+    required List<TransactionsCompanion> transactions,
+    required Map<int, List<int>> tagIdsByIndex,
+    required Map<int, List<BatchAttachmentData>> attachmentsByIndex,
+  }) async {
+    if (_restoringLoanSnapshot ||
+        !await _hasLoanEndpoints(transactions
+            .expand((t) => [t.accountId.value, t.toAccountId.value]))) {
+      return _transactionRepo.insertTransactionsBatchWithRelations(
+          transactions: transactions,
+          tagIdsByIndex: tagIdsByIndex,
+          attachmentsByIndex: attachmentsByIndex);
+    }
+    return db.transaction(() async {
+      final result = <int>[];
+      for (var index = 0; index < transactions.length; index++) {
+        await _validateLoanInsert(transactions[index]);
+        result.addAll(await _transactionRepo
+            .insertTransactionsBatchWithRelations(
+                transactions: [transactions[index]],
+                tagIdsByIndex: {0: tagIdsByIndex[index] ?? []},
+                attachmentsByIndex: {0: attachmentsByIndex[index] ?? []}));
+      }
+      return result;
+    });
   }
 
   @override
@@ -412,9 +569,10 @@ class LocalRepository extends BaseRepository {
     // recordChanges=false:FullPull 走静默写入路径,云端拉下来的数据**不**再
     // 反向 push 回去(否则 10k 条 fullPull 会产生 10k 行 local_changes,触发
     // SyncCoordinator 反向同步,白白多一轮)。
-    if (!recordChanges || changeTracker == null || items.isEmpty) {
+    if (!recordChanges || items.isEmpty) {
       return _transactionRepo.insertTransactionsBatch(items);
     }
+    if (changeTracker == null) return _insertGuardedBatch(items);
     // 预填充 syncId,这样插入完能根据 syncId 查回行,逐条登记 create change。
     // 子仓库虽然也会自动补 syncId,但补完是局部变量,wrapper 这里看不到,所
     // 以不能依赖。
@@ -425,7 +583,7 @@ class LocalRepository extends BaseRepository {
       return item;
     }).toList();
     return db.transaction(() async {
-      final n = await _transactionRepo.insertTransactionsBatch(effective);
+      final n = await _insertGuardedBatch(effective);
       final syncIds =
           effective.map((c) => c.syncId.value).whereType<String>().toList();
       if (syncIds.isEmpty) return n;
@@ -463,98 +621,175 @@ class LocalRepository extends BaseRepository {
     String? currencyCode,
     double? nativeAmount,
   }) async {
-    final old = await _transactionRepo.getTransactionById(id);
-    // v30 联动兜底(与 Cloud merge/mutator 的 L14 同规则):调用方不传两字段时——
-    //   a) 账户变了(如转账换账户对,transfer_form 不传币种)→ 币种应跟随新
-    //      账户,按新币种重新解析+折算(审查发现:原只联动 amount,换账户后
-    //      currencyCode 残留旧币种);
-    //   b) 仅 amount 变了 → 按该笔隐含汇率联动缩放;amount 未变 → 不动。
-    var effCurrency = currencyCode;
-    var effNative = nativeAmount;
-    if (currencyCode == null && nativeAmount == null && old != null) {
-      final int? newAccountId = accountId is d.Value<int?>
-          ? accountId.value
-          : (accountId is int ? accountId : old.accountId);
-      final accountChanged = (accountId is d.Value<int?> || accountId is int) &&
-          newAccountId != old.accountId;
-      if (accountChanged) {
-        final (cc, na) = await _resolveTxCurrency(
-          ledgerId: old.ledgerId,
-          accountId: newAccountId,
+    return db.transaction(() async {
+      final prior = await _transactionRepo.getTransactionById(id);
+      await LoanAccountingGuard(db).validate(
+          before: prior,
+          type: type,
           amount: amount,
-        );
-        effCurrency = cc;
-        effNative = na;
-      } else if (old.nativeAmount != null && old.amount != amount) {
-        final oldNative = old.nativeAmount!;
-        if (old.amount == 0 || oldNative == old.amount) {
-          effNative = amount; // 同币种/未折算(隐含汇率 1)→ 跟随
-        } else {
-          effNative = oldNative / old.amount * amount; // 外币按隐含汇率缩放
+          accountId: accountId is d.Value<int?>
+              ? accountId.value
+              : accountId is int
+                  ? accountId
+                  : prior?.accountId,
+          toAccountId: type == 'transfer' ? prior?.toAccountId : null,
+          happenedAt: happenedAt ?? prior?.happenedAt,
+          ledgerId: prior?.ledgerId);
+
+      final old = await _transactionRepo.getTransactionById(id);
+      // v30 联动兜底(与 Cloud merge/mutator 的 L14 同规则):调用方不传两字段时——
+      //   a) 账户变了(如转账换账户对,transfer_form 不传币种)→ 币种应跟随新
+      //      账户,按新币种重新解析+折算(审查发现:原只联动 amount,换账户后
+      //      currencyCode 残留旧币种);
+      //   b) 仅 amount 变了 → 按该笔隐含汇率联动缩放;amount 未变 → 不动。
+      var effCurrency = currencyCode;
+      var effNative = nativeAmount;
+      if (currencyCode == null && nativeAmount == null && old != null) {
+        final int? newAccountId = accountId is d.Value<int?>
+            ? accountId.value
+            : (accountId is int ? accountId : old.accountId);
+        final accountChanged =
+            (accountId is d.Value<int?> || accountId is int) &&
+                newAccountId != old.accountId;
+        if (accountChanged) {
+          final (cc, na) = await _resolveTxCurrency(
+            ledgerId: old.ledgerId,
+            accountId: newAccountId,
+            amount: amount,
+          );
+          effCurrency = cc;
+          effNative = na;
+        } else if (old.nativeAmount != null && old.amount != amount) {
+          final oldNative = old.nativeAmount!;
+          if (old.amount == 0 || oldNative == old.amount) {
+            effNative = amount; // 同币种/未折算(隐含汇率 1)→ 跟随
+          } else {
+            effNative = oldNative / old.amount * amount; // 外币按隐含汇率缩放
+          }
         }
       }
-    }
-    if (changeTracker != null) {
-      if (old?.syncId != null) {
-        await _transactionRepo.updateTransaction(
+      if (changeTracker != null) {
+        if (old?.syncId != null) {
+          await _transactionRepo.updateTransaction(
+            id: id,
+            type: type,
+            amount: amount,
+            categoryId: categoryId,
+            note: note,
+            happenedAt: happenedAt,
+            accountId: accountId,
+            categorySyncIdOverride: categorySyncIdOverride,
+            accountSyncIdOverride: accountSyncIdOverride,
+            toAccountSyncIdOverride: toAccountSyncIdOverride,
+            excludeFromStats: excludeFromStats,
+            excludeFromBudget: excludeFromBudget,
+            currencyCode: effCurrency,
+            nativeAmount: effNative,
+          );
+          await changeTracker!.recordLedgerChange(
+            entityType: 'transaction',
+            entityId: id,
+            entitySyncId: old!.syncId!,
+            ledgerId: old.ledgerId,
+            action: 'update',
+          );
+          return;
+        }
+      }
+      await _transactionRepo.updateTransaction(
+        id: id,
+        type: type,
+        amount: amount,
+        categoryId: categoryId,
+        note: note,
+        happenedAt: happenedAt,
+        accountId: accountId,
+        categorySyncIdOverride: categorySyncIdOverride,
+        accountSyncIdOverride: accountSyncIdOverride,
+        toAccountSyncIdOverride: toAccountSyncIdOverride,
+        excludeFromStats: excludeFromStats,
+        excludeFromBudget: excludeFromBudget,
+        currencyCode: effCurrency,
+        nativeAmount: effNative,
+      );
+    });
+  }
+
+  Future<void> updateTransferTransaction(
+      {required int id,
+      required double amount,
+      required int? fromAccountId,
+      required int? toAccountId,
+      required DateTime happenedAt,
+      int? categoryId,
+      String? note,
+      String? fromOverride,
+      String? toOverride,
+      bool? excludeFromStats,
+      bool? excludeFromBudget,
+      String? currencyCode,
+      double? nativeAmount}) async {
+    await db.transaction(() async {
+      final old = await _transactionRepo.getTransactionById(id);
+      if (old == null) throw StateError('Transaction missing');
+      await LoanAccountingGuard(db).validate(
+          before: old,
+          type: 'transfer',
+          amount: amount,
+          accountId: fromAccountId,
+          toAccountId: toAccountId,
+          happenedAt: happenedAt,
+          ledgerId: old.ledgerId);
+      await _transactionRepo.updateTransaction(
           id: id,
-          type: type,
+          type: 'transfer',
           amount: amount,
           categoryId: categoryId,
           note: note,
           happenedAt: happenedAt,
-          accountId: accountId,
-          categorySyncIdOverride: categorySyncIdOverride,
-          accountSyncIdOverride: accountSyncIdOverride,
-          toAccountSyncIdOverride: toAccountSyncIdOverride,
+          accountId: d.Value<int?>(fromAccountId),
+          accountSyncIdOverride: fromOverride,
+          toAccountSyncIdOverride: toOverride,
           excludeFromStats: excludeFromStats,
           excludeFromBudget: excludeFromBudget,
-          currencyCode: effCurrency,
-          nativeAmount: effNative,
-        );
+          currencyCode: currencyCode,
+          nativeAmount: nativeAmount);
+      await _transactionRepo.updateTransactionFields(
+          id: id,
+          toAccountId: d.Value<int?>(toAccountId),
+          toAccountSyncIdOverride: toOverride,
+          writeToAccountSyncIdOverride: true);
+      if (changeTracker != null && old.syncId != null) {
         await changeTracker!.recordLedgerChange(
-          entityType: 'transaction',
-          entityId: id,
-          entitySyncId: old!.syncId!,
-          ledgerId: old.ledgerId,
-          action: 'update',
-        );
-        return;
+            entityType: 'transaction',
+            entityId: id,
+            entitySyncId: old.syncId!,
+            ledgerId: old.ledgerId,
+            action: 'update');
       }
-    }
-    await _transactionRepo.updateTransaction(
-      id: id,
-      type: type,
-      amount: amount,
-      categoryId: categoryId,
-      note: note,
-      happenedAt: happenedAt,
-      accountId: accountId,
-      categorySyncIdOverride: categorySyncIdOverride,
-      accountSyncIdOverride: accountSyncIdOverride,
-      toAccountSyncIdOverride: toAccountSyncIdOverride,
-      excludeFromStats: excludeFromStats,
-      excludeFromBudget: excludeFromBudget,
-      currencyCode: effCurrency,
-      nativeAmount: effNative,
-    );
+    });
   }
 
   @override
   Future<void> deleteTransaction(int id) async {
-    if (changeTracker != null) {
-      final tx = await _transactionRepo.getTransactionById(id);
-      if (tx?.syncId != null) {
-        await changeTracker!.recordLedgerChange(
-          entityType: 'transaction',
-          entityId: id,
-          entitySyncId: tx!.syncId!,
-          ledgerId: tx.ledgerId,
-          action: 'delete',
-        );
+    return db.transaction(() async {
+      final prior = await _transactionRepo.getTransactionById(id);
+      await LoanAccountingGuard(db).validate(before: prior);
+
+      if (changeTracker != null) {
+        final tx = await _transactionRepo.getTransactionById(id);
+        if (tx?.syncId != null) {
+          await changeTracker!.recordLedgerChange(
+            entityType: 'transaction',
+            entityId: id,
+            entitySyncId: tx!.syncId!,
+            ledgerId: tx.ledgerId,
+            action: 'delete',
+          );
+        }
       }
-    }
-    await _transactionRepo.deleteTransaction(id);
+      await _transactionRepo.deleteTransaction(id);
+    });
   }
 
   @override
@@ -772,13 +1007,18 @@ class LocalRepository extends BaseRepository {
   }) async {
     if (transactions.isEmpty) return const [];
     // recordChanges=false / 没挂 changeTracker → 直接走子仓库,不补 change log。
-    if (!recordChanges || changeTracker == null) {
+    if (!recordChanges) {
       return _transactionRepo.insertTransactionsBatchWithRelations(
         transactions: transactions,
         tagIdsByIndex: tagIdsByIndex,
         attachmentsByIndex: attachmentsByIndex,
       );
     }
+    if (changeTracker == null)
+      return _insertGuardedRelations(
+          transactions: transactions,
+          tagIdsByIndex: tagIdsByIndex,
+          attachmentsByIndex: attachmentsByIndex);
     // 预填充 syncId 让 wrapper 也能根据 syncId 查回行后登记 change(子仓库会
     // 看到这些已填的 syncId,不会重复生成)。
     final effective = transactions.map((tx) {
@@ -788,7 +1028,7 @@ class LocalRepository extends BaseRepository {
       return tx;
     }).toList();
     return db.transaction(() async {
-      final ids = await _transactionRepo.insertTransactionsBatchWithRelations(
+      final ids = await _insertGuardedRelations(
         transactions: effective,
         tagIdsByIndex: tagIdsByIndex,
         attachmentsByIndex: attachmentsByIndex,
@@ -973,29 +1213,47 @@ class LocalRepository extends BaseRepository {
     bool writeAccountSyncIdOverride = false,
     bool writeToAccountSyncIdOverride = false,
   }) async {
-    await _transactionRepo.updateTransactionFields(
-      id: id,
-      accountId: accountId,
-      toAccountId: toAccountId,
-      accountSyncIdOverride: accountSyncIdOverride,
-      toAccountSyncIdOverride: toAccountSyncIdOverride,
-      writeAccountSyncIdOverride: writeAccountSyncIdOverride,
-      writeToAccountSyncIdOverride: writeToAccountSyncIdOverride,
-    );
-    // 历史 bug:这里之前没记 ChangeTracker,transfer 编辑模式改 toAccountId
-    // 永远不 sync。补一刀 update change,跟 updateTransaction 对齐。
-    if (changeTracker != null) {
-      final tx = await _transactionRepo.getTransactionById(id);
-      if (tx?.syncId != null) {
-        await changeTracker!.recordLedgerChange(
-          entityType: 'transaction',
-          entityId: id,
-          entitySyncId: tx!.syncId!,
-          ledgerId: tx.ledgerId,
-          action: 'update',
-        );
+    await db.transaction(() async {
+      final before = await _transactionRepo.getTransactionById(id);
+      int? endpoint(dynamic value, int? fallback) => value == null
+          ? fallback
+          : value is d.Value<int?>
+              ? (value.present ? value.value : fallback)
+              : value as int?;
+      if (before != null) {
+        await LoanAccountingGuard(db).validate(
+            before: before,
+            type: before.type,
+            amount: before.amount,
+            accountId: endpoint(accountId, before.accountId),
+            toAccountId: endpoint(toAccountId, before.toAccountId),
+            happenedAt: before.happenedAt,
+            ledgerId: before.ledgerId);
       }
-    }
+      await _transactionRepo.updateTransactionFields(
+        id: id,
+        accountId: accountId,
+        toAccountId: toAccountId,
+        accountSyncIdOverride: accountSyncIdOverride,
+        toAccountSyncIdOverride: toAccountSyncIdOverride,
+        writeAccountSyncIdOverride: writeAccountSyncIdOverride,
+        writeToAccountSyncIdOverride: writeToAccountSyncIdOverride,
+      );
+      // 历史 bug:这里之前没记 ChangeTracker,transfer 编辑模式改 toAccountId
+      // 永远不 sync。补一刀 update change,跟 updateTransaction 对齐。
+      if (changeTracker != null) {
+        final tx = await _transactionRepo.getTransactionById(id);
+        if (tx?.syncId != null) {
+          await changeTracker!.recordLedgerChange(
+            entityType: 'transaction',
+            entityId: id,
+            entitySyncId: tx!.syncId!,
+            ledgerId: tx.ledgerId,
+            action: 'update',
+          );
+        }
+      }
+    });
   }
 
   @override
@@ -1164,21 +1422,35 @@ class LocalRepository extends BaseRepository {
     int? toAccountId,
     required DateTime happenedAt,
     String? note,
-  }) =>
-      _transactionRepo.updateTransactionBySyncId(
-        syncId: syncId,
-        type: type,
-        amount: amount,
-        categoryId: categoryId,
-        accountId: accountId,
-        toAccountId: toAccountId,
-        happenedAt: happenedAt,
-        note: note,
-      );
+  }) async {
+    await db.transaction(() async {
+      final before = await _transactionRepo.getTransactionBySyncId(syncId);
+      if (before == null) return;
+      await LoanAccountingGuard(db).validate(
+          before: before,
+          type: type,
+          amount: amount,
+          accountId: accountId,
+          toAccountId: toAccountId,
+          happenedAt: happenedAt,
+          ledgerId: before.ledgerId);
+      await _transactionRepo.updateTransactionBySyncId(
+          syncId: syncId,
+          type: type,
+          amount: amount,
+          categoryId: categoryId,
+          accountId: accountId,
+          toAccountId: toAccountId,
+          happenedAt: happenedAt,
+          note: note);
+    });
+  }
 
   @override
-  Future<void> deleteTransactionBySyncId(String syncId) =>
-      _transactionRepo.deleteTransactionBySyncId(syncId);
+  Future<void> deleteTransactionBySyncId(String syncId) async {
+    final before = await _transactionRepo.getTransactionBySyncId(syncId);
+    if (before != null) await deleteTransaction(before.id);
+  }
 
   @override
   Future<Map<String, int>> updateTransactionsBatchBySyncId(
@@ -1186,12 +1458,12 @@ class LocalRepository extends BaseRepository {
     bool recordChanges = true,
   }) async {
     if (updates.isEmpty) return const {};
-    if (!recordChanges || changeTracker == null) {
+    if (!recordChanges) {
       return _transactionRepo.updateTransactionsBatchBySyncId(updates);
     }
+    if (changeTracker == null) return _updateGuardedBatch(updates);
     return db.transaction(() async {
-      final syncIdToTxId =
-          await _transactionRepo.updateTransactionsBatchBySyncId(updates);
+      final syncIdToTxId = await _updateGuardedBatch(updates);
       if (syncIdToTxId.isEmpty) return syncIdToTxId;
       // 反查 ledgerId 用于 change log
       final txs = await (db.select(db.transactions)
@@ -1223,17 +1495,17 @@ class LocalRepository extends BaseRepository {
   }) async {
     if (syncIds.isEmpty) return 0;
     // recordChanges=false / 无 changeTracker → 直接走子仓库,不写 change log
-    if (!recordChanges || changeTracker == null) {
+    if (!recordChanges) {
       return _transactionRepo.deleteTransactionsBatchBySyncIds(syncIds);
     }
+    if (changeTracker == null) return _deleteGuardedBatch(syncIds);
     return db.transaction(() async {
       // 先 SELECT 出待删的 tx(留下 ledgerId / syncId 用于 change log)
       final rows = await (db.select(db.transactions)
             ..where((t) => t.syncId.isIn(syncIds)))
           .get();
       if (rows.isEmpty) return 0;
-      final deleted =
-          await _transactionRepo.deleteTransactionsBatchBySyncIds(syncIds);
+      final deleted = await _deleteGuardedBatch(syncIds);
       // 一次性 batch insert N 条 transaction:delete change,代替逐条
       // recordLedgerChange,跨 isolate boundary 从 N 次降到 1 次。
       await db.batch((b) {
@@ -1780,6 +2052,23 @@ class LocalRepository extends BaseRepository {
   Stream<List<Account>> watchAllAccounts() => _accountRepo.watchAllAccounts();
 
   @override
+  Future<void> activateLoanAccount(int accountId,
+      {required double debt, DateTime? since}) async {
+    await db.transaction(() async {
+      await _accountRepo.activateLoanAccount(accountId,
+          debt: debt, since: since);
+      final account = await _accountRepo.getAccount(accountId);
+      if (changeTracker != null && account?.syncId != null) {
+        await changeTracker!.recordUserGlobalChange(
+            entityType: 'account',
+            entityId: accountId,
+            entitySyncId: account!.syncId!,
+            action: 'update');
+      }
+    });
+  }
+
+  @override
   Future<List<Account>> getAllAccounts() => _accountRepo.getAllAccounts();
 
   @override
@@ -1880,8 +2169,24 @@ class LocalRepository extends BaseRepository {
     bool clearMetadataFields = false,
     bool? hidden,
   }) async {
-    final account =
-        changeTracker != null ? await _accountRepo.getAccount(id) : null;
+    final account = await _accountRepo.getAccount(id);
+    if (account != null && (account.type == 'loan' || type == 'loan')) {
+      if (type != null && type != account.type)
+        throw const LoanAccountingException('loanTransferOnly');
+      if (currency != null &&
+          currency != account.currency &&
+          await _accountRepo.getTransactionCountByAccount(id) > 0) {
+        throw const LoanAccountingException('loanSameCurrencyOnly');
+      }
+      if (initialBalance != null) {
+        final current = await _accountRepo.getAccountBalance(id);
+        final target = account.loanBalanceVersion == 1
+            ? current - account.initialBalance + initialBalance
+            : initialBalance;
+        if (!target.isFinite || target > 0.0000001)
+          throw const LoanAccountingException('loanRepaymentExceedsDebt');
+      }
+    }
     await _accountRepo.updateAccount(
       id,
       name: name,
@@ -1898,7 +2203,7 @@ class LocalRepository extends BaseRepository {
       clearMetadataFields: clearMetadataFields,
       hidden: hidden,
     );
-    if (account?.syncId != null) {
+    if (changeTracker != null && account?.syncId != null) {
       await changeTracker!.recordUserGlobalChange(
         entityType: 'account',
         entityId: id,
@@ -1922,12 +2227,40 @@ class LocalRepository extends BaseRepository {
       throw StateError(resolveAppLocalizations(null).ledgerMissing);
     }
     if (ledger.isShared && ledger.myRole != 'owner') {
-      throw StateError(resolveAppLocalizations(null).sharedLedgerBalanceRestricted);
+      throw StateError(
+          resolveAppLocalizations(null).sharedLedgerBalanceRestricted);
     }
 
     final account = await getAccount(accountId);
     if (account == null) {
       throw StateError(resolveAppLocalizations(null).accountMissing);
+    }
+    if (account.type == 'loan') {
+      if (createBalanceAdjustment ||
+          !targetBalance.isFinite ||
+          targetBalance > 0) {
+        throw const LoanAccountingException('loanTransferOnly');
+      }
+      final previous = await getAccountBalance(accountId);
+      await db.transaction(() async {
+        await (db.update(db.accounts)..where((a) => a.id.equals(accountId)))
+            .write(AccountsCompanion(
+                initialBalance: d.Value(targetBalance),
+                loanBalanceVersion: const d.Value(1),
+                loanBalanceSince: d.Value(DateTime.now()),
+                updatedAt: d.Value(DateTime.now())));
+        if (changeTracker != null && account.syncId != null) {
+          await changeTracker!.recordUserGlobalChange(
+              entityType: 'account',
+              entityId: accountId,
+              entitySyncId: account.syncId!,
+              action: 'update');
+        }
+      });
+      return AccountBalanceUpdateResult(
+          oldBalance: previous,
+          newBalance: targetBalance,
+          difference: targetBalance - previous);
     }
     final oldBalance = await getAccountBalance(accountId);
     final difference = targetBalance - oldBalance;
@@ -2212,8 +2545,12 @@ class LocalRepository extends BaseRepository {
           _accountRepo.getAssetCompositionByTypeAndCurrency();
 
   @override
-  Future<void> updateAccountValuation(int accountId, double newValue) =>
-      _accountRepo.updateAccountValuation(accountId, newValue);
+  Future<void> updateAccountValuation(int accountId, double newValue) async {
+    final account = await getAccount(accountId);
+    if (account?.type == 'loan')
+      throw const LoanAccountingException('loanTransferOnly');
+    await updateAccount(accountId, initialBalance: newValue);
+  }
 
   @override
   Future<SharedLedgerAccount?> getSharedAccountBySyncId(String syncId) =>

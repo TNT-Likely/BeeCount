@@ -16321,6 +16321,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unable to share. Please try again.'**
   String get transactionReceiptShareFailed;
+
+  /// No description provided for @loanCurrentDebt.
+  ///
+  /// In en, this message translates to:
+  /// **'Outstanding principal'**
+  String get loanCurrentDebt;
+
+  /// No description provided for @loanRepayPrincipal.
+  ///
+  /// In en, this message translates to:
+  /// **'Repay principal'**
+  String get loanRepayPrincipal;
+
+  /// No description provided for @loanBorrowPrincipal.
+  ///
+  /// In en, this message translates to:
+  /// **'Borrow principal'**
+  String get loanBorrowPrincipal;
+
+  /// No description provided for @loanPrincipalHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter principal only. Record interest and fees as separate expenses.'**
+  String get loanPrincipalHint;
+
+  /// No description provided for @loanReviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm loan balance'**
+  String get loanReviewTitle;
+
+  /// No description provided for @loanReviewHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm the outstanding principal to continue from now. Older transactions stay visible without changing the new principal baseline.'**
+  String get loanReviewHint;
+
+  /// No description provided for @loanBaselineDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete records since'**
+  String get loanBaselineDate;
+
+  /// No description provided for @loanCalibrationHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Correct the balance without creating income or expenses. Historical trends may change. Use repayment for actual payments.'**
+  String get loanCalibrationHint;
+
+  /// No description provided for @loanNeedsReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm the loan balance before recording borrowing or repayment.'**
+  String get loanNeedsReview;
+
+  /// No description provided for @loanTransferOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Record loan principal using borrowing or repayment transfers.'**
+  String get loanTransferOnly;
+
+  /// No description provided for @loanPersonalLedgerOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Record loan borrowing and repayment in a personal ledger.'**
+  String get loanPersonalLedgerOnly;
+
+  /// No description provided for @loanSameCurrencyOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'The loan and funding account must use the same currency.'**
+  String get loanSameCurrencyOnly;
+
+  /// No description provided for @loanBeforeBaseline.
+  ///
+  /// In en, this message translates to:
+  /// **'This transaction predates the loan baseline. Reconcile the baseline and history first.'**
+  String get loanBeforeBaseline;
+
+  /// No description provided for @loanRepaymentExceedsDebt.
+  ///
+  /// In en, this message translates to:
+  /// **'Principal repayment exceeds the outstanding debt. Check principal, interest and the loan balance.'**
+  String get loanRepaymentExceedsDebt;
+
+  /// No description provided for @accountGroupDailyAssets.
+  ///
+  /// In en, this message translates to:
+  /// **'Everyday funds'**
+  String get accountGroupDailyAssets;
+
+  /// No description provided for @accountGroupValuationAssets.
+  ///
+  /// In en, this message translates to:
+  /// **'Valued assets'**
+  String get accountGroupValuationAssets;
+
+  /// No description provided for @loanDebtDecrease.
+  ///
+  /// In en, this message translates to:
+  /// **'Principal decreased'**
+  String get loanDebtDecrease;
+
+  /// No description provided for @loanDebtIncrease.
+  ///
+  /// In en, this message translates to:
+  /// **'Principal increased'**
+  String get loanDebtIncrease;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
