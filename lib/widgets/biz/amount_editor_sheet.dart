@@ -646,12 +646,17 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
 
     final showTime = ref.read(showTransactionTimeProvider);
 
+    // 支持未来记账(#581):上界与日历页一致,取「今天 + 1 年」
+    final now = DateTime.now();
+    final maxDate =
+        DateTime(now.year, now.month, now.day).add(const Duration(days: 365));
+
     if (showTime) {
       // 显示时间功能开启时，使用两步选择器（先日期后时间）
       final res = await showWheelDateTimePicker(
         context,
         initial: _date,
-        maxDate: DateTime.now(),
+        maxDate: maxDate,
       );
       if (res != null) setState(() => _date = res);
     } else {
@@ -660,7 +665,7 @@ class _AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
         context,
         initial: _date,
         mode: WheelDatePickerMode.ymd,
-        maxDate: DateTime.now(),
+        maxDate: maxDate,
       );
       if (res != null) setState(() => _date = res);
     }
