@@ -1359,7 +1359,17 @@ LazyDatabase _openConnection() {
       logger.debug('db', '检查锁文件时出错: $e');
     }
 
-    return NativeDatabase.createInBackground(file);
+    return NativeDatabase.createInBackground(
+      file,
+      setup: (db) {
+        // 显式设置写锁等待窗口。
+        // drift 2.x 从不设置 busy_timeout,SQLite 默认值为 0:
+        // 只要有任何并发写(后台 widget isolate / 扩展 / 另一写事务)占用写锁,
+        // 立刻抛 SQLITE_BUSY → pull 整页事务直接失败回滚。
+        // 给 5s 等待窗口,把"瞬时争用即失败"变成"等锁即可成功"。
+        db.execute('PRAGMA busy_timeout = 5000');
+      },
+    );
   });
 }
 
