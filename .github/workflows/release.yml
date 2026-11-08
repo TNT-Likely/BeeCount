@@ -4,9 +4,7 @@ on:
   push:
     tags:
       - "*"
-      - "!*beta*"
-      - "!*Beta*"
-      - "!*BETA*"
+      - "!*-beta.*"
   workflow_dispatch:
     inputs:
       tag_name:
@@ -46,6 +44,14 @@ jobs:
     name: Reject Beta and check stable source
     runs-on: ubuntu-latest
     steps:
+      - name: Reject Beta in the production workflow
+        env:
+          RELEASE_INPUT_TAG: ${{ github.event.inputs.tag_name || '' }}
+        run: |
+          if [[ "$RELEASE_INPUT_TAG" == *-beta.* ]]; then
+            echo "::error::Beta 请使用独立 Android Beta Release workflow。"
+            exit 1
+          fi
       - name: Check branch
         env:
           INPUT_TAG: ${{ inputs.tag_name }}
@@ -71,7 +77,7 @@ jobs:
     name: Android (APK + AAB)
     runs-on: ubuntu-latest
     needs: [check-branch]
-    if: needs.check-branch.result == 'success'
+    if: always() && !contains(github.ref_name, '-beta.') && !contains(github.event.inputs.tag_name, '-beta.') && (needs.check-branch.result == 'success' || github.event_name == 'push')
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -379,7 +385,7 @@ jobs:
     name: iOS (app.zip + unsigned .ipa)
     runs-on: macos-latest
     needs: [check-branch]
-    if: needs.check-branch.result == 'success'
+    if: always() && !contains(github.ref_name, '-beta.') && !contains(github.event.inputs.tag_name, '-beta.') && (needs.check-branch.result == 'success' || github.event_name == 'push')
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -791,7 +797,7 @@ jobs:
       - check-branch
       - android
       - ios
-    if: always() && needs.check-branch.result == 'success' && needs.android.result == 'success' && needs.ios.result == 'success'
+    if: always() && !contains(github.ref_name, '-beta.') && !contains(github.event.inputs.tag_name, '-beta.') && (needs.check-branch.result == 'success' || github.event_name == 'push') && needs.android.result == 'success' && needs.ios.result == 'success'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
