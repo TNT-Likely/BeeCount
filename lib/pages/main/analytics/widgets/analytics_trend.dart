@@ -46,13 +46,15 @@ class _AnalyticsTrendState extends State<AnalyticsTrend> {
         : -1;
     Widget move(String label, String icon, VoidCallback? action,
         {bool back = false}) {
+      final labelStyle = theme.textTheme.labelLarge!
+          .copyWith(fontSize: 10, fontWeight: FontWeight.w400);
       final painter = TextPainter(
-          text: TextSpan(text: label, style: const TextStyle(fontSize: 10)),
+          text: TextSpan(text: label, style: labelStyle),
           textDirection: Directionality.of(context),
           textScaler: MediaQuery.textScalerOf(context))
         ..layout();
       final showText = painter.width <= 70;
-      final width = showText ? painter.width + 14 : 36.0;
+      final width = showText ? painter.width.ceilToDouble() + 16 : 36.0;
       painter.dispose();
       return Tooltip(
           message: label,
@@ -69,8 +71,7 @@ class _AnalyticsTrendState extends State<AnalyticsTrend> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         if (back || !showText) BeeLineIcon(icon, size: 12),
-                        if (showText)
-                          Text(label, style: const TextStyle(fontSize: 10)),
+                        if (showText) Text(label, style: labelStyle),
                         if (!back && showText) BeeLineIcon(icon, size: 12)
                       ]))));
     }
