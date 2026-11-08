@@ -117,12 +117,82 @@ A lightweight, open-source, privacy-first **personal finance** and **expense tra
 
 ## 📸 Screenshots
 
+Real v4 App screens and workflows captured on isolated simulators with synthetic sample data. One shared showcase is maintained here, without platform duplicates.
+
+### Workflow demos
+
+Real v4 workflow recordings (AI assistant and import run the real model and parser).
+
 <div align="center">
-  <img src="demo/videos/en/01-add-transaction.gif" alt="Add transaction" width="200" />
-  <img src="demo/videos/en/02-ai-text.gif" alt="AI text bookkeeping" width="200" />
-  <img src="demo/videos/en/04-data-analysis.gif" alt="Analytics" width="200" />
-  <img src="demo/videos/en/05-copy-transaction.gif" alt="Long press to copy a transaction" width="200" />
+  <img src="demo/videos/v4/en/light/01-add-transaction.gif" alt="Add a transaction" width="200" />
+  <img src="demo/videos/v4/en/light/02-ai-chat.gif" alt="AI assistant" width="200" />
+  <img src="demo/videos/v4/en/light/04-data-analysis.gif" alt="Explore insights" width="200" />
 </div>
+
+<div align="center">
+  <img src="demo/videos/v4/en/light/05-copy-transaction.gif" alt="Copy a transaction" width="200" />
+  <img src="demo/videos/v4/en/light/06-import-ledger.gif" alt="Import a ledger" width="200" />
+</div>
+
+<details>
+<summary>Dark mode demos</summary>
+
+<div align="center">
+  <img src="demo/videos/v4/en/dark/01-add-transaction.gif" alt="Add a transaction · dark" width="200" />
+  <img src="demo/videos/v4/en/dark/02-ai-chat.gif" alt="AI assistant · dark" width="200" />
+  <img src="demo/videos/v4/en/dark/04-data-analysis.gif" alt="Explore insights · dark" width="200" />
+</div>
+
+<div align="center">
+  <img src="demo/videos/v4/en/dark/05-copy-transaction.gif" alt="Copy a transaction · dark" width="200" />
+  <img src="demo/videos/v4/en/dark/06-import-ledger.gif" alt="Import a ledger · dark" width="200" />
+</div>
+
+</details>
+
+### App screens
+
+<div align="center">
+  <img src="preview/v4/en/light/01-home.png" alt="v4 screen 01-home" width="200" />
+  <img src="preview/v4/en/light/05-transaction.png" alt="v4 screen 05-transaction" width="200" />
+  <img src="preview/v4/en/light/02-analytics.png" alt="v4 screen 02-analytics" width="200" />
+</div>
+<div align="center">
+  <img src="preview/v4/en/light/03-accounts.png" alt="v4 screen 03-accounts" width="200" />
+  <img src="preview/v4/en/light/04-ledgers.png" alt="v4 screen 04-ledgers" width="200" />
+  <img src="preview/v4/en/light/06-budgets.png" alt="v4 screen 06-budgets" width="200" />
+</div>
+<details>
+<summary>More screens and dark mode</summary>
+
+<div align="center">
+  <img src="preview/v4/en/light/07-mine.png" alt="v4 screen 07-mine" width="200" />
+  <img src="preview/v4/en/light/08-tags.png" alt="v4 screen 08-tags" width="200" />
+  <img src="preview/v4/en/light/09-cloud.png" alt="v4 screen 09-cloud" width="200" />
+</div>
+<div align="center">
+  <img src="preview/v4/en/light/10-categories.png" alt="v4 screen 10-categories" width="200" />
+  <img src="preview/v4/en/light/11-personalization.png" alt="v4 screen 11-personalization" width="200" />
+  <img src="preview/v4/en/light/12-search.png" alt="v4 screen 12-search" width="200" />
+</div>
+<div align="center">
+  <img src="preview/v4/en/dark/01-home.png" alt="v4 screen 01-home" width="200" />
+  <img src="preview/v4/en/dark/05-transaction.png" alt="v4 screen 05-transaction" width="200" />
+  <img src="preview/v4/en/dark/02-analytics.png" alt="v4 screen 02-analytics" width="200" />
+</div>
+<div align="center">
+  <img src="preview/v4/en/dark/03-accounts.png" alt="v4 screen 03-accounts" width="200" />
+  <img src="preview/v4/en/dark/04-ledgers.png" alt="v4 screen 04-ledgers" width="200" />
+  <img src="preview/v4/en/dark/06-budgets.png" alt="v4 screen 06-budgets" width="200" />
+</div>
+
+<div align="center">
+  <img src="demo/videos/v4/en/dark/01-add-transaction.gif" alt="Add a transaction (v4)" width="200" />
+  <img src="demo/videos/v4/en/dark/04-data-analysis.gif" alt="Explore insights (v4)" width="200" />
+  <img src="demo/videos/v4/en/dark/05-copy-transaction.gif" alt="Copy a transaction (v4)" width="200" />
+</div>
+
+</details>
 
 ### Home Widgets
 
@@ -133,40 +203,6 @@ A lightweight, open-source, privacy-first **personal finance** and **expense tra
 
 <div align="center">
   <img src="demo/widgets/widgets-showcase-en.png" alt="Home widget lineup: overview / net assets / quick add / budget / recent transactions / dashboard / Spending Rhythm / Record Bee Trail" width="820" />
-</div>
-
-</details>
-
-<details>
-<summary>More screenshots (core features / dark mode)</summary>
-
-### 9 Core Themes
-
-<div align="center">
-  <img src="preview/store-en/01-home.png" alt="Home" width="200" />
-  <img src="preview/store-en/02-open-source.png" alt="Cloud Service" width="200" />
-  <img src="preview/store-en/03-analytics.png" alt="Analytics" width="200" />
-</div>
-
-<div align="center">
-  <img src="preview/store-en/04-ai.png" alt="AI Smart Logging" width="200" />
-  <img src="preview/store-en/05-add.png" alt="Quick Entry" width="200" />
-  <img src="preview/store-en/06-ledgers.png" alt="Multi-Ledger" width="200" />
-</div>
-
-<div align="center">
-  <img src="preview/store-en/07-tags.png" alt="Color Tags" width="200" />
-  <img src="preview/store-en/08-accounts.png" alt="Net Worth" width="200" />
-  <img src="preview/store-en/09-mine.png" alt="Settings" width="200" />
-</div>
-
-### Dark Mode
-
-<div align="center">
-  <img src="preview/dark/en/01-home.png" alt="Home dark" width="200" />
-  <img src="preview/dark/en/02-chart-analysis.png" alt="Charts dark" width="200" />
-  <img src="preview/dark/en/04-profile.png" alt="Profile dark" width="200" />
-  <img src="preview/dark/en/05-ai-chat.png" alt="AI chat dark" width="200" />
 </div>
 
 </details>

@@ -1,0 +1,367 @@
+{
+  "schema_version": 2,
+  "kind": "workflow-recordings",
+  "notes": "Shared App showcase recorded on the iOS simulator; per-platform originals live in BeeCount-Press.",
+  "files": [
+    {
+      "path": "zh/light/01-add-transaction.mp4",
+      "bytes": 350865,
+      "sha256": "f7be2d54cefb8072f87e305430d4e56c0ed73e54570d9f8ef65a21fc2964a09c",
+      "duration_seconds": 10.36,
+      "language": "zh",
+      "appearance": "light",
+      "workflow": "01-add-transaction"
+    },
+    {
+      "path": "zh/light/01-add-transaction.gif",
+      "bytes": 743563,
+      "sha256": "9cf2324f5ebc20f55252d00c029dbd80f41780b7f7a703fcbbf688b32a9ea91c",
+      "duration_seconds": 10.36,
+      "language": "zh",
+      "appearance": "light",
+      "workflow": "01-add-transaction"
+    },
+    {
+      "path": "zh/light/04-data-analysis.mp4",
+      "bytes": 262817,
+      "sha256": "5b9f8d45579a404d001a5be2c700c2fed3ed7a65b36da983c31639c1eb4347b5",
+      "duration_seconds": 9.41,
+      "language": "zh",
+      "appearance": "light",
+      "workflow": "04-data-analysis"
+    },
+    {
+      "path": "zh/light/04-data-analysis.gif",
+      "bytes": 456594,
+      "sha256": "cd1e743efbfda91997c97304ccc1eeef308a50a96e58bebbad03ce6e4bdd344f",
+      "duration_seconds": 9.41,
+      "language": "zh",
+      "appearance": "light",
+      "workflow": "04-data-analysis"
+    },
+    {
+      "path": "zh/light/05-copy-transaction.mp4",
+      "bytes": 317347,
+      "sha256": "46684682c85d468e003d01ebd18fb2c123636466d15bac877bf9ffcb59a00b18",
+      "duration_seconds": 12.64,
+      "language": "zh",
+      "appearance": "light",
+      "workflow": "05-copy-transaction"
+    },
+    {
+      "path": "zh/light/05-copy-transaction.gif",
+      "bytes": 724777,
+      "sha256": "64686ec3cae1edacfb0d7e3560f2309d792492c9b8d2d6969ee8c357a93d803b",
+      "duration_seconds": 12.64,
+      "language": "zh",
+      "appearance": "light",
+      "workflow": "05-copy-transaction"
+    },
+    {
+      "path": "zh/light/02-ai-chat.mp4",
+      "bytes": 297151,
+      "sha256": "a140cb440580b039d14eb6a43e30f29cedffff5f767209d88d4aeb647468cd73",
+      "duration_seconds": 10.84,
+      "language": "zh",
+      "appearance": "light",
+      "workflow": "02-ai-chat"
+    },
+    {
+      "path": "zh/light/02-ai-chat.gif",
+      "bytes": 620276,
+      "sha256": "43eca3b2e8e5890ee16d69f7c664339c3b5a1a8225954d5705eb4a54406cbc0d",
+      "duration_seconds": 10.84,
+      "language": "zh",
+      "appearance": "light",
+      "workflow": "02-ai-chat"
+    },
+    {
+      "path": "zh/light/06-import-ledger.mp4",
+      "bytes": 384987,
+      "sha256": "3e6a19fbd6e43779bac6c5d7087d2a94fa026b093e78eced95ab41df1d88adb5",
+      "duration_seconds": 9.56,
+      "language": "zh",
+      "appearance": "light",
+      "workflow": "06-import-ledger"
+    },
+    {
+      "path": "zh/light/06-import-ledger.gif",
+      "bytes": 649794,
+      "sha256": "743cefd0f4a92fefa863f40dae9684f1501440694218d55d7f6707803132583e",
+      "duration_seconds": 9.56,
+      "language": "zh",
+      "appearance": "light",
+      "workflow": "06-import-ledger"
+    },
+    {
+      "path": "zh/dark/01-add-transaction.mp4",
+      "bytes": 316203,
+      "sha256": "c2c8358c30eb6862adea5f4dba824bc0b3d876225dae71aa21d9cbf4c97e9980",
+      "duration_seconds": 9.87,
+      "language": "zh",
+      "appearance": "dark",
+      "workflow": "01-add-transaction"
+    },
+    {
+      "path": "zh/dark/01-add-transaction.gif",
+      "bytes": 780922,
+      "sha256": "1cabdfe21b4bcf2ffef1d9d36ee18c734b3e1c9b8f7e738c49f5fd276e712882",
+      "duration_seconds": 9.87,
+      "language": "zh",
+      "appearance": "dark",
+      "workflow": "01-add-transaction"
+    },
+    {
+      "path": "zh/dark/04-data-analysis.mp4",
+      "bytes": 267912,
+      "sha256": "0197ede8f040c021e84ef66b888159e1836bec0509ac8f1f5d041ccd220c6475",
+      "duration_seconds": 9.42,
+      "language": "zh",
+      "appearance": "dark",
+      "workflow": "04-data-analysis"
+    },
+    {
+      "path": "zh/dark/04-data-analysis.gif",
+      "bytes": 475272,
+      "sha256": "4a23e770ea20602227a574b96eddf4704837846292e7cfe51e213648ac8174ff",
+      "duration_seconds": 9.42,
+      "language": "zh",
+      "appearance": "dark",
+      "workflow": "04-data-analysis"
+    },
+    {
+      "path": "zh/dark/05-copy-transaction.mp4",
+      "bytes": 317747,
+      "sha256": "30cc3c16adc4f343af1237e94dbf913cb0ee083c71f2735c7142633490926afa",
+      "duration_seconds": 12.52,
+      "language": "zh",
+      "appearance": "dark",
+      "workflow": "05-copy-transaction"
+    },
+    {
+      "path": "zh/dark/05-copy-transaction.gif",
+      "bytes": 787099,
+      "sha256": "38fee4ed7d653fc1ecfc8b8309fd61d791ea959ad6db7e0f24211313ad6a9d6e",
+      "duration_seconds": 12.52,
+      "language": "zh",
+      "appearance": "dark",
+      "workflow": "05-copy-transaction"
+    },
+    {
+      "path": "zh/dark/02-ai-chat.mp4",
+      "bytes": 323955,
+      "sha256": "6090670e93a6d9380eae5a3558b539c02301d087c6d6c81187a5734bc23417b7",
+      "duration_seconds": 9.6,
+      "language": "zh",
+      "appearance": "dark",
+      "workflow": "02-ai-chat"
+    },
+    {
+      "path": "zh/dark/02-ai-chat.gif",
+      "bytes": 646062,
+      "sha256": "480f3abc206c245165b6f813da62f30ce3032a7bf89137b16c7e4386eb1a3487",
+      "duration_seconds": 9.6,
+      "language": "zh",
+      "appearance": "dark",
+      "workflow": "02-ai-chat"
+    },
+    {
+      "path": "zh/dark/06-import-ledger.mp4",
+      "bytes": 399009,
+      "sha256": "f2d3077c34301632f88bc5f1aa94b593859fe6d7a226926c31c3b9f09b54d88d",
+      "duration_seconds": 9.45,
+      "language": "zh",
+      "appearance": "dark",
+      "workflow": "06-import-ledger"
+    },
+    {
+      "path": "zh/dark/06-import-ledger.gif",
+      "bytes": 686136,
+      "sha256": "9696b4836626f5ddfba5ffe8db7f947d381752ceaa1b2e7e8cd5bf86ec81e952",
+      "duration_seconds": 9.45,
+      "language": "zh",
+      "appearance": "dark",
+      "workflow": "06-import-ledger"
+    },
+    {
+      "path": "en/light/01-add-transaction.mp4",
+      "bytes": 387632,
+      "sha256": "874d6f3341f4117d6d5566217180a1f6efeaa3304a72e4e6e697682db263bbb8",
+      "duration_seconds": 11.77,
+      "language": "en",
+      "appearance": "light",
+      "workflow": "01-add-transaction"
+    },
+    {
+      "path": "en/light/01-add-transaction.gif",
+      "bytes": 824532,
+      "sha256": "36d956da0f6911e84337fefefb861c102488ac0cd9a53a437f074478e3c54999",
+      "duration_seconds": 11.77,
+      "language": "en",
+      "appearance": "light",
+      "workflow": "01-add-transaction"
+    },
+    {
+      "path": "en/light/04-data-analysis.mp4",
+      "bytes": 290293,
+      "sha256": "1e61120180a6bb67d47edb114649af7a4c95b5d5277de88629ea162fe7255170",
+      "duration_seconds": 9.41,
+      "language": "en",
+      "appearance": "light",
+      "workflow": "04-data-analysis"
+    },
+    {
+      "path": "en/light/04-data-analysis.gif",
+      "bytes": 492544,
+      "sha256": "93ad19bb053b153016598b37e158fade496dcf56622902dd12b4a2e83cce6787",
+      "duration_seconds": 9.41,
+      "language": "en",
+      "appearance": "light",
+      "workflow": "04-data-analysis"
+    },
+    {
+      "path": "en/light/05-copy-transaction.mp4",
+      "bytes": 415572,
+      "sha256": "41f923601a28d99666ff1e748b9993cf1a1d82ae961c153e84672104bb53d0f1",
+      "duration_seconds": 15.62,
+      "language": "en",
+      "appearance": "light",
+      "workflow": "05-copy-transaction"
+    },
+    {
+      "path": "en/light/05-copy-transaction.gif",
+      "bytes": 840605,
+      "sha256": "f3598f2c74fdfe5a663433efe4ce57c7f3c134a8f8e59c33483c79b5704b99be",
+      "duration_seconds": 15.62,
+      "language": "en",
+      "appearance": "light",
+      "workflow": "05-copy-transaction"
+    },
+    {
+      "path": "en/light/02-ai-chat.mp4",
+      "bytes": 369507,
+      "sha256": "9fe533ee0f0d9398dde5f37997ab182c807665ceffe20e27f86a79549bf78970",
+      "duration_seconds": 14.13,
+      "language": "en",
+      "appearance": "light",
+      "workflow": "02-ai-chat"
+    },
+    {
+      "path": "en/light/02-ai-chat.gif",
+      "bytes": 707665,
+      "sha256": "f428f49d6f537d79b6ba64770cffa04454bf1df620b79ca7d4a412aafedb3ea7",
+      "duration_seconds": 14.13,
+      "language": "en",
+      "appearance": "light",
+      "workflow": "02-ai-chat"
+    },
+    {
+      "path": "en/light/06-import-ledger.mp4",
+      "bytes": 437093,
+      "sha256": "f504dc54a4d7e33f663de4e62fb6bcf1561a81c5d8014b863769ba001b2ac083",
+      "duration_seconds": 9.43,
+      "language": "en",
+      "appearance": "light",
+      "workflow": "06-import-ledger"
+    },
+    {
+      "path": "en/light/06-import-ledger.gif",
+      "bytes": 693904,
+      "sha256": "1611efd21721cd4ffe0c0b2edd1313868db31019b7b32ccc9520b1878a4cea2f",
+      "duration_seconds": 9.43,
+      "language": "en",
+      "appearance": "light",
+      "workflow": "06-import-ledger"
+    },
+    {
+      "path": "en/dark/01-add-transaction.mp4",
+      "bytes": 385715,
+      "sha256": "fb9ecaeb3509ff751aa7c0517417703ce83716776152b028fcf05e214b77a5b1",
+      "duration_seconds": 11.67,
+      "language": "en",
+      "appearance": "dark",
+      "workflow": "01-add-transaction"
+    },
+    {
+      "path": "en/dark/01-add-transaction.gif",
+      "bytes": 872040,
+      "sha256": "9c6d0c6145fd4649d865e84e65ddb69d094f935562a89c41671cd40fd8a7058f",
+      "duration_seconds": 11.67,
+      "language": "en",
+      "appearance": "dark",
+      "workflow": "01-add-transaction"
+    },
+    {
+      "path": "en/dark/04-data-analysis.mp4",
+      "bytes": 293837,
+      "sha256": "8d07d5b4498fe7abca505b0073560723142d8f7f13ad61f8342774d36d890dcb",
+      "duration_seconds": 9.41,
+      "language": "en",
+      "appearance": "dark",
+      "workflow": "04-data-analysis"
+    },
+    {
+      "path": "en/dark/04-data-analysis.gif",
+      "bytes": 518151,
+      "sha256": "db9353399efca08184d4c8e5bc7bde688426f9f5bc38d84eef33c64a0ecbfc91",
+      "duration_seconds": 9.41,
+      "language": "en",
+      "appearance": "dark",
+      "workflow": "04-data-analysis"
+    },
+    {
+      "path": "en/dark/05-copy-transaction.mp4",
+      "bytes": 420481,
+      "sha256": "751da195a1d23ad2fcc960b6d9a009acb5e3ff4ec12d436c4d81f57eb3c1b9f8",
+      "duration_seconds": 15.62,
+      "language": "en",
+      "appearance": "dark",
+      "workflow": "05-copy-transaction"
+    },
+    {
+      "path": "en/dark/05-copy-transaction.gif",
+      "bytes": 884096,
+      "sha256": "187a314c5a50b25c4e27ad82a41a787cbde4087a725f1567a686115b3bc0d840",
+      "duration_seconds": 15.62,
+      "language": "en",
+      "appearance": "dark",
+      "workflow": "05-copy-transaction"
+    },
+    {
+      "path": "en/dark/02-ai-chat.mp4",
+      "bytes": 389372,
+      "sha256": "68e0dc4b42f1ad53e5f609aeec0e7aee5f31768a456a3c7b8bda272dc121c3dd",
+      "duration_seconds": 14.13,
+      "language": "en",
+      "appearance": "dark",
+      "workflow": "02-ai-chat"
+    },
+    {
+      "path": "en/dark/02-ai-chat.gif",
+      "bytes": 805330,
+      "sha256": "eacf8510e5f5c216ba2ef13b65f09abfb40e98e2f2e7984c9e02652b55d2d89d",
+      "duration_seconds": 14.13,
+      "language": "en",
+      "appearance": "dark",
+      "workflow": "02-ai-chat"
+    },
+    {
+      "path": "en/dark/06-import-ledger.mp4",
+      "bytes": 439836,
+      "sha256": "36dc24e868a1aa2b748d756ef2eb8879eb2768ace2dd4e67441e07b04becb1d3",
+      "duration_seconds": 9.41,
+      "language": "en",
+      "appearance": "dark",
+      "workflow": "06-import-ledger"
+    },
+    {
+      "path": "en/dark/06-import-ledger.gif",
+      "bytes": 730649,
+      "sha256": "0ea403bd46629cba84ae04638b402281edd05fb6672a842d8a11313dcbbfef95",
+      "duration_seconds": 9.41,
+      "language": "en",
+      "appearance": "dark",
+      "workflow": "06-import-ledger"
+    }
+  ]
+}

@@ -1,0 +1,344 @@
+{
+  "schema_version": 1,
+  "kind": "app-screenshots",
+  "app_sha": "ec03623409454bee6c83accb298bcf6dc8b35746",
+  "notes": "One shared App showcase. Store-specific iOS/Android originals are maintained only in BeeCount-Press.",
+  "files": [
+    {
+      "path": "zh/light/01-home.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 344624,
+      "sha256": "883d5d1909f359db44ee845acd98c91b977b731a578750dd6d5736f64a6ee327"
+    },
+    {
+      "path": "zh/light/02-analytics.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 283109,
+      "sha256": "ba8494118ca2391ec7366ec2ecf4e01bad48d2ed26eac17a647b095fa2fca0a0"
+    },
+    {
+      "path": "zh/light/03-accounts.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 262934,
+      "sha256": "293a56632129bce83edadaf33316aaeb4cfb9d3c0e281244bcf44341222beb47"
+    },
+    {
+      "path": "zh/light/04-ledgers.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 258371,
+      "sha256": "d9fcdbdd2a1d8c5ebe327caabba5f565e5ecf7dd090db5b979c7ab35c3f0820b"
+    },
+    {
+      "path": "zh/light/05-transaction.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 259276,
+      "sha256": "7d83edb6dcfdb66e7759d4a2b0c267e8a2a2550a6e0105470ab4aade65a583de"
+    },
+    {
+      "path": "zh/light/06-budgets.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 240906,
+      "sha256": "5542b0c84ddec57d7c39570353f57c7991938113b5f187392bf497723c905884"
+    },
+    {
+      "path": "zh/light/07-mine.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 345072,
+      "sha256": "d4c72a20ad67f558e1ed39a042c1acaee17d567d266e2f1959a3547fb931eb8f"
+    },
+    {
+      "path": "zh/light/08-tags.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 152339,
+      "sha256": "94c195e09d1ea2b531965491ae48b16bab5733ca04bd4d241567b195ebc81cd0"
+    },
+    {
+      "path": "zh/light/09-cloud.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 138318,
+      "sha256": "7de94cdee9e54597701551fe00d7eb33b049a1dc5cd213be7a6c327811bea0d0"
+    },
+    {
+      "path": "zh/light/10-categories.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 276883,
+      "sha256": "7ce34d75f33140a4775e64625dcff58ef92abf17560135e34012329e5eecd0d1"
+    },
+    {
+      "path": "zh/light/11-personalization.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 233050,
+      "sha256": "a9503a4764419194a9054a33ce37cf49b1b5b1317121553af669d6532cd049ca"
+    },
+    {
+      "path": "zh/light/12-search.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 286650,
+      "sha256": "30eb0afef3ac9114dcc4cca602be3d722c8ebf359f999f563603231ebce05f28"
+    },
+    {
+      "path": "zh/dark/01-home.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 355976,
+      "sha256": "9d86ec1bb00c6ee9e4c8f1cfcedb5e6dd3683db441d23fe9aab293d5c105f719"
+    },
+    {
+      "path": "zh/dark/02-analytics.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 291501,
+      "sha256": "dab1442a39c2b60311da34fec0895c98f5e2fd5be69a83e145e3abc27c90783f"
+    },
+    {
+      "path": "zh/dark/03-accounts.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 266462,
+      "sha256": "4e0c371ac58d0106e8052acf2136d8460f66c9187dc447d2d527c3334b9f7dbc"
+    },
+    {
+      "path": "zh/dark/04-ledgers.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 265486,
+      "sha256": "13180aed43d65afa34efbb6f85072a098b4953bdd20fec35678bdc63bbe60f75"
+    },
+    {
+      "path": "zh/dark/05-transaction.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 269124,
+      "sha256": "e1f62a9095c7b0f8795945c33e3322aa95774caf8da8848d3d09e16864cd2160"
+    },
+    {
+      "path": "zh/dark/06-budgets.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 254095,
+      "sha256": "365db61eca7f6a2091952305b04855a8ff284bf47c9c6e4a86fbae37e04b6e81"
+    },
+    {
+      "path": "zh/dark/07-mine.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 359103,
+      "sha256": "6489aa5f1afc5e10529eac17cdec3d213d16975602fd504af22b3318309210e7"
+    },
+    {
+      "path": "zh/dark/08-tags.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 155103,
+      "sha256": "e8344646bb8b030dca3ab4a8413573a67ff49e0f35c9ce3573804196f5ae82c5"
+    },
+    {
+      "path": "zh/dark/09-cloud.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 142436,
+      "sha256": "47b952738f0abe416fc71a1fb2e1d32c877a82273e03ad973cdec89986e88f1d"
+    },
+    {
+      "path": "zh/dark/10-categories.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 285514,
+      "sha256": "a1bf4041cd8de8c04bcd0a4351b08acd879ac89c97becf5b6d64b8fa8dfd7e52"
+    },
+    {
+      "path": "zh/dark/11-personalization.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 253902,
+      "sha256": "48361c8c2b2a268d2d5d9e7bbe405a0cf89c33fb938100df364f946966fbd9c1"
+    },
+    {
+      "path": "zh/dark/12-search.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 299575,
+      "sha256": "15e095b330c1644b990f4c5ce0306961565da0b104d98501271b59fdf9aeb032"
+    },
+    {
+      "path": "en/light/01-home.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 378893,
+      "sha256": "9e9f2cef61bc3fe874f3cd675f20a4b347c975e34c8d3807b72c22df95fe442d"
+    },
+    {
+      "path": "en/light/02-analytics.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 301657,
+      "sha256": "4a042e22274f757a8338008b0a285555755c3ad12695637ddaf0da555fb8b995"
+    },
+    {
+      "path": "en/light/03-accounts.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 278975,
+      "sha256": "1a7461e61b7f629c32b331abdd6f6ea75bfdb8e27b3eb5a84356ec80a58d0c37"
+    },
+    {
+      "path": "en/light/04-ledgers.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 265459,
+      "sha256": "18a681877fca648b3cdaf5e9ceb641e666a335405803eda21965eead9909fe94"
+    },
+    {
+      "path": "en/light/05-transaction.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 264319,
+      "sha256": "60d15506332f8e938d445e3c5378acde6f330a3f840156da7650de387439e785"
+    },
+    {
+      "path": "en/light/06-budgets.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 248283,
+      "sha256": "0193bd8ef2543a42d96cda2bebfe7b4c1951d04d6fd3f26fb331c9e9d3009763"
+    },
+    {
+      "path": "en/light/07-mine.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 363472,
+      "sha256": "874a05c50b09691a98db64c06570318ebde8b93d54f614b0bb903a7693a3339d"
+    },
+    {
+      "path": "en/light/08-tags.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 166583,
+      "sha256": "29d23b08eadbf19ab22a57ddcc9772538ada22d833265c0c506fba367ae028ef"
+    },
+    {
+      "path": "en/light/09-cloud.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 136779,
+      "sha256": "a666bdcd14a48fb600c377c26392f837401be19164c61496abe0594351bb48d7"
+    },
+    {
+      "path": "en/light/10-categories.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 279082,
+      "sha256": "5dafb75d714b439cca9d1cbc088823c8d31b5b2d0ccd7e23241fb030815d0d0f"
+    },
+    {
+      "path": "en/light/11-personalization.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 235715,
+      "sha256": "4419cbb60f4b1a410b8084822c5823b0c3fff855b203a6a8071dbf3d0747ffaa"
+    },
+    {
+      "path": "en/light/12-search.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 316970,
+      "sha256": "a568d16abc36e9d66d6bca4c6ae74d757e1d6c01462e16986fc0a494193e31f6"
+    },
+    {
+      "path": "en/dark/01-home.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 393833,
+      "sha256": "c334e88ab739f2e0752d79c8188d81a9c5e2735ff011ebd3e4f773e5001eced6"
+    },
+    {
+      "path": "en/dark/02-analytics.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 314409,
+      "sha256": "4a1b6d4cb95c553bb80ddc67716d972ce299a9600e78fb5ac637e7f87eeae5b5"
+    },
+    {
+      "path": "en/dark/03-accounts.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 285895,
+      "sha256": "36a3f14121ea59402756266b7c6d9115e32ede0b5159722a60280142a19dc826"
+    },
+    {
+      "path": "en/dark/04-ledgers.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 272646,
+      "sha256": "e95bea2f22251dc04e67c2ac2a97bf7ad40ce8123d5ea5de11d5f8dadcc24c78"
+    },
+    {
+      "path": "en/dark/05-transaction.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 272419,
+      "sha256": "bd47017a234c024a427b954e461bd469f100646cc078da4563153cadb6b0e920"
+    },
+    {
+      "path": "en/dark/06-budgets.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 264755,
+      "sha256": "c1ec7fb904799c3da838904b1518c3b772a8371ebdf2287bb70f9bfe7e7fa4a9"
+    },
+    {
+      "path": "en/dark/07-mine.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 381581,
+      "sha256": "711be402add71fab91aa2ffe67f56e585cdca035ff056b1b66283b8ce29cc7e4"
+    },
+    {
+      "path": "en/dark/08-tags.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 174016,
+      "sha256": "87fcf6c5ecd009e662a221a7e81bd31052eba92fffa32c820659f3ff9feffc3f"
+    },
+    {
+      "path": "en/dark/09-cloud.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 140256,
+      "sha256": "161b5f2f2074cd67083d5b618c5d03cdd2990ac304ca6a129361feb08852a547"
+    },
+    {
+      "path": "en/dark/10-categories.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 289905,
+      "sha256": "88f44327a26cb8e4b009c4ed7cc488ff9714a8674b34b1e846e8833545e739fb"
+    },
+    {
+      "path": "en/dark/11-personalization.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 256507,
+      "sha256": "2f2a8ea2fc488e74ab7a699c70a19c908790ab0fd497e0b64bbd3c502933c747"
+    },
+    {
+      "path": "en/dark/12-search.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 329907,
+      "sha256": "91e0d8629ad92de0e06c04969806ec209040481f1ea395c56af558606559a70c"
+    }
+  ]
+}
