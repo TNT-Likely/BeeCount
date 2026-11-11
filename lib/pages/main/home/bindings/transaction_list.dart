@@ -499,9 +499,9 @@ class TransactionListState extends ConsumerState<TransactionList> {
           if (type == 'loadStatus') return _buildLoadStatus(context);
 
           if (type == 'bottomSpacer') {
-            // 悬浮 Tab 栏高度(56) + 浮动间距(12) + 安全区 + 额外间距
-            final bottomPadding = MediaQuery.of(context).viewPadding.bottom;
-            return SizedBox(height: 56 + 12 + bottomPadding + 16);
+            // The host supplies the actual navigation/safe-area obstruction.
+            // In a detail route this also avoids a phantom tab-sized gap.
+            return SizedBox(height: MediaQuery.paddingOf(context).bottom + 16);
           }
 
           if (type == 'header') {

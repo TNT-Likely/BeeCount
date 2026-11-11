@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:ui' as ui;
 import 'package:flutter/services.dart';
 import 'package:beecount/cloud/sync_service.dart';
 import 'package:beecount/data/db.dart';
@@ -13,12 +14,25 @@ import 'package:beecount_business_ui/beecount_business_ui.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_cloud_sync/flutter_cloud_sync.dart' hide SyncStatus;
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  const captureUi = bool.fromEnvironment('BEECOUNT_CAPTURE_UI');
+  setUpAll(() async {
+    if (!captureUi) return;
+    final noto = File('build/v4-recording-fonts/NotoSansSC-400.ttf');
+    final font = noto.existsSync()
+        ? noto
+        : File('/System/Library/Fonts/Supplemental/Arial Unicode.ttf');
+    if (!font.existsSync()) return;
+    final loader = FontLoader('ProfileReview');
+    loader.addFont(Future.value(ByteData.sublistView(font.readAsBytesSync())));
+    await loader.load();
+  });
   test('我的页面及其菜单引用的线性图标均已实际打包', () async {
     TestWidgetsFlutterBinding.ensureInitialized();
     final manifest =
@@ -100,6 +114,7 @@ void main() {
   Future<void> open(WidgetTester tester,
       {Size size = const Size(398, 844),
       double scale = 1,
+      double? navigationSafeArea,
       Brightness brightness = Brightness.light}) async {
     tester.view.physicalSize = size;
     tester.view.devicePixelRatio = 1;
@@ -108,15 +123,33 @@ void main() {
     await tester.pumpWidget(UncontrolledProviderScope(
         container: container,
         child: MaterialApp(
-            theme: beeTheme(brightness: brightness),
+            theme: beeTheme(brightness: brightness).copyWith(
+                textTheme: captureUi
+                    ? beeTheme(brightness: brightness)
+                        .textTheme
+                        .apply(fontFamily: 'ProfileReview')
+                    : null),
             locale: const Locale('zh'),
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
             builder: (context, child) => MediaQuery(
-                data: MediaQuery.of(context)
-                    .copyWith(textScaler: TextScaler.linear(scale)),
-                child: child!),
-            home: const MinePage())));
+                data: MediaQuery.of(context).copyWith(
+                    textScaler: TextScaler.linear(scale),
+                    padding: navigationSafeArea == null
+                        ? null
+                        : EdgeInsets.only(bottom: navigationSafeArea),
+                    viewPadding: navigationSafeArea == null
+                        ? null
+                        : EdgeInsets.only(bottom: navigationSafeArea)),
+                child: RepaintBoundary(
+                    key: const ValueKey('mine-review-capture'), child: child!)),
+            home: navigationSafeArea == null
+                ? const MinePage()
+                : Scaffold(
+                    extendBody: true,
+                    body: const MinePage(),
+                    bottomNavigationBar:
+                        SizedBox(key: const ValueKey('test-floating-navigation'), height: 56 + 12 + navigationSafeArea, child: const ColoredBox(color: Colors.black))))));
     await tester.pumpAndSettle();
   }
 
@@ -124,6 +157,66 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump(const Duration(seconds: 3));
     await tester.pumpAndSettle();
+  }
+
+  for (final size in [const Size(375, 667), const Size(320, 568)]) {
+    for (final safeArea in [0.0, 34.0]) {
+      testWidgets('我的滚到底后最后一项完整露出悬浮栏 ${size.width} safe=$safeArea',
+          (tester) async {
+        await open(tester,
+            size: size,
+            scale: 1.4,
+            brightness: Brightness.dark,
+            navigationSafeArea: safeArea);
+        final list = find.byType(ListView).first;
+        final position = tester
+            .state<ScrollableState>(find
+                .descendant(of: list, matching: find.byType(Scrollable))
+                .first)
+            .position;
+        // ListView lazily measures menu groups; keep scrolling until its final
+        // extent has settled, as a user repeatedly swiping to the bottom does.
+        for (var i = 0; i < 8; i++) {
+          position.jumpTo(position.maxScrollExtent);
+          await tester.pumpAndSettle();
+          if (position.extentAfter < 1) break;
+        }
+        final l = AppLocalizations.of(tester.element(find.byType(MinePage)));
+        final lastRow = find.ancestor(
+            of: find.text(l.mineCopyPromoText),
+            matching: find.byType(BeeMenuRow));
+        final navigationTop = tester
+            .getTopLeft(find.byKey(const ValueKey('test-floating-navigation')))
+            .dy;
+        expect(tester.getBottomLeft(lastRow).dy,
+            lessThanOrEqualTo(navigationTop - 16),
+            reason: '最后一整行（含副标题和点击区）必须留在悬浮栏上方，不能只露出标题');
+        expect(tester.takeException(), isNull);
+        if (const bool.fromEnvironment('BEECOUNT_CAPTURE_UI') &&
+            size.width == 375 &&
+            safeArea == 34) {
+          Future<void> capture(String name) async {
+            final boundary = tester.renderObject<RenderRepaintBoundary>(
+                find.byKey(const ValueKey('mine-review-capture')));
+            await tester.runAsync(() async {
+              final image = await boundary.toImage(pixelRatio: 2);
+              final bytes =
+                  await image.toByteData(format: ui.ImageByteFormat.png);
+              final file = File('build/v4-profile/$name.png');
+              file.parent.createSync(recursive: true);
+              file.writeAsBytesSync(bytes!.buffer.asUint8List());
+              image.dispose();
+            });
+          }
+
+          await capture('dark-bottom');
+          position.jumpTo(0);
+          await tester.pumpAndSettle();
+          await capture('dark-avatar');
+        }
+        await close(tester);
+      });
+    }
   }
 
   testWidgets('我的展示真实账本历史折算余额和笔数，离线同步不可点击且保留状态', (tester) async {

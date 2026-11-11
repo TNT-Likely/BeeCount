@@ -69,8 +69,11 @@ class MinePage extends ConsumerWidget {
           ]),
           Expanded(
               child: ListView(
+                  // extendBody publishes the actual floating navigation height
+                  // in padding.bottom; its original viewPadding is already
+                  // consumed by the outer Scaffold (notably on iOS).
                   padding: EdgeInsets.fromLTRB(
-                      17, 0, 17, 84 + MediaQuery.viewPaddingOf(context).bottom),
+                      17, 0, 17, MediaQuery.paddingOf(context).bottom + 16),
                   children: [
                 const MineProfileBinding(),
                 group(l.v4MineCloudGroup, [const MineCloudBinding()]),

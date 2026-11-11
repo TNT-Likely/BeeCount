@@ -1,16 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import '../../../shared/branding/bee_artwork.dart';
 
-/// Profile-only contrast treatment. Other app/brand BeeIcon users stay unchanged.
+/// Use the same original bee and dark-mode backing as the other brand entries.
 class MineDefaultAvatar extends StatelessWidget {
   const MineDefaultAvatar({super.key});
 
   @override
-  Widget build(BuildContext context) => SvgPicture.asset(
-      Theme.of(context).brightness == Brightness.dark
-          ? 'assets/images/bee_profile_dark.svg'
-          : 'assets/bee.svg',
-      width: 48,
-      height: 48,
-      theme: SvgTheme(currentColor: Theme.of(context).colorScheme.primary));
+  Widget build(BuildContext context) =>
+      BeeIcon(color: Theme.of(context).colorScheme.primary, size: 48);
 }

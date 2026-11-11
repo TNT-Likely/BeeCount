@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 import 'dart:typed_data';
 import 'package:beecount/pages/main/mine/widgets/mine_avatar.dart';
 import 'package:beecount/pages/shared/branding/bee_artwork.dart';
@@ -76,8 +75,8 @@ void main() {
             expect(tester.getSize(avatar), const Size(48, 48));
             expect(
                 find.descendant(of: avatar, matching: find.byType(Container)),
-                findsNothing,
-                reason: '头像不能再增加带底色的外层容器');
+                dark && !photo ? findsOneWidget : findsNothing,
+                reason: '默认头像仅深色复用通用品牌遮罩，照片不增加边框或遮罩');
             if (photo) {
               final image =
                   find.descendant(of: avatar, matching: find.byType(Image));
@@ -92,11 +91,11 @@ void main() {
             } else {
               final svg = tester.widget<SvgPicture>(find.descendant(
                   of: avatar, matching: find.byType(SvgPicture)));
+              expect((svg.bytesLoader as SvgAssetLoader).assetName,
+                  'assets/bee.svg');
               expect(
-                  (svg.bytesLoader as SvgAssetLoader).assetName,
-                  dark
-                      ? 'assets/images/bee_profile_dark.svg'
-                      : 'assets/bee.svg');
+                  find.descendant(of: avatar, matching: find.byType(BeeIcon)),
+                  findsOneWidget);
             }
             final total =
                 tester.getBottomLeft(find.byType(BeeLedgerBalance)).dy -
@@ -113,7 +112,7 @@ void main() {
     }
   }
 
-  testWidgets('默认我的头像不使用其它品牌位置的暗色圆形遮罩', (tester) async {
+  testWidgets('默认我的头像复用其它品牌位置的暗色圆形遮罩与原色素材', (tester) async {
     await tester.pumpWidget(MaterialApp(
         theme: beeTheme(brightness: Brightness.dark),
         home: const Scaffold(
@@ -126,25 +125,12 @@ void main() {
         find.descendant(
             of: find.byType(MineDefaultAvatar),
             matching: find.byType(Container)),
-        findsNothing);
+        findsOneWidget);
     expect(
         find.descendant(
             of: find.byType(BeeIcon), matching: find.byType(Container)),
-        findsOneWidget);
+        findsNWidgets(2));
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox.shrink());
-  });
-
-  test('仅我的暗色SVG适配线色，原品牌素材保持原字节', () {
-    final original = File('assets/bee.svg').readAsStringSync();
-    final dark = File('assets/images/bee_profile_dark.svg').readAsStringSync();
-    expect(
-        dark,
-        original
-            .replaceAll('#000000', '#DCE2E6')
-            .replaceAll('#000', '#DCE2E6')
-            .replaceAll('#fff', '#202529'));
-    expect(dark, isNot(contains('<mask')));
-    expect(dark, isNot(contains('r="128"')));
   });
 }
