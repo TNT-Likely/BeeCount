@@ -26,8 +26,6 @@ class _SupportSampleState extends State<SupportSample> {
           version: 'QA 4.0',
           socials: const [],
           onStory: () => feedback(l.aboutDeveloperStoryTitle),
-          headline: l.aboutBrandStatement,
-          storyLabel: l.aboutDeveloperStoryTitle,
           description: l.v4SharePosterOpenSourceBody,
           tag: '${l.appPromoTagOpenSource} · ${l.appPromoTagFree}',
           sourceLabel: l.v4SharePosterOpenSourceAction,

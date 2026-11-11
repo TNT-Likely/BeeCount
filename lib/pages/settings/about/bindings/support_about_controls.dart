@@ -103,15 +103,14 @@ class _SupportAboutControlsState extends ConsumerState<SupportAboutControls> {
     ];
     return SupportFrame(
         title: l.aboutPageTitle,
+        subtitle: l.aboutPageSubtitle,
         body: BeePageBody(eager: true, children: [
           BeeSupportBrand(
-              logo: BeeIcon(color: primary, size: 57),
+              logo: BeeIcon(color: primary, size: 80),
               title: l.appName,
               version: version ??
                   (versionFailed ? l.commonError : l.aboutPageLoadingVersion),
               onStory: _story,
-              headline: l.aboutBrandStatement,
-              storyLabel: l.aboutDeveloperStoryTitle,
               description: l.v4SharePosterOpenSourceBody,
               tag: '${l.appPromoTagOpenSource} · ${l.appPromoTagFree}',
               sourceLabel: l.v4SharePosterOpenSourceAction,
@@ -135,7 +134,6 @@ class _SupportAboutControlsState extends ConsumerState<SupportAboutControls> {
                     'https://v.douyin.com/YG7tUweYYyQ/',
                     asset: 'assets/icons/social/douyin.svg'),
               ]),
-          BeeSectionLabel(l.aboutHelpSupport),
           BeeSupportActions(actions: [
             if (!platform.isIOS && !platform.isGooglePlay)
               BeeSupportAction(
@@ -176,6 +174,14 @@ class _SupportAboutControlsState extends ConsumerState<SupportAboutControls> {
                                       : UpdateProgress.active(value, status));
                         }),
             BeeSupportAction(
+                key: const ValueKey('support-development'),
+                title: l.aboutSupportDevelopment,
+                subtitle: l.aboutSupportDevelopmentSubtitle,
+                leading: const BeeLineIcon('Heart'),
+                onTap: () => open(locale.languageCode == 'zh'
+                    ? 'https://github.com/TNT-Likely/BeeCount/blob/main/docs/donate/README_ZH.md'
+                    : 'https://github.com/TNT-Likely/BeeCount/blob/main/docs/donate/README_EN.md')),
+            BeeSupportAction(
                 key: const ValueKey('support-feedback'),
                 title: l.mineFeedback,
                 subtitle: l.mineFeedbackSubtitle,
@@ -194,13 +200,6 @@ class _SupportAboutControlsState extends ConsumerState<SupportAboutControls> {
                 leading: const BeeLineIcon('Bug'),
                 onTap: () => _page(const LogCenterPage())),
           ]),
-          BeeSupportBanner(
-              key: const ValueKey('support-development'),
-              title: l.aboutSupportDevelopment,
-              description: l.aboutSupportDevelopmentSubtitle,
-              onTap: () => open(locale.languageCode == 'zh'
-                  ? 'https://github.com/TNT-Likely/BeeCount/blob/main/docs/donate/README_ZH.md'
-                  : 'https://github.com/TNT-Likely/BeeCount/blob/main/docs/donate/README_EN.md')),
           if (kDebugMode)
             BeeSupportActions(actions: [
               BeeSupportAction(

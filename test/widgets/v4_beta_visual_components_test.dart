@@ -148,12 +148,11 @@ void main() {
             .first;
         expect(t.getRect(testButton).right, closeTo(width - 17, .1));
         final logo = t.getRect(find.byKey(const ValueKey('support-story')));
-        final copy = t.getRect(find
-            .ancestor(of: find.text('蜜蜂记账'), matching: find.byType(Column))
-            .first);
-        expect(logo.height, 58);
-        expect(copy.left, closeTo(logo.right + 12, .1));
-        expect(logo.expandToInclude(copy).center.dx, closeTo(width / 2, .1));
+        final copy = t.getRect(find.text('蜜蜂记账'));
+        expect(logo.height, 64);
+        expect(logo.center.dx, closeTo(width / 2, .1));
+        expect(copy.top, greaterThanOrEqualTo(logo.bottom + 12));
+        expect(copy.center.dx, closeTo(width / 2, .1));
         for (final finder in [
           find.text('折算 CNY'),
           find.text('明细'),

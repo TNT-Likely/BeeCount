@@ -28,7 +28,10 @@ class RecordingFrame extends StatelessWidget {
             ? 6.0
             : 8.0;
     return Column(children: [
-      if (transfer) const SizedBox(height: 8),
+      // Separate the segmented header from every amount card in both themes.
+      SizedBox(
+          key: const ValueKey('recording-header-gap'),
+          height: compact ? 8 : 12),
       Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16), child: amount),
       SizedBox(height: gap),

@@ -1199,6 +1199,31 @@ void main() {
     });
   }
 
+  for (final size in [const Size(398, 844), const Size(320, 568)]) {
+    recordingTest('暗黑模式三种记账类型与金额区分离 $size', (tester) async {
+      await open(tester,
+          size: size, brightness: Brightness.dark, accountsEnabled: true);
+      final header = find.byType(RecordingHeader);
+      final labels = ['支出', '收入', '转账'];
+      for (final label in labels) {
+        await tester
+            .tap(find.descendant(of: header, matching: find.text(label)));
+        await tester.pumpAndSettle();
+        final amount = find.byKey(const ValueKey('recording-amount'));
+        expect(tester.getTopLeft(amount).dy - tester.getBottomLeft(header).dy,
+            greaterThanOrEqualTo(8),
+            reason: '$label 顶部必须保留独立间距');
+        expect(
+            tester
+                .getBottomRight(find.byKey(const ValueKey('recording-save')))
+                .dy,
+            lessThanOrEqualTo(size.height));
+        await capture(tester, 'header-gap-${size.width.toInt()}-$label');
+        expect(tester.takeException(), isNull);
+      }
+    });
+  }
+
   for (final config in [
     (name: 'light', size: const Size(390, 844), brightness: Brightness.light),
     (name: 'dark', size: const Size(390, 844), brightness: Brightness.dark),
