@@ -825,6 +825,7 @@ class _FoundationAcceptancePageState extends State<FoundationAcceptancePage> {
                           onPressed: () => fieldFocus.requestFocus()),
                     ]))),
         16 => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            const BeeSectionLabel('分组标题'),
             BeePageHeader(title: '一级页面标题', actions: [
               BeeIconButton(
                   label: '标题操作',

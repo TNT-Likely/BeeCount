@@ -2128,6 +2128,26 @@
         "credit-valuation"
       ],
       "source": "prototype/src/resource-detail-samples.cjs"
+    },
+    {
+      "id": "spec-2200",
+      "page": "foundation",
+      "case": 26,
+      "nativeLabel": "皮肤卡片透明度与模糊",
+      "kind": "enhanced",
+      "design_keys": [],
+      "components": [
+        "BeeMaterialControls",
+        "BeeMaterialPreview"
+      ],
+      "supportedStates": [
+        "opacity-range",
+        "blur-range",
+        "reset",
+        "light",
+        "dark"
+      ],
+      "source": "prototype/src/refresh-component-catalog.cjs"
     }
   ]
 }

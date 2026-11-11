@@ -861,6 +861,44 @@
         "frosted-navigation"
       ],
       "sampleCoverage": "F27真实基础材质开关与弹层预览；场景画层由宿主提供，不访问App状态。"
+    },
+    {
+      "component": "BeeMaterialControls",
+      "cases": [
+        26
+      ],
+      "supportedStates": [
+        "opacity-range",
+        "blur-range",
+        "reset",
+        "controlled-change"
+      ],
+      "sampleCoverage": "组件示例可达；原生验收与当前回归分别记录，不由清单推断。"
+    },
+    {
+      "component": "BeeMaterialPreview",
+      "cases": [
+        26
+      ],
+      "supportedStates": [
+        "light",
+        "dark",
+        "opacity",
+        "blur"
+      ],
+      "sampleCoverage": "组件示例可达；原生验收与当前回归分别记录，不由清单推断。"
+    },
+    {
+      "component": "BeeSectionLabel",
+      "cases": [
+        16
+      ],
+      "supportedStates": [
+        "section-title",
+        "light",
+        "dark"
+      ],
+      "sampleCoverage": "组件示例可达；原生验收与当前回归分别记录，不由清单推断。"
     }
   ]
 }
