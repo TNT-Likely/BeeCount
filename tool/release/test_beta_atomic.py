@@ -10,6 +10,7 @@ from unittest import mock
 
 import beta_atomic as atomic
 import beta_release as android
+import beta_metadata as metadata
 import ios_beta_release as ios
 import local_apk as gate
 
@@ -100,12 +101,21 @@ class AnnouncementTests(unittest.TestCase):
 
     def record(self,kind):return dict(schemaVersion=1,kind=kind,**self.identity)
 
-    def test_first_success_sends_once_between_immutable_intent_and_ack(self):
-        events=[];self.client.upload.side_effect=lambda _,name,*args:events.append(name)
+    def test_first_success_sends_once_between_persisted_intent_and_ack(self):
+        events=[]
+        def request(method,path,data=None):
+            if method=='PATCH':
+                self.release.update(data)
+                records=metadata.records(self.release)
+                events.append(atomic.ACK if atomic.ACK in records else atomic.INTENT)
+            return self.release.copy()
+        self.client.request.side_effect=request
         self.notify.side_effect=lambda:events.append('TG')or 123
         atomic.announce()
         self.assertEqual(events,[atomic.INTENT,'TG',atomic.ACK])
         self.notify.assert_called_once()
+        self.client.upload.assert_not_called()
+        self.assertEqual(metadata.records(self.release)[atomic.ACK]['messageId'],123)
 
     def test_already_acknowledged_release_never_sends_or_uploads_again(self):
         self.release['assets']=[dict(name=atomic.ACK)]
@@ -120,11 +130,16 @@ class AnnouncementTests(unittest.TestCase):
 
     def test_only_explicit_manual_retry_can_continue_unacknowledged_intent(self):
         self.release['assets']=[dict(name=atomic.INTENT)];self.client.receipt.return_value=self.record('beecount-beta-notification-intent')
+        def request(method,path,data=None):
+            if method=='PATCH':self.release.update(data)
+            return self.release.copy()
+        self.client.request.side_effect=request
         with mock.patch.dict(os.environ,dict(BETA_NOTIFICATION_MANUAL_RETRY='1')):atomic.announce()
-        self.notify.assert_called_once();self.assertEqual(self.client.upload.call_args[0][1],atomic.ACK)
+        self.notify.assert_called_once();self.client.upload.assert_not_called()
+        self.assertIn(atomic.ACK,metadata.records(self.release))
 
     def test_intent_upload_failure_never_sends(self):
-        self.client.upload.side_effect=gate.GateError('synthetic upload failure')
+        self.client.request.side_effect=gate.GateError('synthetic metadata failure')
         with self.assertRaises(gate.GateError):atomic.announce()
         self.notify.assert_not_called()
 

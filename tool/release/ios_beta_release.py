@@ -28,6 +28,7 @@ import urllib.request
 import zipfile
 
 import beta_release as beta
+import beta_metadata as metadata
 import local_apk as gate
 from android_version_code import parse_version
 
@@ -221,9 +222,8 @@ def get_release(client, version):
     release = client.request('GET', f'/repos/{beta.REPOSITORY}/releases/tags/{version}')
     gate.require(release.get('draft') is False and release.get('prerelease') is True
                  and release.get('tag_name') == version, 'iOS只补充已公开且版本一致的Beta prerelease')
-    receipts = [a for a in release.get('assets', []) if a.get('name') == beta.RECEIPT]
-    gate.require(len(receipts) == 1, '目标Beta缺少唯一Android发布回执，先完成Android Beta')
-    record = client.receipt(receipts[0])
+    gate.require(metadata.has(release, beta.RECEIPT), '目标Beta缺少唯一Android发布回执，先完成Android Beta')
+    record = metadata.read(client, release, beta.RECEIPT)
     parsed = beta.validate_receipt(release, record)
     gate.require(parsed.beta is not None, '目标回执不是Beta')
     return release, record
@@ -233,10 +233,10 @@ def published_ios_floor(client, floor):
     gate.require(re.fullmatch(r'[1-9][0-9]*',floor), 'iOS已交付水位无效')
     highest = int(floor)
     for release in client.releases():
-        for asset in release.get('assets',[]):
-            if not re.fullmatch(r'ios-release-[1-9][0-9]*\.json',asset.get('name','')):
+        for name in sorted(metadata.names(release)):
+            if not re.fullmatch(r'ios-release-[1-9][0-9]*\.json',name):
                 continue
-            record = client.receipt(asset)
+            record = metadata.read(client, release, name)
             gate.require(record.get('schemaVersion') == 1 and record.get('kind') == 'beecount-ios-beta-release'
                          and record.get('bundleId') == BUNDLE and record.get('widgetBundleId') == WIDGET
                          and record.get('versionName') == release.get('tag_name')
@@ -246,7 +246,7 @@ def published_ios_floor(client, floor):
                          and re.fullmatch(r'[0-9a-f]{64}',record.get('ipaSha256','')),
                          '历史iOS Beta回执身份无效，拒绝忽略已交付水位')
             app_version, number = ios_version(record['versionName'],record['androidVersionCode'],str(record['buildNumber']),'225')
-            gate.require(record.get('appVersion') == app_version and asset['name'] == f'ios-release-{number}.json', '历史iOS版本/回执名称不一致')
+            gate.require(record.get('appVersion') == app_version and name == f'ios-release-{number}.json', '历史iOS版本/回执名称不一致')
             highest = max(highest,number)
     return str(highest)
 
@@ -510,9 +510,8 @@ def publish():
     gate.require(gate.sha256(dist / names[0]) == context['artifact']['ipaSha256'], '发布前IPA字节已变化')
     gate.require((dist / names[1]).read_text() == context['artifact']['ipaSha256']+'  '+names[0]+'\n'
                  and json.loads((dist / names[2]).read_text()) == context['receipt'], '发布前校验文件或机器回执改变')
-    for name in names:
-        kind = 'application/octet-stream' if name.endswith('.ipa') else 'text/plain' if name.endswith('.sha256') else 'application/json'
-        client.upload(release['id'], name, (dist / name).read_bytes(), kind)
+    metadata.save(client, release, names[2], context['receipt'])
+    client.upload(release['id'], names[0], (dist / names[0]).read_bytes(), 'application/octet-stream')
     context['status'] = 'published'
     context_write(context)
     print('同一Beta prerelease已补充已签名App Store IPA及校验回执；该IPA不能直接侧载安装')
@@ -654,7 +653,9 @@ def upload():
     receipt_name = f'ios-testflight-{context["buildNumber"]}.json'
     payload = json.dumps(record,ensure_ascii=False,indent=2).encode()
     if not context.get('atomic'):
-        beta.GitHub().upload(context['releaseId'],receipt_name,payload)
+        client = beta.GitHub()
+        release, _ = get_release(client, context['versionName'])
+        metadata.save(client, release, receipt_name, record)
     (Path(context['dist'])/receipt_name).write_bytes(payload)
     context.update(status='testflight-processed',testflight=record)
     context_write(context)
@@ -712,8 +713,10 @@ def notification_plan():
     app_version, number = ios_version(version,android['versionCode'],os.environ.get('IOS_BUILD_NUMBER',''),'225')
     names = public_names(version,number)
     by_name = {a['name']:a for a in release.get('assets',[])}
-    gate.require(all(n in by_name for n in names), '缺少完整已发布iOS IPA/校验/回执，不能重发成功公告')
-    record = client.receipt(by_name[names[2]])
+    gate.require(names[0] in by_name and metadata.has(release, names[2]) and
+                 (names[2] in metadata.records(release) or names[1] in by_name),
+                 '缺少完整已发布iOS IPA/校验/回执，不能重发成功公告')
+    record = metadata.read(client, release, names[2])
     gate.require(record.get('kind') == 'beecount-ios-beta-release'
                  and record.get('sourceSha') == android['sourceSha']
                  and record.get('versionName') == version
@@ -729,8 +732,8 @@ def notification_plan():
                  'IPA资产大小/摘要与iOS回执不符')
     tf_name = f'ios-testflight-{number}.json'
     processed = False
-    if tf_name in by_name:
-        tf = client.receipt(by_name[tf_name])
+    if metadata.has(release, tf_name):
+        tf = metadata.read(client, release, tf_name)
         gate.require(tf.get('kind') == 'beecount-ios-testflight-upload'
                      and tf.get('sourceSha') == record['sourceSha'] and tf.get('ipaSha256') == record['ipaSha256']
                      and tf.get('appVersion') == app_version and tf.get('buildNumber') == number

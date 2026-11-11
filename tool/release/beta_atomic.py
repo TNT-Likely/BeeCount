@@ -16,6 +16,7 @@ import re
 import time
 
 import beta_release as android
+import beta_metadata as metadata
 import beta_delivery as delivery
 import ios_beta_release as ios
 import local_apk as gate
@@ -121,26 +122,25 @@ def announce():
     identity = notification_identity(context, i)
     client = android.GitHub()
     release, _ = ios.get_release(client, context['versionName'])
-    assets = {a['name']: a for a in release.get('assets', [])}
-    if ACK in assets:
-        same_notification(client.receipt(assets[ACK]), identity, 'beecount-beta-notification-ack')
+    if metadata.has(release, ACK):
+        same_notification(metadata.read(client, release, ACK), identity, 'beecount-beta-notification-ack')
         print('此双端Beta通知已确认送达，跳过重复发送')
         return
-    if INTENT in assets:
-        same_notification(client.receipt(assets[INTENT]), identity, 'beecount-beta-notification-intent')
+    if metadata.has(release, INTENT):
+        same_notification(metadata.read(client, release, INTENT), identity, 'beecount-beta-notification-intent')
         gate.require(os.environ.get('BETA_NOTIFICATION_MANUAL_RETRY') == '1',
                      '已有未确认通知意图，不自动重发；核对群消息后仅手动notify-only可重试')
     else:
         intent = dict(schemaVersion=1, kind='beecount-beta-notification-intent', **identity,
                       workflowRun=os.environ.get('GITHUB_RUN_ID'), createdAtUnix=int(time.time()))
-        # The immutable upload is the send barrier; an upload failure never sends.
-        client.upload(release['id'], INTENT, json.dumps(intent, ensure_ascii=False).encode())
+        # Persist intent before sending; failure cannot trigger Telegram.
+        metadata.save(client, release, INTENT, intent)
     message_id = android.notify()
     gate.require(type(message_id) is int and message_id > 0, 'Telegram未返回可核验message_id，保留意图且不自动重发')
     ack = dict(schemaVersion=1, kind='beecount-beta-notification-ack', **identity,
                workflowRun=os.environ.get('GITHUB_RUN_ID'), messageId=message_id,
                acknowledgedAtUnix=int(time.time()))
-    client.upload(release['id'], ACK, json.dumps(ack, ensure_ascii=False).encode())
+    metadata.save(client, release, ACK, ack)
     print('双端Beta唯一通知已确认送达并保存幂等回执')
 
 

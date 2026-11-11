@@ -22,6 +22,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
+import beta_metadata as metadata
 import local_apk as gate
 from android_version_code import parse_version, validate_candidate, validate_recorded_version
 
@@ -73,6 +74,10 @@ def short_summary_item(text):
 def extract_update_summary(notes):
     """Only the explicitly reviewed per-version section, never git history."""
     gate.require(isinstance(notes, str), "发布说明缺少 ## 更新摘要")
+    # Receipts may directly follow the last summary item in a short Release.
+    # Validate and exclude only our machine-readable marker from human notes.
+    metadata.records({'body': notes})
+    notes = metadata.PATTERN.sub('', notes)
     lines = notes.splitlines()
     starts = [i for i, line in enumerate(lines) if re.fullmatch(r"##[ \t]+更新摘要[ \t]*", line)]
     gate.require(len(starts) == 1, "发布说明必须包含唯一的 ## 更新摘要")
@@ -216,13 +221,13 @@ def release_floor(client, releases, explicit_floor, version):
                 minimum_version = tagged
         except ValueError:
             pass
-        receipts = [a for a in release.get("assets", []) if a.get("name") in {RECEIPT, RESERVATION}]
+        receipts = sorted(metadata.names(release) & {RECEIPT, RESERVATION})
         # A stale manually supplied floor cannot prove a 4.x code. This also
         # stops after an interrupted draft that never saved its reservation.
         gate.require(tagged is None or tagged.order < parse_version("4.0.0-beta.1").order or receipts,
                      "4.x Release 缺少可信版本回执；请先核实实际 APK 的 code 并补录回执，拒绝猜测水位")
-        for asset in receipts:
-            record = client.receipt(asset)
+        for name in receipts:
+            record = metadata.read(client, release, name)
             recorded = validate_receipt(release, record)
             floor = max(floor, recorded.code)
             if recorded.order > minimum_version.order:
@@ -339,7 +344,7 @@ def publish(*, additional_assets=None):
     gate.require(context["status"] == "verified", "未经签名与产物验证，拒绝发布")
     additional_assets = additional_assets or []
     if os.environ.get("BETA_ATOMIC") == "1":
-        gate.require(bool(additional_assets), "双端原子发布缺少已校验iOS产物，禁止创建Release")
+        gate.require(any(a["name"].endswith(".ipa") for a in additional_assets), "双端原子发布缺少已校验iOS产物，禁止创建Release")
     seen = {"android-release.json", "android-version-reservation.json",
             f"beecount-{context['versionName']}-arm64-v8a.apk",
             f"beecount-{context['versionName']}-arm64-v8a.apk.sha256"}
@@ -350,6 +355,17 @@ def publish(*, additional_assets=None):
                      "附加平台产物路径或名称无效")
         gate.require(gate.sha256(path) == item["sha256"], "附加平台产物在发布前变化")
         seen.add(item["name"])
+    records = {}
+    public_assets = []
+    for item in additional_assets:
+        if item['name'].endswith('.json'):
+            records[item['name']] = json.loads(Path(item['path']).read_text())
+        elif item['name'].endswith('.ipa'):
+            public_assets.append(item)
+        else:
+            gate.require(item['name'].endswith('.sha256'), 'Beta仅允许APK/IPA安装包与私有校验记录')
+    if os.environ.get('BETA_ATOMIC') == '1':
+        gate.require(len(public_assets) == 1, '双端Beta必须且只能包含一个IPA')
     context["notificationSummary"] = extract_update_summary(context.get("notes"))
     telegram_text(dict(context, releaseUrl=f"https://github.com/{REPOSITORY}/releases/tag/{context['versionName']}"))
     client = GitHub()
@@ -376,6 +392,10 @@ def publish(*, additional_assets=None):
         + f"- 源码：`{context['sourceSha']}`\n- Android：`{context['versionName']}+{context['versionCode']}`\n"
         + f"- ARM64 APK SHA-256：`{verified['apkSha256']}`\n"
         + f"- [本次构建](https://github.com/{REPOSITORY}/actions/runs/{os.environ['GITHUB_RUN_ID']})\n")
+    # Reserve the version inside the draft body before exposing any binary.
+    # Signature/hash/Apple records remain machine-readable without extra assets.
+    records.update({RESERVATION: receipt, RECEIPT: receipt})
+    body = metadata.with_records(body, records)
     # Atomic create refuses an existing remote tag, including one created
     # after plan. Never retarget a tag through Release's target_commitish.
     client.request("POST", f"/repos/{REPOSITORY}/git/refs", {
@@ -388,18 +408,26 @@ def publish(*, additional_assets=None):
     save_context(context)
     # Store the floor BEFORE exposing an APK. An interrupted draft keeps this
     # reservation, so future runs cannot reuse the code or overwrite this tag.
-    payload = json.dumps(receipt, ensure_ascii=False, indent=2).encode()
-    client.upload(release["id"], RESERVATION, payload)
     client.upload(release["id"], apk.name, apk.read_bytes(), "application/vnd.android.package-archive")
-    client.upload(release["id"], apk.name + ".sha256", (verified["apkSha256"] + "  " + apk.name + "\n").encode(), "text/plain")
-    client.upload(release["id"], RECEIPT, payload)
     # Both platforms have already passed build/signature/optional Apple gates.
-    # Keep the release private until every checked iOS asset has been uploaded.
-    for item in additional_assets:
+    # Checksums and JSONs stay private or in the hidden Release metadata.
+    for item in public_assets:
         contents = Path(item["path"]).read_bytes()
         gate.require(hashlib.sha256(contents).hexdigest() == item["sha256"],
                      "附加平台产物在上传前变化")
         client.upload(release["id"], item["name"], contents, item["contentType"])
+    staged = client.request("GET", f"/repos/{REPOSITORY}/releases/{release['id']}")
+    expected = {apk.name: (verified['apkSha256'], apk.stat().st_size),
+                **{a['name']: (a['sha256'], Path(a['path']).stat().st_size) for a in public_assets}}
+    assets = staged.get('assets', [])
+    gate.require(len(assets) == len(expected) and {a.get('name') for a in assets} == set(expected),
+                 '公开Beta附件必须且只能为已验证的APK和IPA')
+    for asset in assets:
+        digest, size = expected[asset['name']]
+        gate.require(asset.get('size') == size and
+                     (asset.get('digest') is None or asset['digest'] == 'sha256:' + digest),
+                     '远端Beta安装包大小或摘要不一致')
+    gate.require(metadata.records(staged) == records, '发布前机器回执发生变化')
     remote_tag = client.request("GET", f"/repos/{REPOSITORY}/git/ref/tags/{context['versionName']}")
     gate.require(remote_tag.get("object", {}).get("sha") == context["sourceSha"], "发布前 tag 源码已改变")
     published = client.request("PATCH", f"/repos/{REPOSITORY}/releases/{release['id']}",
@@ -452,9 +480,8 @@ def notification_plan():
     gate.require(release.get("draft") is False and release.get("prerelease") is True,
                  "仅重发通知要求已公开的 prerelease，不能通知草稿或正式版")
     assets = release.get("assets", [])
-    receipts = [a for a in assets if a.get("name") == RECEIPT]
-    gate.require(len(receipts) == 1, "已发布 Beta 缺少唯一的正式版本回执")
-    record = client.receipt(receipts[0])
+    gate.require(metadata.has(release, RECEIPT), "已发布 Beta 缺少唯一的正式版本回执")
+    record = metadata.read(client, release, RECEIPT)
     recorded = validate_receipt(release, record)
     gate.require(record.get("kind") == "beecount-beta-release", "回执不是 Beta 发布身份")
     apk_name = "beecount-" + recorded.name + "-arm64-v8a.apk"

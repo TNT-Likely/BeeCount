@@ -131,7 +131,9 @@ python3 -m unittest discover -s tool/release -p 'test_*.py' -v
 
 `mode=release` 在同一私有 macOS Runner 冻结源码、版本和短说明，依次验证正式签名 ARM64 APK 与 App Store 签名 arm64 IPA。默认 `ios_delivery=testflight` 还要求上传成功、Apple processingState=VALID、内测说明更新成功；选择 `ipa` 时只归档已签名 IPA，不宣称 TestFlight 可用。
 
-**两端全部成功后才创建 tag 和 draft prerelease；全部 APK、IPA、校验文件及回执上传成功后才公开 Release。** 任何构建、签名或 Apple 处理失败都不创建公开 Release、不上传失败候选到 Actions artifacts、不发送 TG。上传中断留下私有草稿及版本预留回执供核对，禁止覆盖 tag、资产或重复使用版本。已公开的历史 Beta 保持原内容。
+**两端全部成功后才创建 tag 和 draft prerelease；确认远端仅有一份 APK 和一份 IPA，且大小、摘要与回执一致后才公开 Release。** 任何构建、签名或 Apple 处理失败都不创建公开 Release、不上传失败候选到 Actions artifacts、不发送 TG。上传中断留下私有草稿及版本预留回执供核对，禁止覆盖 tag、资产或重复使用版本。已公开的历史 Beta 保持原内容。
+
+从 Beta6 起，下载附件只有 APK、IPA。JSON 回执、版本预留、TestFlight 处理结果及通知意图／回执保存在 Release 正文的 `beecount-beta-metadata:v1` 隐藏记录中；本地 checksum 留在私有构建目录。旧 Beta 的 JSON 附件继续只读兼容，不迁移或删除。隐藏记录不是保密存储，只能包含公开构建身份，不得写入签名资料、凭据或用户数据。
 
 ### 版本与身份
 
@@ -146,7 +148,7 @@ App Store签名IPA不能直接侧载，安装走TestFlight。Apple处理成功�
 
 ### 唯一通知与失败重试
 
-只有完整双端Release可以通知。通知job重新读取并核对两端公开回执和资产身份；需要TestFlight时还要求真实处理完成回执。先上传不可覆盖的 `beta-notification-intent.json`，发送一条TG，再保存包含真实message_id的 `beta-notification.json`。成功回执存在时重跑直接跳过。
+只有完整双端Release可以通知。通知job重新读取并核对两端公开回执和资产身份；需要TestFlight时还要求真实处理完成回执。先在正文元数据保存不可覆盖的 `beta-notification-intent.json` 记录，发送一条TG，再追加包含真实message_id的 `beta-notification.json` 记录；这些记录不作为下载附件。成功回执存在时重跑直接跳过。
 
 如果已留下通知意图却没有成功回执，自动重跑拒绝发送，避免网络超时造成重复消息。维护者先核对TG群，再显式选择 `mode=notify-only`、原版本和实际iOS build补发；已有成功回执时手动模式也不会重发。通知模式不构建、不分配code、不访问签名secrets、不改tag或二进制，只追加通知意图/回执。旧的按平台或部分成功通知入口已停用。
 

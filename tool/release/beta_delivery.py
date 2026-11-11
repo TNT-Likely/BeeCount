@@ -4,6 +4,7 @@ import os
 import re
 
 import beta_release as android
+import beta_metadata as metadata
 import ios_beta_release as ios
 import local_apk as gate
 
@@ -32,9 +33,9 @@ def notification_plan():
                                os.environ.get('IOS_BUILD_NUMBER', ''), '225')
     names = ios.public_names(context['versionName'], number)
     assets = {a['name'] for a in release.get('assets', [])}
-    ready = all(n in assets for n in names)
+    ready = names[0] in assets and metadata.has(release, names[2])
     # A partial published identity is an error, not a successful fallback.
-    gate.require(ready or not any(n in assets for n in names), 'iOS公开资产不完整，拒绝公告')
+    gate.require(ready or not (any(n in assets for n in names) or metadata.has(release, names[2])), 'iOS公开资产不完整，拒绝公告')
     ios_context = None
     if ready:
         ios.notification_plan()

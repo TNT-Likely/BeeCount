@@ -1,6 +1,8 @@
 """Offline orchestration/denial tests, never a simulated successful APK audit."""
 import json
+import re
 import base64
+import hashlib
 import contextlib
 import io
 import os
@@ -13,6 +15,7 @@ import urllib.request
 import urllib.parse
 
 import beta_release as beta
+import beta_metadata as metadata
 import local_apk as gate
 
 
@@ -193,7 +196,7 @@ class DispatchTests(unittest.TestCase):
             beta.publish()
         client.request.assert_not_called()
 
-    def test_control_flow_uploads_floor_before_apk_and_publishes_last(self):
+    def test_control_flow_embeds_floor_before_apk_and_publishes_only_installers_last(self):
         # This only tests orchestration with an explicitly stubbed auditor; it
         # does not assert that this synthetic file is a signed/valid APK.
         apk = self.root / "synthetic.apk"; apk.write_bytes(b"not an apk")
@@ -206,18 +209,62 @@ class DispatchTests(unittest.TestCase):
             floor=226, manifest=str(manifest), runParent=str(self.root), notes="## 更新摘要\n- 用户可见改进。\n")
         os.environ["GITHUB_RUN_ID"] = "123"
         client = mock.Mock(); client.releases.return_value = []
-        client.request.side_effect = [None, {"id": 1, "html_url": "https://github.com/draft"},
-            {"object": {"sha": "a" * 40}}, {"html_url": "https://github.com/published"}]
+        def request(method, path, data=None):
+            if method == 'POST' and path.endswith('/releases'):
+                self.draft = dict(id=1, html_url='https://github.com/draft', body=data['body'],
+                                  assets=[dict(name=apk.name, size=apk.stat().st_size)])
+                return self.draft
+            if method == 'GET' and path.endswith('/releases/1'): return self.draft
+            if method == 'GET': return {'object': {'sha': 'a' * 40}}
+            if method == 'PATCH': return {'html_url': 'https://github.com/published'}
+        client.request.side_effect = request
         with mock.patch.object(beta, "GitHub", return_value=client), mock.patch.object(gate, "verify_apk", return_value=artifact), contextlib.redirect_stdout(io.StringIO()):
             beta.publish()
         names = [call.args[1] for call in client.upload.call_args_list]
-        self.assertEqual(names, [beta.RESERVATION, apk.name, apk.name + ".sha256", beta.RECEIPT])
+        self.assertEqual(names, [apk.name])
+        embedded = metadata.records(self.draft)
+        self.assertIn(beta.RESERVATION, embedded)
+        self.assertIn(beta.RECEIPT, embedded)
+        self.assertEqual(embedded[beta.RESERVATION]['versionCode'], 227)
         self.assertEqual(client.request.call_args_list[0].args[1], f"/repos/{beta.REPOSITORY}/git/refs")
         self.assertEqual(client.request.call_args_list[1].args[2]["make_latest"], "false")
         self.assertIs(client.request.call_args_list[1].args[2]["generate_release_notes"], False)
         self.assertEqual(client.request.call_args.args[0], "PATCH")
         self.assertEqual(client.request.call_args.args[2]["make_latest"], "false")
         self.assertEqual(beta.read_context()["status"], "published")
+
+    def test_atomic_release_uploads_only_apk_ipa_and_keeps_receipts_in_body(self):
+        apk = self.root / 'candidate.apk'; apk.write_bytes(b'synthetic APK')
+        ipa = self.root / 'candidate.ipa'; ipa.write_bytes(b'synthetic IPA')
+        checksum = self.root / 'candidate.ipa.sha256'; checksum.write_text(gate.sha256(ipa))
+        record = self.root / 'ios-release-231.json'; record.write_text(json.dumps({'buildNumber':231}))
+        artifact = {'apkSha256':gate.sha256(apk)}
+        manifest = self.root / 'manifest.json'
+        manifest.write_text(json.dumps({'artifactRelativePath':apk.name,'artifact':artifact,
+            'javaHome':str(self.root),'toolsPath':str(self.root/'build-tools/36.0.0')}))
+        self.write_context(status='verified',versionName='4.0.0-beta.6',versionCode=231,
+            sourceSha='a'*40,certificateSha256=beta.PRODUCTION_CERTIFICATE,floor=230,
+            manifest=str(manifest),runParent=str(self.root),notes='## 更新摘要\n- 仅发布安装包。\n')
+        os.environ.update(GITHUB_RUN_ID='123',BETA_ATOMIC='1')
+        client=mock.Mock();client.releases.return_value=[]
+        release={}
+        def request(method,path,data=None):
+            if method=='POST' and path.endswith('/releases'):
+                release.update(id=1,html_url='https://github.com/draft',body=data['body'],assets=[])
+                return release.copy()
+            if method=='GET' and path.endswith('/releases/1'):return release.copy()
+            if method=='GET':return {'object':{'sha':'a'*40}}
+            if method=='PATCH':return {'html_url':'https://github.com/published'}
+        def upload(ident,name,data,*_):
+            release['assets'].append(dict(name=name,size=len(data),digest='sha256:'+hashlib.sha256(data).hexdigest()))
+        client.request.side_effect=request;client.upload.side_effect=upload
+        additional=[dict(name=p.name,path=str(p),sha256=gate.sha256(p),contentType='application/octet-stream')
+                    for p in (ipa,checksum,record)]
+        with mock.patch.object(beta,'GitHub',return_value=client),mock.patch.object(gate,'verify_apk',return_value=artifact):
+            beta.publish(additional_assets=additional)
+        self.assertEqual([a['name']for a in release['assets']],['candidate.apk','candidate.ipa'])
+        self.assertEqual(set(metadata.records(release)),{beta.RESERVATION,beta.RECEIPT,'ios-release-231.json'})
+        self.assertEqual(beta.read_context()['status'],'published')
 
     def test_failed_ios_asset_upload_never_undrafts_release(self):
         # Synthetic bytes exercise only publication ordering, not signing.
@@ -349,8 +396,23 @@ class Arm64ContractTests(unittest.TestCase):
         for text in [beta_yaml, stable_yaml]:
             self.assertIn("group: beecount-android-delivery", text)
             self.assertIn("cancel-in-progress: false", text)
-        self.assertIn('"!*beta*"', stable_yaml)
+        # Check real SemVer Beta exclusion rather than a stale literal glob.
+        import fnmatch
+        patterns = re.findall(r'^      - "([^"\n]+)"$', stable_yaml, re.M)
+        def allowed(tag):
+            state = False
+            for pattern in patterns:
+                if fnmatch.fnmatchcase(tag, pattern.lstrip('!')):
+                    state = not pattern.startswith('!')
+            return state
+        self.assertFalse(allowed('4.0.0-beta.6'))
+        self.assertTrue(allowed('4.0.0'))
+        self.assertTrue(allowed('3.9.0'))
+        self.assertIn('"$RELEASE_INPUT_TAG" == *-beta.*', stable_yaml)
+        # Stable jobs may support push; the mandatory source gate rejects
+        # Beta before either platform builder can run.
         self.assertIn('"${TARGET_TAG,,}" == *beta*', stable_yaml)
+        self.assertIn('needs: [check-branch]', stable_yaml)
         self.assertNotIn("|| github.event_name == 'push'", stable_yaml)
         gradle = (root / "android/app/build.gradle").read_text()
         # NDK filtering is only valid when splits are disabled. In particular,
