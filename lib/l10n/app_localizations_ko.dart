@@ -9306,4 +9306,16 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get aboutProductDetails => 'Explore this product';
+
+  @override
+  String get v4HomeBudgetAvailable => 'Budget left';
+
+  @override
+  String get v4HomeUseCompactSummary => 'Use compact summary';
+
+  @override
+  String get v4HomeUseStandardSummary => 'Use full summary';
+
+  @override
+  String get v4HomeBudgetExceeded => 'Over';
 }

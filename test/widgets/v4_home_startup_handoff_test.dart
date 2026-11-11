@@ -152,46 +152,57 @@ void main() {
     logger.disposeForTesting();
   }
 
-  testWidgets(
-      'startup stays on Splash; its first Home frame consumes complete '
-      '20 rows and full count/day totals without a second preview or spinner',
-      (tester) async {
-    repo.previewGate = Completer<void>();
-    repo.fullGate = Completer<void>();
-    repo.failSecondPreview = true;
-    await mount(tester,
-        const AppStartupGate(child: HomeStartupGate(child: HomePage())));
-    await tick(tester, 20);
-    expect(find.byType(SplashPage), findsOneWidget);
-    expect(find.byType(HomePage), findsNothing);
-    expect(container.read(appInitStateProvider), isNot(AppInitState.ready));
-    expect(repo.previews, 1);
-    repo.previewGate!.complete();
-    await waitForHome(tester);
-    expect(find.byType(SplashPage), findsNothing);
-    expect(find.byType(CircularProgressIndicator).hitTestable(), findsNothing);
-    final list = tester.widget<TransactionList>(find.byType(TransactionList));
-    expect(list.transactionsWithDetails, hasLength(20));
-    expect(list.sourceReady, false);
-    final row = tester.widget<BeeTransactionRow>(
-        find.byType(BeeTransactionRow, skipOffstage: false).first);
-    expect(row.tags.single.label, 'Complete tag');
-    expect(row.attachmentCount, 1);
-    expect(row.accountName, 'USD account');
-    expect(row.converted, isNotNull);
-    expect(find.text('42笔'), findsOneWidget);
-    expect(
-        tester
-            .widget<DaySectionHeader>(
-                find.byType(DaySectionHeader, skipOffstage: false).first)
-            .expense,
-        42 * 14);
-    expect(repo.previews, 1, reason: 'Splash work must not be discarded');
-    await tick(tester, 10);
-    expect(repo.previews, 1);
-    expect(tester.takeException(), isNull);
-    await close(tester);
-  });
+  for (final compact in [false, true]) {
+    testWidgets(
+        'startup stays on Splash; its first Home frame consumes complete '
+        '20 rows and full count/day totals without a second preview or spinner compact=$compact',
+        (tester) async {
+      final preferences = await SharedPreferences.getInstance();
+      await preferences.setBool(homeCompactSummaryKey, compact);
+      repo.previewGate = Completer<void>();
+      repo.fullGate = Completer<void>();
+      repo.failSecondPreview = true;
+      await mount(tester,
+          const AppStartupGate(child: HomeStartupGate(child: HomePage())));
+      await tick(tester, 20);
+      expect(find.byType(SplashPage), findsOneWidget);
+      expect(find.byType(HomePage), findsNothing);
+      expect(container.read(appInitStateProvider), isNot(AppInitState.ready));
+      expect(repo.previews, 1);
+      repo.previewGate!.complete();
+      await waitForHome(tester);
+      expect(find.byType(SplashPage), findsNothing);
+      expect(tester.widget<BeeSummaryCard>(find.byType(BeeSummaryCard)).compact,
+          compact);
+      expect(
+          find
+              .byWidgetPredicate((widget) =>
+                  widget is CircularProgressIndicator && widget.value == null)
+              .hitTestable(),
+          findsNothing);
+      final list = tester.widget<TransactionList>(find.byType(TransactionList));
+      expect(list.transactionsWithDetails, hasLength(20));
+      expect(list.sourceReady, false);
+      final row = tester.widget<BeeTransactionRow>(
+          find.byType(BeeTransactionRow, skipOffstage: false).first);
+      expect(row.tags.single.label, 'Complete tag');
+      expect(row.attachmentCount, 1);
+      expect(row.accountName, 'USD account');
+      expect(row.converted, isNotNull);
+      expect(find.text('42笔'), findsOneWidget);
+      expect(
+          tester
+              .widget<DaySectionHeader>(
+                  find.byType(DaySectionHeader, skipOffstage: false).first)
+              .expense,
+          42 * 14);
+      expect(repo.previews, 1, reason: 'Splash work must not be discarded');
+      await tick(tester, 10);
+      expect(repo.previews, 1);
+      expect(tester.takeException(), isNull);
+      await close(tester);
+    });
+  }
 
   testWidgets(
       'mutation while waiting for Home invalidates the startup snapshot; '

@@ -9298,6 +9298,18 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get aboutProductDetails => '了解这款产品';
+
+  @override
+  String get v4HomeBudgetAvailable => '预算可用';
+
+  @override
+  String get v4HomeUseCompactSummary => '切换为紧凑汇总';
+
+  @override
+  String get v4HomeUseStandardSummary => '切换为完整汇总';
+
+  @override
+  String get v4HomeBudgetExceeded => '超支';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).

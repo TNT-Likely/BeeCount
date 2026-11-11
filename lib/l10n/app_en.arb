@@ -4715,5 +4715,9 @@
   },
   "aboutBrandStatement": "Record life. Keep your data yours.",
   "aboutHelpSupport": "Help & support",
-  "aboutProductDetails": "Explore this product"
+  "aboutProductDetails": "Explore this product",
+  "v4HomeBudgetAvailable": "Budget left",
+  "v4HomeUseCompactSummary": "Use compact summary",
+  "v4HomeUseStandardSummary": "Use full summary",
+  "v4HomeBudgetExceeded": "Over"
 }

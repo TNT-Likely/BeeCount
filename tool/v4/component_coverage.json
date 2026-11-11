@@ -107,7 +107,8 @@
     "components": [
       "BeeSummaryCard",
       "BeeProgress",
-      "BeeBudgetStrip"
+      "BeeBudgetStrip",
+      "BeeHomeBudgetIndicator"
     ],
     "page": "business",
     "case": 1,
@@ -115,7 +116,7 @@
       "spec-10"
     ],
     "supportedStates": [
-      "首页收支、预算进度与账本切换共用视觉层次。"
+      "完整长版默认；紧凑同屏预算环；隐藏金额；预算未设、超支与重试；上下层级、右对齐及小屏大字。"
     ],
     "scope": "source and gallery declaration; not a device acceptance claim"
   },

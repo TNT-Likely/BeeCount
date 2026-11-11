@@ -80,7 +80,8 @@ class _HomeRemindersState extends ConsumerState<HomeReminders> {
     if (current == null) return const SizedBox.shrink();
     final l10n = AppLocalizations.of(context);
     final overview = ref.watch(budgetOverviewProvider);
-    final showBudget = budget &&
+    final showBudget = !ref.watch(homeCompactSummaryProvider) &&
+        budget &&
         overview.hasValue &&
         !overview.hasError &&
         overview.valueOrNull?.totalBudget == null;

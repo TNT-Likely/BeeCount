@@ -77,6 +77,12 @@ class HomeHeaderBinding extends ConsumerWidget {
                     label: l.homeManageLedgers,
                     icon: const BeeLineIcon('BookOpen', size: 20)),
                 BeeMenuAction(
+                    value: 'summary-layout',
+                    label: ref.watch(homeCompactSummaryProvider)
+                        ? l.v4HomeUseStandardSummary
+                        : l.v4HomeUseCompactSummary,
+                    icon: const BeeLineIcon('PanelsTopLeft', size: 20)),
+                BeeMenuAction(
                     value: 'brand',
                     label: ref.watch(homeBrandVisibleProvider)
                         ? l.v4HomeBrandHide

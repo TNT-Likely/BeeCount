@@ -214,6 +214,9 @@ class _HomePageState extends ConsumerState<HomePage> {
           ref.read(themeModeProvider.notifier).state =
               current == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
         }
+      case 'summary-layout':
+        unawaited(
+            setHomeCompactSummary(ref, !ref.read(homeCompactSummaryProvider)));
       case 'brand':
         unawaited(
             setHomeBrandVisible(ref, !ref.read(homeBrandVisibleProvider)));

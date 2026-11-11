@@ -3,7 +3,7 @@
 // 主题相关
 export 'theme_providers.dart';
 
-// 数据库相关  
+// 数据库相关
 export 'database_providers.dart';
 
 // 统计相关
@@ -41,3 +41,5 @@ export 'smart_billing_providers.dart';
 
 // 附件设置
 export 'attachment_settings_providers.dart';
+
+export 'home_summary_providers.dart';

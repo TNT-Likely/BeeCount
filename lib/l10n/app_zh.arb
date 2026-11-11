@@ -4262,5 +4262,9 @@
   },
   "aboutBrandStatement": "记下生活，也把数据留给自己。",
   "aboutHelpSupport": "帮助与支持",
-  "aboutProductDetails": "了解这款产品"
+  "aboutProductDetails": "了解这款产品",
+  "v4HomeBudgetAvailable": "预算可用",
+  "v4HomeUseCompactSummary": "切换为紧凑汇总",
+  "v4HomeUseStandardSummary": "切换为完整汇总",
+  "v4HomeBudgetExceeded": "超支"
 }

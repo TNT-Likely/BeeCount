@@ -17503,6 +17503,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Explore this product'**
   String get aboutProductDetails;
+
+  /// No description provided for @v4HomeBudgetAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Budget left'**
+  String get v4HomeBudgetAvailable;
+
+  /// No description provided for @v4HomeUseCompactSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Use compact summary'**
+  String get v4HomeUseCompactSummary;
+
+  /// No description provided for @v4HomeUseStandardSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Use full summary'**
+  String get v4HomeUseStandardSummary;
+
+  /// No description provided for @v4HomeBudgetExceeded.
+  ///
+  /// In en, this message translates to:
+  /// **'Over'**
+  String get v4HomeBudgetExceeded;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

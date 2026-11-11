@@ -207,6 +207,7 @@ class BusinessAcceptancePage extends StatefulWidget {
 class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
   String? librarySelectedId;
   bool overwriteArchive = false;
+  bool homeSummaryCompact = false;
   String demoSkin = 'none';
   int historyScope = 0, historySort = 0;
   String historyLimit = '20';
@@ -523,12 +524,25 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
                     ])))),
           ]),
         1 => Column(children: [
+            SwitchListTile(
+                title: const Text('紧凑同屏汇总'),
+                value: homeSummaryCompact,
+                onChanged: (v) => setState(() => homeSummaryCompact = v)),
             BeeSummaryCard(
+                compact: homeSummaryCompact,
+                budgetIndicator: homeSummaryCompact
+                    ? BeeHomeBudgetIndicator(
+                        value: hidden ? '••' : '34%',
+                        label: '预算可用',
+                        progress: .34,
+                        semanticLabel: '本月预算可用 34%',
+                        onTap: () => record('预算管理'))
+                    : null,
                 title: '2026年 10月',
                 amount: '3,286.50',
                 prefix: '¥',
                 amountLabel: '本月支出',
-                currencyLabel: '人民币 · CNY',
+                currencyLabel: homeSummaryCompact ? 'CNY' : '人民币 · CNY',
                 privacyLabel: hidden ? '显示金额' : '隐藏金额',
                 onPrivacyTap: () => setState(() => hidden = !hidden),
                 incomeLabel: '本月收入',

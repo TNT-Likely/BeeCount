@@ -21,6 +21,7 @@ export 'src/cloud_data/sync_status.dart';
 export 'src/app_profile/home_identity.dart';
 export 'src/app_profile/profile.dart';
 export 'src/app_profile/home_summary.dart';
+export 'src/app_profile/home_budget_indicator.dart';
 export 'src/insights/category_ranking.dart';
 export 'src/resources/tags/tag.dart';
 export 'src/transactions/transaction_presentation.dart';
