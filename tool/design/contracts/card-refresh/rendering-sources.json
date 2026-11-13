@@ -158,7 +158,7 @@
     }
   },
   "sourceFiles": {
-    "scripts/build-guide.cjs": "faf91a9ca3d1567349f73c9386f3d190a1ea39439813f30f5e11578a7b120b59",
+    "scripts/build-guide.cjs": "3bcd57321b4f31beae48028c0e8f1d95fb24bbffb8b3460ce9739f3e2ab0fa8c",
     "prototype/src/refresh-component-catalog.cjs": "2d90b198cde5a043f8688b7be9bfe36cdb39a620645951ce3a12c46cee9c9afe",
     "prototype/src/resource-detail-samples.cjs": "436e4e161c5f9c3fa49bd2ab89eadc1c02133dc9ae288b5c92497e11fd65c5f8",
     "prototype/src/extracted-component-samples.cjs": "9e18130d783ad54209284971d74eb0a0172fbb0d2b9ef24354a96d1221573fb8"

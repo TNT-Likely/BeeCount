@@ -84,7 +84,7 @@
       {
         "id": "spec-33",
         "code": "F12",
-        "title": "成功与失败轻提示",
+        "title": "成功、错误、提醒与普通信息",
         "nativeCase": 9,
         "nativeLabel": "菜单与轻提示"
       },
