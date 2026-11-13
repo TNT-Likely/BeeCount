@@ -220,6 +220,107 @@ void main() {
     });
   }
 
+  for (final kind in ['expense', 'income']) {
+    recordingTest('$kind 有子分类的父类只展开，不启用保存；子类可正常记账', (tester) async {
+      final parent = kind == 'expense' ? foodId : incomeId;
+      final child = kind == 'expense'
+          ? lunchId
+          : await repo.createSubCategory(
+              parentId: parent, name: '基本工资', kind: 'income');
+      await open(tester, page: TransactionEditorPage(initialKind: kind));
+      await key(tester, '8');
+      await category(tester, parent);
+      expect(
+          tester
+              .widget<AmountEditorSheet>(find.byType(AmountEditorSheet))
+              .categoryId,
+          isNull);
+      expect(
+          tester
+              .widget<FilledButton>(
+                  find.byKey(const ValueKey('recording-save')))
+              .onPressed,
+          isNull);
+      final parentChip = find.descendant(
+          of: find.byType(RecordingSubcategoryGrid),
+          matching: find.byKey(ValueKey('recording-category-$parent')));
+      expect(tester.widget<RecordingSubcategoryChip>(parentChip).onTap, isNull);
+      await category(tester, parent); // Collapsing must not choose it either.
+      expect(
+          tester
+              .widget<AmountEditorSheet>(find.byType(AmountEditorSheet))
+              .categoryId,
+          isNull);
+      await category(tester, parent);
+      await category(tester, child);
+      await category(tester, parent); // Keep the previous leaf selection.
+      expect(
+          tester
+              .widget<AmountEditorSheet>(find.byType(AmountEditorSheet))
+              .categoryId,
+          child);
+      await press(tester, 'recording-save');
+      await tester.pumpAndSettle();
+      final saved = (await db.select(db.transactions).get()).single;
+      expect(saved.categoryId, child);
+      expect(saved.type, kind);
+      expect(saved.amount, 8);
+      expect(tester.takeException(), isNull);
+    });
+
+    recordingTest('$kind 更多分类中的父类不可确认，搜索后仍只能选子类', (tester) async {
+      final parent = kind == 'expense' ? foodId : incomeId;
+      final child = kind == 'expense'
+          ? lunchId
+          : await repo.createSubCategory(
+              parentId: parent, name: '基本工资', kind: 'income');
+      final parentName = (await repo.getCategoryById(parent))!.name;
+      final childName = (await repo.getCategoryById(child))!.name;
+      await open(tester, page: TransactionEditorPage(initialKind: kind));
+      await key(tester, '8');
+      await tester.ensureVisible(
+          find.byKey(const ValueKey('recording-more-categories')));
+      await tester.tap(find.byKey(const ValueKey('recording-more-categories')));
+      await tester.pumpAndSettle();
+      await tester.enterText(
+          find.descendant(
+              of: find.byType(BottomSheet), matching: find.byType(TextField)),
+          parentName);
+      await tester.pumpAndSettle();
+      await tester.tap(find.descendant(
+          of: find.byType(BottomSheet),
+          matching: find.widgetWithText(RecordingCategoryTile, parentName)));
+      await tester.pumpAndSettle();
+      final confirm = find.descendant(
+          of: find.byType(BottomSheet),
+          matching: find.widgetWithText(BeeButton, '确定'));
+      expect(tester.widget<BeeButton>(confirm).onPressed, isNull);
+      final disabledParent =
+          find.widgetWithText(RecordingSubcategoryChip, parentName);
+      expect(tester.widget<RecordingSubcategoryChip>(disabledParent).onTap,
+          isNull);
+      await tester.tap(disabledParent);
+      await tester.pumpAndSettle();
+      expect(tester.widget<BeeButton>(confirm).onPressed, isNull);
+      await tester.enterText(
+          find.descendant(
+              of: find.byType(BottomSheet), matching: find.byType(TextField)),
+          childName);
+      await tester.pumpAndSettle();
+      await tester
+          .tap(find.widgetWithText(RecordingSubcategoryChip, childName));
+      await tester.pumpAndSettle();
+      await tester.tap(confirm);
+      await tester.pumpAndSettle();
+      await press(tester, 'recording-save');
+      await tester.pumpAndSettle();
+      final saved = (await db.select(db.transactions).get()).single;
+      expect(saved.categoryId, child);
+      expect(saved.amount, 8);
+      expect(tester.takeException(), isNull);
+    });
+  }
+
   final frozenDesign = jsonDecode(
       File('test/fixtures/v4-recording-design-geometry.json')
           .readAsStringSync()) as Map<String, dynamic>;
@@ -299,6 +400,7 @@ void main() {
     await tester.tap(find.text('打开记账'));
     await tester.pumpAndSettle();
     await category(tester, foodId);
+    await category(tester, lunchId);
     await key(tester, '8');
     await press(tester, 'recording-save-next');
     await tester.pumpAndSettle();
@@ -310,6 +412,7 @@ void main() {
             .data,
         '0.00');
     await category(tester, foodId);
+    await category(tester, lunchId);
     await key(tester, '9');
     await press(tester, 'recording-save');
     await tester.pumpAndSettle();
@@ -788,6 +891,7 @@ void main() {
     await tester.tap(find.text('美元现金'));
     await tester.pumpAndSettle();
     await category(tester, foodId);
+    await category(tester, lunchId);
     await tester.ensureVisible(find.text('选择标签'));
     await tester.tap(find.text('选择标签'));
     await tester.pumpAndSettle();
@@ -849,6 +953,7 @@ void main() {
         page: TransactionEditorPage(
             initialKind: 'expense', quickAdd: true, initialTagIds: [tagId]));
     await category(tester, foodId);
+    await category(tester, lunchId);
     await key(tester, '8');
     await press(tester, 'recording-save');
     for (var i = 0; i < 30 && !failing.started.isCompleted; i++) {
@@ -879,6 +984,7 @@ void main() {
   recordingTest('减法、除法和清空不丢分类选择', (tester) async {
     await open(tester);
     await category(tester, foodId);
+    await category(tester, lunchId);
     for (final digit in ['2', '0', '-', '5']) {
       await key(tester, digit);
     }
@@ -1112,6 +1218,7 @@ void main() {
       final save = find.byKey(const ValueKey('recording-save'));
       final before = tester.getRect(save);
       await category(tester, foodId);
+      await category(tester, lunchId);
       await key(tester, '1');
       expect(tester.getRect(save), before);
       await press(tester, 'recording-save');

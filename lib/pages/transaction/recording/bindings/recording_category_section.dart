@@ -132,6 +132,8 @@ class _RecordingCategorySectionState
                                     category.name, context),
                                 icon: RecordingCategoryIcon(
                                     category: category, size: 18),
+                                enabled:
+                                    !all.any((c) => c.parentId == category.id),
                                 children: withChildren
                                     ? all
                                         .where((c) => c.parentId == category.id)
@@ -235,14 +237,10 @@ class _RecordingCategorySectionState
                           ? Theme.of(context).colorScheme.onPrimary
                           : Theme.of(context).colorScheme.onSurface),
                   onTap: () {
-                    if (hasChildren && widget.showAll) {
+                    if (hasChildren) {
                       setState(() => _expandedId =
                           expanded == category.id ? null : category.id);
                     } else {
-                      if (hasChildren) {
-                        setState(() => _expandedId =
-                            expanded == category.id ? null : category.id);
-                      }
                       widget.onSelected(category);
                     }
                   });
@@ -291,6 +289,8 @@ class _RecordingCategorySectionState
                                   id: category.id.toString(),
                                   label: CategoryUtils.getDisplayName(
                                       category.name, context),
+                                  enabled: !all
+                                      .any((c) => c.parentId == category.id),
                                   icon: RecordingCategoryIcon(
                                       category: category,
                                       size: 16,
