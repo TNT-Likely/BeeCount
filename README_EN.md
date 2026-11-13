@@ -121,75 +121,85 @@ Real v4 App screens and workflows captured on isolated simulators with synthetic
 
 ### Workflow demos
 
-Real v4 workflow recordings (AI assistant and import run the real model and parser).
+Type an entry, recognize a receipt or ask your AI assistant. Recorded in the real App, using live models for image recognition and chat.
 
 <div align="center">
-  <img src="demo/videos/v4/en/light/01-add-transaction.gif" alt="Add a transaction" width="200" />
-  <img src="demo/videos/v4/en/light/02-ai-chat.gif" alt="AI assistant" width="200" />
-  <img src="demo/videos/v4/en/light/04-data-analysis.gif" alt="Explore insights" width="200" />
+  <img src="demo/videos/v4/en/light/01-add-transaction.gif" alt="Add an entry" width="200" />
+  <img src="demo/videos/v4/en/light/03-ai-photo-recognition.gif" alt="Record from an image" width="200" />
+  <img src="demo/videos/v4/en/light/02-ai-chat.gif" alt="Ask your AI assistant" width="200" />
 </div>
 
+<details>
+<summary>More workflows and dark mode</summary>
+
 <div align="center">
+  <img src="demo/videos/v4/en/light/04-data-analysis.gif" alt="Explore your spending" width="200" />
   <img src="demo/videos/v4/en/light/05-copy-transaction.gif" alt="Copy a transaction" width="200" />
   <img src="demo/videos/v4/en/light/06-import-ledger.gif" alt="Import a ledger" width="200" />
 </div>
 
-<details>
-<summary>Dark mode demos</summary>
-
 <div align="center">
-  <img src="demo/videos/v4/en/dark/01-add-transaction.gif" alt="Add a transaction · dark" width="200" />
-  <img src="demo/videos/v4/en/dark/02-ai-chat.gif" alt="AI assistant · dark" width="200" />
-  <img src="demo/videos/v4/en/dark/04-data-analysis.gif" alt="Explore insights · dark" width="200" />
+  <img src="demo/videos/v4/en/dark/01-add-transaction.gif" alt="Add an entry" width="200" />
+  <img src="demo/videos/v4/en/dark/03-ai-photo-recognition.gif" alt="Record from an image" width="200" />
+  <img src="demo/videos/v4/en/dark/02-ai-chat.gif" alt="Ask your AI assistant" width="200" />
 </div>
 
 <div align="center">
-  <img src="demo/videos/v4/en/dark/05-copy-transaction.gif" alt="Copy a transaction · dark" width="200" />
-  <img src="demo/videos/v4/en/dark/06-import-ledger.gif" alt="Import a ledger · dark" width="200" />
+  <img src="demo/videos/v4/en/dark/04-data-analysis.gif" alt="Explore your spending" width="200" />
+  <img src="demo/videos/v4/en/dark/05-copy-transaction.gif" alt="Copy a transaction" width="200" />
+  <img src="demo/videos/v4/en/dark/06-import-ledger.gif" alt="Import a ledger" width="200" />
+</div>
+
+
+**iOS Shortcuts**: manually run a real shortcut to capture the receipt and record it in the background. This demo is recorded in Chinese.
+
+<div align="center">
+  <img src="demo/videos/v4/zh/light/07-ios-shortcut.gif" alt="Real iOS shortcut, manually triggered" width="240" />
 </div>
 
 </details>
 
 ### App screens
 
+Entries, recording, insights, budgets, accounts and ledgers — a complete everyday workflow.
+
 <div align="center">
-  <img src="preview/v4/en/light/01-home.png" alt="v4 screen 01-home" width="200" />
-  <img src="preview/v4/en/light/05-transaction.png" alt="v4 screen 05-transaction" width="200" />
-  <img src="preview/v4/en/light/02-analytics.png" alt="v4 screen 02-analytics" width="200" />
+  <img src="preview/v4/en/light/01-home.png" alt="Transactions" width="200" />
+  <img src="preview/v4/en/light/05-transaction.png" alt="Record" width="200" />
+  <img src="preview/v4/en/light/02-analytics.png" alt="Insights" width="200" />
 </div>
+
 <div align="center">
-  <img src="preview/v4/en/light/03-accounts.png" alt="v4 screen 03-accounts" width="200" />
-  <img src="preview/v4/en/light/04-ledgers.png" alt="v4 screen 04-ledgers" width="200" />
-  <img src="preview/v4/en/light/06-budgets.png" alt="v4 screen 06-budgets" width="200" />
+  <img src="preview/v4/en/light/06-budgets.png" alt="Budgets" width="200" />
+  <img src="preview/v4/en/light/03-accounts.png" alt="Accounts" width="200" />
+  <img src="preview/v4/en/light/04-ledgers.png" alt="Ledgers" width="200" />
 </div>
+
 <details>
 <summary>More screens and dark mode</summary>
 
 <div align="center">
-  <img src="preview/v4/en/light/07-mine.png" alt="v4 screen 07-mine" width="200" />
-  <img src="preview/v4/en/light/08-tags.png" alt="v4 screen 08-tags" width="200" />
-  <img src="preview/v4/en/light/09-cloud.png" alt="v4 screen 09-cloud" width="200" />
-</div>
-<div align="center">
-  <img src="preview/v4/en/light/10-categories.png" alt="v4 screen 10-categories" width="200" />
-  <img src="preview/v4/en/light/11-personalization.png" alt="v4 screen 11-personalization" width="200" />
-  <img src="preview/v4/en/light/12-search.png" alt="v4 screen 12-search" width="200" />
-</div>
-<div align="center">
-  <img src="preview/v4/en/dark/01-home.png" alt="v4 screen 01-home" width="200" />
-  <img src="preview/v4/en/dark/05-transaction.png" alt="v4 screen 05-transaction" width="200" />
-  <img src="preview/v4/en/dark/02-analytics.png" alt="v4 screen 02-analytics" width="200" />
-</div>
-<div align="center">
-  <img src="preview/v4/en/dark/03-accounts.png" alt="v4 screen 03-accounts" width="200" />
-  <img src="preview/v4/en/dark/04-ledgers.png" alt="v4 screen 04-ledgers" width="200" />
-  <img src="preview/v4/en/dark/06-budgets.png" alt="v4 screen 06-budgets" width="200" />
+  <img src="preview/v4/en/light/08-tags.png" alt="Colorful tags" width="200" />
+  <img src="preview/v4/en/light/10-categories.png" alt="Categories" width="200" />
+  <img src="preview/v4/en/light/11-personalization.png" alt="Themes" width="200" />
 </div>
 
 <div align="center">
-  <img src="demo/videos/v4/en/dark/01-add-transaction.gif" alt="Add a transaction (v4)" width="200" />
-  <img src="demo/videos/v4/en/dark/04-data-analysis.gif" alt="Explore insights (v4)" width="200" />
-  <img src="demo/videos/v4/en/dark/05-copy-transaction.gif" alt="Copy a transaction (v4)" width="200" />
+  <img src="preview/v4/en/light/12-search.png" alt="Search" width="200" />
+  <img src="preview/v4/en/light/09-cloud.png" alt="Cloud" width="200" />
+  <img src="preview/v4/en/light/07-mine.png" alt="Tools" width="200" />
+</div>
+
+<div align="center">
+  <img src="preview/v4/en/dark/01-home.png" alt="Transactions" width="200" />
+  <img src="preview/v4/en/dark/05-transaction.png" alt="Record" width="200" />
+  <img src="preview/v4/en/dark/02-analytics.png" alt="Insights" width="200" />
+</div>
+
+<div align="center">
+  <img src="preview/v4/en/dark/06-budgets.png" alt="Budgets" width="200" />
+  <img src="preview/v4/en/dark/03-accounts.png" alt="Accounts" width="200" />
+  <img src="preview/v4/en/dark/04-ledgers.png" alt="Ledgers" width="200" />
 </div>
 
 </details>

@@ -99,14 +99,16 @@ Future<void> main() async {
               'Use a new media evidence directory; refusing to overwrite media-manifest.json');
         }
         final clips = (data['media_clips'] as List? ?? const []).cast<Map>();
-        const scenes = [
-          '01-add-transaction',
-          '02-ai-chat',
-          '03-ai-photo-recognition',
-          '04-data-analysis',
-          '05-copy-transaction',
-          '06-import-ledger'
-        ];
+        final scenes = data['photo_only'] == true
+            ? ['03-ai-photo-recognition']
+            : [
+                '01-add-transaction',
+                '02-ai-chat',
+                '03-ai-photo-recognition',
+                '04-data-analysis',
+                '05-copy-transaction',
+                '06-import-ledger'
+              ];
         final expected = {
           for (final locale in ['zh', 'en'])
             for (final theme in ['light', 'dark'])
@@ -134,7 +136,7 @@ Future<void> main() async {
               start < 1600000000000 ||
               start <= previousEnd ||
               end - start < 5000 ||
-              end - start >= (name.contains('-ai-') ? 60000 : 45000)) {
+              end - start >= (name.contains('-ai-') ? 120000 : 45000)) {
             errors.add('Invalid wall-clock interval: $name');
           } else {
             previousEnd = end;

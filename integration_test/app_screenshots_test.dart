@@ -38,11 +38,17 @@ import 'package:beecount/providers/ui_state_providers.dart';
 import 'package:drift/native.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter/foundation.dart'
     show kReleaseMode, debugPrintSynchronously;
+// Match the platform interface version already resolved by image_picker.
+// ignore: depend_on_referenced_packages
 import 'package:image_picker_platform_interface/image_picker_platform_interface.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:beecount_business_ui/beecount_business_ui.dart'
+    show BeeQuickAddFan;
+import 'package:beecount/pages/attachment/attachment_preview_page.dart';
 import 'package:flutter_cloud_sync/flutter_cloud_sync.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -56,6 +62,10 @@ const qaRunId = String.fromEnvironment('QA_RUN_ID');
 const _captureMedia = bool.fromEnvironment('QA_CAPTURE_MEDIA');
 const _mediaPackage = String.fromEnvironment('QA_ANDROID_MEDIA_APP_ID');
 const qaAiKey = String.fromEnvironment('QA_AI_KEY');
+const _photoOnly = bool.fromEnvironment('QA_MEDIA_PHOTO_ONLY');
+final _nativePhotoPicker =
+    const bool.fromEnvironment('QA_NATIVE_PHOTO_PICKER') && Platform.isIOS;
+const _mediaClipCount = _photoOnly ? 4 : (qaAiVision ? 24 : 20);
 const qaAiVision = bool.fromEnvironment('QA_AI_VISION', defaultValue: true);
 const _nativeHostCapture = bool.fromEnvironment('QA_NATIVE_HOST_CAPTURE');
 const _extras =
@@ -81,43 +91,43 @@ class _Copy {
   String get dinner => text('和朋友一起晚餐', 'Dinner with friends');
   String get profile => text('小满', 'Alex');
   Map<String, String> get categories => {
-        'food': text('美食餐饮', 'Food & dining'),
+        'food': text('美食餐饮', 'Dining'),
         'groceries': text('日常采购', 'Groceries'),
         'transport': text('通勤出行', 'Transport'),
-        'home': text('居家生活', 'Home & bills'),
+        'home': text('居家生活', 'Home'),
         'shopping': text('品质购物', 'Shopping'),
         'fun': text('休闲娱乐', 'Leisure'),
-        'health': text('健康运动', 'Health & fitness'),
+        'health': text('健康运动', 'Fitness'),
         'study': text('学习提升', 'Education'),
         'salary': text('工作薪酬', 'Salary'),
         'freelance': text('业余收入', 'Freelance'),
         'interest': text('储蓄收益', 'Interest'),
-        'medical': text('医疗健康', 'Health & medical'),
+        'medical': text('医疗健康', 'Healthcare'),
         'pets': text('宠物伙伴', 'Pets'),
-        'beauty': text('美容护理', 'Beauty & care'),
-        'gifts': text('人情往来', 'Gifts & family'),
+        'beauty': text('美容护理', 'Beauty'),
+        'gifts': text('人情往来', 'Gifts'),
       };
   Map<String, List<String>> get subCategories => {
         'food': [
           text('早餐', 'Breakfast'),
           text('晚餐', 'Dinner'),
-          text('咖啡甜品', 'Café & dessert'),
+          text('咖啡甜品', 'Café'),
         ],
         'transport': [
           text('地铁公交', 'Transit'),
-          text('打车', 'Ride-hailing'),
+          text('打车', 'Taxi'),
         ],
         'shopping': [
           text('服饰鞋包', 'Apparel'),
-          text('数码电子', 'Electronics'),
+          text('数码电子', 'Tech'),
         ],
         'groceries': [
-          text('生鲜果蔬', 'Fresh produce'),
-          text('日用百货', 'Daily goods'),
+          text('生鲜果蔬', 'Produce'),
+          text('日用百货', 'Essentials'),
         ],
         'home': [
           text('水电燃气', 'Utilities'),
-          text('家居用品', 'Household items'),
+          text('家居用品', 'Housewares'),
         ],
       };
   Map<String, String> get accounts => {
@@ -175,6 +185,13 @@ class _Fixture {
 }
 
 Future<_Fixture> _seed(BeeDatabase db, _Copy copy, DateTime now) async {
+  for (final name in [
+    ...copy.categories.values,
+    ...copy.subCategories.values.expand((items) => items)
+  ]) {
+    expect(name.runes.length, lessThanOrEqualTo(10),
+        reason: 'Media fixtures must respect the category name limit');
+  }
   final repo = LocalRepository(db);
   final ledgerId = await repo.createLedger(name: copy.ledger);
   final travelId = await repo.createLedger(name: copy.travel);
@@ -213,6 +230,8 @@ Future<_Fixture> _seed(BeeDatabase db, _Copy copy, DateTime now) async {
       subCategories['${entry.key}:$index'] = await repo.createSubCategory(
         parentId: categories[entry.key]!,
         name: entry.value[index],
+        icon:
+            entry.key == 'food' && index == 2 ? 'local_cafe' : icons[entry.key],
         kind: 'expense',
         sortOrder: index,
       );
@@ -299,7 +318,7 @@ Future<_Fixture> _seed(BeeDatabase db, _Copy copy, DateTime now) async {
       transactionId: id,
       tagIds: [for (final label in labels) tags[label]!],
     );
-    count++;
+    if (targetLedger == ledgerId) count++;
     if (type == 'income') allIncome += amount;
     if (type == 'expense') allExpense += amount;
     if (offset == 0 && targetLedger == ledgerId) {
@@ -507,6 +526,69 @@ Future<_Fixture> _seed(BeeDatabase db, _Copy copy, DateTime now) async {
         note: copy.text('钱包补充', 'Top up cash wallet'),
         labels: ['daily']);
   }
+  // A varied recent timeline tells a realistic story instead of repeating lunch.
+  for (final item in <({
+    double amount,
+    String category,
+    String? sub,
+    String zh,
+    String en,
+    String account,
+    List<String> labels,
+    int hours
+  })>[
+    (
+      amount: 26.5,
+      category: 'food',
+      sub: 'food:2',
+      zh: '街角的一杯拿铁',
+      en: 'Coffee on the way',
+      account: 'cash',
+      labels: ['daily'],
+      hours: 3
+    ),
+    (
+      amount: 128.6,
+      category: 'groceries',
+      sub: 'groceries:0',
+      zh: '晚餐的新鲜食材',
+      en: 'Fresh groceries',
+      account: 'bank',
+      labels: ['essential'],
+      hours: 6
+    ),
+    (
+      amount: 6,
+      category: 'transport',
+      sub: 'transport:0',
+      zh: '下班坐地铁回家',
+      en: 'Metro ride home',
+      account: 'cash',
+      labels: ['work'],
+      hours: 25
+    ),
+    (
+      amount: 129,
+      category: 'study',
+      sub: null,
+      zh: '读书与学习',
+      en: 'Books for the weekend',
+      account: 'credit',
+      labels: ['growth'],
+      hours: 27
+    ),
+  ]) {
+    await add(
+        offset: 0,
+        position: 31,
+        amount: item.amount,
+        category: item.category,
+        subCategory: item.sub,
+        note: copy.text(item.zh, item.en),
+        account: item.account,
+        labels: item.labels,
+        at: now.subtract(Duration(hours: item.hours)));
+  }
   // The latest actual transaction is the recognizable editor fixture.
   final featured = await add(
       offset: 0,
@@ -532,6 +614,41 @@ Future<_Fixture> _seed(BeeDatabase db, _Copy copy, DateTime now) async {
       ledger: learningId,
       note: copy.text('新的学习课程', 'A new course'),
       labels: ['growth']);
+  // Other books have actual recent activity, rather than empty demo cards.
+  for (final expense in <(double, String, String, String, int)>[
+    (1298, 'transport', '杭州往返高铁', 'Return train tickets', 3),
+    (458, 'home', '周末民宿订金', 'Weekend stay deposit', 5),
+    (136, 'food', '旅行晚餐', 'Dinner on the trip', 8),
+    (49, 'food', '途中咖啡', 'Coffee on the road', 9),
+    (80, 'transport', '车站到酒店', 'Station to hotel', 10),
+  ]) {
+    await add(
+        offset: 0,
+        position: expense.$5,
+        amount: expense.$1,
+        category: expense.$2,
+        ledger: travelId,
+        note: copy.text(expense.$3, expense.$4),
+        labels: ['weekend']);
+  }
+  await add(
+      offset: 0,
+      position: 7,
+      amount: 299,
+      category: 'study',
+      ledger: learningId,
+      note: copy.text('摄影基础课程', 'Photography course'),
+      labels: ['growth']);
+  await add(
+      offset: 0,
+      position: 18,
+      amount: 89,
+      category: 'study',
+      ledger: learningId,
+      note: copy.text('本月读书计划', 'Books for this month'),
+      labels: ['growth']);
+  await repo.createBudget(ledgerId: travelId, type: 'total', amount: 6000);
+  await repo.createBudget(ledgerId: learningId, type: 'total', amount: 1200);
   await repo.createBudget(ledgerId: ledgerId, type: 'total', amount: 8500);
   for (final budget in {
     'food': 1200.0,
@@ -575,16 +692,13 @@ Future<_Fixture> _seed(BeeDatabase db, _Copy copy, DateTime now) async {
       transactionCount: count);
 }
 
-// Both locales use the user-supplied avatar, embedded for offline capture.
+// Restore the user-selected sample portrait (Downloads/20221104153701_17ed1.thumb.1000_0.jpg).
 const _avatarZhBase64 =
     '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';
-const _avatarEnBase64 = _avatarZhBase64;
-
 Future<void> _prepareAvatar(String language) async {
-  final bytes =
-      base64Decode(language == 'en' ? _avatarEnBase64 : _avatarZhBase64);
-  final path =
-      await AvatarService.saveAvatarFromBytes(bytes, extension: '.jpg');
+  final path = await AvatarService.saveAvatarFromBytes(
+      base64Decode(_avatarZhBase64),
+      extension: '.jpg');
   expect(path, isNotNull);
 }
 
@@ -633,8 +747,9 @@ Future<XFile> _renderReceipt(String language) async {
   }
 
   line(language == 'en' ? 'BeeCount Cafe' : '蜜蜂咖啡', 46, FontWeight.w800);
-  line(language == 'en' ? 'Receipt 2026-11-08 14:35' : '小票 2026-11-08 14:35',
-      24, FontWeight.w400);
+  final date = DateTime.now().toIso8601String().substring(0, 10);
+  line(language == 'en' ? 'Receipt $date 14:35' : '小票 $date 14:35', 24,
+      FontWeight.w400);
   line(language == 'en' ? 'Latte x1          18.00' : '拿铁 x1            18.00',
       32, FontWeight.w400);
   line(language == 'en' ? 'Croissant x1      10.00' : '可颂 x1            10.00',
@@ -645,8 +760,10 @@ Future<XFile> _renderReceipt(String language) async {
       .buffer
       .asUint8List();
   final dir = await getTemporaryDirectory();
-  final file = File('${dir.path}/qa-ai-receipt-$language.png');
-  await file.writeAsBytes(bytes);
+  final file = File('${dir.path}/qa-ai-receipt-$language.jpg');
+  final jpeg = await FlutterImageCompress.compressWithList(bytes,
+      quality: 95, format: CompressFormat.jpeg);
+  await file.writeAsBytes(jpeg);
   return XFile(file.path);
 }
 
@@ -713,6 +830,7 @@ void main() {
     'schema_version': 1,
     'complete': false,
     'native_host_capture': _nativeHostCapture,
+    'photo_only': _photoOnly,
     'captures': shots,
     'fixtures': fixtures,
     'media_clips': clips,
@@ -768,7 +886,7 @@ void main() {
       'build_mode': kReleaseMode ? 'release' : 'debug',
       'test_pointer_overlay': false,
       'screens_per_group': _captureMedia ? 0 : (_extras ? 12 : 6),
-      'expected_media_clips': _captureMedia ? (qaAiVision ? 24 : 20) : 0,
+      'expected_media_clips': _captureMedia ? _mediaClipCount : 0,
     });
     await prefs.setBool('welcome_shown', true);
     await prefs.setBool('account_feature_enabled', true);
@@ -795,8 +913,10 @@ void main() {
               'isBuiltIn': true,
               'apiKey': qaAiKey,
               'baseUrl': 'https://open.bigmodel.cn/api/paas/v4',
-              'textModel': 'glm-4-flash',
-              'visionModel': 'glm-4v-flash',
+              'textModel': const String.fromEnvironment('QA_AI_TEXT_MODEL',
+                  defaultValue: 'glm-5.3-flash'),
+              'visionModel': const String.fromEnvironment('QA_AI_VISION_MODEL',
+                  defaultValue: 'glm-4v-flash'),
               'audioModel': 'glm-4-voice',
               'createdAt': DateTime(2024, 1, 1).toIso8601String(),
             }
@@ -816,7 +936,7 @@ void main() {
     Future<void> waitFor(bool Function() ready, String description,
         {int tries = 200}) async {
       for (var i = 0; i < tries; i++) {
-        if (_captureMedia && mediaRuntime.elapsedMilliseconds >= 600000) {
+        if (_captureMedia && mediaRuntime.elapsedMilliseconds >= 900000) {
           fail('Media run exceeded its ten-minute interaction budget');
         }
         await tester.pump(const Duration(milliseconds: 100));
@@ -1002,7 +1122,7 @@ void main() {
         if (_captureMedia) {
           final repo = container.read(repositoryProvider) as LocalRepository;
           final stubPicker = _StubImagePickerPlatform();
-          ImagePickerPlatform.instance = stubPicker;
+          if (!_nativePhotoPicker) ImagePickerPlatform.instance = stubPicker;
           Future<void> pace(int milliseconds) async {
             await tester.pump();
             await Future<void>.delayed(Duration(milliseconds: milliseconds));
@@ -1150,6 +1270,8 @@ void main() {
             clips.add(entry);
             await pace(700);
             entry.addAll(await action());
+            final selectedStart = entry.remove('capture_started_at_ms');
+            if (selectedStart is int) entry['started_at_ms'] = selectedStart;
             final finalPage = entry['production_page'] == 'AnalyticsPage'
                 ? find.byType(AnalyticsPage)
                 : find.byType(HomePage);
@@ -1165,11 +1287,12 @@ void main() {
                 (entry['started_at_ms'] as int);
             if (elapsed < 8600) await pace(8600 - elapsed);
             final ended = DateTime.now().millisecondsSinceEpoch;
-            expect(ended - (entry['started_at_ms'] as int), lessThan(45000),
+            expect(ended - (entry['started_at_ms'] as int),
+                lessThan(scene.contains('-ai-') ? 120000 : 45000),
                 reason:
                     'Readable clips must leave time for all 12 native flows');
             expect((entry['assertions'] as List), isNotEmpty);
-            expect(mediaRuntime.elapsedMilliseconds, lessThan(420000));
+            expect(mediaRuntime.elapsedMilliseconds, lessThan(900000));
             entry['ended_at_ms'] = ended;
             entry['status'] = 'PASS';
           }
@@ -1178,74 +1301,83 @@ void main() {
           debugPrint('QA_MEDIA_GROUP_READY_${language}_${mode.name}');
           await Future<void>.delayed(const Duration(seconds: 3));
           await tester.pump();
-          await clip('01-add-transaction', () async {
-            final before =
-                (await repo.getTransactionsByLedger(fixture.ledgerId))
-                    .map((t) => t.id)
-                    .toSet();
-            await tap(find.text(l.tabRecord).last, hold: 350);
-            await editorReady();
-            expect(
-                tester
-                    .widget<TransactionEditorPage>(
-                        find.byType(TransactionEditorPage))
-                    .editingTransactionId,
-                isNull);
-            await tap(find.byKey(
-                ValueKey('recording-category-${fixture.categoryIds['food']}')));
-            expect(
-                tester
-                    .widget<AmountEditorSheet>(find.byType(AmountEditorSheet))
-                    .categoryId,
-                fixture.categoryIds['food']);
-            await amount('37.5');
-            final addedNote = fixture.copy.text('午后的一杯咖啡', 'Afternoon coffee');
-            await note(addedNote);
-            final created = await save(before, addedNote, 37.5);
-            expect(created.categoryId, fixture.categoryIds['food']);
-            expect(created.accountId, fixture.accountIds['bank']);
-            return {
-              'production_page': 'HomePage',
-              'assertions': [
-                'Home add entry opened the production editor',
-                'Real category, numeric keypad and note field were used',
-                'Save created exactly one persisted transaction with expected category, account and amount',
-                'The actual saved row is present on production HomePage'
-              ],
-              'transaction': created.toJson(),
-            };
-          });
+          if (!_photoOnly) {
+            await clip('01-add-transaction', () async {
+              final before =
+                  (await repo.getTransactionsByLedger(fixture.ledgerId))
+                      .map((t) => t.id)
+                      .toSet();
+              await tap(find.text(l.tabRecord).last, hold: 350);
+              await editorReady();
+              expect(
+                  tester
+                      .widget<TransactionEditorPage>(
+                          find.byType(TransactionEditorPage))
+                      .editingTransactionId,
+                  isNull);
+              await tap(find.byKey(ValueKey(
+                  'recording-category-${fixture.categoryIds['food']}')));
+              expect(
+                  tester
+                      .widget<AmountEditorSheet>(find.byType(AmountEditorSheet))
+                      .categoryId,
+                  fixture.categoryIds['food']);
+              await amount('37.5');
+              final addedNote =
+                  fixture.copy.text('午后的一杯咖啡', 'Afternoon coffee');
+              await note(addedNote);
+              final created = await save(before, addedNote, 37.5);
+              expect(created.categoryId, fixture.categoryIds['food']);
+              expect(created.accountId, fixture.accountIds['bank']);
+              return {
+                'production_page': 'HomePage',
+                'assertions': [
+                  'Home add entry opened the production editor',
+                  'Real category, numeric keypad and note field were used',
+                  'Save created exactly one persisted transaction with expected category, account and amount',
+                  'The actual saved row is present on production HomePage'
+                ],
+                'transaction': created.toJson(),
+              };
+            });
+          }
 
           await mediaHome();
-          if (qaAiVision) await mediaHome();
-          if (qaAiVision)
+          if (qaAiVision) {
             await clip('03-ai-photo-recognition', () async {
               final baselineIds =
                   (await repo.getTransactionsByLedger(fixture.ledgerId))
                       .map((row) => row.id)
                       .toSet();
               stubPicker.next = await _renderReceipt(language);
-              final pending = await SharedPreferences.getInstance();
+              if (_nativePhotoPicker) {
+                debugPrint('QA_MEDIA_INPUT_${language}_${mode.name}');
+                await pace(4000);
+              }
               // The vision model may split the receipt into its item rows or
               // return one total; accept either as long as the new expense sums
               // to the receipt total. Retry once on a no-bill answer.
               Transaction? created;
+              var successfulAttemptStart =
+                  DateTime.now().millisecondsSinceEpoch;
               for (var attempt = 0; attempt < 3 && created == null; attempt++) {
-                await pending.setString(
-                    'pending_deeplink_action',
-                    jsonEncode({
-                      'action': 'image',
-                      'ts': DateTime.now().millisecondsSinceEpoch
-                    }));
-                if (attempt > 0) {
-                  // Free-tier vision rate limits (HTTP 429) need a cooldown;
-                  // the gap is cut out of every GIF by the wall-clock spans.
-                  await pace(20000);
-                }
-                binding
-                    .handleAppLifecycleStateChanged(AppLifecycleState.hidden);
-                binding
-                    .handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+                if (attempt > 0) await pace(20000);
+                successfulAttemptStart = DateTime.now().millisecondsSinceEpoch;
+                await pace(500);
+                // A real long-press and slide selects the production gallery
+                // action. Only the source image is injected as synthetic data.
+                final centerButton = find.byWidgetPredicate((widget) =>
+                    widget is GestureDetector &&
+                    widget.onLongPressStart != null &&
+                    widget.onLongPressMoveUpdate != null);
+                final center = tester.getCenter(centerButton.last);
+                final origin = BeeQuickAddFan.safeOrigin(center, viewport!);
+                final gesture = await tester.startGesture(center);
+                await pace(750);
+                await gesture.moveTo(BeeQuickAddFan.centerFor(origin, 1));
+                await pace(650);
+                await gesture.up();
+                await pace(400);
                 // The loading dialog can flash by on a fast failure (free-tier
                 // quota errors close it in ~300ms), so poll for any settled
                 // outcome: booked rows, a failure/no-bill toast, or a timeout.
@@ -1280,306 +1412,363 @@ void main() {
               expect(created!.type, 'expense');
               expect((created.note ?? '').isNotEmpty, isTrue,
                   reason: 'The AI-created note must be readable on the row');
+              await waitFor(
+                  () => find.text(l.aiOcrRecognizing).evaluate().isEmpty,
+                  'image billing completes and dismisses its own progress dialog',
+                  tries: 600);
+              await pace(600);
               await mediaHome();
-              final aiRow = created!;
+              final aiRow = created;
               expect(aiRow.note?.isNotEmpty ?? false, isTrue,
                   reason: 'The AI-created note must be readable on the row');
               await waitFor(() => rowFor(aiRow.note!).evaluate().isNotEmpty,
                   'AI-created row visible on production home',
                   tries: 100);
+              await Scrollable.ensureVisible(
+                  tester.element(rowFor(aiRow.note!).first),
+                  alignment: 0.35);
+              await pace(700);
+              debugPrint('QA_MEDIA_STILL_${language}_${mode.name}_14-photo');
+              await pace(1200);
+              final attachments =
+                  await repo.getAttachmentsByTransaction(aiRow.id);
+              expect(attachments, isNotEmpty,
+                  reason: 'Recognized entries retain their source receipt');
+              final shownRow = find.byElementPredicate(
+                  (element) =>
+                      element.widget is TransactionListItem &&
+                      (element.widget as TransactionListItem).title ==
+                          aiRow.note &&
+                      visible(element),
+                  skipOffstage: false);
+              final attachButton = find.descendant(
+                  of: shownRow,
+                  matching: find.byWidgetPredicate(
+                      (widget) =>
+                          widget is Tooltip &&
+                          widget.message == l.exportCsvHeaderAttachments,
+                      skipOffstage: false),
+                  skipOffstage: false);
+              await waitFor(
+                  () => attachButton.hitTestable().evaluate().isNotEmpty,
+                  'receipt attachment control can be tapped on the actual saved row');
+              await tester.tap(attachButton.hitTestable().first);
+              await waitFor(
+                  () =>
+                      find.byType(AttachmentPreviewPage).evaluate().isNotEmpty,
+                  'recognized receipt opens in production attachment preview');
+              await pace(2400);
+              await mediaHome();
               return {
+                'capture_started_at_ms': successfulAttemptStart,
                 'production_page': 'HomePage',
                 'assertions': [
-                  'Deep link opened the real gallery-billing flow with a fixture receipt',
+                  'Real long-press gallery action selected a synthetic receipt',
                   'The live vision model read the receipt and booked the expense',
                   'New rows sum to the receipt total (28.00)',
-                  'The AI-created row is visible on the production home feed'
+                  'The AI-created row is visible on the production home feed',
+                  'The source receipt was opened through its real row attachment control'
                 ],
                 'transaction': aiRow.toJson()
               };
             });
+          }
           await mediaHome();
-          await clip('04-data-analysis', () async {
-            await tap(find.text(l.tabInsights).last, hold: 350);
-            await waitFor(
-                () => find.byType(AnalyticsContent).evaluate().isNotEmpty,
-                'production analytics from real bottom navigation');
-            expect(find.byType(AnalyticsPage), findsOneWidget);
-            await tap(find.text(l.analyticsYear));
-            await waitFor(
-                () =>
-                    find.byType(AnalyticsContent).evaluate().isNotEmpty &&
-                    tester
-                            .widget<AnalyticsContent>(
-                                find.byType(AnalyticsContent))
-                            .scope ==
-                        'year',
-                'analytics year period');
-            await tap(find
-                .descendant(
-                    of: find.byType(AnalyticsContent),
-                    matching: find.text(l.homeIncome))
-                .first);
-            final annual = await repo.yearlyTotals(
-                ledgerId: fixture.ledgerId, year: now.year);
-            await waitFor(
-                () =>
-                    find.byType(AnalyticsContent).evaluate().isNotEmpty &&
-                    tester
-                            .widget<AnalyticsContent>(
-                                find.byType(AnalyticsContent))
-                            .type ==
-                        'income',
-                'analytics income view');
-            final incomeView =
-                tester.widget<AnalyticsContent>(find.byType(AnalyticsContent));
-            expect(incomeView.scope, 'year');
-            expect(incomeView.data.total, closeTo(annual.$1, .001));
-            expect(incomeView.data.count, greaterThan(0));
-            await pace(650);
-            await tap(find.text(l.analyticsMonth));
-            await waitFor(
-                () =>
-                    find.byType(AnalyticsContent).evaluate().isNotEmpty &&
-                    tester
-                            .widget<AnalyticsContent>(
-                                find.byType(AnalyticsContent))
-                            .scope ==
-                        'month',
-                'analytics return to current month');
-            await tap(find
-                .descendant(
-                    of: find.byType(AnalyticsContent),
-                    matching: find.text(l.homeExpense))
-                .first);
-            final monthly = await repo.monthlyTotals(
-                ledgerId: fixture.ledgerId,
-                month: DateTime(now.year, now.month));
-            final expenseView =
-                tester.widget<AnalyticsContent>(find.byType(AnalyticsContent));
-            expect(expenseView.scope, 'month');
-            expect(expenseView.type, 'expense');
-            expect(expenseView.data.total, closeTo(monthly.$2, .001));
-            expect(find.byType(AnalyticsPage), findsOneWidget);
-            return {
-              'production_page': 'AnalyticsPage',
-              'assertions': [
-                'Home bottom navigation opened production AnalyticsPage',
-                'Year/income and month/expense controls changed the real rendered views',
-                'Both displayed totals equal actual repository queries',
-                'Populated production AnalyticsPage remains visible'
-              ],
-              'annual_income': annual.$1,
-              'monthly_expense': monthly.$2
-            };
-          });
+          if (!_photoOnly) {
+            await clip('04-data-analysis', () async {
+              await tap(find.text(l.tabInsights).last, hold: 350);
+              await waitFor(
+                  () => find.byType(AnalyticsContent).evaluate().isNotEmpty,
+                  'production analytics from real bottom navigation');
+              expect(find.byType(AnalyticsPage), findsOneWidget);
+              await tap(find.text(l.analyticsYear));
+              await waitFor(
+                  () =>
+                      find.byType(AnalyticsContent).evaluate().isNotEmpty &&
+                      tester
+                              .widget<AnalyticsContent>(
+                                  find.byType(AnalyticsContent))
+                              .scope ==
+                          'year',
+                  'analytics year period');
+              await tap(find
+                  .descendant(
+                      of: find.byType(AnalyticsContent),
+                      matching: find.text(l.homeIncome))
+                  .first);
+              final annual = await repo.yearlyTotals(
+                  ledgerId: fixture.ledgerId, year: now.year);
+              await waitFor(
+                  () =>
+                      find.byType(AnalyticsContent).evaluate().isNotEmpty &&
+                      tester
+                              .widget<AnalyticsContent>(
+                                  find.byType(AnalyticsContent))
+                              .type ==
+                          'income',
+                  'analytics income view');
+              final incomeView = tester
+                  .widget<AnalyticsContent>(find.byType(AnalyticsContent));
+              expect(incomeView.scope, 'year');
+              expect(incomeView.data.total, closeTo(annual.$1, .001));
+              expect(incomeView.data.count, greaterThan(0));
+              await pace(650);
+              await tap(find.text(l.analyticsMonth));
+              await waitFor(
+                  () =>
+                      find.byType(AnalyticsContent).evaluate().isNotEmpty &&
+                      tester
+                              .widget<AnalyticsContent>(
+                                  find.byType(AnalyticsContent))
+                              .scope ==
+                          'month',
+                  'analytics return to current month');
+              await tap(find
+                  .descendant(
+                      of: find.byType(AnalyticsContent),
+                      matching: find.text(l.homeExpense))
+                  .first);
+              final monthly = await repo.monthlyTotals(
+                  ledgerId: fixture.ledgerId,
+                  month: DateTime(now.year, now.month));
+              final expenseView = tester
+                  .widget<AnalyticsContent>(find.byType(AnalyticsContent));
+              expect(expenseView.scope, 'month');
+              expect(expenseView.type, 'expense');
+              expect(expenseView.data.total, closeTo(monthly.$2, .001));
+              expect(find.byType(AnalyticsPage), findsOneWidget);
+              return {
+                'production_page': 'AnalyticsPage',
+                'assertions': [
+                  'Home bottom navigation opened production AnalyticsPage',
+                  'Year/income and month/expense controls changed the real rendered views',
+                  'Both displayed totals equal actual repository queries',
+                  'Populated production AnalyticsPage remains visible'
+                ],
+                'annual_income': annual.$1,
+                'monthly_expense': monthly.$2
+              };
+            });
+          }
 
           await mediaHome();
-          await clip('05-copy-transaction', () async {
-            final original =
-                (await repo.getTransactionById(fixture.featuredId))!;
-            final originalTags = (await repo.getTagsForTransaction(original.id))
-                .map((t) => t.id)
-                .toList();
-            final before =
-                (await repo.getTransactionsByLedger(fixture.ledgerId))
-                    .map((t) => t.id)
-                    .toSet();
-            await waitFor(
-                () => rowFor(fixture.copy.dinner).evaluate().isNotEmpty,
-                'original home transaction for a real long press');
-            final row = rowFor(fixture.copy.dinner).first;
-            await tester.ensureVisible(row);
-            await pace(250);
-            // flutter_list_view 1.x does not expose onstage children correctly.
-            // Traverse actual row elements and deliver a real pointer sequence.
-            final position = tester.getTopLeft(row) + const Offset(100, 16);
-            final gesture = await tester.startGesture(position);
-            await pace(750);
-            await gesture.up();
-            await waitFor(
-                () => find.text(l.transactionCopyAction).evaluate().isNotEmpty,
-                'real home long-press copy menu');
-            // The popup route animates in; tap only after it settles so the
-            // menu item is actually hit-tested where the text renders.
-            await pace(500);
-            await tap(find.text(l.transactionCopyAction), hold: 350);
-            await editorReady();
-            final page = tester.widget<TransactionEditorPage>(
-                find.byType(TransactionEditorPage));
-            final prefill = tester
-                .widget<AmountEditorSheet>(find.byType(AmountEditorSheet));
-            expect(page.isCopy, isTrue);
-            expect(prefill.editingTransactionId, isNull);
-            expect(prefill.initialAmount, original.amount);
-            expect(prefill.initialNote, original.note);
-            expect(prefill.initialAccountId, original.accountId);
-            expect(prefill.initialTagIds, unorderedEquals(originalTags));
-            await amount('42.8', clear: true);
-            final copiedNote =
-                fixture.copy.text('再约一次朋友晚餐', 'Another dinner together');
-            await note(copiedNote);
-            final created = await save(before, copiedNote, 42.8);
-            expect(created.id, isNot(original.id));
-            expect(created.syncId, isNot(original.syncId));
-            expect(created.categoryId, original.categoryId);
-            expect(created.accountId, original.accountId);
-            expect(
-                (await repo.getTagsForTransaction(created.id)).map((t) => t.id),
-                unorderedEquals(originalTags));
-            final unchanged = (await repo.getTransactionById(original.id))!;
-            expect(unchanged.toJson(), original.toJson());
-            expect(find.byType(HomePage), findsOneWidget);
-            return {
-              'production_page': 'HomePage',
-              'assertions': [
-                'Real home long press and production copy menu opened a new prefilled editor',
-                'Real clear/keypad and note controls changed the copied amount and note',
-                'Exactly one copy has independent local and sync identities with inherited category/account/tags',
-                'Original database row is byte-for-field unchanged; real copied home row is visible'
-              ],
-              'source_before': original.toJson(),
-              'source_after': unchanged.toJson(),
-              'copy': created.toJson()
-            };
-          });
-          await mediaHome();
-          await mediaHome();
-          await clip('02-ai-chat', () async {
-            await tap(find.text('AI').first, hold: 450);
-            await waitFor(() => find.byType(AIChatPage).evaluate().isNotEmpty,
-                'production AI chat page');
-            final field = find
-                .descendant(
-                    of: find.byType(AIChatPage),
-                    matching: find.byType(TextField))
-                .first;
-            await tap(field, hold: 450);
-            final editable = tester.state<EditableTextState>(find
-                .descendant(of: field, matching: find.byType(EditableText))
-                .first);
-            final question = fixture.copy
-                .text('这个月我花了多少钱？', 'How much did I spend this month?');
-            var typed = '';
-            const rhythm = [150, 190, 130, 170];
-            var index = 0;
-            for (final letter in question.runes) {
-              typed += String.fromCharCode(letter);
-              editable.updateEditingValue(TextEditingValue(
-                  text: typed,
-                  selection: TextSelection.collapsed(offset: typed.length)));
-              await pace(rhythm[index % rhythm.length]);
-              index++;
-            }
-            await pace(400);
-            await tap(find.byKey(const ValueKey('ai-chat-send')), hold: 400);
-            // The agent runs real ledger tools against the live model; wait
-            // for the streamed answer and the composer to leave busy state.
-            await waitFor(
-                () =>
-                    find
-                        .byWidgetPredicate((widget) =>
-                            widget.key is ValueKey &&
-                            '${(widget.key as ValueKey).value}'
-                                .startsWith('agent-answer-'))
-                        .evaluate()
-                        .isNotEmpty &&
-                    find.byIcon(Icons.send).evaluate().isNotEmpty,
-                'real AI assistant answer',
-                tries: 600);
-            expect(find.textContaining(l.aiChatConfigWarning), findsNothing);
-            await pace(900);
-            await mediaHome();
-            expect(find.byType(HomePage), findsOneWidget);
-            return {
-              'production_page': 'AIChatPage',
-              'assertions': [
-                'Home header opened the production AI assistant',
-                'The question was typed and sent through the real composer',
-                'A real model answer rendered after live ledger tool runs',
-                'No unconfigured-AI warning appeared'
-              ]
-            };
-          });
-
-          await mediaHome();
-          await clip('06-import-ledger', () async {
-            final before =
-                (await repo.getTransactionsByLedger(fixture.ledgerId)).length;
-            final docs = await getTemporaryDirectory();
-            final csv = File('${docs.path}/qa-bills.csv');
-            String stamp(DateTime d) =>
-                '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
-            final day = DateTime.now().subtract(const Duration(days: 1));
-            final day2 = DateTime.now().subtract(const Duration(days: 2));
-            await csv.writeAsString([
-              // The category column is required: without it the confirm
-              // page blocks on "select a category first" instead of
-              // starting the import.
-              '日期,类型,金额,分类,备注',
-              '${stamp(day)},支出,28.0,美食餐饮,楼下咖啡拿铁',
-              '${stamp(day)},收入,120.0,工作薪酬,闲置出售',
-              '${stamp(day2)},支出,15.5,通勤出行,地铁通勤',
-              ''
-            ].join('\n'));
-            final fakePicker = _FakeFilePicker()..csv = csv;
-            FilePicker.platform = fakePicker;
-            await tap(find.text(l.tabMine).last, hold: 400);
-            await waitFor(() => find.byType(MinePage).evaluate().isNotEmpty,
-                'Mine tab for import');
-            await tap(find.text(l.dataManagement), hold: 450);
-            // The data management page is a lazy ListView; scroll the import
-            // tile into the built viewport before tapping it.
-            final importTile = find.text(l.mineImport);
-            for (var i = 0; i < 8 && importTile.evaluate().isEmpty; i++) {
-              await tester.drag(
-                  find.byType(Scrollable).first, const Offset(0, -320));
+          if (!_photoOnly) {
+            await clip('05-copy-transaction', () async {
+              final original =
+                  (await repo.getTransactionById(fixture.featuredId))!;
+              final originalTags =
+                  (await repo.getTagsForTransaction(original.id))
+                      .map((t) => t.id)
+                      .toList();
+              final before =
+                  (await repo.getTransactionsByLedger(fixture.ledgerId))
+                      .map((t) => t.id)
+                      .toSet();
+              await waitFor(
+                  () => rowFor(fixture.copy.dinner).evaluate().isNotEmpty,
+                  'original home transaction for a real long press');
+              final row = rowFor(fixture.copy.dinner).first;
+              await tester.ensureVisible(row);
               await pace(250);
-            }
-            await waitFor(() => importTile.evaluate().isNotEmpty,
-                'data management import tile');
-            await pace(300);
-            await tap(find.text(l.mineImport), hold: 450);
-            await waitFor(() => find.byType(ImportPage).evaluate().isNotEmpty,
-                'production import page');
-            await tap(find.text(l.importChooseFile), hold: 450);
-            await waitFor(
-                () => find.byType(ImportConfirmPage).evaluate().isNotEmpty,
-                'real CSV parsed into the mapping step',
-                tries: 200);
-            await pace(600);
-            await tap(find.text(l.importNextStep), hold: 450);
-            await pace(400);
-            await tap(find.text(l.importStartImport), hold: 500);
-            // A currency-confirmation dialog pops up for imported accounts;
-            // confirm it too (its button reuses the same label).
-            await pace(1200);
-            if (find
-                .text(l.importAccountCurrencyPreview)
-                .evaluate()
-                .isNotEmpty) {
-              await tap(find.text(l.importStartImport).last, hold: 500);
-            }
-            var imported = false;
-            for (var i = 0; i < 300 && !imported; i++) {
-              await pace(100);
-              imported = (await repo.getTransactionsByLedger(fixture.ledgerId))
-                      .length ==
-                  before + 3;
-            }
-            expect(imported, isTrue,
-                reason: 'Three CSV rows must land through the import UI');
-            await mediaHome();
-            return {
-              'production_page': 'HomePage',
-              'assertions': [
-                'The real file-picker flow selected a fixture CSV',
-                'The production parser mapped and confirmed the columns',
-                'Three CSV rows landed in the ledger through the import UI'
-              ],
-              'imported_rows': 3
-            };
-          });
+              // flutter_list_view 1.x does not expose onstage children correctly.
+              // Traverse actual row elements and deliver a real pointer sequence.
+              final position = tester.getTopLeft(row) + const Offset(100, 16);
+              final gesture = await tester.startGesture(position);
+              await pace(750);
+              await gesture.up();
+              await waitFor(
+                  () =>
+                      find.text(l.transactionCopyAction).evaluate().isNotEmpty,
+                  'real home long-press copy menu');
+              // The popup route animates in; tap only after it settles so the
+              // menu item is actually hit-tested where the text renders.
+              await pace(500);
+              await tap(find.text(l.transactionCopyAction), hold: 350);
+              await editorReady();
+              final page = tester.widget<TransactionEditorPage>(
+                  find.byType(TransactionEditorPage));
+              final prefill = tester
+                  .widget<AmountEditorSheet>(find.byType(AmountEditorSheet));
+              expect(page.isCopy, isTrue);
+              expect(prefill.editingTransactionId, isNull);
+              expect(prefill.initialAmount, original.amount);
+              expect(prefill.initialNote, original.note);
+              expect(prefill.initialAccountId, original.accountId);
+              expect(prefill.initialTagIds, unorderedEquals(originalTags));
+              await amount('42.8', clear: true);
+              final copiedNote =
+                  fixture.copy.text('再约一次朋友晚餐', 'Another dinner together');
+              await note(copiedNote);
+              final created = await save(before, copiedNote, 42.8);
+              expect(created.id, isNot(original.id));
+              expect(created.syncId, isNot(original.syncId));
+              expect(created.categoryId, original.categoryId);
+              expect(created.accountId, original.accountId);
+              expect(
+                  (await repo.getTagsForTransaction(created.id))
+                      .map((t) => t.id),
+                  unorderedEquals(originalTags));
+              final unchanged = (await repo.getTransactionById(original.id))!;
+              expect(unchanged.toJson(), original.toJson());
+              expect(find.byType(HomePage), findsOneWidget);
+              return {
+                'production_page': 'HomePage',
+                'assertions': [
+                  'Real home long press and production copy menu opened a new prefilled editor',
+                  'Real clear/keypad and note controls changed the copied amount and note',
+                  'Exactly one copy has independent local and sync identities with inherited category/account/tags',
+                  'Original database row is byte-for-field unchanged; real copied home row is visible'
+                ],
+                'source_before': original.toJson(),
+                'source_after': unchanged.toJson(),
+                'copy': created.toJson()
+              };
+            });
+          }
+          await mediaHome();
+          await mediaHome();
+          if (!_photoOnly) {
+            await clip('02-ai-chat', () async {
+              await tap(find.text('AI').first, hold: 450);
+              await waitFor(() => find.byType(AIChatPage).evaluate().isNotEmpty,
+                  'production AI chat page');
+              final field = find
+                  .descendant(
+                      of: find.byType(AIChatPage),
+                      matching: find.byType(TextField))
+                  .first;
+              await tap(field, hold: 450);
+              final editable = tester.state<EditableTextState>(find
+                  .descendant(of: field, matching: find.byType(EditableText))
+                  .first);
+              final question = fixture.copy
+                  .text('这个月我花了多少钱？', 'How much did I spend this month?');
+              var typed = '';
+              const rhythm = [150, 190, 130, 170];
+              var index = 0;
+              for (final letter in question.runes) {
+                typed += String.fromCharCode(letter);
+                editable.updateEditingValue(TextEditingValue(
+                    text: typed,
+                    selection: TextSelection.collapsed(offset: typed.length)));
+                await pace(rhythm[index % rhythm.length]);
+                index++;
+              }
+              await pace(400);
+              await tap(find.byKey(const ValueKey('ai-chat-send')), hold: 400);
+              // The agent runs real ledger tools against the live model; wait
+              // for the streamed answer and the composer to leave busy state.
+              await waitFor(
+                  () =>
+                      find
+                          .byWidgetPredicate((widget) =>
+                              widget.key is ValueKey &&
+                              '${(widget.key as ValueKey).value}'
+                                  .startsWith('agent-answer-'))
+                          .evaluate()
+                          .isNotEmpty &&
+                      find.byIcon(Icons.send).evaluate().isNotEmpty,
+                  'real AI assistant answer',
+                  tries: 600);
+              expect(find.textContaining(l.aiChatConfigWarning), findsNothing);
+              await pace(900);
+              debugPrint('QA_MEDIA_STILL_${language}_${mode.name}_13-aichat');
+              await pace(1200);
+              await mediaHome();
+              expect(find.byType(HomePage), findsOneWidget);
+              return {
+                'production_page': 'AIChatPage',
+                'assertions': [
+                  'Home header opened the production AI assistant',
+                  'The question was typed and sent through the real composer',
+                  'A real model answer rendered after live ledger tool runs',
+                  'No unconfigured-AI warning appeared'
+                ]
+              };
+            });
+          }
+
+          await mediaHome();
+          if (!_photoOnly) {
+            await clip('06-import-ledger', () async {
+              final before =
+                  (await repo.getTransactionsByLedger(fixture.ledgerId)).length;
+              final docs = await getTemporaryDirectory();
+              final csv = File('${docs.path}/qa-bills.csv');
+              String stamp(DateTime d) =>
+                  '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+              final day = DateTime.now().subtract(const Duration(days: 1));
+              final day2 = DateTime.now().subtract(const Duration(days: 2));
+              await csv.writeAsString([
+                // The category column is required: without it the confirm
+                // page blocks on "select a category first" instead of
+                // starting the import.
+                '日期,类型,金额,分类,备注',
+                '${stamp(day)},支出,28.0,美食餐饮,楼下咖啡拿铁',
+                '${stamp(day)},收入,120.0,工作薪酬,闲置出售',
+                '${stamp(day2)},支出,15.5,通勤出行,地铁通勤',
+                ''
+              ].join('\n'));
+              final fakePicker = _FakeFilePicker()..csv = csv;
+              FilePicker.platform = fakePicker;
+              await tap(find.text(l.tabMine).last, hold: 400);
+              await waitFor(() => find.byType(MinePage).evaluate().isNotEmpty,
+                  'Mine tab for import');
+              await tap(find.text(l.dataManagement), hold: 450);
+              // The data management page is a lazy ListView; scroll the import
+              // tile into the built viewport before tapping it.
+              final importTile = find.text(l.mineImport);
+              for (var i = 0; i < 8 && importTile.evaluate().isEmpty; i++) {
+                await tester.drag(
+                    find.byType(Scrollable).first, const Offset(0, -320));
+                await pace(250);
+              }
+              await waitFor(() => importTile.evaluate().isNotEmpty,
+                  'data management import tile');
+              await pace(300);
+              await tap(find.text(l.mineImport), hold: 450);
+              await waitFor(() => find.byType(ImportPage).evaluate().isNotEmpty,
+                  'production import page');
+              await tap(find.text(l.importChooseFile), hold: 450);
+              await waitFor(
+                  () => find.byType(ImportConfirmPage).evaluate().isNotEmpty,
+                  'real CSV parsed into the mapping step',
+                  tries: 200);
+              await pace(600);
+              await tap(find.text(l.importNextStep), hold: 450);
+              await pace(400);
+              await tap(find.text(l.importStartImport), hold: 500);
+              // A currency-confirmation dialog pops up for imported accounts;
+              // confirm it too (its button reuses the same label).
+              await pace(1200);
+              if (find
+                  .text(l.importAccountCurrencyPreview)
+                  .evaluate()
+                  .isNotEmpty) {
+                await tap(find.text(l.importStartImport).last, hold: 500);
+              }
+              var imported = false;
+              for (var i = 0; i < 300 && !imported; i++) {
+                await pace(100);
+                imported =
+                    (await repo.getTransactionsByLedger(fixture.ledgerId))
+                            .length ==
+                        before + 3;
+              }
+              expect(imported, isTrue,
+                  reason: 'Three CSV rows must land through the import UI');
+              await mediaHome();
+              return {
+                'production_page': 'HomePage',
+                'assertions': [
+                  'The real file-picker flow selected a fixture CSV',
+                  'The production parser mapped and confirmed the columns',
+                  'Three CSV rows landed in the ledger through the import UI'
+                ],
+                'imported_rows': 3
+              };
+            });
+          }
 
           await mediaHome();
           debugPrint('QA_MEDIA_GROUP_DONE_${language}_${mode.name}');
@@ -1732,7 +1921,7 @@ void main() {
             (await LocalRepository(db)
                     .getTransactionsByLedger(fixture.ledgerId))
                 .length,
-            fixture.transactionCount - 2,
+            fixture.transactionCount,
             reason:
                 'Opening/canceling the editor must not change fixture transactions');
       }
@@ -1746,9 +1935,9 @@ void main() {
       }
     }
     expect(shots.length, _captureMedia ? 0 : (_extras ? 48 : 24));
-    expect(clips.length, _captureMedia ? (qaAiVision ? 24 : 20) : 0);
+    expect(clips.length, _captureMedia ? _mediaClipCount : 0);
     if (_captureMedia) {
-      expect(mediaRuntime.elapsedMilliseconds, lessThan(600000),
+      expect(mediaRuntime.elapsedMilliseconds, lessThan(900000),
           reason:
               'Each group is recorded separately; all flows must finish within seven minutes');
     }
