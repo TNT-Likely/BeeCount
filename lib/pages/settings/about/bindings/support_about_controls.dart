@@ -189,11 +189,6 @@ class _SupportAboutControlsState extends ConsumerState<SupportAboutControls> {
                 onTap: () =>
                     open('https://github.com/TNT-Likely/BeeCount/issues')),
             BeeSupportAction(
-                key: const ValueKey('support-help'),
-                title: l.mineHelp,
-                leading: const BeeLineIcon('BookOpen'),
-                onTap: () => _page(const HelpCenterPage())),
-            BeeSupportAction(
                 key: const ValueKey('support-logs'),
                 title: l.logCenterTitle,
                 subtitle: l.logCenterSubtitle,
