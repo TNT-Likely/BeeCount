@@ -29,13 +29,15 @@ class RecordingHeader extends StatelessWidget {
       height: height,
       child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12),
-          child: Row(children: [
+          child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
             BeeIconButton(
                 label: backLabel,
                 icon: const BeeLineIcon('ChevronLeft', size: 22),
                 onPressed: onBack),
             Expanded(
-                child: Center(
+                child: Align(
+                    alignment: Alignment.bottomCenter,
+                    heightFactor: 1,
                     child: ConstrainedBox(
                         constraints: const BoxConstraints(maxWidth: 240),
                         child: BeeSegmented<int>(
