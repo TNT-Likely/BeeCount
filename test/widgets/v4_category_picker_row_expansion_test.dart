@@ -145,13 +145,13 @@ void main() {
   });
 
   testWidgets(
-      'default first group keeps disabled direct parent and child eligibility',
+      'default first group omits unselectable parent and keeps child eligibility',
       (t) async {
     narrow(t);
     final semantics = t.ensureSemantics();
     await open(t, selected: null);
     expect(chip('子类0').hitTestable(), findsOneWidget);
-    expect(t.widget<RecordingSubcategoryChip>(chip('父类00')).onTap, isNull);
+    expect(chip('父类00'), findsNothing);
     expect(t.widget<RecordingSubcategoryChip>(chip('禁用0')).onTap, isNull);
     expect(t.getSemantics(chip('禁用0')).hasFlag(ui.SemanticsFlag.isEnabled),
         isFalse);
@@ -204,7 +204,7 @@ void main() {
       (t) async {
     narrow(t);
     await open(t, expandAll: true);
-    expect(find.byType(RecordingSubcategoryChip), findsNWidgets(36 * 3));
+    expect(find.byType(RecordingSubcategoryChip), findsNWidgets(36 * 2));
     expect(t.getTopLeft(chip('子类0')).dy,
         greaterThan(t.getBottomLeft(parent(35)).dy));
     expect(t.takeException(), isNull);
@@ -221,7 +221,7 @@ void main() {
     expect(parent(0), findsNothing);
     expect(chip('Nectar子类').hitTestable(), findsOneWidget);
     expect(chip('禁用7'), findsNothing);
-    expect(find.text('7笔'), findsNWidgets(2)); // Parent tile and direct choice.
+    expect(find.text('7笔'), findsOneWidget); // Parent tile is navigation only.
     expect(find.text('8笔'), findsOneWidget);
     await t.enterText(find.byType(TextField), '父类07');
     await t.pumpAndSettle();

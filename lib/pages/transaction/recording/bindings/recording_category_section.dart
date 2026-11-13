@@ -282,7 +282,7 @@ class _RecordingCategorySectionState
                         color: BeeCardTheme.of(context).soft,
                         borderRadius: BorderRadius.circular(16)),
                     child: LayoutBuilder(builder: (context, constraints) {
-                      final items = [parent, ...children];
+                      final items = children;
                       final content = RecordingSubcategoryGrid(
                           items: items
                               .map((category) => BeeCategoryChoice(

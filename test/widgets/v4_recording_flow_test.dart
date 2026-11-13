@@ -244,7 +244,7 @@ void main() {
       final parentChip = find.descendant(
           of: find.byType(RecordingSubcategoryGrid),
           matching: find.byKey(ValueKey('recording-category-$parent')));
-      expect(tester.widget<RecordingSubcategoryChip>(parentChip).onTap, isNull);
+      expect(parentChip, findsNothing);
       await category(tester, parent); // Collapsing must not choose it either.
       expect(
           tester
@@ -295,12 +295,8 @@ void main() {
           of: find.byType(BottomSheet),
           matching: find.widgetWithText(BeeButton, '确定'));
       expect(tester.widget<BeeButton>(confirm).onPressed, isNull);
-      final disabledParent =
-          find.widgetWithText(RecordingSubcategoryChip, parentName);
-      expect(tester.widget<RecordingSubcategoryChip>(disabledParent).onTap,
-          isNull);
-      await tester.tap(disabledParent);
-      await tester.pumpAndSettle();
+      expect(find.widgetWithText(RecordingSubcategoryChip, parentName),
+          findsNothing);
       expect(tester.widget<BeeButton>(confirm).onPressed, isNull);
       await tester.enterText(
           find.descendant(

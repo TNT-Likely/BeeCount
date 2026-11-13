@@ -106,7 +106,7 @@ class _BeeCategoryPickerState extends State<BeeCategoryPicker> {
                     color: BeeCardTheme.of(context).soft,
                     borderRadius: BorderRadius.circular(14)),
                 child: RecordingSubcategoryGrid(
-                    items: [group, ...childrenOf(group)],
+                    items: [if (group.enabled) group, ...childrenOf(group)],
                     selected: draft,
                     onSelected: (id) => choose(
                         id == group.id
