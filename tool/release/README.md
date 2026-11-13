@@ -141,7 +141,7 @@ python3 -m unittest discover -s tool/release -p 'test_*.py' -v
 - `android_version_code_floor` 或仓库变量 `ANDROID_VERSION_CODE_FLOOR` 必须是全部渠道最高已交付 code。再取 Release/失败草稿机器回执的最大值；Beta5 已交付230，下一新包至少231。4.0.0 Beta只使用226..299，正式版从300起。
 - `ANDROID_RELEASE_CERT_SHA256` 必须匹配已核生产证书。沿用四项 `ANDROID_KEYSTORE_*` / `ANDROID_KEY_*` secrets，以及 `APPLE_CERTIFICATE_*`、`APPLE_PROVISIONING_PROFILE*`、`APPLE_TEAM_ID`、`APPLE_API_*`。不打印或上传签名资料，Flutter/Pods子进程不继承凭据。
 - Flutter3.27.3 / Xcode26.3 / CocoaPods1.16.2 / Ruby JSON2.7.2固定；依赖锁漂移拒绝。App与Widget的实际签名、权限、版本、架构均从IPA核验。
-- iOS数字版本为4.0.0，默认build沿用Android code；上传前读取ASC最高build。显式更高 `ios_build_number` 仅用于Apple不能复用build的重试，不能替换已公开资产。正式流程历史run_number策略仍须在4.0.0前统一为300起严格递增。
+- iOS数字版本为4.0.0，默认build沿用Android code；上传前读取ASC最高build。显式更高 `ios_build_number` 仅用于Apple不能复用build的重试，不能替换已公开资产。正式流程两端均复用300起的版本门禁；iOS取Android与iOS已交付水位的较大值，不再使用工作流run_number。
 - 与正式发布共用 `beecount-android-delivery` 串行锁，不取消运行中的发布；其他本地渠道交付仍须及时更新floor。GitHub机器回执不能替代全渠道核查。
 
 App Store签名IPA不能直接侧载，安装走TestFlight。Apple处理成功、测试组、加密合规和外测审核是不同状态；可选 `TESTFLIGHT_PUBLIC_URL` 只能使用真实邀请地址。流程不上传Google Play、不提交正式App Store审核。

@@ -455,19 +455,23 @@ jobs:
         run: flutter pub get
 
       - name: Update pubspec.yaml version (iOS)
+        env:
+          RELEASE_VERSION_NAME: ${{ steps.meta.outputs.tag_name }}
+          ANDROID_VERSION_CODE_FLOOR: ${{ github.event.inputs.android_version_code_floor || vars.ANDROID_VERSION_CODE_FLOOR }}
+          IOS_BUILD_NUMBER_FLOOR: ${{ vars.IOS_BUILD_NUMBER_FLOOR || '0' }}
         run: |
-          VERSION='${{ steps.meta.outputs.tag_name }}'
-          echo "Updating pubspec.yaml version to: $VERSION"
-          # 备份原始 pubspec.yaml
-          cp pubspec.yaml pubspec.yaml.backup
-          # 更新版本号，保持构建号递增
-          # 从标签中提取版本号（去掉 v 前缀）
+          set -euo pipefail
+          VERSION="$RELEASE_VERSION_NAME"
           CLEAN_VERSION=${VERSION#v}
-          # 生成构建号（使用 GitHub run number）
-          BUILD_NUMBER=${{ github.run_number }}
-          # 更新 pubspec.yaml
+          if [[ ! "${ANDROID_VERSION_CODE_FLOOR:-}" =~ ^[0-9]+$ || ! "${IOS_BUILD_NUMBER_FLOOR:-0}" =~ ^[0-9]+$ ]]; then
+            echo "::error::必须提供有效的已交付版本水位，拒绝退回工作流run_number。"
+            exit 1
+          fi
+          # iOS可能用过单独重试build；取两端最高水位，再复用300起的正式规则。
+          DELIVERY_FLOOR=$(python3 -c 'import os; print(max(int(os.environ["ANDROID_VERSION_CODE_FLOOR"]), int(os.environ.get("IOS_BUILD_NUMBER_FLOOR", "0") or "0")))')
+          BUILD_NUMBER=$(python3 tool/release/android_version_code.py "$CLEAN_VERSION" --minimum-code "$DELIVERY_FLOOR")
+          cp pubspec.yaml pubspec.yaml.backup
           sed -i "" "s/^version: .*/version: ${CLEAN_VERSION}+${BUILD_NUMBER}/" pubspec.yaml
-          echo "Updated version in pubspec.yaml:"
           grep "^version:" pubspec.yaml
 
       - name: Setup iOS signing (optional)

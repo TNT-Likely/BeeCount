@@ -44,7 +44,9 @@ class CoverageRejectionTests(unittest.TestCase):
             self.assertIn(reason, result.stdout + result.stderr)
 
     def test_current_declarations_pass(self):
-        self.check(0, '107 HTML cards')
+        catalog = json.loads((self.root / 'tool/design/contracts/card-refresh/components/catalog.json').read_text())
+        count = sum(len(group['cards']) for group in catalog)
+        self.check(0, f'{count} HTML cards')
 
     def test_unmapped_sample_rejected(self):
         self.change('tool/v4/component_coverage.json', lambda value: value.pop())
