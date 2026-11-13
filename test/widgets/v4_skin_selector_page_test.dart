@@ -75,7 +75,7 @@ void main() {
 
   AppLocalizations l(WidgetTester t) =>
       AppLocalizations.of(t.element(find.byType(HeaderSkinPage)));
-  testWidgets('冻结原23项调试/22项正式注册、名称、系列与固定色', (t) async {
+  testWidgets('保留两款静态和两款周年动态，名称、系列与固定色沿用原版', (t) async {
     await mount(t);
     final loc = l(t);
     final handle = t.ensureSemantics();
@@ -86,9 +86,8 @@ void main() {
     expect(semantics.rect.width, t.getSize(card).width);
     handle.dispose();
     final ids = ['none', ...kVisibleHeaderSkins.map((s) => s.id)];
-    expect(ids, legacy.map((o) => o['id']).toList());
-    expect(legacy.where((o) => o['debugOnly'] != true), hasLength(22));
-    for (final row in legacy) {
+    expect(ids, ['none', 'anniversary', 'anniv_cake', 'aurora', 'mountains']);
+    for (final row in legacy.where((o) => ids.contains(o['id']))) {
       final item = skinChoice(t.element(find.byType(HeaderSkinPage)),
           id: row['id'], primary: const Color(0xff123456));
       expect(item.name, row['name']);

@@ -8,16 +8,16 @@ void main() {
     expect(ids.toSet().length, ids.length, reason: 'id 不能重复:$ids');
   });
 
-  // 本次新增的 6 款(纯 CustomPainter 绘制,不依赖 asset)。
-  const newSkins = ['silk', 'bubbles', 'galaxy', 'lowpoly', 'prism', 'terrazzo'];
+  // The approved static catalogue is intentionally limited to these two.
+  const newSkins = ['aurora', 'mountains'];
 
-  test('新增 6 款皮肤都已注册', () {
-    for (final id in newSkins) {
-      expect(headerSkinById(id), isNotNull, reason: '$id 未注册');
-    }
+  test('只保留两款静态皮肤与两款周年动态', () {
+    expect(kHeaderSkins.where((s) => !s.isAnimated).map((s) => s.id), newSkins);
+    expect(kHeaderSkins.where((s) => s.isAnimated).map((s) => s.id),
+        ['anniversary', 'anniv_cake']);
   });
 
-  testWidgets('新增皮肤亮/暗两态都能构建渲染不抛', (tester) async {
+  testWidgets('保留的静态皮肤亮/暗两态可正常渲染', (tester) async {
     for (final id in newSkins) {
       final skin = headerSkinById(id)!;
       for (final dark in [false, true]) {

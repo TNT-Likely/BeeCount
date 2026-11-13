@@ -78,6 +78,9 @@ class HeaderSkinPageArtwork extends StatelessWidget {
 }
 
 List<Color> headerSkinPageColors(HeaderSkin skin, Color primary, bool dark) {
+  if (skin.id == 'aurora' && dark) {
+    return _auroraNightColors(primary);
+  }
   if (skin.id == 'anniversary') {
     return dark
         ? const [Color(0xff382c1b), Color(0xff27231c), Color(0xff1b1d1d)]

@@ -49,7 +49,7 @@ void main() {
     container.read(primaryColorProvider.notifier).state = userColor;
     applyHeaderSkin(ref, 'aurora');
     expect(container.read(primaryColorProvider), userColor);
-    applyHeaderSkin(ref, 'waves');
+    applyHeaderSkin(ref, 'mountains');
     expect(container.read(primaryColorProvider), userColor);
   });
 
@@ -60,7 +60,7 @@ void main() {
       expect(s.hasFixedPalette, isTrue, reason: '$id 应自带配色');
       expect(s.boundPrimary, isNotNull, reason: '$id 应有绑定色');
     }
-    for (final id in ['aurora', 'waves', 'galaxy']) {
+    for (final id in ['aurora', 'mountains']) {
       expect(headerSkinById(id)!.hasFixedPalette, isFalse,
           reason: '$id 应跟随主题色');
     }

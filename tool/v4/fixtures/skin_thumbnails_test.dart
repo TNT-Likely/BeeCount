@@ -5,12 +5,11 @@ import 'package:beecount/l10n/app_localizations.dart';
 import 'package:beecount/styles/header_skins.dart';
 import 'package:beecount/theme.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('冻结原皮肤注册表与亮暗预览，生产绘制代码保持', (t) async {
+  testWidgets('导出当前皮肤注册表与真实 Flutter 亮暗预览', (t) async {
     final output = Directory(Platform.environment['BEECOUNT_SKIN_EXPORT']!);
     output.createSync(recursive: true);
     t.view.devicePixelRatio = 1;
@@ -84,7 +83,7 @@ void main() {
       }
     }
     File('${output.path}/registry.json').writeAsStringSync(jsonEncode(result));
-    expect(result.length, kDebugMode ? 23 : 22,
-        reason: '保留原debug专用SVG示例，release仍为22项含纯色');
+    expect(result.map((s) => s['id']),
+        ['none', 'anniversary', 'anniv_cake', 'aurora', 'mountains']);
   });
 }

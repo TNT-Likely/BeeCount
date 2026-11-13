@@ -43,6 +43,46 @@ void main() {
     expect(reopened.read(primaryColorProvider), boundPrimaryOf('anniv_cake'));
   });
 
+  for (final id in [
+    'bokeh',
+    'waves',
+    'silk',
+    'bubbles',
+    'sunset',
+    'clouds',
+    'skyline',
+    'galaxy',
+    'honeycomb',
+    'starry',
+    'stripes',
+    'sakura',
+    'meteor',
+    'memphis',
+    'lowpoly',
+    'prism',
+    'terrazzo',
+    'example'
+  ]) {
+    test('旧皮肤 $id 在重启后安全回退并保留用户主题色', () async {
+      SharedPreferences.setMockInitialValues({
+        'headerSkin': id,
+        'userChosenPrimaryColor': 0xff123456,
+        'auto_sync': false,
+        'skinCardOpacity': .65
+      });
+      final c = ProviderContainer(
+          overrides: [headerSkinsEnabledProvider.overrideWith((_) => true)]);
+      await c.read(headerSkinInitProvider.future);
+      await Future<void>.delayed(Duration.zero);
+      expect(c.read(headerSkinProvider), 'none');
+      expect(c.read(primaryColorProvider), const Color(0xff123456));
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getString('headerSkin'), 'none');
+      expect(prefs.getDouble('skinCardOpacity'), .65);
+      c.dispose();
+    });
+  }
+
   Future<void> open(WidgetTester t, ProviderContainer c, Widget child) async {
     t.view.devicePixelRatio = 1;
     t.view.physicalSize = const Size(398, 844);

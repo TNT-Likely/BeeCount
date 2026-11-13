@@ -577,6 +577,9 @@ typedef ProviderReader = T Function<T>(ProviderListenable<T> provider);
 /// 这种自相矛盾的状态漏出去,再叠加 server 回推就变成两个颜色来回闪。
 void applyHeaderSkinWith(ProviderReader read, String skinId) {
   if (!read(headerSkinsEnabledProvider)) return;
+  if (skinId != kHeaderSkinNone && headerSkinById(skinId) == null) {
+    skinId = kHeaderSkinNone;
+  }
   final prevBound = boundPrimaryOf(read(headerSkinProvider));
   final nextBound = boundPrimaryOf(skinId);
 

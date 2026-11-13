@@ -156,7 +156,7 @@ void main() {
         return data;
       }))!;
 
-  test('原周年和山峦parts保持3.9字节；19款普通静态皮肤及原图片builder保留', () {
+  test('原周年和山峦parts保持3.9字节；静态目录仅保留极光与山峦', () {
     final hashes = {
       'skin_common.dart':
           '9bf14bce7b857a53ac84952ce149402499b9e109de616f30ae15b8471734773c',
@@ -175,8 +175,8 @@ void main() {
               .toString(),
           e.value);
     }
-    expect(kHeaderSkins.where((s) => !s.isAnimated && s.id != 'example').length,
-        19);
+    expect(kHeaderSkins.where((s) => !s.isAnimated).map((s) => s.id),
+        ['aurora', 'mountains']);
     expect(headerSkinById('anniversary')!.tabBarBuilder, isNotNull);
     expect(headerSkinById('anniv_cake')!.tabBarBuilder, isNotNull);
   });
