@@ -72,42 +72,44 @@ class BeeCalendarDayCell extends StatelessWidget {
         child: ExcludeSemantics(
             child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 1, vertical: 2),
-                child: DecoratedBox(
-                    decoration: BoxDecoration(
-                        color: selected
-                            ? cs.primary
-                            : today
-                                ? cs.primary.withValues(alpha: .09)
-                                : Colors.transparent,
-                        borderRadius: BorderRadius.circular(12),
-                        border: today && !selected
-                            ? Border.all(
-                                color: cs.primary.withValues(alpha: .5))
-                            : null),
-                    child: Opacity(
-                        opacity: outside ? .35 : 1,
-                        child: SizedBox.expand(
-                            child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                              Text(day,
-                                  style: TextStyle(
-                                      fontSize: 14,
-                                      height: 1.2,
-                                      color: fg,
-                                      fontWeight: selected || today
-                                          ? FontWeight.w600
-                                          : FontWeight.w400)),
-                              const SizedBox(height: 3),
-                              Opacity(
-                                  opacity: !outside && expense != null ? 1 : 0,
-                                  child: _amount(expense ?? ' ',
-                                      selected ? fg : expenseColor)),
-                              Opacity(
-                                  opacity: !outside && income != null ? 1 : 0,
-                                  child: _amount(income ?? ' ',
-                                      selected ? fg : incomeColor))
-                            ])))))));
+                child: Opacity(
+                    opacity: outside ? .35 : 1,
+                    child: LayoutBuilder(builder: (context, box) {
+                      final side =
+                          (32 * MediaQuery.textScalerOf(context).scale(1))
+                              .clamp(0.0, box.maxWidth);
+                      return Column(children: [
+                        Container(
+                            width: side,
+                            height: side,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                                color: selected
+                                    ? cs.primary
+                                    : today
+                                        ? cs.primary.withValues(alpha: .09)
+                                        : Colors.transparent,
+                                borderRadius: BorderRadius.circular(12),
+                                border: today && !selected
+                                    ? Border.all(
+                                        color: cs.primary.withValues(alpha: .5))
+                                    : null),
+                            child: Text(day,
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    height: 1.2,
+                                    color: fg,
+                                    fontWeight: selected || today
+                                        ? FontWeight.w600
+                                        : FontWeight.w400))),
+                        if (!outside && (expense != null || income != null))
+                          const SizedBox(height: 3),
+                        if (!outside && expense != null)
+                          _amount(expense!, expenseColor),
+                        if (!outside && income != null)
+                          _amount(income!, incomeColor),
+                      ]);
+                    })))));
   }
 
   Widget _amount(String value, Color color) => Padding(
@@ -144,7 +146,6 @@ class BeeCalendarDayHeading extends StatelessWidget {
     ]));
     final add = BeeButton(
         label: addLabel,
-        kind: BeeButtonKind.secondary,
         icon: const BeeLineIcon('Plus', size: 16),
         onPressed: onAdd);
     return LayoutBuilder(
