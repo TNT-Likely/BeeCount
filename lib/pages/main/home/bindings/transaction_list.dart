@@ -174,7 +174,8 @@ class TransactionListState extends ConsumerState<TransactionList> {
       logger.error('TransactionList', '打开交易操作失败', error, stack);
       if (mounted) {
         showBeeToast(
-            context, AppLocalizations.of(context).transactionCopyUnavailable);
+            context, AppLocalizations.of(context).transactionCopyUnavailable,
+            tone: BeeTone.warning);
       }
     }
   }
@@ -655,7 +656,8 @@ class TransactionListState extends ConsumerState<TransactionList> {
 
                           if (context.mounted) {
                             showBeeToast(context,
-                                AppLocalizations.of(context).ledgersDeleted);
+                                AppLocalizations.of(context).ledgersDeleted,
+                                tone: BeeTone.success);
                           }
                         },
                         icon: getCategoryIconData(

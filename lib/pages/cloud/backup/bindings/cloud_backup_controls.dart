@@ -333,20 +333,23 @@ class _CloudBackupControlsState extends ConsumerState<CloudBackupControls> {
       final provider = await ref.read(beecountCloudProviderInstance.future);
       if (!mounted) return;
       if (provider == null) {
-        showBeeToast(context, AppLocalizations.of(context).cloudReloginFailed);
+        showBeeToast(context, AppLocalizations.of(context).cloudReloginFailed,
+            tone: BeeTone.error);
         return;
       }
       await provider.auth
           .signInWithEmail(email: cachedEmail, password: cachedPassword);
       if (!mounted) return;
-      showBeeToast(context, AppLocalizations.of(context).cloudReloginSuccess);
+      showBeeToast(context, AppLocalizations.of(context).cloudReloginSuccess,
+          tone: BeeTone.success);
       ref.invalidate(cloudBackupUserProvider);
       ref.read(syncStatusRefreshProvider.notifier).state++;
       ref.read(statsRefreshProvider.notifier).state++;
     } catch (error) {
       if (!mounted) return;
-      showBeeToast(context,
-          '${AppLocalizations.of(context).cloudReloginFailed}: $error');
+      showBeeToast(
+          context, '${AppLocalizations.of(context).cloudReloginFailed}: $error',
+          tone: BeeTone.error);
     }
   }
 

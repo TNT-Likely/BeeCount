@@ -128,11 +128,11 @@ class _StorageState extends ConsumerState<MaintenanceStorageControls> {
         if (file is File && await file.exists()) await _access.deleteFile(file);
       }
       if (!mounted) return;
-      showBeeToast(context, l.storageClearSuccess);
+      showBeeToast(context, l.storageClearSuccess, tone: BeeTone.success);
       await _scan();
     } catch (e) {
       if (mounted) {
-        showBeeToast(context, '${l.commonError}: $e');
+        showBeeToast(context, '${l.commonError}: $e', tone: BeeTone.error);
         await _scan();
       }
     } finally {

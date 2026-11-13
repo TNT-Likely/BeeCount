@@ -62,7 +62,7 @@ class _CloudSharedInviteControlsState
   Future<void> _copy(String value, AppLocalizations l10n) async {
     await Clipboard.setData(ClipboardData(text: value));
     if (!mounted) return;
-    showBeeToast(context, l10n.commonCopied);
+    showBeeToast(context, l10n.commonCopied, tone: BeeTone.success);
   }
 
   Future<void> _share(BeeCountCloudInvite invite, AppLocalizations l10n) async {

@@ -59,7 +59,7 @@ mixin _AnalyticsActions on ConsumerState<AnalyticsPage> {
     await refreshExchangeRatesFromUi(ref, force: true, extraQuotes: foreign);
     final n = await repo.recomputeForeignTxForLedger(id);
     if (!mounted) return;
-    showBeeToast(context, l.recalcForeignTxDone(n));
+    showBeeToast(context, l.recalcForeignTxDone(n), tone: BeeTone.success);
     ref.read(statsRefreshProvider.notifier).state++;
   }
 
@@ -68,7 +68,7 @@ mixin _AnalyticsActions on ConsumerState<AnalyticsPage> {
         id = ref.read(currentLedgerIdProvider),
         month = ref.read(selectedMonthProvider);
     if (id == 0) {
-      showBeeToast(context, l.sharePosterNoLedger);
+      showBeeToast(context, l.sharePosterNoLedger, tone: BeeTone.warning);
       return;
     }
     try {
@@ -82,7 +82,9 @@ mixin _AnalyticsActions on ConsumerState<AnalyticsPage> {
           year: _scope == 'all' ? null : month.year,
           month: _scope == 'month' ? month.month : null);
     } catch (e) {
-      if (mounted) showBeeToast(context, '${l.commonError}: $e');
+      if (mounted) {
+        showBeeToast(context, '${l.commonError}: $e', tone: BeeTone.error);
+      }
     }
   }
 }

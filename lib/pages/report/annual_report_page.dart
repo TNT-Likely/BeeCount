@@ -471,7 +471,7 @@ class _AnnualReportPageState extends ConsumerState<AnnualReportPage> {
         loadingShown = false;
         Navigator.of(context, rootNavigator: true).pop();
       }
-      showBeeToast(context, '${l10n.commonError}: $e');
+      showBeeToast(context, '${l10n.commonError}: $e', tone: BeeTone.error);
     } finally {
       if (mounted) setState(() => _generatingPoster = false);
     }
@@ -581,7 +581,8 @@ class _AnnualReportPosterPreviewState
           _isGenerating = false;
           _hideIncome = previousHideIncome;
         });
-        showBeeToast(context, AppLocalizations.of(context).commonError);
+        showBeeToast(context, AppLocalizations.of(context).commonError,
+            tone: BeeTone.error);
       }
     }
   }
@@ -648,14 +649,16 @@ class _AnnualReportPosterPreviewState
       if (!context.mounted) return;
       switch (result) {
         case SavePosterResult.success:
-          showBeeToast(context, l.annualReportSaveSuccess);
+          showBeeToast(context, l.annualReportSaveSuccess,
+              tone: BeeTone.success);
           Navigator.pop(context);
           break;
         case SavePosterResult.accessDenied:
-          showBeeToast(context, l.sharePosterPermissionDenied);
+          showBeeToast(context, l.sharePosterPermissionDenied,
+              tone: BeeTone.warning);
           break;
         case SavePosterResult.failed:
-          showBeeToast(context, l.sharePosterSaveFailed);
+          showBeeToast(context, l.sharePosterSaveFailed, tone: BeeTone.error);
           break;
       }
     } finally {

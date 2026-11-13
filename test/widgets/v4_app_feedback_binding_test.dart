@@ -3,6 +3,46 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  for (final brightness in Brightness.values) {
+    testWidgets('状态图标与语义颜色区分，旧状态 emoji 只移除开头 $brightness', (tester) async {
+      const cases = [
+        (BeeTone.success, '✅ 记账成功', '记账成功', 'CircleCheck'),
+        (BeeTone.error, '❌ 保存失败', '保存失败', 'CircleAlert'),
+        (BeeTone.warning, '⚠️ 请先选择分类', '请先选择分类', 'TriangleAlert'),
+        (BeeTone.neutral, '暂无记录', '暂无记录', 'Info'),
+        (BeeTone.success, '已完成 ✅', '已完成 ✅', 'CircleCheck'),
+        (BeeTone.warning, '✅ 已保存，部分折算待补充', '已保存，部分折算待补充', 'TriangleAlert'),
+      ];
+      final colors = <Color>{};
+      for (final (tone, message, display, icon) in cases) {
+        await tester.pumpWidget(MaterialApp(
+            theme: beeTheme(brightness: brightness),
+            home: Scaffold(body: BeeToast(message: message, tone: tone))));
+        final glyph = tester.widget<BeeLineIcon>(find.byType(BeeLineIcon));
+        expect(glyph.name, icon);
+        expect(find.text(display), findsOneWidget);
+        colors.add(glyph.color!);
+        final background = tester.widget<Material>(find.descendant(
+            of: find.byType(BeeToast), matching: find.byType(Material)));
+        // Use actual relative luminance; a status color must remain readable
+        // against the inverse toast surface in both app appearances.
+        final light = glyph.color!.computeLuminance();
+        final surface = background.color!.computeLuminance();
+        final contrast = (light > surface ? light + .05 : surface + .05) /
+            (light > surface ? surface + .05 : light + .05);
+        expect(contrast, greaterThanOrEqualTo(3));
+        expect(tester.takeException(), isNull);
+      }
+      expect(colors, hasLength(4));
+      await tester.pumpWidget(MaterialApp(
+          theme: beeTheme(brightness: brightness),
+          home: const Scaffold(
+              body: BeeToast(message: '正在导入', tone: BeeTone.busy))));
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byType(BeeLineIcon), findsNothing);
+    });
+  }
+
   testWidgets('App 原有轻提示入口使用基础组件，保留焦点且同层替换', (tester) async {
     final nav = GlobalKey<NavigatorState>();
     final focus = FocusNode();
@@ -26,7 +66,8 @@ void main() {
     expect(
         tester.widget<BeeToast>(find.byType(BeeToast)).tone, BeeTone.success);
     expect(focus.hasFocus, isTrue);
-    showBeeToastOnOverlay(nav.currentState!.overlay!, '保存失败', tone: BeeTone.error);
+    showBeeToastOnOverlay(nav.currentState!.overlay!, '保存失败',
+        tone: BeeTone.error);
     await tester.pump();
     expect(find.byType(BeeToast), findsOneWidget);
     expect(find.text('保存成功'), findsNothing);
@@ -43,7 +84,8 @@ void main() {
     final nav = GlobalKey<NavigatorState>();
     await tester.pumpWidget(
         MaterialApp(navigatorKey: nav, home: const Scaffold(body: Text('页面'))));
-    showBeeToastOnOverlay(nav.currentState!.overlay!, '测试完成', brightness: Brightness.dark);
+    showBeeToastOnOverlay(nav.currentState!.overlay!, '测试完成',
+        brightness: Brightness.dark);
     await tester.pump();
     final context = tester.element(find.byType(BeeToast));
     expect(Theme.of(context).brightness, Brightness.dark);

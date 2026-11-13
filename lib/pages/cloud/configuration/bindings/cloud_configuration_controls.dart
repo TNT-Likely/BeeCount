@@ -1079,7 +1079,8 @@ class _CloudConfigurationControlsState
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {
       if (mounted) {
-        showBeeToast(context, AppLocalizations.of(context).cloudCannotOpenLink);
+        showBeeToast(context, AppLocalizations.of(context).cloudCannotOpenLink,
+            tone: BeeTone.error);
       }
     }
   }
@@ -1255,7 +1256,8 @@ class _CloudConfigurationControlsState
       try {
         await ref.read(activeCloudRuntimeProvider.notifier).saveOnly(cfg);
         if (mounted) {
-          showBeeToast(context, AppLocalizations.of(context).cloudConfigSaved);
+          showBeeToast(context, AppLocalizations.of(context).cloudConfigSaved,
+              tone: BeeTone.success);
         }
 
         // 如果提供了邮箱和密码，尝试登录（恢复旧行为）
@@ -1290,10 +1292,9 @@ class _CloudConfigurationControlsState
               });
 
               if (mounted) {
-                showBeeToast(
-                    context,
-                    AppLocalizations.of(context)
-                        .cloudBeeCountCloudLoginSuccess);
+                showBeeToast(context,
+                    AppLocalizations.of(context).cloudBeeCountCloudLoginSuccess,
+                    tone: BeeTone.success);
               }
             }
           } catch (e) {
@@ -1367,7 +1368,8 @@ class _CloudConfigurationControlsState
       try {
         await ref.read(activeCloudRuntimeProvider.notifier).saveOnly(cfg);
         if (mounted) {
-          showBeeToast(context, AppLocalizations.of(context).cloudConfigSaved);
+          showBeeToast(context, AppLocalizations.of(context).cloudConfigSaved,
+              tone: BeeTone.success);
         }
       } catch (e) {
         if (mounted) {
@@ -1431,7 +1433,8 @@ class _CloudConfigurationControlsState
       try {
         await ref.read(activeCloudRuntimeProvider.notifier).saveOnly(cfg);
         if (mounted) {
-          showBeeToast(context, AppLocalizations.of(context).cloudConfigSaved);
+          showBeeToast(context, AppLocalizations.of(context).cloudConfigSaved,
+              tone: BeeTone.success);
         }
       } catch (e) {
         if (mounted) {
@@ -1510,7 +1513,8 @@ class _CloudConfigurationControlsState
       try {
         await ref.read(activeCloudRuntimeProvider.notifier).saveOnly(cfg);
         if (mounted) {
-          showBeeToast(context, AppLocalizations.of(context).cloudConfigSaved);
+          showBeeToast(context, AppLocalizations.of(context).cloudConfigSaved,
+              tone: BeeTone.success);
         }
       } catch (e) {
         if (mounted) {

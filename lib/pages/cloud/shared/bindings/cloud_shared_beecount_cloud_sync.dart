@@ -119,7 +119,8 @@ class _CloudSharedSyncControlsState
           if (mounted && active()) {
             setState(() => _checkError = e.toString());
             showBeeToast(
-                context, '${AppLocalizations.of(context).commonFailed}: $e');
+                context, '${AppLocalizations.of(context).commonFailed}: $e',
+                tone: BeeTone.error);
           }
         } finally {
           if (active()) setState(() => _autoSyncing = false);
@@ -257,12 +258,14 @@ class _CloudSharedSyncControlsState
               password: cachedPassword,
             );
             if (!context.mounted) return;
-            showBeeToast(context, l10n.cloudReloginSuccess);
+            showBeeToast(context, l10n.cloudReloginSuccess,
+                tone: BeeTone.success);
             ref.read(syncStatusRefreshProvider.notifier).state++;
             ref.read(statsRefreshProvider.notifier).state++;
           } catch (e) {
             if (!context.mounted) return;
-            showBeeToast(context, '${l10n.cloudReloginFailed}: $e');
+            showBeeToast(context, '${l10n.cloudReloginFailed}: $e',
+                tone: BeeTone.error);
           } finally {
             if (mounted) setState(() => _relogging = false);
           }

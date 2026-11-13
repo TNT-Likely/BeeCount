@@ -188,7 +188,8 @@ class MineProfileBindingState extends ConsumerState<MineProfileBinding> {
       }
     } catch (e) {
       if (!mounted) return;
-      showBeeToast(context, '${AppLocalizations.of(context).commonError}: $e');
+      showBeeToast(context, '${AppLocalizations.of(context).commonError}: $e',
+          tone: BeeTone.error);
     }
   }
 
@@ -285,7 +286,8 @@ class MineProfileBindingState extends ConsumerState<MineProfileBinding> {
     final name = result.trim();
     if (name.isEmpty || name == current) return; // v1 不清空;无变化不写
     ref.read(displayNameProvider.notifier).state = name;
-    showBeeToast(context, AppLocalizations.of(context).mineDisplayNameSaved);
+    showBeeToast(context, AppLocalizations.of(context).mineDisplayNameSaved,
+        tone: BeeTone.success);
   }
 
   @override

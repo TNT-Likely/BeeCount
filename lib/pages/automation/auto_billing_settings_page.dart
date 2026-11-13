@@ -99,7 +99,8 @@ class _AndroidAutoBillingPageState extends ConsumerState<AndroidAutoBillingPage>
         final granted = await _actions.requestScreenshotPermission();
         if (!mounted) return;
         if (!granted) {
-          showBeeToast(context, l.photosPermissionRequired);
+          showBeeToast(context, l.photosPermissionRequired,
+              tone: BeeTone.warning);
           return;
         }
         await _actions.enable();
@@ -109,12 +110,13 @@ class _AndroidAutoBillingPageState extends ConsumerState<AndroidAutoBillingPage>
       if (!mounted) return;
       ++_statusRequest;
       setState(() => _isMonitorEnabled = value);
-      showBeeToast(context, value ? l.enableSuccess : l.disableSuccess);
+      showBeeToast(context, value ? l.enableSuccess : l.disableSuccess,
+          tone: BeeTone.success);
     } catch (error) {
       if (mounted) {
         showBeeToast(
             context, '${value ? l.enableFailed : l.disableFailed}: $error',
-            duration: const Duration(seconds: 3));
+            duration: const Duration(seconds: 3), tone: BeeTone.error);
       }
     } finally {
       if (mounted) setState(() => _changing = false);
@@ -155,7 +157,9 @@ class _AndroidAutoBillingPageState extends ConsumerState<AndroidAutoBillingPage>
       if (request == true) await _actions.requestIgnoreBatteryOptimizations();
       if (mounted) await _loadMonitorStatus();
     } catch (error) {
-      if (mounted) showBeeToast(context, '${l.commonError}: $error');
+      if (mounted) {
+        showBeeToast(context, '${l.commonError}: $error', tone: BeeTone.error);
+      }
     } finally {
       if (mounted) setState(() => _checkingBattery = false);
     }

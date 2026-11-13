@@ -111,7 +111,8 @@ class AISettingsAdvancedCard extends ConsumerWidget {
                               .read(aiConfigProvider.notifier)
                               .setStrategy(value);
                           if (context.mounted) {
-                            showBeeToast(context, l.aiStrategySwitched(item.$2));
+                            showBeeToast(context, l.aiStrategySwitched(item.$2),
+                                tone: BeeTone.success);
                           }
                         }),
             const Divider(height: 1),

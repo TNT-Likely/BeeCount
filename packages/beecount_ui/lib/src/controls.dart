@@ -80,6 +80,16 @@ class BeeToast extends StatelessWidget {
       {super.key, required this.message, this.tone = BeeTone.neutral});
   final String message;
   final BeeTone tone;
+
+  // Older localized feedback includes a leading status emoji. The toast owns
+  // that status now; keep emoji inside the user's message untouched.
+  String get _displayMessage {
+    if (tone == BeeTone.neutral || tone == BeeTone.busy) return message;
+    final plain =
+        message.replaceFirst(RegExp(r'^\s*(?:✅|✔️?|☑️?|❌|❎|✖️?|⚠️?)\s*'), '');
+    return plain.isEmpty ? message : plain;
+  }
+
   @override
   Widget build(BuildContext context) {
     final dark = Theme.of(context).brightness == Brightness.dark;
@@ -115,13 +125,14 @@ class BeeToast extends StatelessWidget {
                         switch (tone) {
                           BeeTone.success => 'CircleCheck',
                           BeeTone.error => 'CircleAlert',
+                          BeeTone.warning => 'TriangleAlert',
                           _ => 'Info'
                         },
                         size: 20,
                         color: semantic),
                   const SizedBox(width: 8),
                   Flexible(
-                      child: Text(message,
+                      child: Text(_displayMessage,
                           style: Theme.of(context)
                               .textTheme
                               .bodyMedium

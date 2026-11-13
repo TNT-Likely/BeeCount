@@ -59,7 +59,8 @@ class _PermissionsState extends ConsumerState<AIAdvancedPermissionsControls> {
     } catch (_) {
       if (mounted) {
         showBeeToast(
-            context, AppLocalizations.of(context).agentPermissionWriteFailed);
+            context, AppLocalizations.of(context).agentPermissionWriteFailed,
+            tone: BeeTone.error);
       }
     } finally {
       if (mounted) setState(() => _writing.remove(name));
@@ -96,7 +97,10 @@ class _PermissionsState extends ConsumerState<AIAdvancedPermissionsControls> {
       await store.restoreDefaults();
       if (mounted) await _load();
     } catch (_) {
-      if (mounted) showBeeToast(context, l.agentPermissionWriteFailed);
+      if (mounted) {
+        showBeeToast(context, l.agentPermissionWriteFailed,
+            tone: BeeTone.error);
+      }
     } finally {
       if (mounted) {
         setState(() {

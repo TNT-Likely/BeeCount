@@ -87,7 +87,8 @@ Future<void> applyBaseCurrencySelection(
   final overrides = await repo.getOverrides(next);
   if (!context.mounted) return;
   if (overrides.isNotEmpty) {
-    showBeeToast(context, l10n.rateManualApplied(overrides.length));
+    showBeeToast(context, l10n.rateManualApplied(overrides.length),
+        tone: BeeTone.success);
   }
   await refreshExchangeRatesFromUi(ref, force: true);
 }

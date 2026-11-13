@@ -463,7 +463,7 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
         icon: Icon(Icons.copy_rounded, size: 16, color: color),
         onPressed: () {
           Clipboard.setData(ClipboardData(text: text));
-          showBeeToast(context, l10n.aiChatCopied);
+          showBeeToast(context, l10n.aiChatCopied, tone: BeeTone.success);
         },
       ),
       if (message != null)
@@ -823,7 +823,8 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
     } catch (e) {
       if (mounted) {
         showBeeToast(
-            context, '${AppLocalizations.of(context).aiChatSendFailed}: $e');
+            context, '${AppLocalizations.of(context).aiChatSendFailed}: $e',
+            tone: BeeTone.error);
       }
     } finally {
       if (mounted) {
@@ -968,7 +969,8 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
     await repo.deleteMessagesByConversation(_conversationId!);
 
     if (mounted) {
-      showBeeToast(context, AppLocalizations.of(context).aiChatHistoryCleared);
+      showBeeToast(context, AppLocalizations.of(context).aiChatHistoryCleared,
+          tone: BeeTone.success);
     }
   }
 
@@ -979,7 +981,8 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
 
     if (!success) {
       if (mounted) {
-        showBeeToast(context, AppLocalizations.of(context).aiChatUndoFailed);
+        showBeeToast(context, AppLocalizations.of(context).aiChatUndoFailed,
+            tone: BeeTone.error);
       }
       return;
     }
@@ -988,7 +991,8 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
     final message = await repo.getMessageById(messageId);
     if (message == null || message.metadata == null) {
       if (mounted) {
-        showBeeToast(context, AppLocalizations.of(context).aiChatUndone);
+        showBeeToast(context, AppLocalizations.of(context).aiChatUndone,
+            tone: BeeTone.success);
       }
       return;
     }
@@ -1017,7 +1021,8 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
     }
 
     if (mounted) {
-      showBeeToast(context, AppLocalizations.of(context).aiChatUndone);
+      showBeeToast(context, AppLocalizations.of(context).aiChatUndone,
+          tone: BeeTone.success);
     }
   }
 
@@ -1030,7 +1035,8 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
       if (transaction == null) {
         if (mounted) {
           showBeeToast(
-              context, AppLocalizations.of(context).aiChatTransactionNotFound);
+              context, AppLocalizations.of(context).aiChatTransactionNotFound,
+              tone: BeeTone.warning);
         }
         return;
       }
@@ -1061,7 +1067,9 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
       }
     } catch (e) {
       if (mounted) {
-        showBeeToast(context, AppLocalizations.of(context).aiChatOpenEditorFailed);
+        showBeeToast(
+            context, AppLocalizations.of(context).aiChatOpenEditorFailed,
+            tone: BeeTone.error);
       }
     }
   }
@@ -1139,7 +1147,8 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
       if (transaction == null) {
         if (mounted) {
           showBeeToast(
-              context, AppLocalizations.of(context).aiChatTransactionNotFound);
+              context, AppLocalizations.of(context).aiChatTransactionNotFound,
+              tone: BeeTone.warning);
         }
         return;
       }
@@ -1202,11 +1211,13 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
       }
 
       if (mounted) {
-        showBeeToast(context, AppLocalizations.of(context).commonSuccess);
+        showBeeToast(context, AppLocalizations.of(context).commonSuccess,
+            tone: BeeTone.success);
       }
     } catch (e) {
       if (mounted) {
-        showBeeToast(context, AppLocalizations.of(context).commonFailed);
+        showBeeToast(context, AppLocalizations.of(context).commonFailed,
+            tone: BeeTone.error);
       }
     }
   }
@@ -1216,18 +1227,24 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
       Offset position, Message message, bool isUser) async {
     final l10n = AppLocalizations.of(context);
     HapticFeedback.mediumImpact();
-    final selected = await showBeeContextMenu<String>(context,
-        anchor: position,
-        items: [
-          BeeMenuAction(value: 'copy', label: l10n.aiChatCopy,
-              icon: const Icon(Icons.copy, size: 20)),
-          BeeMenuAction(value: 'delete', label: l10n.commonDelete,
-              icon: const Icon(Icons.delete_outline, size: 20), danger: true),
-        ]);
+    final selected =
+        await showBeeContextMenu<String>(context, anchor: position, items: [
+      BeeMenuAction(
+          value: 'copy',
+          label: l10n.aiChatCopy,
+          icon: const Icon(Icons.copy, size: 20)),
+      BeeMenuAction(
+          value: 'delete',
+          label: l10n.commonDelete,
+          icon: const Icon(Icons.delete_outline, size: 20),
+          danger: true),
+    ]);
     if (!mounted) return;
     if (selected == 'copy') {
       await Clipboard.setData(ClipboardData(text: message.content));
-      if (mounted) showBeeToast(context, l10n.aiChatCopied);
+      if (mounted) {
+        showBeeToast(context, l10n.aiChatCopied, tone: BeeTone.success);
+      }
     } else if (selected == 'delete') {
       await _deleteMessage(message);
     }
@@ -1236,12 +1253,14 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
   Future<void> _showBillCardMenu(Offset position, Message message) async {
     final l10n = AppLocalizations.of(context);
     HapticFeedback.mediumImpact();
-    final selected = await showBeeContextMenu<String>(context,
-        anchor: position,
-        items: [
-          BeeMenuAction(value: 'delete', label: l10n.commonDelete,
-              icon: const Icon(Icons.delete_outline, size: 20), danger: true),
-        ]);
+    final selected =
+        await showBeeContextMenu<String>(context, anchor: position, items: [
+      BeeMenuAction(
+          value: 'delete',
+          label: l10n.commonDelete,
+          icon: const Icon(Icons.delete_outline, size: 20),
+          danger: true),
+    ]);
     if (selected == 'delete' && mounted) await _deleteMessage(message);
   }
 
@@ -1264,11 +1283,11 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
       await repo.deleteMessage(message.id);
 
       if (mounted) {
-        showBeeToast(context, l10n.aiChatMessageDeleted);
+        showBeeToast(context, l10n.aiChatMessageDeleted, tone: BeeTone.success);
       }
     } catch (e) {
       if (mounted) {
-        showBeeToast(context, l10n.commonFailed);
+        showBeeToast(context, l10n.commonFailed, tone: BeeTone.error);
       }
     }
   }

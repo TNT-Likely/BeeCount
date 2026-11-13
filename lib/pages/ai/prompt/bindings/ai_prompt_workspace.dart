@@ -43,7 +43,8 @@ class _AIPromptWorkspaceState extends State<AIPromptWorkspace> {
     final data = await Clipboard.getData(Clipboard.kTextPlain);
     if (!mounted || data?.text == null || data!.text!.isEmpty) return;
     c.text.text = data.text!;
-    showBeeToast(context, AppLocalizations.of(context).aiPromptPasted);
+    showBeeToast(context, AppLocalizations.of(context).aiPromptPasted,
+        tone: BeeTone.success);
   }
 
   Future<void> share() async {
@@ -161,7 +162,8 @@ class _AIPromptWorkspaceState extends State<AIPromptWorkspace> {
                                                 showBeeToast(
                                                     context,
                                                     l.aiPromptVarSectionInserted(
-                                                        p.token));
+                                                        p.token),
+                                                    tone: BeeTone.success);
                                               }
                                             }),
                                         const SizedBox(height: 8)
@@ -201,7 +203,10 @@ class _AIPromptWorkspaceState extends State<AIPromptWorkspace> {
                                                       context,
                                                       saved
                                                           ? l.aiPromptSaved
-                                                          : '${l.commonError}: ${c.error}');
+                                                          : '${l.commonError}: ${c.error}',
+                                                      tone: saved
+                                                          ? BeeTone.success
+                                                          : BeeTone.error);
                                                 })
                                     ]),
                                     const SizedBox(height: 12),

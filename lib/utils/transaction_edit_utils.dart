@@ -46,7 +46,8 @@ class TransactionEditUtils {
             (ledger.isShared &&
                 !const {'owner', 'editor'}.contains(ledger.myRole)))) {
       showBeeToast(
-          context, AppLocalizations.of(context).transactionCopyUnavailable);
+          context, AppLocalizations.of(context).transactionCopyUnavailable,
+          tone: BeeTone.warning);
       return;
     }
     // Use the latest source after an asynchronous menu selection.
@@ -65,7 +66,8 @@ class TransactionEditUtils {
           (transaction.accountId != null && account == null) ||
           (transaction.toAccountId != null && toAccount == null)) {
         showBeeToast(
-            context, AppLocalizations.of(context).transactionCopyUnavailable);
+            context, AppLocalizations.of(context).transactionCopyUnavailable,
+            tone: BeeTone.warning);
         return;
       }
     }
@@ -105,7 +107,8 @@ class TransactionEditUtils {
         if (!context.mounted) return;
         if (invalid) {
           showBeeToast(
-              context, AppLocalizations.of(context).transactionCopyUnavailable);
+              context, AppLocalizations.of(context).transactionCopyUnavailable,
+              tone: BeeTone.warning);
           return;
         }
       }
@@ -130,7 +133,8 @@ class TransactionEditUtils {
     // this new transaction to another ledger.
     if (asCopy && ref.read(currentLedgerIdProvider) != transaction.ledgerId) {
       showBeeToast(
-          context, AppLocalizations.of(context).transactionCopyUnavailable);
+          context, AppLocalizations.of(context).transactionCopyUnavailable,
+          tone: BeeTone.warning);
       return;
     }
 

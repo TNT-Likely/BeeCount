@@ -40,7 +40,8 @@ mixin _LedgerActions on ConsumerState<LedgersPageNew> {
     if (confirmed != true || !mounted) return;
 
     try {
-      showBeeToast(context, AppLocalizations.of(context).ledgersDownloading);
+      showBeeToast(context, AppLocalizations.of(context).ledgersDownloading,
+          tone: BeeTone.busy);
 
       final syncService = ref.read(syncServiceProvider);
       if (syncService is SyncEngine) {
@@ -75,7 +76,8 @@ mixin _LedgerActions on ConsumerState<LedgersPageNew> {
       showBeeToast(
           context,
           AppLocalizations.of(context).ledgersDownloadSuccess(
-              translateLedgerName(context, ledger.name)));
+              translateLedgerName(context, ledger.name)),
+          tone: BeeTone.success);
     } catch (e) {
       if (!mounted) return;
       await _ledgerError(
@@ -172,7 +174,8 @@ mixin _LedgerActions on ConsumerState<LedgersPageNew> {
       if (syncId == null || syncId.isEmpty) {
         if (mounted) {
           showBeeToast(
-              context, AppLocalizations.of(context).sharedRequiresCloudSync);
+              context, AppLocalizations.of(context).sharedRequiresCloudSync,
+              tone: BeeTone.warning);
         }
         return;
       }
@@ -191,7 +194,8 @@ mixin _LedgerActions on ConsumerState<LedgersPageNew> {
       if (syncId == null || syncId.isEmpty) {
         if (mounted) {
           showBeeToast(
-              context, AppLocalizations.of(context).sharedRequiresCloudSync);
+              context, AppLocalizations.of(context).sharedRequiresCloudSync,
+              tone: BeeTone.warning);
         }
         return;
       }
@@ -307,7 +311,8 @@ mixin _LedgerActions on ConsumerState<LedgersPageNew> {
             await repo.recalcNativeAmountsForLedger(ledger.id, result.currency);
         if (mounted && n > 0) {
           showBeeToast(
-              context, AppLocalizations.of(context).recalcForeignTxDone(n));
+              context, AppLocalizations.of(context).recalcForeignTxDone(n),
+              tone: BeeTone.success);
         }
       }
 
@@ -403,7 +408,7 @@ mixin _LedgerActions on ConsumerState<LedgersPageNew> {
       ref.read(ledgerListRefreshProvider.notifier).state++;
       ref.read(statsRefreshProvider.notifier).state++;
 
-      showBeeToast(context, l10n.ledgersClearSuccess);
+      showBeeToast(context, l10n.ledgersClearSuccess, tone: BeeTone.success);
     } catch (e) {
       if (!mounted) return;
       await _ledgerError(
@@ -463,7 +468,8 @@ mixin _LedgerActions on ConsumerState<LedgersPageNew> {
       ref.read(ledgerListRefreshProvider.notifier).state++;
       ref.read(statsRefreshProvider.notifier).state++;
 
-      showBeeToast(context, l10n.ledgersDeleteLocalSuccess);
+      showBeeToast(context, l10n.ledgersDeleteLocalSuccess,
+          tone: BeeTone.success);
     } catch (e) {
       if (!mounted) return;
       await _ledgerError(
@@ -544,7 +550,8 @@ mixin _LedgerActions on ConsumerState<LedgersPageNew> {
       ref.read(ledgerListRefreshProvider.notifier).state++;
       ref.read(statsRefreshProvider.notifier).state++;
 
-      showBeeToast(context, AppLocalizations.of(context).ledgersDeleted);
+      showBeeToast(context, AppLocalizations.of(context).ledgersDeleted,
+          tone: BeeTone.success);
     } catch (e) {
       if (!mounted) return;
       await _ledgerError(
@@ -569,7 +576,8 @@ mixin _LedgerActions on ConsumerState<LedgersPageNew> {
     if (confirmed != true || !mounted) return;
 
     try {
-      showBeeToast(context, AppLocalizations.of(context).ledgersDeleting);
+      showBeeToast(context, AppLocalizations.of(context).ledgersDeleting,
+          tone: BeeTone.busy);
 
       final syncService = ref.read(syncServiceProvider);
       if (syncService is! TransactionsSyncManager) {
@@ -584,7 +592,8 @@ mixin _LedgerActions on ConsumerState<LedgersPageNew> {
       ref.read(ledgerListRefreshProvider.notifier).state++;
 
       showBeeToast(
-          context, AppLocalizations.of(context).ledgersDeleteRemoteSuccess);
+          context, AppLocalizations.of(context).ledgersDeleteRemoteSuccess,
+          tone: BeeTone.success);
     } catch (e) {
       if (!mounted) return;
       await _ledgerError(
@@ -613,7 +622,8 @@ mixin _LedgerActions on ConsumerState<LedgersPageNew> {
     setState(() => _isRestoring = true);
 
     try {
-      showBeeToast(context, AppLocalizations.of(context).ledgersRestoring);
+      showBeeToast(context, AppLocalizations.of(context).ledgersRestoring,
+          tone: BeeTone.busy);
 
       final syncService = ref.read(syncServiceProvider);
       int success = 0;
@@ -714,10 +724,10 @@ mixin _LedgerActions on ConsumerState<LedgersPageNew> {
       PostProcessor.sync(ref, ledgerId: newLedgerId);
 
       if (!mounted) return;
-      showBeeToast(context, '账本创建成功');
+      showBeeToast(context, '账本创建成功', tone: BeeTone.success);
     } catch (e) {
       if (!mounted) return;
-      showBeeToast(context, '创建失败: ${e.toString()}');
+      showBeeToast(context, '创建失败: ${e.toString()}', tone: BeeTone.error);
     }
   }
 
@@ -877,7 +887,8 @@ mixin _LedgerActions on ConsumerState<LedgersPageNew> {
                     onPressed: () async {
                       setState(() => isProcessing = true);
                       try {
-                        showBeeToast(context, l10n.ledgersConflictDownloading);
+                        showBeeToast(context, l10n.ledgersConflictDownloading,
+                            tone: BeeTone.busy);
                         final result =
                             await syncService.downloadAndRestoreToCurrentLedger(
                           ledgerId: ledger.id,
@@ -897,9 +908,10 @@ mixin _LedgerActions on ConsumerState<LedgersPageNew> {
                         ref.read(statsRefreshProvider.notifier).state++;
 
                         showBeeToast(
-                          context,
-                          l10n.ledgersConflictDownloadSuccess(result.inserted),
-                        );
+                            context,
+                            l10n.ledgersConflictDownloadSuccess(
+                                result.inserted),
+                            tone: BeeTone.success);
                       } catch (e) {
                         if (stateContext.mounted) {
                           setState(() => isProcessing = false);
@@ -917,7 +929,8 @@ mixin _LedgerActions on ConsumerState<LedgersPageNew> {
                     onPressed: () async {
                       setState(() => isProcessing = true);
                       try {
-                        showBeeToast(context, l10n.ledgersConflictUploading);
+                        showBeeToast(context, l10n.ledgersConflictUploading,
+                            tone: BeeTone.busy);
                         await syncService.uploadCurrentLedger(
                             ledgerId: ledger.id);
 
@@ -931,7 +944,8 @@ mixin _LedgerActions on ConsumerState<LedgersPageNew> {
                         ref.read(ledgerListRefreshProvider.notifier).state++;
                         ref.read(syncStatusRefreshProvider.notifier).state++;
 
-                        showBeeToast(context, l10n.ledgersConflictUploadSuccess);
+                        showBeeToast(context, l10n.ledgersConflictUploadSuccess,
+                            tone: BeeTone.success);
                       } catch (e) {
                         if (stateContext.mounted) {
                           setState(() => isProcessing = false);

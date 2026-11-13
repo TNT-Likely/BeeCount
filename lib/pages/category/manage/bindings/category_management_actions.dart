@@ -153,11 +153,13 @@ mixin _CategoryManagementActions on ConsumerState<CategoryManagePage> {
         unawaited(PostProcessor.sync(ref, ledgerId: activeLedgerId));
       }
       ref.invalidate(categoriesWithCountProvider);
-      showBeeToast(context, l10n.categoryGenerateDefaultSuccess(createdCount));
+      showBeeToast(context, l10n.categoryGenerateDefaultSuccess(createdCount),
+          tone: BeeTone.success);
     } catch (e) {
       logger.error('CategoryManage', '生成默认分类失败: $e');
       if (!mounted) return;
-      showBeeToast(context, l10n.categoryGenerateDefaultFailed);
+      showBeeToast(context, l10n.categoryGenerateDefaultFailed,
+          tone: BeeTone.error);
     }
   }
 
@@ -241,7 +243,8 @@ mixin _CategoryManagementActions on ConsumerState<CategoryManagePage> {
         showBeeToast(
             context,
             l10n.categoryShareSuccess(
-                outputPath.replaceAll('/storage/emulated/0/', '')));
+                outputPath.replaceAll('/storage/emulated/0/', '')),
+            tone: BeeTone.success);
       } else {
         await SharePlus.instance.share(ShareParams(
           files: [XFile(outputPath)],
@@ -251,7 +254,7 @@ mixin _CategoryManagementActions on ConsumerState<CategoryManagePage> {
     } catch (e) {
       logger.error('CategoryManage', '分享分类失败: $e');
       if (!mounted) return;
-      showBeeToast(context, l10n.categoryShareFailed);
+      showBeeToast(context, l10n.categoryShareFailed, tone: BeeTone.error);
     }
   }
 
@@ -282,7 +285,8 @@ mixin _CategoryManagementActions on ConsumerState<CategoryManagePage> {
       // 验证文件扩展名
       final fileName = filePath.toLowerCase();
       if (!fileName.endsWith('.zip')) {
-        showBeeToast(context, l10n.categoryImportInvalidFile);
+        showBeeToast(context, l10n.categoryImportInvalidFile,
+            tone: BeeTone.error);
         return;
       }
 
@@ -338,18 +342,18 @@ mixin _CategoryManagementActions on ConsumerState<CategoryManagePage> {
 
       if (!mounted) return;
       showBeeToast(
-        context,
-        l10n.categoryImportSuccessDetail(
-          importResult.imported,
-          importResult.skipped,
-          importResult.iconsImported,
-        ),
-      );
+          context,
+          l10n.categoryImportSuccessDetail(
+            importResult.imported,
+            importResult.skipped,
+            importResult.iconsImported,
+          ),
+          tone: BeeTone.success);
       ref.invalidate(categoriesWithCountProvider);
     } catch (e) {
       logger.error('CategoryManage', '导入分类失败: $e');
       if (!mounted) return;
-      showBeeToast(context, l10n.categoryImportFailed);
+      showBeeToast(context, l10n.categoryImportFailed, tone: BeeTone.error);
     }
   }
 
@@ -438,12 +442,14 @@ mixin _CategoryManagementActions on ConsumerState<CategoryManagePage> {
       }
 
       if (!mounted) return;
-      showBeeToast(context, l10n.categoryClearUnusedSuccess(ids.length));
+      showBeeToast(context, l10n.categoryClearUnusedSuccess(ids.length),
+          tone: BeeTone.success);
       ref.invalidate(categoriesWithCountProvider);
     } catch (e) {
       logger.error('CategoryManage', '清空未使用分类失败: $e');
       if (!mounted) return;
-      showBeeToast(context, l10n.categoryClearUnusedFailed);
+      showBeeToast(context, l10n.categoryClearUnusedFailed,
+          tone: BeeTone.error);
     }
   }
 

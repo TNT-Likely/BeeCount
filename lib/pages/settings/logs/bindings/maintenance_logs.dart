@@ -62,7 +62,9 @@ class _LogsState extends ConsumerState<MaintenanceLogsControls> {
       await Share.share(_logger.exportAsText(), subject: 'BeeCount 日志导出');
     } catch (_) {
       if (mounted) {
-        showBeeToast(context, AppLocalizations.of(context).logCenterExportFailed);
+        showBeeToast(
+            context, AppLocalizations.of(context).logCenterExportFailed,
+            tone: BeeTone.error);
       }
     } finally {
       if (mounted) setState(() => _exporting = false);
@@ -90,7 +92,7 @@ class _LogsState extends ConsumerState<MaintenanceLogsControls> {
                   ]));
       if (confirmed == true && mounted) {
         _logger.clear();
-        showBeeToast(context, l.logCenterCleared);
+        showBeeToast(context, l.logCenterCleared, tone: BeeTone.success);
       }
     } finally {
       if (mounted) setState(() => _clearing = false);
@@ -101,11 +103,13 @@ class _LogsState extends ConsumerState<MaintenanceLogsControls> {
     try {
       await Clipboard.setData(ClipboardData(text: log.toFormattedString()));
       if (mounted) {
-        showBeeToast(context, AppLocalizations.of(context).logCenterCopied);
+        showBeeToast(context, AppLocalizations.of(context).logCenterCopied,
+            tone: BeeTone.success);
       }
     } catch (_) {
       if (mounted) {
-        showBeeToast(context, AppLocalizations.of(context).commonFailed);
+        showBeeToast(context, AppLocalizations.of(context).commonFailed,
+            tone: BeeTone.error);
       }
     }
   }

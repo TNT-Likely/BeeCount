@@ -60,10 +60,12 @@ class _AIProviderEditorState extends ConsumerState<AIProviderEditor> {
                               final result = await c.save();
                               if (!context.mounted) return;
                               if (result.$1) {
-                                showBeeToast(context, l.commonSaved);
+                                showBeeToast(context, l.commonSaved,
+                                    tone: BeeTone.success);
                                 Navigator.pop(context, true);
                               } else if (result.$2 != null) {
-                                showBeeToast(context, result.$2!);
+                                showBeeToast(context, result.$2!,
+                                    tone: BeeTone.error);
                               }
                             },
                       child: c.saving
@@ -101,7 +103,12 @@ class _AIProviderEditorState extends ConsumerState<AIProviderEditor> {
           onTest: (secret ? c.key.text.isNotEmpty : c.canTest(capability))
               ? () async {
                   final message = await c.test(capability);
-                  if (mounted && message != null) showBeeToast(context, message);
+                  if (mounted && message != null) {
+                    showBeeToast(context, message,
+                        tone: c.statuses[capability] == TestStatus.success
+                            ? BeeTone.success
+                            : BeeTone.error);
+                  }
                 }
               : null,
           field: BeeField(

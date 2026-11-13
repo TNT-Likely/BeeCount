@@ -79,7 +79,8 @@ mixin _ConfigTransferActions on ConsumerState<ConfigImportExportPage> {
           _lastExportedFilePath = filePath;
         });
 
-        showBeeToast(context, AppLocalizations.of(context).configExportSuccess);
+        showBeeToast(context, AppLocalizations.of(context).configExportSuccess,
+            tone: BeeTone.success);
       } else {
         // iOS: 使用分享功能
         final tempDir = await getTemporaryDirectory();
@@ -96,7 +97,9 @@ mixin _ConfigTransferActions on ConsumerState<ConfigImportExportPage> {
 
         if (result.status == ShareResultStatus.success) {
           if (!mounted) return;
-          showBeeToast(context, AppLocalizations.of(context).configExportSuccess);
+          showBeeToast(
+              context, AppLocalizations.of(context).configExportSuccess,
+              tone: BeeTone.success);
         }
       }
     } catch (e) {
@@ -134,7 +137,8 @@ mixin _ConfigTransferActions on ConsumerState<ConfigImportExportPage> {
             await Clipboard.setData(ClipboardData(text: content));
             if (!context.mounted || !dialogContext.mounted) return;
             Navigator.pop(context);
-            showBeeToast(dialogContext, l10n.configExportContentCopied);
+            showBeeToast(dialogContext, l10n.configExportContentCopied,
+                tone: BeeTone.success);
           },
         ),
       );
@@ -142,7 +146,8 @@ mixin _ConfigTransferActions on ConsumerState<ConfigImportExportPage> {
       logger.error('ConfigExport', '读取配置文件失败: $e');
       if (!mounted) return;
       showBeeToast(
-          context, AppLocalizations.of(context).configExportReadFileFailed);
+          context, AppLocalizations.of(context).configExportReadFileFailed,
+          tone: BeeTone.error);
     }
   }
 
@@ -206,7 +211,8 @@ mixin _ConfigTransferActions on ConsumerState<ConfigImportExportPage> {
       }
 
       if (!mounted) return;
-      showBeeToast(context, AppLocalizations.of(context).configImportSuccess);
+      showBeeToast(context, AppLocalizations.of(context).configImportSuccess,
+          tone: BeeTone.success);
 
       // 提示需要重启应用（部分设置可能仍需重启）
       if (!mounted) return;

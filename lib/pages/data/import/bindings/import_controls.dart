@@ -151,7 +151,8 @@ class _ImportControlsState extends ConsumerState<ImportControls> {
     } on Exception catch (e) {
       if (!mounted) return;
       showBeeToast(context,
-          AppLocalizations.of(context).importFileOpenError(e.toString()));
+          AppLocalizations.of(context).importFileOpenError(e.toString()),
+          tone: BeeTone.error);
     }
   }
 
@@ -182,9 +183,10 @@ class _ImportControlsState extends ConsumerState<ImportControls> {
           } catch (e) {
             if (mounted) {
               showBeeToast(
-                context,
-                AppLocalizations.of(context).importFileOpenError(e.toString()),
-              );
+                  context,
+                  AppLocalizations.of(context)
+                      .importFileOpenError(e.toString()),
+                  tone: BeeTone.error);
             }
             return '';
           }
@@ -205,10 +207,9 @@ class _ImportControlsState extends ConsumerState<ImportControls> {
           _reading = false;
           _readProgress = null;
         });
-        showBeeToast(
-          context,
-          AppLocalizations.of(context).importFileOpenError(e.toString()),
-        );
+        showBeeToast(context,
+            AppLocalizations.of(context).importFileOpenError(e.toString()),
+            tone: BeeTone.error);
       }
       return '';
     }

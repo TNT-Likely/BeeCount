@@ -162,9 +162,14 @@ class _CloudSharedMembersControlsState
           active: () => mounted,
           userId: target.userId,
         );
-        if (context.mounted) showBeeToast(context, l10n.sharedMembersRemoved);
+        if (context.mounted) {
+          showBeeToast(context, l10n.sharedMembersRemoved,
+              tone: BeeTone.success);
+        }
       } catch (e) {
-        if (context.mounted) showBeeToast(context, e.toString());
+        if (context.mounted) {
+          showBeeToast(context, e.toString(), tone: BeeTone.error);
+        }
       }
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -242,11 +247,14 @@ class _CloudSharedMembersControlsState
         // 退出后由 server 广播 member_change.removed 触发本地清理(详见
         // sync_engine_realtime._handleMemberChange),这里不做 self-trigger。
         if (context.mounted) {
-          showBeeToast(context, l10n.sharedMembersLeaveDone);
+          showBeeToast(context, l10n.sharedMembersLeaveDone,
+              tone: BeeTone.success);
           Navigator.of(context).pop();
         }
       } catch (e) {
-        if (context.mounted) showBeeToast(context, e.toString());
+        if (context.mounted) {
+          showBeeToast(context, e.toString(), tone: BeeTone.error);
+        }
       }
     } finally {
       if (mounted) setState(() => _busy = false);

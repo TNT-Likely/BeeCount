@@ -90,7 +90,9 @@ class _PinSetupPageState extends ConsumerState<PinSetupPage> {
         if (!mounted) return;
         ref.read(appLockEnabledProvider.notifier).state = true;
         if (mounted) {
-          showBeeToast(context, AppLocalizations.of(context).appLockPinSetSuccess);
+          showBeeToast(
+              context, AppLocalizations.of(context).appLockPinSetSuccess,
+              tone: BeeTone.success);
           Navigator.pop(context, true);
         }
       } else {

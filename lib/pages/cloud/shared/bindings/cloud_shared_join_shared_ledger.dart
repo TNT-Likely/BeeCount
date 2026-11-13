@@ -123,10 +123,9 @@ class _CloudSharedJoinControlsState
       }
       if (!mounted) return;
       final l10n = AppLocalizations.of(context);
-      showBeeToast(
-        context,
-        l10n.sharedJoinSuccess(result.ledgerName ?? preview.ledgerExternalId),
-      );
+      showBeeToast(context,
+          l10n.sharedJoinSuccess(result.ledgerName ?? preview.ledgerExternalId),
+          tone: BeeTone.success);
       Navigator.of(context).pop(true);
     } catch (e) {
       if (!mounted) return;

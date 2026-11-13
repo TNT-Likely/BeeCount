@@ -59,7 +59,8 @@ class VoiceBillingHelper {
       logger.info('VoiceBilling', '权限详情:');
       logger.info('VoiceBilling', '  - isGranted: ${status.isGranted}');
       logger.info('VoiceBilling', '  - isDenied: ${status.isDenied}');
-      logger.info('VoiceBilling', '  - isPermanentlyDenied: ${status.isPermanentlyDenied}');
+      logger.info('VoiceBilling',
+          '  - isPermanentlyDenied: ${status.isPermanentlyDenied}');
       logger.info('VoiceBilling', '  - isRestricted: ${status.isRestricted}');
       logger.info('VoiceBilling', '  - isLimited: ${status.isLimited}');
       logger.info('VoiceBilling', '  - isProvisional: ${status.isProvisional}');
@@ -68,7 +69,9 @@ class VoiceBillingHelper {
       if (status.isRestricted) {
         logger.warning('VoiceBilling', '麦克风权限被设备管理策略限制');
         if (!context.mounted) return;
-        showBeeToast(context, AppLocalizations.of(context)!.voiceMicPermissionRestricted);
+        showBeeToast(
+            context, AppLocalizations.of(context).voiceMicPermissionRestricted,
+            tone: BeeTone.warning);
         return;
       }
 
@@ -103,7 +106,8 @@ class VoiceBillingHelper {
           logger.warning('VoiceBilling', '用户拒绝了权限请求');
           if (!context.mounted) return;
           // 用户拒绝后，显示提示
-          showBeeToast(context, l10n.voiceRecordingPermissionDenied);
+          showBeeToast(context, l10n.voiceRecordingPermissionDenied,
+              tone: BeeTone.warning);
           return;
         }
       }
@@ -116,7 +120,8 @@ class VoiceBillingHelper {
 
       // 3. 准备录音文件路径（WAV，兼容传统 STT /audio/transcriptions）
       final tempDir = await getTemporaryDirectory();
-      final audioPath = '${tempDir.path}/voice_${DateTime.now().millisecondsSinceEpoch}.wav';
+      final audioPath =
+          '${tempDir.path}/voice_${DateTime.now().millisecondsSinceEpoch}.wav';
 
       // 4. 显示录音对话框（按用户配置的触发方式：自动检测 / 按住说话）
       if (!context.mounted) return;
@@ -133,7 +138,8 @@ class VoiceBillingHelper {
       );
     } catch (e) {
       if (!context.mounted) return;
-      showBeeToast(context, l10n.voiceRecordingStartFailed(e.toString()));
+      showBeeToast(context, l10n.voiceRecordingStartFailed(e.toString()),
+          tone: BeeTone.error);
     }
   }
 }
@@ -157,7 +163,8 @@ class _VoiceRecordingDialog extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<_VoiceRecordingDialog> createState() => _VoiceRecordingDialogState();
+  ConsumerState<_VoiceRecordingDialog> createState() =>
+      _VoiceRecordingDialogState();
 }
 
 class _VoiceRecordingDialogState extends ConsumerState<_VoiceRecordingDialog> {
@@ -254,7 +261,8 @@ class _VoiceRecordingDialogState extends ConsumerState<_VoiceRecordingDialog> {
       });
       // 按住说话分支 UI 不渲染 _status,启动失败时直接 toast 兜底,避免零反馈。
       if (_isHoldToTalk) {
-        showBeeToast(context, l10n.voiceRecordingFailed(e.toString()));
+        showBeeToast(context, l10n.voiceRecordingFailed(e.toString()),
+            tone: BeeTone.error);
       }
     }
   }
@@ -280,7 +288,8 @@ class _VoiceRecordingDialogState extends ConsumerState<_VoiceRecordingDialog> {
   }
 
   void _startAmplitudeMonitoring() {
-    _amplitudeTimer = Timer.periodic(const Duration(milliseconds: 100), (timer) async {
+    _amplitudeTimer =
+        Timer.periodic(const Duration(milliseconds: 100), (timer) async {
       if (!mounted || !_isRecording) {
         timer.cancel();
         return;
@@ -349,7 +358,8 @@ class _VoiceRecordingDialogState extends ConsumerState<_VoiceRecordingDialog> {
       } else {
         final lastSound = _lastSoundTime;
         if (lastSound != null &&
-            now.difference(lastSound).inMilliseconds >= widget.silenceTimeoutMs) {
+            now.difference(lastSound).inMilliseconds >=
+                widget.silenceTimeoutMs) {
           timer.cancel();
           _stopAndProcess();
         }
@@ -376,7 +386,8 @@ class _VoiceRecordingDialogState extends ConsumerState<_VoiceRecordingDialog> {
       // 与正常 <500ms 路径体验一致：丢弃时提示录音过短。
       if (mounted) {
         final l10n = AppLocalizations.of(context);
-        showBeeToast(context, l10n.voiceRecordingTooShort);
+        showBeeToast(context, l10n.voiceRecordingTooShort,
+            tone: BeeTone.warning);
       }
     }
   }
@@ -394,7 +405,8 @@ class _VoiceRecordingDialogState extends ConsumerState<_VoiceRecordingDialog> {
       await _discardRecording();
       if (mounted) {
         final l10n = AppLocalizations.of(context);
-        showBeeToast(context, l10n.voiceRecordingTooShort);
+        showBeeToast(context, l10n.voiceRecordingTooShort,
+            tone: BeeTone.warning);
       }
       return;
     }
@@ -473,7 +485,7 @@ class _VoiceRecordingDialogState extends ConsumerState<_VoiceRecordingDialog> {
         final msg = response.recognizedText != null
             ? l10n.voiceRecordingNoInfoDetected(response.recognizedText!)
             : l10n.voiceRecordingNoInfo;
-        showBeeToast(context, msg);
+        showBeeToast(context, msg, tone: BeeTone.warning);
         return;
       }
 
@@ -488,11 +500,11 @@ class _VoiceRecordingDialogState extends ConsumerState<_VoiceRecordingDialog> {
       // 多币种降级提示(A5):缺汇率已按 1:1 暂记,指路统计页补折算
       final unconverted = response.result.unconvertedCurrencies;
       showBeeToast(
-        context,
-        unconverted.isEmpty
-            ? toast
-            : '$toast\n${l10n.aiBillingRateMissingHint(unconverted.join('、'))}',
-      );
+          context,
+          unconverted.isEmpty
+              ? toast
+              : '$toast\n${l10n.aiBillingRateMissingHint(unconverted.join('、'))}',
+          tone: unconverted.isEmpty ? BeeTone.success : BeeTone.warning);
     } catch (e) {
       if (!mounted) return;
       setState(() {
@@ -604,7 +616,8 @@ class _VoiceRecordingDialogState extends ConsumerState<_VoiceRecordingDialog> {
         const SizedBox(height: 8),
         Text(
           l10n.voiceRecordingDuration(_duration),
-          style: TextStyle(fontSize: 12, color: BeeTokens.textSecondary(context)),
+          style:
+              TextStyle(fontSize: 12, color: BeeTokens.textSecondary(context)),
         ),
         const SizedBox(height: 16),
       ] else

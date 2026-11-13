@@ -78,7 +78,7 @@ class AIProviderCatalog extends ConsumerWidget {
     if (!context.mounted) return;
     if (success) {
       ref.read(aiProviderListRefreshProvider.notifier).state++;
-      showBeeToast(context, l.aiProviderDeleted);
+      showBeeToast(context, l.aiProviderDeleted, tone: BeeTone.success);
     }
   }
 }

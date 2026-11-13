@@ -683,6 +683,8 @@ mixin _AccountsOverviewBindings on ConsumerState<AccountsPage> {
     // 只 bump tick,不 invalidate,避免资产页整页 loading 闪烁(同 _addAccount)。
     ref.read(statsRefreshProvider.notifier).state++;
 
-    if (context.mounted) showBeeToast(context, l10n.accountRestoredToast);
+    if (context.mounted) {
+      showBeeToast(context, l10n.accountRestoredToast, tone: BeeTone.success);
+    }
   }
 }

@@ -49,7 +49,7 @@ mixin AppLockSettingsActions<T extends ConsumerStatefulWidget>
           if (!mounted) return;
           ref.read(appLockEnabledProvider.notifier).state = false;
           ref.read(appLockBiometricEnabledProvider.notifier).state = false;
-          showBeeToast(context, message);
+          showBeeToast(context, message, tone: BeeTone.success);
         }
       });
 

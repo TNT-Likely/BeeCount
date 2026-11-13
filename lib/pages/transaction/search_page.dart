@@ -16,8 +16,7 @@ import '../../utils/category_utils.dart';
 import '../shared/selectors/category_selector_dialog.dart';
 import '../tag/widgets/tag_selector.dart';
 
-export 'search/bindings/transaction_search.dart'
-    show SearchTransaction;
+export 'search/bindings/transaction_search.dart' show SearchTransaction;
 
 class SearchPage extends ConsumerStatefulWidget {
   const SearchPage(
@@ -140,7 +139,8 @@ class _SearchPageState extends ConsumerState<SearchPage> {
           context,
           kinds.contains('transfer')
               ? l.searchBatchCategoryTransferError
-              : l.searchBatchCategoryTypeError);
+              : l.searchBatchCategoryTypeError,
+          tone: BeeTone.error);
       return;
     }
     final category = await showCategorySelector(context,

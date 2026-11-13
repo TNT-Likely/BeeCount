@@ -376,17 +376,18 @@ void _setupUrlListener(ProviderContainer container) {
     // 处理,没有就近 BuildContext;不能用 globalNavigatorKey.currentContext
     // (它在 Overlay 之上,Overlay.of 找不到祖先 Overlay)。overlay 没就绪时退
     // 回日志(用 deep-link 的多是极客,日志中心也能看到)。
-    void showAppLinkToast(String message) {
+    void showAppLinkToast(String message, {BeeTone tone = BeeTone.neutral}) {
       final overlay = globalNavigatorKey.currentState?.overlay;
       if (overlay != null) {
-        showBeeToastOnOverlay(overlay, message);
+        showBeeToastOnOverlay(overlay, message, tone: tone);
       } else {
         logger.warning('AppLink', 'overlay 未就绪,toast 改记日志: $message');
       }
     }
 
     // 自动记账成功提示("已记录 xx 元")
-    appLinkService.onShowToast = showAppLinkToast;
+    appLinkService.onShowToast =
+        (message) => showAppLinkToast(message, tone: BeeTone.success);
 
     // 冷启动时 uriLinkStream 会在 app 还在 Splash 预加载、provider 尚未就绪时
     // 立即吐出启动 URL。此时直接 handleUrl 会因 currentLedgerProvider 还在
@@ -405,7 +406,7 @@ void _setupUrlListener(ProviderContainer container) {
         // _handleAddTransaction 里已记 warning 日志,这里再弹一层。
         if (!result.success && result.message != null) {
           logger.warning('AppLink', '处理URL未成功: $uri -> ${result.message}');
-          showAppLinkToast(result.message!);
+          showAppLinkToast(result.message!, tone: BeeTone.warning);
         }
       } catch (e, st) {
         logger.error('AppLink', '处理URL异常: $uri', e, st);

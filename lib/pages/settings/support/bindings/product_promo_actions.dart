@@ -188,7 +188,9 @@ class ProductPromoLauncher {
               },
               onCopyEmail: () {
                 Clipboard.setData(ClipboardData(text: info.contactEmail));
-                if (ctx.mounted) showBeeToast(ctx, texts.copiedToast);
+                if (ctx.mounted) {
+                  showBeeToast(ctx, texts.copiedToast, tone: BeeTone.success);
+                }
               },
               onEmail: () async {
                 await Clipboard.setData(ClipboardData(text: info.contactEmail));
@@ -203,7 +205,8 @@ class ProductPromoLauncher {
                 if (!ctx.mounted) return;
                 Navigator.of(ctx).pop();
                 if (!ok && context.mounted) {
-                  showBeeToast(context, texts.mailUnavailableToast);
+                  showBeeToast(context, texts.mailUnavailableToast,
+                      tone: BeeTone.warning);
                 }
               },
               onScreenshot: (index) => Navigator.of(ctx).push(PageRouteBuilder(

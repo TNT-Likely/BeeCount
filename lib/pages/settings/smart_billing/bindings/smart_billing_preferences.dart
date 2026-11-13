@@ -42,7 +42,9 @@ class SmartBillingPreferences extends ConsumerWidget {
                         .read(attachmentKeepOriginalProvider.notifier)
                         .setEnabled(v);
                   } catch (_) {
-                    if (context.mounted) showBeeToast(context, l.commonError);
+                    if (context.mounted) {
+                      showBeeToast(context, l.commonError, tone: BeeTone.error);
+                    }
                   }
                 })
     ]);

@@ -315,7 +315,8 @@ class _ImportConfirmControlsState extends ConsumerState<ImportConfirmControls> {
         _startImport();
       } else {
         showBeeToast(
-            context, AppLocalizations.of(context).importSelectCategoryFirst);
+            context, AppLocalizations.of(context).importSelectCategoryFirst,
+            tone: BeeTone.warning);
       }
       return;
     }
@@ -396,7 +397,8 @@ class _ImportConfirmControlsState extends ConsumerState<ImportConfirmControls> {
       if (mounted) {
         setState(() => importing = false);
         showBeeToast(context,
-            AppLocalizations.of(context).importTransactionFailed('$error'));
+            AppLocalizations.of(context).importTransactionFailed('$error'),
+            tone: BeeTone.error);
       }
       return;
     }
@@ -503,8 +505,9 @@ class _ImportConfirmControlsState extends ConsumerState<ImportConfirmControls> {
     } catch (e) {
       // 导入失败
       if (mounted) {
-        showBeeToast(context,
-            AppLocalizations.of(context).importTransactionFailed('$e'));
+        showBeeToast(
+            context, AppLocalizations.of(context).importTransactionFailed('$e'),
+            tone: BeeTone.error);
       }
       fail = total - ok; // 更新失败数
     }
@@ -579,7 +582,7 @@ class _ImportConfirmControlsState extends ConsumerState<ImportConfirmControls> {
     // 判断显示方式: 完全成功用toast,有失败或跳过用弹窗
     if (fail == 0 && !hasSkipped) {
       // 完全成功: 使用toast,然后关闭页面
-      showBeeToast(currentContext, message);
+      showBeeToast(currentContext, message, tone: BeeTone.success);
       // 关闭确认页 -> 返回到数据管理页面
       // Pop回DataManagementPage: ImportConfirmControls -> ImportPage
       Navigator.of(currentContext).pop(); // Close ImportConfirmControls

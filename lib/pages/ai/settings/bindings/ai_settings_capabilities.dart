@@ -124,7 +124,8 @@ class AISettingsCapabilityCard extends ConsumerWidget {
                                     .state++;
                                 if (context.mounted) {
                                   showBeeToast(
-                                      context, '${l.commonSaved}: ${p.name}');
+                                      context, '${l.commonSaved}: ${p.name}',
+                                      tone: BeeTone.success);
                                 }
                               },
                             ))

@@ -192,7 +192,8 @@ class _CategoryGridViewState extends ConsumerState<_CategoryGridView> {
       failed = true;
       logger.error('CategoryManage', '保存分类排序失败', error, stack);
       if (mounted) {
-        showBeeToast(context, AppLocalizations.of(context).commonFailed);
+        showBeeToast(context, AppLocalizations.of(context).commonFailed,
+            tone: BeeTone.error);
       }
     }).whenComplete(() {
       _pendingSortWrites--;

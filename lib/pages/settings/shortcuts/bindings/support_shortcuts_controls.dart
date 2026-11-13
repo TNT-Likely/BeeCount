@@ -98,7 +98,8 @@ class SupportShortcutsControls extends ConsumerWidget {
                   icon: BeeLineIcon(item.$4, color: item.$5),
                   onCopy: () {
                     platform.copy(item.$3);
-                    showBeeToast(context, l.shortcutUrlCopied);
+                    showBeeToast(context, l.shortcutUrlCopied,
+                        tone: BeeTone.success);
                   })
           ]),
           BeeSupportText(

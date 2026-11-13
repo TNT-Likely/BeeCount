@@ -35,13 +35,15 @@ mixin _WelcomeActions on ConsumerState<WelcomePage> {
       } else {
         if (context.mounted) {
           showBeeToast(
-              context, AppLocalizations.of(context).privacyOpenSourceUrlError);
+              context, AppLocalizations.of(context).privacyOpenSourceUrlError,
+              tone: BeeTone.error);
         }
       }
     } catch (e) {
       if (context.mounted) {
         showBeeToast(
-            context, AppLocalizations.of(context).privacyOpenSourceUrlError);
+            context, AppLocalizations.of(context).privacyOpenSourceUrlError,
+            tone: BeeTone.error);
       }
     }
   }
@@ -75,7 +77,9 @@ mixin _WelcomeActions on ConsumerState<WelcomePage> {
       ref.read(shouldShowWelcomeProvider.notifier).state = false;
     } catch (error, stack) {
       logger.error('welcome', '初始化失败', error, stack);
-      if (context.mounted) showBeeToast(context, l.commonError);
+      if (context.mounted) {
+        showBeeToast(context, l.commonError, tone: BeeTone.error);
+      }
     } finally {
       if (mounted) setState(() => _isInitializing = false);
     }
@@ -108,7 +112,8 @@ mixin _WelcomeActions on ConsumerState<WelcomePage> {
       logger.error('welcome', '选择备份失败', error, stack);
       if (context.mounted) {
         showBeeToast(context,
-            AppLocalizations.of(context).welcomeImportFailed(error.toString()));
+            AppLocalizations.of(context).welcomeImportFailed(error.toString()),
+            tone: BeeTone.error);
       }
     }
   }
@@ -164,7 +169,7 @@ mixin _WelcomeActions on ConsumerState<WelcomePage> {
       ref.invalidate(languageProvider);
 
       if (context.mounted) {
-        showBeeToast(context, l10n.welcomeImportSuccess);
+        showBeeToast(context, l10n.welcomeImportSuccess, tone: BeeTone.success);
         // 切换到老用户流程（附件导入页面）
         setState(() {
           _isExistingUserFlow = true;
@@ -173,7 +178,8 @@ mixin _WelcomeActions on ConsumerState<WelcomePage> {
     } catch (e, st) {
       logger.error('welcome', '导入配置文件失败', e, st);
       if (context.mounted) {
-        showBeeToast(context, l10n.welcomeImportFailed(e.toString()));
+        showBeeToast(context, l10n.welcomeImportFailed(e.toString()),
+            tone: BeeTone.error);
       }
     } finally {
       if (mounted) {
@@ -217,18 +223,21 @@ mixin _WelcomeActions on ConsumerState<WelcomePage> {
       if (!context.mounted) return;
 
       if (importResult.success) {
-        showBeeToast(context,
-            l10n.welcomeImportAttachmentSuccess(importResult.imported));
+        showBeeToast(
+            context, l10n.welcomeImportAttachmentSuccess(importResult.imported),
+            tone: BeeTone.success);
         // 导入成功，完成流程
         _finishExistingUserFlow();
       } else {
         showBeeToast(context,
-            l10n.welcomeImportAttachmentFailed(importResult.message ?? ''));
+            l10n.welcomeImportAttachmentFailed(importResult.message ?? ''),
+            tone: BeeTone.error);
       }
     } catch (e, st) {
       logger.error('welcome', '导入附件失败', e, st);
       if (context.mounted) {
-        showBeeToast(context, l10n.welcomeImportAttachmentFailed(e.toString()));
+        showBeeToast(context, l10n.welcomeImportAttachmentFailed(e.toString()),
+            tone: BeeTone.error);
       }
     } finally {
       if (mounted) {

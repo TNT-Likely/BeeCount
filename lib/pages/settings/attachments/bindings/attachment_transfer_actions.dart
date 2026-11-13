@@ -82,14 +82,16 @@ mixin AttachmentTransferActions<T extends ConsumerStatefulWidget>
     if (!mounted) return;
 
     if (exportPath != null) {
-      showBeeToast(context, l10n.attachmentExportSuccess);
+      showBeeToast(context, l10n.attachmentExportSuccess,
+          tone: BeeTone.success);
 
       // iOS 弹出分享
       if (Platform.isIOS) {
         await SharePlus.instance.share(ShareParams(files: [XFile(exportPath)]));
       } else {
         // Android 显示保存路径
-        showBeeToast(context, l10n.attachmentExportSavedTo(exportPath));
+        showBeeToast(context, l10n.attachmentExportSavedTo(exportPath),
+            tone: BeeTone.success);
       }
     } else {
       // exportPath 为 null 表示没有内容需要导出
@@ -114,7 +116,8 @@ mixin AttachmentTransferActions<T extends ConsumerStatefulWidget>
     if (!mounted) return;
 
     if (info == null) {
-      showBeeToast(context, AppLocalizations.of(context).attachmentImportFailed);
+      showBeeToast(context, AppLocalizations.of(context).attachmentImportFailed,
+          tone: BeeTone.error);
       return;
     }
 
@@ -142,7 +145,8 @@ mixin AttachmentTransferActions<T extends ConsumerStatefulWidget>
     if (!mounted) return;
 
     if (previewData.isEmpty) {
-      showBeeToast(context, AppLocalizations.of(context).attachmentPreviewEmpty);
+      showBeeToast(
+          context, AppLocalizations.of(context).attachmentPreviewEmpty);
       return;
     }
 
@@ -225,9 +229,17 @@ mixin AttachmentTransferActions<T extends ConsumerStatefulWidget>
         parts.add('未导入任何内容');
       }
 
-      showBeeToast(context, parts.join('；'));
+      showBeeToast(context, parts.join('；'),
+          tone: result.failed > 0
+              ? BeeTone.warning
+              : result.imported == 0 &&
+                      !result.avatarImported &&
+                      result.customIconsImported == 0
+                  ? BeeTone.neutral
+                  : BeeTone.success);
     } else {
-      showBeeToast(context, result.message ?? l10n.attachmentImportFailed);
+      showBeeToast(context, result.message ?? l10n.attachmentImportFailed,
+          tone: BeeTone.error);
     }
   }
 

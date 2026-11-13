@@ -75,7 +75,9 @@ mixin _AccountEditActions on ConsumerState<AccountEditPage> {
     } catch (error) {
       if (!mounted) return;
       setState(() => _balanceLoadFailed = true);
-      showBeeToast(context, '${AppLocalizations.of(context).commonError}: $error');
+      showBeeToast(
+          context, '${AppLocalizations.of(context).commonError}: $error',
+          tone: BeeTone.error);
     }
   }
 
@@ -287,7 +289,8 @@ mixin _AccountEditActions on ConsumerState<AccountEditPage> {
         _reminderEnabled &&
         _paymentDueDay == null) {
       showBeeToast(
-          context, AppLocalizations.of(context).creditCardReminderDueRequired);
+          context, AppLocalizations.of(context).creditCardReminderDueRequired,
+          tone: BeeTone.warning);
       return;
     }
 
@@ -462,7 +465,8 @@ mixin _AccountEditActions on ConsumerState<AccountEditPage> {
       }
     } catch (e) {
       if (mounted) {
-        showBeeToast(context, '${AppLocalizations.of(context).commonError}: $e');
+        showBeeToast(context, '${AppLocalizations.of(context).commonError}: $e',
+            tone: BeeTone.error);
       }
     } finally {
       if (mounted) {
@@ -496,7 +500,8 @@ mixin _AccountEditActions on ConsumerState<AccountEditPage> {
     } catch (error) {
       if (mounted) {
         showBeeToast(
-            context, '${AppLocalizations.of(context).commonError}: $error');
+            context, '${AppLocalizations.of(context).commonError}: $error',
+            tone: BeeTone.error);
       }
     } finally {
       if (mounted) setState(() => _saving = false);
@@ -517,7 +522,7 @@ mixin _AccountEditActions on ConsumerState<AccountEditPage> {
         await repo.setAccountHidden(account.id, false);
         if (mounted) {
           PostProcessor.sync(ref, ledgerId: widget.ledgerId);
-          showBeeToast(context, l.accountRestoredToast);
+          showBeeToast(context, l.accountRestoredToast, tone: BeeTone.success);
           Navigator.pop(context, true);
         }
         return;
@@ -556,11 +561,14 @@ mixin _AccountEditActions on ConsumerState<AccountEditPage> {
             context,
             cleared
                 ? '${l.accountHiddenToast} · ${l.accountHideClearedDefault}'
-                : l.accountHiddenToast);
+                : l.accountHiddenToast,
+            tone: BeeTone.success);
         Navigator.pop(context, true);
       }
     } catch (error) {
-      if (mounted) showBeeToast(context, '${l.commonError}: $error');
+      if (mounted) {
+        showBeeToast(context, '${l.commonError}: $error', tone: BeeTone.error);
+      }
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -608,7 +616,8 @@ mixin _AccountEditActions on ConsumerState<AccountEditPage> {
     } catch (error) {
       if (mounted) {
         showBeeToast(
-            context, '${AppLocalizations.of(context).commonError}: $error');
+            context, '${AppLocalizations.of(context).commonError}: $error',
+            tone: BeeTone.error);
       }
     } finally {
       if (mounted) setState(() => _pickingCurrency = false);

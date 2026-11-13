@@ -75,7 +75,9 @@ class _SupportDonationControlsState
       errorSubscription = gateway.error.listen((error) {
         if (!mounted) return;
         setState(() => busy = null);
-        if (error.isNotEmpty) showBeeToast(context, error);
+        if (error.isNotEmpty) {
+          showBeeToast(context, error, tone: BeeTone.error);
+        }
       });
     } catch (_) {
       if (mounted) setState(() => loading = false);
@@ -92,8 +94,9 @@ class _SupportDonationControlsState
     } catch (_) {
       if (mounted) {
         setState(() => busy = null);
-        showBeeToast(context,
-            AppLocalizations.of(context).donationPurchaseRequestFailed);
+        showBeeToast(
+            context, AppLocalizations.of(context).donationPurchaseRequestFailed,
+            tone: BeeTone.error);
       }
     }
   }

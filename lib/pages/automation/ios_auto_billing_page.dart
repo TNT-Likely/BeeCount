@@ -27,10 +27,13 @@ class _IOSAutoBillingPageState extends ConsumerState<IOSAutoBillingPage> {
       final actions = ref.read(iosAutoBillingActionsProvider);
       final ok =
           await (shortcut ? actions.openShortcut() : actions.openTutorial());
-      if (!ok && shortcut && mounted) showBeeToast(context, l.iosAutoImportFailed);
+      if (!ok && shortcut && mounted) {
+        showBeeToast(context, l.iosAutoImportFailed, tone: BeeTone.error);
+      }
     } catch (error) {
       if (mounted) {
-        showBeeToast(context, shortcut ? l.iosAutoImportFailed : l.commonError);
+        showBeeToast(context, shortcut ? l.iosAutoImportFailed : l.commonError,
+            tone: BeeTone.error);
       }
     } finally {
       if (mounted) {

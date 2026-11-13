@@ -473,6 +473,10 @@ class _FoundationAcceptancePageState extends State<FoundationAcceptancePage> {
             const BeeToast(message: '保存成功', tone: BeeTone.success),
             const SizedBox(height: 8),
             const BeeToast(message: '网络不可用，请重试', tone: BeeTone.error),
+            const SizedBox(height: 8),
+            const BeeToast(message: '请先选择分类', tone: BeeTone.warning),
+            const SizedBox(height: 8),
+            const BeeToast(message: '再按一次退出应用'),
             const SizedBox(height: 16),
             BeeButton(
                 label: '显示成功提示',

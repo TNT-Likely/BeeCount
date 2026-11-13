@@ -348,15 +348,18 @@ class _MaintenanceOrphansControlsState
         showBeeToast(
             context,
             l10n.maintenanceOrphanCleanPartial(
-                result.successCount, result.failures.length));
+                result.successCount, result.failures.length),
+            tone: BeeTone.warning);
       } else {
         showBeeToast(
-            context, l10n.maintenanceOrphanCleanSuccess(result.successCount));
+            context, l10n.maintenanceOrphanCleanSuccess(result.successCount),
+            tone: BeeTone.success);
       }
       ref.invalidate(orphanScanReportProvider);
     } catch (error) {
       if (mounted) {
-        showBeeToast(context, '${l10n.commonError}: $error');
+        showBeeToast(context, '${l10n.commonError}: $error',
+            tone: BeeTone.error);
         ref.invalidate(orphanScanReportProvider);
       }
     } finally {

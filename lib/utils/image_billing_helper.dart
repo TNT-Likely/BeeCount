@@ -74,7 +74,7 @@ class ImageBillingHelper {
           AICapabilityType.vision)) {
         if (!context.mounted) return;
         Navigator.of(context).pop();
-        showBeeToast(context, l10n.aiNotConfiguredHint);
+        showBeeToast(context, l10n.aiNotConfiguredHint, tone: BeeTone.warning);
         return;
       }
 
@@ -83,7 +83,7 @@ class ImageBillingHelper {
       if (currentLedger == null) {
         if (!context.mounted) return;
         Navigator.of(context).pop();
-        showBeeToast(context, l10n.aiOcrNoLedger);
+        showBeeToast(context, l10n.aiOcrNoLedger, tone: BeeTone.warning);
         return;
       }
 
@@ -123,7 +123,8 @@ class ImageBillingHelper {
       if (!result.success) {
         // failedCount>0:提取到账单但入库失败(真·错误);否则=AI 判定不是账单/没提取到
         showBeeToast(context,
-            result.failedCount > 0 ? l10n.aiOcrCheckLog : l10n.aiOcrNoBill);
+            result.failedCount > 0 ? l10n.aiOcrCheckLog : l10n.aiOcrNoBill,
+            tone: BeeTone.warning);
         return;
       }
 
@@ -145,15 +146,18 @@ class ImageBillingHelper {
           : l10n.aiOcrSuccess(typeText, amountStr);
       // 多币种降级提示(A5):缺汇率已按 1:1 暂记,指路统计页补折算
       showBeeToast(
-        context,
-        result.unconvertedCurrencies.isEmpty
-            ? toastText
-            : '$toastText\n${l10n.aiBillingRateMissingHint(result.unconvertedCurrencies.join('、'))}',
-      );
+          context,
+          result.unconvertedCurrencies.isEmpty
+              ? toastText
+              : '$toastText\n${l10n.aiBillingRateMissingHint(result.unconvertedCurrencies.join('、'))}',
+          tone: result.unconvertedCurrencies.isEmpty
+              ? BeeTone.success
+              : BeeTone.warning);
     } catch (e) {
       if (!context.mounted) return;
       Navigator.of(context).popUntil((route) => route.isFirst);
-      showBeeToast(context, l10n.aiOcrFailed(e.toString()));
+      showBeeToast(context, l10n.aiOcrFailed(e.toString()),
+          tone: BeeTone.error);
     } finally {
       await images?.dispose();
     }

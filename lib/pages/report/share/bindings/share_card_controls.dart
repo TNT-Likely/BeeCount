@@ -174,7 +174,8 @@ class _ShareCardControlsState extends ConsumerState<ShareCardControls> {
         final result = await ref.read(shareCardPlatformProvider).save(bytes);
         if (!mounted) return;
         if (result == SavePosterResult.success) {
-          showBeeToast(context, l.sharePosterSaveSuccess);
+          showBeeToast(context, l.sharePosterSaveSuccess,
+              tone: BeeTone.success);
           Navigator.pop(context);
         } else {
           setState(() => _error = result == SavePosterResult.accessDenied

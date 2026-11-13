@@ -243,7 +243,8 @@ mixin _CategoryEditActions on ConsumerState<CategoryEditPage> {
               ? l.categoryUpdated(name)
               : _isSubCategory
                   ? l.categorySubCategoryCreated(name)
-                  : l.categoryCreated(name));
+                  : l.categoryCreated(name),
+          tone: BeeTone.success);
       Navigator.pop(context, true);
     } catch (e, s) {
       logger.error('CategoryEditPage', '保存分类失败', e, s);
@@ -287,7 +288,8 @@ mixin _CategoryEditActions on ConsumerState<CategoryEditPage> {
       await repo.deleteCategory(widget.category!.id);
       if (!mounted) return;
       _refresh();
-      showBeeToast(context, l.categoryDeleted(widget.category!.name));
+      showBeeToast(context, l.categoryDeleted(widget.category!.name),
+          tone: BeeTone.success);
       Navigator.pop(context, true);
     } catch (e, s) {
       logger.error('CategoryEditPage', '删除分类失败', e, s);

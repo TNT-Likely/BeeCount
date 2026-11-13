@@ -70,8 +70,9 @@ class TransactionReceiptDialog extends StatefulWidget {
     } catch (error, stack) {
       logger.error('TransactionReceipt', '加载小票失败', error, stack);
       if (context.mounted) {
-        showBeeToast(context,
-            AppLocalizations.of(context).transactionReceiptUnavailable);
+        showBeeToast(
+            context, AppLocalizations.of(context).transactionReceiptUnavailable,
+            tone: BeeTone.warning);
       }
     }
   }
@@ -142,7 +143,10 @@ class _TransactionReceiptDialogState extends State<TransactionReceiptDialog> {
               SavePosterResult.success => l10n.sharePosterSaveSuccess,
               SavePosterResult.accessDenied => l10n.sharePosterPermissionDenied,
               SavePosterResult.failed => l10n.sharePosterSaveFailed,
-            });
+            },
+            tone: result == SavePosterResult.success
+                ? BeeTone.success
+                : BeeTone.error);
       }
     } catch (error, stack) {
       logger.error('TransactionReceipt', '导出小票失败', error, stack);
@@ -151,7 +155,8 @@ class _TransactionReceiptDialogState extends State<TransactionReceiptDialog> {
             context,
             share
                 ? l10n.transactionReceiptShareFailed
-                : l10n.sharePosterSaveFailed);
+                : l10n.sharePosterSaveFailed,
+            tone: BeeTone.error);
       }
     } finally {
       if (mounted) setState(() => _busy = false);
