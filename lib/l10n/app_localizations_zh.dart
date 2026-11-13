@@ -9310,6 +9310,21 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get v4HomeBudgetExceeded => '超支';
+
+  @override
+  String get recordingProgressSaving => '正在记账';
+
+  @override
+  String get recordingProgressRecognizing => '正在识别账单';
+
+  @override
+  String get recordingProgressRecognizingDetail => '整理金额、分类与备注';
+
+  @override
+  String get recordingProgressSavingDetail => '正在保存本次识别的记录';
+
+  @override
+  String get recordingProgressSlow => '这次处理时间稍长，仍在继续处理。';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).

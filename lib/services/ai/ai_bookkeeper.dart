@@ -74,6 +74,7 @@ class AiBookkeeper {
     String billGuard = '',
     AppLocalizations? l10n,
     Future<void> Function(int txId, int index)? onSaved,
+    void Function()? onSaving,
   }) async {
     final context = await AiExtractionContext.forLedger(
       repository: _repo,
@@ -86,6 +87,7 @@ class AiBookkeeper {
       billingTypes: billingTypes,
       l10n: l10n,
       onSaved: onSaved,
+      onSaving: onSaving,
     );
   }
 
@@ -96,6 +98,7 @@ class AiBookkeeper {
     required int ledgerId,
     required List<String> billingTypes,
     AppLocalizations? l10n,
+    void Function()? onSaving,
   }) async {
     final context = await AiExtractionContext.forLedger(
       repository: _repo,
@@ -107,6 +110,7 @@ class AiBookkeeper {
       ledgerId: ledgerId,
       billingTypes: billingTypes,
       l10n: l10n,
+      onSaving: onSaving,
     );
     return (result: result, recognizedText: audioResult.recognizedText);
   }
@@ -124,9 +128,17 @@ class AiBookkeeper {
     required List<String> billingTypes,
     AppLocalizations? l10n,
     Future<void> Function(int txId, int index)? onSaved,
+    void Function()? onSaving,
   }) async {
     if (bills.isEmpty) {
       return BookkeepingResult.empty;
+    }
+
+    // Progress feedback must never prevent the financial write.
+    try {
+      onSaving?.call();
+    } catch (error, stack) {
+      logger.error(_tag, '进度回调异常，不影响记账', error, stack);
     }
 
     final saved = <BillInfo>[];

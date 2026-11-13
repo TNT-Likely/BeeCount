@@ -4719,5 +4719,10 @@
   "v4HomeBudgetAvailable": "Budget left",
   "v4HomeUseCompactSummary": "Use compact summary",
   "v4HomeUseStandardSummary": "Use full summary",
-  "v4HomeBudgetExceeded": "Over"
+  "v4HomeBudgetExceeded": "Over",
+  "recordingProgressSaving": "Recording your entries",
+  "recordingProgressRecognizing": "Reading your bill",
+  "recordingProgressRecognizingDetail": "Organizing amounts, categories and notes",
+  "recordingProgressSavingDetail": "Saving the entries from this recognition",
+  "recordingProgressSlow": "This is taking a little longer. Processing is continuing."
 }

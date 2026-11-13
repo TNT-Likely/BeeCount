@@ -147,7 +147,8 @@
       "RecordingFrame",
       "RecordingActions",
       "RecordingLegacyKeypad",
-      "RecordingLegacyAmount"
+      "RecordingLegacyAmount",
+      "RecordingProgressCard"
     ],
     "page": "business",
     "case": 5,

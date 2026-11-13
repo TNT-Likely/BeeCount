@@ -4266,5 +4266,10 @@
   "v4HomeBudgetAvailable": "预算可用",
   "v4HomeUseCompactSummary": "切换为紧凑汇总",
   "v4HomeUseStandardSummary": "切换为完整汇总",
-  "v4HomeBudgetExceeded": "超支"
+  "v4HomeBudgetExceeded": "超支",
+  "recordingProgressSaving": "正在记账",
+  "recordingProgressRecognizing": "正在识别账单",
+  "recordingProgressRecognizingDetail": "整理金额、分类与备注",
+  "recordingProgressSavingDetail": "正在保存本次识别的记录",
+  "recordingProgressSlow": "这次处理时间稍长，仍在继续处理。"
 }

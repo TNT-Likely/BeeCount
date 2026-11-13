@@ -9318,4 +9318,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get v4HomeBudgetExceeded => 'Over';
+
+  @override
+  String get recordingProgressSaving => 'Recording your entries';
+
+  @override
+  String get recordingProgressRecognizing => 'Reading your bill';
+
+  @override
+  String get recordingProgressRecognizingDetail => 'Organizing amounts, categories and notes';
+
+  @override
+  String get recordingProgressSavingDetail => 'Saving the entries from this recognition';
+
+  @override
+  String get recordingProgressSlow => 'This is taking a little longer. Processing is continuing.';
 }

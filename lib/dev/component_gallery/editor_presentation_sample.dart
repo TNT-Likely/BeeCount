@@ -2,6 +2,7 @@ import 'package:beecount_business_ui/beecount_business_ui.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';
 import '../../utils/account_type_utils.dart';
+import '../../pages/shared/branding/bee_artwork.dart';
 
 /// Interactive presentation-only fixture. Production state stays in App bindings.
 class EditorPresentationSample extends StatefulWidget {
@@ -17,7 +18,7 @@ class _EditorPresentationSampleState extends State<EditorPresentationSample> {
   final focus = FocusNode();
   String amount = '32.00';
   String? selected = 'cash';
-  bool expanded = true, excludeStats = false;
+  bool expanded = true, excludeStats = false, sampleSaving = false;
   @override
   void dispose() {
     note.dispose();
@@ -168,6 +169,22 @@ class _EditorPresentationSampleState extends State<EditorPresentationSample> {
               active: true,
               label: '账单标记',
               onTap: () => widget.onEvent('账单标记'))),
+      const SizedBox(height: 18),
+      const Text('自动记账进度 · 演示阶段切换，不执行记账'),
+      const SizedBox(height: 8),
+      BeeSegmented<bool>(
+          items: const [BeeSegment(false, '识别中'), BeeSegment(true, '保存中')],
+          value: sampleSaving,
+          onChanged: (value) => setState(() => sampleSaving = value)),
+      const SizedBox(height: 8),
+      Center(
+          child: RecordingProgressCard(
+              title: sampleSaving ? '正在记账' : '正在识别账单',
+              description: sampleSaving ? '正在保存本次识别的记录' : '整理金额、分类与备注',
+              contextLabel: '图片记账 · 日常生活',
+              mark: BeeIcon(
+                  color: Theme.of(context).colorScheme.primary, size: 40))),
+      const SizedBox(height: 18),
       RecordingFlagsForm(options: [
         RecordingFlagOption(
             title: '不计收支',

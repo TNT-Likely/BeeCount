@@ -17527,6 +17527,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Over'**
   String get v4HomeBudgetExceeded;
+
+  /// No description provided for @recordingProgressSaving.
+  ///
+  /// In en, this message translates to:
+  /// **'Recording your entries'**
+  String get recordingProgressSaving;
+
+  /// No description provided for @recordingProgressRecognizing.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading your bill'**
+  String get recordingProgressRecognizing;
+
+  /// No description provided for @recordingProgressRecognizingDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'Organizing amounts, categories and notes'**
+  String get recordingProgressRecognizingDetail;
+
+  /// No description provided for @recordingProgressSavingDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving the entries from this recognition'**
+  String get recordingProgressSavingDetail;
+
+  /// No description provided for @recordingProgressSlow.
+  ///
+  /// In en, this message translates to:
+  /// **'This is taking a little longer. Processing is continuing.'**
+  String get recordingProgressSlow;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

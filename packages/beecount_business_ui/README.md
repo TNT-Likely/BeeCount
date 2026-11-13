@@ -47,3 +47,5 @@ HTML 设计目录：[BeeCount-Design/card-refresh](https://github.com/TNT-Likely
 交易行先决定优先两行、最多三行的布局，再将各行余宽分给账户、账本和标签。仅有一个长名称时不再受105/84px固定上限截断；复杂组合仍保留折算、时间和文字状态，必要时通过明确的更多项入口查看。
 
 首页汇总：`BeeSummaryCard` 默认完整长版，`compact` 仅切换为紧凑同屏布局；`BeeHomeBudgetIndicator` 接收预算百分比、状态文案和回调。偏好、收支统计、预算查询与跳转仍由 App 绑定，组件不自行判断屏幕或保存设置。
+
+`RecordingProgressCard`（`src/recording/recording_progress.dart`）承载自动记账的识别、保存与长等待提示；阶段和文案由 App 绑定真实任务，组件本身不计时、不估算完成百分比、不写入账单。

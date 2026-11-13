@@ -9,6 +9,7 @@ export 'src/app_profile/brand_mark.dart';
 export 'src/app_profile/splash_layout.dart';
 
 export 'src/recording/recording_components.dart';
+export 'src/recording/recording_progress.dart';
 export 'src/recording/recording_fields.dart';
 export 'src/recording/recording_frame.dart';
 export 'src/resources/accounts/account_strip.dart';

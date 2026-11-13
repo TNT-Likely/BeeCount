@@ -6,6 +6,7 @@ import 'package:record/record.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../l10n/app_localizations.dart';
+import '../pages/shared/feedback/recording_progress_dialog.dart';
 import '../providers.dart';
 import '../providers/ai_chat_providers.dart';
 import '../providers/ai_config_providers.dart';
@@ -186,6 +187,7 @@ class _VoiceRecordingDialogState extends ConsumerState<_VoiceRecordingDialog> {
 
   bool _isRecording = false;
   bool _isProcessing = false;
+  final _saving = ValueNotifier(false);
   String? _status;
   String? _recognizedText;
   int _duration = 0;
@@ -224,6 +226,7 @@ class _VoiceRecordingDialogState extends ConsumerState<_VoiceRecordingDialog> {
     _silenceTimer?.cancel();
     _amplitudeTimer?.cancel();
     widget.recorder.dispose();
+    _saving.dispose();
     super.dispose();
   }
 
@@ -442,6 +445,7 @@ class _VoiceRecordingDialogState extends ConsumerState<_VoiceRecordingDialog> {
     if (!_isRecording) return;
 
     final l10n = AppLocalizations.of(context);
+    _saving.value = false;
     setState(() {
       _isRecording = false;
       _isProcessing = true;
@@ -467,6 +471,9 @@ class _VoiceRecordingDialogState extends ConsumerState<_VoiceRecordingDialog> {
           TagSeedService.billingTypeAi,
         ],
         l10n: l10n,
+        onSaving: () {
+          if (mounted) _saving.value = true;
+        },
       );
 
       if (!mounted) return;
@@ -660,6 +667,14 @@ class _VoiceRecordingDialogState extends ConsumerState<_VoiceRecordingDialog> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    if (_isProcessing) {
+      return RecordingProgressDialog(
+        saving: _saving,
+        sourceLabel: l10n.voiceRecordingTitle,
+        ledgerName: ref.watch(currentLedgerProvider).valueOrNull?.name,
+        voice: true,
+      );
+    }
     return AlertDialog(
       title: Text(l10n.voiceRecordingTitle),
       content: Column(

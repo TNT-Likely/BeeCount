@@ -638,7 +638,8 @@
         "RecordingFrame",
         "RecordingActions",
         "RecordingLegacyKeypad",
-        "RecordingLegacyAmount"
+        "RecordingLegacyAmount",
+        "RecordingProgressCard"
       ],
       "supportedStates": [
         "加减乘除、退格、等号、再记一笔与保存。"
