@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:beecount/agent/permission/agent_authorization_gate.dart';
 import 'package:beecount/l10n/app_localizations.dart';
-import 'package:beecount/widgets/ai/agent_tool_authorization_dialog.dart';
+import 'package:beecount/pages/ai/bindings/agent_tool_authorization_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:dio/dio.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import '../system/logger_service.dart';
@@ -32,7 +33,8 @@ class UpdateChecker {
 
       // 移除 commit hash 和链接部分：匹配 ([hash](url)) 格式
       // 使用正则表达式匹配 ([任意字符](任意字符)) 的模式
-      final regex = RegExp(r'\s*\(\[[a-f0-9]{7}\]\(https://github\.com/[^\)]+\)\)');
+      final regex =
+          RegExp(r'\s*\(\[[a-f0-9]{7}\]\(https://github\.com/[^\)]+\)\)');
       if (regex.hasMatch(line)) {
         line = line.replaceAll(regex, '');
         logger.info('UpdateChecker', '  -> 移除 commit 链接后: "$line"');
@@ -74,7 +76,8 @@ class UpdateChecker {
     final random = (DateTime.now().millisecondsSinceEpoch % userAgents.length);
     final selectedUA = userAgents[random];
 
-    logger.info('UpdateChecker', '使用User-Agent: ${selectedUA.substring(0, 50)}...');
+    logger.info(
+        'UpdateChecker', '使用User-Agent: ${selectedUA.substring(0, 50)}...');
     return selectedUA;
   }
 
@@ -116,7 +119,8 @@ class UpdateChecker {
             logger.info('UpdateChecker', 'GitHub API请求成功');
             break;
           } else {
-            logger.warning('UpdateChecker', '第$attempts次请求返回错误状态码: ${resp.statusCode}');
+            logger.warning(
+                'UpdateChecker', '第$attempts次请求返回错误状态码: ${resp.statusCode}');
             if (attempts == maxAttempts) {
               break; // 最后一次尝试，不再重试
             }
@@ -187,10 +191,10 @@ class UpdateChecker {
   /// 从 GitHub Release assets 列表里挑出适配当前设备的 APK。
   ///
   /// v3.2.1 起 Release 含多个按 ABI 拆分的 APK:
-  ///   - beecount-<ver>.apk             主分发(arm64-v8a,99% 现役真机)
-  ///   - beecount-<ver>-armeabi-v7a.apk armv7 老 32-bit 设备
-  ///   - beecount-<ver>-x86_64.apk      Intel/Win/Linux 模拟器
-  ///   - beecount-<ver>-universal.apk   三 ABI 全打,兜底
+  ///   - `beecount-<ver>.apk`             主分发(arm64-v8a,99% 现役真机)
+  ///   - `beecount-<ver>-armeabi-v7a.apk` armv7 老 32-bit 设备
+  ///   - `beecount-<ver>-x86_64.apk`      Intel/Win/Linux 模拟器
+  ///   - `beecount-<ver>-universal.apk`   三 ABI 全打,兜底
   ///
   /// 历史 bug:之前 `endsWith('.apk') break` 取第一个,因 GitHub assets 按
   /// 字母序排列,第一个就是 `-armeabi-v7a.apk` — arm64 真机装上跑 32-bit 兼容
@@ -240,41 +244,64 @@ class UpdateChecker {
     if (normalized.startsWith('dev-')) {
       normalized = normalized.substring(4);
     }
-    final dashIndex = normalized.indexOf('-');
-    if (dashIndex != -1) {
-      normalized = normalized.substring(0, dashIndex);
-    }
     return normalized;
   }
 
-  static bool _isNewerVersion(String newVersion, String currentVersion) {
-    final newParts = newVersion
-        .split('.')
-        .map(int.tryParse)
-        .where((e) => e != null)
-        .cast<int>()
-        .toList();
-    final currentParts = currentVersion
-        .split('.')
-        .map(int.tryParse)
-        .where((e) => e != null)
-        .cast<int>()
-        .toList();
+  static bool _isNewerVersion(String newVersion, String currentVersion) =>
+      (compareVersionNames(newVersion, currentVersion) ?? 0) > 0;
 
-    final maxLength =
-        [newParts.length, currentParts.length].reduce((a, b) => a > b ? a : b);
-    while (newParts.length < maxLength) {
-      newParts.add(0);
-    }
-    while (currentParts.length < maxLength) {
-      currentParts.add(0);
+  /// SemVer precedence, with the existing v/dev- prefixes and short numeric
+  /// legacy versions retained. Invalid names never become update candidates.
+  @visibleForTesting
+  static int? compareVersionNames(String candidate, String installed) {
+    ({List<int> core, List<String> pre})? parse(String raw) {
+      final match =
+          RegExp(r'^(0|[1-9][0-9]*)(?:\.(0|[1-9][0-9]*))?(?:\.(0|[1-9][0-9]*))?'
+                  r'(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?'
+                  r'(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$')
+              .firstMatch(_normalizeVersion(raw));
+      if (match == null) return null;
+      final core = [for (var i = 1; i <= 3; i++) int.tryParse(match[i] ?? '0')];
+      if (core.contains(null)) return null;
+      final pre = match[4]?.split('.') ?? <String>[];
+      for (final id in pre) {
+        if (RegExp(r'^[0-9]+$').hasMatch(id) &&
+            id.length > 1 &&
+            id.startsWith('0')) {
+          return null;
+        }
+      }
+      return (core: core.cast<int>(), pre: pre);
     }
 
-    for (int i = 0; i < maxLength; i++) {
-      if (newParts[i] > currentParts[i]) return true;
-      if (newParts[i] < currentParts[i]) return false;
+    final left = parse(candidate), right = parse(installed);
+    if (left == null || right == null) return null;
+    for (var i = 0; i < 3; i++) {
+      final order = left.core[i].compareTo(right.core[i]);
+      if (order != 0) return order;
     }
-
-    return false;
+    if (left.pre.isEmpty || right.pre.isEmpty) {
+      return left.pre.isEmpty == right.pre.isEmpty
+          ? 0
+          : left.pre.isEmpty
+              ? 1
+              : -1;
+    }
+    for (var i = 0; i < left.pre.length && i < right.pre.length; i++) {
+      final a = left.pre[i], b = right.pre[i];
+      final aNumeric = RegExp(r'^[0-9]+$').hasMatch(a);
+      final bNumeric = RegExp(r'^[0-9]+$').hasMatch(b);
+      final order = aNumeric && bNumeric
+          ? a.length == b.length
+              ? a.compareTo(b)
+              : a.length.compareTo(b.length)
+          : aNumeric != bNumeric
+              ? aNumeric
+                  ? -1
+                  : 1
+              : a.compareTo(b);
+      if (order != 0) return order;
+    }
+    return left.pre.length.compareTo(right.pre.length);
   }
 }

@@ -147,8 +147,8 @@ final s3ConfigProvider = FutureProvider<CloudServiceConfig?>((ref) async {
   return store.loadS3();
 });
 
-typedef CloudServicesFactory = Future<
-    ({CloudProvider? provider, CloudAuthService? auth})> Function(
+typedef CloudServicesFactory
+    = Future<({CloudProvider? provider, CloudAuthService? auth})> Function(
   CloudServiceConfig config,
 );
 
@@ -294,8 +294,7 @@ class ActiveCloudRuntimeController extends AsyncNotifier<ActiveCloudRuntime?> {
         return true;
       });
 
-  Future<void> saveAndActivate(CloudServiceConfig config) =>
-      _enqueue(() async {
+  Future<void> saveAndActivate(CloudServiceConfig config) => _enqueue(() async {
         await _ensureReady();
         await ref.read(cloudServiceStoreProvider).saveAndActivate(config);
         await _refreshConfigProviders(config.type);
@@ -446,8 +445,8 @@ class ActiveCloudRuntimeController extends AsyncNotifier<ActiveCloudRuntime?> {
             logger.info('CloudSync', 'BeeCount Cloud 未登录,等首次 API 触发恢复');
           }
         } catch (error, stack) {
-          logger.warning('CloudSync',
-              'BeeCount Cloud 初始 currentUser 失败: $error', stack);
+          logger.warning(
+              'CloudSync', 'BeeCount Cloud 初始 currentUser 失败: $error', stack);
         }
         final engine = SyncEngine(
           db: db,
@@ -710,6 +709,28 @@ final syncServiceProvider = Provider<SyncService>((ref) {
       );
     });
 
+    Future<Set<String>> registeredLedgerSyncIds() async =>
+        (await db.select(db.ledgers).get())
+            .map((ledger) => ledger.syncId)
+            .whereType<String>()
+            .where((syncId) => syncId.isNotEmpty)
+            .toSet();
+
+    // 只水合本次发现的账本。全局历史重放会覆盖其他账本已确认的新状态，
+    // 而 server 过滤掉本设备回声后，重放也无法补回本设备的最新写入。
+    Future<void> hydrateNewLedgers(Set<String> existingSyncIds) async {
+      final newSyncIds =
+          (await registeredLedgerSyncIds()).difference(existingSyncIds);
+      for (final syncId in newSyncIds) {
+        try {
+          final hydrated = await engine.hydrateLedgerFromServer(syncId);
+          logger.info('SyncProvider', '新账本 $syncId 水合 $hydrated 条交易/预算');
+        } catch (e, st) {
+          logger.warning('SyncProvider', '新账本 $syncId 水合失败: $e', st);
+        }
+      }
+    }
+
     // Bootstrap 串行：必须等 `syncLedgersFromServer` 完成（把 A 的账本 2/3/…
     // 插入到 B 本地 ledgers 表）之后，再触发 `engine.sync()` 的 pull。否则
     // pull 到的 tx change 里的 ledger_id 在 B 本地还找不到对应的 ledger 行，
@@ -722,29 +743,16 @@ final syncServiceProvider = Provider<SyncService>((ref) {
       Future(() async {
         try {
           // Step 1: 先拉账本列表，保证所有 A 的账本已经在 B 本地落库
-          int newLedgerCount = 0;
           try {
-            newLedgerCount = await engine.syncLedgersFromServer();
+            final existingSyncIds = await registeredLedgerSyncIds();
+            final newLedgerCount = await engine.syncLedgersFromServer();
             if (newLedgerCount > 0) {
               ref.read(ledgerListRefreshProvider.notifier).state++;
               logger.info('SyncProvider', '从 server 拉回 $newLedgerCount 个新账本');
+              await hydrateNewLedgers(existingSyncIds);
             }
           } catch (e, st) {
             logger.warning('SyncProvider', 'syncLedgersFromServer 失败: $e', st);
-          }
-
-          // Step 1.5: 如果有新账本插进来，要从 cursor=0 把 sync_changes 重放
-          // 一遍。否则 B 设备的全局 cursor 可能已经被早期 pull 推到顶，增量
-          // `_pull` 再也拿不回这些账本的历史 tx/category/account。
-          // BeeCount Cloud 的 apply 是按 entity_sync_id upsert 幂等的，重放
-          // 安全。
-          if (newLedgerCount > 0) {
-            try {
-              final replayed = await engine.replayAllChanges();
-              logger.info('SyncProvider', '重放 sync_changes 应用 $replayed 条历史变更');
-            } catch (e, st) {
-              logger.warning('SyncProvider', 'replayAllChanges 失败: $e', st);
-            }
           }
 
           // Step 2: 账本就绪后再跑全量同步。sync() 的 pull 里每条 tx change
@@ -783,10 +791,12 @@ final syncServiceProvider = Provider<SyncService>((ref) {
       // 没有 current ledger（一般不会发生）。单独拉一次账本列表兜底。
       Future(() async {
         try {
+          final existingSyncIds = await registeredLedgerSyncIds();
           final inserted = await engine.syncLedgersFromServer();
           if (inserted > 0) {
             ref.read(ledgerListRefreshProvider.notifier).state++;
             logger.info('SyncProvider', '从 server 拉回 $inserted 个新账本');
+            await hydrateNewLedgers(existingSyncIds);
           }
         } catch (e, st) {
           logger.warning('SyncProvider', 'syncLedgersFromServer 失败: $e', st);
@@ -1030,7 +1040,7 @@ void _scheduleThemeSettle(Ref ref) {
     _pendingServerTheme = null;
     _skinLeftBoundPalette = false;
     try {
-      final bound = boundPrimaryOf(ref.read(headerSkinProvider));
+      final bound = boundPrimaryOf(ref.read(effectiveHeaderSkinProvider));
       // 本地颜色还在推往 server 的路上时,server 这一份多半就是我们**还没
       // 覆盖掉的旧值** —— 采信它就会「跳到旧色,等 push 落地再跳回来」闪一下。
       // 用户刚做出的选择比它可信。绑定色皮肤不受影响:那种情况下颜色由皮肤
@@ -1159,8 +1169,11 @@ void _applyAppearanceFields(Ref ref, Map<String, dynamic> appearance) {
       // 这里**只换皮肤 + 登记颜色意图**,颜色本身交给 _scheduleThemeSettle
       // 统一结算 —— 直接调 applyHeaderSkinWith 会和同批的 theme_color 事件
       // 各写一次 primaryColorProvider,用户看到主题色闪两下。
-      final prevBound = boundPrimaryOf(current);
-      if (prevBound == null && boundPrimaryOf(skin) != null) {
+      final prevBound =
+          ref.read(headerSkinsEnabledProvider) ? boundPrimaryOf(current) : null;
+      if (ref.read(headerSkinsEnabledProvider) &&
+          prevBound == null &&
+          boundPrimaryOf(skin) != null) {
         // 离开自由配色前记住用户当前的颜色,换回普通皮肤时才恢复得对
         ref.read(userChosenPrimaryProvider.notifier).state =
             ref.read(primaryColorProvider);

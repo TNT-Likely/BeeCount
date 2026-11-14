@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:beecount_ui/beecount_ui.dart' show BeePageMaterial;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/note_history.dart';
@@ -81,7 +82,10 @@ final primaryColorInitProvider = FutureProvider<void>((ref) async {
 Future<void> _persistAndPushPrimary(
     Ref ref, SharedPreferences prefs, Color next, bool fromServer) async {
   {
-    final colorValue = (next.a * 255).toInt() << 24 | (next.r * 255).toInt() << 16 | (next.g * 255).toInt() << 8 | (next.b * 255).toInt();
+    final colorValue = (next.a * 255).toInt() << 24 |
+        (next.r * 255).toInt() << 16 |
+        (next.g * 255).toInt() << 8 |
+        (next.b * 255).toInt();
     await prefs.setInt('primaryColor', colorValue);
     // Update widget with new theme color
     try {
@@ -299,6 +303,50 @@ final skinAnimationInitProvider = FutureProvider<void>((ref) async {
   });
 });
 
+/// Local-only page-card material. It does not change the Cloud appearance schema.
+final skinCardOpacityProvider =
+    StateProvider<double>((ref) => BeePageMaterial.defaultOpacity);
+final skinCardBlurProvider =
+    StateProvider<double>((ref) => BeePageMaterial.defaultBlur);
+
+final skinCardMaterialInitProvider = FutureProvider<void>((ref) async {
+  final prefs = await SharedPreferences.getInstance();
+  final alpha = prefs.get('skinCardOpacity');
+  final sigma = prefs.get('skinCardBlur');
+  ref.read(skinCardOpacityProvider.notifier).state =
+      BeePageMaterial.normalizeOpacity(
+          alpha is num ? alpha.toDouble() : BeePageMaterial.defaultOpacity);
+  ref.read(skinCardBlurProvider.notifier).state = BeePageMaterial.normalizeBlur(
+      sigma is num ? sigma.toDouble() : BeePageMaterial.defaultBlur);
+  Timer? pending;
+  void schedule() {
+    pending?.cancel();
+    pending = Timer(const Duration(milliseconds: 150), () {
+      // Capture both values before awaiting platform I/O.
+      final opacity =
+          BeePageMaterial.normalizeOpacity(ref.read(skinCardOpacityProvider));
+      final blur =
+          BeePageMaterial.normalizeBlur(ref.read(skinCardBlurProvider));
+      unawaited(prefs.setDouble('skinCardOpacity', opacity));
+      unawaited(prefs.setDouble('skinCardBlur', blur));
+    });
+  }
+
+  ref.listen<double>(skinCardOpacityProvider, (_, __) => schedule());
+  ref.listen<double>(skinCardBlurProvider, (_, __) => schedule());
+  ref.onDispose(() => pending?.cancel());
+});
+
+/// Flush on gesture completion/reset so closing the sheet immediately is safe.
+Future<void> saveSkinCardMaterial(WidgetRef ref) async {
+  final opacity =
+      BeePageMaterial.normalizeOpacity(ref.read(skinCardOpacityProvider));
+  final blur = BeePageMaterial.normalizeBlur(ref.read(skinCardBlurProvider));
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setDouble('skinCardOpacity', opacity);
+  await prefs.setDouble('skinCardBlur', blur);
+}
+
 // 显示交易时间Provider（默认不显示）
 // false = 只显示日期
 // true = 显示日期和时间（时:分）
@@ -431,6 +479,17 @@ final headerDecorationStyleInitProvider = FutureProvider<void>((ref) async {
 // 本地持久化 + 并入 appearance 包,随 BeeCount Cloud 多设备同步。
 final headerSkinProvider = StateProvider<String>((ref) => 'none');
 
+/// 发布开关：统一页面皮肤已启用。紧急暂停可在构建时传
+/// --dart-define=BEECOUNT_SKINS_ENABLED=false，无需清除或迁移用户偏好。
+final headerSkinsEnabledProvider = Provider<bool>((ref) =>
+    const bool.fromEnvironment('BEECOUNT_SKINS_ENABLED', defaultValue: true));
+
+/// 所有视觉和绑定配色使用此值；原始 headerSkinProvider 继续保存/同步偏好。
+final effectiveHeaderSkinProvider = Provider<String>((ref) =>
+    ref.watch(headerSkinsEnabledProvider)
+        ? ref.watch(headerSkinProvider)
+        : kHeaderSkinNone);
+
 final headerSkinInitProvider = FutureProvider<void>((ref) async {
   final prefs = await SharedPreferences.getInstance();
   final saved = prefs.getString('headerSkin');
@@ -442,7 +501,7 @@ final headerSkinInitProvider = FutureProvider<void>((ref) async {
     ref.read(userChosenPrimaryProvider.notifier).state = Color(savedUserColor);
   }
   // 启动校正:皮肤可能是从云端同步下来的,主题色未必跟着绑定色走。
-  final bound = boundPrimaryOf(ref.read(headerSkinProvider));
+  final bound = boundPrimaryOf(ref.read(effectiveHeaderSkinProvider));
   if (bound != null && ref.read(primaryColorProvider) != bound) {
     ref.read(primaryColorProvider.notifier).state = bound;
   }
@@ -472,7 +531,9 @@ final headerSkinInitProvider = FutureProvider<void>((ref) async {
   // 必须放在 listener 注册**之后** —— 降级结果要走正常上行推给 server,
   // 这样 server 上那个失效 id 才会被覆盖掉,不然下次同步又推回来。
   final currentSkin = ref.read(headerSkinProvider);
-  if (currentSkin != kHeaderSkinNone && headerSkinById(currentSkin) == null) {
+  if (ref.read(headerSkinsEnabledProvider) &&
+      currentSkin != kHeaderSkinNone &&
+      headerSkinById(currentSkin) == null) {
     logger.info('theme_providers',
         'header skin "$currentSkin" no longer registered, falling back to none');
     ref.read(headerSkinProvider.notifier).state = kHeaderSkinNone;
@@ -515,6 +576,10 @@ typedef ProviderReader = T Function<T>(ProviderListenable<T> provider);
 /// 也走这里 —— 直写 [headerSkinProvider] 会让「皮肤是绑定色款、主题色还是旧色」
 /// 这种自相矛盾的状态漏出去,再叠加 server 回推就变成两个颜色来回闪。
 void applyHeaderSkinWith(ProviderReader read, String skinId) {
+  if (!read(headerSkinsEnabledProvider)) return;
+  if (skinId != kHeaderSkinNone && headerSkinById(skinId) == null) {
+    skinId = kHeaderSkinNone;
+  }
   final prevBound = boundPrimaryOf(read(headerSkinProvider));
   final nextBound = boundPrimaryOf(skinId);
 
@@ -553,7 +618,7 @@ void _pushAppearanceToCloud(Ref ref) {
       final cloudProvider =
           await ref.read(beecountCloudProviderInstance.future);
       if (cloudProvider == null) return;
-      final bound = boundPrimaryOf(ref.read(headerSkinProvider));
+      final bound = boundPrimaryOf(ref.read(effectiveHeaderSkinProvider));
       if (bound != null) {
         final hex = _colorToHex(bound);
         await cloudProvider.updateMyProfileThemeColor(hex: hex);
@@ -673,8 +738,8 @@ void _pushDisplayNameToCloud(Ref ref, String name) {
       await cloudProvider.updateMyProfileDisplayName(displayName: trimmed);
       logger.info('theme_providers', 'display name pushed to server: $trimmed');
     } catch (e, st) {
-      logger.warning('theme_providers',
-          'push display name failed (non-blocking): $e', st);
+      logger.warning(
+          'theme_providers', 'push display name failed (non-blocking): $e', st);
     }
   }());
 }

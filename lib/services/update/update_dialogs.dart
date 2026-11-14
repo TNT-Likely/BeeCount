@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../l10n/app_localizations.dart';
-import '../../widgets/ui/ui.dart';
+import '../../pages/shared/dialogs/app_dialogs.dart';
 import '../../styles/tokens.dart';
 import '../system/logger_service.dart';
 import 'github_mirror_service.dart';

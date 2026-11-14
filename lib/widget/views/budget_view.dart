@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import '../../data/repositories/budget_repository.dart'
     show BudgetOverview, BudgetUsage, CategoryBudgetUsage;
 import '../../utils/currencies.dart' show getCurrencySymbol;
-import '../../widgets/biz/format_money.dart' show formatMoneyCompact;
+import '../../utils/format_money.dart' show formatMoneyCompact;
 import '../widget_spec.dart' show HWSize;
 import 'widget_view_style.dart';
 

@@ -6,6 +6,7 @@ import 'package:record/record.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../l10n/app_localizations.dart';
+import '../pages/shared/feedback/recording_progress_dialog.dart';
 import '../providers.dart';
 import '../providers/ai_chat_providers.dart';
 import '../providers/ai_config_providers.dart';
@@ -15,7 +16,8 @@ import '../ai/providers/ai_provider_manager.dart';
 import '../ai/providers/ai_provider_config.dart';
 import '../services/billing/post_processor.dart';
 import '../services/data/tag_seed_service.dart';
-import '../widgets/ui/ui.dart';
+import '../pages/shared/dialogs/app_dialogs.dart';
+import 'package:beecount_ui/beecount_ui.dart';
 import '../styles/tokens.dart';
 
 /// 语音记账帮助类
@@ -37,7 +39,7 @@ class VoiceBillingHelper {
       final aiConfig = ref.read(aiConfigProvider);
       if (!aiConfig.enabled) {
         if (!context.mounted) return;
-        showToast(context, l10n.fabActionVoiceDisabled);
+        showBeeToast(context, l10n.fabActionVoiceDisabled);
         return;
       }
 
@@ -47,7 +49,7 @@ class VoiceBillingHelper {
       );
       if (speechProvider == null || !speechProvider.isValid) {
         if (!context.mounted) return;
-        showToast(context, l10n.fabActionVoiceDisabled);
+        showBeeToast(context, l10n.fabActionVoiceDisabled);
         return;
       }
 
@@ -58,7 +60,8 @@ class VoiceBillingHelper {
       logger.info('VoiceBilling', '权限详情:');
       logger.info('VoiceBilling', '  - isGranted: ${status.isGranted}');
       logger.info('VoiceBilling', '  - isDenied: ${status.isDenied}');
-      logger.info('VoiceBilling', '  - isPermanentlyDenied: ${status.isPermanentlyDenied}');
+      logger.info('VoiceBilling',
+          '  - isPermanentlyDenied: ${status.isPermanentlyDenied}');
       logger.info('VoiceBilling', '  - isRestricted: ${status.isRestricted}');
       logger.info('VoiceBilling', '  - isLimited: ${status.isLimited}');
       logger.info('VoiceBilling', '  - isProvisional: ${status.isProvisional}');
@@ -67,7 +70,9 @@ class VoiceBillingHelper {
       if (status.isRestricted) {
         logger.warning('VoiceBilling', '麦克风权限被设备管理策略限制');
         if (!context.mounted) return;
-        showToast(context, AppLocalizations.of(context)!.voiceMicPermissionRestricted);
+        showBeeToast(
+            context, AppLocalizations.of(context).voiceMicPermissionRestricted,
+            tone: BeeTone.warning);
         return;
       }
 
@@ -102,7 +107,8 @@ class VoiceBillingHelper {
           logger.warning('VoiceBilling', '用户拒绝了权限请求');
           if (!context.mounted) return;
           // 用户拒绝后，显示提示
-          showToast(context, l10n.voiceRecordingPermissionDenied);
+          showBeeToast(context, l10n.voiceRecordingPermissionDenied,
+              tone: BeeTone.warning);
           return;
         }
       }
@@ -115,7 +121,8 @@ class VoiceBillingHelper {
 
       // 3. 准备录音文件路径（WAV，兼容传统 STT /audio/transcriptions）
       final tempDir = await getTemporaryDirectory();
-      final audioPath = '${tempDir.path}/voice_${DateTime.now().millisecondsSinceEpoch}.wav';
+      final audioPath =
+          '${tempDir.path}/voice_${DateTime.now().millisecondsSinceEpoch}.wav';
 
       // 4. 显示录音对话框（按用户配置的触发方式：自动检测 / 按住说话）
       if (!context.mounted) return;
@@ -132,7 +139,8 @@ class VoiceBillingHelper {
       );
     } catch (e) {
       if (!context.mounted) return;
-      showToast(context, l10n.voiceRecordingStartFailed(e.toString()));
+      showBeeToast(context, l10n.voiceRecordingStartFailed(e.toString()),
+          tone: BeeTone.error);
     }
   }
 }
@@ -156,7 +164,8 @@ class _VoiceRecordingDialog extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<_VoiceRecordingDialog> createState() => _VoiceRecordingDialogState();
+  ConsumerState<_VoiceRecordingDialog> createState() =>
+      _VoiceRecordingDialogState();
 }
 
 class _VoiceRecordingDialogState extends ConsumerState<_VoiceRecordingDialog> {
@@ -178,6 +187,7 @@ class _VoiceRecordingDialogState extends ConsumerState<_VoiceRecordingDialog> {
 
   bool _isRecording = false;
   bool _isProcessing = false;
+  final _saving = ValueNotifier(false);
   String? _status;
   String? _recognizedText;
   int _duration = 0;
@@ -216,6 +226,7 @@ class _VoiceRecordingDialogState extends ConsumerState<_VoiceRecordingDialog> {
     _silenceTimer?.cancel();
     _amplitudeTimer?.cancel();
     widget.recorder.dispose();
+    _saving.dispose();
     super.dispose();
   }
 
@@ -253,7 +264,8 @@ class _VoiceRecordingDialogState extends ConsumerState<_VoiceRecordingDialog> {
       });
       // 按住说话分支 UI 不渲染 _status,启动失败时直接 toast 兜底,避免零反馈。
       if (_isHoldToTalk) {
-        showToast(context, l10n.voiceRecordingFailed(e.toString()));
+        showBeeToast(context, l10n.voiceRecordingFailed(e.toString()),
+            tone: BeeTone.error);
       }
     }
   }
@@ -270,7 +282,7 @@ class _VoiceRecordingDialogState extends ConsumerState<_VoiceRecordingDialog> {
         } else {
           final l10n = AppLocalizations.of(context);
           Navigator.of(context).pop();
-          showToast(context, l10n.voiceRecordingNoSpeech);
+          showBeeToast(context, l10n.voiceRecordingNoSpeech);
         }
         return;
       }
@@ -279,7 +291,8 @@ class _VoiceRecordingDialogState extends ConsumerState<_VoiceRecordingDialog> {
   }
 
   void _startAmplitudeMonitoring() {
-    _amplitudeTimer = Timer.periodic(const Duration(milliseconds: 100), (timer) async {
+    _amplitudeTimer =
+        Timer.periodic(const Duration(milliseconds: 100), (timer) async {
       if (!mounted || !_isRecording) {
         timer.cancel();
         return;
@@ -342,13 +355,14 @@ class _VoiceRecordingDialogState extends ConsumerState<_VoiceRecordingDialog> {
           if (mounted) {
             final l10n = AppLocalizations.of(context);
             Navigator.of(context).pop();
-            showToast(context, l10n.voiceRecordingNoSpeech);
+            showBeeToast(context, l10n.voiceRecordingNoSpeech);
           }
         }
       } else {
         final lastSound = _lastSoundTime;
         if (lastSound != null &&
-            now.difference(lastSound).inMilliseconds >= widget.silenceTimeoutMs) {
+            now.difference(lastSound).inMilliseconds >=
+                widget.silenceTimeoutMs) {
           timer.cancel();
           _stopAndProcess();
         }
@@ -375,7 +389,8 @@ class _VoiceRecordingDialogState extends ConsumerState<_VoiceRecordingDialog> {
       // 与正常 <500ms 路径体验一致：丢弃时提示录音过短。
       if (mounted) {
         final l10n = AppLocalizations.of(context);
-        showToast(context, l10n.voiceRecordingTooShort);
+        showBeeToast(context, l10n.voiceRecordingTooShort,
+            tone: BeeTone.warning);
       }
     }
   }
@@ -393,7 +408,8 @@ class _VoiceRecordingDialogState extends ConsumerState<_VoiceRecordingDialog> {
       await _discardRecording();
       if (mounted) {
         final l10n = AppLocalizations.of(context);
-        showToast(context, l10n.voiceRecordingTooShort);
+        showBeeToast(context, l10n.voiceRecordingTooShort,
+            tone: BeeTone.warning);
       }
       return;
     }
@@ -429,6 +445,7 @@ class _VoiceRecordingDialogState extends ConsumerState<_VoiceRecordingDialog> {
     if (!_isRecording) return;
 
     final l10n = AppLocalizations.of(context);
+    _saving.value = false;
     setState(() {
       _isRecording = false;
       _isProcessing = true;
@@ -454,6 +471,9 @@ class _VoiceRecordingDialogState extends ConsumerState<_VoiceRecordingDialog> {
           TagSeedService.billingTypeAi,
         ],
         l10n: l10n,
+        onSaving: () {
+          if (mounted) _saving.value = true;
+        },
       );
 
       if (!mounted) return;
@@ -472,7 +492,7 @@ class _VoiceRecordingDialogState extends ConsumerState<_VoiceRecordingDialog> {
         final msg = response.recognizedText != null
             ? l10n.voiceRecordingNoInfoDetected(response.recognizedText!)
             : l10n.voiceRecordingNoInfo;
-        showToast(context, msg);
+        showBeeToast(context, msg, tone: BeeTone.warning);
         return;
       }
 
@@ -486,12 +506,12 @@ class _VoiceRecordingDialogState extends ConsumerState<_VoiceRecordingDialog> {
           : l10n.voiceRecordingSuccess;
       // 多币种降级提示(A5):缺汇率已按 1:1 暂记,指路统计页补折算
       final unconverted = response.result.unconvertedCurrencies;
-      showToast(
-        context,
-        unconverted.isEmpty
-            ? toast
-            : '$toast\n${l10n.aiBillingRateMissingHint(unconverted.join('、'))}',
-      );
+      showBeeToast(
+          context,
+          unconverted.isEmpty
+              ? toast
+              : '$toast\n${l10n.aiBillingRateMissingHint(unconverted.join('、'))}',
+          tone: unconverted.isEmpty ? BeeTone.success : BeeTone.warning);
     } catch (e) {
       if (!mounted) return;
       setState(() {
@@ -603,7 +623,8 @@ class _VoiceRecordingDialogState extends ConsumerState<_VoiceRecordingDialog> {
         const SizedBox(height: 8),
         Text(
           l10n.voiceRecordingDuration(_duration),
-          style: TextStyle(fontSize: 12, color: BeeTokens.textSecondary(context)),
+          style:
+              TextStyle(fontSize: 12, color: BeeTokens.textSecondary(context)),
         ),
         const SizedBox(height: 16),
       ] else
@@ -646,6 +667,14 @@ class _VoiceRecordingDialogState extends ConsumerState<_VoiceRecordingDialog> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    if (_isProcessing) {
+      return RecordingProgressDialog(
+        saving: _saving,
+        sourceLabel: l10n.voiceRecordingTitle,
+        ledgerName: ref.watch(currentLedgerProvider).valueOrNull?.name,
+        voice: true,
+      );
+    }
     return AlertDialog(
       title: Text(l10n.voiceRecordingTitle),
       content: Column(

@@ -4,7 +4,7 @@ import 'package:beecount/l10n/app_localizations_zh.dart';
 import 'package:beecount/models/assistant_prompt_suggestions.dart';
 import 'package:beecount/styles/tokens.dart';
 import 'package:beecount/theme.dart';
-import 'package:beecount/widgets/ai/agent_follow_up_questions.dart';
+import 'package:beecount/pages/ai/chat/bindings/agent_follow_up_questions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

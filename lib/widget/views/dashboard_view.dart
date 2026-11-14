@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../utils/currencies.dart' show getCurrencySymbol;
-import '../../widgets/biz/format_money.dart' show formatMoneyCompact;
+import '../../utils/format_money.dart' show formatMoneyCompact;
 import '../widget_data_service.dart'
     show DashboardWidgetData, GlanceWidgetData, QuickAddCategoryItem;
 import '../widget_spec.dart' show HWSize;

@@ -1,0 +1,20 @@
+{
+  "source": "prototype/demo.html?page=flow-budget-edit",
+  "viewport": [
+    398,
+    844
+  ],
+  "textScale": 1,
+  "previewFrameBorderExcluded": true,
+  "pageInset": 17,
+  "formWidth": 364,
+  "surfaceInset": 16,
+  "typeCardHeight": 84,
+  "amountInputHeight": 64,
+  "amountCardHeight": 128,
+  "saveButtonHeight": 48,
+  "saveVisualMinimumHeight": 44,
+  "amountFieldFill": "surface",
+  "amountFieldBorders": "none",
+  "saveButtonWidth": 364
+}

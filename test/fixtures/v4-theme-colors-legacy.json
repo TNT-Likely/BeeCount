@@ -1,0 +1,170 @@
+{
+  "source_commit": "30fdc1e6",
+  "source_path": "lib/pages/settings/personalize_page.dart",
+  "source_sha256": "293bad5b25e888dbb05dff69e49347b1afb1670b734629718dc8f1f484815417",
+  "note": "Frozen original 27 identities before R69; independently compare UI/persistence and visible locale names.",
+  "options": [
+    {
+      "key": "personalizeThemeHoney",
+      "hex": "#F8C91C",
+      "zh": "蜜蜂黄",
+      "en": "Bee Yellow"
+    },
+    {
+      "key": "personalizeThemeOrange",
+      "hex": "#FF7043",
+      "zh": "火焰橙",
+      "en": "Flame Orange"
+    },
+    {
+      "key": "personalizeThemeGreen",
+      "hex": "#26A69A",
+      "zh": "琉璃绿",
+      "en": "Emerald Green"
+    },
+    {
+      "key": "personalizeThemePurple",
+      "hex": "#7E57C2",
+      "zh": "青莲紫",
+      "en": "Purple Lotus"
+    },
+    {
+      "key": "personalizeThemePink",
+      "hex": "#E91E63",
+      "zh": "樱绯红",
+      "en": "Cherry Pink"
+    },
+    {
+      "key": "personalizeThemeBlue",
+      "hex": "#2196F3",
+      "zh": "晴空蓝",
+      "en": "Sky Blue"
+    },
+    {
+      "key": "personalizeThemeMint",
+      "hex": "#80CBC4",
+      "zh": "林间月",
+      "en": "Forest Moon"
+    },
+    {
+      "key": "personalizeThemeSand",
+      "hex": "#FFCC80",
+      "zh": "黄昏沙丘",
+      "en": "Sunset Dune"
+    },
+    {
+      "key": "personalizeThemeLavender",
+      "hex": "#B39DDB",
+      "zh": "雪与松",
+      "en": "Snow & Pine"
+    },
+    {
+      "key": "personalizeThemeSky",
+      "hex": "#90CAF9",
+      "zh": "迷雾仙境",
+      "en": "Misty Wonderland"
+    },
+    {
+      "key": "personalizeThemeWarmOrange",
+      "hex": "#FF8A65",
+      "zh": "暖阳橘",
+      "en": "Warm Orange"
+    },
+    {
+      "key": "personalizeThemeMintGreen",
+      "hex": "#4DB6AC",
+      "zh": "薄荷青",
+      "en": "Mint Green"
+    },
+    {
+      "key": "personalizeThemeRoseGold",
+      "hex": "#AD7A99",
+      "zh": "玫瑰金",
+      "en": "Rose Gold"
+    },
+    {
+      "key": "personalizeThemeDeepBlue",
+      "hex": "#1565C0",
+      "zh": "深海蓝",
+      "en": "Deep Blue"
+    },
+    {
+      "key": "personalizeThemeMapleRed",
+      "hex": "#D32F2F",
+      "zh": "枫叶红",
+      "en": "Maple Red"
+    },
+    {
+      "key": "personalizeThemeEmerald",
+      "hex": "#388E3C",
+      "zh": "翡翠绿",
+      "en": "Emerald"
+    },
+    {
+      "key": "personalizeThemeLavenderPurple",
+      "hex": "#9575CD",
+      "zh": "薰衣草",
+      "en": "Lavender"
+    },
+    {
+      "key": "personalizeThemeAmber",
+      "hex": "#FFA726",
+      "zh": "琥珀黄",
+      "en": "Amber"
+    },
+    {
+      "key": "personalizeThemeRouge",
+      "hex": "#C2185B",
+      "zh": "胭脂红",
+      "en": "Rouge Red"
+    },
+    {
+      "key": "personalizeThemeIndigo",
+      "hex": "#3F51B5",
+      "zh": "靛青蓝",
+      "en": "Indigo Blue"
+    },
+    {
+      "key": "personalizeThemeOlive",
+      "hex": "#689F38",
+      "zh": "橄榄绿",
+      "en": "Olive Green"
+    },
+    {
+      "key": "personalizeThemeCoral",
+      "hex": "#FF8A80",
+      "zh": "珊瑚粉",
+      "en": "Coral Pink"
+    },
+    {
+      "key": "personalizeThemeDarkGreen",
+      "hex": "#2E7D32",
+      "zh": "墨绿色",
+      "en": "Dark Green"
+    },
+    {
+      "key": "personalizeThemeViolet",
+      "hex": "#673AB7",
+      "zh": "紫罗兰",
+      "en": "Violet"
+    },
+    {
+      "key": "personalizeThemeSunset",
+      "hex": "#FF5722",
+      "zh": "日落橙",
+      "en": "Sunset Orange"
+    },
+    {
+      "key": "personalizeThemePeacock",
+      "hex": "#00ACC1",
+      "zh": "孔雀蓝",
+      "en": "Peacock Blue"
+    },
+    {
+      "key": "personalizeThemeLime",
+      "hex": "#CDDC39",
+      "zh": "柠檬绿",
+      "en": "Lime Green"
+    }
+  ]
+}

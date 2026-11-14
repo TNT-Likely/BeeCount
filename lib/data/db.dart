@@ -1266,7 +1266,37 @@ class BeeDatabase extends _$BeeDatabase {
               'ON exchange_rate_overrides (base_currency, quote_currency);');
           await _createAgentMemoryFtsTable();
         },
+        beforeOpen: (_) => _ensureQueryIndexes(),
       );
+
+  /// Historical upgrade branches create these indexes, but fresh createAll()
+  /// does not run those branches. Also repair already-created v33 databases
+  /// without changing their rows, constraints or schema version.
+  Future<void> _ensureQueryIndexes() async {
+    for (final ddl in const [
+      'CREATE INDEX IF NOT EXISTS idx_transaction_tags_transaction '
+          'ON transaction_tags(transaction_id)',
+      'CREATE INDEX IF NOT EXISTS idx_transaction_tags_tag '
+          'ON transaction_tags(tag_id)',
+      'CREATE INDEX IF NOT EXISTS idx_attachments_transaction '
+          'ON transaction_attachments(transaction_id)',
+      'CREATE INDEX IF NOT EXISTS idx_transactions_sync_id '
+          'ON transactions(sync_id)',
+      'CREATE INDEX IF NOT EXISTS idx_accounts_sync_id ON accounts(sync_id)',
+      'CREATE INDEX IF NOT EXISTS idx_categories_sync_id ON categories(sync_id)',
+      'CREATE INDEX IF NOT EXISTS idx_tags_sync_id ON tags(sync_id)',
+      'CREATE INDEX IF NOT EXISTS idx_ledgers_sync_id ON ledgers(sync_id)',
+      'CREATE INDEX IF NOT EXISTS idx_budgets_sync_id ON budgets(sync_id)',
+      'CREATE INDEX IF NOT EXISTS idx_budgets_ledger ON budgets(ledger_id)',
+      'CREATE INDEX IF NOT EXISTS idx_budgets_category ON budgets(category_id)',
+      'CREATE INDEX IF NOT EXISTS idx_budgets_ledger_type '
+          'ON budgets(ledger_id, type)',
+      'CREATE INDEX IF NOT EXISTS idx_transactions_ledger_happened_at '
+          'ON transactions(ledger_id, happened_at DESC)',
+    ]) {
+      await customStatement(ddl);
+    }
+  }
 
   Future<void> _createAgentMemoryFtsTable() => customStatement(
         'CREATE VIRTUAL TABLE IF NOT EXISTS agent_memory_fts '

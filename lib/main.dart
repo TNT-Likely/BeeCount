@@ -1,3 +1,4 @@
+import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_cloud_sync/flutter_cloud_sync.dart';
@@ -6,17 +7,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app.dart';
-import 'widgets/biz/login_2fa_challenge_view.dart';
-import 'widgets/ui/toast.dart';
+import 'pages/auth/bindings/login_2fa_challenge_view.dart';
 import 'theme.dart';
 import 'providers.dart';
-import 'providers/currency_providers.dart';
 import 'providers/font_scale_provider.dart';
 import 'utils/app_localizations_resolver.dart';
 import 'providers/cloud_mode_providers.dart';
-import 'providers/ui_state_providers.dart';
 import 'utils/notification_factory.dart';
 import 'pages/auth/splash_page.dart';
+import 'pages/main/home/bindings/home_startup_gate.dart';
 import 'pages/auth/welcome_page.dart';
 import 'pages/auth/app_lock_screen.dart';
 import 'providers/security_providers.dart';
@@ -37,10 +36,10 @@ import 'dart:ui';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
-
 /// 全局 navigator key — 给 service 层(没有 BuildContext)push 路由使用。
 /// 当前用途:BeeCount Cloud 登录拿到 requires_2fa 时弹出 [Login2FAChallengeView]。
-final GlobalKey<NavigatorState> globalNavigatorKey = GlobalKey<NavigatorState>();
+final GlobalKey<NavigatorState> globalNavigatorKey =
+    GlobalKey<NavigatorState>();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -233,7 +232,8 @@ Future<void> _restoreUserReminder() async {
     if (isEnabled) {
       final hour = prefs.getInt('reminder_hour') ?? 21;
       final minute = prefs.getInt('reminder_minute') ?? 0;
-      print('✅ 发现用户已启用记账提醒: ${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}');
+      print(
+          '✅ 发现用户已启用记账提醒: ${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}');
       print('🔔 正在重新设置提醒任务...');
 
       try {
@@ -243,9 +243,8 @@ Future<void> _restoreUserReminder() async {
         final languageCode = prefs.getString(LanguageNotifier.languagePrefKey);
         final countryCode =
             prefs.getString(LanguageNotifier.languagePrefCountryKey);
-        final l10n = resolveAppLocalizations(languageCode == null
-            ? null
-            : Locale(languageCode, countryCode));
+        final l10n = resolveAppLocalizations(
+            languageCode == null ? null : Locale(languageCode, countryCode));
         await notificationUtil.scheduleDailyReminder(
           id: 1001,
           title: l10n.reminderTitle,
@@ -322,7 +321,6 @@ Future<void> _initializeAppMode(ProviderContainer container) async {
   }
 }
 
-
 /// 设置图片分享处理（Android专属）
 ///
 /// 初始化 ImageShareHandlerService 以接收从相册或其他应用分享的图片
@@ -363,7 +361,8 @@ void _setupUrlListener(ProviderContainer container) {
     appLinkService.onNavigate = (action, {params}) {
       logger.info('AppLink', '触发导航: $action');
       if (action == AppLinkAction.newTransaction && params != null) {
-        container.read(pendingNewTransactionTypeProvider.notifier).state = params.type;
+        container.read(pendingNewTransactionTypeProvider.notifier).state =
+            params.type;
         container.read(pendingNewTransactionCategoryIdProvider.notifier).state =
             params.categoryId;
       }
@@ -377,17 +376,18 @@ void _setupUrlListener(ProviderContainer container) {
     // 处理,没有就近 BuildContext;不能用 globalNavigatorKey.currentContext
     // (它在 Overlay 之上,Overlay.of 找不到祖先 Overlay)。overlay 没就绪时退
     // 回日志(用 deep-link 的多是极客,日志中心也能看到)。
-    void showAppLinkToast(String message) {
+    void showAppLinkToast(String message, {BeeTone tone = BeeTone.neutral}) {
       final overlay = globalNavigatorKey.currentState?.overlay;
       if (overlay != null) {
-        showToastOnOverlay(overlay, message);
+        showBeeToastOnOverlay(overlay, message, tone: tone);
       } else {
         logger.warning('AppLink', 'overlay 未就绪,toast 改记日志: $message');
       }
     }
 
     // 自动记账成功提示("已记录 xx 元")
-    appLinkService.onShowToast = showAppLinkToast;
+    appLinkService.onShowToast =
+        (message) => showAppLinkToast(message, tone: BeeTone.success);
 
     // 冷启动时 uriLinkStream 会在 app 还在 Splash 预加载、provider 尚未就绪时
     // 立即吐出启动 URL。此时直接 handleUrl 会因 currentLedgerProvider 还在
@@ -406,7 +406,7 @@ void _setupUrlListener(ProviderContainer container) {
         // _handleAddTransaction 里已记 warning 日志,这里再弹一层。
         if (!result.success && result.message != null) {
           logger.warning('AppLink', '处理URL未成功: $uri -> ${result.message}');
-          showAppLinkToast(result.message!);
+          showAppLinkToast(result.message!, tone: BeeTone.warning);
         }
       } catch (e, st) {
         logger.error('AppLink', '处理URL异常: $uri', e, st);
@@ -465,6 +465,9 @@ class MainApp extends ConsumerWidget {
 
   // 根据初始化状态和欢迎页面状态决定显示哪个页面
   Widget _getHomePage(AppInitState initState, WidgetRef ref) {
+    // Resolve first-launch routing before starting a data snapshot. Otherwise
+    // an empty pre-onboarding cache could survive until setup creates a ledger.
+    if (ref.watch(welcomeCheckProvider).isLoading) return const SplashPage();
     // 首先检查是否需要显示欢迎页面
     final shouldShowWelcome = ref.watch(shouldShowWelcomeProvider);
     if (shouldShowWelcome) {
@@ -473,7 +476,7 @@ class MainApp extends ConsumerWidget {
 
     // 欢迎页面完成后，根据初始化状态显示对应页面
     if (initState != AppInitState.ready) {
-      return const SplashPage();
+      return const AppStartupGate(child: SizedBox.shrink());
     }
 
     // 检查是否需要显示锁屏
@@ -482,7 +485,7 @@ class MainApp extends ConsumerWidget {
       return const AppLockScreen();
     }
 
-    return const BeeApp();
+    return const HomeStartupGate(child: BeeApp());
   }
 
   @override
@@ -494,10 +497,7 @@ class MainApp extends ConsumerWidget {
     final initState = ref.watch(appInitStateProvider);
     final selectedLanguage = ref.watch(languageProvider);
 
-    // 如果是启屏状态，启动初始化
-    if (initState == AppInitState.splash) {
-      ref.watch(appSplashInitProvider);
-    }
+    // AppStartupGate starts initialization after first-launch routing settles.
 
     // 周期交易生成已统一在 appSplashInitProvider 中处理
 
@@ -512,7 +512,6 @@ class MainApp extends ConsumerWidget {
       colorScheme: base.colorScheme.copyWith(primary: primary),
       primaryColor: primary,
       scaffoldBackgroundColor: Colors.white,
-      dividerColor: Colors.black.withOpacity(0.06),
       listTileTheme: ListTileThemeData(
         dense: true,
         contentPadding: const EdgeInsets.symmetric(horizontal: 12),
@@ -573,12 +572,15 @@ class MainApp extends ConsumerWidget {
         onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
         scrollBehavior: const NoGlowScrollBehavior(),
         debugShowCheckedModeBanner: false,
-        theme: theme,
-        darkTheme: BeeTheme.darkTheme(platform: platform).copyWith(
-          colorScheme: BeeTheme.darkTheme(platform: platform).colorScheme.copyWith(primary: primary),
+        theme: applyBeeCardTheme(theme),
+        darkTheme:
+            applyBeeCardTheme(BeeTheme.darkTheme(platform: platform).copyWith(
+          colorScheme: BeeTheme.darkTheme(platform: platform)
+              .colorScheme
+              .copyWith(primary: primary),
           primaryColor: primary,
-        ),                                                // ⭐ 暗黑主题（使用动态主题色）
-        themeMode: ref.watch(themeModeProvider),         // ⭐ 使用 provider 支持手动切换
+        )), // ⭐ 暗黑主题（使用动态主题色）
+        themeMode: ref.watch(themeModeProvider), // ⭐ 使用 provider 支持手动切换
         localizationsDelegates: const [
           AppLocalizations.delegate,
           GlobalMaterialLocalizations.delegate,
@@ -594,7 +596,8 @@ class MainApp extends ConsumerWidget {
         locale: selectedLanguage,
         builder: (context, child) {
           final showPrivacy = ref.watch(showPrivacyScreenProvider);
-          return Stack(
+          return BeeSystemBars(
+              child: Stack(
             children: [
               child ?? const SizedBox.shrink(),
               if (showPrivacy)
@@ -613,7 +616,7 @@ class MainApp extends ConsumerWidget {
                   ),
                 ),
             ],
-          );
+          ));
         },
         // 显式命名根路由，便于路由日志与 popUntil 精确识别
         home: _getHomePage(initState, ref),

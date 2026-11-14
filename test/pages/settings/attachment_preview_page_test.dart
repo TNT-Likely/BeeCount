@@ -104,7 +104,7 @@ void main() {
           find.descendant(
               of: find.byType(Dialog), matching: find.text('40 × 120')),
           findsOneWidget);
-      await tester.tap(find.byIcon(Icons.close));
+      await tester.tap(find.byTooltip('关闭'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('自定义图标 (1)'));
       await tester.pumpAndSettle();

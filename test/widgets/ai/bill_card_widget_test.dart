@@ -1,6 +1,6 @@
 import 'package:beecount/ai/core/bill_info.dart';
 import 'package:beecount/l10n/app_localizations.dart';
-import 'package:beecount/widgets/ai/bill_card_widget.dart';
+import 'package:beecount/pages/ai/chat/widgets/bill_card_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';

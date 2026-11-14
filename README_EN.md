@@ -117,12 +117,92 @@ A lightweight, open-source, privacy-first **personal finance** and **expense tra
 
 ## 📸 Screenshots
 
+Real v4 App screens and workflows captured on isolated simulators with synthetic sample data. One shared showcase is maintained here, without platform duplicates.
+
+### Workflow demos
+
+Type an entry, recognize a receipt or ask your AI assistant. Recorded in the real App, using live models for image recognition and chat.
+
 <div align="center">
-  <img src="demo/videos/en/01-add-transaction.gif" alt="Add transaction" width="200" />
-  <img src="demo/videos/en/02-ai-text.gif" alt="AI text bookkeeping" width="200" />
-  <img src="demo/videos/en/04-data-analysis.gif" alt="Analytics" width="200" />
-  <img src="demo/videos/en/05-copy-transaction.gif" alt="Long press to copy a transaction" width="200" />
+  <img src="demo/videos/v4/en/light/01-add-transaction.gif" alt="Add an entry" width="200" />
+  <img src="demo/videos/v4/en/light/03-ai-photo-recognition.gif" alt="Record from an image" width="200" />
+  <img src="demo/videos/v4/en/light/02-ai-chat.gif" alt="Ask your AI assistant" width="200" />
 </div>
+
+<details>
+<summary>More workflows and dark mode</summary>
+
+<div align="center">
+  <img src="demo/videos/v4/en/light/04-data-analysis.gif" alt="Explore your spending" width="200" />
+  <img src="demo/videos/v4/en/light/05-copy-transaction.gif" alt="Copy a transaction" width="200" />
+  <img src="demo/videos/v4/en/light/06-import-ledger.gif" alt="Import a ledger" width="200" />
+</div>
+
+<div align="center">
+  <img src="demo/videos/v4/en/dark/01-add-transaction.gif" alt="Add an entry" width="200" />
+  <img src="demo/videos/v4/en/dark/03-ai-photo-recognition.gif" alt="Record from an image" width="200" />
+  <img src="demo/videos/v4/en/dark/02-ai-chat.gif" alt="Ask your AI assistant" width="200" />
+</div>
+
+<div align="center">
+  <img src="demo/videos/v4/en/dark/04-data-analysis.gif" alt="Explore your spending" width="200" />
+  <img src="demo/videos/v4/en/dark/05-copy-transaction.gif" alt="Copy a transaction" width="200" />
+  <img src="demo/videos/v4/en/dark/06-import-ledger.gif" alt="Import a ledger" width="200" />
+</div>
+
+
+**iOS Shortcuts**: manually run a real shortcut to capture the receipt and record it in the background. This demo is recorded in Chinese.
+
+<div align="center">
+  <img src="demo/videos/v4/zh/light/07-ios-shortcut.gif" alt="Real iOS shortcut, manually triggered" width="240" />
+</div>
+
+</details>
+
+### App screens
+
+Entries, recording, insights, budgets, accounts and ledgers — a complete everyday workflow.
+
+<div align="center">
+  <img src="preview/v4/en/light/01-home.png" alt="Transactions" width="200" />
+  <img src="preview/v4/en/light/05-transaction.png" alt="Record" width="200" />
+  <img src="preview/v4/en/light/02-analytics.png" alt="Insights" width="200" />
+</div>
+
+<div align="center">
+  <img src="preview/v4/en/light/06-budgets.png" alt="Budgets" width="200" />
+  <img src="preview/v4/en/light/03-accounts.png" alt="Accounts" width="200" />
+  <img src="preview/v4/en/light/04-ledgers.png" alt="Ledgers" width="200" />
+</div>
+
+<details>
+<summary>More screens and dark mode</summary>
+
+<div align="center">
+  <img src="preview/v4/en/light/08-tags.png" alt="Colorful tags" width="200" />
+  <img src="preview/v4/en/light/10-categories.png" alt="Categories" width="200" />
+  <img src="preview/v4/en/light/11-personalization.png" alt="Themes" width="200" />
+</div>
+
+<div align="center">
+  <img src="preview/v4/en/light/12-search.png" alt="Search" width="200" />
+  <img src="preview/v4/en/light/09-cloud.png" alt="Cloud" width="200" />
+  <img src="preview/v4/en/light/07-mine.png" alt="Tools" width="200" />
+</div>
+
+<div align="center">
+  <img src="preview/v4/en/dark/01-home.png" alt="Transactions" width="200" />
+  <img src="preview/v4/en/dark/05-transaction.png" alt="Record" width="200" />
+  <img src="preview/v4/en/dark/02-analytics.png" alt="Insights" width="200" />
+</div>
+
+<div align="center">
+  <img src="preview/v4/en/dark/06-budgets.png" alt="Budgets" width="200" />
+  <img src="preview/v4/en/dark/03-accounts.png" alt="Accounts" width="200" />
+  <img src="preview/v4/en/dark/04-ledgers.png" alt="Ledgers" width="200" />
+</div>
+
+</details>
 
 ### Home Widgets
 
@@ -133,40 +213,6 @@ A lightweight, open-source, privacy-first **personal finance** and **expense tra
 
 <div align="center">
   <img src="demo/widgets/widgets-showcase-en.png" alt="Home widget lineup: overview / net assets / quick add / budget / recent transactions / dashboard / Spending Rhythm / Record Bee Trail" width="820" />
-</div>
-
-</details>
-
-<details>
-<summary>More screenshots (core features / dark mode)</summary>
-
-### 9 Core Themes
-
-<div align="center">
-  <img src="preview/store-en/01-home.png" alt="Home" width="200" />
-  <img src="preview/store-en/02-open-source.png" alt="Cloud Service" width="200" />
-  <img src="preview/store-en/03-analytics.png" alt="Analytics" width="200" />
-</div>
-
-<div align="center">
-  <img src="preview/store-en/04-ai.png" alt="AI Smart Logging" width="200" />
-  <img src="preview/store-en/05-add.png" alt="Quick Entry" width="200" />
-  <img src="preview/store-en/06-ledgers.png" alt="Multi-Ledger" width="200" />
-</div>
-
-<div align="center">
-  <img src="preview/store-en/07-tags.png" alt="Color Tags" width="200" />
-  <img src="preview/store-en/08-accounts.png" alt="Net Worth" width="200" />
-  <img src="preview/store-en/09-mine.png" alt="Settings" width="200" />
-</div>
-
-### Dark Mode
-
-<div align="center">
-  <img src="preview/dark/en/01-home.png" alt="Home dark" width="200" />
-  <img src="preview/dark/en/02-chart-analysis.png" alt="Charts dark" width="200" />
-  <img src="preview/dark/en/04-profile.png" alt="Profile dark" width="200" />
-  <img src="preview/dark/en/05-ai-chat.png" alt="AI chat dark" width="200" />
 </div>
 
 </details>

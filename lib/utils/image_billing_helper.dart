@@ -6,13 +6,14 @@ import '../ai/core/prompt_builder.dart';
 import '../ai/providers/ai_provider_config.dart';
 import '../ai/providers/ai_provider_manager.dart';
 import '../l10n/app_localizations.dart';
+import '../pages/shared/feedback/recording_progress_dialog.dart';
 import '../providers.dart';
 import '../providers/ai_chat_providers.dart';
 import '../services/ai/billing_image_service.dart';
 import '../services/attachment_service.dart';
 import '../services/billing/post_processor.dart';
 import '../services/data/tag_seed_service.dart';
-import '../widgets/ui/ui.dart';
+import 'package:beecount_ui/beecount_ui.dart';
 
 /// 图片记账入口(相册/相机)。瘦身后:UI 流程 + 兜底,业务调 [AiBookkeeper]。
 class ImageBillingHelper {
@@ -38,6 +39,16 @@ class ImageBillingHelper {
     final l10n = AppLocalizations.of(context);
     final imageService = BillingImageService();
     BillingImageFiles? images;
+    final saving = ValueNotifier(false);
+    NavigatorState? progressNavigator;
+    DialogRoute<void>? progressRoute;
+    void closeProgress() {
+      final route = progressRoute;
+      if (route != null && route.isActive && progressNavigator!.mounted) {
+        progressNavigator.removeRoute(route);
+      }
+      progressRoute = null;
+    }
 
     try {
       // 1. 选图
@@ -48,33 +59,11 @@ class ImageBillingHelper {
       if (imageFile == null) return;
       if (!context.mounted) return;
 
-      // 2. 显示 loading
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (_) => Center(
-          child: Card(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const CircularProgressIndicator(),
-                  const SizedBox(height: 16),
-                  Text(l10n.aiOcrRecognizing),
-                ],
-              ),
-            ),
-          ),
-        ),
-      );
-
       // 3. AI vision 兜底
       if (!await AIProviderManager.isCapabilityConfigured(
           AICapabilityType.vision)) {
         if (!context.mounted) return;
-        Navigator.of(context).pop();
-        showToast(context, l10n.aiNotConfiguredHint);
+        showBeeToast(context, l10n.aiNotConfiguredHint, tone: BeeTone.warning);
         return;
       }
 
@@ -82,10 +71,24 @@ class ImageBillingHelper {
       final currentLedger = await ref.read(currentLedgerProvider.future);
       if (currentLedger == null) {
         if (!context.mounted) return;
-        Navigator.of(context).pop();
-        showToast(context, l10n.aiOcrNoLedger);
+        showBeeToast(context, l10n.aiOcrNoLedger, tone: BeeTone.warning);
         return;
       }
+
+      if (!context.mounted) return;
+      progressNavigator = Navigator.of(context, rootNavigator: true);
+      progressRoute = DialogRoute<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => RecordingProgressDialog(
+          saving: saving,
+          sourceLabel: source == ImageSource.gallery
+              ? l10n.smartBillingImageBilling
+              : l10n.smartBillingCameraBilling,
+          ledgerName: currentLedger.name,
+        ),
+      );
+      progressNavigator.push(progressRoute!);
 
       // 5. 委托 AiBookkeeper(自动查 categories/accounts + 多笔保存)
       final autoAddAttachment = ref.read(smartBillingAutoAttachmentProvider);
@@ -106,6 +109,7 @@ class ImageBillingHelper {
         billGuard: PromptBuilder.billGuardForImage,
         billingTypes: billingTypes,
         l10n: l10n,
+        onSaving: () => saving.value = true,
         // 多笔时每笔都挂同一张原图,方便后续从任意一笔溯源
         onSaved: autoAddAttachment
             ? (txId, _) => attachmentService.saveAttachment(
@@ -117,13 +121,14 @@ class ImageBillingHelper {
       );
 
       if (!context.mounted) return;
-      Navigator.of(context).pop();
+      closeProgress();
 
       // 6. 提示用户
       if (!result.success) {
         // failedCount>0:提取到账单但入库失败(真·错误);否则=AI 判定不是账单/没提取到
-        showToast(context,
-            result.failedCount > 0 ? l10n.aiOcrCheckLog : l10n.aiOcrNoBill);
+        showBeeToast(context,
+            result.failedCount > 0 ? l10n.aiOcrCheckLog : l10n.aiOcrNoBill,
+            tone: BeeTone.warning);
         return;
       }
 
@@ -144,17 +149,22 @@ class ImageBillingHelper {
           ? '${l10n.aiOcrSuccess(typeText, amountStr)} × ${result.savedCount}'
           : l10n.aiOcrSuccess(typeText, amountStr);
       // 多币种降级提示(A5):缺汇率已按 1:1 暂记,指路统计页补折算
-      showToast(
-        context,
-        result.unconvertedCurrencies.isEmpty
-            ? toastText
-            : '$toastText\n${l10n.aiBillingRateMissingHint(result.unconvertedCurrencies.join('、'))}',
-      );
+      showBeeToast(
+          context,
+          result.unconvertedCurrencies.isEmpty
+              ? toastText
+              : '$toastText\n${l10n.aiBillingRateMissingHint(result.unconvertedCurrencies.join('、'))}',
+          tone: result.unconvertedCurrencies.isEmpty
+              ? BeeTone.success
+              : BeeTone.warning);
     } catch (e) {
       if (!context.mounted) return;
-      Navigator.of(context).popUntil((route) => route.isFirst);
-      showToast(context, l10n.aiOcrFailed(e.toString()));
+      closeProgress();
+      showBeeToast(context, l10n.aiOcrFailed(e.toString()),
+          tone: BeeTone.error);
     } finally {
+      closeProgress();
+      saving.dispose();
       await images?.dispose();
     }
   }

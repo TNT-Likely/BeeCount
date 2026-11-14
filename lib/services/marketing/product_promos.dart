@@ -4,9 +4,11 @@
 // 的页面都从这里取数据,避免 logoAsset / appStoreId / 邮箱地址 / 域名等关键
 // 字段在多处复制。新增产品 / 改 App ID / 调整域名,只改这一处。
 import 'package:flutter/material.dart';
+import 'package:beecount_business_ui/beecount_business_ui.dart'
+    show BeePromotionVisual;
 
 import '../../l10n/app_localizations.dart';
-import '../../widgets/biz/product_promo_card.dart';
+import '../../pages/settings/support/bindings/product_promo_actions.dart';
 
 /// 蜜蜂家当 BeeAssets — 资产可视化产品。
 ///
@@ -27,7 +29,8 @@ ProductPromo beeAssetsPromo(BuildContext context) {
     appStoreId: '6763686675',
     // iOS 已正式上架 App Store,TestFlight 公测通道已关闭,故不再提供 testFlightUrl
     //(仅 App Store 单一入口)。
-    googlePlayUrl: 'https://play.google.com/store/apps/details?id=com.tntlikely.beeassets',
+    googlePlayUrl:
+        'https://play.google.com/store/apps/details?id=com.tntlikely.beeassets',
     websiteUrl: 'https://assets.beejz.com',
     contactEmail: 'sunxiaoyes@outlook.com',
     screenshotAssets: [
@@ -42,6 +45,7 @@ ProductPromo beeDnsPromo(BuildContext context) {
   final l10n = AppLocalizations.of(context);
   return ProductPromo(
     logoAsset: 'assets/images/beedns_logo.png',
+    visual: BeePromotionVisual.network,
     title: l10n.aboutBeeDNS,
     subtitle: l10n.aboutBeeDNSSubtitle,
     introBody: l10n.aboutBeeDNSIntro,

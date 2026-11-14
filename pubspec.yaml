@@ -80,6 +80,10 @@ dependencies:
     path: packages/agentcore
   flutter_agent_ui:
     path: packages/flutter_agent_ui
+  beecount_ui:
+    path: packages/beecount_ui
+  beecount_business_ui:
+    path: packages/beecount_business_ui
   flutter_cloud_sync:
     path: packages/flutter_cloud_sync
   flutter_cloud_sync_supabase:
@@ -132,6 +136,7 @@ flutter:
   uses-material-design: true
   generate: true
   assets:
+    - assets/v4_gallery/
     - assets/logo.svg
     - assets/bee.svg
     - assets/logo2.png

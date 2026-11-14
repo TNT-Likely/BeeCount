@@ -1,0 +1,23 @@
+{
+  "source": "Actual HTML category editor at 100% font, no skin",
+  "geometry": [
+    {
+      "viewport": "398x844",
+      "width": 330,
+      "cellWidth": 50,
+      "cellHeight": 50,
+      "columns": 6,
+      "gap": 6,
+      "radius": 13
+    },
+    {
+      "viewport": "320x568",
+      "width": 252,
+      "cellWidth": 45.59375,
+      "cellHeight": 45.59375,
+      "columns": 5,
+      "gap": 6,
+      "radius": 13
+    }
+  ]
+}

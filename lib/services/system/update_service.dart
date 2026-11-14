@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'logger_service.dart';
-import '../../widgets/ui/ui.dart';
+import '../../pages/shared/dialogs/app_dialogs.dart';
 import '../../l10n/app_localizations.dart';
 
 // 导入分离的模块

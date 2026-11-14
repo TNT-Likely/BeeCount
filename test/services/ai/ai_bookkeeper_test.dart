@@ -182,6 +182,61 @@ void main() {
     });
   });
 
+  group('真实识别与保存阶段', () {
+    for (final voice in [false, true]) {
+      test('保存阶段通知不重复，回调异常不影响入库 voice=$voice', () async {
+        final bills = List.generate(
+            2,
+            (i) => BillInfo(
+                amount: -10,
+                time: DateTime(2026, 11, 13, 12),
+                category: '餐饮',
+                type: BillType.expense));
+        final engine = _FakeEngine(
+            bills: bills, audio: AudioExtractionResult(bills: bills));
+        final bookkeeper = AiBookkeeper(
+            repository: repo, engine: engine, persister: persister);
+        var count = 0;
+        void saving() {
+          count++;
+          // Presentation failures must never interrupt financial persistence.
+          throw StateError('synthetic detached UI');
+        }
+
+        if (voice) {
+          final response = await bookkeeper.fromAudio(
+              audio: File('synthetic.wav'),
+              ledgerId: ledgerId,
+              billingTypes: const ['voice'],
+              onSaving: saving);
+          expect(response.result.savedCount, 2);
+        } else {
+          final result = await bookkeeper.fromImage(
+              image: File('synthetic.png'),
+              ledgerId: ledgerId,
+              billingTypes: const ['image'],
+              onSaving: saving);
+          expect(result.savedCount, 2);
+        }
+        expect(count, 1);
+        expect(await db.select(db.transactions).get(), hasLength(2));
+      });
+    }
+    test('未识别到账单时不会展示保存阶段', () async {
+      final bookkeeper = AiBookkeeper(
+          repository: repo, engine: _FakeEngine(), persister: persister);
+      var saving = false;
+      final result = await bookkeeper.fromImage(
+          image: File('empty.png'),
+          ledgerId: ledgerId,
+          billingTypes: const ['image'],
+          onSaving: () => saving = true);
+      expect(saving, isFalse);
+      expect(result.savedCount, 0);
+      expect(await db.select(db.transactions).get(), isEmpty);
+    });
+  });
+
   group('AiBookkeeper.fromAudio', () {
     test('返回 recognizedText 给 UI 展示', () async {
       final engine = _FakeEngine(

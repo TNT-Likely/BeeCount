@@ -1,5 +1,5 @@
-import 'package:beecount/widgets/ai/agent_brand_mark.dart';
-import 'package:beecount/widgets/biz/bee_icon.dart';
+import 'package:beecount/pages/ai/chat/widgets/agent_brand_mark.dart';
+import 'package:beecount/pages/shared/branding/bee_artwork.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';

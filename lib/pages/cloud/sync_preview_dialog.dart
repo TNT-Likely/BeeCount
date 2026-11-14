@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:beecount_ui/beecount_ui.dart';
 import 'package:intl/intl.dart';
 
 import '../../cloud/sync_diff_service.dart';
@@ -69,86 +70,87 @@ class _SyncPreviewDialogState extends State<_SyncPreviewDialog> {
     final deletedChanges =
         changes.where((c) => c.type == SyncChangeType.deleted).toList();
 
-    return AlertDialog(
-      backgroundColor: BeeTokens.surface(context),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      title: Text(
-        l10n.syncPreviewTitle,
-        style: TextStyle(
-          color: BeeTokens.textPrimary(context),
-          fontSize: 18,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
+    return BeeDialog(
+      showClose: false,
+      title: Text(l10n.syncPreviewTitle),
       content: SizedBox(
         width: double.maxFinite,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 汇总行
-            _buildSummaryRow(context, addedChanges.length,
-                modifiedChanges.length, deletedChanges.length),
-            const SizedBox(height: 8),
-            // 全选/取消全选
-            InkWell(
-              onTap: _toggleAll,
-              child: Row(
-                children: [
-                  SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: Checkbox(
-                      value: allSelected,
-                      onChanged: (_) => _toggleAll(),
-                      activeColor: widget.primaryColor,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    allSelected
-                        ? l10n.syncPreviewDeselectAll
-                        : l10n.syncPreviewSelectAll,
-                    style: TextStyle(
-                      color: BeeTokens.textSecondary(context),
-                      fontSize: 13,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 8),
-            Divider(color: BeeTokens.divider(context), height: 1),
-            const SizedBox(height: 4),
-            // 变更列表
-            Flexible(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxHeight: 400),
-                child: ListView(
-                  shrinkWrap: true,
+        // BeeDialog owns the outer scroll; bound the flex list without forcing
+        // short previews to fill the available height.
+        child: ConstrainedBox(
+          constraints:
+              BoxConstraints(maxHeight: MediaQuery.sizeOf(context).height * .5),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 汇总行
+              _buildSummaryRow(context, addedChanges.length,
+                  modifiedChanges.length, deletedChanges.length),
+              const SizedBox(height: 8),
+              // 全选/取消全选
+              InkWell(
+                onTap: _toggleAll,
+                child: Row(
                   children: [
-                    if (addedChanges.isNotEmpty) ...[
-                      _buildSectionHeader(
-                          context, l10n.syncPreviewAdded, Colors.green),
-                      ...addedChanges.map((c) => _buildChangeItem(context, c)),
-                    ],
-                    if (modifiedChanges.isNotEmpty) ...[
-                      _buildSectionHeader(
-                          context, l10n.syncPreviewModified, Colors.blue),
-                      ...modifiedChanges
-                          .map((c) => _buildChangeItem(context, c)),
-                    ],
-                    if (deletedChanges.isNotEmpty) ...[
-                      _buildSectionHeader(
-                          context, l10n.syncPreviewDeleted, Colors.red),
-                      ...deletedChanges
-                          .map((c) => _buildChangeItem(context, c)),
-                    ],
+                    SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: Checkbox(
+                        value: allSelected,
+                        onChanged: (_) => _toggleAll(),
+                        activeColor: widget.primaryColor,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        allSelected
+                            ? l10n.syncPreviewDeselectAll
+                            : l10n.syncPreviewSelectAll,
+                        style: TextStyle(
+                          color: BeeTokens.textSecondary(context),
+                          fontSize: 13,
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
-            ),
-          ],
+              const SizedBox(height: 8),
+              Divider(color: BeeTokens.divider(context), height: 1),
+              const SizedBox(height: 4),
+              // 变更列表
+              Flexible(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxHeight: 400),
+                  child: ListView(
+                    shrinkWrap: true,
+                    children: [
+                      if (addedChanges.isNotEmpty) ...[
+                        _buildSectionHeader(
+                            context, l10n.syncPreviewAdded, Colors.green),
+                        ...addedChanges
+                            .map((c) => _buildChangeItem(context, c)),
+                      ],
+                      if (modifiedChanges.isNotEmpty) ...[
+                        _buildSectionHeader(
+                            context, l10n.syncPreviewModified, Colors.blue),
+                        ...modifiedChanges
+                            .map((c) => _buildChangeItem(context, c)),
+                      ],
+                      if (deletedChanges.isNotEmpty) ...[
+                        _buildSectionHeader(
+                            context, l10n.syncPreviewDeleted, Colors.red),
+                        ...deletedChanges
+                            .map((c) => _buildChangeItem(context, c)),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
       actions: [

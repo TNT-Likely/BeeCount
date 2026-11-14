@@ -1,0 +1,37 @@
+{
+  "source": "Frozen independent HTML route flow-tag-management, no skin; excludes browser phone frame",
+  "cases": [
+    {
+      "profile": {
+        "width": 398,
+        "height": 844,
+        "scale": 1,
+        "appearance": "light"
+      },
+      "geometry": {
+        "width": 175,
+        "height": 120,
+        "radius": 22,
+        "gap": 12,
+        "gridWidth": 362,
+        "nameFont": 14
+      }
+    },
+    {
+      "profile": {
+        "width": 320,
+        "height": 568,
+        "scale": 1.4,
+        "appearance": "dark"
+      },
+      "geometry": {
+        "width": 136,
+        "height": 136.796875,
+        "radius": 22,
+        "gap": 12,
+        "gridWidth": 284,
+        "nameFont": 19.6
+      }
+    }
+  ]
+}

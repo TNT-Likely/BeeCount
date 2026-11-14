@@ -54,11 +54,20 @@ class OrphanCleaner {
     if (dbRecords.isNotEmpty) {
       try {
         await db.transaction(() async {
-          for (final r in dbRecords) {
+          for (var index = 0; index < dbRecords.length; index++) {
+            final r = dbRecords[index];
+            final savepoint = 'orphan_cleanup_record_$index';
+            await db.customStatement('SAVEPOINT $savepoint');
             try {
               await _cleanDb(r);
+              await db.customStatement('RELEASE SAVEPOINT $savepoint');
               success++;
             } catch (e, st) {
+              // ABORT only rejects this record. If SQLite already rolled back
+              // the outer transaction, this fails and must escape the loop:
+              // continuing would execute later records outside the transaction.
+              await db.customStatement('ROLLBACK TO SAVEPOINT $savepoint');
+              await db.customStatement('RELEASE SAVEPOINT $savepoint');
               logger.warning('OrphanCleaner',
                   'DB record ${r.uniqueKey} 失败: $e', st);
               failures.add((record: r, error: e.toString()));

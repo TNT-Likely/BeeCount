@@ -1,5 +1,3 @@
-import 'dart:io' show Platform;
-
 import 'package:flutter/material.dart';
 
 import '../widget_spec.dart' show HWSize;
@@ -53,6 +51,9 @@ class GlanceView extends StatelessWidget {
   final double width;
   final double height;
 
+  /// App gallery only; normal headless callers keep their rendering typography.
+  final bool isolatePreviewTypography;
+
   const GlanceView.medium({
     super.key,
     required this.todayExpense,
@@ -71,6 +72,7 @@ class GlanceView extends StatelessWidget {
     required this.height,
     this.titleLabel = '收支速览',
     this.todayLabel = '今日',
+    this.isolatePreviewTypography = false,
   }) : size = HWSize.medium;
 
   const GlanceView.small({
@@ -91,6 +93,7 @@ class GlanceView extends StatelessWidget {
     this.titleLabel = '',
     this.monthSuffix = '',
     this.todayIncomeLabel = '',
+    this.isolatePreviewTypography = false,
   }) : size = HWSize.small;
 
   Color get _expenseColor => widgetExpenseColor(redForIncome);
@@ -98,7 +101,13 @@ class GlanceView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return size == HWSize.small ? _buildSmall() : _buildMedium();
+    final view = size == HWSize.small ? _buildSmall() : _buildMedium();
+    if (!isolatePreviewTypography) return view;
+    // Match the standalone headless defaults without inheriting App line height.
+    return DefaultTextStyle(
+      style: const TextStyle(),
+      child: view,
+    );
   }
 
   // -------------------------------------------------------------------
@@ -221,8 +230,10 @@ class GlanceView extends StatelessWidget {
   Widget _buildMedium() {
     // iOS systemMedium 与 Android 2:1 网格宽高比不同,外层透明容器撑到
     // width×height,内容始终按 364×169 画并垂直居中(D2 back-compat)。
-    final isAndroid = Platform.isAndroid;
-    final verticalPadding = isAndroid ? (182 - 169) / 2 : 0.0;
+    // The gallery uses 169px on both platforms; only the actual 182px desktop
+    // canvas has the 13px gutter. Host-platform padding would shrink a 169px
+    // Android preview's content to 156px and overflow all four amount cells.
+    final verticalPadding = height > 169 ? (height - 169) / 2 : 0.0;
     final textSecondary = widgetTextSecondary(dark);
 
     return Container(

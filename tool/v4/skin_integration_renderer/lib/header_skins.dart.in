@@ -1,0 +1,106 @@
+// Original 3.9.0 parts are extracted byte-for-byte. Composition alone is new.
+import 'dart:math' as math;
+import 'dart:ui' as ui;
+import 'package:flutter/material.dart';
+part 'header_skins/skin_common.dart';
+part 'header_skins/anniversary_skin.dart';
+part 'header_skins/anniv_cake_skin.dart';
+part 'header_skins/mountains_skin.dart';
+@@ORIGINAL_HSL_HELPERS@@
+
+class IntegrationPainter extends CustomPainter {
+  IntegrationPainter(this.skin,this.dark,this.page,this.anim,this.layout):super(repaint:anim);
+  final String skin,page;
+  final bool dark;
+  final Animation<double> anim;
+  final Map<String,dynamic> layout;
+  static const gold=Color(0xFFF8C91C);
+  double number(Object? n,double fallback)=>n is num&&n.isFinite?n.toDouble():fallback;
+  @override void paint(Canvas canvas,Size actual){
+    if(actual.isEmpty)return;
+    final zoom=actual.width/398,t=anim.value;
+    final a=layout['anchor'],mark=layout['inscription'];
+    final anchor=a is List&&a.length==2?Offset(number(a[0],actual.width*.8)/zoom,number(a[1],208)/zoom):const Offset(312,208);
+    final end=number(layout['fadeEnd'],340)/zoom,scene=Size(398,end),h=number(layout['constellationHeight'],88)/zoom;
+    canvas.save();canvas.scale(zoom);
+    // Keep every financial glyph and header action clear. None of these clips
+    // participate in HTML layout or introduce a scene placeholder.
+    final protected=Path()..addRect(Rect.fromLTWH(-100,-100,598,actual.height/zoom+200));
+    final holes=Path()..addRect(const Rect.fromLTWH(0,0,398,36));
+    final rects=layout['clearRects'];
+    if(rects is List){for(final r in rects){if(r is List&&r.length==4){holes.addRect(Rect.fromLTWH(number(r[0],0)/zoom,number(r[1],0)/zoom,number(r[2],0)/zoom,number(r[3],0)/zoom));}}}
+    canvas.clipPath(Path.combine(PathOperation.difference,protected,holes));
+    if(skin=='anniversary'){
+      // Restore the exact original day/night branch and bound honey primary.
+      // Day is white starlight over honey gold, not a recoloured night scene.
+      final p=_ConstellationPainter(gold,dark,anim,0);
+      canvas.saveLayer(Rect.fromLTWH(0,0,398,end+20),Paint());
+      p._paintBaseGlow(canvas,scene,anchor);p._paintMilkyWay(canvas,scene,t);p._paintNebulae(canvas,scene,t);p._paintStardust(canvas,scene,t);
+      canvas.save();
+      final moon=Offset((page=='mine'?actual.width*.62:actual.width*.84)/zoom,(page=='mine'?90:108)/zoom);
+      canvas.translate(moon.dx-398*.13,moon.dy-208*.17);p._paintMoon(canvas,const Size(398,208),t);canvas.restore();
+      p._paintCrossStars(canvas,scene,t);p._paintShootingStars(canvas,scene,t);
+      fadeBackdrop(canvas,end);canvas.restore();
+      final scale=(h/144).clamp(.5,1.0);
+      p._paintConstellation(canvas,anchor,h,scale,t);
+      p._paintBee(canvas,scene,anchor,h,scale,t);
+      p._paintBee(canvas,scene,anchor,h,scale*.62,t,lag:.055,alphaFactor:.72);
+      inscription(canvas,p._inscription,mark,zoom);
+    }else if(skin=='anniv_cake'){
+      final p=_AnnivCakePainter(dark,anim,0);const original=Size(398,208);
+      canvas.saveLayer(Rect.fromLTWH(0,0,398,end+20),Paint());
+      _paintRadialGlow(canvas,scene,anchor,208,_kCakeFlame,dark ? 0.5 : 0.25);
+      canvas.save();canvas.translate(0,80/zoom);p._paintRibbons(canvas,original,t,1);p._paintSprinkles(canvas,Size(398,end-32/zoom),t);canvas.restore();
+      fadeBackdrop(canvas,end);canvas.restore();
+      final size=page=='mine' ? 0.82 : 0.78;
+      canvas.save();canvas.translate(anchor.dx,anchor.dy);canvas.scale(size);canvas.translate(-_ax(original,246),-_ay(original,150));p._paintCake(canvas,original,t,1);canvas.restore();
+      inscription(canvas,p._mark,mark,zoom);
+    }else{
+      final top=60/zoom;
+      canvas.saveLayer(Rect.fromLTWH(0,0,398,end+20),Paint());
+      canvas.save();canvas.translate(0,top);
+      // The source shape ends exactly where the alpha reaches zero, so there
+      // is no horizontal opaque edge left at the mountain geometry boundary.
+      _MountainsPainter(const Color(0xFF88A66C),dark).paint(canvas,Size(398,end-top));
+      canvas.restore();fadeBackdrop(canvas,end);canvas.restore();
+    }
+    canvas.restore();
+  }
+  void fadeBackdrop(Canvas c,double end){
+    c.drawRect(const Rect.fromLTWH(-100,-100,598,2200),Paint()
+      ..shader=const LinearGradient(begin:Alignment.topCenter,end:Alignment.bottomCenter,
+        colors:[Colors.transparent,Colors.white,Colors.white,Colors.transparent],stops:[0,.14,.52,1]).createShader(Rect.fromLTWH(0,0,398,end))
+      ..blendMode=BlendMode.dstIn);
+  }
+  void inscription(Canvas c,Color color,Object? mark,double zoom){
+    final x=mark is List&&mark.length==2?number(mark[0],150)/zoom:150.0;
+    final y=mark is List&&mark.length==2?number(mark[1],76)/zoom:76.0;
+    // Keep the original two-line mark readable at the same CSS size on 320/398.
+    final scale=.82/zoom;
+    c.save();c.translate(x-199*scale,y-22*scale);c.scale(scale);
+    _paintAnnivInscription(c,const Size(398,208),color,0);c.restore();
+  }
+  @override bool shouldRepaint(covariant IntegrationPainter old)=>old.skin!=skin||old.dark!=dark||old.page!=page||old.layout!=layout;
+}
+
+// Read-only proof of the exact original TextPainter layout used by the mark.
+Map<String,dynamic> originalInscriptionGeometry(Map<String,dynamic> layout){
+  final at=layout['inscription'];
+  final x=at is List&&at.length==2&&(at[0]is num)?(at[0]as num).toDouble():150.0;
+  final y=at is List&&at.length==2&&(at[1]is num)?(at[1]as num).toDouble():36.5;
+  final (title,sub)=_AnnivInscription.of(const Color(0xFFF8C91C));
+  const scale=.82;
+  return {'titleText':'1st ANNIVERSARY','subtitleText':'SINCE 2025.9.10',
+    'titleRect':[x,y,title.width*scale,title.height*scale],
+    'subtitleRect':[x,y+12*scale,sub.width*scale,sub.height*scale],
+    'crossRect':[x-12.4*scale,y+1.6*scale,6.8*scale,6.8*scale],
+    'cssScale':scale,'cssFontSizes':[7.8*scale,6.1*scale]};
+}
+
+Map<String,dynamic> originalStarPalette(bool dark){
+  final p=_ConstellationPainter(const Color(0xFFF8C91C),dark,const AlwaysStoppedAnimation<double>(.62),0);
+  String hex(Color c)=>'#'+c.value.toRadixString(16).padLeft(8,'0').toUpperCase();
+  return {'boundPrimary':'#FFF8C91C','isDark':dark,'foreground':hex(p._fg),
+    'moonMeteorCrossStars':hex(p._warm),'inscription':hex(p._inscription),
+    'milkyWayAlpha':p._milkyWayAlpha};
+}

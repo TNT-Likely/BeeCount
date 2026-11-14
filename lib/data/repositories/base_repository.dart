@@ -10,6 +10,7 @@ import 'tag_repository.dart';
 import 'budget_repository.dart';
 import 'attachment_repository.dart';
 import 'exchange_rate_repository.dart';
+import '../../models/home_transaction_preview.dart';
 
 /// 基础 Repository 抽象类
 /// 组合所有 Repository 接口，用于类型约束
@@ -32,6 +33,13 @@ abstract class BaseRepository
         BudgetRepository,
         AttachmentRepository,
         ExchangeRateRepository {
+  /// Read a small, complete first screen and its full-day totals in one snapshot.
+  /// The ordering must be the exact prefix of transactionsWithCategoryAll.
+  Future<HomeTransactionPreview> getHomeTransactionPreview({
+    required int ledgerId,
+    int limit = 20,
+  });
+
   /// 将账户当前余额校准到目标值。该操作需要同时更新账户基线、交易和同步
   /// 变更，属于聚合 Repository 的用例，不由账户子 Repository 单独实现。
   Future<AccountBalanceUpdateResult> setAccountBalance({

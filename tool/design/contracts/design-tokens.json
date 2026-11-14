@@ -1,0 +1,241 @@
+{
+  "version": "card-refresh-v7",
+  "status": "设计提案，未替换 App 的 BeeTokens",
+  "theme": {
+    "default": "#f8c91c",
+    "presets": [
+      {
+        "name": "蜜蜂黄",
+        "value": "#f8c91c"
+      },
+      {
+        "name": "火焰橙",
+        "value": "#ff7043"
+      },
+      {
+        "name": "琉璃绿",
+        "value": "#26a69a"
+      },
+      {
+        "name": "青莲紫",
+        "value": "#7e57c2"
+      },
+      {
+        "name": "樱绯红",
+        "value": "#e91e63"
+      },
+      {
+        "name": "晴空蓝",
+        "value": "#2196f3"
+      },
+      {
+        "name": "林间月",
+        "value": "#80cbc4"
+      },
+      {
+        "name": "黄昏沙丘",
+        "value": "#ffcc80"
+      },
+      {
+        "name": "雪与松",
+        "value": "#b39ddb"
+      },
+      {
+        "name": "迷雾仙境",
+        "value": "#90caf9"
+      },
+      {
+        "name": "暖阳橘",
+        "value": "#ff8a65"
+      },
+      {
+        "name": "薄荷青",
+        "value": "#4db6ac"
+      },
+      {
+        "name": "玫瑰金",
+        "value": "#ad7a99"
+      },
+      {
+        "name": "深海蓝",
+        "value": "#1565c0"
+      },
+      {
+        "name": "枫叶红",
+        "value": "#d32f2f"
+      },
+      {
+        "name": "翡翠绿",
+        "value": "#388e3c"
+      },
+      {
+        "name": "薰衣草",
+        "value": "#9575cd"
+      },
+      {
+        "name": "琥珀黄",
+        "value": "#ffa726"
+      },
+      {
+        "name": "胭脂红",
+        "value": "#c2185b"
+      },
+      {
+        "name": "靛青蓝",
+        "value": "#3f51b5"
+      },
+      {
+        "name": "橄榄绿",
+        "value": "#689f38"
+      },
+      {
+        "name": "珊瑚粉",
+        "value": "#ff8a80"
+      },
+      {
+        "name": "墨绿色",
+        "value": "#2e7d32"
+      },
+      {
+        "name": "紫罗兰",
+        "value": "#673ab7"
+      },
+      {
+        "name": "日落橙",
+        "value": "#ff5722"
+      },
+      {
+        "name": "孔雀蓝",
+        "value": "#00acc1"
+      },
+      {
+        "name": "柠檬绿",
+        "value": "#cddc39"
+      }
+    ]
+  },
+  "color": {
+    "light": {
+      "background": "#f5f6f7",
+      "surface": "#ffffff",
+      "surfaceSecondary": "#f3f4f5",
+      "text": "#25282c",
+      "textSecondary": "#777c82",
+      "divider": "#eceeef",
+      "expense": "#25856d",
+      "income": "#bd5d50"
+    },
+    "dark": {
+      "background": "#111214",
+      "surface": "#18191b",
+      "surfaceSecondary": "#242629",
+      "text": "#f0f1ed",
+      "textSecondary": "#a4a6a9",
+      "divider": "#303236",
+      "expense": "#79c8ad",
+      "income": "#e49a8d"
+    }
+  },
+  "radius": {
+    "card": 22,
+    "control": 13,
+    "primary": 15,
+    "icon": 14,
+    "sheet": 25
+  },
+  "spacing": [
+    4,
+    6,
+    8,
+    12,
+    16,
+    20,
+    24,
+    32
+  ],
+  "typography": {
+    "page": 24,
+    "onboarding": 25,
+    "section": 16,
+    "body": 14,
+    "form": 13,
+    "caption": 12,
+    "annotation": 11,
+    "amount": 37
+  },
+  "dimensions": {
+    "phoneWidth": 398,
+    "phoneHeight": 844,
+    "contentPadding": 17,
+    "minTouch": 44,
+    "wheelRow": 44,
+    "wheelWindow": 220
+  },
+  "motion": {
+    "longPress": 480,
+    "hover": 150,
+    "reduceMotion": "尊重系统减少动画设置"
+  },
+  "skins": [
+    {
+      "id": "anniversary",
+      "name": "一岁星座",
+      "accent": "#f8c91c"
+    },
+    {
+      "id": "anniv_cake",
+      "name": "周年蛋糕",
+      "accent": "#ff7a45"
+    }
+  ],
+  "responsive": {
+    "compactSafeHeight": 720,
+    "referenceViewports": [
+      [
+        375,
+        667
+      ],
+      [
+        320,
+        568
+      ]
+    ],
+    "textScales": [
+      1,
+      1.4
+    ],
+    "minKeyTouch": 44,
+    "childRows": 2,
+    "childViewport": 92,
+    "narrowChildColumns": 2,
+    "amount": "short-screen pinned compact card",
+    "category": "remaining-height scroll",
+    "metadata": "fixed quick action bar",
+    "nativeFigma": "compact supplement not synced yet"
+  },
+  "feedback": {
+    "toast": {
+      "safeTop": 12,
+      "side": 20,
+      "maxWidth": 340,
+      "minHeight": 44,
+      "radius": 14,
+      "padding": [
+        12,
+        14
+      ],
+      "icon": 20,
+      "gap": 8,
+      "font": 13,
+      "lineHeight": 1.5,
+      "durationMs": 2000,
+      "replacePrevious": true
+    },
+    "status": {
+      "font": 13,
+      "detail": 11,
+      "persistentAction": true
+    },
+    "figma": "local supplement; not synced online"
+  }
+}

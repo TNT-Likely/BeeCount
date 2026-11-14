@@ -13,12 +13,23 @@ import '../../../models/note_history.dart';
 import '../transaction_repository.dart';
 import '../../../services/system/logger_service.dart';
 
+typedef _TransactionRow = ({
+  Transaction t,
+  Category? category,
+  Account? account,
+  Account? toAccount
+});
+
 /// 本地交易Repository实现
 /// 基于 Drift 数据库实现
 class LocalTransactionRepository implements TransactionRepository {
   final BeeDatabase db;
 
   LocalTransactionRepository(this.db);
+
+  // Only active all-list subscribers share a complete snapshot. Entries are
+  // evicted when their last listener leaves; no persistent per-ledger cache.
+  final _allTransactionWatches = <int?, _AllTransactionWatch>{};
 
   @override
   Stream<List<Transaction>> watchRecentTransactions({
@@ -98,15 +109,91 @@ class LocalTransactionRepository implements TransactionRepository {
           })>> watchTransactionsWithCategoryAll({
     int? ledgerId,
   }) {
-    final select = db.select(db.transactions);
-    if (ledgerId != null) {
-      select.where((t) => t.ledgerId.equals(ledgerId));
+    return Stream<List<_TransactionRow>>.multi((listener) {
+      final watch = _allTransactionWatches.putIfAbsent(
+          ledgerId,
+          () => _AllTransactionWatch(
+                db,
+                (isCurrent) => _readAllTransactionSnapshot(ledgerId, isCurrent),
+                (watch) {
+                  if (identical(_allTransactionWatches[ledgerId], watch)) {
+                    _allTransactionWatches.remove(ledgerId);
+                  }
+                },
+              ));
+      watch.attach(listener);
+    }, isBroadcast: true);
+  }
+
+  /// Read the transactions and all referenced resources in one SQLite snapshot.
+  /// A full JOIN repeats 11 category + 17*2 account columns for every row.
+  /// Here each referenced entity is transported/mapped once, including hidden
+  /// and historical accounts. Keep the original transaction ordering verbatim.
+  Future<List<_TransactionRow>> _readAllTransactionSnapshot(
+      int? ledgerId, bool Function() isCurrent) {
+    void checkCurrent() {
+      if (!isCurrent()) throw const _AllTransactionReadCancelled();
     }
-    select.orderBy([
-      (t) => d.OrderingTerm(expression: t.happenedAt, mode: d.OrderingMode.desc)
-    ]);
-    final q = select.join(_txJoins());
-    return _watchTxJoinWithSharedHydration(q);
+
+    return db.transaction(() async {
+      checkCurrent();
+      final select = db.select(db.transactions);
+      if (ledgerId != null) {
+        select.where((t) => t.ledgerId.equals(ledgerId));
+      }
+      select.orderBy([
+        (t) =>
+            d.OrderingTerm(expression: t.happenedAt, mode: d.OrderingMode.desc)
+      ]);
+      final transactions = await select.get();
+      checkCurrent();
+      final categoryIds = <int>{};
+      final accountIds = <int>{};
+      for (final t in transactions) {
+        if (t.categoryId != null) categoryIds.add(t.categoryId!);
+        if (t.accountId != null) accountIds.add(t.accountId!);
+        if (t.toAccountId != null) accountIds.add(t.toAccountId!);
+      }
+      final categories = <int, Category>{};
+      final accounts = <int, Account>{};
+      const batchSize = 400;
+      final categoryKeys = categoryIds.toList(growable: false);
+      for (var start = 0; start < categoryKeys.length; start += batchSize) {
+        checkCurrent();
+        final end = (start + batchSize).clamp(0, categoryKeys.length);
+        final rows = await (db.select(db.categories)
+              ..where((c) => c.id.isIn(categoryKeys.sublist(start, end))))
+            .get();
+        for (final row in rows) {
+          categories[row.id] = row;
+        }
+      }
+      final accountKeys = accountIds.toList(growable: false);
+      for (var start = 0; start < accountKeys.length; start += batchSize) {
+        checkCurrent();
+        final end = (start + batchSize).clamp(0, accountKeys.length);
+        final rows = await (db.select(db.accounts)
+              ..where((a) => a.id.isIn(accountKeys.sublist(start, end))))
+            .get();
+        for (final row in rows) {
+          accounts[row.id] = row;
+        }
+      }
+      checkCurrent();
+      final rows = transactions
+          .map((t) => (
+                t: t,
+                category: categories[t.categoryId],
+                account: accounts[t.accountId],
+                toAccount: accounts[t.toAccountId],
+              ))
+          .toList();
+      // Preserve the exact existing local-ID-first / shared fallback semantics.
+      // This helper's reads must remain inside the same read transaction.
+      final hydrated = await _hydrateSharedOverrides(rows);
+      checkCurrent();
+      return hydrated;
+    });
   }
 
   /// §7 共享账本:把 Drift 主表 stream 跟 SharedLedger* 表更新合流,任一
@@ -964,6 +1051,11 @@ class LocalTransactionRepository implements TransactionRepository {
     String? toAccountSyncIdOverride,
     bool writeAccountSyncIdOverride = false,
     bool writeToAccountSyncIdOverride = false,
+    int? categoryId,
+    String? categorySyncIdOverride,
+    bool writeCategory = false,
+    String? note,
+    bool writeNote = false,
   }) async {
     // accountId / toAccountId 接受 null(absent / 不更新)、int(直接写)、
     // `d.Value<int?>`(显式 null 清空)三种语义,跟 updateTransaction 对齐。
@@ -985,6 +1077,12 @@ class LocalTransactionRepository implements TransactionRepository {
     }
     await (db.update(db.transactions)..where((t) => t.id.equals(id))).write(
       TransactionsCompanion(
+        categoryId:
+            writeCategory ? d.Value(categoryId) : const d.Value.absent(),
+        categorySyncIdOverride: writeCategory
+            ? d.Value(categorySyncIdOverride)
+            : const d.Value.absent(),
+        note: writeNote ? d.Value(note) : const d.Value.absent(),
         accountId: accountIdValue,
         toAccountId: toAccountIdValue,
         // override 写入只在调用方明确要求时才动(否则保留 Drift 老值),
@@ -1094,8 +1192,8 @@ class LocalTransactionRepository implements TransactionRepository {
     for (final row in results) {
       final date = row.read<String?>('date');
       if (date == null) continue; // 跳过null日期
-      final income = row.read<double>('income') ?? 0.0;
-      final expense = row.read<double>('expense') ?? 0.0;
+      final income = row.read<double>('income');
+      final expense = row.read<double>('expense');
       map[date] = (income, expense);
     }
 
@@ -1264,7 +1362,9 @@ class LocalTransactionRepository implements TransactionRepository {
       final list = await (db.select(db.sharedLedgerCategories)
             ..where((t) => t.syncId.isIn(catSyncIds.toList())))
           .get();
-      for (final s in list) sharedCatBySyncId[s.syncId] = s;
+      for (final s in list) {
+        sharedCatBySyncId[s.syncId] = s;
+      }
     }
 
     // 批量查共享账户
@@ -1273,7 +1373,9 @@ class LocalTransactionRepository implements TransactionRepository {
       final list = await (db.select(db.sharedLedgerAccounts)
             ..where((t) => t.syncId.isIn(accSyncIds.toList())))
           .get();
-      for (final s in list) sharedAccBySyncId[s.syncId] = s;
+      for (final s in list) {
+        sharedAccBySyncId[s.syncId] = s;
+      }
     }
 
     // 批量查 tag overrides + shared tags
@@ -1293,7 +1395,9 @@ class LocalTransactionRepository implements TransactionRepository {
         final sharedTags = await (db.select(db.sharedLedgerTags)
               ..where((t) => t.syncId.isIn(tagSids)))
             .get();
-        for (final s in sharedTags) sharedTagBySyncId[s.syncId] = s;
+        for (final s in sharedTags) {
+          sharedTagBySyncId[s.syncId] = s;
+        }
       }
     }
 
@@ -1606,5 +1710,113 @@ class LocalTransactionRepository implements TransactionRepository {
           .go();
       return deleted;
     });
+  }
+}
+
+class _AllTransactionReadCancelled implements Exception {
+  const _AllTransactionReadCancelled();
+}
+
+/// Per-active-scope replay with one read in flight. A plain broadcast stream
+/// would strand a late `.first` listener. Each listener receives its own List,
+/// while the immutable transaction/resource objects can safely be shared.
+class _AllTransactionWatch {
+  _AllTransactionWatch(this.db, this.read, this.onUnused);
+
+  final BeeDatabase db;
+  final Future<List<_TransactionRow>> Function(bool Function()) read;
+  final void Function(_AllTransactionWatch) onUnused;
+  final _listeners = <MultiStreamController<List<_TransactionRow>>>{};
+  StreamSubscription? _updates;
+  List<_TransactionRow>? _last;
+  bool _running = false, _dirty = false, _disposed = false;
+  int _revision = 0;
+
+  void attach(MultiStreamController<List<_TransactionRow>> listener) {
+    _listeners.add(listener);
+    listener.onCancel = () {
+      _listeners.remove(listener);
+      if (_listeners.isEmpty) _dispose();
+    };
+    if (_updates == null) {
+      // Create the update stream outside the read transaction. Drift closes
+      // streams created in a transaction when that transaction ends.
+      _updates = db
+          .tableUpdates(d.TableUpdateQuery.onAllTables({
+            db.transactions,
+            db.categories,
+            db.accounts,
+            db.sharedLedgerCategories,
+            db.sharedLedgerAccounts,
+          }))
+          .listen((_) => _invalidate(), onError: _error, onDone: _dispose);
+      _invalidate();
+    } else if (_last != null) {
+      // tableUpdates intentionally dispatches asynchronously. Let already
+      // queued commit notifications invalidate the cache before late replay.
+      final revision = _revision;
+      unawaited(Future<void>(() {
+        if (!_disposed &&
+            _listeners.contains(listener) &&
+            revision == _revision &&
+            _last != null) {
+          listener.add(List.of(_last!));
+        }
+      }));
+    } else if (!_running) {
+      _invalidate();
+    }
+  }
+
+  void _invalidate() {
+    if (_disposed) return;
+    _revision++;
+    _last = null;
+    _dirty = true;
+    if (!_running) unawaited(_pump());
+  }
+
+  Future<void> _pump() async {
+    _running = true;
+    try {
+      while (!_disposed && _dirty) {
+        _dirty = false;
+        final revision = _revision;
+        try {
+          final rows = await read(() => !_disposed);
+          if (_disposed) return;
+          if (revision != _revision) continue;
+          _last = rows;
+          for (final listener in List.of(_listeners)) {
+            listener.add(List.of(rows));
+          }
+        } catch (error, stack) {
+          if (_disposed) return;
+          if (revision == _revision) _error(error, stack);
+        }
+      }
+    } finally {
+      _running = false;
+    }
+  }
+
+  void _error(Object error, StackTrace stack) {
+    if (_disposed) return;
+    for (final listener in List.of(_listeners)) {
+      listener.addError(error, stack);
+    }
+  }
+
+  void _dispose() {
+    if (_disposed) return;
+    _disposed = true;
+    _last = null;
+    final updates = _updates;
+    if (updates != null) unawaited(updates.cancel());
+    for (final listener in List.of(_listeners)) {
+      listener.close();
+    }
+    _listeners.clear();
+    onUnused(this);
   }
 }

@@ -1,0 +1,38 @@
+{
+  "source": "Independent Chromium layout: flow-tag-foreign-detail, unskinned/yellow/light/100%",
+  "glyphMetricHeightTolerancePx": 3,
+  "cases": [
+    {
+      "route": "flow-tag-foreign-detail",
+      "profile": {
+        "width": 398,
+        "height": 844,
+        "scale": 1,
+        "appearance": "light"
+      },
+      "geometry": {
+        "width": 362,
+        "height": 249.84375,
+        "padding": 20,
+        "amountFont": 33,
+        "prefixFont": 19
+      }
+    },
+    {
+      "route": "flow-tag-foreign-detail",
+      "profile": {
+        "width": 320,
+        "height": 568,
+        "scale": 1,
+        "appearance": "light"
+      },
+      "geometry": {
+        "width": 284,
+        "height": 233.046875,
+        "padding": 16,
+        "amountFont": 29,
+        "prefixFont": 19
+      }
+    }
+  ]
+}

@@ -1,0 +1,321 @@
+[
+  {
+    "id": "focus-fx-tags",
+    "label": "外币＋3标签＋附件＋时间",
+    "title": "咖啡",
+    "note": "一杯拿铁",
+    "kind": "expense",
+    "amount": "−US$12.00",
+    "converted": "≈ ¥85.20",
+    "icon": "Coffee",
+    "accountName": "美元现金",
+    "happenedAt": "2026-10-20T12:34:56",
+    "showTime": true,
+    "tags": [
+      "工作日",
+      "旅行",
+      "待报销"
+    ],
+    "attachments": 2,
+    "source": "C3 approved 1b631c7f — fixed synthetic design example"
+  },
+  {
+    "id": "focus-everything",
+    "label": "外币＋长备注＋长标签＋两个统计标记",
+    "title": "差旅餐费",
+    "note": "与项目伙伴一起吃的工作晚餐，先垫付后报销",
+    "kind": "expense",
+    "amount": "−US$68.00",
+    "converted": "≈ ¥482.80",
+    "icon": "Utensils",
+    "accountName": "出差专用美元账户（尾号8899）",
+    "happenedAt": "2026-10-20T19:26:40",
+    "showTime": true,
+    "tags": [
+      "工作日",
+      "旅行",
+      "待报销",
+      "与朋友一起",
+      "一个很长的自定义标签名称",
+      "年度计划内"
+    ],
+    "status": [
+      "不计收支",
+      "不计预算"
+    ],
+    "attachments": 3,
+    "source": "C3 approved 1b631c7f — fixed synthetic design example"
+  },
+  {
+    "id": "focus-huge",
+    "label": "大额外币＋多个标签，金额完整显示",
+    "title": "办公设备",
+    "note": "一次性采购",
+    "kind": "expense",
+    "amount": "−US$1,234,567,890.12",
+    "converted": "≈ ¥8,765,432,019.85",
+    "icon": "ShoppingBasket",
+    "accountName": "美元银行账户",
+    "happenedAt": "2026-10-20T16:12:00",
+    "showTime": true,
+    "tags": [
+      "设备采购",
+      "待报销",
+      "年度预算"
+    ],
+    "source": "C3 approved 1b631c7f — fixed synthetic design example"
+  },
+  {
+    "id": "focus-custom",
+    "label": "自定义图片＋完整日期＋长标签",
+    "title": "奶茶",
+    "note": "下午的奖励",
+    "kind": "expense",
+    "amount": "−18.00",
+    "icon": "Coffee",
+    "custom": true,
+    "accountName": "微信",
+    "happenedAt": "2026-10-20T15:20:00",
+    "showTime": true,
+    "showFullDate": true,
+    "tags": [
+      "下午茶",
+      "一个很长的自定义标签名称",
+      "工作日"
+    ],
+    "source": "C3 approved 1b631c7f — fixed synthetic design example",
+    "image": "assets/v4_gallery/category-milk-tea.png"
+  },
+  {
+    "title": "差旅餐饮与住宿",
+    "note": "与项目伙伴一起垫付的差旅费用，已经保留付款凭证，回去统一报销",
+    "kind": "expense",
+    "amount": "−US$68.00",
+    "converted": "≈ ¥482.80",
+    "icon": "Utensils",
+    "accountName": "出差专用美元账户（尾号8899）",
+    "ledgerName": "一个很长的家庭共享账本名称",
+    "happenedAt": "2026-10-20T19:26:40",
+    "showTime": true,
+    "showFullDate": true,
+    "tags": [
+      "工作日",
+      "旅行",
+      "待报销",
+      "与朋友一起",
+      "一个很长的自定义标签名称",
+      "年度计划内"
+    ],
+    "status": [
+      "不计收支",
+      "不计预算"
+    ],
+    "attachments": 9,
+    "id": "cross-all",
+    "label": "全部字段：长备注／账本／排除标记／附件／标签／完整日期",
+    "source": "C3 approved 1b631c7f — fixed synthetic design example"
+  },
+  {
+    "title": "差旅餐饮与住宿",
+    "note": "与项目伙伴一起垫付的差旅费用，已经保留付款凭证，回去统一报销",
+    "kind": "expense",
+    "amount": "−US$1,234,567,890.12",
+    "converted": "≈ ¥8,765,432,019.85",
+    "icon": "Utensils",
+    "accountName": "出差专用美元账户（尾号8899）",
+    "ledgerName": "一个很长的家庭共享账本名称",
+    "happenedAt": "2026-10-20T19:26:40",
+    "showTime": true,
+    "showFullDate": true,
+    "tags": [
+      "工作日",
+      "旅行",
+      "待报销",
+      "与朋友一起",
+      "一个很长的自定义标签名称",
+      "年度计划内"
+    ],
+    "status": [
+      "不计收支",
+      "不计预算"
+    ],
+    "attachments": 9,
+    "id": "cross-big-all",
+    "label": "长原币＋长折算＋所有字段",
+    "source": "C3 approved 1b631c7f — fixed synthetic design example"
+  },
+  {
+    "title": "差旅餐饮与住宿",
+    "note": "与项目伙伴一起垫付的差旅费用，已经保留付款凭证，回去统一报销",
+    "kind": "expense",
+    "amount": "−US$12.00",
+    "converted": "≈ ¥8,765,432,019.85",
+    "icon": "Utensils",
+    "accountName": "出差专用美元账户（尾号8899）",
+    "ledgerName": "一个很长的家庭共享账本名称",
+    "happenedAt": "2026-10-20T19:26:40",
+    "showTime": true,
+    "showFullDate": true,
+    "tags": [
+      "工作日",
+      "旅行",
+      "待报销",
+      "与朋友一起",
+      "一个很长的自定义标签名称",
+      "年度计划内"
+    ],
+    "status": [
+      "不计收支",
+      "不计预算"
+    ],
+    "attachments": 9,
+    "id": "cross-big-conversion",
+    "label": "短原币＋长折算＋所有元信息",
+    "source": "C3 approved 1b631c7f — fixed synthetic design example"
+  },
+  {
+    "title": "历史账户转账",
+    "note": "与项目伙伴一起垫付的差旅费用，已经保留付款凭证，回去统一报销",
+    "kind": "transfer",
+    "amount": "US$1,234,567,890.12",
+    "converted": "≈ ¥8,765,432,019.85",
+    "icon": "Wallet",
+    "accountName": "历史美元账户（尾号8899） → 历史人民币账户（尾号1234）",
+    "ledgerName": "一个很长的家庭共享账本名称",
+    "happenedAt": "2026-10-20T19:26:40",
+    "showTime": true,
+    "showFullDate": true,
+    "tags": [
+      "工作日",
+      "旅行",
+      "待报销",
+      "与朋友一起",
+      "一个很长的自定义标签名称",
+      "年度计划内"
+    ],
+    "status": [
+      "不计收支",
+      "不计预算"
+    ],
+    "attachments": 9,
+    "id": "cross-transfer",
+    "label": "历史转账：长账户对＋全部元信息",
+    "source": "C3 approved 1b631c7f — fixed synthetic design example"
+  },
+  {
+    "title": "差旅餐饮与住宿",
+    "note": "与项目伙伴一起垫付的差旅费用，已经保留付款凭证，回去统一报销",
+    "kind": "expense",
+    "amount": "−US$1,234,567,890.12",
+    "converted": "≈ ¥8,765,432,019.85",
+    "icon": "Utensils",
+    "accountName": "出差专用美元账户（尾号8899）",
+    "ledgerName": "一个很长的家庭共享账本名称",
+    "happenedAt": "2026-10-20T19:26:40",
+    "showTime": true,
+    "showFullDate": true,
+    "tags": [
+      "工作日",
+      "旅行",
+      "待报销",
+      "与朋友一起",
+      "一个很长的自定义标签名称",
+      "年度计划内"
+    ],
+    "status": [
+      "不计收支",
+      "不计预算"
+    ],
+    "attachments": 9,
+    "id": "cross-readonly-batch",
+    "label": "只读＋批量＋所有字段，选择与编辑均禁用",
+    "readOnly": true,
+    "selected": false,
+    "source": "C3 approved 1b631c7f — fixed synthetic design example"
+  },
+  {
+    "title": "差旅餐饮与住宿",
+    "note": "与项目伙伴一起垫付的差旅费用，已经保留付款凭证，回去统一报销",
+    "kind": "expense",
+    "amount": "−US$1,234,567,890.12",
+    "converted": "≈ ¥8,765,432,019.85",
+    "icon": "Utensils",
+    "accountName": "出差专用美元账户（尾号8899）",
+    "ledgerName": "一个很长的家庭共享账本名称",
+    "happenedAt": "2026-10-20T19:26:40",
+    "showTime": true,
+    "showFullDate": true,
+    "tags": [
+      "工作日",
+      "旅行",
+      "待报销",
+      "与朋友一起",
+      "一个很长的自定义标签名称",
+      "年度计划内"
+    ],
+    "status": [
+      "不计收支",
+      "不计预算"
+    ],
+    "attachments": 9,
+    "id": "cross-hidden",
+    "label": "隐藏金额：所有元信息、标签与完整日期仍保留",
+    "hidden": true,
+    "source": "C3 approved 1b631c7f — fixed synthetic design example"
+  },
+  {
+    "title": "差旅餐饮与住宿",
+    "note": "与项目伙伴一起垫付的差旅费用，已经保留付款凭证，回去统一报销",
+    "kind": "expense",
+    "amount": "−US$1,234,567,890.12",
+    "converted": "≈ ¥8,765,432,019.85",
+    "icon": "Utensils",
+    "accountName": null,
+    "ledgerName": "一个很长的家庭共享账本名称",
+    "happenedAt": "2026-10-20T19:26:40",
+    "showTime": true,
+    "showFullDate": true,
+    "tags": [
+      "工作日",
+      "旅行",
+      "待报销",
+      "与朋友一起",
+      "一个很长的自定义标签名称",
+      "年度计划内"
+    ],
+    "status": [
+      "不计收支",
+      "不计预算"
+    ],
+    "attachments": 9,
+    "id": "cross-note-first",
+    "label": "备注优先＋大额＋缺失账户",
+    "noteFirst": true,
+    "categoryLabel": "差旅餐饮与住宿",
+    "source": "C3 approved 1b631c7f — fixed synthetic design example"
+  },
+  {
+    "title": "差旅餐饮与住宿",
+    "note": "与项目伙伴一起垫付的差旅费用，已经保留付款凭证，回去统一报销",
+    "kind": "expense",
+    "amount": "−12,345,678.90",
+    "converted": null,
+    "icon": "Utensils",
+    "accountName": "出差专用美元账户（尾号8899）",
+    "ledgerName": "一个很长的家庭共享账本名称",
+    "happenedAt": "2026-10-20T00:00:00",
+    "showTime": true,
+    "showFullDate": true,
+    "tags": [
+      "一个很长的自定义标签名称"
+    ],
+    "status": [
+      "不计收支",
+      "不计预算"
+    ],
+    "attachments": 9,
+    "id": "cross-midnight",
+    "label": "完整日期零点＋全部元信息＋单个长标签",
+    "source": "C3 approved 1b631c7f — fixed synthetic design example"
+  }
+]

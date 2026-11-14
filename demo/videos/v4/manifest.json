@@ -1,0 +1,483 @@
+{
+  "schema_version": 3,
+  "kind": "workflow-recordings",
+  "app_sha": "d5c85b871592ad93d6a34acbe0b10a19a3f06cc4",
+  "capture_source_sha256": {
+    "integration_test/app_screenshots_test.dart": "091dd9c86131d65cee9fe57862cd11059cf1b333318d4f83fbff20e3de733542",
+    "test_driver/app_screenshots_test.dart": "a6aac38724eb0db26c2c2df1d0a3e9eac765a1ec2da5f17c8a0bdb34a396be9b",
+    "lib/pages/main/analytics/widgets/analytics_trend.dart": "58035caf8d017cec6df0f960397311feceb69e79ac2b17ff887f8b3fba288459"
+  },
+  "generated_at": "2026-11-13",
+  "workflows_per_group": 6,
+  "test_pointer_overlay": false,
+  "notes": "Production UI and live text/vision models. iOS images selected through the real system photo picker with a 3.5-second preview pause; Android image and CSV fixtures use source adapters. Saved rows and original receipt attachments asserted. No overlay touch indicators. Shared showcase recorded on iOS.",
+  "files": [
+    {
+      "path": "zh/light/01-add-transaction.gif",
+      "bytes": 747744,
+      "sha256": "3650e9b77be27280afd4dfe402706eb366c5910e5910cb3c89a67e4cfac7e4e3",
+      "duration_seconds": 10.33,
+      "language": "zh",
+      "appearance": "light",
+      "workflow": "01-add-transaction"
+    },
+    {
+      "path": "zh/light/01-add-transaction-poster.jpg",
+      "bytes": 98647,
+      "sha256": "09c347293826c9d24f05c0a65b734e90f5770997c3f7eb61ea58986e227117cd",
+      "duration_seconds": null,
+      "language": "zh",
+      "appearance": "light",
+      "workflow": "01-add-transaction"
+    },
+    {
+      "path": "zh/light/03-ai-photo-recognition.gif",
+      "bytes": 2128922,
+      "sha256": "e10914c782b7e9c63827070bcdde472728ce31ab3052c29a9cf025a694263294",
+      "duration_seconds": 34.64,
+      "language": "zh",
+      "appearance": "light",
+      "workflow": "03-ai-photo-recognition"
+    },
+    {
+      "path": "zh/light/03-ai-photo-recognition-poster.jpg",
+      "bytes": 98386,
+      "sha256": "f64b55cb3f85d6c76ffd2db15b6cb2f7fee77806c9d532314c1e191892cabd6d",
+      "duration_seconds": null,
+      "language": "zh",
+      "appearance": "light",
+      "workflow": "03-ai-photo-recognition"
+    },
+    {
+      "path": "zh/light/04-data-analysis.gif",
+      "bytes": 468820,
+      "sha256": "27a483d980d8d04d8e9d3209bca851728561552964024958cbc8f5903e7b0aa8",
+      "duration_seconds": 9.31,
+      "language": "zh",
+      "appearance": "light",
+      "workflow": "04-data-analysis"
+    },
+    {
+      "path": "zh/light/04-data-analysis-poster.jpg",
+      "bytes": 98895,
+      "sha256": "9e31d8f730b5d53288684e179ad1fe3b9c422fb900705054ad90664e6e0ee8e6",
+      "duration_seconds": null,
+      "language": "zh",
+      "appearance": "light",
+      "workflow": "04-data-analysis"
+    },
+    {
+      "path": "zh/light/05-copy-transaction.gif",
+      "bytes": 738196,
+      "sha256": "4b3601d18414f4f1a180151d0c1783acf02f500372bbf497f3c33b309838bb37",
+      "duration_seconds": 12.57,
+      "language": "zh",
+      "appearance": "light",
+      "workflow": "05-copy-transaction"
+    },
+    {
+      "path": "zh/light/05-copy-transaction-poster.jpg",
+      "bytes": 99102,
+      "sha256": "7ab2e056f76a955cf18ea46bb19787384aad91cc22d3cb738823976658a0638d",
+      "duration_seconds": null,
+      "language": "zh",
+      "appearance": "light",
+      "workflow": "05-copy-transaction"
+    },
+    {
+      "path": "zh/light/02-ai-chat.gif",
+      "bytes": 766463,
+      "sha256": "15314f7bad1c62e43289712b910a7a35ab92b2e0a48627adae6f49922e5e7bc3",
+      "duration_seconds": 26.67,
+      "language": "zh",
+      "appearance": "light",
+      "workflow": "02-ai-chat"
+    },
+    {
+      "path": "zh/light/02-ai-chat-poster.jpg",
+      "bytes": 99796,
+      "sha256": "473242336dcf16749bd3b6b069b0673867f8a38825976ca5ef6db6002f66464d",
+      "duration_seconds": null,
+      "language": "zh",
+      "appearance": "light",
+      "workflow": "02-ai-chat"
+    },
+    {
+      "path": "zh/light/06-import-ledger.gif",
+      "bytes": 650298,
+      "sha256": "dc6619cd99cb8d0b54f63a24c3ab3b7f960fa250fbce415cc84dc9562dd5d3cb",
+      "duration_seconds": 9.24,
+      "language": "zh",
+      "appearance": "light",
+      "workflow": "06-import-ledger"
+    },
+    {
+      "path": "zh/light/06-import-ledger-poster.jpg",
+      "bytes": 99802,
+      "sha256": "7fa1309286b3ca01ee1c636df1c065bad940faa0a83323a71514c9adcd667eb9",
+      "duration_seconds": null,
+      "language": "zh",
+      "appearance": "light",
+      "workflow": "06-import-ledger"
+    },
+    {
+      "path": "zh/dark/01-add-transaction.gif",
+      "bytes": 891190,
+      "sha256": "c8c5be0bc24c61bdd0e0a6ba118013dd782f776922b74f976b9b54963840137f",
+      "duration_seconds": 9.79,
+      "language": "zh",
+      "appearance": "dark",
+      "workflow": "01-add-transaction"
+    },
+    {
+      "path": "zh/dark/01-add-transaction-poster.jpg",
+      "bytes": 97327,
+      "sha256": "d7b7642ebdf37f4509c41f138053aaa299fa1d753382106051159cbe28f7936c",
+      "duration_seconds": null,
+      "language": "zh",
+      "appearance": "dark",
+      "workflow": "01-add-transaction"
+    },
+    {
+      "path": "zh/dark/03-ai-photo-recognition.gif",
+      "bytes": 1922114,
+      "sha256": "a56f71378299e0544f0454b2763c60cdb2c9b7b1db054cc56fa7f9c00f2cc732",
+      "duration_seconds": 25.95,
+      "language": "zh",
+      "appearance": "dark",
+      "workflow": "03-ai-photo-recognition"
+    },
+    {
+      "path": "zh/dark/03-ai-photo-recognition-poster.jpg",
+      "bytes": 96560,
+      "sha256": "a9961c6e0195fe058aa9a1fe6ec6dbddc6c463c4d140a5cf3d7cc6301da8ca76",
+      "duration_seconds": null,
+      "language": "zh",
+      "appearance": "dark",
+      "workflow": "03-ai-photo-recognition"
+    },
+    {
+      "path": "zh/dark/04-data-analysis.gif",
+      "bytes": 482447,
+      "sha256": "ba93930246f8a79c23fdfd24d7388bdd0b339b630f407b6dc7908633cb4d1f44",
+      "duration_seconds": 9.32,
+      "language": "zh",
+      "appearance": "dark",
+      "workflow": "04-data-analysis"
+    },
+    {
+      "path": "zh/dark/04-data-analysis-poster.jpg",
+      "bytes": 97788,
+      "sha256": "9f7ff48488d18603c99caea74d3b424f7f390959cce0a5aab23646e4e56c0074",
+      "duration_seconds": null,
+      "language": "zh",
+      "appearance": "dark",
+      "workflow": "04-data-analysis"
+    },
+    {
+      "path": "zh/dark/05-copy-transaction.gif",
+      "bytes": 839786,
+      "sha256": "de2e52ec0bd4a58f1350a1a055d3187cf369a4d4c83b553d32b73ad4c3f3112d",
+      "duration_seconds": 12.34,
+      "language": "zh",
+      "appearance": "dark",
+      "workflow": "05-copy-transaction"
+    },
+    {
+      "path": "zh/dark/05-copy-transaction-poster.jpg",
+      "bytes": 98347,
+      "sha256": "b11371197209387e95c5d020259a886490cec68f14e45914ccf3fef2546441dd",
+      "duration_seconds": null,
+      "language": "zh",
+      "appearance": "dark",
+      "workflow": "05-copy-transaction"
+    },
+    {
+      "path": "zh/dark/02-ai-chat.gif",
+      "bytes": 1369234,
+      "sha256": "766cd811070ce36e60fc7b297f6b60b04cb9439d5a449b7f71a8aab95736bc7e",
+      "duration_seconds": 37.83,
+      "language": "zh",
+      "appearance": "dark",
+      "workflow": "02-ai-chat"
+    },
+    {
+      "path": "zh/dark/02-ai-chat-poster.jpg",
+      "bytes": 95593,
+      "sha256": "66f6736cef25544becdfdef15cc12808a1defc10ae0584ec0389e6d8cfd3974e",
+      "duration_seconds": null,
+      "language": "zh",
+      "appearance": "dark",
+      "workflow": "02-ai-chat"
+    },
+    {
+      "path": "zh/dark/06-import-ledger.gif",
+      "bytes": 693862,
+      "sha256": "4371d2da1569a38824490be7d3a405ef38181186b7f6470488e428d2b9cf20b0",
+      "duration_seconds": 9.33,
+      "language": "zh",
+      "appearance": "dark",
+      "workflow": "06-import-ledger"
+    },
+    {
+      "path": "zh/dark/06-import-ledger-poster.jpg",
+      "bytes": 95739,
+      "sha256": "de6cb3bde8d0b485c2dff1fc922eb7bdc2b045516d80a1c24dd7e8bc5d9a547e",
+      "duration_seconds": null,
+      "language": "zh",
+      "appearance": "dark",
+      "workflow": "06-import-ledger"
+    },
+    {
+      "path": "en/light/01-add-transaction.gif",
+      "bytes": 484805,
+      "sha256": "f399ed822fffe15d30a02fb9257185e45c6779c07c28e0c10e7471707108a4ab",
+      "duration_seconds": 11.66,
+      "language": "en",
+      "appearance": "light",
+      "workflow": "01-add-transaction"
+    },
+    {
+      "path": "en/light/01-add-transaction-poster.jpg",
+      "bytes": 105941,
+      "sha256": "b6970311e67e62bb27002dc976dc720e02ee29f90088b5c66fcb9840f17f8a5c",
+      "duration_seconds": null,
+      "language": "en",
+      "appearance": "light",
+      "workflow": "01-add-transaction"
+    },
+    {
+      "path": "en/light/03-ai-photo-recognition.gif",
+      "bytes": 1821203,
+      "sha256": "beb35c71eef4ab048cea6113e6fcf74b75bedc95bed8e5ec1c8442ede2c73cd5",
+      "duration_seconds": 26.96,
+      "language": "en",
+      "appearance": "light",
+      "workflow": "03-ai-photo-recognition"
+    },
+    {
+      "path": "en/light/03-ai-photo-recognition-poster.jpg",
+      "bytes": 107219,
+      "sha256": "1d90742518ecaca01abf1b86ae28dc42133d46cafb7f3402be4107864d23c8db",
+      "duration_seconds": null,
+      "language": "en",
+      "appearance": "light",
+      "workflow": "03-ai-photo-recognition"
+    },
+    {
+      "path": "en/light/04-data-analysis.gif",
+      "bytes": 498677,
+      "sha256": "e810ebd3dbfa4d8059280f34a8c9ef58e4f9f083db820570894094b045a167dc",
+      "duration_seconds": 9.33,
+      "language": "en",
+      "appearance": "light",
+      "workflow": "04-data-analysis"
+    },
+    {
+      "path": "en/light/04-data-analysis-poster.jpg",
+      "bytes": 104577,
+      "sha256": "3ad799f632f10a1810a826f26cffe0730c06e4c32a46d972222f1f042b1d2bbb",
+      "duration_seconds": null,
+      "language": "en",
+      "appearance": "light",
+      "workflow": "04-data-analysis"
+    },
+    {
+      "path": "en/light/05-copy-transaction.gif",
+      "bytes": 833706,
+      "sha256": "a587e87bda501c544393f95c2a6aa4abcfe5dbe21b076ffa524147598b4de04e",
+      "duration_seconds": 15.38,
+      "language": "en",
+      "appearance": "light",
+      "workflow": "05-copy-transaction"
+    },
+    {
+      "path": "en/light/05-copy-transaction-poster.jpg",
+      "bytes": 105020,
+      "sha256": "253d016eae022988b7e629c5766246c32b85ae16635ce90f483d5ba38e1ffaeb",
+      "duration_seconds": null,
+      "language": "en",
+      "appearance": "light",
+      "workflow": "05-copy-transaction"
+    },
+    {
+      "path": "en/light/02-ai-chat.gif",
+      "bytes": 863197,
+      "sha256": "ddd9d46a622c9d650226484962475076396f24aa806fad02993af0f5e7620fa0",
+      "duration_seconds": 24.82,
+      "language": "en",
+      "appearance": "light",
+      "workflow": "02-ai-chat"
+    },
+    {
+      "path": "en/light/02-ai-chat-poster.jpg",
+      "bytes": 108802,
+      "sha256": "6731dd165463068a931282addca343770ff2eba19760d4bbec3826fd827b4b0f",
+      "duration_seconds": null,
+      "language": "en",
+      "appearance": "light",
+      "workflow": "02-ai-chat"
+    },
+    {
+      "path": "en/light/06-import-ledger.gif",
+      "bytes": 739201,
+      "sha256": "f4d7509c14c369d6d06a8acb1ba25b863fa61a8cd5f56aa8c25940ec55c36931",
+      "duration_seconds": 8.96,
+      "language": "en",
+      "appearance": "light",
+      "workflow": "06-import-ledger"
+    },
+    {
+      "path": "en/light/06-import-ledger-poster.jpg",
+      "bytes": 108790,
+      "sha256": "8541223c2d5c44f8bdcb5d2153b2f49446ac05197277569de6fefb58c6f0ab43",
+      "duration_seconds": null,
+      "language": "en",
+      "appearance": "light",
+      "workflow": "06-import-ledger"
+    },
+    {
+      "path": "en/dark/01-add-transaction.gif",
+      "bytes": 858709,
+      "sha256": "345a1c3842e0744ae381ce7adee7b673f4715a9568d19722d0b78e47d56c2120",
+      "duration_seconds": 11.57,
+      "language": "en",
+      "appearance": "dark",
+      "workflow": "01-add-transaction"
+    },
+    {
+      "path": "en/dark/01-add-transaction-poster.jpg",
+      "bytes": 105102,
+      "sha256": "6c4097aee10ed98e2058fa5d287217da6a2342ed88b405758159c8e58bb294b5",
+      "duration_seconds": null,
+      "language": "en",
+      "appearance": "dark",
+      "workflow": "01-add-transaction"
+    },
+    {
+      "path": "en/dark/03-ai-photo-recognition.gif",
+      "bytes": 2096581,
+      "sha256": "12e9824df54b8cbd60ddecd105727d92017b4ddeb22afb42cfe0acde3d8f2fc8",
+      "duration_seconds": 22.58,
+      "language": "en",
+      "appearance": "dark",
+      "workflow": "03-ai-photo-recognition"
+    },
+    {
+      "path": "en/dark/03-ai-photo-recognition-poster.jpg",
+      "bytes": 104778,
+      "sha256": "002d06c5e2119c8e4e16365d5587bd0dafcba90b62aa93d4ea13f256db23411e",
+      "duration_seconds": null,
+      "language": "en",
+      "appearance": "dark",
+      "workflow": "03-ai-photo-recognition"
+    },
+    {
+      "path": "en/dark/04-data-analysis.gif",
+      "bytes": 515993,
+      "sha256": "d3a58e7e30dff5187bcb27b22d8c6946e3ae6cbc22b1631c8674ef22ae6915dc",
+      "duration_seconds": 9.31,
+      "language": "en",
+      "appearance": "dark",
+      "workflow": "04-data-analysis"
+    },
+    {
+      "path": "en/dark/04-data-analysis-poster.jpg",
+      "bytes": 102622,
+      "sha256": "06cc0f4fd36caec60cd2b5e13994029ac49631f1193373f446c27a694a69bd86",
+      "duration_seconds": null,
+      "language": "en",
+      "appearance": "dark",
+      "workflow": "04-data-analysis"
+    },
+    {
+      "path": "en/dark/05-copy-transaction.gif",
+      "bytes": 881683,
+      "sha256": "22886fe367463d23ef75d41b26ca04aa398c59244b135024bbd2ef0200edd192",
+      "duration_seconds": 15.4,
+      "language": "en",
+      "appearance": "dark",
+      "workflow": "05-copy-transaction"
+    },
+    {
+      "path": "en/dark/05-copy-transaction-poster.jpg",
+      "bytes": 102556,
+      "sha256": "25593828e0f7568096f85cf56aba8e2443e507116492ac1399cf0b54e3c18154",
+      "duration_seconds": null,
+      "language": "en",
+      "appearance": "dark",
+      "workflow": "05-copy-transaction"
+    },
+    {
+      "path": "en/dark/02-ai-chat.gif",
+      "bytes": 1349322,
+      "sha256": "719bdb3b104c63644b8aa8d317d14f3d9f87e1adce8f3668470a42147891c2a6",
+      "duration_seconds": 27.03,
+      "language": "en",
+      "appearance": "dark",
+      "workflow": "02-ai-chat"
+    },
+    {
+      "path": "en/dark/02-ai-chat-poster.jpg",
+      "bytes": 106040,
+      "sha256": "e77fc9d856df0a6677e227862b4c77b92ad97d8aa1fb4f4d8ac1d98820eba30b",
+      "duration_seconds": null,
+      "language": "en",
+      "appearance": "dark",
+      "workflow": "02-ai-chat"
+    },
+    {
+      "path": "en/dark/06-import-ledger.gif",
+      "bytes": 751856,
+      "sha256": "1a5944dba0e46e5f9c56a1bc3d8bece9318b696aa9903371ae09b4ed547867d3",
+      "duration_seconds": 8.97,
+      "language": "en",
+      "appearance": "dark",
+      "workflow": "06-import-ledger"
+    },
+    {
+      "path": "en/dark/06-import-ledger-poster.jpg",
+      "bytes": 106364,
+      "sha256": "4b485b0024368971ec74554af030659c5a973fedb92c970cc13b5a0693047dcd",
+      "duration_seconds": null,
+      "language": "en",
+      "appearance": "dark",
+      "workflow": "06-import-ledger"
+    },
+    {
+      "path": "zh/light/07-ios-shortcut.gif",
+      "bytes": 2745976,
+      "sha256": "82697085ba8862898a747e62e9104514a13fd2083fc6b43cb49011e0532bfe0b",
+      "duration_seconds": 29.08,
+      "language": "zh",
+      "appearance": "light",
+      "platform": "ios",
+      "workflow": "07-ios-shortcut"
+    },
+    {
+      "path": "zh/light/07-ios-shortcut-poster.jpg",
+      "bytes": 74545,
+      "sha256": "8bd9f2497a1b42fb7138d6d37e54608d88ee69044c49b81960af818088a31c1d",
+      "duration_seconds": null,
+      "language": "zh",
+      "appearance": "light",
+      "platform": "ios",
+      "workflow": "07-ios-shortcut"
+    }
+  ],
+  "additional_workflows": {
+    "07-ios-shortcut": {
+      "locale": "zh",
+      "appearance": "light",
+      "trigger": "Manual native Shortcuts tile",
+      "normal_app_entry": true,
+      "physical_back_tap": false,
+      "expense_sum_verified": 28
+    }
+  },
+  "video_sources": {
+    "repository": "TNT-Likely/BeeCount-Website",
+    "path": "static/img/demos/v4",
+    "note": "MP4 originals are maintained with the website. App repository previews use GIFs and stills."
+  }
+}

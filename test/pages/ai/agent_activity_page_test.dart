@@ -36,6 +36,10 @@ void main() {
 
   testWidgets('shows local run and tool history for the selected ledger',
       (tester) async {
+    addTearDown(() async {
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pump();
+    });
     await tester.pumpWidget(
       ProviderScope(
         overrides: [

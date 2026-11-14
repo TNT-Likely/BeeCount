@@ -1,0 +1,23 @@
+// Only this public adapter is new. Every part below is extracted byte-for-byte
+// from official 3.9.0 by build_original_skin_renderer.py, with checked hashes.
+import 'dart:math' as math;
+import 'dart:ui' as ui;
+import 'package:flutter/material.dart';
+part 'header_skins/skin_common.dart';
+part 'header_skins/anniversary_skin.dart';
+part 'header_skins/anniv_cake_skin.dart';
+
+@@ORIGINAL_HSL_HELPERS@@
+
+const originalStarPrimary = Color(0xFFF8C91C);
+const originalCakePrimary = Color(0xFFFF7A45);
+Color originalPrimary(String id) =>
+    id == 'anniv_cake' ? originalCakePrimary : originalStarPrimary;
+Widget originalSkin(String id, bool dark, bool tab) {
+  if (id == 'anniv_cake') {
+    return tab ? _AnnivCakeTabDeco(dark) : _AnnivCakeSkin(dark);
+  }
+  return tab
+      ? _AnniversaryTabDeco(originalStarPrimary, dark)
+      : _AnniversarySkin(originalStarPrimary, dark);
+}

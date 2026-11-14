@@ -8,7 +8,7 @@ import '../data/repositories/base_repository.dart';
 import '../l10n/app_localizations.dart';
 import '../services/system/logger_service.dart';
 import '../utils/currencies.dart' show getCurrencySymbol;
-import '../widgets/biz/format_money.dart' show formatMoneyCompact;
+import '../utils/format_money.dart' show formatMoneyCompact;
 import 'views/budget_view.dart';
 import 'views/bee_trail_view.dart';
 import 'views/consumption_rhythm_view.dart';

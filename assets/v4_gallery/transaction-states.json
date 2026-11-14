@@ -1,0 +1,614 @@
+[
+  {
+    "id": "time-only",
+    "label": "仅时间：开启时间，精确到秒",
+    "title": "午餐",
+    "kind": "expense",
+    "amount": "−32.00",
+    "icon": "Utensils",
+    "group": "time",
+    "happenedAt": "2026-10-20T12:34:56",
+    "showTime": true,
+    "source": "transaction_list_item.dart:86–220；transaction_list.dart / search_page.dart / category_detail_page.dart / calendar_page.dart"
+  },
+  {
+    "id": "time-minute",
+    "label": "整分钟：保留秒位 12:34:00",
+    "title": "午餐",
+    "kind": "expense",
+    "amount": "−32.00",
+    "icon": "Utensils",
+    "group": "time",
+    "happenedAt": "2026-10-20T12:34:00",
+    "showTime": true,
+    "source": "transaction_list_item.dart:86–220；transaction_list.dart / search_page.dart / category_detail_page.dart / calendar_page.dart"
+  },
+  {
+    "id": "time-seconds-only",
+    "label": "凌晨仅秒非零：仍展示 00:00:07",
+    "title": "午餐",
+    "kind": "expense",
+    "amount": "−32.00",
+    "icon": "Utensils",
+    "group": "time",
+    "happenedAt": "2026-10-20T00:00:07",
+    "showTime": true,
+    "source": "transaction_list_item.dart:86–220；transaction_list.dart / search_page.dart / category_detail_page.dart / calendar_page.dart"
+  },
+  {
+    "id": "time-account",
+    "label": "时间 + 账户，使用中点分隔",
+    "title": "午餐",
+    "kind": "expense",
+    "amount": "−32.00",
+    "icon": "Utensils",
+    "group": "time",
+    "happenedAt": "2026-10-20T12:34:56",
+    "showTime": true,
+    "source": "transaction_list_item.dart:86–220；transaction_list.dart / search_page.dart / category_detail_page.dart / calendar_page.dart",
+    "accountName": "微信"
+  },
+  {
+    "id": "time-all-secondary",
+    "label": "时间 + 长账户 + 附件 + 两个统计标记",
+    "title": "午餐",
+    "kind": "expense",
+    "amount": "−32.00",
+    "icon": "Utensils",
+    "group": "time",
+    "happenedAt": "2026-10-20T12:34:56",
+    "showTime": true,
+    "source": "transaction_list_item.dart:86–220；transaction_list.dart / search_page.dart / category_detail_page.dart / calendar_page.dart",
+    "accountName": "日常消费银行卡（尾号 1234）",
+    "attachments": 3,
+    "status": [
+      "不计收支",
+      "不计预算"
+    ],
+    "note": "工作日午餐",
+    "tags": [
+      "工作日",
+      "旅行"
+    ]
+  },
+  {
+    "id": "time-transfer",
+    "label": "转账：时间与转出 → 转入账户",
+    "title": "账户转账",
+    "kind": "transfer",
+    "amount": "1,000.00",
+    "icon": "Wallet",
+    "group": "time",
+    "happenedAt": "2026-10-20T12:34:56",
+    "showTime": true,
+    "source": "transaction_list_item.dart:86–220；transaction_list.dart / search_page.dart / category_detail_page.dart / calendar_page.dart",
+    "accountName": "银行卡 → 微信"
+  },
+  {
+    "id": "time-foreign",
+    "label": "外币：时间、账户、折算、多标签与附件同显",
+    "title": "咖啡",
+    "kind": "expense",
+    "amount": "−US$12.00",
+    "icon": "Coffee",
+    "group": "time",
+    "happenedAt": "2026-10-20T12:34:56",
+    "showTime": true,
+    "source": "transaction_list_item.dart:86–220；transaction_list.dart / search_page.dart / category_detail_page.dart / calendar_page.dart",
+    "converted": "≈ ¥85.20",
+    "accountName": "美元现金",
+    "tags": [
+      "工作日",
+      "旅行",
+      "报销"
+    ],
+    "attachments": 2
+  },
+  {
+    "id": "full-date-midnight",
+    "label": "完整日期模式：零点也展示日期与 00:00",
+    "title": "午餐",
+    "kind": "expense",
+    "amount": "−32.00",
+    "icon": "Utensils",
+    "group": "time",
+    "happenedAt": "2026-10-20T00:00:00",
+    "showTime": false,
+    "source": "transaction_list_item.dart:86–220；transaction_list.dart / search_page.dart / category_detail_page.dart / calendar_page.dart",
+    "showFullDate": true
+  },
+  {
+    "id": "time-missing-date",
+    "label": "没有交易时间：不编造时间，保留账户",
+    "title": "午餐",
+    "kind": "expense",
+    "amount": "−32.00",
+    "icon": "Utensils",
+    "group": "time",
+    "happenedAt": null,
+    "showTime": true,
+    "source": "transaction_list_item.dart:86–220；transaction_list.dart / search_page.dart / category_detail_page.dart / calendar_page.dart",
+    "accountName": "现金"
+  },
+  {
+    "id": "time-ledger",
+    "label": "分类 / 标签详情：时间 + 全部账本标记",
+    "title": "午餐",
+    "kind": "expense",
+    "amount": "−32.00",
+    "icon": "Utensils",
+    "group": "time",
+    "happenedAt": "2026-10-20T12:34:56",
+    "showTime": true,
+    "source": "transaction_list_item.dart:86–220；transaction_list.dart / search_page.dart / category_detail_page.dart / calendar_page.dart",
+    "ledgerName": "家庭账本"
+  },
+  {
+    "id": "time-batch",
+    "label": "搜索批量选中：完整日期保留，图标变为勾选",
+    "title": "午餐",
+    "kind": "expense",
+    "amount": "−32.00",
+    "icon": "Utensils",
+    "group": "time",
+    "happenedAt": "2026-10-20T12:34:56",
+    "showTime": false,
+    "source": "transaction_list_item.dart:86–220；transaction_list.dart / search_page.dart / category_detail_page.dart / calendar_page.dart",
+    "showFullDate": true,
+    "selected": true
+  },
+  {
+    "id": "time-hidden",
+    "label": "隐私：金额与折算隐藏，时间继续显示",
+    "title": "午餐",
+    "kind": "expense",
+    "amount": "−US$12.00",
+    "icon": "Utensils",
+    "group": "time",
+    "happenedAt": "2026-10-20T12:34:56",
+    "showTime": true,
+    "source": "transaction_list_item.dart:86–220；transaction_list.dart / search_page.dart / category_detail_page.dart / calendar_page.dart",
+    "converted": "≈ ¥85.20",
+    "hidden": true,
+    "accountName": "美元现金"
+  },
+  {
+    "id": "time-readonly",
+    "label": "只读：时间保留，编辑删除禁用",
+    "title": "午餐",
+    "kind": "expense",
+    "amount": "−32.00",
+    "icon": "Utensils",
+    "group": "time",
+    "happenedAt": "2026-10-20T12:34:56",
+    "showTime": true,
+    "source": "transaction_list_item.dart:86–220；transaction_list.dart / search_page.dart / category_detail_page.dart / calendar_page.dart",
+    "readOnly": true,
+    "accountName": "共享账户",
+    "status": [
+      "只读"
+    ]
+  },
+  {
+    "id": "full-date-long-account",
+    "label": "完整日期 + 很长账户，窄屏自动换行",
+    "title": "午餐",
+    "kind": "expense",
+    "amount": "−32.00",
+    "icon": "Utensils",
+    "group": "time",
+    "happenedAt": "2026-10-20T12:34:56",
+    "showTime": true,
+    "source": "transaction_list_item.dart:86–220；transaction_list.dart / search_page.dart / category_detail_page.dart / calendar_page.dart",
+    "showFullDate": true,
+    "accountName": "用于家庭日常消费的人民币银行卡",
+    "note": "长备注不挤掉时间"
+  },
+  {
+    "id": "category-note",
+    "label": "分类优先，备注括号次要色",
+    "title": "午餐",
+    "kind": "expense",
+    "amount": "−32.00",
+    "icon": "Utensils",
+    "note": "午间食堂",
+    "source": "transaction_list_item.dart / transaction_row_title.dart / tag_chip.dart / transaction_list.dart",
+    "happenedAt": "2026-10-20T12:34:56",
+    "showTime": true,
+    "showFullDate": false,
+    "group": "time",
+    "accountName": "微信"
+  },
+  {
+    "id": "note-first",
+    "label": "备注优先替换分类标题",
+    "title": "午间食堂",
+    "kind": "expense",
+    "amount": "−32.00",
+    "icon": "Utensils",
+    "source": "transaction_list_item.dart / transaction_row_title.dart / tag_chip.dart / transaction_list.dart",
+    "happenedAt": "2026-10-20T12:34:56",
+    "showTime": true,
+    "showFullDate": false,
+    "group": "time",
+    "accountName": "微信"
+  },
+  {
+    "id": "full-date",
+    "label": "搜索完整日期：时间开关关闭仍显示年月日与时分",
+    "title": "午餐",
+    "kind": "expense",
+    "amount": "−32.00",
+    "icon": "Utensils",
+    "source": "transaction_list_item.dart / transaction_row_title.dart / tag_chip.dart / transaction_list.dart",
+    "happenedAt": "2026-10-20T12:34:56",
+    "showTime": false,
+    "showFullDate": true,
+    "group": "time"
+  },
+  {
+    "id": "midnight",
+    "label": "零点：普通列表不显示 00:00:00，账户仍保留",
+    "title": "早餐",
+    "kind": "expense",
+    "amount": "−32.00",
+    "icon": "Utensils",
+    "source": "transaction_list_item.dart / transaction_row_title.dart / tag_chip.dart / transaction_list.dart",
+    "happenedAt": "2026-10-20T00:00:00",
+    "showTime": true,
+    "showFullDate": false,
+    "group": "time",
+    "accountName": "现金"
+  },
+  {
+    "id": "time-off",
+    "label": "关闭时间显示，只显示账户",
+    "title": "饮品",
+    "kind": "expense",
+    "amount": "−32.00",
+    "icon": "Utensils",
+    "source": "transaction_list_item.dart / transaction_row_title.dart / tag_chip.dart / transaction_list.dart",
+    "happenedAt": "2026-10-20T12:34:56",
+    "showTime": false,
+    "showFullDate": false,
+    "group": "time",
+    "accountName": "微信"
+  },
+  {
+    "id": "account-hidden",
+    "label": "历史记录关联隐藏账户，保留账户名",
+    "title": "历史消费",
+    "kind": "expense",
+    "amount": "−32.00",
+    "icon": "Utensils",
+    "source": "transaction_list_item.dart / transaction_row_title.dart / tag_chip.dart / transaction_list.dart",
+    "happenedAt": "2026-10-01T09:30:00",
+    "showTime": true,
+    "showFullDate": true,
+    "group": "time",
+    "accountName": "已隐藏银行卡"
+  },
+  {
+    "id": "expense",
+    "label": "普通支出",
+    "title": "午间食堂",
+    "kind": "expense",
+    "amount": "−32.00",
+    "subtitle": "午餐 · 微信",
+    "icon": "Utensils",
+    "source": "transaction_list_item.dart / transaction_row_title.dart / tag_chip.dart / transaction_list.dart"
+  },
+  {
+    "id": "income",
+    "label": "收入",
+    "title": "工资收入",
+    "kind": "income",
+    "amount": "+12,000.00",
+    "subtitle": "工资 · 银行卡",
+    "icon": "Wallet",
+    "source": "transaction_list_item.dart / transaction_row_title.dart / tag_chip.dart / transaction_list.dart"
+  },
+  {
+    "id": "transfer",
+    "label": "转账",
+    "title": "账户间转账",
+    "kind": "transfer",
+    "amount": "1,000.00",
+    "subtitle": "银行卡 → 微信",
+    "icon": "Wallet",
+    "source": "transaction_list_item.dart / transaction_row_title.dart / tag_chip.dart / transaction_list.dart"
+  },
+  {
+    "id": "foreign",
+    "label": "外币与账本币折算",
+    "title": "一杯拿铁",
+    "kind": "expense",
+    "amount": "−US$12.00",
+    "converted": "≈ ¥85.20",
+    "subtitle": "咖啡 · 美元账户",
+    "icon": "Coffee",
+    "source": "transaction_list_item.dart / transaction_row_title.dart / tag_chip.dart / transaction_list.dart"
+  },
+  {
+    "id": "tags-attachments",
+    "label": "多标签与附件",
+    "title": "出差晚餐",
+    "kind": "expense",
+    "amount": "−168.00",
+    "subtitle": "餐饮 · 微信",
+    "icon": "Utensils",
+    "tags": [
+      "工作日",
+      "旅行"
+    ],
+    "attachments": 3,
+    "source": "transaction_list_item.dart / transaction_row_title.dart / tag_chip.dart / transaction_list.dart"
+  },
+  {
+    "id": "excluded",
+    "label": "不计收支 / 不计预算",
+    "title": "代垫款项",
+    "kind": "expense",
+    "amount": "−500.00",
+    "subtitle": "其他 · 微信",
+    "icon": "Wallet",
+    "status": [
+      "不计收支",
+      "不计预算"
+    ],
+    "source": "transaction_list_item.dart / transaction_row_title.dart / tag_chip.dart / transaction_list.dart"
+  },
+  {
+    "id": "shared",
+    "label": "共享账本与录入人",
+    "title": "家庭采购",
+    "kind": "expense",
+    "amount": "−128.00",
+    "subtitle": "购物 · 银行卡",
+    "icon": "ShoppingBasket",
+    "status": [
+      "小满记录"
+    ],
+    "source": "设计补充：共享/权限/图片场景"
+  },
+  {
+    "id": "long",
+    "label": "长备注、多标签与大额外币",
+    "title": "这是一条很长的账单备注，用来验收窄屏省略与金额布局",
+    "kind": "expense",
+    "amount": "−US$123,456.78",
+    "converted": "≈ ¥876,543.14",
+    "subtitle": "长分类名称 / 很长的账户名称",
+    "icon": "ShoppingBasket",
+    "tags": [
+      "工作日",
+      "旅行"
+    ],
+    "attachments": 9,
+    "source": "transaction_list_item.dart / transaction_row_title.dart / tag_chip.dart / transaction_list.dart"
+  },
+  {
+    "id": "hidden",
+    "label": "隐私隐藏金额及折算",
+    "title": "隐私模式",
+    "kind": "expense",
+    "amount": "−US$12.00",
+    "converted": "≈ ¥85.20",
+    "subtitle": "咖啡 · 美元账户",
+    "icon": "Coffee",
+    "hidden": true,
+    "source": "transaction_list_item.dart / transaction_row_title.dart / tag_chip.dart / transaction_list.dart"
+  },
+  {
+    "id": "batch-off",
+    "label": "批量未选中",
+    "title": "午间食堂",
+    "kind": "expense",
+    "amount": "−32.00",
+    "subtitle": "午餐 · 微信",
+    "icon": "Utensils",
+    "selected": false,
+    "source": "transaction_list_item.dart / transaction_row_title.dart / tag_chip.dart / transaction_list.dart"
+  },
+  {
+    "id": "batch-on",
+    "label": "批量已选中",
+    "title": "午间食堂",
+    "kind": "expense",
+    "amount": "−32.00",
+    "subtitle": "午餐 · 微信",
+    "icon": "Utensils",
+    "selected": true,
+    "source": "transaction_list_item.dart / transaction_row_title.dart / tag_chip.dart / transaction_list.dart"
+  },
+  {
+    "id": "readonly",
+    "label": "只读，无编辑/删除入口",
+    "title": "只读账单",
+    "kind": "expense",
+    "amount": "−68.00",
+    "subtitle": "餐饮 · 共享账本",
+    "icon": "Utensils",
+    "readOnly": true,
+    "status": [
+      "只读"
+    ],
+    "source": "设计补充：共享/权限/图片场景"
+  },
+  {
+    "id": "custom-image",
+    "label": "自定义分类图片",
+    "title": "下午茶",
+    "kind": "expense",
+    "amount": "−18.00",
+    "subtitle": "自定义分类 · 微信",
+    "icon": "Coffee",
+    "image": "assets/logo2.png",
+    "source": "设计补充：共享/权限/图片场景"
+  },
+  {
+    "id": "minimal",
+    "label": "无备注、无账户、无标签",
+    "title": "其他支出",
+    "kind": "expense",
+    "amount": "−8.00",
+    "icon": "Shapes",
+    "source": "transaction_list_item.dart / transaction_row_title.dart / tag_chip.dart / transaction_list.dart"
+  },
+  {
+    "id": "same-title",
+    "label": "备注等于分类，不重复拼接",
+    "title": "午餐",
+    "kind": "expense",
+    "amount": "−32.00",
+    "icon": "Utensils",
+    "subtitle": "微信",
+    "source": "transaction_list_item.dart / transaction_row_title.dart / tag_chip.dart / transaction_list.dart"
+  },
+  {
+    "id": "no-note",
+    "label": "无备注，保留分类",
+    "title": "餐饮",
+    "kind": "expense",
+    "amount": "−32.00",
+    "icon": "Utensils",
+    "subtitle": "微信",
+    "source": "transaction_list_item.dart / transaction_row_title.dart / tag_chip.dart / transaction_list.dart"
+  },
+  {
+    "id": "all-ledgers",
+    "label": "全部账本模式显示账本标记",
+    "title": "日用品",
+    "kind": "expense",
+    "amount": "−32.00",
+    "icon": "Utensils",
+    "subtitle": "购物 · 银行卡",
+    "source": "transaction_list_item.dart / transaction_row_title.dart / tag_chip.dart / transaction_list.dart",
+    "ledgerName": "家庭账本"
+  },
+  {
+    "id": "many-tags",
+    "label": "本币多标签，最多两个加 +N",
+    "title": "差旅餐费",
+    "kind": "expense",
+    "amount": "−32.00",
+    "icon": "Utensils",
+    "tags": [
+      "工作日",
+      "旅行",
+      "家庭",
+      "报销"
+    ],
+    "subtitle": "餐饮 · 微信",
+    "source": "transaction_list_item.dart / transaction_row_title.dart / tag_chip.dart / transaction_list.dart"
+  },
+  {
+    "id": "fx-many-tags",
+    "label": "外币多标签，最多一个加 +N",
+    "title": "差旅咖啡",
+    "kind": "expense",
+    "amount": "−US$12.00",
+    "icon": "Utensils",
+    "converted": "≈ ¥85.20",
+    "tags": [
+      "工作日",
+      "旅行",
+      "报销"
+    ],
+    "subtitle": "咖啡 · 美元账户",
+    "source": "transaction_list_item.dart / transaction_row_title.dart / tag_chip.dart / transaction_list.dart"
+  },
+  {
+    "id": "attachment-only",
+    "label": "仅附件，无账户和时间",
+    "title": "付款凭证",
+    "kind": "expense",
+    "amount": "−32.00",
+    "icon": "Utensils",
+    "attachments": 2,
+    "source": "transaction_list_item.dart / transaction_row_title.dart / tag_chip.dart / transaction_list.dart"
+  },
+  {
+    "id": "stats-only",
+    "label": "仅不计收支",
+    "title": "代垫款",
+    "kind": "expense",
+    "amount": "−32.00",
+    "icon": "Utensils",
+    "status": [
+      "不计收支"
+    ],
+    "source": "transaction_list_item.dart / transaction_row_title.dart / tag_chip.dart / transaction_list.dart"
+  },
+  {
+    "id": "budget-only",
+    "label": "仅不计预算",
+    "title": "固定支出",
+    "kind": "expense",
+    "amount": "−32.00",
+    "icon": "Utensils",
+    "status": [
+      "不计预算"
+    ],
+    "source": "transaction_list_item.dart / transaction_row_title.dart / tag_chip.dart / transaction_list.dart"
+  },
+  {
+    "id": "foreign-no-snapshot",
+    "label": "外币无折算快照，不编造金额",
+    "title": "历史外币",
+    "kind": "expense",
+    "amount": "−US$8.00",
+    "icon": "Utensils",
+    "subtitle": "历史记录 · 美元账户",
+    "source": "transaction_list_item.dart / transaction_row_title.dart / tag_chip.dart / transaction_list.dart"
+  },
+  {
+    "id": "foreign-equal",
+    "label": "外币折算值等于原值，不重复折算行",
+    "title": "等值历史记录",
+    "kind": "expense",
+    "amount": "−US$8.00",
+    "icon": "Utensils",
+    "subtitle": "历史记录 · 美元账户",
+    "source": "transaction_list_item.dart / transaction_row_title.dart / tag_chip.dart / transaction_list.dart"
+  },
+  {
+    "id": "zero-amount",
+    "label": "零金额记录",
+    "title": "余额调整",
+    "kind": "transfer",
+    "amount": "0.00",
+    "icon": "Utensils",
+    "subtitle": "历史记录",
+    "source": "transaction_list_item.dart / transaction_row_title.dart / tag_chip.dart / transaction_list.dart"
+  },
+  {
+    "id": "transfer-no-account",
+    "label": "转账账户缺失时的兜底",
+    "title": "账户转账",
+    "kind": "transfer",
+    "amount": "500.00",
+    "icon": "Utensils",
+    "source": "transaction_list_item.dart / transaction_row_title.dart / tag_chip.dart / transaction_list.dart"
+  },
+  {
+    "id": "unknown-category",
+    "label": "原分类不可用时的兜底",
+    "title": "未分类",
+    "kind": "expense",
+    "amount": "−32.00",
+    "icon": "Shapes",
+    "subtitle": "微信",
+    "source": "transaction_list_item.dart / transaction_row_title.dart / tag_chip.dart / transaction_list.dart"
+  },
+  {
+    "id": "huge-local",
+    "label": "本币大额，数字保持可读",
+    "title": "大额采购",
+    "kind": "expense",
+    "amount": "−12,345,678.90",
+    "icon": "Utensils",
+    "subtitle": "购物 · 银行卡",
+    "source": "transaction_list_item.dart / transaction_row_title.dart / tag_chip.dart / transaction_list.dart"
+  }
+]

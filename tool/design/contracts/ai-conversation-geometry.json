@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "input": {
+    "marginTop": 8,
+    "marginHorizontal": 17,
+    "padding": 8,
+    "radius": 18,
+    "fieldMinHeight": 48,
+    "sendSize": 44
+  },
+  "messages": {
+    "paddingVertical": 8,
+    "paddingHorizontal": 17
+  },
+  "answer": {
+    "fontSize": 14,
+    "lineHeight": 1.6,
+    "marginTop": 6,
+    "marginBottom": 12,
+    "padding": 16
+  }
+}

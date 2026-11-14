@@ -1,0 +1,346 @@
+{
+  "schema_version": 2,
+  "kind": "native-simulator-screenshots",
+  "app_sha": "d5c85b871592ad93d6a34acbe0b10a19a3f06cc4",
+  "source_hash": "a7728babaad002090d3a81cd15ecd642f83e7336d27fa6b9d49ea51bdfe31cba",
+  "generated_at": "2026-11-12",
+  "notes": "Fresh independent simulators; synthetic populated everyday, travel and learning books; user-selected sample portrait restored.",
+  "files": [
+    {
+      "path": "zh/dark/06-budgets.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 258211,
+      "sha256": "82e01f5a6f59bc861485b80a83ac6616d69dd19dd235f593ffdd67979fc4fdb3"
+    },
+    {
+      "path": "en/light/10-categories.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 265048,
+      "sha256": "d75273f7e9238a8587badeba7fd5397720bd60f4d9596c740b61511d7c4d4b98"
+    },
+    {
+      "path": "en/light/02-analytics.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 299079,
+      "sha256": "0db00138ef4790f89196c5839bd11b0c18949d40b754a35b20c13c6378397ad9"
+    },
+    {
+      "path": "en/dark/03-accounts.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 283620,
+      "sha256": "86e3dc6ed739f7591e966b5fc6e7e506a86b71e65911ab2c412e26dc58dcce3b"
+    },
+    {
+      "path": "zh/dark/10-categories.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 287096,
+      "sha256": "de9d07d321552e132e2c5b32dbf00c0a2ca57c456f6478445db396dc04c0fec7"
+    },
+    {
+      "path": "en/dark/08-tags.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 173688,
+      "sha256": "7e1debed210d5d5ff157894390864d0f857eccb158107bc414054b32efecff8b"
+    },
+    {
+      "path": "en/light/12-search.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 316037,
+      "sha256": "c2a533e01ec10073f659084bf4e2ffa7478d56a72df455576bffe8d478321e91"
+    },
+    {
+      "path": "en/light/11-personalization.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 235715,
+      "sha256": "4419cbb60f4b1a410b8084822c5823b0c3fff855b203a6a8071dbf3d0747ffaa"
+    },
+    {
+      "path": "en/dark/07-mine.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 381951,
+      "sha256": "78ebfe1095751d4b1ae4fd89a956e877d424cb1b62bb77923caac06462fcb2d8"
+    },
+    {
+      "path": "en/dark/11-personalization.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 256507,
+      "sha256": "2f2a8ea2fc488e74ab7a699c70a19c908790ab0fd497e0b64bbd3c502933c747"
+    },
+    {
+      "path": "zh/light/06-budgets.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 243979,
+      "sha256": "b34840d05bf47712208966c8f902747cd5ceee82613aced03ee961f00284bb99"
+    },
+    {
+      "path": "zh/light/12-search.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 286063,
+      "sha256": "f0fbbae99461bcdc3a936eaaa3904f0409a534be6e68cf8829d7fdd4cc822f12"
+    },
+    {
+      "path": "en/dark/02-analytics.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 311813,
+      "sha256": "7017cfb3f6b7c32a0220b510c7121488720c441fff6f85c78bf36485adb44b73"
+    },
+    {
+      "path": "zh/light/03-accounts.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 260508,
+      "sha256": "f621372153ba86f8bd0002959ac8b5917700e3995e717d421c82d4f3a802a163"
+    },
+    {
+      "path": "zh/dark/09-cloud.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 142436,
+      "sha256": "47b952738f0abe416fc71a1fb2e1d32c877a82273e03ad973cdec89986e88f1d"
+    },
+    {
+      "path": "en/dark/06-budgets.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 264942,
+      "sha256": "d9aa035ffa57a9b8bcfb7babf25f5ab254e4e70645b0977c01b435ab8d13f086"
+    },
+    {
+      "path": "zh/light/10-categories.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 278125,
+      "sha256": "19b32160ca5b451ab2cf221c3bb5d94340d98cbbef62f0eeb6cf6fb49f6eac68"
+    },
+    {
+      "path": "en/dark/09-cloud.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 140256,
+      "sha256": "161b5f2f2074cd67083d5b618c5d03cdd2990ac304ca6a129361feb08852a547"
+    },
+    {
+      "path": "en/light/04-ledgers.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 272284,
+      "sha256": "217f25eac87615dfb8c8dc35bda8d1fdc45b4e0b86d85da4e62ce5f0d9237efd"
+    },
+    {
+      "path": "en/dark/01-home.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 384012,
+      "sha256": "58d90a00c7dded23e4ead4b2458a986aa89fad52ac028b591a4a4885eb7f91d9"
+    },
+    {
+      "path": "zh/dark/03-accounts.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 264091,
+      "sha256": "f2d8947d23cb26e75b41ae12ae1100c76993f41a0aca0c2a2ef0181126b7e0b2"
+    },
+    {
+      "path": "en/light/08-tags.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 166442,
+      "sha256": "54a4ea15ceae80dd39f486586e4ff093bd1f1d92a6c43f62ff807a41b22a1df3"
+    },
+    {
+      "path": "en/dark/05-transaction.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 254015,
+      "sha256": "507790eff5ead5997e6664ad12e37dd5a7ac65af985d966ca90528da6ee091e5"
+    },
+    {
+      "path": "zh/light/11-personalization.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 233050,
+      "sha256": "a9503a4764419194a9054a33ce37cf49b1b5b1317121553af669d6532cd049ca"
+    },
+    {
+      "path": "zh/dark/08-tags.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 154857,
+      "sha256": "711ed7280609c9ff0724d16a0a9c4d2d24b70f0e31cd89222a84cbf5467617ca"
+    },
+    {
+      "path": "zh/light/07-mine.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 345821,
+      "sha256": "90a8860ddb7c538bd005c43da4830b042d683ec5139fe35c4d972469c933ab3b"
+    },
+    {
+      "path": "zh/light/05-transaction.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 258708,
+      "sha256": "f44b31903f6d71669547f1d7278ecc305e27bc0a02cd90067f701b4a0e258bf7"
+    },
+    {
+      "path": "en/light/07-mine.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 363797,
+      "sha256": "a7a018413bb542863921c3cee9026d5b5c4c8711636c0188c338e0a7aaf3acc8"
+    },
+    {
+      "path": "zh/dark/12-search.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 298860,
+      "sha256": "3941688ff20e0759031a8b7426bc923e0ae07744cf8e8912c1f54965a853014f"
+    },
+    {
+      "path": "zh/light/08-tags.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 152148,
+      "sha256": "7065508015a48cd75aea9d47b02e44dcefe5f0555dfd29d52812822dca456a63"
+    },
+    {
+      "path": "en/dark/12-search.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 328805,
+      "sha256": "e7dc2daa66360c908d3608e6ee57651208d14a580cbe4368e203499da720e9c2"
+    },
+    {
+      "path": "zh/dark/07-mine.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 359936,
+      "sha256": "2cff9659542eab9d46f017c876f6df91be51ed9ddfd48103d60c51afd9e221c2"
+    },
+    {
+      "path": "zh/dark/04-ledgers.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 272448,
+      "sha256": "78d6b774c74f16fd3397f3db1f3ddc4d32afd095611aa6fca4610e9f808fdfee"
+    },
+    {
+      "path": "zh/light/02-analytics.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 282764,
+      "sha256": "d6cb3972cc55d27ddae3a82cd89ab774dc7cf409c98b7cb0fccaa61840464a3d"
+    },
+    {
+      "path": "en/light/06-budgets.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 248355,
+      "sha256": "b60a5d08322967e8b5becf23324affb49c8cb4c582e2dbbcdcb5ac43cf15e5a9"
+    },
+    {
+      "path": "en/dark/10-categories.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 275883,
+      "sha256": "41a88ba8799361b15033f5d72077749fc7b987b23ac9c0aac60e2d39f62fdb92"
+    },
+    {
+      "path": "zh/light/01-home.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 343256,
+      "sha256": "b1b1484f87366f14eb444141c345556b9ea39747379d192b72c39dbbfee156ef"
+    },
+    {
+      "path": "en/light/05-transaction.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 248976,
+      "sha256": "1ff6424f35204a521e3af4bf51111a5241c1627fb0d7726c91f50e5871e0f97a"
+    },
+    {
+      "path": "zh/dark/05-transaction.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 268551,
+      "sha256": "a96d9e91176be7062c010c3741bc201aa6d4e1c9042aad78d89d44998be44ab8"
+    },
+    {
+      "path": "en/light/01-home.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 369761,
+      "sha256": "4acaac036f7dfc444acd45209d3ca868fc7a6a8f2fd9f1dc273bee122ccc774c"
+    },
+    {
+      "path": "zh/dark/11-personalization.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 253902,
+      "sha256": "48361c8c2b2a268d2d5d9e7bbe405a0cf89c33fb938100df364f946966fbd9c1"
+    },
+    {
+      "path": "en/light/03-accounts.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 276594,
+      "sha256": "a6372aff14f347a16b73276ee1fe7b5c00fdd995798c874ff06cad4d44ab8c38"
+    },
+    {
+      "path": "en/dark/04-ledgers.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 279695,
+      "sha256": "57358bfa289f2121f5e2c270836b1531d394c9bccefd289cb01489fcf6b00c6f"
+    },
+    {
+      "path": "en/light/09-cloud.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 136779,
+      "sha256": "a666bdcd14a48fb600c377c26392f837401be19164c61496abe0594351bb48d7"
+    },
+    {
+      "path": "zh/light/04-ledgers.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 265023,
+      "sha256": "2a39c65e3041d01a5fa00f4b12b8ce9e6c7993d0bfa89b7422ab89f7c3d66fb4"
+    },
+    {
+      "path": "zh/light/09-cloud.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 138318,
+      "sha256": "7de94cdee9e54597701551fe00d7eb33b049a1dc5cd213be7a6c327811bea0d0"
+    },
+    {
+      "path": "zh/dark/02-analytics.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 291492,
+      "sha256": "ba08aec3958602bdd33420fca8e538d89a6dafa04ca6e18c71fb9cb000ccfbbe"
+    },
+    {
+      "path": "zh/dark/01-home.png",
+      "width": 1320,
+      "height": 2868,
+      "bytes": 353663,
+      "sha256": "496c36f99d17592770a156e23d4ec7063b8b31ed11d3f4c3bd1a84832862edfc"
+    }
+  ]
+}

@@ -121,6 +121,7 @@ void main() {
           maxWidth: any(named: 'maxWidth'),
           maxHeight: any(named: 'maxHeight'),
           imageQuality: any(named: 'imageQuality'),
+          limit: any(named: 'limit'),
         )).thenAnswer((_) async => [XFile(source.path)]);
     when(() => picker.pickImage(
           source: any(named: 'source'),
@@ -153,6 +154,46 @@ void main() {
         .setEnabled(enabled);
   }
 
+  test('附件容量为零时不打开系统相册', () async {
+    final service = container.read(attachmentServiceProvider);
+    expect(await service.pickFromGallery(maxCount: 0), isEmpty);
+    expect(await service.pickFromGallery(maxCount: -1), isEmpty);
+    verifyZeroInteractions(picker);
+  });
+
+  test('仅余一张时使用系统单选，取消保持空结果', () async {
+    final service = container.read(attachmentServiceProvider);
+    expect(await service.pickFromGallery(maxCount: 1), hasLength(1));
+    verify(() => picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 1920,
+        maxHeight: 1920,
+        imageQuality: 80)).called(1);
+    when(() => picker.pickImage(
+            source: ImageSource.gallery,
+            maxWidth: any(named: 'maxWidth'),
+            maxHeight: any(named: 'maxHeight'),
+            imageQuality: any(named: 'imageQuality')))
+        .thenAnswer((_) async => null);
+    expect(await service.pickFromGallery(maxCount: 1), isEmpty);
+  });
+
+  test('相册收到剩余容量，忽略限制的平台结果不会超过容量', () async {
+    when(() => picker.pickMultiImage(
+            maxWidth: any(named: 'maxWidth'),
+            maxHeight: any(named: 'maxHeight'),
+            imageQuality: any(named: 'imageQuality'),
+            limit: 2))
+        .thenAnswer((_) async => List.generate(5, (_) => XFile(source.path)));
+    final service = container.read(attachmentServiceProvider);
+    expect(await service.pickFromGallery(maxCount: 2), hasLength(2));
+    verify(() => picker.pickMultiImage(
+        maxWidth: 1920, maxHeight: 1920, imageQuality: 80, limit: 2)).called(1);
+    await service.pickFromGallery(maxCount: 100);
+    verify(() => picker.pickMultiImage(
+        maxWidth: 1920, maxHeight: 1920, imageQuality: 80, limit: 9)).called(1);
+  });
+
   test('default compression is retained for gallery, camera and saved files',
       () async {
     final service = container.read(attachmentServiceProvider);
@@ -162,6 +203,7 @@ void main() {
           maxWidth: 1920,
           maxHeight: 1920,
           imageQuality: 80,
+          limit: 9,
         )).called(1);
     verify(() => picker.pickImage(
           source: ImageSource.camera,
@@ -190,7 +232,7 @@ void main() {
     final service = container.read(attachmentServiceProvider);
     final selected = await service.pickFromGallery();
     await service.takePhoto();
-    verify(() => picker.pickMultiImage()).called(1);
+    verify(() => picker.pickMultiImage(limit: 9)).called(1);
     verify(() => picker.pickImage(source: ImageSource.camera)).called(1);
     final saved = await service.saveAttachment(
       transactionId: transactionId,
@@ -302,6 +344,7 @@ void main() {
           maxWidth: 1920,
           maxHeight: 1920,
           imageQuality: 80,
+          limit: 9,
         )).called(2);
     verify(() => picker.pickImage(
           source: ImageSource.camera,
@@ -309,7 +352,7 @@ void main() {
           maxHeight: 1920,
           imageQuality: 80,
         )).called(2);
-    verify(() => picker.pickMultiImage()).called(1);
+    verify(() => picker.pickMultiImage(limit: 9)).called(1);
     verify(() => picker.pickImage(source: ImageSource.camera)).called(1);
     expect(
         await File(await service.getAttachmentPath(original.fileName))

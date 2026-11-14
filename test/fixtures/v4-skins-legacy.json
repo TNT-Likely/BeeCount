@@ -1,0 +1,448 @@
+{
+  "source_commit": "0ded026005c15a6d540bec5b30f6c09975ecc3e9",
+  "original_page_sha256": "e38c1f8d8b4154258f7389d508b12a13044063ca33febbc5281e5fe7bc70bda7",
+  "kind": "original Flutter renderers;320x176 logical;2x PNG;top inset0;muted animation frame",
+  "release_count_including_none": 22,
+  "debug_count_including_none": 23,
+  "options": [
+    {
+      "id": "none",
+      "name": "纯色",
+      "en": "Solid",
+      "debugOnly": false,
+      "group": "basic",
+      "animated": false,
+      "fixed": false,
+      "badge": null,
+      "bound": null
+    },
+    {
+      "id": "anniversary",
+      "name": "一岁星座",
+      "en": "Constellation No.1",
+      "debugOnly": false,
+      "group": "anniversary",
+      "animated": true,
+      "fixed": true,
+      "badge": "1st",
+      "bound": "fff8c91c"
+    },
+    {
+      "id": "anniv_cake",
+      "name": "周年蛋糕",
+      "en": "Birthday Cake",
+      "debugOnly": false,
+      "group": "anniversary",
+      "animated": true,
+      "fixed": true,
+      "badge": "1st",
+      "bound": "ffff7a45"
+    },
+    {
+      "id": "aurora",
+      "name": "极光",
+      "en": "Aurora",
+      "debugOnly": false,
+      "group": "gradient",
+      "animated": false,
+      "fixed": false,
+      "badge": null,
+      "bound": null
+    },
+    {
+      "id": "mountains",
+      "name": "山峦",
+      "en": "Mountains",
+      "debugOnly": false,
+      "group": "gradient",
+      "animated": false,
+      "fixed": false,
+      "badge": null,
+      "bound": null
+    },
+    {
+      "id": "bokeh",
+      "name": "光斑",
+      "en": "Bokeh",
+      "debugOnly": false,
+      "group": "gradient",
+      "animated": false,
+      "fixed": false,
+      "badge": null,
+      "bound": null
+    },
+    {
+      "id": "waves",
+      "name": "波浪",
+      "en": "Waves",
+      "debugOnly": false,
+      "group": "gradient",
+      "animated": false,
+      "fixed": false,
+      "badge": null,
+      "bound": null
+    },
+    {
+      "id": "silk",
+      "name": "丝带",
+      "en": "Silk",
+      "debugOnly": false,
+      "group": "gradient",
+      "animated": false,
+      "fixed": false,
+      "badge": null,
+      "bound": null
+    },
+    {
+      "id": "bubbles",
+      "name": "气泡",
+      "en": "Bubbles",
+      "debugOnly": false,
+      "group": "gradient",
+      "animated": false,
+      "fixed": false,
+      "badge": null,
+      "bound": null
+    },
+    {
+      "id": "sunset",
+      "name": "日落",
+      "en": "Sunset",
+      "debugOnly": false,
+      "group": "scene",
+      "animated": false,
+      "fixed": false,
+      "badge": null,
+      "bound": null
+    },
+    {
+      "id": "clouds",
+      "name": "云朵",
+      "en": "Clouds",
+      "debugOnly": false,
+      "group": "scene",
+      "animated": false,
+      "fixed": false,
+      "badge": null,
+      "bound": null
+    },
+    {
+      "id": "skyline",
+      "name": "城市",
+      "en": "Skyline",
+      "debugOnly": false,
+      "group": "scene",
+      "animated": false,
+      "fixed": false,
+      "badge": null,
+      "bound": null
+    },
+    {
+      "id": "galaxy",
+      "name": "星系",
+      "en": "Galaxy",
+      "debugOnly": false,
+      "group": "scene",
+      "animated": false,
+      "fixed": false,
+      "badge": null,
+      "bound": null
+    },
+    {
+      "id": "honeycomb",
+      "name": "蜂巢",
+      "en": "Honeycomb",
+      "debugOnly": false,
+      "group": "pattern",
+      "animated": false,
+      "fixed": false,
+      "badge": null,
+      "bound": null
+    },
+    {
+      "id": "starry",
+      "name": "星河",
+      "en": "Starry",
+      "debugOnly": false,
+      "group": "pattern",
+      "animated": false,
+      "fixed": false,
+      "badge": null,
+      "bound": null
+    },
+    {
+      "id": "stripes",
+      "name": "斜纹",
+      "en": "Stripes",
+      "debugOnly": false,
+      "group": "pattern",
+      "animated": false,
+      "fixed": false,
+      "badge": null,
+      "bound": null
+    },
+    {
+      "id": "sakura",
+      "name": "樱花",
+      "en": "Sakura",
+      "debugOnly": false,
+      "group": "pattern",
+      "animated": false,
+      "fixed": false,
+      "badge": null,
+      "bound": null
+    },
+    {
+      "id": "meteor",
+      "name": "流星",
+      "en": "Meteor",
+      "debugOnly": false,
+      "group": "pattern",
+      "animated": false,
+      "fixed": false,
+      "badge": null,
+      "bound": null
+    },
+    {
+      "id": "memphis",
+      "name": "孟菲斯",
+      "en": "Memphis",
+      "debugOnly": false,
+      "group": "pattern",
+      "animated": false,
+      "fixed": false,
+      "badge": null,
+      "bound": null
+    },
+    {
+      "id": "lowpoly",
+      "name": "低多边形",
+      "en": "Low-poly",
+      "debugOnly": false,
+      "group": "geometric",
+      "animated": false,
+      "fixed": false,
+      "badge": null,
+      "bound": null
+    },
+    {
+      "id": "prism",
+      "name": "棱镜",
+      "en": "Prism",
+      "debugOnly": false,
+      "group": "geometric",
+      "animated": false,
+      "fixed": false,
+      "badge": null,
+      "bound": null
+    },
+    {
+      "id": "terrazzo",
+      "name": "水磨石",
+      "en": "Terrazzo",
+      "debugOnly": false,
+      "group": "geometric",
+      "animated": false,
+      "fixed": false,
+      "badge": null,
+      "bound": null
+    },
+    {
+      "id": "example",
+      "name": "示例",
+      "en": "Example",
+      "debugOnly": true,
+      "group": "geometric",
+      "animated": false,
+      "fixed": false,
+      "badge": null,
+      "bound": null
+    }
+  ],
+  "files": [
+    {
+      "path": "anniv_cake-dark.png",
+      "sha256": "e2eefcd0d7df461c54ea26d28781c93ab206b92f758daf5f6f102704b37e94dd"
+    },
+    {
+      "path": "anniv_cake-light.png",
+      "sha256": "ebc0e26d3c5575c86e447b5b76b5fef0b97fe67ef9562c01743dab47219c714e"
+    },
+    {
+      "path": "anniversary-dark.png",
+      "sha256": "965ce7a6c27665f34160abaa8d6774fe257b8902514a1e1b5b61f71547efca8a"
+    },
+    {
+      "path": "anniversary-light.png",
+      "sha256": "d22bd8e303f2e4a1ed6d3415de39cfe590931fecaa03d106ea3f376dee042481"
+    },
+    {
+      "path": "aurora-dark.png",
+      "sha256": "e85d88e131e60486f9ee8e8b9077ad5667b2b7227f98c9912397460831cab3c0"
+    },
+    {
+      "path": "aurora-light.png",
+      "sha256": "1cb4ac8a5d73d31101b9ec331c9ea6c9fdd4dbafd0a8da6dbc44c7f24756881d"
+    },
+    {
+      "path": "bokeh-dark.png",
+      "sha256": "151c3c4f47205f9e437944ecb1926210c9aec4ae7367eb3776a069da0afbf460"
+    },
+    {
+      "path": "bokeh-light.png",
+      "sha256": "1ddb0a772d3d60a32370d55c21a0ac4c21be286374b6abda472f06cb370ded2d"
+    },
+    {
+      "path": "bubbles-dark.png",
+      "sha256": "2be53688c8b9fc0c9ac0280a3f8cd45e0a2739918b012a23ee9ae2469bb30ee5"
+    },
+    {
+      "path": "bubbles-light.png",
+      "sha256": "af2588696d2499ec60e366c73b2e423a7ad41aca55649d62d5de8677e1aa7860"
+    },
+    {
+      "path": "clouds-dark.png",
+      "sha256": "d4fbd5b500142204a37df9ca92ee59257ac0d93daacbc79f83ef38fa431826ae"
+    },
+    {
+      "path": "clouds-light.png",
+      "sha256": "1240cf9a2d518ad9994912c447dad55424bfad321c81f74eca763e4718e5dfb8"
+    },
+    {
+      "path": "example-dark.png",
+      "sha256": "54dc77988d95ec1af568c9756ff14859d0562f9815c27b651edd0b8e196be9c2"
+    },
+    {
+      "path": "example-light.png",
+      "sha256": "cd1c1c4383a0c18fddeb451a960f0068fc39d9800b2c8c60ccc0f74e7d6df220"
+    },
+    {
+      "path": "galaxy-dark.png",
+      "sha256": "9c9125c718e74a3900e5fcdf9d80302db85dccd43ef982861ce2c2d7842cd010"
+    },
+    {
+      "path": "galaxy-light.png",
+      "sha256": "b8e52e9a78b9739f6d4b03771756d92e4dc85e4119682018753ea540471efd8d"
+    },
+    {
+      "path": "honeycomb-dark.png",
+      "sha256": "b71836ddefae515908a0dabc5000a9f2de5a86c802899f97e0f8df1113b90558"
+    },
+    {
+      "path": "honeycomb-light.png",
+      "sha256": "914e6308b8078b149ad75e2d642737350265acd51b5d81fe45dcf40f5cd6f51c"
+    },
+    {
+      "path": "lowpoly-dark.png",
+      "sha256": "666d5e501c03f1c112be019c907028db21e07230834c24296be15efa118d020a"
+    },
+    {
+      "path": "lowpoly-light.png",
+      "sha256": "8be477efd9034fc61431bd16b2b856a547a684f4cd6d2c7171498b0c1ac66b53"
+    },
+    {
+      "path": "memphis-dark.png",
+      "sha256": "0bbfcabca45a659c12e6018f0f9ac01b757b2eca2c128da89d947c03587acbae"
+    },
+    {
+      "path": "memphis-light.png",
+      "sha256": "4b2fdf04e5a19d7c5ad4cfda9ad686b9636abea9ce43f545ff0bb2dc9c034b6f"
+    },
+    {
+      "path": "meteor-dark.png",
+      "sha256": "3e7a0f28d24db520b9d355e4618d7baced07004e3d9e2bbbf411050f6458c0a6"
+    },
+    {
+      "path": "meteor-light.png",
+      "sha256": "a440217438d41fced7a5ddf5734776ecfbafadf801c853f72f00abccf6d1afde"
+    },
+    {
+      "path": "mountains-dark.png",
+      "sha256": "bde4e9744fd7ec274075e1d0288f9a9739d4835f815f8bbb4a92958be554d320"
+    },
+    {
+      "path": "mountains-light.png",
+      "sha256": "101c1183f8a7762f006f359e44322fb645cd7f0d8f55213e0f3e9a090e0143f3"
+    },
+    {
+      "path": "none-dark.png",
+      "sha256": "499a70e5523e0adbec5236af59eaaee5ab257793cfa3dcae6d2fc99c7a79fd10"
+    },
+    {
+      "path": "none-light.png",
+      "sha256": "6754b67d0179db801ac4f04455ac48a3a9bcf3592da6e07d0fe30ffb4d0fbe8a"
+    },
+    {
+      "path": "prism-dark.png",
+      "sha256": "7803fb9877c9bae9ffb9987b5dae041b85c122e0cfe4db18c0454add3e5de58e"
+    },
+    {
+      "path": "prism-light.png",
+      "sha256": "76b947a91a3cd4c11ff37a63bf1105d45ead8648b5228c9ad0ca96cb4e22f123"
+    },
+    {
+      "path": "sakura-dark.png",
+      "sha256": "37c0fa659d216d8b477a746ed8588f5fb4cb5e95e5c4b847c8bdd67b668018d6"
+    },
+    {
+      "path": "sakura-light.png",
+      "sha256": "c9d90da36794b2f65733c4869df9cafbda0bd3be4aac0b561240ef6aa40274bb"
+    },
+    {
+      "path": "silk-dark.png",
+      "sha256": "38f2bb9c326818c610dd19dbba1ffaf4a8cde8cf5af68226417dfdad65f4eafc"
+    },
+    {
+      "path": "silk-light.png",
+      "sha256": "58282df570f4bb817904b27dce5990c86e27731f57487bce0a4e40c06bbe9f5e"
+    },
+    {
+      "path": "skyline-dark.png",
+      "sha256": "2a4f434c9d63b9d288be6a6eb61278b76cc78e7af5d229fa37f9843e7474ab64"
+    },
+    {
+      "path": "skyline-light.png",
+      "sha256": "40e893caaf69d033dc618d71b5d59db484dfc6d0891eba9725b7c32ff193eee1"
+    },
+    {
+      "path": "starry-dark.png",
+      "sha256": "f74ed10507d51f6a12e14eb43a4e7b3342e23b9a8a95c4a42cbe82b0b3be644f"
+    },
+    {
+      "path": "starry-light.png",
+      "sha256": "cca038746284222006952c57a8a2dd74a8b5f3522017d2bc2b0efbb89b32705f"
+    },
+    {
+      "path": "stripes-dark.png",
+      "sha256": "1602d785edd38080d82232ea4f321a791028ea20c12b0071a2c25da4344c4c92"
+    },
+    {
+      "path": "stripes-light.png",
+      "sha256": "087f4ff446eca6a0836e2c55f8582aef85798f06540a7c4c2b6294eeab4ffdf0"
+    },
+    {
+      "path": "sunset-dark.png",
+      "sha256": "fcc80026f113bccdcdd8078f9a5eeb36ffcc3238fded1341da302acce447a211"
+    },
+    {
+      "path": "sunset-light.png",
+      "sha256": "47d1126947f0903889efb71553ac75e4ba5418b4ab8c59e63079f90588843cd8"
+    },
+    {
+      "path": "terrazzo-dark.png",
+      "sha256": "2bc50267a669735a4a44c218fb4f89d01eb129ab98b2658c165601d1addab5e1"
+    },
+    {
+      "path": "terrazzo-light.png",
+      "sha256": "d1796ff59713410b248a531bb5a0fa60a97dea9dbd47ab0afe1126cb065e78a6"
+    },
+    {
+      "path": "waves-dark.png",
+      "sha256": "dce134e8d2cd2aae2f8c24d01c1520718306c88bb024bcd784d09113d1ec5b81"
+    },
+    {
+      "path": "waves-light.png",
+      "sha256": "5cfdc5307f8a00d592f9d5a2dc9965731474cfbedecbc259dc0c9dfe6d62289f"
+    }
+  ]
+}

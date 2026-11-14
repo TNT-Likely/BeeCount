@@ -1,7 +1,5 @@
 # 蜜蜂记账(BeeCount) &nbsp; [English](README_EN.md)
 
-> 🧪 **[4.x 内测：下载 Android 安装包、查看注意事项与反馈问题](https://github.com/TNT-Likely/BeeCount/issues/580)**
-
 <div align="center">
 
 ![GitHub stars](https://img.shields.io/github/stars/TNT-Likely/BeeCount?style=social)
@@ -119,12 +117,92 @@
 
 ## 📸 截图预览
 
+v4 真实 App 界面与操作演示，使用独立模拟器和合成示例数据。这里维护一套通用素材，不按平台重复展示。
+
+### 操作演示
+
+手动记账、图片识别与 AI 对话，选择顺手的记录方式。以下为真实 App 操作录屏，图片识别与 AI 对话调用实际模型。
+
 <div align="center">
-  <img src="demo/videos/zh/01-add-transaction.gif" alt="快速记账" width="200" />
-  <img src="demo/videos/zh/02-ocr-recognition.gif" alt="AI 图片记账" width="200" />
-  <img src="demo/videos/zh/04-data-analysis.gif" alt="数据分析" width="200" />
-  <img src="demo/videos/zh/05-copy-transaction.gif" alt="长按复制交易" width="200" />
+  <img src="demo/videos/v4/zh/light/01-add-transaction.gif" alt="随手记一笔" width="200" />
+  <img src="demo/videos/v4/zh/light/03-ai-photo-recognition.gif" alt="图片识别记账" width="200" />
+  <img src="demo/videos/v4/zh/light/02-ai-chat.gif" alt="和 AI 聊聊账本" width="200" />
 </div>
+
+<details>
+<summary>更多操作与暗黑模式</summary>
+
+<div align="center">
+  <img src="demo/videos/v4/zh/light/04-data-analysis.gif" alt="看懂收支变化" width="200" />
+  <img src="demo/videos/v4/zh/light/05-copy-transaction.gif" alt="复制交易" width="200" />
+  <img src="demo/videos/v4/zh/light/06-import-ledger.gif" alt="导入账单" width="200" />
+</div>
+
+<div align="center">
+  <img src="demo/videos/v4/zh/dark/01-add-transaction.gif" alt="随手记一笔" width="200" />
+  <img src="demo/videos/v4/zh/dark/03-ai-photo-recognition.gif" alt="图片识别记账" width="200" />
+  <img src="demo/videos/v4/zh/dark/02-ai-chat.gif" alt="和 AI 聊聊账本" width="200" />
+</div>
+
+<div align="center">
+  <img src="demo/videos/v4/zh/dark/04-data-analysis.gif" alt="看懂收支变化" width="200" />
+  <img src="demo/videos/v4/zh/dark/05-copy-transaction.gif" alt="复制交易" width="200" />
+  <img src="demo/videos/v4/zh/dark/06-import-ledger.gif" alt="导入账单" width="200" />
+</div>
+
+
+**iOS 快捷指令**：手动运行快捷指令，截屏后在后台识别并入账。
+
+<div align="center">
+  <img src="demo/videos/v4/zh/light/07-ios-shortcut.gif" alt="iOS 快捷指令自动记账，手动触发演示" width="240" />
+</div>
+
+</details>
+
+### 界面预览
+
+收支、记账、洞察、预算、资产与多账本，串起日常记账的完整路径。
+
+<div align="center">
+  <img src="preview/v4/zh/light/01-home.png" alt="明细" width="200" />
+  <img src="preview/v4/zh/light/05-transaction.png" alt="记一笔" width="200" />
+  <img src="preview/v4/zh/light/02-analytics.png" alt="洞察" width="200" />
+</div>
+
+<div align="center">
+  <img src="preview/v4/zh/light/06-budgets.png" alt="预算" width="200" />
+  <img src="preview/v4/zh/light/03-accounts.png" alt="资产" width="200" />
+  <img src="preview/v4/zh/light/04-ledgers.png" alt="多账本" width="200" />
+</div>
+
+<details>
+<summary>更多页面与暗黑模式</summary>
+
+<div align="center">
+  <img src="preview/v4/zh/light/08-tags.png" alt="彩色标签" width="200" />
+  <img src="preview/v4/zh/light/10-categories.png" alt="分类管理" width="200" />
+  <img src="preview/v4/zh/light/11-personalization.png" alt="主题配色" width="200" />
+</div>
+
+<div align="center">
+  <img src="preview/v4/zh/light/12-search.png" alt="搜索" width="200" />
+  <img src="preview/v4/zh/light/09-cloud.png" alt="云服务" width="200" />
+  <img src="preview/v4/zh/light/07-mine.png" alt="我的" width="200" />
+</div>
+
+<div align="center">
+  <img src="preview/v4/zh/dark/01-home.png" alt="明细" width="200" />
+  <img src="preview/v4/zh/dark/05-transaction.png" alt="记一笔" width="200" />
+  <img src="preview/v4/zh/dark/02-analytics.png" alt="洞察" width="200" />
+</div>
+
+<div align="center">
+  <img src="preview/v4/zh/dark/06-budgets.png" alt="预算" width="200" />
+  <img src="preview/v4/zh/dark/03-accounts.png" alt="资产" width="200" />
+  <img src="preview/v4/zh/dark/04-ledgers.png" alt="多账本" width="200" />
+</div>
+
+</details>
 
 ### 桌面小组件
 
@@ -135,40 +213,6 @@
 
 <div align="center">
   <img src="demo/widgets/widgets-showcase-zh.png" alt="桌面小组件全家福:收支速览 / 净资产 / 快速记账 / 预算进度 / 最近交易 / 综合仪表盘 / 消费节奏 / 记账连续蜂迹" width="820" />
-</div>
-
-</details>
-
-<details>
-<summary>更多截图（主要功能 / 暗黑模式）</summary>
-
-### 9 大功能主题
-
-<div align="center">
-  <img src="preview/store-zh/01-home.png" alt="首页" width="200" />
-  <img src="preview/store-zh/02-open-source.png" alt="云服务" width="200" />
-  <img src="preview/store-zh/03-analytics.png" alt="数据分析" width="200" />
-</div>
-
-<div align="center">
-  <img src="preview/store-zh/04-ai.png" alt="AI 智能记账" width="200" />
-  <img src="preview/store-zh/05-add.png" alt="记一笔" width="200" />
-  <img src="preview/store-zh/06-ledgers.png" alt="多账本" width="200" />
-</div>
-
-<div align="center">
-  <img src="preview/store-zh/07-tags.png" alt="彩色标签" width="200" />
-  <img src="preview/store-zh/08-accounts.png" alt="资产管理" width="200" />
-  <img src="preview/store-zh/09-mine.png" alt="设置中心" width="200" />
-</div>
-
-### 暗黑模式
-
-<div align="center">
-  <img src="preview/dark/zh/01-home.png" alt="首页-暗黑" width="200" />
-  <img src="preview/dark/zh/02-chart-analysis.png" alt="图表分析-暗黑" width="200" />
-  <img src="preview/dark/zh/04-profile.png" alt="我的-暗黑" width="200" />
-  <img src="preview/dark/zh/05-ai-chat.png" alt="AI对话-暗黑" width="200" />
 </div>
 
 </details>

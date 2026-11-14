@@ -1,0 +1,366 @@
+{
+  "sourceCommit": "6c3e54eaeb6650d57293b36c16374f0c3a3c9711",
+  "source": "lib/pages/category/category_edit_page.dart",
+  "note": "原页面所有分组、顺序与持久化图标键的冻结参考；不从新目录反推。",
+  "expense": [
+    {
+      "label": "基础",
+      "keys": [
+        "category",
+        "label",
+        "bookmark",
+        "star",
+        "favorite",
+        "circle"
+      ]
+    },
+    {
+      "label": "餐饮美食",
+      "keys": [
+        "restaurant",
+        "local_dining",
+        "fastfood",
+        "local_cafe",
+        "local_bar",
+        "local_pizza",
+        "cake",
+        "coffee",
+        "breakfast_dining",
+        "lunch_dining",
+        "dinner_dining",
+        "icecream",
+        "bakery_dining",
+        "liquor",
+        "wine_bar",
+        "restaurant_menu",
+        "set_meal",
+        "ramen_dining"
+      ]
+    },
+    {
+      "label": "交通出行",
+      "keys": [
+        "directions_car",
+        "directions_bus",
+        "directions_subway",
+        "local_taxi",
+        "flight",
+        "train",
+        "motorcycle",
+        "directions_bike",
+        "directions_walk",
+        "boat",
+        "electric_scooter",
+        "local_gas_station",
+        "local_parking",
+        "traffic",
+        "directions_railway",
+        "airport_shuttle",
+        "pedal_bike",
+        "car_rental"
+      ]
+    },
+    {
+      "label": "购物消费",
+      "keys": [
+        "shopping_cart",
+        "shopping_bag",
+        "store",
+        "local_mall",
+        "local_grocery_store",
+        "storefront",
+        "shopping_basket",
+        "local_offer",
+        "receipt",
+        "sell",
+        "price_check",
+        "card_giftcard",
+        "redeem",
+        "inventory",
+        "add_shopping_cart",
+        "loyalty"
+      ]
+    },
+    {
+      "label": "居住生活",
+      "keys": [
+        "home",
+        "house",
+        "apartment",
+        "cleaning_services",
+        "plumbing",
+        "electrical_services",
+        "flash_on",
+        "water_drop",
+        "air",
+        "kitchen",
+        "bathtub",
+        "bed",
+        "chair",
+        "table_restaurant",
+        "lightbulb",
+        "hvac",
+        "roofing",
+        "foundation"
+      ]
+    },
+    {
+      "label": "通讯设备",
+      "keys": [
+        "phone",
+        "smartphone",
+        "phone_android",
+        "phone_iphone",
+        "tablet",
+        "laptop",
+        "computer",
+        "desktop_windows",
+        "watch",
+        "headphones",
+        "headset",
+        "keyboard",
+        "mouse",
+        "wifi",
+        "router",
+        "cable"
+      ]
+    },
+    {
+      "label": "娱乐休闲",
+      "keys": [
+        "movie",
+        "music_note",
+        "sports_esports",
+        "theater_comedy",
+        "casino",
+        "celebration",
+        "party_mode",
+        "nightlife",
+        "local_activity",
+        "attractions",
+        "beach_access",
+        "pool",
+        "spa",
+        "games",
+        "sports",
+        "sports_soccer",
+        "sports_basketball",
+        "sports_tennis"
+      ]
+    },
+    {
+      "label": "健康医疗",
+      "keys": [
+        "local_hospital",
+        "medical_services",
+        "local_pharmacy",
+        "health_and_safety",
+        "medication",
+        "fitness_center",
+        "self_improvement",
+        "psychology",
+        "healing",
+        "monitor_heart",
+        "elderly",
+        "accessible",
+        "medical_information",
+        "biotech",
+        "coronavirus",
+        "vaccines"
+      ]
+    },
+    {
+      "label": "教育学习",
+      "keys": [
+        "school",
+        "book",
+        "library_books",
+        "menu_book",
+        "auto_stories",
+        "edit",
+        "create",
+        "calculate",
+        "science",
+        "brush",
+        "palette",
+        "music_video",
+        "piano",
+        "translate",
+        "language",
+        "quiz"
+      ]
+    },
+    {
+      "label": "宠物动物",
+      "keys": [
+        "pets",
+        "cruelty_free",
+        "bug_report",
+        "emoji_nature",
+        "park",
+        "grass",
+        "forest",
+        "agriculture",
+        "eco",
+        "local_florist",
+        "yard"
+      ]
+    },
+    {
+      "label": "服装美容",
+      "keys": [
+        "checkroom",
+        "face",
+        "face_retouching",
+        "content_cut",
+        "dry_cleaning",
+        "local_laundry_service",
+        "iron",
+        "diamond",
+        "watch_later",
+        "ring_volume",
+        "gesture"
+      ]
+    },
+    {
+      "label": "其他杂项",
+      "keys": [
+        "business",
+        "work",
+        "camera_alt",
+        "photo_camera",
+        "videocam",
+        "print",
+        "mail",
+        "local_post_office",
+        "public",
+        "place",
+        "location_on",
+        "map",
+        "explore",
+        "compass",
+        "schedule",
+        "access_time"
+      ]
+    }
+  ],
+  "income": [
+    {
+      "label": "基础",
+      "keys": [
+        "category",
+        "label",
+        "bookmark",
+        "star",
+        "favorite",
+        "circle"
+      ]
+    },
+    {
+      "label": "工作职业",
+      "keys": [
+        "work",
+        "business",
+        "business_center",
+        "engineering",
+        "design_services",
+        "construction",
+        "code",
+        "developer_mode",
+        "computer",
+        "laptop",
+        "biotech",
+        "science",
+        "psychology",
+        "medical_services",
+        "school",
+        "gavel",
+        "balance",
+        "support_agent"
+      ]
+    },
+    {
+      "label": "金融理财",
+      "keys": [
+        "account_balance",
+        "account_balance_wallet",
+        "savings",
+        "trending_up",
+        "trending_down",
+        "show_chart",
+        "analytics",
+        "paid",
+        "money",
+        "currency_exchange",
+        "credit_card",
+        "payment",
+        "receipt_long",
+        "request_quote",
+        "monetization_on",
+        "price_change",
+        "euro",
+        "yen"
+      ]
+    },
+    {
+      "label": "奖励礼品",
+      "keys": [
+        "card_giftcard",
+        "redeem",
+        "wallet",
+        "emoji_events",
+        "celebration",
+        "volunteer_activism",
+        "loyalty",
+        "military_tech",
+        "workspace_premium",
+        "verified",
+        "diamond",
+        "auto_awesome",
+        "new_releases",
+        "toll",
+        "casino",
+        "confirmation_number"
+      ]
+    },
+    {
+      "label": "投资收益",
+      "keys": [
+        "apartment",
+        "real_estate_agent",
+        "home",
+        "house",
+        "store",
+        "storefront",
+        "factory",
+        "agriculture",
+        "energy_savings_leaf",
+        "solar_power",
+        "oil_barrel",
+        "local_gas_station",
+        "electric_bolt",
+        "water_drop"
+      ]
+    },
+    {
+      "label": "其他收入",
+      "keys": [
+        "handshake",
+        "schedule",
+        "undo",
+        "refresh",
+        "autorenew",
+        "update",
+        "sync",
+        "published_with_changes",
+        "swap_horiz",
+        "compare_arrows",
+        "call_received",
+        "input",
+        "move_down",
+        "south",
+        "call_made"
+      ]
+    }
+  ]
+}

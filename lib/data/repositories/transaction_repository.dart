@@ -314,7 +314,8 @@ abstract class TransactionRepository {
     int limit = 10,
   });
 
-  /// 更新交易(通过 ID 和字段)。
+  /// 仅更新明确传入的交易字段，不重写金额、汇率快照或其他关联。
+  /// writeNote / writeCategory 为 true 时，null 表示清空；否则保持原值。
   /// accountId / toAccountId 接 dynamic:dart `null` = absent(不更新);
   /// `d.Value<int?>(null)` = 显式清空;`int` = 写值。共享账本 Editor 写
   /// synthetic 账户时,accountId 写 null,通过 writeAccountSyncIdOverride
@@ -327,6 +328,11 @@ abstract class TransactionRepository {
     String? toAccountSyncIdOverride,
     bool writeAccountSyncIdOverride,
     bool writeToAccountSyncIdOverride,
+    int? categoryId,
+    String? categorySyncIdOverride,
+    bool writeCategory,
+    String? note,
+    bool writeNote,
   });
 
   /// 获取账本的首笔交易（按时间排序）

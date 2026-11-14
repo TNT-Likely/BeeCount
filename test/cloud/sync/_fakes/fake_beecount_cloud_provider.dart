@@ -364,6 +364,7 @@ class FakeBeeCountCloudProvider extends BeeCountCloudProvider {
     String? ledgerId,
     required String ledgerName,
     String currency = 'CNY',
+    int? monthStartDay,
     String? idempotencyKey,
   }) async {
     final meta = BeeCountCloudWriteCommitMeta(
