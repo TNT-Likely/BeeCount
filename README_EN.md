@@ -481,9 +481,9 @@ For commercial licensing pricing and process, see [COMMERCIAL_LICENSE.md](COMMER
 
 | Project | Description |
 |---|---|
-| [BeeCount-Design](https://github.com/TNT-Likely/BeeCount-Design) | v4 design source: screens, interactive HTML prototypes, component specs, review boards, and the [Figma source file](https://www.figma.com/design/s7bi4zexefEZkHf6TlHiWX/BeeCount) |
 | [BeeCount-Cloud](https://github.com/TNT-Likely/BeeCount-Cloud) | Self-hosted sync server + Web admin (FastAPI + React) |
 | [BeeCount-Website](https://github.com/TNT-Likely/BeeCount-Website) | Website / docs repo |
+| [BeeCount-Design](https://github.com/TNT-Likely/BeeCount-Design) | v4 design source: screens, interactive HTML prototypes, component specs, review boards, and the [Figma source file](https://www.figma.com/design/s7bi4zexefEZkHf6TlHiWX/BeeCount) |
 | [beecount-openharmony](https://github.com/TNT-Likely/beecount-openharmony) | HarmonyOS version (discontinued) |
 | [honeycomb](https://github.com/TNT-Likely/honeycomb) | Claude Code plugin marketplace (skills/agents used for developing this project) |
 
