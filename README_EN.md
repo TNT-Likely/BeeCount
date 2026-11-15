@@ -338,7 +338,7 @@ BeeCount 4.0 is officially released! Whether you use the app, write code, design
 - 💡 **Feature ideas**: Share use cases and proposals in [Discussions · Ideas](https://github.com/TNT-Likely/BeeCount/discussions/new?category=ideas). For larger changes, please discuss the approach before implementation.
 - 💻 **Code**: Fork the [BeeCount repository](https://github.com/TNT-Likely/BeeCount), create a focused branch, implement and test your change, then open a Pull Request.
 - 🌍 **Translations and docs**: Help add languages, improve user guides, or clarify development documentation.
-- 🎨 **Design and UX**: Help improve UI/UX, components, and theme skins. Design resources and interactive prototypes live in [BeeCount-Design](https://github.com/TNT-Likely/BeeCount-Design), with the [Figma source file available here](https://www.figma.com/design/s7bi4zexefEZkHf6TlHiWX/BeeCount).
+- 🎨 **Design and UX**: Help improve UI/UX, components, and theme skins. Design resources and interactive prototypes live in [BeeCount-Design](https://github.com/TNT-Likely/BeeCount-Design), with the [Figma source file available here](https://www.figma.com/design/s7bi4zexefEZkHf6TlHiWX/BeeCount). We're also inviting the community to join the [Logo Design Challenge](https://github.com/TNT-Likely/BeeCount/issues/608); see the [design brief and submission guide](https://github.com/TNT-Likely/BeeCount/blob/main/docs/branding/LOGO_DESIGN_CHALLENGE.md).
 
 **Before opening a PR:**
 - Keep each PR focused on one issue or improvement, and explain its motivation and scope.
