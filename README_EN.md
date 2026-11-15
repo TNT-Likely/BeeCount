@@ -28,7 +28,7 @@ Sync via BeeCount Cloud (self-hosted) / iCloud / Supabase / WebDAV / S3
 <br/>
 <br/>
 
-[🌐 Website](https://count.beejz.com/en/) · [📖 Docs](https://count.beejz.com/en/docs/intro) · [🐝 Logo Design Challenge](https://github.com/TNT-Likely/BeeCount/issues/608) · [💝 Donate](#-donate) · [🤝 Business](mailto:sunxiaoyes@outlook.com?subject=BeeCount%20Business%20Inquiry) · [💬 Telegram](https://t.me/beecount) · [📦 APK](https://github.com/TNT-Likely/BeeCount/releases/latest) · [🚀 TestFlight](https://testflight.apple.com/join/Eaw2rWxa)
+[🌐 Website](https://count.beejz.com/en/) · [📖 Docs](https://count.beejz.com/en/docs/intro) · [Logo Design Challenge](https://github.com/TNT-Likely/BeeCount/issues/608) · [💝 Donate](#-donate) · [🤝 Business](mailto:sunxiaoyes@outlook.com?subject=BeeCount%20Business%20Inquiry) · [💬 Telegram](https://t.me/beecount) · [📦 APK](https://github.com/TNT-Likely/BeeCount/releases/latest) · [🚀 TestFlight](https://testflight.apple.com/join/Eaw2rWxa)
 
 </div>
 
@@ -355,7 +355,6 @@ See the [contributing guide](docs/contributing/CONTRIBUTING.md) for the full wor
 
 
 </details>
----
 
 ## 💬 FAQ
 

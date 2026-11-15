@@ -28,7 +28,7 @@
 <br/>
 <br/>
 
-[🌐 官网](https://count.beejz.com) · [📖 文档](https://count.beejz.com/docs/intro) · [🐝 Logo 设计共创](https://github.com/TNT-Likely/BeeCount/issues/608) · [💝 捐赠](#-捐赠支持) · [🤝 商务合作](mailto:sunxiaoyes@outlook.com?subject=BeeCount%20Business%20Inquiry) · [💬 Telegram](https://t.me/beecount) · [📦 APK](https://github.com/TNT-Likely/BeeCount/releases/latest) · [🚀 TestFlight](https://testflight.apple.com/join/Eaw2rWxa)
+[🌐 官网](https://count.beejz.com) · [📖 文档](https://count.beejz.com/docs/intro) · [Logo 设计共创](https://github.com/TNT-Likely/BeeCount/issues/608) · [💝 捐赠](#-捐赠支持) · [🤝 商务合作](mailto:sunxiaoyes@outlook.com?subject=BeeCount%20Business%20Inquiry) · [💬 Telegram](https://t.me/beecount) · [📦 APK](https://github.com/TNT-Likely/BeeCount/releases/latest) · [🚀 TestFlight](https://testflight.apple.com/join/Eaw2rWxa)
 
 </div>
 
@@ -355,7 +355,6 @@ BeeCount 4.0 已正式上线。无论你是日常用户、开发者、设计师�
 
 
 </details>
----
 
 ## 💬 常见问题
 
