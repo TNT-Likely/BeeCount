@@ -10,6 +10,20 @@
 - **Figma source / Figma 设计源文件**: [BeeCount on Figma](https://www.figma.com/design/s7bi4zexefEZkHf6TlHiWX/BeeCount)
 - **Submissions / 投稿入口**: [Logo Design Challenge](https://github.com/TNT-Likely/BeeCount/issues/608)
 
+## Current assets / 现有素材
+
+The app currently contains several related brand assets. Please review them as context rather than assuming they must all remain unchanged:
+
+- [assets/logo.svg](https://github.com/TNT-Likely/BeeCount/blob/main/assets/logo.svg) — current primary logo artwork and a source for adaptive app-icon generation.
+- [assets/bee.svg](https://github.com/TNT-Likely/BeeCount/blob/main/assets/bee.svg) — bee artwork used in the app UI.
+- [assets/logo2.png](https://github.com/TNT-Likely/BeeCount/blob/main/assets/logo2.png) — raster brand image used in selected sharing and report surfaces.
+
+当前 App 中存在多份相关品牌素材，请把它们作为了解现状的参考，而不是必须全部沿用的限制：
+
+- [assets/logo.svg](https://github.com/TNT-Likely/BeeCount/blob/main/assets/logo.svg)：当前主要 Logo 图形，也是 Adaptive App Icon 生成的几何源。
+- [assets/bee.svg](https://github.com/TNT-Likely/BeeCount/blob/main/assets/bee.svg)：App 界面中使用的蜜蜂图形。
+- [assets/logo2.png](https://github.com/TNT-Likely/BeeCount/blob/main/assets/logo2.png)：部分分享和年度报告场景使用的位图品牌素材。
+
 ## 1. Why a refresh? / 为什么重新设计？
 
 BeeCount is an open-source personal finance and bookkeeping app. Version 4.0 is a good moment to revisit the visual identity and build a consistent brand system for the app, website, store listings, and community materials.
