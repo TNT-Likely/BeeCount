@@ -330,18 +330,25 @@ flutter build apk --flavor prod --release
 
 ---
 
-## 🤝 贡献
+## 🤝 参与贡献
 
-<details>
-<summary>欢迎所有形式的贡献</summary>
+BeeCount 4.0 已正式上线。无论你是日常用户、开发者、设计师还是译者，都欢迎参与，让蜜蜂记账变得更好。
 
-- 🐛 [报告 Bug](https://github.com/TNT-Likely/BeeCount/issues/new)
-- 💡 [功能建议](https://github.com/TNT-Likely/BeeCount/discussions/new?category=ideas)
-- 💻 [代码贡献](docs/contributing/CONTRIBUTING_ZH.md#代码贡献流程) · 🌍 [翻译](docs/contributing/CONTRIBUTING_ZH.md#翻译贡献) · 📝 [文档](docs/contributing/CONTRIBUTING_ZH.md#文档贡献) · 🎨 [设计师招募](docs/contributing/CONTRIBUTING_ZH.md#designer-recruitment)
+- 🐛 **问题反馈**：发现 Bug？请先搜索已有 [Issues](https://github.com/TNT-Likely/BeeCount/issues)，再[提交问题](https://github.com/TNT-Likely/BeeCount/issues/new)，尽量附上版本、设备信息和复现步骤。
+- 💡 **功能建议**：欢迎在 [Discussions · Ideas](https://github.com/TNT-Likely/BeeCount/discussions/new?category=ideas) 交流使用场景与想法；较大的改动建议先讨论，再开始实现。
+- 💻 **代码贡献**：从 [BeeCount 仓库](https://github.com/TNT-Likely/BeeCount) Fork，创建独立分支，完成修改与测试后提交 Pull Request。
+- 🌍 **翻译与文档**：欢迎补充语言、完善使用文档和开发说明。
+- 🎨 **设计与体验**：欢迎参与 UI/UX、组件和主题皮肤改进；设计资源与交互原型见 [BeeCount-Design](https://github.com/TNT-Likely/BeeCount-Design)，也可以直接查看 [Figma 设计源文件](https://www.figma.com/design/s7bi4zexefEZkHf6TlHiWX/BeeCount)。同时欢迎参与 [Logo 社区共创](https://github.com/TNT-Likely/BeeCount/issues/608)，详见[设计需求与投稿规范](https://github.com/TNT-Likely/BeeCount/blob/main/docs/branding/LOGO_DESIGN_CHALLENGE.md)。
 
-**快速开始**:Fork → 创建 feature 分支 → 提交 → PR。详细规范见 [完整贡献指南](docs/contributing/CONTRIBUTING_ZH.md)。
+**提交 PR 前请留意：**
+- 一个 PR 尽量聚焦一个问题或一项改进，并说明修改动机与影响范围。
+- 根据改动补充测试；涉及界面变化时，尽量附上截图或录屏。
+- 不要提交真实账单、个人财务数据、密钥、令牌或其他隐私信息。
+- 提交信息与 PR 标题遵循约定式提交规范，使用中文描述。
 
-</details>
+**快速开始**：Fork → 创建 `feature/*` 或 `fix/*` 分支 → 开发与测试 → 提交 → 创建 PR。
+
+详细流程、开发环境、代码规范和 PR 模板请查看[贡献指南](docs/contributing/CONTRIBUTING_ZH.md)。
 
 ---
 
@@ -470,12 +477,13 @@ BeeCount 和 BeeCount Cloud 由同一作者维护。如果这些项目对你有�
 
 ---
 
-## 📦 相关仓库
+## 📦 相关项目
 
-| 仓库 | 说明 |
+| 项目 | 说明 |
 |---|---|
 | [BeeCount-Cloud](https://github.com/TNT-Likely/BeeCount-Cloud) | 自建云同步服务端 + Web 管理端(FastAPI + React) |
 | [BeeCount-Website](https://github.com/TNT-Likely/BeeCount-Website) | 官网 / 文档仓库 |
+| [BeeCount-Design](https://github.com/TNT-Likely/BeeCount-Design) | 4.0 设计源：页面设计、可交互 HTML 原型、组件规范与评审看板；[Figma 设计源文件](https://www.figma.com/design/s7bi4zexefEZkHf6TlHiWX/BeeCount) |
 | [beecount-openharmony](https://github.com/TNT-Likely/beecount-openharmony) | 鸿蒙版本(已停止更新) |
 | [honeycomb](https://github.com/TNT-Likely/honeycomb) | Claude Code 开发脚手架插件市场(本项目开发用的 skills/agents 集合) |
 

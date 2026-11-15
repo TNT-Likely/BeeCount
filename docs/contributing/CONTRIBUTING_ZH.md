@@ -73,28 +73,16 @@
 - 图标设计
 - 截图和宣传素材
 
-#### 🎨 招募设计师 {#designer-recruitment}
+#### 🐝 Logo 社区共创
 
-**我们正在寻找有才华的 UI/UX 设计师加入蜜蜂记账项目！**
+BeeCount 4.0 正式上线，我们正在邀请社区一起重新设计产品 Logo。
 
-📐 **参与内容：**
+- [查看 Logo 设计需求、交付规范与授权说明](https://github.com/TNT-Likely/BeeCount/blob/main/docs/branding/LOGO_DESIGN_CHALLENGE.md)
+- [前往 Logo 共创活动投稿 / 讨论](https://github.com/TNT-Likely/BeeCount/issues/608)
+- [查看 Figma 设计源文件](https://www.figma.com/design/s7bi4zexefEZkHf6TlHiWX/BeeCount)
+- [浏览 BeeCount-Design 设计资源仓库](https://github.com/TNT-Likely/BeeCount-Design)
 
-- 重新设计应用 UI 和交互体验
-- 设计主题皮肤和插画元素
-- 优化用户界面的视觉一致性
-- 创建现代化、简洁的设计语言
-
-🎁 **你将获得：**
-
-- 开源项目作品集积累
-- 在 README 和应用中署名
-- 与开发团队密切合作的机会
-- 为数千用户打造优质体验的成就感
-
-💌 **联系方式：**
-
-- GitHub Issues: [提交设计建议](https://github.com/TNT-Likely/BeeCount/issues)
-- Telegram: [加入讨论群](https://t.me/beecount)
+投稿者保留作品版权；入选作品正式用于产品前，会与设计者另行书面确认授权和署名方式。
 
 ## 报告 Bug
 
