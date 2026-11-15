@@ -481,9 +481,9 @@ BeeCount 和 BeeCount Cloud 由同一作者维护。如果这些项目对你有�
 
 | 项目 | 说明 |
 |---|---|
-| [BeeCount-Design](https://github.com/TNT-Likely/BeeCount-Design) | 4.0 设计源：页面设计、可交互 HTML 原型、组件规范与评审看板；[Figma 设计源文件](https://www.figma.com/design/s7bi4zexefEZkHf6TlHiWX/BeeCount) |
 | [BeeCount-Cloud](https://github.com/TNT-Likely/BeeCount-Cloud) | 自建云同步服务端 + Web 管理端(FastAPI + React) |
 | [BeeCount-Website](https://github.com/TNT-Likely/BeeCount-Website) | 官网 / 文档仓库 |
+| [BeeCount-Design](https://github.com/TNT-Likely/BeeCount-Design) | 4.0 设计源：页面设计、可交互 HTML 原型、组件规范与评审看板；[Figma 设计源文件](https://www.figma.com/design/s7bi4zexefEZkHf6TlHiWX/BeeCount) |
 | [beecount-openharmony](https://github.com/TNT-Likely/beecount-openharmony) | 鸿蒙版本(已停止更新) |
 | [honeycomb](https://github.com/TNT-Likely/honeycomb) | Claude Code 开发脚手架插件市场(本项目开发用的 skills/agents 集合) |
 
