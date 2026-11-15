@@ -338,7 +338,7 @@ BeeCount 4.0 已正式上线。无论你是日常用户、开发者、设计师�
 - 💡 **功能建议**：欢迎在 [Discussions · Ideas](https://github.com/TNT-Likely/BeeCount/discussions/new?category=ideas) 交流使用场景与想法；较大的改动建议先讨论，再开始实现。
 - 💻 **代码贡献**：从 [BeeCount 仓库](https://github.com/TNT-Likely/BeeCount) Fork，创建独立分支，完成修改与测试后提交 Pull Request。
 - 🌍 **翻译与文档**：欢迎补充语言、完善使用文档和开发说明。
-- 🎨 **设计与体验**：欢迎参与 UI/UX、组件和主题皮肤改进；设计资源与交互原型见 [BeeCount-Design](https://github.com/TNT-Likely/BeeCount-Design)，也可以直接查看 [Figma 设计源文件](https://www.figma.com/design/s7bi4zexefEZkHf6TlHiWX/BeeCount)。 同时欢迎参与 [Logo 社区共创](https://github.com/TNT-Likely/BeeCount/issues/608)，详见[设计需求与投稿规范](https://github.com/TNT-Likely/BeeCount/blob/main/docs/branding/LOGO_DESIGN_CHALLENGE.md)。
+- 🎨 **设计与体验**：欢迎参与 UI/UX、组件和主题皮肤改进；设计资源与交互原型见 [BeeCount-Design](https://github.com/TNT-Likely/BeeCount-Design)，也可以直接查看 [Figma 设计源文件](https://www.figma.com/design/s7bi4zexefEZkHf6TlHiWX/BeeCount)。同时欢迎参与 [Logo 社区共创](https://github.com/TNT-Likely/BeeCount/issues/608)，详见[设计需求与投稿规范](https://github.com/TNT-Likely/BeeCount/blob/main/docs/branding/LOGO_DESIGN_CHALLENGE.md)。
 
 **提交 PR 前请留意：**
 - 一个 PR 尽量聚焦一个问题或一项改进，并说明修改动机与影响范围。
