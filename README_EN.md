@@ -338,7 +338,7 @@ BeeCount 4.0 is officially released! Whether you use the app, write code, design
 - 💡 **Feature ideas**: Share use cases and proposals in [Discussions · Ideas](https://github.com/TNT-Likely/BeeCount/discussions/new?category=ideas). For larger changes, please discuss the approach before implementation.
 - 💻 **Code**: Fork the [BeeCount repository](https://github.com/TNT-Likely/BeeCount), create a focused branch, implement and test your change, then open a Pull Request.
 - 🌍 **Translations and docs**: Help add languages, improve user guides, or clarify development documentation.
-- 🎨 **Design and UX**: Help improve UI/UX, components, and theme skins. Design resources and interactive prototypes live in [BeeCount-Design](https://github.com/TNT-Likely/BeeCount-Design).
+- 🎨 **Design and UX**: Help improve UI/UX, components, and theme skins. Design resources and interactive prototypes live in [BeeCount-Design](https://github.com/TNT-Likely/BeeCount-Design), with the [Figma source file available here](https://www.figma.com/design/s7bi4zexefEZkHf6TlHiWX/BeeCount).
 
 **Before opening a PR:**
 - Keep each PR focused on one issue or improvement, and explain its motivation and scope.
@@ -481,7 +481,7 @@ For commercial licensing pricing and process, see [COMMERCIAL_LICENSE.md](COMMER
 
 | Project | Description |
 |---|---|
-| [BeeCount-Design](https://github.com/TNT-Likely/BeeCount-Design) | v4 design source: screens, interactive HTML prototypes, component specs, and review boards |
+| [BeeCount-Design](https://github.com/TNT-Likely/BeeCount-Design) | v4 design source: screens, interactive HTML prototypes, component specs, review boards, and the [Figma source file](https://www.figma.com/design/s7bi4zexefEZkHf6TlHiWX/BeeCount) |
 | [BeeCount-Cloud](https://github.com/TNT-Likely/BeeCount-Cloud) | Self-hosted sync server + Web admin (FastAPI + React) |
 | [BeeCount-Website](https://github.com/TNT-Likely/BeeCount-Website) | Website / docs repo |
 | [beecount-openharmony](https://github.com/TNT-Likely/beecount-openharmony) | HarmonyOS version (discontinued) |
