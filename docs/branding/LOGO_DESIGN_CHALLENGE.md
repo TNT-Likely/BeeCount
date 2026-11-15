@@ -8,7 +8,7 @@
 - **App repository / 主项目**: [BeeCount](https://github.com/TNT-Likely/BeeCount)
 - **Design workspace / 设计协作仓库**: [BeeCount-Design](https://github.com/TNT-Likely/BeeCount-Design)
 - **Figma source / Figma 设计源文件**: [BeeCount on Figma](https://www.figma.com/design/s7bi4zexefEZkHf6TlHiWX/BeeCount)
-- **Submissions / 投稿入口**: [Logo Design Challenge](https://github.com/TNT-Likely/BeeCount/issues)
+- **Submissions / 投稿入口**: [Logo Design Challenge](https://github.com/TNT-Likely/BeeCount/issues/608)
 
 ## 1. Why a refresh? / 为什么重新设计？
 
