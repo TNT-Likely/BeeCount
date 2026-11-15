@@ -332,16 +332,23 @@ See [docs/contributing/CONTRIBUTING.md](docs/contributing/CONTRIBUTING.md) for d
 
 ## 🤝 Contributing
 
-<details>
-<summary>All contributions welcome</summary>
+BeeCount 4.0 is officially released! Whether you use the app, write code, design interfaces, or translate content, you're welcome to help make BeeCount better.
 
-- 🐛 [Report a bug](https://github.com/TNT-Likely/BeeCount/issues/new)
-- 💡 [Feature request](https://github.com/TNT-Likely/BeeCount/discussions/new?category=ideas)
-- 💻 [Code](docs/contributing/CONTRIBUTING.md#code-contribution-flow) · 🌍 [Translation](docs/contributing/CONTRIBUTING.md#translation-contributions) · 📝 [Docs](docs/contributing/CONTRIBUTING.md#documentation-contributions) · 🎨 [Designer recruitment](docs/contributing/CONTRIBUTING.md#designer-recruitment)
+- 🐛 **Bug reports**: Search existing [Issues](https://github.com/TNT-Likely/BeeCount/issues) first, then [open a report](https://github.com/TNT-Likely/BeeCount/issues/new) with the app version, device details, and reproduction steps.
+- 💡 **Feature ideas**: Share use cases and proposals in [Discussions · Ideas](https://github.com/TNT-Likely/BeeCount/discussions/new?category=ideas). For larger changes, please discuss the approach before implementation.
+- 💻 **Code**: Fork the [BeeCount repository](https://github.com/TNT-Likely/BeeCount), create a focused branch, implement and test your change, then open a Pull Request.
+- 🌍 **Translations and docs**: Help add languages, improve user guides, or clarify development documentation.
+- 🎨 **Design and UX**: Help improve UI/UX, components, and theme skins. Design resources and interactive prototypes live in [BeeCount-Design](https://github.com/TNT-Likely/BeeCount-Design).
 
-**Quick start**: Fork → create feature branch → commit → PR. See the [full contributing guide](docs/contributing/CONTRIBUTING.md) for details.
+**Before opening a PR:**
+- Keep each PR focused on one issue or improvement, and explain its motivation and scope.
+- Add or update tests where appropriate. Include screenshots or recordings for UI changes.
+- Never commit real bills, personal financial data, credentials, tokens, or other private information.
+- Follow the Conventional Commits format for commit messages and PR titles.
 
-</details>
+**Quick start**: Fork → create a `feature/*` or `fix/*` branch → implement and test → commit → open a PR.
+
+See the [contributing guide](docs/contributing/CONTRIBUTING.md) for the full workflow, development setup, coding conventions, and PR template.
 
 ---
 
@@ -470,10 +477,11 @@ For commercial licensing pricing and process, see [COMMERCIAL_LICENSE.md](COMMER
 
 ---
 
-## 📦 Related Repositories
+## 📦 Related Projects
 
-| Repository | Description |
+| Project | Description |
 |---|---|
+| [BeeCount-Design](https://github.com/TNT-Likely/BeeCount-Design) | v4 design source: screens, interactive HTML prototypes, component specs, and review boards |
 | [BeeCount-Cloud](https://github.com/TNT-Likely/BeeCount-Cloud) | Self-hosted sync server + Web admin (FastAPI + React) |
 | [BeeCount-Website](https://github.com/TNT-Likely/BeeCount-Website) | Website / docs repo |
 | [beecount-openharmony](https://github.com/TNT-Likely/beecount-openharmony) | HarmonyOS version (discontinued) |
