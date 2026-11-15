@@ -73,27 +73,16 @@ Help us translate the app into more languages so more people can use it.
 - Icon design
 - Screenshots and promotional materials
 
-#### 🎨 Designer Recruitment {#designer-recruitment}
+#### 🐝 Logo Design Challenge
 
-**We're looking for talented UI/UX designers to join the BeeCount project!**
+BeeCount 4.0 is officially released, and we're inviting the community to help refresh the product logo.
 
-📐 **What You'll Work On:**
+- [Read the design brief, deliverables, and usage-rights notes](https://github.com/TNT-Likely/BeeCount/blob/main/docs/branding/LOGO_DESIGN_CHALLENGE.md)
+- [Join the Logo Design Challenge and submit a proposal](https://github.com/TNT-Likely/BeeCount/issues/608)
+- [Explore the Figma source file](https://www.figma.com/design/s7bi4zexefEZkHf6TlHiWX/BeeCount)
+- [Browse the BeeCount-Design repository](https://github.com/TNT-Likely/BeeCount-Design)
 
-- Redesign app UI and interaction experience
-- Create theme skins and illustration elements
-- Optimize visual consistency across the interface
-- Develop a modern, clean design language
-
-🎁 **What You'll Get:**
-
-- Portfolio pieces for open-source work
-- Credit in README and app
-- Close collaboration with dev team
-- Satisfaction of creating great UX for thousands of users
-
-💌 **Contact:**
-
-- GitHub Issues: [Submit design proposals](https://github.com/TNT-Likely/BeeCount/issues)
+Designers retain copyright in their submissions. Before a selected design is used in the product, the project and designer will agree in writing on the required license and attribution.
 
 ## Reporting Bugs
 
