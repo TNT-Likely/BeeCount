@@ -136,20 +136,15 @@ List third-party assets, font licenses, and any AI-assisted steps. / 说明第�
 Anything else we should know. / 其他补充信息。
 ```
 
-## 6. Review and timeline / 评审与时间安排
+## 6. Open call and review / 长期征集与评审
 
-- **Open call / 公开征集**: through **2026-11-29 23:59 (UTC+8)**.
-- **Shortlist / 初步筛选**: **2026-11-30 – 2026-12-06**.
-- **Community feedback / 社区反馈**: shortlisted proposals will be shared for comments and reactions.
-- **Final selection / 最终定稿**: target **2026-12-13**.
+- **Open call / 公开征集**: Ongoing. There is no submission deadline; proposals are welcome at any time.
+- **Review / 评审**: The maintainer will check new submissions periodically. When there are enough complete proposals to compare, shortlisted concepts may be shared for community feedback.
+- **Final selection / 最终定稿**: No preset date. The shortlist and review schedule will be announced in this issue when ready.
 
-If more time is needed, the schedule will be updated in the challenge issue.
+公开征集长期开放，不设截止日期，任何时候都欢迎投稿。
 
-如投稿数量或质量需要更多时间，时间安排会在活动 Issue 中同步更新。
-
-Community feedback is important, but reactions are not the only selection criterion. The final choice will consider brand fit, small-size legibility, accessibility, originality, and implementation feasibility.
-
-社区反馈会作为重要参考，但不会只按点赞数决定。最终会综合考虑品牌契合度、小尺寸辨识度、可访问性、原创性和实际落地可行性。
+项目维护者会不定期查看新投稿；当积累了足够数量、具备比较价值的完整方案后，再组织初筛和社区反馈。最终评审时间根据投稿情况确定，并在本 Issue 中另行公布。
 
 ## 7. Originality and usage rights / 原创性与使用授权
 
