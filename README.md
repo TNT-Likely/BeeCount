@@ -28,7 +28,7 @@
 <br/>
 <br/>
 
-[🌐 官网](https://count.beejz.com) · [📖 文档](https://count.beejz.com/docs/intro) · [💝 捐赠](#-捐赠支持) · [🤝 商务合作](mailto:sunxiaoyes@outlook.com?subject=BeeCount%20Business%20Inquiry) · [💬 Telegram](https://t.me/beecount) · [📦 APK](https://github.com/TNT-Likely/BeeCount/releases/latest) · [🚀 TestFlight](https://testflight.apple.com/join/Eaw2rWxa)
+[🌐 官网](https://count.beejz.com) · [📖 文档](https://count.beejz.com/docs/intro) · [🐝 Logo 设计共创](https://github.com/TNT-Likely/BeeCount/issues/608) · [💝 捐赠](#-捐赠支持) · [🤝 商务合作](mailto:sunxiaoyes@outlook.com?subject=BeeCount%20Business%20Inquiry) · [💬 Telegram](https://t.me/beecount) · [📦 APK](https://github.com/TNT-Likely/BeeCount/releases/latest) · [🚀 TestFlight](https://testflight.apple.com/join/Eaw2rWxa)
 
 </div>
 
@@ -332,13 +332,16 @@ flutter build apk --flavor prod --release
 
 ## 🤝 参与贡献
 
+<details>
+<summary>欢迎所有形式的贡献</summary>
+
 BeeCount 4.0 已正式上线。无论你是日常用户、开发者、设计师还是译者，都欢迎参与，让蜜蜂记账变得更好。
 
 - 🐛 **问题反馈**：发现 Bug？请先搜索已有 [Issues](https://github.com/TNT-Likely/BeeCount/issues)，再[提交问题](https://github.com/TNT-Likely/BeeCount/issues/new)，尽量附上版本、设备信息和复现步骤。
 - 💡 **功能建议**：欢迎在 [Discussions · Ideas](https://github.com/TNT-Likely/BeeCount/discussions/new?category=ideas) 交流使用场景与想法；较大的改动建议先讨论，再开始实现。
 - 💻 **代码贡献**：从 [BeeCount 仓库](https://github.com/TNT-Likely/BeeCount) Fork，创建独立分支，完成修改与测试后提交 Pull Request。
 - 🌍 **翻译与文档**：欢迎补充语言、完善使用文档和开发说明。
-- 🎨 **设计与体验**：欢迎参与 UI/UX、组件和主题皮肤改进；设计资源与交互原型见 [BeeCount-Design](https://github.com/TNT-Likely/BeeCount-Design)，也可以直接查看 [Figma 设计源文件](https://www.figma.com/design/s7bi4zexefEZkHf6TlHiWX/BeeCount)。同时欢迎参与 [Logo 社区共创](https://github.com/TNT-Likely/BeeCount/issues/608)，详见[设计需求与投稿规范](https://github.com/TNT-Likely/BeeCount/blob/main/docs/branding/LOGO_DESIGN_CHALLENGE.md)。
+- 🎨 **设计与体验**：欢迎参与 UI/UX、组件和整体视觉体验改进；设计资源与交互原型见 [BeeCount-Design](https://github.com/TNT-Likely/BeeCount-Design)，也可以直接查看 [Figma 设计源文件](https://www.figma.com/design/s7bi4zexefEZkHf6TlHiWX/BeeCount)。同时欢迎参与 [Logo 社区共创](https://github.com/TNT-Likely/BeeCount/issues/608)，详见[设计需求与投稿规范](https://github.com/TNT-Likely/BeeCount/blob/main/docs/branding/LOGO_DESIGN_CHALLENGE.md)。
 
 **提交 PR 前请留意：**
 - 一个 PR 尽量聚焦一个问题或一项改进，并说明修改动机与影响范围。
@@ -350,21 +353,8 @@ BeeCount 4.0 已正式上线。无论你是日常用户、开发者、设计师�
 
 详细流程、开发环境、代码规范和 PR 模板请查看[贡献指南](docs/contributing/CONTRIBUTING_ZH.md)。
 
----
-
-## 🎨 皮肤
-
-<details>
-<summary>贡献一款顶部皮肤</summary>
-
-「主题色 + 皮肤 = 顶部头图」。皮肤分**代码皮肤**(`CustomPainter` 画渐变 / 几何,跟随主题色)和**图片皮肤**(SVG,`BoxFit.cover` 铺满头部,可整幅染成主题色)两类。
-
-最简单的方式:照着 [`example_skin.svg`](assets/header_skins/example_skin.svg) 画一张 SVG → 丢进 `assets/header_skins/` → 在 `lib/styles/header_skins.dart` 注册一条 → 加 i18n 名跑 `flutter gen-l10n`。
-
-**完整规范(SVG 要求 + 主题色着色 + 接入步骤)见 [assets/header_skins/README.md](assets/header_skins/README.md)。**
 
 </details>
-
 ---
 
 ## 💬 常见问题

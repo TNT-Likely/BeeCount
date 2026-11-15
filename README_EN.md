@@ -28,7 +28,7 @@ Sync via BeeCount Cloud (self-hosted) / iCloud / Supabase / WebDAV / S3
 <br/>
 <br/>
 
-[🌐 Website](https://count.beejz.com/en/) · [📖 Docs](https://count.beejz.com/en/docs/intro) · [💝 Donate](#-donate) · [🤝 Business](mailto:sunxiaoyes@outlook.com?subject=BeeCount%20Business%20Inquiry) · [💬 Telegram](https://t.me/beecount) · [📦 APK](https://github.com/TNT-Likely/BeeCount/releases/latest) · [🚀 TestFlight](https://testflight.apple.com/join/Eaw2rWxa)
+[🌐 Website](https://count.beejz.com/en/) · [📖 Docs](https://count.beejz.com/en/docs/intro) · [🐝 Logo Design Challenge](https://github.com/TNT-Likely/BeeCount/issues/608) · [💝 Donate](#-donate) · [🤝 Business](mailto:sunxiaoyes@outlook.com?subject=BeeCount%20Business%20Inquiry) · [💬 Telegram](https://t.me/beecount) · [📦 APK](https://github.com/TNT-Likely/BeeCount/releases/latest) · [🚀 TestFlight](https://testflight.apple.com/join/Eaw2rWxa)
 
 </div>
 
@@ -332,13 +332,16 @@ See [docs/contributing/CONTRIBUTING.md](docs/contributing/CONTRIBUTING.md) for d
 
 ## 🤝 Contributing
 
+<details>
+<summary>All contributions welcome</summary>
+
 BeeCount 4.0 is officially released! Whether you use the app, write code, design interfaces, or translate content, you're welcome to help make BeeCount better.
 
 - 🐛 **Bug reports**: Search existing [Issues](https://github.com/TNT-Likely/BeeCount/issues) first, then [open a report](https://github.com/TNT-Likely/BeeCount/issues/new) with the app version, device details, and reproduction steps.
 - 💡 **Feature ideas**: Share use cases and proposals in [Discussions · Ideas](https://github.com/TNT-Likely/BeeCount/discussions/new?category=ideas). For larger changes, please discuss the approach before implementation.
 - 💻 **Code**: Fork the [BeeCount repository](https://github.com/TNT-Likely/BeeCount), create a focused branch, implement and test your change, then open a Pull Request.
 - 🌍 **Translations and docs**: Help add languages, improve user guides, or clarify development documentation.
-- 🎨 **Design and UX**: Help improve UI/UX, components, and theme skins. Design resources and interactive prototypes live in [BeeCount-Design](https://github.com/TNT-Likely/BeeCount-Design), with the [Figma source file available here](https://www.figma.com/design/s7bi4zexefEZkHf6TlHiWX/BeeCount). We're also inviting the community to join the [Logo Design Challenge](https://github.com/TNT-Likely/BeeCount/issues/608); see the [design brief and submission guide](https://github.com/TNT-Likely/BeeCount/blob/main/docs/branding/LOGO_DESIGN_CHALLENGE.md).
+- 🎨 **Design and UX**: Help improve UI/UX, components, and the overall visual experience. Design resources and interactive prototypes live in [BeeCount-Design](https://github.com/TNT-Likely/BeeCount-Design), with the [Figma source file available here](https://www.figma.com/design/s7bi4zexefEZkHf6TlHiWX/BeeCount). We're also inviting the community to join the [Logo Design Challenge](https://github.com/TNT-Likely/BeeCount/issues/608); see the [design brief and submission guide](https://github.com/TNT-Likely/BeeCount/blob/main/docs/branding/LOGO_DESIGN_CHALLENGE.md).
 
 **Before opening a PR:**
 - Keep each PR focused on one issue or improvement, and explain its motivation and scope.
@@ -350,21 +353,8 @@ BeeCount 4.0 is officially released! Whether you use the app, write code, design
 
 See the [contributing guide](docs/contributing/CONTRIBUTING.md) for the full workflow, development setup, coding conventions, and PR template.
 
----
-
-## 🎨 Skins
-
-<details>
-<summary>Contribute a skin</summary>
-
-"Theme color + skin = the header banner." Skins come in two kinds: **code skins** (`CustomPainter` drawing gradients / shapes, auto-following the theme color) and **image skins** (an SVG painted edge-to-edge with `BoxFit.cover`, optionally recolored to the theme color via `themed: true`).
-
-Easiest path: copy [`example_skin.svg`](assets/header_skins/example_skin.svg) → drop your SVG into `assets/header_skins/` → register one entry in `lib/styles/header_skins.dart` → add an i18n name and run `flutter gen-l10n`.
-
-**Full spec (SVG requirements + theme recoloring + integration steps): [assets/header_skins/README_EN.md](assets/header_skins/README_EN.md).**
 
 </details>
-
 ---
 
 ## 💬 FAQ
