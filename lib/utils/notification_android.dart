@@ -52,6 +52,37 @@ class AndroidNotificationUtil implements util.NotificationUtil {
     return granted ?? false;
   }
 
+  /// 确保渠道存在并刷新本地化名字/描述。
+  ///
+  /// 不用 AndroidNotificationDetails 的 channelAction: update——插件对
+  /// 「渠道不存在 + update」直接跳过创建,通知发到不存在的渠道被系统静默
+  /// 丢弃(全新安装的首条通知会丢)。createNotificationChannel 无条件执行
+  /// setup:缺失时创建,已存在时刷新名字/描述(Android 创建后仅这两项可由
+  /// 应用更新),升级用户的旧渠道名由此随应用内语言刷新(#576)。
+  Future<void> _ensureChannel(
+    String id,
+    String name,
+    String description, {
+    Importance importance = Importance.max,
+  }) async {
+    final androidPlugin = _plugin
+        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+    if (androidPlugin == null) return;
+    try {
+      await androidPlugin.createNotificationChannel(AndroidNotificationChannel(
+        id,
+        name,
+        description: description,
+        importance: importance,
+        playSound: true,
+        enableVibration: true,
+        enableLights: true,
+      ));
+    } catch (e) {
+      print('[Android] ⚠️  通知渠道创建失败: $e');
+    }
+  }
+
   @override
   Future<void> scheduleDailyReminder({
     required int id,
@@ -66,13 +97,15 @@ class AndroidNotificationUtil implements util.NotificationUtil {
     final tzScheduledDate = util.convertToTZDateTime(scheduledDate);
 
     final l10n = resolveAppLocalizations(null);
+    await _ensureChannel(
+      'accounting_reminder',
+      l10n.reminderTitle,
+      l10n.reminderDailyTitle,
+    );
     final androidDetails = AndroidNotificationDetails(
       'accounting_reminder',
       l10n.reminderTitle,
       channelDescription: l10n.reminderDailyTitle,
-      // 渠道已存在时也刷新名字/描述:渠道名创建后仅这两项可更新,否则
-      // 升级用户(#550 前的旧中文名)与切换语言后设置页仍显示旧文案。
-      channelAction: AndroidNotificationChannelAction.update,
       importance: Importance.max,
       priority: Priority.max,
       ticker: l10n.reminderTitle,
@@ -134,11 +167,15 @@ class AndroidNotificationUtil implements util.NotificationUtil {
     final tzScheduledDate = util.convertToTZDateTime(scheduledDate);
 
     final l10n = resolveAppLocalizations(null);
+    await _ensureChannel(
+      'accounting_reminder',
+      l10n.reminderTitle,
+      l10n.reminderDailyTitle,
+    );
     final androidDetails = AndroidNotificationDetails(
       'accounting_reminder',
       l10n.reminderTitle,
       channelDescription: l10n.reminderDailyTitle,
-      channelAction: AndroidNotificationChannelAction.update,
       importance: Importance.max,
       priority: Priority.max,
       ticker: l10n.reminderTitle,
@@ -212,11 +249,15 @@ class AndroidNotificationUtil implements util.NotificationUtil {
     if (!_initialized) await initialize();
 
     final l10n = resolveAppLocalizations(null);
+    await _ensureChannel(
+      'accounting_reminder',
+      l10n.reminderTitle,
+      l10n.reminderDailyTitle,
+    );
     final androidDetails = AndroidNotificationDetails(
       'accounting_reminder',
       l10n.reminderTitle,
       channelDescription: l10n.reminderDailyTitle,
-      channelAction: AndroidNotificationChannelAction.update,
       importance: Importance.max,
       priority: Priority.max,
       ticker: l10n.reminderTitle,
@@ -269,11 +310,15 @@ class AndroidNotificationUtil implements util.NotificationUtil {
         print('[Android] 📅 设置备用提醒 $i/7 (ID: $backupId): $backupDate');
 
         final l10n = resolveAppLocalizations(null);
+        await _ensureChannel(
+          'accounting_reminder_backup',
+          l10n.reminderBackupChannelName,
+          l10n.reminderBackupChannelDescription,
+        );
         final androidDetails = AndroidNotificationDetails(
           'accounting_reminder_backup',
           l10n.reminderBackupChannelName,
           channelDescription: l10n.reminderBackupChannelDescription,
-          channelAction: AndroidNotificationChannelAction.update,
           importance: Importance.max,
           priority: Priority.max,
           ticker: l10n.reminderTitle,

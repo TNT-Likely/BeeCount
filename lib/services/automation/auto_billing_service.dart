@@ -497,13 +497,26 @@ class AutoBillingService {
     required String body,
   }) async {
     final l10n = resolveAppLocalizations(null);
+    // 显式确保渠道存在并刷新本地化名字/描述(缺失时创建,已存在时刷新,
+    // 见 notification_android._ensureChannel 注释);不能用
+    // channelAction: update——渠道不存在时插件会跳过创建,通知被系统
+    // 静默丢弃(全新安装首条通知丢失,QA 实测 numPostedByApp=0)。
+    final androidPlugin = _notificationsPlugin
+        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+    try {
+      await androidPlugin?.createNotificationChannel(AndroidNotificationChannel(
+        'screenshot_ocr',
+        l10n.autoBillingChannelName,
+        description: l10n.autoBillingChannelDescription,
+        importance: Importance.high,
+      ));
+    } catch (e) {
+      logger.warning('AutoBilling', '通知渠道创建失败(不影响记账): $e');
+    }
     final androidDetails = AndroidNotificationDetails(
       'screenshot_ocr',
       l10n.autoBillingChannelName,
       channelDescription: l10n.autoBillingChannelDescription,
-      // 渠道已存在时也刷新:升级用户(#550 前的旧中文名)与切换语言后,
-      // 系统设置里的渠道名需跟随当前语言(Android 创建后仅名字/描述可改)。
-      channelAction: AndroidNotificationChannelAction.update,
       importance: Importance.high,
       priority: Priority.high,
     );
