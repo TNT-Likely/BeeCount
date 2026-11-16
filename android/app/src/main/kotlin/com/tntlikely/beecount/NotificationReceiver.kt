@@ -61,7 +61,11 @@ class NotificationReceiver : BroadcastReceiver() {
             val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
             // 创建通知渠道（Android 8.0+）
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // 渠道正常由 Flutter 侧以应用内语言创建；这里仅在缺失时兜底创建。
+            // 不能无条件重建：createNotificationChannel 会把渠道名覆盖为这里的
+            // 文案，导致英文用户在系统设置里看到中文名（#576）。
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
+                notificationManager.getNotificationChannel(channelId) == null) {
                 val soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
                 val audioAttributes = AudioAttributes.Builder()
                     .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
@@ -70,10 +74,10 @@ class NotificationReceiver : BroadcastReceiver() {
 
                 val channel = NotificationChannel(
                     channelId,
-                    "记账提醒",
+                    context.getString(R.string.notification_channel_reminder),
                     NotificationManager.IMPORTANCE_MAX // 使用最高重要性来显示横幅
                 ).apply {
-                    description = "每日记账提醒"
+                    description = context.getString(R.string.notification_channel_reminder_description)
                     enableVibration(true)
                     enableLights(true)
                     setBypassDnd(true) // 允许在勿扰模式下显示
@@ -83,7 +87,7 @@ class NotificationReceiver : BroadcastReceiver() {
                     lockscreenVisibility = NotificationCompat.VISIBILITY_PUBLIC
                 }
                 notificationManager.createNotificationChannel(channel)
-                Log.d("NotificationReceiver", "通知渠道已创建/更新 - 包含声音和震动")
+                Log.d("NotificationReceiver", "通知渠道已创建 - 包含声音和震动")
             }
 
             // 检查通知权限

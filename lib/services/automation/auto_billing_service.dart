@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:ui';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -159,7 +158,7 @@ class AutoBillingService {
 
         if (showNotification) {
           final l10n =
-              lookupAppLocalizations(PlatformDispatcher.instance.locale);
+              resolveAppLocalizations(null);
           await _showNotification(
             id: notificationId,
             title: l10n.autoBillingNotifyDetectedTitle,
@@ -186,7 +185,7 @@ class AutoBillingService {
               '路径=$imagePath, 等待时间=${waitTime}ms, 文件存在=${await file.exists()}');
           if (showNotification) {
             final l10n =
-                lookupAppLocalizations(PlatformDispatcher.instance.locale);
+                resolveAppLocalizations(null);
             await _showFinalNotification(
               progressId: notificationId,
               finalId: resultNotificationId,
@@ -208,8 +207,7 @@ class AutoBillingService {
           AICapabilityType.vision)) {
         logger.warning('AutoBilling', 'AI vision 未配置,跳过自动记账');
         if (showNotification) {
-          final l10n = lookupAppLocalizations(
-              PlatformDispatcher.instance.locale);
+          final l10n = resolveAppLocalizations(null);
           await _showFinalNotification(
             progressId: notificationId,
             finalId: resultNotificationId,
@@ -223,7 +221,7 @@ class AutoBillingService {
       // 更新通知：开始识别
       if (showNotification) {
         final l10n =
-            lookupAppLocalizations(PlatformDispatcher.instance.locale);
+            resolveAppLocalizations(null);
         await _showNotification(
           id: notificationId,
           title: l10n.autoBillingNotifyRecognizingScreenshotTitle,
@@ -237,7 +235,7 @@ class AutoBillingService {
         logger.error('AutoBilling', '无可用账本');
         if (showNotification) {
           final l10n =
-              lookupAppLocalizations(PlatformDispatcher.instance.locale);
+              resolveAppLocalizations(null);
           await _showFinalNotification(
             progressId: notificationId,
             finalId: resultNotificationId,
@@ -262,7 +260,7 @@ class AutoBillingService {
           TagSeedService.billingTypeImage,
           TagSeedService.billingTypeAi,
         ],
-        l10n: lookupAppLocalizations(PlatformDispatcher.instance.locale),
+        l10n: resolveAppLocalizations(null),
         // 多笔截图(罕见,但 AI 可能识别出一张账单页里的多笔)时,每笔都挂
         // 同一张原图,与相册路径行为对齐。
         //
@@ -300,7 +298,7 @@ class AutoBillingService {
       if (!result.success) {
         if (showNotification) {
           final l10n =
-              lookupAppLocalizations(PlatformDispatcher.instance.locale);
+              resolveAppLocalizations(null);
           // failedCount>0:提取到账单但入库失败(真·错误);否则=AI 判定不是账单
           final isNoBill = result.failedCount == 0;
           await _showFinalNotification(
@@ -322,7 +320,7 @@ class AutoBillingService {
 
       if (showNotification) {
         final l10n =
-            lookupAppLocalizations(PlatformDispatcher.instance.locale);
+            resolveAppLocalizations(null);
         await _showFinalNotification(
           progressId: notificationId,
           finalId: resultNotificationId,
@@ -343,7 +341,7 @@ class AutoBillingService {
       if (showNotification) {
         try {
           final l10n =
-              lookupAppLocalizations(PlatformDispatcher.instance.locale);
+              resolveAppLocalizations(null);
           await _showFinalNotification(
             progressId: notificationId,
             finalId: resultNotificationId,
@@ -374,7 +372,7 @@ class AutoBillingService {
     try {
       const notificationId = 1002;
       const resultNotificationId = 1102;
-      final l10n = lookupAppLocalizations(PlatformDispatcher.instance.locale);
+      final l10n = resolveAppLocalizations(null);
 
       // 兜底:AI text 未配置 → 系统通知,引导用户去配置
       if (!await AIProviderManager.isCapabilityConfigured(
@@ -451,7 +449,7 @@ class AutoBillingService {
       logger.error('AutoBilling', '文本处理失败', e);
       if (showNotification) {
         final l10n =
-            lookupAppLocalizations(PlatformDispatcher.instance.locale);
+            resolveAppLocalizations(null);
         await _showNotification(
           id: 1002,
           title: l10n.autoBillingNotifyProcessFailedTitle,
@@ -503,6 +501,9 @@ class AutoBillingService {
       'screenshot_ocr',
       l10n.autoBillingChannelName,
       channelDescription: l10n.autoBillingChannelDescription,
+      // 渠道已存在时也刷新:升级用户(#550 前的旧中文名)与切换语言后,
+      // 系统设置里的渠道名需跟随当前语言(Android 创建后仅名字/描述可改)。
+      channelAction: AndroidNotificationChannelAction.update,
       importance: Importance.high,
       priority: Priority.high,
     );

@@ -70,6 +70,9 @@ class AndroidNotificationUtil implements util.NotificationUtil {
       'accounting_reminder',
       l10n.reminderTitle,
       channelDescription: l10n.reminderDailyTitle,
+      // 渠道已存在时也刷新名字/描述:渠道名创建后仅这两项可更新,否则
+      // 升级用户(#550 前的旧中文名)与切换语言后设置页仍显示旧文案。
+      channelAction: AndroidNotificationChannelAction.update,
       importance: Importance.max,
       priority: Priority.max,
       ticker: l10n.reminderTitle,
@@ -135,6 +138,7 @@ class AndroidNotificationUtil implements util.NotificationUtil {
       'accounting_reminder',
       l10n.reminderTitle,
       channelDescription: l10n.reminderDailyTitle,
+      channelAction: AndroidNotificationChannelAction.update,
       importance: Importance.max,
       priority: Priority.max,
       ticker: l10n.reminderTitle,
@@ -212,6 +216,7 @@ class AndroidNotificationUtil implements util.NotificationUtil {
       'accounting_reminder',
       l10n.reminderTitle,
       channelDescription: l10n.reminderDailyTitle,
+      channelAction: AndroidNotificationChannelAction.update,
       importance: Importance.max,
       priority: Priority.max,
       ticker: l10n.reminderTitle,
@@ -268,6 +273,7 @@ class AndroidNotificationUtil implements util.NotificationUtil {
           'accounting_reminder_backup',
           l10n.reminderBackupChannelName,
           channelDescription: l10n.reminderBackupChannelDescription,
+          channelAction: AndroidNotificationChannelAction.update,
           importance: Importance.max,
           priority: Priority.max,
           ticker: l10n.reminderTitle,

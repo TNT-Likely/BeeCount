@@ -31,6 +31,11 @@
     <string name="widget_consumption_rhythm_description">近 30 天消费节奏一眼看清</string>
     <string name="widget_bee_trail_description">用蜂巢格养成每日记账习惯</string>
 
+    <!-- 通知渠道兜底名(NotificationReceiver 在渠道缺失时创建)。正常流程
+         渠道由 Flutter 侧以应用内语言创建,此处仅作系统语言兜底。 -->
+    <string name="notification_channel_reminder">记账提醒</string>
+    <string name="notification_channel_reminder_description">每日记账提醒</string>
+
     <!-- 无障碍服务相关字符串由 flavor 特定的 strings.xml 定义 -->
     <!-- dev: android/app/src/dev/res/values/strings.xml -->
     <!-- prod: android/app/src/prod/res/values/strings.xml -->
