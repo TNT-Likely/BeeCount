@@ -124,7 +124,9 @@ struct BeeCountWidgetEntryView : View {
                         Image(systemName: "chart.bar.fill")
                             .font(.system(size: 32))
                             .foregroundColor(.white)
-                        Text("蜜蜂记账")
+                        Text(BehaviorWidgetCopy.localized(
+                            simplifiedChinese: "蜜蜂记账", traditionalChinese: "蜜蜂記帳",
+                            english: "BeeCount"))
                             .font(.system(size: 16, weight: .semibold))
                             .foregroundColor(.white)
                     }
@@ -149,8 +151,13 @@ struct BeeCountWidget: Widget {
                 BeeCountWidgetEntryView(entry: entry)
             }
         }
-        .configurationDisplayName("蜜蜂记账")
-        .description("显示今日和本月的收支情况")
+        .configurationDisplayName(BehaviorWidgetCopy.localized(
+            simplifiedChinese: "蜜蜂记账", traditionalChinese: "蜜蜂記帳",
+            english: "BeeCount"))
+        .description(BehaviorWidgetCopy.localized(
+            simplifiedChinese: "显示今日和本月的收支情况",
+            traditionalChinese: "查看今日和本月的收支情況",
+            english: "Today's and this month's income & expenses"))
         .supportedFamilies([.systemSmall, .systemMedium])
         .contentMarginsDisabled()  // Remove default padding/margins in iOS 17+
     }

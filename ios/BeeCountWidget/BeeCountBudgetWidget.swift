@@ -87,7 +87,9 @@ struct BeeCountBudgetWidgetEntryView : View {
                     Image(systemName: "creditcard.fill")
                         .font(.system(size: 32))
                         .foregroundColor(.white)
-                    Text("预算")
+                    Text(BehaviorWidgetCopy.localized(
+                        simplifiedChinese: "预算", traditionalChinese: "預算",
+                        english: "Budget"))
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundColor(.white)
                 }
@@ -111,8 +113,13 @@ struct BeeCountBudgetWidget: Widget {
                 BeeCountBudgetWidgetEntryView(entry: entry)
             }
         }
-        .configurationDisplayName("预算进度")
-        .description("预算进度实时掌握")
+        .configurationDisplayName(BehaviorWidgetCopy.localized(
+            simplifiedChinese: "预算进度", traditionalChinese: "預算進度",
+            english: "Budget"))
+        .description(BehaviorWidgetCopy.localized(
+            simplifiedChinese: "预算进度实时掌握",
+            traditionalChinese: "預算進度即時掌握",
+            english: "Track budget progress at a glance"))
         .supportedFamilies([.systemSmall, .systemMedium])
         .contentMarginsDisabled()  // Remove default padding/margins in iOS 17+
     }

@@ -88,7 +88,9 @@ struct BeeCountRecentWidgetEntryView : View {
                     Image(systemName: "clock.fill")
                         .font(.system(size: 32))
                         .foregroundColor(.white)
-                    Text("最近交易")
+                    Text(BehaviorWidgetCopy.localized(
+                        simplifiedChinese: "最近交易", traditionalChinese: "最近交易",
+                        english: "Recent"))
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundColor(.white)
                 }
@@ -112,8 +114,13 @@ struct BeeCountRecentWidget: Widget {
                 BeeCountRecentWidgetEntryView(entry: entry)
             }
         }
-        .configurationDisplayName("最近交易")
-        .description("快速查看最近几笔账单")
+        .configurationDisplayName(BehaviorWidgetCopy.localized(
+            simplifiedChinese: "最近交易", traditionalChinese: "最近交易",
+            english: "Recent"))
+        .description(BehaviorWidgetCopy.localized(
+            simplifiedChinese: "快速查看最近几笔账单",
+            traditionalChinese: "快速查看最近幾筆帳單",
+            english: "A quick look at your latest transactions"))
         .supportedFamilies([.systemMedium, .systemLarge])
         .contentMarginsDisabled()  // Remove default padding/margins in iOS 17+
     }

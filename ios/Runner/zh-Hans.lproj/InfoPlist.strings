@@ -2,3 +2,11 @@
    跟 App Store 中国大陆 storefront 的 marketplace name 保持一致。 */
 "CFBundleDisplayName" = "蜜蜂记账";
 "CFBundleName" = "蜜蜂记账";
+
+/* 权限描述(系统弹窗)。与 Info.plist 简中默认逐字一致,显式声明以固定
+   zh-Hans 查表结果,避免 zh-Hans 缺表时沿 fallback 链命中 en 表。 */
+"NSPhotoLibraryUsageDescription" = "蜜蜂记账需要访问您的照片库，以便导入或分享账单数据文件";
+"NSPhotoLibraryAddUsageDescription" = "蜜蜂记账需要保存文件到您的照片库";
+"NSCameraUsageDescription" = "蜜蜂记账需要使用相机拍摄支付凭证进行OCR识别";
+"NSMicrophoneUsageDescription" = "蜜蜂记账需要使用麦克风进行语音记账";
+"NSFaceIDUsageDescription" = "蜜蜂记账使用Face ID进行应用解锁";

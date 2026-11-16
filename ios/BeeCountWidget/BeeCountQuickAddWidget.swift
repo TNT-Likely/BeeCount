@@ -90,7 +90,9 @@ struct BeeCountQuickAddWidgetEntryView : View {
                     Image(systemName: "plus.circle.fill")
                         .font(.system(size: 32))
                         .foregroundColor(.white)
-                    Text("快速记账")
+                    Text(BehaviorWidgetCopy.localized(
+                        simplifiedChinese: "快速记账", traditionalChinese: "快速記帳",
+                        english: "Quick Add"))
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundColor(.white)
                 }
@@ -114,8 +116,13 @@ struct BeeCountQuickAddWidget: Widget {
                 BeeCountQuickAddWidgetEntryView(entry: entry)
             }
         }
-        .configurationDisplayName("快速记账")
-        .description("常用分类一键速记")
+        .configurationDisplayName(BehaviorWidgetCopy.localized(
+            simplifiedChinese: "快速记账", traditionalChinese: "快速記帳",
+            english: "Quick Add"))
+        .description(BehaviorWidgetCopy.localized(
+            simplifiedChinese: "常用分类一键速记",
+            traditionalChinese: "常用分類一鍵速記",
+            english: "One-tap entry for your top categories"))
         .supportedFamilies([.systemSmall, .systemMedium])
         .contentMarginsDisabled()  // Remove default padding/margins in iOS 17+
     }
