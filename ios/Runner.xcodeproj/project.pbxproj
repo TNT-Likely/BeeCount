@@ -22,6 +22,7 @@
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
 		BCEA08F1000000000000C0F1 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = BCEA08F0000000000000B0F1 /* InfoPlist.strings */; };
+		BCEA09F1000000000000C0F1 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = BCEA09F0000000000000B0F1 /* Localizable.strings */; };
 		C77A0A7A5CF41755AA72984A /* Pods_RunnerTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC45D84F7DFDF5967AFB7665 /* Pods_RunnerTests.framework */; };
 		EF1FAB659C35D9BE1FC671E2 /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B88E76BEDC512A92BA874CF /* Pods_Runner.framework */; };
 /* End PBXBuildFile section */
@@ -100,6 +101,9 @@
 		BCEA0801000000000000A0E1 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		BCEA0802000000000000A0E2 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
 		BCEA0803000000000000A0E3 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
+		BCEA0901000000000000A0F1 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		BCEA0902000000000000A0F2 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
+		BCEA0903000000000000A0F3 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		C02F58CFE77A00B3EEF442B2 /* Pods-RunnerTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.debug.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.debug.xcconfig"; sourceTree = "<group>"; };
 		F07A48A37F0A331BF0674437 /* Pods-Runner.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"; sourceTree = "<group>"; };
 		FC45D84F7DFDF5967AFB7665 /* Pods_RunnerTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_RunnerTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -228,6 +232,7 @@
 				97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */,
 				97C147021CF9000F007C117D /* Info.plist */,
 				BCEA08F0000000000000B0F1 /* InfoPlist.strings */,
+				BCEA09F0000000000000B0F1 /* Localizable.strings */,
 				1498D2321E8E86230040F4C2 /* GeneratedPluginRegistrant.h */,
 				1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */,
 				74858FAE1ED2DC5600515810 /* AppDelegate.swift */,
@@ -385,6 +390,7 @@
 				97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */,
 				97C146FC1CF9000F007C117D /* Main.storyboard in Resources */,
 				BCEA08F1000000000000C0F1 /* InfoPlist.strings in Resources */,
+				BCEA09F1000000000000C0F1 /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -570,6 +576,16 @@
 				BCEA0803000000000000A0E3 /* zh-Hant */,
 			);
 			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		BCEA09F0000000000000B0F1 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				BCEA0901000000000000A0F1 /* en */,
+				BCEA0902000000000000A0F2 /* zh-Hans */,
+				BCEA0903000000000000A0F3 /* zh-Hant */,
+			);
+			name = Localizable.strings;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */

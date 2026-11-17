@@ -2,17 +2,17 @@ import WidgetKit
 import SwiftUI
 import UIKit
 
-private enum BehaviorWidgetCopy {
+/// 组件目标内共用的多语言文案 helper(按系统语言取词)。韩语不单独声明,
+/// 与其他未覆盖语言一同走英文兜底(developmentRegion = en)。
+enum BehaviorWidgetCopy {
     static func localized(
         simplifiedChinese: String,
         traditionalChinese: String,
-        english: String,
-        korean: String
+        english: String
     ) -> String {
         let locale = Locale.current
         switch locale.languageCode {
         case "en": return english
-        case "ko": return korean
         case "zh" where locale.scriptCode == "Hant" || locale.regionCode == "TW" || locale.regionCode == "HK":
             return traditionalChinese
         default: return simplifiedChinese
@@ -79,10 +79,10 @@ private struct BehaviorWidgetEntryView: View {
 struct BeeCountConsumptionRhythmWidget: Widget {
     let kind = "BeeCountConsumptionRhythmWidget"
     private var title: String {
-        BehaviorWidgetCopy.localized(simplifiedChinese: "消费节奏", traditionalChinese: "消費節奏", english: "Spending Rhythm", korean: "소비 리듬")
+        BehaviorWidgetCopy.localized(simplifiedChinese: "消费节奏", traditionalChinese: "消費節奏", english: "Spending Rhythm")
     }
     private var description: String {
-        BehaviorWidgetCopy.localized(simplifiedChinese: "近 30 天消费节奏一眼看清", traditionalChinese: "近 30 天消費節奏一眼看清", english: "See your spending pace across the last 30 days", korean: "최근 30일의 소비 흐름을 한눈에 확인하세요")
+        BehaviorWidgetCopy.localized(simplifiedChinese: "近 30 天消费节奏一眼看清", traditionalChinese: "近 30 天消費節奏一眼看清", english: "See your spending pace across the last 30 days")
     }
     var body: some WidgetConfiguration {
         let widgetTitle = title
@@ -103,10 +103,10 @@ struct BeeCountConsumptionRhythmWidget: Widget {
 struct BeeCountBeeTrailWidget: Widget {
     let kind = "BeeCountBeeTrailWidget"
     private var title: String {
-        BehaviorWidgetCopy.localized(simplifiedChinese: "记账连续蜂迹", traditionalChinese: "記帳連續蜂跡", english: "Record Bee Trail", korean: "기록 꿀벌 궤적")
+        BehaviorWidgetCopy.localized(simplifiedChinese: "记账连续蜂迹", traditionalChinese: "記帳連續蜂跡", english: "Record Bee Trail")
     }
     private var description: String {
-        BehaviorWidgetCopy.localized(simplifiedChinese: "用蜂巢格养成每日记账习惯", traditionalChinese: "用蜂巢格養成每日記帳習慣", english: "Build a daily recording habit with a honeycomb trail", korean: "벌집 칸으로 매일 기록하는 습관을 만들어 보세요")
+        BehaviorWidgetCopy.localized(simplifiedChinese: "用蜂巢格养成每日记账习惯", traditionalChinese: "用蜂巢格養成每日記帳習慣", english: "Build a daily recording habit with a honeycomb trail")
     }
     var body: some WidgetConfiguration {
         let widgetTitle = title

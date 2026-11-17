@@ -1,0 +1,9 @@
+/* App Intents / Shortcuts UI copy. Keys are the exact source literals from
+   AutoBillingAppIntent.swift (standard AppIntents localization). */
+"截图自动记账" = "Auto Billing";
+"自动识别截图中的支付信息并创建账单" = "Automatically recognize payment info in screenshots and create records";
+"截图" = "Screenshot";
+"识别%@中的支付信息" = "Recognize payment info in %@";
+"在%@中截图记账" = "Auto billing from a screenshot in %@";
+"用%@记账" = "Record expenses with %@";
+"打开%@自动记账" = "Open %@ for auto billing";

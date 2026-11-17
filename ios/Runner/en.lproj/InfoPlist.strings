@@ -4,3 +4,10 @@
    marketplace name "BeeCount - Simple Ledger"). */
 "CFBundleDisplayName" = "BeeCount";
 "CFBundleName" = "BeeCount";
+
+/* Privacy usage descriptions (system permission prompts) */
+"NSPhotoLibraryUsageDescription" = "BeeCount needs access to your photo library to import or share billing data files";
+"NSPhotoLibraryAddUsageDescription" = "BeeCount needs to save files to your photo library";
+"NSCameraUsageDescription" = "BeeCount needs the camera to capture payment receipts for OCR recognition";
+"NSMicrophoneUsageDescription" = "BeeCount needs the microphone for voice bookkeeping";
+"NSFaceIDUsageDescription" = "BeeCount uses Face ID to unlock the app";

@@ -90,7 +90,9 @@ struct BeeCountNetWorthWidgetEntryView : View {
                     Image(systemName: "chart.pie.fill")
                         .font(.system(size: 32))
                         .foregroundColor(.white)
-                    Text("净资产")
+                    Text(BehaviorWidgetCopy.localized(
+                        simplifiedChinese: "净资产", traditionalChinese: "淨資產",
+                        english: "Net Worth"))
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundColor(.white)
                 }
@@ -114,8 +116,13 @@ struct BeeCountNetWorthWidget: Widget {
                 BeeCountNetWorthWidgetEntryView(entry: entry)
             }
         }
-        .configurationDisplayName("净资产")
-        .description("总资产、总负债与净值趋势")
+        .configurationDisplayName(BehaviorWidgetCopy.localized(
+            simplifiedChinese: "净资产", traditionalChinese: "淨資產",
+            english: "Net Worth"))
+        .description(BehaviorWidgetCopy.localized(
+            simplifiedChinese: "总资产、总负债与净值趋势",
+            traditionalChinese: "總資產、總負債與淨值趨勢",
+            english: "Assets, liabilities, and net-worth trend"))
         .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
         .contentMarginsDisabled()  // Remove default padding/margins in iOS 17+
     }

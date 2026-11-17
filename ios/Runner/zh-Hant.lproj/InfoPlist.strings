@@ -1,3 +1,10 @@
 /* 繁中環境下的 app 名稱 — 桌面圖示 + 切換器顯示「蜜蜂記帳」。 */
 "CFBundleDisplayName" = "蜜蜂記帳";
 "CFBundleName" = "蜜蜂記帳";
+
+/* 權限描述(系統彈窗),術語與 app_zh_TW.arb 一致(相簿/記帳)。 */
+"NSPhotoLibraryUsageDescription" = "蜜蜂記帳需要存取您的相簿，以便匯入或分享帳單資料檔案";
+"NSPhotoLibraryAddUsageDescription" = "蜜蜂記帳需要儲存檔案到您的相簿";
+"NSCameraUsageDescription" = "蜜蜂記帳需要使用相機拍攝支付憑證進行OCR識別";
+"NSMicrophoneUsageDescription" = "蜜蜂記帳需要使用麥克風進行語音記帳";
+"NSFaceIDUsageDescription" = "蜜蜂記帳使用Face ID進行應用程式解鎖";

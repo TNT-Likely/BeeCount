@@ -31,4 +31,8 @@
     <string name="widget_dashboard_description">Income, trend, and recent activity in one view</string>
     <string name="widget_consumption_rhythm_description">See your spending pace across the last 30 days</string>
     <string name="widget_bee_trail_description">Build a daily recording habit with a honeycomb trail</string>
+
+    <!-- Notification channel fallback name (created by NotificationReceiver when missing) -->
+    <string name="notification_channel_reminder">Recording Reminder</string>
+    <string name="notification_channel_reminder_description">Daily Recording Reminder</string>
 </resources>

@@ -31,4 +31,9 @@
     <string name="widget_dashboard_description">收支、趨勢與最近交易一屏看盡</string>
     <string name="widget_consumption_rhythm_description">近 30 天消費節奏一眼看清</string>
     <string name="widget_bee_trail_description">用蜂巢格養成每日記帳習慣</string>
+
+    <!-- 通知渠道兜底名(NotificationReceiver 在渠道缺失時建立),措辭與
+         app_zh_TW.arb 的 reminderTitle/reminderDailyTitle 一致 -->
+    <string name="notification_channel_reminder">記帳提醒</string>
+    <string name="notification_channel_reminder_description">每日記帳提醒</string>
 </resources>
