@@ -30,6 +30,7 @@ SCENARIOS = {
     'category-parent': 'integration_test/category_parent_live_test.dart',
     'web-transaction-images': 'integration_test/web_transaction_images_live_test.dart',
     'mcp-receipt-attachments': 'integration_test/mcp_receipt_attachments_live_test.dart',
+    'recurring-consolidation': 'integration_test/recurring_consolidation_live_test.dart',
 }
 
 
@@ -746,6 +747,33 @@ def restart_check(root, manifest, flutter):
                 if child is None or child['parent_id'] != parent['id'] or child['level'] != 2:
                     raise ValueError('Normal App restart lost a stable child category relationship')
         rows = dict(transactions=rows, parent_name=parent['name'], child_sync_ids=report['child_sync_ids'])
+    elif manifest.get('scenario') == 'recurring-consolidation':
+        with sqlite3.connect(f'file:{app_db}?mode=ro', uri=True) as db:
+            db.row_factory = sqlite3.Row
+            tx_rows = [dict(r) for r in db.execute(
+                'SELECT id, sync_id, note, amount, recurring_id FROM transactions ORDER BY id')]
+            rule_rows = [dict(r) for r in db.execute(
+                'SELECT id, note, amount, frequency, interval, day_of_month, start_date, last_generated_date, enabled '
+                'FROM recurring_transactions ORDER BY id')]
+            if len(tx_rows) != report['expected_tx_count']:
+                raise ValueError(
+                    f'Normal App restart duplicated or lost recurring transactions: '
+                    f'expected {report["expected_tx_count"]}, got {len(tx_rows)}')
+            updated_tx = next((t for t in tx_rows if t['sync_id'] == report['cloud_updated_tx_sync_id']), None)
+            if (updated_tx is None or updated_tx['note'] != 'QA Cloud 周期核对后' or
+                    updated_tx['amount'] != 96.0 or
+                    updated_tx['recurring_id'] != report['cloud_updated_recurring_id']):
+                raise ValueError('Normal App restart lost Cloud-updated recurring transaction or recurring_id')
+            if len(rule_rows) != len(report['final_rules']):
+                raise ValueError('Normal App restart lost recurring rules')
+            for expected_rule in report['final_rules']:
+                actual_rule = next((r for r in rule_rows if r['id'] == expected_rule['id']), None)
+                if (actual_rule is None or actual_rule['note'] != expected_rule['note'] or
+                        actual_rule['amount'] != expected_rule['amount'] or
+                        bool(actual_rule['enabled']) != expected_rule['enabled'] or
+                        (expected_rule['last_generated_date'] is not None and actual_rule['last_generated_date'] is None)):
+                    raise ValueError('Normal App restart corrupted recurring rule cursor or fields')
+        rows = dict(transactions=tx_rows, recurring_rules=rule_rows)
     else:
         with sqlite3.connect(f'file:{app_db}?mode=ro', uri=True) as db:
             db.row_factory = sqlite3.Row

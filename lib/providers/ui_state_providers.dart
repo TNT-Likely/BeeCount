@@ -20,6 +20,7 @@ import '../services/system/logger_service.dart';
 import '../ai/providers/ai_constants.dart';
 import '../services/platform/app_link_service.dart';
 import 'security_providers.dart';
+import 'sync_providers.dart';
 import '../models/home_transaction_preview.dart';
 import 'home_startup_preview_provider.dart';
 export '../models/home_transaction_preview.dart' show TransactionDisplayItem;
@@ -226,6 +227,16 @@ final appSplashInitProvider = FutureProvider<void>((ref) async {
 
     // Finish startup writes before preparing the snapshot that Home will use.
     // Publishing the earlier rows would omit newly generated recurring bills.
+    // 必先等待 activeCloudConfigProvider 解析完成，否则 BeeCount Cloud 激活状态下
+    // repositoryProvider 可能因配置尚在异步读取而未挂载 ChangeTracker，导致生成的周期
+    // 交易漏写 local_changes、首次云同步被 fast-skip 丢单。
+    try {
+      await ref.watch(activeCloudConfigProvider.future);
+    } catch (e) {
+      logger.warning(tag, '读取云服务配置失败，继续执行本地周期扫描: $e');
+    }
+    if (disposed) return;
+
     try {
       final generatedLedgerIds =
           await RecurringTransactionService.generatePendingTransactionsStatic(

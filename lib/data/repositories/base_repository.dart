@@ -1,5 +1,6 @@
 import 'ledger_repository.dart';
 import 'transaction_repository.dart';
+import '../db.dart' show Transaction;
 import 'category_repository.dart';
 import 'account_repository.dart'
     show AccountBalanceUpdateResult, AccountRepository;
@@ -81,4 +82,12 @@ abstract class BaseRepository
 
   /// 按 picker 账户 id 解析币种:正数=主表账户;负数=共享账本 synthetic id。
   Future<String?> getAccountCurrencyByAnyId(int accountId);
+
+  /// 原子生成单期周期账单：在同一数据库事务中重读规则校验未过期消费、
+  /// 创建携带 `recurringId` 的交易（并登记 ChangeTracker 变更）以及更新
+  /// `lastGeneratedDate`。若规则已禁用、已推进、关联账户隐藏或缺失则返回 null。
+  Future<Transaction?> generateRecurringOccurrence({
+    required int recurringId,
+    required DateTime scheduledDate,
+  });
 }

@@ -37,6 +37,9 @@ abstract class RecurringTransactionRepository {
   });
 
   /// 更新周期记账
+  ///
+  /// [updateLastGeneratedDate] 默认为 false，保留既有 `lastGeneratedDate` 执行游标；
+  /// 仅当显式传 true 时才将 `lastGeneratedDate` 更新为传入值（可为 null 以重置）。
   Future<void> updateRecurringTransaction({
     required int id,
     required int ledgerId,
@@ -54,6 +57,8 @@ abstract class RecurringTransactionRepository {
     required DateTime startDate,
     DateTime? endDate,
     bool? enabled,
+    DateTime? lastGeneratedDate,
+    bool updateLastGeneratedDate = false,
     String? currencyCode,
   });
 

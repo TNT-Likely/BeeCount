@@ -30,6 +30,8 @@ import 'utils/image_billing_helper.dart';
 import 'pages/ai/ai_chat_page.dart';
 import 'services/platform/app_link_service.dart';
 import 'services/platform/quick_actions_service.dart';
+import 'services/billing/post_processor.dart';
+import 'services/data/recurring_transaction_service.dart';
 import 'services/system/logger_service.dart';
 import 'services/security/app_lock_service.dart';
 import 'providers/security_providers.dart';
@@ -78,6 +80,11 @@ class _BeeAppState extends ConsumerState<BeeApp>
   // 层 —— 避免 trigger 内的 phase 1(syncMyProfile / storage.list / pull)
   // 重复跑浪费 HTTP。
   DateTime? _lastInitialCloudSyncTriggeredAt;
+
+  // 记录最近一次完成周期账单扫描的本地自然日（BeeApp 挂载时 Splash 已完成当日扫描，
+  // 常驻后台跨零点后切回前台 resumed 时自动补跑当日扫描）。
+  DateTime _lastRecurringScanDay =
+      RecurringTransactionService.dateOnly(DateTime.now());
 
   // 记账按钮相关状态
   late AnimationController _expandController;
@@ -730,10 +737,35 @@ class _BeeAppState extends ConsumerState<BeeApp>
       ref.read(showPrivacyScreenProvider.notifier).state = false;
       // 检查是否需要锁定
       _checkAppLockOnResume();
+      // 跨自然日切回前台时自动补扫到期周期账单（解决常驻后台不冷启动不触发问题）
+      unawaited(_scanRecurringOnResumeIfNeeded());
       // 当app从后台恢复到前台时，更新小组件数据
       _updateWidget();
       // 前台稳定后认领待处理深链(冷启动/主题变更重建后,在最终页面树上打开)
       _drainPendingDeepLink(trigger: 'resumed');
+    }
+  }
+
+  Future<void> _scanRecurringOnResumeIfNeeded() async {
+    if (!mounted) return;
+    if (ref.read(appInitStateProvider) != AppInitState.ready) return;
+    final today = RecurringTransactionService.dateOnly(DateTime.now());
+    if (!today.isAfter(_lastRecurringScanDay)) return;
+    _lastRecurringScanDay = today;
+    try {
+      final ledgerIds =
+          await RecurringTransactionService.generatePendingTransactionsStatic(
+        repository: ref.read(repositoryProvider),
+        rescanIfBusy: true,
+      );
+      if (!mounted || ledgerIds.isEmpty) return;
+      for (final ledgerId in ledgerIds) {
+        await PostProcessor.run(ref, ledgerId: ledgerId);
+        if (!mounted) return;
+      }
+      await _updateWidget();
+    } catch (e, st) {
+      logger.error('App', '恢复前台扫描周期账单失败', e, st);
     }
   }
 

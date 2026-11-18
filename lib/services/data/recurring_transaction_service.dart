@@ -1,12 +1,13 @@
 import '../../data/db.dart';
+import '../../data/repositories/base_repository.dart';
 import '../system/logger_service.dart';
 
 /// 重复交易频率枚举
 enum RecurringFrequency {
-  daily('daily'),      // 每天
-  weekly('weekly'),    // 每周
-  monthly('monthly'),  // 每月
-  yearly('yearly');    // 每年
+  daily('daily'), // 每天
+  weekly('weekly'), // 每周
+  monthly('monthly'), // 每月
+  yearly('yearly'); // 每年
 
   final String value;
   const RecurringFrequency(this.value);
@@ -19,183 +20,427 @@ enum RecurringFrequency {
   }
 }
 
+/// 纯排期输入参数（同时供数据库实体与编辑页未保存草稿复用）
+class RecurringScheduleSpec {
+  const RecurringScheduleSpec({
+    required this.frequency,
+    required this.interval,
+    required this.startDate,
+    this.dayOfMonth,
+    this.dayOfWeek,
+    this.monthOfYear,
+    this.endDate,
+    this.lastGeneratedDate,
+    this.enabled = true,
+  });
+
+  factory RecurringScheduleSpec.fromModel(RecurringTransaction model) {
+    return RecurringScheduleSpec(
+      frequency: RecurringFrequency.fromString(model.frequency),
+      interval: model.interval,
+      startDate: model.startDate,
+      dayOfMonth: model.dayOfMonth,
+      dayOfWeek: model.dayOfWeek,
+      monthOfYear: model.monthOfYear,
+      endDate: model.endDate,
+      lastGeneratedDate: model.lastGeneratedDate,
+      enabled: model.enabled,
+    );
+  }
+
+  final RecurringFrequency frequency;
+  final int interval;
+  final int? dayOfMonth;
+  final int? dayOfWeek;
+  final int? monthOfYear;
+  final DateTime startDate;
+  final DateTime? endDate;
+  final DateTime? lastGeneratedDate;
+  final bool enabled;
+
+  RecurringScheduleSpec copyWith({
+    DateTime? lastGeneratedDate,
+    bool updateLastGeneratedDate = false,
+  }) {
+    return RecurringScheduleSpec(
+      frequency: frequency,
+      interval: interval,
+      startDate: startDate,
+      dayOfMonth: dayOfMonth,
+      dayOfWeek: dayOfWeek,
+      monthOfYear: monthOfYear,
+      endDate: endDate,
+      lastGeneratedDate: updateLastGeneratedDate
+          ? lastGeneratedDate
+          : this.lastGeneratedDate,
+      enabled: enabled,
+    );
+  }
+}
+
+/// 单期预计记账推演结果
+class RecurringOccurrencePreview {
+  const RecurringOccurrencePreview({
+    required this.date,
+    required this.daysFromToday,
+    this.nominalDayOfMonth,
+    this.adjustedForMonthEnd = false,
+  });
+
+  final DateTime date;
+  final int daysFromToday;
+  final int? nominalDayOfMonth;
+  final bool adjustedForMonthEnd;
+}
+
+class _OccurrenceStep {
+  const _OccurrenceStep({
+    required this.date,
+    this.nominalDay,
+    this.adjusted = false,
+  });
+
+  final DateTime date;
+  final int? nominalDay;
+  final bool adjusted;
+}
+
 /// 重复交易服务
 ///
-/// 注意：此服务主要用于生成待处理的周期交易记录
-/// 基础的 CRUD 操作请使用 RecurringTransactionRepository
-///
-/// repository 参数可以是 BeeRepository 或 CloudRepository
+/// 注意：此服务负责生成待处理的周期交易记录及排期推演，
+/// 基础 CRUD 操作请使用 RecurringTransactionRepository。
 class RecurringTransactionService {
   static const _tag = 'Recurring';
+
+  static Future<Set<int>>? _inFlightScan;
+  static bool _pendingRescan = false;
 
   final dynamic repository;
 
   RecurringTransactionService(this.repository);
 
-  /// 静态方法：生成待处理的重复交易（供启动时和初始化时调用）
+  /// 剥离时分秒，统一归一化到本地自然日零点
+  static DateTime dateOnly(DateTime d) => DateTime(d.year, d.month, d.day);
+
+  /// 跨夏令时安全的自然日差值（target - base）
+  static int calendarDaysBetween(DateTime target, DateTime base) {
+    final a = DateTime.utc(target.year, target.month, target.day);
+    final b = DateTime.utc(base.year, base.month, base.day);
+    return a.difference(b).inDays;
+  }
+
+  /// 静态方法：生成待处理的重复交易（带进程内 SingleFlight 互斥防重入）
   ///
-  /// [repository] 可以是 BeeRepository 或 CloudRepository
-  /// [verbose] 是否打印详细日志
+  /// [rescanIfBusy] 为 true 时，若当前已有扫描在途，会在本轮结束后自动补扫一次，
+  /// 确保刚保存/启用的新规则不会被在途旧快照漏掉。
   ///
-  /// 返回：生成了交易的账本ID集合（用于触发同步）
+  /// 返回：本次生成了交易的账本 ID 集合（用于触发同步和统计刷新）
   static Future<Set<int>> generatePendingTransactionsStatic({
     required dynamic repository,
     bool verbose = false,
-  }) async {
-    try {
-      logger.info(_tag,
-          '开始生成待处理的重复交易 (Repository=${repository.runtimeType}, verbose=$verbose)');
-
-      final service = RecurringTransactionService(repository);
-      final generatedTransactions = await service.generatePendingTransactions();
-
-      if (generatedTransactions.isNotEmpty) {
-        final ledgerIds = generatedTransactions.map((t) => t.ledgerId).toSet();
-        logger.info(_tag,
-            '本次共生成 ${generatedTransactions.length} 条重复交易,涉及账本 $ledgerIds');
-        return ledgerIds;
-      } else {
-        logger.info(_tag, '本次没有需要生成的重复交易');
-        return {};
-      }
-    } catch (e, stackTrace) {
-      // 不抛出异常，避免影响应用启动
-      logger.error(_tag, '生成重复交易失败', e, stackTrace);
-      return {};
-    }
-  }
-
-  /// 计算下一次应该生成交易的日期。返回 null 表示本次无需生成。
-  ///
-  /// [now] 仅用于测试注入"当前时间";正常调用走 `DateTime.now()`。
-  ///
-  /// 关键口径(2026-06:修复"每天周期不生效"):
-  /// - **包含今天**:`nextDate <= now`(当天 00:00 <= 此刻)即生成,之前误用
-  ///   `base + interval` 把首笔推到了明天,导致从未生成过的 daily 永远不触发。
-  /// - **从未生成(lastGenerated==null)→ 首笔就落在基准日本身**(不加 interval),
-  ///   基准日受 issue #135 保护不早于今天零点 → 既"包含今天"又不回溯补历史。
-  /// - **已生成过 → 上次生成日 + interval**(月/年按目标日推进)。
-  DateTime? calculateNextDate(RecurringTransaction recurring, {DateTime? now}) {
-    final nowTs = now ?? DateTime.now();
-    final lastGenerated = recurring.lastGeneratedDate;
-    final frequency = RecurringFrequency.fromString(recurring.frequency);
-    final interval = recurring.interval;
-    final firstGen = lastGenerated == null;
-
-    // 如果有结束日期且已过期，返回null
-    if (recurring.endDate != null && nowTs.isAfter(recurring.endDate!)) {
-      logger.info(_tag,
-          'calc id=${recurring.id} 跳过:已过结束日期 endDate=${recurring.endDate}');
-      return null;
+    bool rescanIfBusy = false,
+  }) {
+    if (_inFlightScan != null) {
+      if (rescanIfBusy) _pendingRescan = true;
+      logger.info(_tag, '已有周期扫描任务在途，复用当前单飞任务 (rescan=$rescanIfBusy)');
+      return _inFlightScan!;
     }
 
-    // 基准日期：最后生成日期 或 开始日期。
-    // 防止历史开始日期回溯补生成脏数据(issue #135):从未生成过(lastGenerated
-    // 为 null)的周期账单,基准不早于今天零点,只生成"今天"这一笔,不补历史。
-    final todayStart = DateTime(nowTs.year, nowTs.month, nowTs.day);
-    final rawBase = lastGenerated ?? recurring.startDate;
-    final baseDate =
-        firstGen && rawBase.isBefore(todayStart) ? todayStart : rawBase;
-
-    DateTime nextDate;
-    switch (frequency) {
-      case RecurringFrequency.daily:
-        // 首笔=基准日(含今天);之后=上次+interval 天
-        nextDate =
-            firstGen ? baseDate : baseDate.add(Duration(days: interval));
-        break;
-
-      case RecurringFrequency.weekly:
-        nextDate =
-            firstGen ? baseDate : baseDate.add(Duration(days: 7 * interval));
-        break;
-
-      case RecurringFrequency.monthly:
-        // 月度重复：落在指定的"几号"。首笔取基准月当月,之后推进 interval 个月。
-        final targetDay = recurring.dayOfMonth ?? baseDate.day;
-        DateTime buildMonthly(int year, int month) {
-          while (month > 12) {
-            month -= 12;
-            year += 1;
+    Future<Set<int>> runSerialized() async {
+      final affectedLedgers = <int>{};
+      try {
+        do {
+          _pendingRescan = false;
+          logger.info(_tag,
+              '开始生成待处理的重复交易 (Repository=${repository.runtimeType}, verbose=$verbose)');
+          final service = RecurringTransactionService(repository);
+          final generated = await service.generatePendingTransactions();
+          if (generated.isNotEmpty) {
+            final ids = generated.map((t) => t.ledgerId).toSet();
+            affectedLedgers.addAll(ids);
+            logger.info(
+                _tag, '本轮共生成 ${generated.length} 条重复交易，涉及账本 $ids');
+          } else {
+            logger.info(_tag, '本轮没有需要生成的重复交易');
           }
-          // 处理不存在的日期（如2月30日）
-          final daysInMonth = DateTime(year, month + 1, 0).day;
-          final day = targetDay > daysInMonth ? daysInMonth : targetDay;
-          return DateTime(year, month, day);
-        }
-
-        nextDate = buildMonthly(baseDate.year, baseDate.month + (firstGen ? 0 : interval));
-        // 首笔:若当月目标日早于基准(本月已过)→ 顺延一个 interval 月,避免回溯
-        if (firstGen && nextDate.isBefore(baseDate)) {
-          nextDate = buildMonthly(baseDate.year, baseDate.month + interval);
-        }
-        break;
-
-      case RecurringFrequency.yearly:
-        // 年度重复
-        final targetMonth = recurring.monthOfYear ?? baseDate.month;
-        final targetDay = recurring.dayOfMonth ?? baseDate.day;
-        DateTime buildYearly(int year) {
-          // 处理闰年2月29日
-          final daysInMonth = DateTime(year, targetMonth + 1, 0).day;
-          final day = targetDay > daysInMonth ? daysInMonth : targetDay;
-          return DateTime(year, targetMonth, day);
-        }
-
-        nextDate = buildYearly(baseDate.year + (firstGen ? 0 : interval));
-        // 首笔:若当年目标日早于基准(今年已过)→ 顺延 interval 年
-        if (firstGen && nextDate.isBefore(baseDate)) {
-          nextDate = buildYearly(baseDate.year + interval);
-        }
-        break;
+        } while (_pendingRescan);
+        return affectedLedgers;
+      } catch (e, stackTrace) {
+        logger.error(_tag, '生成重复交易失败', e, stackTrace);
+        return affectedLedgers;
+      } finally {
+        _inFlightScan = null;
+        _pendingRescan = false;
+      }
     }
 
-    // 如果下一次日期还没到，返回null(注意:当天 00:00 <= now,故"今天"会通过)
-    if (nextDate.isAfter(nowTs)) {
-      logger.info(_tag,
-          'calc id=${recurring.id} freq=${frequency.value} interval=$interval firstGen=$firstGen base=$baseDate → next=$nextDate 尚未到期(>now=$nowTs),本次不生成');
-      return null;
-    }
-
-    // 如果超过结束日期，返回null
-    if (recurring.endDate != null && nextDate.isAfter(recurring.endDate!)) {
-      logger.info(_tag,
-          'calc id=${recurring.id} next=$nextDate 超过结束日期 ${recurring.endDate},不生成');
-      return null;
-    }
-
-    logger.info(_tag,
-        'calc id=${recurring.id} freq=${frequency.value} interval=$interval firstGen=$firstGen base=$baseDate lastGen=$lastGenerated → 生成 next=$nextDate');
-    return nextDate;
+    final future = runSerialized();
+    _inFlightScan = future;
+    return future;
   }
 
-  /// 生成待处理的交易记录
-  Future<List<Transaction>> generatePendingTransactions() async {
-    final nowStr = DateTime.now().toString();
-    logger.info(_tag, '开始扫描周期交易 (now=$nowStr)');
+  static _OccurrenceStep _buildMonthly(int year, int month, int targetDay) {
+    while (month > 12) {
+      month -= 12;
+      year += 1;
+    }
+    while (month < 1) {
+      month += 12;
+      year -= 1;
+    }
+    final daysInMonth = DateTime(year, month + 1, 0).day;
+    final actualDay = targetDay > daysInMonth ? daysInMonth : targetDay;
+    return _OccurrenceStep(
+      date: DateTime(year, month, actualDay),
+      nominalDay: targetDay,
+      adjusted: actualDay < targetDay,
+    );
+  }
+
+  static _OccurrenceStep _stepOccurrence(
+    RecurringScheduleSpec spec, {
+    required DateTime? cursor,
+  }) {
+    final anchor = dateOnly(spec.startDate);
+    final interval = spec.interval < 1 ? 1 : spec.interval;
+    final effectiveCursor =
+        (cursor != null && !anchor.isAfter(cursor)) ? dateOnly(cursor) : null;
+
+    if (effectiveCursor == null) {
+      switch (spec.frequency) {
+        case RecurringFrequency.daily:
+          return _OccurrenceStep(date: anchor);
+        case RecurringFrequency.weekly:
+          final dow = spec.dayOfWeek;
+          if (dow != null && dow >= 1 && dow <= 7) {
+            final offset = (dow - anchor.weekday + 7) % 7;
+            return _OccurrenceStep(
+              date: DateTime(anchor.year, anchor.month, anchor.day + offset),
+            );
+          }
+          return _OccurrenceStep(date: anchor);
+        case RecurringFrequency.monthly:
+          final nominalDay = (spec.dayOfMonth ?? anchor.day).clamp(1, 31);
+          var cand = _buildMonthly(anchor.year, anchor.month, nominalDay);
+          if (cand.date.isBefore(anchor)) {
+            cand = _buildMonthly(anchor.year, anchor.month + 1, nominalDay);
+          }
+          return cand;
+        case RecurringFrequency.yearly:
+          final targetMonth = (spec.monthOfYear ?? anchor.month).clamp(1, 12);
+          // 兼容修复：历史编辑器切到 yearly 时可能残留创建当日 dayOfMonth 且 monthOfYear 为 null，
+          // 仅当 monthOfYear 与 dayOfMonth 均显式存在时才取 dayOfMonth，否则严格锚定 startDate。
+          final nominalDay =
+              (spec.monthOfYear != null && spec.dayOfMonth != null
+                      ? spec.dayOfMonth!
+                      : anchor.day)
+                  .clamp(1, 31);
+          var cand = _buildMonthly(anchor.year, targetMonth, nominalDay);
+          if (cand.date.isBefore(anchor)) {
+            cand = _buildMonthly(anchor.year + 1, targetMonth, nominalDay);
+          }
+          return cand;
+      }
+    }
+
+    switch (spec.frequency) {
+      case RecurringFrequency.daily:
+        return _OccurrenceStep(
+          date: DateTime(
+            effectiveCursor.year,
+            effectiveCursor.month,
+            effectiveCursor.day + interval,
+          ),
+        );
+      case RecurringFrequency.weekly:
+        return _OccurrenceStep(
+          date: DateTime(
+            effectiveCursor.year,
+            effectiveCursor.month,
+            effectiveCursor.day + 7 * interval,
+          ),
+        );
+      case RecurringFrequency.monthly:
+        final nominalDay = (spec.dayOfMonth ?? anchor.day).clamp(1, 31);
+        return _buildMonthly(
+          effectiveCursor.year,
+          effectiveCursor.month + interval,
+          nominalDay,
+        );
+      case RecurringFrequency.yearly:
+        final targetMonth = (spec.monthOfYear ?? anchor.month).clamp(1, 12);
+        final nominalDay =
+            (spec.monthOfYear != null && spec.dayOfMonth != null
+                    ? spec.dayOfMonth!
+                    : anchor.day)
+                .clamp(1, 31);
+        return _buildMonthly(
+          effectiveCursor.year + interval,
+          targetMonth,
+          nominalDay,
+        );
+    }
+  }
+
+  static _OccurrenceStep? _calculateNextDueStep(
+    RecurringScheduleSpec spec, {
+    required DateTime today,
+  }) {
+    final endDay = spec.endDate == null ? null : dateOnly(spec.endDate!);
+    final anchor = dateOnly(spec.startDate);
+    final rawLast =
+        spec.lastGeneratedDate == null ? null : dateOnly(spec.lastGeneratedDate!);
+    final effectiveLast =
+        (rawLast != null && !anchor.isAfter(rawLast)) ? rawLast : null;
+    final interval = spec.interval < 1 ? 1 : spec.interval;
+
+    if (effectiveLast == null) {
+      var cur = _stepOccurrence(spec, cursor: null);
+      if (cur.date.isAfter(today)) return null;
+      if (endDay != null && cur.date.isAfter(endDay)) return null;
+
+      // 从未生成过的规则（firstGen）：
+      // 定位 <= min(today, endDay) 的最近一期：
+      // 1) 正常当月新建（如 11/1 建每月 15 日，11/16 打开）→ 命中 11/15，不再跨日漏单（#584）；
+      // 2) 远古历史开始日（如 30 天前建每天）→ 直接快进到最近到期日（今天），只生成 1 笔不刷历史脏数据（#135）。
+      final upperBound =
+          (endDay != null && endDay.isBefore(today)) ? endDay : today;
+      if (spec.frequency == RecurringFrequency.daily ||
+          spec.frequency == RecurringFrequency.weekly) {
+        final stepDays = spec.frequency == RecurringFrequency.daily
+            ? interval
+            : 7 * interval;
+        final span = calendarDaysBetween(upperBound, cur.date);
+        if (span >= stepDays) {
+          final jumps = span ~/ stepDays;
+          cur = _OccurrenceStep(
+            date: DateTime(
+              cur.date.year,
+              cur.date.month,
+              cur.date.day + jumps * stepDays,
+            ),
+          );
+        }
+        return cur;
+      }
+
+      var guard = 0;
+      while (guard++ < 5000) {
+        final nxt = _stepOccurrence(spec, cursor: cur.date);
+        if (nxt.date.isAfter(upperBound)) break;
+        cur = nxt;
+      }
+      return cur;
+    }
+
+    final nxt = _stepOccurrence(spec, cursor: effectiveLast);
+    if (nxt.date.isAfter(today)) return null;
+    if (endDay != null && nxt.date.isAfter(endDay)) return null;
+    return nxt;
+  }
+
+  /// 纯函数推演接下来 [count] 次启动记账时间（与真实生成完全同源）
+  static List<RecurringOccurrencePreview> previewUpcomingOccurrences(
+    RecurringScheduleSpec spec, {
+    int count = 3,
+    DateTime? now,
+  }) {
+    if (count <= 0 || !spec.enabled) return const [];
+    final today = dateOnly(now ?? DateTime.now());
+    final endDay = spec.endDate == null ? null : dateOnly(spec.endDate!);
+    final anchor = dateOnly(spec.startDate);
+    final rawLast =
+        spec.lastGeneratedDate == null ? null : dateOnly(spec.lastGeneratedDate!);
+    final effectiveLast =
+        (rawLast != null && !anchor.isAfter(rawLast)) ? rawLast : null;
+
+    final out = <RecurringOccurrencePreview>[];
+    final due = _calculateNextDueStep(spec, today: today);
+
+    _OccurrenceStep firstStep;
+    if (due != null) {
+      firstStep = due;
+    } else {
+      firstStep = _stepOccurrence(spec, cursor: effectiveLast);
+      // 若 effectiveLast 为空但 startDate 远早于今天且因 endDate 已截止，上面会在 endDay 拦截
+      if (endDay != null && firstStep.date.isAfter(endDay)) {
+        return const [];
+      }
+      // 防御：若因异常边界仍在 today 之前，推进到首个 > today 的未来期次
+      var guard = 0;
+      while (!firstStep.date.isAfter(today) && guard++ < 5000) {
+        firstStep = _stepOccurrence(spec, cursor: firstStep.date);
+        if (endDay != null && firstStep.date.isAfter(endDay)) {
+          return const [];
+        }
+      }
+    }
+
+    out.add(RecurringOccurrencePreview(
+      date: firstStep.date,
+      daysFromToday: calendarDaysBetween(firstStep.date, today),
+      nominalDayOfMonth: firstStep.nominalDay,
+      adjustedForMonthEnd: firstStep.adjusted,
+    ));
+
+    var simCursor = firstStep.date;
+    while (out.length < count) {
+      final nxt = _stepOccurrence(spec, cursor: simCursor);
+      if (endDay != null && nxt.date.isAfter(endDay)) break;
+      out.add(RecurringOccurrencePreview(
+        date: nxt.date,
+        daysFromToday: calendarDaysBetween(nxt.date, today),
+        nominalDayOfMonth: nxt.nominalDay,
+        adjustedForMonthEnd: nxt.adjusted,
+      ));
+      simCursor = nxt.date;
+    }
+    return out;
+  }
+
+  /// 计算下一次应该立即生成交易的自然日。返回 null 表示当前时刻无需生成。
+  ///
+  /// [now] 仅用于测试注入当前时间；正常调用走 `DateTime.now()`。
+  DateTime? calculateNextDate(RecurringTransaction recurring, {DateTime? now}) {
+    final today = dateOnly(now ?? DateTime.now());
+    final spec = RecurringScheduleSpec.fromModel(recurring);
+    final due = _calculateNextDueStep(spec, today: today);
+    if (due == null) {
+      logger.info(_tag,
+          'calc id=${recurring.id} freq=${recurring.frequency} interval=${recurring.interval} start=${recurring.startDate} end=${recurring.endDate} lastGen=${recurring.lastGeneratedDate} → 当前无到期项(today=$today)');
+      return null;
+    }
+    logger.info(_tag,
+        'calc id=${recurring.id} freq=${recurring.frequency} interval=${recurring.interval} lastGen=${recurring.lastGeneratedDate} → 到期生成 next=${due.date}');
+    return due.date;
+  }
+
+  /// 生成所有待处理的到期交易记录（单规则异常隔离 + 单期事务原子落库）
+  Future<List<Transaction>> generatePendingTransactions({DateTime? now}) async {
+    final nowTs = now ?? DateTime.now();
+    logger.info(_tag, '开始扫描周期交易 (now=$nowTs)');
 
     final ledgers = await repository.getAllLedgers();
-    logger.info(_tag, '获取到 ${ledgers.length} 个账本');
+    final ledgerIds = <int>{for (final l in ledgers) l.id as int};
+    logger.info(_tag, '获取到 ${ledgers.length} 个有效账本');
 
+    final allRecurring =
+        (await repository.getAllRecurringTransactions()) as List<RecurringTransaction>;
     final generatedTransactions = <Transaction>[];
 
-    for (final ledger in ledgers) {
-      // 获取所有启用的周期交易
-      final allRecurring = await repository.getAllRecurringTransactions();
-      final recurringList = allRecurring
-          .where((r) => r.ledgerId == ledger.id && r.enabled)
-          .toList();
-      if (recurringList.isEmpty) continue;
-      logger.info(_tag,
-          '账本「${ledger.name}」(id=${ledger.id}) 有 ${recurringList.length} 个启用的周期交易');
+    for (final recurring in allRecurring) {
+      if (!recurring.enabled) continue;
+      if (!ledgerIds.contains(recurring.ledgerId)) {
+        logger.warning(_tag,
+            '周期交易 id=${recurring.id} 跳过:所属账本 ledgerId=${recurring.ledgerId} 不存在');
+        continue;
+      }
 
-      for (final recurring in recurringList) {
+      try {
         logger.info(_tag,
-            '处理周期交易 id=${recurring.id} freq=${recurring.frequency} interval=${recurring.interval} start=${recurring.startDate} end=${recurring.endDate} lastGen=${recurring.lastGeneratedDate}');
+            '处理周期交易 id=${recurring.id} ledger=${recurring.ledgerId} freq=${recurring.frequency} interval=${recurring.interval} start=${recurring.startDate} end=${recurring.endDate} lastGen=${recurring.lastGeneratedDate}');
 
-        // 账户隐藏(#240 E2):关联账户(转账含转出/转入两端)任一被隐藏,本次
-        // 扫描整体跳过 —— 不推进 lastGeneratedDate,账户恢复后靠现有"补生成"
-        // 机制(calculateNextDate 按 lastGeneratedDate 续算)自动追上遗漏周期。
+        // 关联账户校验：隐藏账户（#240 E2）或已删除的关联账户均跳过且不推进游标
         final fromAccount = recurring.accountId != null
             ? await repository.getAccount(recurring.accountId)
             : null;
@@ -207,75 +452,77 @@ class RecurringTransactionService {
               '周期交易 id=${recurring.id} 跳过:关联账户已隐藏(accountId=${recurring.accountId}, toAccountId=${recurring.toAccountId})');
           continue;
         }
+        if ((recurring.accountId != null && fromAccount == null) ||
+            (recurring.toAccountId != null && toAccount == null)) {
+          logger.warning(_tag,
+              '周期交易 id=${recurring.id} 跳过:关联账户不存在(accountId=${recurring.accountId}, toAccountId=${recurring.toAccountId})');
+          continue;
+        }
 
-        // 循环生成所有缺失的交易记录
         var currentRecurring = recurring;
         var loopGuard = 0;
         while (true) {
-          // 防御:任何情况下单条周期交易一次扫描不应生成上千笔 —— 拦截死循环
           if (++loopGuard > 1000) {
-            logger.warning(_tag,
-                '周期交易 id=${recurring.id} 单次生成超过 1000 笔,强制中止以防死循环');
+            logger.warning(
+                _tag, '周期交易 id=${recurring.id} 单次生成超过 1000 笔，中止防死循环');
             break;
           }
-          final nextDate = calculateNextDate(currentRecurring);
+          final nextDate = calculateNextDate(currentRecurring, now: nowTs);
           if (nextDate == null) break;
 
           logger.info(_tag,
-              '周期交易 id=${currentRecurring.id} 生成一笔: happenedAt=$nextDate amount=${currentRecurring.amount} type=${currentRecurring.type}');
+              '周期交易 id=${currentRecurring.id} 生成到期账单: happenedAt=$nextDate amount=${currentRecurring.amount} type=${currentRecurring.type}');
 
-          // 生成交易记录
-          //
-          // 币种(v32 / issue #444):
-          // - 挂了账户 → 传 null,让 repo 从账户解析(账户内不混币,
-          //   .docs/multi-currency-ledger 01 §4.1);账户事后被改币种时模板值
-          //   可能已漂移,以账户为准才不会往账户里塞异币种交易。
-          // - 无账户 → 用模板币种(L12 手选;null 即账本本位币,存量行为不变)。
-          // nativeAmount 一律不传:由 repo 按**本次生成当日**的有效汇率折算 ——
-          // 周期账单的语义是"每月 10 美元",不是"每月固定 72 元"。
-          final txCurrency = currentRecurring.accountId != null
-              ? null
-              : currentRecurring.currencyCode;
-          final transactionId = await repository.addTransaction(
-            ledgerId: currentRecurring.ledgerId,
-            type: currentRecurring.type,
-            amount: currentRecurring.amount,
-            categoryId: currentRecurring.categoryId,
-            accountId: currentRecurring.accountId,
-            toAccountId: currentRecurring.toAccountId,
-            happenedAt: nextDate,
-            note: currentRecurring.note,
-            currencyCode: txCurrency,
-          );
-
-          // 更新最后生成日期
-          await repository.updateLastGeneratedDate(
-            currentRecurring.id,
-            nextDate,
-          );
-
-          // 使用流式查询获取生成的交易（取第一个）
-          final transactionsWithCategory =
-              await repository.transactionsWithCategoryAll(ledgerId: ledger.id).first;
-          final matchedTransactions = transactionsWithCategory
-              .where((e) => e.t.id == transactionId)
-              .toList();
-          final transaction = matchedTransactions.isNotEmpty
-              ? matchedTransactions.first.t
-              : null;
-
-          if (transaction != null) {
-            generatedTransactions.add(transaction);
+          Transaction? created;
+          if (repository is BaseRepository) {
+            created = await (repository as BaseRepository)
+                .generateRecurringOccurrence(
+              recurringId: currentRecurring.id,
+              scheduledDate: nextDate,
+            );
+            if (created == null) {
+              // 事务内重检未通过（已被并发处理、禁用或账户状态变化）→ 安全退出当前规则循环
+              break;
+            }
+          } else {
+            final txCurrency = currentRecurring.accountId != null
+                ? null
+                : currentRecurring.currencyCode;
+            final transactionId = await repository.addTransaction(
+              ledgerId: currentRecurring.ledgerId,
+              type: currentRecurring.type,
+              amount: currentRecurring.amount,
+              categoryId: currentRecurring.categoryId,
+              accountId: currentRecurring.accountId,
+              toAccountId: currentRecurring.toAccountId,
+              happenedAt: nextDate,
+              note: currentRecurring.note,
+              recurringId: currentRecurring.id,
+              currencyCode: txCurrency,
+            );
+            await repository.updateLastGeneratedDate(
+              currentRecurring.id,
+              nextDate,
+            );
+            created = await repository.getTransactionById(transactionId);
           }
 
-          // 重新读取更新后的重复交易记录，用于下一次循环
-          final updatedList = await repository.getAllRecurringTransactions();
-          final matchedRecurring =
-              updatedList.where((r) => r.id == currentRecurring.id).toList();
-          if (matchedRecurring.isEmpty) break;
-          final updatedRecurring = matchedRecurring.first;
-          currentRecurring = updatedRecurring;
+          if (created != null) {
+            generatedTransactions.add(created);
+          }
+
+          final refreshed =
+              (await repository.getAllRecurringTransactions())
+                  as List<RecurringTransaction>;
+          final matched =
+              refreshed.where((r) => r.id == currentRecurring.id).toList();
+          if (matched.isEmpty) break;
+          currentRecurring = matched.first;
         }
+      } catch (e, stackTrace) {
+        // 单规则隔离：一条规则异常绝不牵连同账本其它规则或其它账本（#584）
+        logger.error(
+            _tag, '处理周期交易 id=${recurring.id} 异常，已隔离跳过', e, stackTrace);
       }
     }
 
@@ -296,8 +543,11 @@ class RecurringTransactionService {
     RecurringTransaction recurring,
     String Function(DateTime) formatter,
   ) {
-    final nextDate = calculateNextDate(recurring);
-    if (nextDate == null) return null;
-    return formatter(nextDate);
+    final upcoming = previewUpcomingOccurrences(
+      RecurringScheduleSpec.fromModel(recurring),
+      count: 1,
+    );
+    if (upcoming.isEmpty) return null;
+    return formatter(upcoming.first.date);
   }
 }

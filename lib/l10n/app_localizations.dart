@@ -6929,7 +6929,7 @@ abstract class AppLocalizations {
   /// No description provided for @recurringTransactionUsageContent.
   ///
   /// In en, this message translates to:
-  /// **'Recurring transactions are automatically scanned and generated when the app cold starts. After setting a date, the system will create corresponding bills on the first startup after that date. For example: if set to Nov 27, bills will be auto-recorded on the first launch after Nov 27.'**
+  /// **'Due recurring bills are automatically checked and recorded when opening or resuming the app, or upon saving a rule. Tap a card to edit and preview the next 3 scheduled dates.'**
   String get recurringTransactionUsageContent;
 
   /// No description provided for @ledgerSelectTitle.
@@ -17557,6 +17557,150 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This is taking a little longer. Processing is continuing.'**
   String get recordingProgressSlow;
+
+  /// No description provided for @v4RecurringNotGeneratedYet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not generated yet'**
+  String get v4RecurringNotGeneratedYet;
+
+  /// No description provided for @v4RecurringNextToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Next {date} · Today'**
+  String v4RecurringNextToday(String date);
+
+  /// No description provided for @v4RecurringNextTomorrow.
+  ///
+  /// In en, this message translates to:
+  /// **'Next {date} · Tomorrow'**
+  String v4RecurringNextTomorrow(String date);
+
+  /// No description provided for @v4RecurringNextInDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Next {date} · in {days}d'**
+  String v4RecurringNextInDays(String date, int days);
+
+  /// No description provided for @v4RecurringStatusPaused.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused'**
+  String get v4RecurringStatusPaused;
+
+  /// No description provided for @v4RecurringStatusCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Ended'**
+  String get v4RecurringStatusCompleted;
+
+  /// No description provided for @v4RecurringStatusBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Account unavailable'**
+  String get v4RecurringStatusBlocked;
+
+  /// No description provided for @v4RecurringAccountHiddenWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Account \"{account}\" is hidden; auto-recording is paused'**
+  String v4RecurringAccountHiddenWarning(String account);
+
+  /// No description provided for @v4RecurringToAccountHiddenWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Target account \"{account}\" is hidden; auto-recording is paused'**
+  String v4RecurringToAccountHiddenWarning(String account);
+
+  /// No description provided for @v4RecurringAccountMissingWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Linked account is missing; please reselect'**
+  String get v4RecurringAccountMissingWarning;
+
+  /// No description provided for @v4RecurringMonthlyOnDay.
+  ///
+  /// In en, this message translates to:
+  /// **'{freq} · Day {day}'**
+  String v4RecurringMonthlyOnDay(String freq, int day);
+
+  /// No description provided for @v4RecurringWithAnchor.
+  ///
+  /// In en, this message translates to:
+  /// **'{freq} · {anchor}'**
+  String v4RecurringWithAnchor(String freq, String anchor);
+
+  /// No description provided for @v4RecurringPreviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming schedule'**
+  String get v4RecurringPreviewTitle;
+
+  /// No description provided for @v4RecurringPreviewCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Next {count}'**
+  String v4RecurringPreviewCount(int count);
+
+  /// No description provided for @v4RecurringPreviewEmptyEnded.
+  ///
+  /// In en, this message translates to:
+  /// **'Past the end date; no further bills will be scheduled.'**
+  String get v4RecurringPreviewEmptyEnded;
+
+  /// No description provided for @v4RecurringPreviewPausedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'This rule is paused; enable it to resume automatic recording.'**
+  String get v4RecurringPreviewPausedHint;
+
+  /// No description provided for @v4RecurringPreviewDueToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today · Generates on save'**
+  String get v4RecurringPreviewDueToday;
+
+  /// No description provided for @v4RecurringPreviewPendingCatchUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue · Generates on save'**
+  String get v4RecurringPreviewPendingCatchUp;
+
+  /// No description provided for @v4RecurringPreviewTomorrow.
+  ///
+  /// In en, this message translates to:
+  /// **'Tomorrow'**
+  String get v4RecurringPreviewTomorrow;
+
+  /// No description provided for @v4RecurringPreviewInDays.
+  ///
+  /// In en, this message translates to:
+  /// **'in {days}d'**
+  String v4RecurringPreviewInDays(int days);
+
+  /// No description provided for @v4RecurringPreviewMonthEndTag.
+  ///
+  /// In en, this message translates to:
+  /// **'{when} · Month-end'**
+  String v4RecurringPreviewMonthEndTag(String when);
+
+  /// No description provided for @v4RecurringPreviewPreservedNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Progress ({date}) is preserved; editing amount or note will not duplicate the current period.'**
+  String v4RecurringPreviewPreservedNote(String date);
+
+  /// No description provided for @v4RecurringPreviewMonthEndNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Month-end alignment: shorter months record on their last day, then resume on day {day}.'**
+  String v4RecurringPreviewMonthEndNote(int day);
+
+  /// No description provided for @v4RecurringAccountHiddenBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'(Hidden)'**
+  String get v4RecurringAccountHiddenBadge;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

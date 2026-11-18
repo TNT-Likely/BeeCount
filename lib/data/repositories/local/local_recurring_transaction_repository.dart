@@ -62,13 +62,15 @@ class LocalRecurringTransactionRepository implements RecurringTransactionReposit
         dayOfMonth: d.Value(dayOfMonth),
         dayOfWeek: d.Value(dayOfWeek),
         monthOfYear: d.Value(monthOfYear),
-        startDate: startDate,
-        endDate: d.Value(endDate),
+        startDate: _dateOnly(startDate),
+        endDate: d.Value(endDate == null ? null : _dateOnly(endDate)),
         enabled: d.Value(enabled),
         currencyCode: d.Value(_normalizeCurrency(currencyCode)),
       ),
     );
   }
+
+  static DateTime _dateOnly(DateTime d) => DateTime(d.year, d.month, d.day);
 
   /// 币种统一大写存储(与 transactions.currency_code 一致);空串按 null。
   static String? _normalizeCurrency(String? code) {
@@ -96,6 +98,7 @@ class LocalRecurringTransactionRepository implements RecurringTransactionReposit
     DateTime? endDate,
     bool? enabled,
     DateTime? lastGeneratedDate,
+    bool updateLastGeneratedDate = false,
     String? currencyCode,
   }) async {
     await (db.update(db.recurringTransactions)..where((t) => t.id.equals(id)))
@@ -113,10 +116,13 @@ class LocalRecurringTransactionRepository implements RecurringTransactionReposit
         dayOfMonth: d.Value(dayOfMonth),
         dayOfWeek: d.Value(dayOfWeek),
         monthOfYear: d.Value(monthOfYear),
-        startDate: d.Value(startDate),
-        endDate: d.Value(endDate),
+        startDate: d.Value(_dateOnly(startDate)),
+        endDate: d.Value(endDate == null ? null : _dateOnly(endDate)),
         enabled: enabled != null ? d.Value(enabled) : const d.Value.absent(),
-        lastGeneratedDate: d.Value(lastGeneratedDate),
+        lastGeneratedDate: updateLastGeneratedDate
+            ? d.Value(
+                lastGeneratedDate == null ? null : _dateOnly(lastGeneratedDate))
+            : const d.Value.absent(),
         // null 即写 NULL(改回本位币要能清掉旧外币),与本方法其它字段同语义
         currencyCode: d.Value(_normalizeCurrency(currencyCode)),
         updatedAt: d.Value(DateTime.now()),
@@ -143,7 +149,7 @@ class LocalRecurringTransactionRepository implements RecurringTransactionReposit
   Future<void> updateLastGeneratedDate(int id, DateTime date) async {
     await (db.update(db.recurringTransactions)..where((t) => t.id.equals(id)))
         .write(RecurringTransactionsCompanion(
-      lastGeneratedDate: d.Value(date),
+      lastGeneratedDate: d.Value(_dateOnly(date)),
       updatedAt: d.Value(DateTime.now()),
     ));
   }

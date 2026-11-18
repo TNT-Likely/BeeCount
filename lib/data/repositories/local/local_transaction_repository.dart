@@ -515,6 +515,7 @@ class LocalTransactionRepository implements TransactionRepository {
     String? toAccountSyncIdOverride,
     bool excludeFromStats = false,
     bool excludeFromBudget = false,
+    int? recurringId,
     String? currencyCode,
     double? nativeAmount,
   }) async {
@@ -529,6 +530,7 @@ class LocalTransactionRepository implements TransactionRepository {
           toAccountId: d.Value(toAccountId),
           happenedAt: d.Value(happenedAt),
           note: d.Value(note),
+          recurringId: d.Value(recurringId),
           syncId: d.Value(syncId ?? _uuid.v4()),
           categorySyncIdOverride: d.Value(categorySyncIdOverride),
           accountSyncIdOverride: d.Value(accountSyncIdOverride),
