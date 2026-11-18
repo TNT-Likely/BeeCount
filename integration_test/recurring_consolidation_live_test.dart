@@ -261,6 +261,17 @@ void main() {
       await binding.takeScreenshot(name);
     }
 
+    Future<void> captureDark(String name) async {
+      final originalThemeMode = container.read(themeModeProvider);
+      try {
+        container.read(themeModeProvider.notifier).state = ThemeMode.dark;
+        await capture(name);
+      } finally {
+        container.read(themeModeProvider.notifier).state = originalThemeMode;
+        await tester.pump(const Duration(milliseconds: 300));
+      }
+    }
+
     Finder homeRow(String note) => find.byWidgetPredicate(
           (w) => w is TransactionListItem && w.title == note,
           skipOffstage: false,
@@ -419,6 +430,7 @@ void main() {
     expect(find.textContaining('月末对齐'), findsWidgets);
     expect(find.text(l.v4RecurringPreviewMonthEndNote(31)), findsOneWidget);
     await capture('02-editor-month-end-preview');
+    await captureDark('02b-editor-month-end-preview-dark');
 
     await saveEditor();
     expect(
@@ -579,14 +591,7 @@ void main() {
     // Let the account-restored toast disappear before capturing card alignment.
     await tester.pump(const Duration(seconds: 3));
     await capture('05-bills-healthy-tracking');
-    final originalThemeMode = container.read(themeModeProvider);
-    try {
-      container.read(themeModeProvider.notifier).state = ThemeMode.dark;
-      await capture('05b-bills-healthy-tracking-dark');
-    } finally {
-      container.read(themeModeProvider.notifier).state = originalThemeMode;
-      await tester.pump(const Duration(milliseconds: 300));
-    }
+    await captureDark('05b-bills-healthy-tracking-dark');
     pass(
       'R05',
       'Hiding a linked account via production AccountEditPage showed inline warning and blocked status on recurring cards; unhiding immediately restored healthy schedule status, captured in light and dark themes',

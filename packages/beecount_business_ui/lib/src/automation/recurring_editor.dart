@@ -212,9 +212,10 @@ class _SchedulePreviewPanel extends StatelessWidget {
                       Flexible(
                         child: Text(
                           data.title,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
                       ),
@@ -228,7 +229,8 @@ class _SchedulePreviewPanel extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 8),
-              if (data.items.isEmpty && (data.emptyMessage?.isNotEmpty ?? false))
+              if (data.items.isEmpty &&
+                  (data.emptyMessage?.isNotEmpty ?? false))
                 Text(
                   data.emptyMessage!,
                   style: TextStyle(fontSize: 11.5, height: 1.4, color: muted),
@@ -319,10 +321,11 @@ class _PreviewItemRow extends StatelessWidget {
                 Flexible(
                   child: Text(
                     item.dateText,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
-                      fontFeatures: [FontFeature.tabularFigures()],
+                      color: Theme.of(context).colorScheme.onSurface,
+                      fontFeatures: const [FontFeature.tabularFigures()],
                     ),
                   ),
                 ),
@@ -380,7 +383,10 @@ class _EditorValueRow extends StatelessWidget {
                               color: Theme.of(context).hintColor)),
                       const SizedBox(height: 3),
                       Text(value.value,
-                          style: const TextStyle(fontSize: 14, height: 1.4)),
+                          style: TextStyle(
+                              fontSize: 14,
+                              height: 1.4,
+                              color: Theme.of(context).colorScheme.onSurface)),
                       if (value.error != null)
                         Padding(
                             padding: const EdgeInsets.only(top: 4),

@@ -35,6 +35,7 @@ class BeeRecurringBillCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final muted = Theme.of(context).hintColor;
     final cards = BeeCardTheme.of(context);
+    final foreground = Theme.of(context).colorScheme.onSurface;
     final hasNote = note?.trim().isNotEmpty ?? false;
     final hasWarning = warningMessage?.trim().isNotEmpty ?? false;
     final hasNextRun = nextRunLabel?.trim().isNotEmpty ?? false;
@@ -108,8 +109,10 @@ class BeeRecurringBillCard extends StatelessWidget {
                         Text(title,
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                                fontSize: 15, fontWeight: FontWeight.w600)),
+                            style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                                color: foreground)),
                         const SizedBox(height: 3),
                         Text(ledger,
                             maxLines: 2,
@@ -237,8 +240,10 @@ class BeeRecurringUsageNotice extends StatelessWidget {
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(title,
-              style:
-                  const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+              style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.onSurface)),
           const SizedBox(height: 6),
           Text(description,
               style: TextStyle(
