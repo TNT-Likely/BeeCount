@@ -124,35 +124,19 @@ class BeeRecurringEditorForm extends StatelessWidget {
       BeeSegmented<String>(
           items: types, value: type, onChanged: enabled ? onType : null),
       const SizedBox(height: 12),
+      group([BeeRecurringEditorField.ledger, BeeRecurringEditorField.currency]),
+      const SizedBox(height: 12),
       BeeSurface(
-          key: const ValueKey('recurring-editor-amount'),
-          child: TextFormField(
+          child: BeeField(
+              key: const ValueKey('recurring-editor-amount'),
+              label: amountLabel,
               controller: amountController,
               enabled: enabled,
               keyboardType:
                   const TextInputType.numberWithOptions(decimal: true),
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.w600,
-                color: Theme.of(context).colorScheme.onSurface,
-                fontFeatures: const [FontFeature.tabularFigures()],
-              ),
-              decoration: InputDecoration(
-                labelText: amountLabel,
-                floatingLabelBehavior: FloatingLabelBehavior.always,
-                labelStyle:
-                    TextStyle(fontSize: 12, color: Theme.of(context).hintColor),
-                border: InputBorder.none,
-                enabledBorder: InputBorder.none,
-                focusedBorder: InputBorder.none,
-                filled: false,
-                contentPadding: EdgeInsets.zero,
-              ),
               validator: amountValidator)),
       const SizedBox(height: 12),
       group([
-        BeeRecurringEditorField.ledger,
-        BeeRecurringEditorField.currency,
         if (type != 'transfer') BeeRecurringEditorField.category,
         BeeRecurringEditorField.account,
         if (type == 'transfer') BeeRecurringEditorField.toAccount,
@@ -345,41 +329,28 @@ class _EditorValueRow extends StatelessWidget {
       onTap: enabled ? value.onSelect : null,
       borderRadius: BorderRadius.circular(18),
       child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           child: ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: 38),
+              constraints: const BoxConstraints(minHeight: 44),
               child: Row(children: [
                 SizedBox(
                     width: 24,
-                    child: value.leading ??
-                        BeeLineIcon(value.icon,
-                            size: 18, color: Theme.of(context).hintColor)),
+                    child: value.leading ?? BeeLineIcon(value.icon, size: 20)),
                 const SizedBox(width: 10),
                 Expanded(
                     child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                      Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Expanded(
-                                flex: 2,
-                                child: Text(value.label,
-                                    style: TextStyle(
-                                        fontSize: 12,
-                                        color: Theme.of(context).hintColor))),
-                            const SizedBox(width: 12),
-                            Expanded(
-                                flex: 3,
-                                child: Text(value.value,
-                                    textAlign: TextAlign.right,
-                                    style: TextStyle(
-                                        fontSize: 14,
-                                        height: 1.4,
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .onSurface))),
-                          ]),
+                      Text(value.label,
+                          style: TextStyle(
+                              fontSize: 11,
+                              color: Theme.of(context).hintColor)),
+                      const SizedBox(height: 3),
+                      Text(value.value,
+                          style: TextStyle(
+                              fontSize: 14,
+                              height: 1.4,
+                              color: Theme.of(context).colorScheme.onSurface)),
                       if (value.error != null)
                         Padding(
                             padding: const EdgeInsets.only(top: 4),
