@@ -17633,7 +17633,7 @@ abstract class AppLocalizations {
   /// No description provided for @v4RecurringPreviewTitle.
   ///
   /// In en, this message translates to:
-  /// **'Upcoming schedule'**
+  /// **'Upcoming dates'**
   String get v4RecurringPreviewTitle;
 
   /// No description provided for @v4RecurringPreviewCount.
@@ -17701,6 +17701,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'(Hidden)'**
   String get v4RecurringAccountHiddenBadge;
+
+  /// No description provided for @v4RecurringAmountExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Per expense'**
+  String get v4RecurringAmountExpense;
+
+  /// No description provided for @v4RecurringAmountIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Per income'**
+  String get v4RecurringAmountIncome;
+
+  /// No description provided for @v4RecurringAmountTransfer.
+  ///
+  /// In en, this message translates to:
+  /// **'Per transfer'**
+  String get v4RecurringAmountTransfer;
+
+  /// No description provided for @v4RecurringAutomatic.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-recording'**
+  String get v4RecurringAutomatic;
+
+  /// No description provided for @v4RecurringNextCaption.
+  ///
+  /// In en, this message translates to:
+  /// **'Next bill · {when}'**
+  String v4RecurringNextCaption(String when);
+
+  /// No description provided for @v4RecurringUsageSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Due bills are recorded when you open or return to the app. Tap a rule to edit its schedule.'**
+  String get v4RecurringUsageSummary;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

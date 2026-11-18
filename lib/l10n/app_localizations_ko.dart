@@ -9385,7 +9385,7 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String get v4RecurringPreviewTitle => 'Upcoming schedule';
+  String get v4RecurringPreviewTitle => '예정된 기록 날짜';
 
   @override
   String v4RecurringPreviewCount(int count) {
@@ -9429,4 +9429,24 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get v4RecurringAccountHiddenBadge => '(Hidden)';
+
+  @override
+  String get v4RecurringAmountExpense => '매회 지출';
+
+  @override
+  String get v4RecurringAmountIncome => '매회 수입';
+
+  @override
+  String get v4RecurringAmountTransfer => '매회 이체';
+
+  @override
+  String get v4RecurringAutomatic => '자동 기록';
+
+  @override
+  String v4RecurringNextCaption(String when) {
+    return '다음 기록 · $when';
+  }
+
+  @override
+  String get v4RecurringUsageSummary => '앱을 열거나 돌아오면 예정된 거래가 자동으로 기록됩니다. 규칙을 눌러 일정을 수정하세요.';
 }

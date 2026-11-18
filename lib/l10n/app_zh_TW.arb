@@ -3289,5 +3289,12 @@
   "syncHealthLedgerMissing": "本機找不到 ledger={id}",
   "logExportTitle": "=== BeeCount 日誌匯出 ===",
   "logExportTime": "匯出時間：{time}",
-  "logExportCount": "日誌數量：{count}"
+  "logExportCount": "日誌數量：{count}",
+  "v4RecurringAmountExpense": "每次支出",
+  "v4RecurringAmountIncome": "每次收入",
+  "v4RecurringAmountTransfer": "每次轉帳",
+  "v4RecurringAutomatic": "自動記帳",
+  "v4RecurringNextCaption": "下次記帳 · {when}",
+  "v4RecurringUsageSummary": "開啟或回到 App 時，自動補記到期帳單。點擊卡片可編輯規則。",
+  "v4RecurringPreviewTitle": "接下來的記帳日期"
 }

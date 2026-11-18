@@ -2171,5 +2171,12 @@
   "txFlagExcludeFromStatsHint": "통계에서는 제외되지만 잔액에는 계속 반영됩니다",
   "txFlagExcludeFromBudgetHint": "예산에는 반영되지 않습니다",
   "txFlagExcludedTag": "제외됨",
-  "txFlagBudgetExcludedTag": "예산 제외"
+  "txFlagBudgetExcludedTag": "예산 제외",
+  "v4RecurringAmountExpense": "매회 지출",
+  "v4RecurringAmountIncome": "매회 수입",
+  "v4RecurringAmountTransfer": "매회 이체",
+  "v4RecurringAutomatic": "자동 기록",
+  "v4RecurringNextCaption": "다음 기록 · {when}",
+  "v4RecurringUsageSummary": "앱을 열거나 돌아오면 예정된 거래가 자동으로 기록됩니다. 규칙을 눌러 일정을 수정하세요.",
+  "v4RecurringPreviewTitle": "예정된 기록 날짜"
 }

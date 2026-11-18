@@ -9385,7 +9385,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get v4RecurringPreviewTitle => 'Upcoming schedule';
+  String get v4RecurringPreviewTitle => 'Upcoming dates';
 
   @override
   String v4RecurringPreviewCount(int count) {
@@ -9429,4 +9429,24 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get v4RecurringAccountHiddenBadge => '(Hidden)';
+
+  @override
+  String get v4RecurringAmountExpense => 'Per expense';
+
+  @override
+  String get v4RecurringAmountIncome => 'Per income';
+
+  @override
+  String get v4RecurringAmountTransfer => 'Per transfer';
+
+  @override
+  String get v4RecurringAutomatic => 'Auto-recording';
+
+  @override
+  String v4RecurringNextCaption(String when) {
+    return 'Next bill · $when';
+  }
+
+  @override
+  String get v4RecurringUsageSummary => 'Due bills are recorded when you open or return to the app. Tap a rule to edit its schedule.';
 }

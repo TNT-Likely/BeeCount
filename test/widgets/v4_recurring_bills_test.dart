@@ -426,7 +426,7 @@ void main() {
     expect(find.text(l.v4RecurringAccountHiddenWarning('QA Hidden Card')),
         findsOneWidget);
     expect(find.text(l.v4RecurringStatusBlocked), findsOneWidget);
-    expect(find.text('QA CNY · CNY · QA Hidden Card'), findsOneWidget);
+    expect(find.text('QA CNY · QA Hidden Card · CNY'), findsOneWidget);
 
     await repo.setAccountHidden(accountId, false);
     await t.pumpAndSettle();

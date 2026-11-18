@@ -14,7 +14,9 @@ class BeeRecurringBillCard extends StatelessWidget {
     required this.enabled,
     required this.toggleLabel,
     this.note,
+    this.amountLabel,
     this.lastGenerated,
+    this.nextRunCaption,
     this.nextRunLabel,
     this.nextRunHighlighted = false,
     this.nextRunMuted = false,
@@ -25,7 +27,12 @@ class BeeRecurringBillCard extends StatelessWidget {
   });
 
   final String title, ledger, frequency, toggleLabel;
-  final String? note, lastGenerated, nextRunLabel, warningMessage;
+  final String? note,
+      amountLabel,
+      lastGenerated,
+      nextRunCaption,
+      nextRunLabel,
+      warningMessage;
   final Widget amount, icon;
   final bool enabled, busy, nextRunHighlighted, nextRunMuted;
   final VoidCallback? onOpen;
@@ -40,41 +47,124 @@ class BeeRecurringBillCard extends StatelessWidget {
     final hasWarning = warningMessage?.trim().isNotEmpty ?? false;
     final hasNextRun = nextRunLabel?.trim().isNotEmpty ?? false;
 
-    Widget detail(String name, String value) => Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            BeeLineIcon(name, size: 13.5, color: muted),
-            const SizedBox(width: 4),
-            Flexible(
-              child: Text(value,
-                  style: TextStyle(fontSize: 11.5, height: 1.35, color: muted)),
-            ),
-          ],
-        );
+    Widget caption(String text) =>
+        Text(text, style: TextStyle(fontSize: 11, height: 1.4, color: muted));
 
-    Widget buildNextRunDetail() {
+    Widget buildNextRunDetail({bool inline = false}) {
       final color = nextRunHighlighted && !nextRunMuted
           ? beeToneColor(context, BeeTone.success)
-          : muted;
-      return Row(
+          : nextRunMuted
+              ? muted
+              : foreground;
+      final date = Text(
+        nextRunLabel!,
+        textAlign: TextAlign.right,
+        style: TextStyle(
+          fontSize: nextRunMuted ? 14 : 17,
+          fontWeight: FontWeight.w600,
+          height: 1.5,
+          color: color,
+          fontFeatures: const [FontFeature.tabularFigures()],
+        ),
+      );
+      if (inline) {
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (nextRunCaption != null) ...[
+              Expanded(child: caption(nextRunCaption!)),
+              const SizedBox(width: 12),
+            ],
+            Flexible(child: date),
+          ],
+        );
+      }
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          BeeLineIcon('Calendar', size: 13.5, color: color),
-          const SizedBox(width: 4),
-          Expanded(
-            child: Text(
-              nextRunLabel!,
-              style: TextStyle(
-                fontSize: 11.5,
-                fontWeight:
-                    nextRunHighlighted ? FontWeight.w600 : FontWeight.w400,
-                height: 1.35,
-                color: color,
-              ),
-            ),
-          ),
+          if (nextRunCaption != null) ...[
+            caption(nextRunCaption!),
+            const SizedBox(height: 3),
+          ],
+          date,
         ],
       );
     }
+
+    Widget buildPrimary() => LayoutBuilder(builder: (context, constraints) {
+          final scale = MediaQuery.textScalerOf(context).scale(14) / 14;
+          // Give the amount a full line on compact screens and at larger text
+          // sizes, rather than leaving its sign or currency in a separate column.
+          final stacked = constraints.maxWidth / scale < 290;
+          final amountDetail = Opacity(
+            opacity: enabled ? 1 : 0.68,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (amountLabel != null) ...[
+                  caption(amountLabel!),
+                  const SizedBox(height: 3),
+                ],
+                Align(alignment: Alignment.centerLeft, child: amount),
+              ],
+            ),
+          );
+          if (stacked || !hasNextRun) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                amountDetail,
+                if (hasNextRun) ...[
+                  const SizedBox(height: 12),
+                  buildNextRunDetail(inline: true),
+                ],
+              ],
+            );
+          }
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Expanded(flex: 5, child: amountDetail),
+              const SizedBox(width: 16),
+              Flexible(flex: 4, child: buildNextRunDetail()),
+            ],
+          );
+        });
+
+    Widget buildFooter() => LayoutBuilder(builder: (context, constraints) {
+          final scale = MediaQuery.textScalerOf(context).scale(12) / 12;
+          final details = [
+            Text(frequency,
+                style:
+                    TextStyle(fontSize: 11.5, height: 1.4, color: foreground)),
+            if (lastGenerated?.isNotEmpty ?? false)
+              Text(lastGenerated!,
+                  textAlign: TextAlign.right,
+                  style: TextStyle(fontSize: 11, height: 1.4, color: muted)),
+          ];
+          if (constraints.maxWidth / scale < 290) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                details.first,
+                if (details.length > 1) ...[
+                  const SizedBox(height: 4),
+                  details.last,
+                ],
+              ],
+            );
+          }
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(child: details.first),
+              if (details.length > 1) ...[
+                const SizedBox(width: 12),
+                Flexible(child: details.last),
+              ],
+            ],
+          );
+        });
 
     final warnColor = beeToneColor(context, BeeTone.warning);
 
@@ -84,7 +174,7 @@ class BeeRecurringBillCard extends StatelessWidget {
         onTap: busy ? null : onOpen,
         borderRadius: BorderRadius.circular(22),
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(17),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -92,8 +182,8 @@ class BeeRecurringBillCard extends StatelessWidget {
                 Opacity(
                   opacity: enabled ? 1.0 : 0.62,
                   child: Container(
-                      width: 36,
-                      height: 36,
+                      width: 38,
+                      height: 38,
                       decoration: BoxDecoration(
                           color: cards.soft,
                           borderRadius: BorderRadius.circular(12)),
@@ -113,11 +203,14 @@ class BeeRecurringBillCard extends StatelessWidget {
                                 fontSize: 15,
                                 fontWeight: FontWeight.w600,
                                 color: foreground)),
-                        const SizedBox(height: 3),
-                        Text(ledger,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(fontSize: 12, color: muted)),
+                        if (hasNote) ...[
+                          const SizedBox(height: 3),
+                          Text(note!,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                  fontSize: 11.5, height: 1.4, color: muted)),
+                        ],
                       ]),
                 )),
                 const SizedBox(width: 6),
@@ -133,89 +226,34 @@ class BeeRecurringBillCard extends StatelessWidget {
                     child: Switch(
                         value: enabled, onChanged: busy ? null : onToggle)),
               ]),
-              const SizedBox(height: 11),
-              Opacity(
-                opacity: enabled ? 1.0 : 0.68,
-                child: LayoutBuilder(builder: (context, constraints) {
-                  if (!hasNote) {
-                    return Align(
-                        alignment: Alignment.centerRight, child: amount);
-                  }
-                  if (constraints.maxWidth < 260) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Align(alignment: Alignment.centerRight, child: amount),
-                        const SizedBox(height: 6),
-                        Text(note!,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(fontSize: 12, color: muted)),
-                      ],
-                    );
-                  }
-                  return Row(
-                    crossAxisAlignment: CrossAxisAlignment.baseline,
-                    textBaseline: TextBaseline.alphabetic,
-                    children: [
-                      Expanded(
-                        child: Text(note!,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(fontSize: 12, color: muted)),
-                      ),
-                      const SizedBox(width: 10),
-                      Flexible(child: amount),
-                    ],
-                  );
-                }),
-              ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 18),
+              buildPrimary(),
+              const SizedBox(height: 14),
               Divider(height: 1, color: cards.divider),
-              const SizedBox(height: 9),
-              Wrap(
-                spacing: 12,
-                runSpacing: 6,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  detail('Repeat2', frequency),
-                  if (lastGenerated?.isNotEmpty ?? false)
-                    detail('Clock', lastGenerated!),
-                ],
-              ),
-              if (hasNextRun) ...[
-                const SizedBox(height: 7),
-                buildNextRunDetail(),
-              ],
+              const SizedBox(height: 11),
+              buildFooter(),
+              const SizedBox(height: 6),
+              Text(ledger,
+                  style: TextStyle(fontSize: 11, height: 1.4, color: muted)),
               if (hasWarning) ...[
-                const SizedBox(height: 9),
-                DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: warnColor.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        BeeLineIcon('CircleAlert', size: 14, color: warnColor),
-                        const SizedBox(width: 6),
-                        Expanded(
-                          child: Text(
-                            warningMessage!,
-                            style: TextStyle(
-                              fontSize: 11.5,
-                              fontWeight: FontWeight.w500,
-                              height: 1.35,
-                              color: warnColor,
-                            ),
-                          ),
+                const SizedBox(height: 10),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    BeeLineIcon('CircleAlert', size: 14, color: warnColor),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        warningMessage!,
+                        style: TextStyle(
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w500,
+                          height: 1.35,
+                          color: warnColor,
                         ),
-                      ],
+                      ),
                     ),
-                  ),
+                  ],
                 ),
               ],
             ],
@@ -232,24 +270,9 @@ class BeeRecurringUsageNotice extends StatelessWidget {
   final String title, description;
 
   @override
-  Widget build(BuildContext context) => BeeSurface(
-          child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        const BeeLineIcon('Info', size: 20),
-        const SizedBox(width: 10),
-        Expanded(
-            child:
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(title,
-              style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: Theme.of(context).colorScheme.onSurface)),
-          const SizedBox(height: 6),
-          Text(description,
-              style: TextStyle(
-                  fontSize: 12,
-                  height: 1.55,
-                  color: Theme.of(context).hintColor)),
-        ])),
-      ]));
+  Widget build(BuildContext context) => Padding(
+      padding: const EdgeInsets.fromLTRB(3, 0, 3, 4),
+      child: Text(description,
+          style: TextStyle(
+              fontSize: 12, height: 1.55, color: Theme.of(context).hintColor)));
 }

@@ -124,19 +124,35 @@ class BeeRecurringEditorForm extends StatelessWidget {
       BeeSegmented<String>(
           items: types, value: type, onChanged: enabled ? onType : null),
       const SizedBox(height: 12),
-      group([BeeRecurringEditorField.ledger, BeeRecurringEditorField.currency]),
-      const SizedBox(height: 12),
       BeeSurface(
-          child: BeeField(
-              key: const ValueKey('recurring-editor-amount'),
-              label: amountLabel,
+          key: const ValueKey('recurring-editor-amount'),
+          child: TextFormField(
               controller: amountController,
               enabled: enabled,
               keyboardType:
                   const TextInputType.numberWithOptions(decimal: true),
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.w600,
+                color: Theme.of(context).colorScheme.onSurface,
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
+              decoration: InputDecoration(
+                labelText: amountLabel,
+                floatingLabelBehavior: FloatingLabelBehavior.always,
+                labelStyle:
+                    TextStyle(fontSize: 12, color: Theme.of(context).hintColor),
+                border: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                filled: false,
+                contentPadding: EdgeInsets.zero,
+              ),
               validator: amountValidator)),
       const SizedBox(height: 12),
       group([
+        BeeRecurringEditorField.ledger,
+        BeeRecurringEditorField.currency,
         if (type != 'transfer') BeeRecurringEditorField.category,
         BeeRecurringEditorField.account,
         if (type == 'transfer') BeeRecurringEditorField.toAccount,
@@ -175,7 +191,6 @@ class _SchedulePreviewPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cards = BeeCardTheme.of(context);
     final muted = Theme.of(context).hintColor;
     final successColor = beeToneColor(context, BeeTone.success);
     final warnColor = beeToneColor(context, BeeTone.warning);
@@ -187,80 +202,60 @@ class _SchedulePreviewPanel extends StatelessWidget {
         };
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 2, 12, 12),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: cards.soft,
-          borderRadius: BorderRadius.circular(15),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Divider(height: 1, color: BeeCardTheme.of(context).divider),
+          const SizedBox(height: 16),
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 8,
+            runSpacing: 4,
             children: [
-              Wrap(
-                alignment: WrapAlignment.spaceBetween,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                spacing: 8,
-                runSpacing: 4,
-                children: [
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const BeeLineIcon('Calendar', size: 13.5),
-                      const SizedBox(width: 5),
-                      Flexible(
-                        child: Text(
-                          data.title,
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: Theme.of(context).colorScheme.onSurface,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  if (data.subtitle?.isNotEmpty ?? false)
-                    Text(
-                      data.subtitle!,
-                      style: TextStyle(fontSize: 11, color: muted),
-                    ),
-                ],
+              Text(
+                data.title,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
               ),
-              const SizedBox(height: 8),
-              if (data.items.isEmpty &&
-                  (data.emptyMessage?.isNotEmpty ?? false))
+              if (data.subtitle?.isNotEmpty ?? false)
                 Text(
-                  data.emptyMessage!,
-                  style: TextStyle(fontSize: 11.5, height: 1.4, color: muted),
-                )
-              else
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    for (var i = 0; i < data.items.length; i++) ...[
-                      if (i > 0) const SizedBox(height: 5),
-                      _PreviewItemRow(
-                        item: data.items[i],
-                        muted: muted,
-                        surfaceColor: cards.surface,
-                        softColor: cards.soft,
-                        badgeColor: badgeColor(data.items[i].badgeTone),
-                      ),
-                    ],
-                  ],
+                  data.subtitle!,
+                  style: TextStyle(fontSize: 11, color: muted),
                 ),
-              if (data.footnote?.isNotEmpty ?? false) ...[
-                const SizedBox(height: 8),
-                Text(
-                  data.footnote!,
-                  style: TextStyle(fontSize: 11, height: 1.45, color: muted),
-                ),
-              ],
             ],
           ),
-        ),
+          const SizedBox(height: 7),
+          if (data.items.isEmpty && (data.emptyMessage?.isNotEmpty ?? false))
+            Text(
+              data.emptyMessage!,
+              style: TextStyle(fontSize: 11.5, height: 1.4, color: muted),
+            )
+          else
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (var i = 0; i < data.items.length; i++) ...[
+                  _PreviewItemRow(
+                    item: data.items[i],
+                    muted: muted,
+                    badgeColor: badgeColor(data.items[i].badgeTone),
+                  ),
+                ],
+              ],
+            ),
+          if (data.footnote?.isNotEmpty ?? false) ...[
+            const SizedBox(height: 8),
+            Text(
+              data.footnote!,
+              style: TextStyle(fontSize: 11, height: 1.45, color: muted),
+            ),
+          ],
+        ],
       ),
     );
   }
@@ -270,83 +265,68 @@ class _PreviewItemRow extends StatelessWidget {
   const _PreviewItemRow({
     required this.item,
     required this.muted,
-    required this.surfaceColor,
-    required this.softColor,
     required this.badgeColor,
   });
 
   final BeeRecurringPreviewItem item;
   final Color muted;
-  final Color surfaceColor;
-  final Color softColor;
   final Color badgeColor;
 
   @override
   Widget build(BuildContext context) {
     final emphasize = item.badgeTone != BeeRecurringPreviewBadgeTone.neutral;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: surfaceColor,
-        borderRadius: BorderRadius.circular(10),
+    final badge = Text(
+      item.badgeText,
+      textAlign: TextAlign.right,
+      style: TextStyle(
+        fontSize: 11,
+        fontWeight: emphasize ? FontWeight.w600 : FontWeight.w400,
+        color: badgeColor,
       ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
-        child: Wrap(
-          alignment: WrapAlignment.spaceBetween,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          spacing: 8,
-          runSpacing: 4,
+    );
+    final date = Wrap(
+      spacing: 6,
+      runSpacing: 2,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        Text(item.dateText,
+            style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: Theme.of(context).colorScheme.onSurface,
+                fontFeatures: const [FontFeature.tabularFigures()])),
+        Text(item.weekdayText, style: TextStyle(fontSize: 11, color: muted)),
+      ],
+    );
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: LayoutBuilder(builder: (context, constraints) {
+        final compact = constraints.maxWidth /
+                (MediaQuery.textScalerOf(context).scale(13) / 13) <
+            310;
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 18,
-                  height: 18,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: softColor,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Text(
-                    '${item.index}',
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
-                      color: muted,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 7),
-                Flexible(
-                  child: Text(
-                    item.dateText,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: Theme.of(context).colorScheme.onSurface,
-                      fontFeatures: const [FontFeature.tabularFigures()],
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 5),
-                Text(
-                  item.weekdayText,
-                  style: TextStyle(fontSize: 11, color: muted),
-                ),
-              ],
-            ),
-            Text(
-              item.badgeText,
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: emphasize ? FontWeight.w600 : FontWeight.w400,
-                color: badgeColor,
-              ),
-            ),
+            SizedBox(
+                width: 17,
+                child: Text('${item.index}',
+                    style: TextStyle(fontSize: 11, height: 1.6, color: muted))),
+            const SizedBox(width: 8),
+            Expanded(
+                child: compact
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [date, const SizedBox(height: 4), badge])
+                    : Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                            Expanded(flex: 3, child: date),
+                            const SizedBox(width: 10),
+                            Flexible(flex: 2, child: badge),
+                          ])),
           ],
-        ),
-      ),
+        );
+      }),
     );
   }
 }
@@ -365,28 +345,41 @@ class _EditorValueRow extends StatelessWidget {
       onTap: enabled ? value.onSelect : null,
       borderRadius: BorderRadius.circular(18),
       child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
           child: ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: 44),
+              constraints: const BoxConstraints(minHeight: 38),
               child: Row(children: [
                 SizedBox(
                     width: 24,
-                    child: value.leading ?? BeeLineIcon(value.icon, size: 20)),
+                    child: value.leading ??
+                        BeeLineIcon(value.icon,
+                            size: 18, color: Theme.of(context).hintColor)),
                 const SizedBox(width: 10),
                 Expanded(
                     child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                      Text(value.label,
-                          style: TextStyle(
-                              fontSize: 11,
-                              color: Theme.of(context).hintColor)),
-                      const SizedBox(height: 3),
-                      Text(value.value,
-                          style: TextStyle(
-                              fontSize: 14,
-                              height: 1.4,
-                              color: Theme.of(context).colorScheme.onSurface)),
+                      Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Flexible(
+                                flex: 2,
+                                child: Text(value.label,
+                                    style: TextStyle(
+                                        fontSize: 12,
+                                        color: Theme.of(context).hintColor))),
+                            const SizedBox(width: 12),
+                            Expanded(
+                                flex: 3,
+                                child: Text(value.value,
+                                    textAlign: TextAlign.right,
+                                    style: TextStyle(
+                                        fontSize: 14,
+                                        height: 1.4,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurface))),
+                          ]),
                       if (value.error != null)
                         Padding(
                             padding: const EdgeInsets.only(top: 4),

@@ -47,8 +47,8 @@ class _RecurringBillsControlsState
     try {
       await repo.toggleRecurringTransaction(recurring.id, enabled);
       if (enabled) {
-        final generatedLedgers = await RecurringTransactionService
-            .generatePendingTransactionsStatic(
+        final generatedLedgers =
+            await RecurringTransactionService.generatePendingTransactionsStatic(
           repository: repo,
           rescanIfBusy: true,
         );
@@ -113,7 +113,7 @@ class _RecurringBillsControlsState
                         if (index == 0) {
                           return BeeRecurringUsageNotice(
                               title: l.recurringTransactionUsageTitle,
-                              description: l.recurringTransactionUsageContent);
+                              description: l.v4RecurringUsageSummary);
                         }
                         final record = records[index - 1];
                         return RecurringBillBinding(
@@ -259,6 +259,7 @@ class RecurringBillBinding extends ConsumerWidget {
     }
 
     String? nextRunLabel;
+    var nextRunCaption = l.v4RecurringAutomatic;
     var nextRunHighlighted = false;
     var nextRunMuted = false;
     if (!recurring.enabled) {
@@ -277,15 +278,17 @@ class RecurringBillBinding extends ConsumerWidget {
         nextRunMuted = true;
       } else {
         final next = upcoming.first;
-        final dateText = DateFormat.Md(localeName).format(next.date);
+        nextRunLabel = DateFormat.MMMd(localeName).format(next.date);
+        final String relative;
         if (next.daysFromToday <= 0) {
-          nextRunLabel = l.v4RecurringNextToday(dateText);
+          relative = l.calendarToday;
           nextRunHighlighted = true;
         } else if (next.daysFromToday == 1) {
-          nextRunLabel = l.v4RecurringNextTomorrow(dateText);
+          relative = l.v4RecurringPreviewTomorrow;
         } else {
-          nextRunLabel = l.v4RecurringNextInDays(dateText, next.daysFromToday);
+          relative = l.v4RecurringPreviewInDays(next.daysFromToday);
         }
+        nextRunCaption = l.v4RecurringNextCaption(relative);
       }
     }
 
@@ -302,8 +305,9 @@ class RecurringBillBinding extends ConsumerWidget {
     } else {
       accountSummary = null;
     }
-    final ledgerSubtitle =
-        accountSummary == null ? baseLedger : '$baseLedger · $accountSummary';
+    final ledgerSubtitle = accountSummary == null || ledger == null
+        ? baseLedger
+        : '${ledger.name} · $accountSummary · ${ledger.currency}';
 
     final code = recurring.currencyCode;
     // Match the original non-null foreign-code behavior while loading a book.
@@ -323,6 +327,11 @@ class RecurringBillBinding extends ConsumerWidget {
               : CategoryUtils.getDisplayName(category.name, context);
       return BeeRecurringBillCard(
           title: title,
+          amountLabel: switch (recurring.type) {
+            'expense' => l.v4RecurringAmountExpense,
+            'income' => l.v4RecurringAmountIncome,
+            _ => l.v4RecurringAmountTransfer,
+          },
           ledger: ledgerSubtitle,
           frequency: recurringScheduleLabel(l, recurring, localeName),
           icon: recurring.type == 'transfer'
@@ -346,14 +355,16 @@ class RecurringBillBinding extends ConsumerWidget {
                         : recurring.amount,
                     signed: recurring.type != 'transfer',
                     style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w700,
+                        fontSize: 23,
+                        fontWeight: FontWeight.w600,
+                        fontFeatures: const [FontFeature.tabularFigures()],
                         color: color))),
           ]),
           note: recurring.note,
           lastGenerated: recurring.lastGeneratedDate == null
               ? l.v4RecurringNotGeneratedYet
-              : '${l.v4RecurringLastGeneratedLabel} ${DateFormat.yMd(localeName).format(recurring.lastGeneratedDate!)}',
+              : '${l.v4RecurringLastGeneratedLabel} ${DateFormat.Md(localeName).format(recurring.lastGeneratedDate!)}',
+          nextRunCaption: nextRunCaption,
           nextRunLabel: nextRunLabel,
           nextRunHighlighted: nextRunHighlighted,
           nextRunMuted: nextRunMuted,

@@ -4342,7 +4342,7 @@
       }
     }
   },
-  "v4RecurringPreviewTitle": "预计启动记账时间",
+  "v4RecurringPreviewTitle": "接下来的记账日期",
   "v4RecurringPreviewCount": "接下来 {count} 次",
   "@v4RecurringPreviewCount": {
     "placeholders": {
@@ -4388,5 +4388,11 @@
       }
     }
   },
-  "v4RecurringAccountHiddenBadge": "（已隐藏）"
+  "v4RecurringAccountHiddenBadge": "（已隐藏）",
+  "v4RecurringAmountExpense": "每次支出",
+  "v4RecurringAmountIncome": "每次收入",
+  "v4RecurringAmountTransfer": "每次转账",
+  "v4RecurringAutomatic": "自动记账",
+  "v4RecurringNextCaption": "下次记账 · {when}",
+  "v4RecurringUsageSummary": "打开或回到 App 时，自动补记到期账单。点击卡片可编辑规则。"
 }

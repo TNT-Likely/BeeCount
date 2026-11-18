@@ -9377,7 +9377,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get v4RecurringPreviewTitle => '预计启动记账时间';
+  String get v4RecurringPreviewTitle => '接下来的记账日期';
 
   @override
   String v4RecurringPreviewCount(int count) {
@@ -9421,6 +9421,26 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get v4RecurringAccountHiddenBadge => '（已隐藏）';
+
+  @override
+  String get v4RecurringAmountExpense => '每次支出';
+
+  @override
+  String get v4RecurringAmountIncome => '每次收入';
+
+  @override
+  String get v4RecurringAmountTransfer => '每次转账';
+
+  @override
+  String get v4RecurringAutomatic => '自动记账';
+
+  @override
+  String v4RecurringNextCaption(String when) {
+    return '下次记账 · $when';
+  }
+
+  @override
+  String get v4RecurringUsageSummary => '打开或回到 App 时，自动补记到期账单。点击卡片可编辑规则。';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -18026,4 +18046,27 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String logExportCount(int count) {
     return '日誌數量：$count';
   }
+
+  @override
+  String get v4RecurringPreviewTitle => '接下來的記帳日期';
+
+  @override
+  String get v4RecurringAmountExpense => '每次支出';
+
+  @override
+  String get v4RecurringAmountIncome => '每次收入';
+
+  @override
+  String get v4RecurringAmountTransfer => '每次轉帳';
+
+  @override
+  String get v4RecurringAutomatic => '自動記帳';
+
+  @override
+  String v4RecurringNextCaption(String when) {
+    return '下次記帳 · $when';
+  }
+
+  @override
+  String get v4RecurringUsageSummary => '開啟或回到 App 時，自動補記到期帳單。點擊卡片可編輯規則。';
 }

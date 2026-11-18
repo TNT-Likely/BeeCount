@@ -4795,7 +4795,7 @@
       }
     }
   },
-  "v4RecurringPreviewTitle": "Upcoming schedule",
+  "v4RecurringPreviewTitle": "Upcoming dates",
   "v4RecurringPreviewCount": "Next {count}",
   "@v4RecurringPreviewCount": {
     "placeholders": {
@@ -4841,5 +4841,18 @@
       }
     }
   },
-  "v4RecurringAccountHiddenBadge": "(Hidden)"
+  "v4RecurringAccountHiddenBadge": "(Hidden)",
+  "v4RecurringAmountExpense": "Per expense",
+  "v4RecurringAmountIncome": "Per income",
+  "v4RecurringAmountTransfer": "Per transfer",
+  "v4RecurringAutomatic": "Auto-recording",
+  "v4RecurringNextCaption": "Next bill · {when}",
+  "v4RecurringUsageSummary": "Due bills are recorded when you open or return to the app. Tap a rule to edit its schedule.",
+  "@v4RecurringNextCaption": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  }
 }
