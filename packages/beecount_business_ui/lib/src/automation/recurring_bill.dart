@@ -75,7 +75,7 @@ class BeeRecurringBillCard extends StatelessWidget {
               Expanded(child: caption(nextRunCaption!)),
               const SizedBox(width: 12),
             ],
-            Flexible(child: date),
+            Expanded(child: date),
           ],
         );
       }
@@ -126,7 +126,7 @@ class BeeRecurringBillCard extends StatelessWidget {
             children: [
               Expanded(flex: 5, child: amountDetail),
               const SizedBox(width: 16),
-              Flexible(flex: 4, child: buildNextRunDetail()),
+              Expanded(flex: 4, child: buildNextRunDetail()),
             ],
           );
         });
@@ -160,7 +160,7 @@ class BeeRecurringBillCard extends StatelessWidget {
               Expanded(child: details.first),
               if (details.length > 1) ...[
                 const SizedBox(width: 12),
-                Flexible(child: details.last),
+              Expanded(child: details.last),
               ],
             ],
           );

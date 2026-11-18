@@ -322,7 +322,7 @@ class _PreviewItemRow extends StatelessWidget {
                         children: [
                             Expanded(flex: 3, child: date),
                             const SizedBox(width: 10),
-                            Flexible(flex: 2, child: badge),
+                            Expanded(flex: 2, child: badge),
                           ])),
           ],
         );
