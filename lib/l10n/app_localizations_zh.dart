@@ -10172,6 +10172,27 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get splashSecurityFeature3 => '• 可選雲端同步，多裝置資料一致';
 
   @override
+  String get splashPreparingRecords => '正在準備你的記錄';
+
+  @override
+  String get splashSecuritySummary => '本機儲存 · 開源透明';
+
+  @override
+  String get splashSecurityCaption => '雲端同步由你選擇，資料始終由你掌握';
+
+  @override
+  String get splashSecurityLocalTitle => '資料本機儲存';
+
+  @override
+  String get splashSecurityOpenTitle => '開源程式碼透明';
+
+  @override
+  String get splashSecuritySyncTitle => '可選雲端同步';
+
+  @override
+  String get splashSecurityFootnote => '無需帳號也能開始記錄，雲端同步由你選擇。';
+
+  @override
   String get splashInitializing => '正在初始化資料...';
 
   @override
@@ -10185,7 +10206,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String ledgersClearMessage(Object name) {
-    return '將刪除該帳本下所有交易記錄，且不可復原。';
+    return '確定要清空帳本「$name」的所有帳單嗎？此操作不可復原。\n帳本本身會保留，僅刪除帳單資料。';
   }
 
   @override
@@ -11638,6 +11659,9 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String categoryDeleted(Object name) {
     return '分類\"$name\"已刪除';
   }
+
+  @override
+  String get categoryManageChildren => '管理';
 
   @override
   String get categorySubCategoryTitle => '二級分類';
@@ -17157,7 +17181,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get currencyBTN => '不丹努爾特魯姆';
 
   @override
-  String get currencyMVR => '马爾代夫拉菲亞';
+  String get currencyMVR => '馬爾地夫拉菲亞';
 
   @override
   String get currencyAFN => '阿富汗尼';
@@ -17169,7 +17193,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get currencyTJS => '塔吉克斯坦索莫尼';
 
   @override
-  String get currencyTMT => '土庫曼斯坦马納特';
+  String get currencyTMT => '土庫曼馬納特';
 
   @override
   String get currencyKGS => '吉爾吉斯斯坦索姆';
@@ -17211,10 +17235,10 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get currencyAMD => '亞美尼亞德拉姆';
 
   @override
-  String get currencyAZN => '阿塞拜疆马納特';
+  String get currencyAZN => '亞塞拜然馬納特';
 
   @override
-  String get currencyRON => '羅马尼亞列伊';
+  String get currencyRON => '羅馬尼亞列伊';
 
   @override
   String get currencyBGN => '保加利亞列弗';
@@ -17223,7 +17247,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get currencyRSD => '塞爾維亞第納爾';
 
   @override
-  String get currencyISK => '冰岛克朗';
+  String get currencyISK => '冰島克朗';
 
   @override
   String get currencyMDL => '摩爾多瓦列伊';
@@ -17232,16 +17256,16 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get currencyALL => '阿爾巴尼亞列克';
 
   @override
-  String get currencyMKD => '北马其顿第納爾';
+  String get currencyMKD => '北馬其頓第納爾';
 
   @override
-  String get currencyBAM => '波黑可兑換马克';
+  String get currencyBAM => '波赫可兌換馬克';
 
   @override
   String get currencyGIP => '直布羅陀鎊';
 
   @override
-  String get currencyGTQ => '危地马拉格查爾';
+  String get currencyGTQ => '瓜地馬拉格查爾';
 
   @override
   String get currencyHNL => '洪都拉斯伦皮拉';
@@ -17253,7 +17277,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get currencyCRC => '哥斯達黎加科朗';
 
   @override
-  String get currencyPAB => '巴拿马巴波亞';
+  String get currencyPAB => '巴拿馬巴波亞';
 
   @override
   String get currencyDOP => '多米尼加比索';
@@ -17268,7 +17292,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get currencyTTD => '特立尼達和多巴哥元';
 
   @override
-  String get currencyBSD => '巴哈马元';
+  String get currencyBSD => '巴哈馬元';
 
   @override
   String get currencyBBD => '巴巴多斯元';
@@ -17280,10 +17304,10 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get currencyHTG => '海地古德';
 
   @override
-  String get currencyXCD => '东加勒比元';
+  String get currencyXCD => '東加勒比元';
 
   @override
-  String get currencyKYD => '开曼群岛元';
+  String get currencyKYD => '開曼群島元';
 
   @override
   String get currencyAWG => '阿魯巴弗羅林';
@@ -17319,7 +17343,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get currencyPGK => '巴布亞新幾內亞基那';
 
   @override
-  String get currencySBD => '所羅門群岛元';
+  String get currencySBD => '所羅門群島元';
 
   @override
   String get currencyTOP => '湯加潘加';
@@ -17382,7 +17406,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get currencyZMW => '贊比亞克瓦查';
 
   @override
-  String get currencyMWK => '马拉維克瓦查';
+  String get currencyMWK => '馬拉威乖查';
 
   @override
   String get currencyMZN => '莫桑比克梅蒂卡爾';
@@ -17412,7 +17436,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get currencySSP => '南蘇丹鎊';
 
   @override
-  String get currencySOS => '索马里先令';
+  String get currencySOS => '索馬利亞先令';
 
   @override
   String get currencyDJF => '吉布提法郎';
@@ -17442,7 +17466,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get currencySZL => '斯威士蘭里蘭吉尼';
 
   @override
-  String get currencyMGA => '马達加斯加阿里亞里';
+  String get currencyMGA => '馬達加斯加阿里亞里';
 
   @override
   String get currencyMRU => '毛里塔尼亞烏吉亞';
@@ -18046,6 +18070,700 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String logExportCount(int count) {
     return '日誌數量：$count';
   }
+
+  @override
+  String get creditCardOverpayment => '溢繳款';
+
+  @override
+  String get creditCardDebtHint => '填寫目前總欠款，輸入正數；沒有欠款填 0。';
+
+  @override
+  String get creditCardOverpaymentHint => '填寫多還後留在信用卡裡的金額，輸入正數。';
+
+  @override
+  String get creditCardAmountInvalid => '請輸入有效金額；信用卡欠款或溢繳款請填寫非負數。';
+
+  @override
+  String get creditCardReminderDueRequired => '開啟提醒前，請填寫繳款日。';
+
+  @override
+  String get creditCardEstimateHint => '按已記流水估算，實際可用金額以銀行為準。';
+
+  @override
+  String get accountAllFlows => '全部流水';
+
+  @override
+  String get accountOutflows => '支出與轉出';
+
+  @override
+  String get accountInflows => '收入與轉入';
+
+  @override
+  String get positiveAssetBalance => '正餘額資產';
+
+  @override
+  String get negativeAssetBalanceHint => '帳戶負餘額已從總資產扣減。';
+
+  @override
+  String get importAccountCurrencyPreview => '確認帳戶幣種';
+
+  @override
+  String get importAccountCurrencyPreviewHint => '根據帳單幣種建立或複用帳戶；同名多幣種及已有帳戶衝突會按幣種拆分，不修改舊帳戶。缺失幣種繼承已有帳戶，否則使用可確定的帳戶幣種或帳本幣種。';
+
+  @override
+  String get importCurrencyInvalid => '幣種無效，請修正對應行：';
+
+  @override
+  String get transactionReceiptAction => '產生小票';
+
+  @override
+  String get transactionReceiptTitle => '記帳小票';
+
+  @override
+  String get transactionReceiptFields => '選擇小票中展示的資訊';
+
+  @override
+  String get transactionReceiptLedger => '帳本';
+
+  @override
+  String get transactionReceiptTags => '標籤';
+
+  @override
+  String get transactionReceiptFooter => '認真記錄，好好生活';
+
+  @override
+  String get transactionReceiptUnavailable => '無法產生小票，請檢查這筆交易是否仍然存在。';
+
+  @override
+  String get transactionReceiptShareFailed => '分享失敗，請重試。';
+
+  @override
+  String get v4RecordingMoreCategories => '更多分類';
+
+  @override
+  String get v4RecordingCalculationHint => '支援 + − × ÷ 四則運算';
+
+  @override
+  String get v4RecordingSaveNext => '再記一筆';
+
+  @override
+  String get v4RecordingClearAmount => '清空金額';
+
+  @override
+  String get v4RecordingSelectCategory => '請選擇分類';
+
+  @override
+  String get v4RecordingSaveFailed => '儲存失敗，請重試';
+
+  @override
+  String get v4RecordingCategoriesFailed => '分類載入失敗';
+
+  @override
+  String get v4RecordingRetry => '重試';
+
+  @override
+  String get v4RecordingDiscardTitle => '放棄本次記帳？';
+
+  @override
+  String get v4RecordingDiscardMessage => '尚未儲存的金額、備註和選擇將被清除。';
+
+  @override
+  String get v4RateInvalid => '請輸入大於 0 的有效匯率';
+
+  @override
+  String v4RecordingConvertedLabel(String currency) {
+    return '折合 $currency';
+  }
+
+  @override
+  String get v4CategoryToolsTitle => '分類工具';
+
+  @override
+  String get v4CategoryToolsHint => '排序、匯入、分享與預設分類';
+
+  @override
+  String get v4AttachmentPending => '待儲存';
+
+  @override
+  String get v4ClearSelection => '清空選擇';
+
+  @override
+  String get v4HomeAllTransactions => '全部明細';
+
+  @override
+  String get v4HomeBatch => '批次';
+
+  @override
+  String get v4HomeMonthShare => '月帳單分享';
+
+  @override
+  String get v4HomeBrandShow => '顯示蜜蜂記帳品牌';
+
+  @override
+  String get v4HomeBrandHide => '隱藏蜜蜂記帳品牌';
+
+  @override
+  String get v4HomeMonthExpense => '本月支出';
+
+  @override
+  String get v4HomeMonthIncome => '本月收入';
+
+  @override
+  String get v4HomeMonthBalance => '本月結餘';
+
+  @override
+  String get v4AmountsShow => '顯示金額';
+
+  @override
+  String get v4AmountsHide => '隱藏金額';
+
+  @override
+  String get v4SearchTitle => '帳單搜尋';
+
+  @override
+  String get v4SearchRecent => '最近搜尋';
+
+  @override
+  String get v4SearchClearHistory => '清除搜尋紀錄';
+
+  @override
+  String get v4SearchInvert => '反選';
+
+  @override
+  String get v4SearchScope => '調整範圍';
+
+  @override
+  String get v4SearchOriginalAmount => '原幣金額';
+
+  @override
+  String get v4SearchLedgerAmount => '折算金額';
+
+  @override
+  String get v4SearchInvalidRange => '請填寫有效的非負金額，並確認起止範圍正確';
+
+  @override
+  String get v4SearchSetTags => '設定標籤';
+
+  @override
+  String get v4SearchTagsSaved => '所選帳單的標籤已更新';
+
+  @override
+  String get v4SearchAll => '全部';
+
+  @override
+  String get v4SearchHint => '搜尋備註、分類、金額、標籤';
+
+  @override
+  String get v4SearchFilterActive => '已套用篩選';
+
+  @override
+  String v4SearchSelected(int count) {
+    return '已選擇 $count 筆';
+  }
+
+  @override
+  String get v4DetailMonth => '本月';
+
+  @override
+  String get v4DetailYear => '本年';
+
+  @override
+  String get v4DetailCumulative => '累計';
+
+  @override
+  String get v4DetailCustom => '指定週期';
+
+  @override
+  String get v4DetailTrend => '累計金額趨勢';
+
+  @override
+  String get v4DetailShare => '佔比';
+
+  @override
+  String get v4DetailMissingCategory => '分類已不存在';
+
+  @override
+  String get v4DetailRecent => '近期帳單';
+
+  @override
+  String get v4DetailCollapse => '收起明細';
+
+  @override
+  String v4DetailCategoryChildren(int count) {
+    return '一級分類 · $count 個二級分類';
+  }
+
+  @override
+  String v4DetailAmountLabel(String period, String kind) {
+    return '$period$kind';
+  }
+
+  @override
+  String v4DetailAllTransactions(int count) {
+    return '檢視全部 $count 筆';
+  }
+
+  @override
+  String v4DetailRecord(String name) {
+    return '記一筆 · $name';
+  }
+
+  @override
+  String get v4MineCloudGroup => '雲端服務與同步';
+
+  @override
+  String get v4MineFeaturesGroup => '功能管理';
+
+  @override
+  String get v4MineHelpGroup => '幫助與資訊';
+
+  @override
+  String get v4MineSupportGroup => '支持我們';
+
+  @override
+  String get v4ConfigImportWarning => '匯入將覆蓋現有設定，建議先備份目前設定。';
+
+  @override
+  String get v4CategoryPresetIcons => '預設圖示';
+
+  @override
+  String get v4CategoryCommonIcons => '常用';
+
+  @override
+  String get v4CategoryImageHint => '保留圖片原色與透明背景，選擇後裁切為正方形。';
+
+  @override
+  String get welcomePreferencesLater => '這些偏好之後都可以修改。';
+
+  @override
+  String get welcomeRestoreTitle => '歡迎回來。';
+
+  @override
+  String get welcomeRestoreDescription => '恢復熟悉的帳本，接著記錄你的日常。';
+
+  @override
+  String get welcomeReadyDescription => '放心記下日常，資料始終由你掌控。';
+
+  @override
+  String get welcomeCloudLater => '無需現在設定。進入後可在「我的 · 雲端服務」中開啟。';
+
+  @override
+  String get welcomeSelectBackup => '選擇備份檔案';
+
+  @override
+  String get welcomeRestoreContinue => '匯入設定並繼續';
+
+  @override
+  String get welcomeRestoreLedgersAccounts => '帳本與帳戶';
+
+  @override
+  String get welcomeRestoreCategoriesTags => '分類與標籤';
+
+  @override
+  String get welcomeRestoreSettings => '應用設定與偏好';
+
+  @override
+  String get welcomeAttachmentRestoreTitle => '把回憶也帶回來。';
+
+  @override
+  String get welcomeAttachmentRestoreDescription => '恢復票據與帳單的關聯，也可以稍後再匯入。';
+
+  @override
+  String get welcomeAttachmentBackupDescription => 'TAR.GZ · 票據、截圖等附件';
+
+  @override
+  String get welcomeImportAttachmentsContinue => '匯入附件並完成';
+
+  @override
+  String get v4QuickAddSlideHint => '長按後滑向目標，放開進入';
+
+  @override
+  String get v4AccountDetailTitle => '帳戶詳情';
+
+  @override
+  String get v4AmountInvalid => '請輸入有效金額';
+
+  @override
+  String get v4TagCategories => '關聯分類';
+
+  @override
+  String get v4TagRecord => '使用此標籤記一筆';
+
+  @override
+  String get v4TagDistribution => '分類分佈';
+
+  @override
+  String get v4TagOriginalLedgerTotals => '按原帳本金額彙總';
+
+  @override
+  String get v4TagToolsTitle => '標籤工具';
+
+  @override
+  String get v4TagToolsHint => '新增、匯入、預設產生與清理';
+
+  @override
+  String get v4TrendClosing => '期末金額';
+
+  @override
+  String get v4TrendOpening => '期初金額';
+
+  @override
+  String get v4TrendChange => '期間變化';
+
+  @override
+  String get v4TrendChangeRate => '變化比例';
+
+  @override
+  String get v4DataBills => '帳單資料';
+
+  @override
+  String get v4DataCategories => '分類與標籤';
+
+  @override
+  String get v4DataConfiguration => '應用設定與空間';
+
+  @override
+  String get v4DataAttachments => '帳單附件';
+
+  @override
+  String get v4CustomIcons => '自訂圖示';
+
+  @override
+  String get v4AnalyticsTrend => '收支趨勢';
+
+  @override
+  String get v4AnalyticsShowRanking => '顯示分類排行';
+
+  @override
+  String get v4AnalyticsShowPie => '顯示分類環圖';
+
+  @override
+  String get v4AnalyticsView => '統計視角';
+
+  @override
+  String get v4AnalyticsRecalculate => '補折算';
+
+  @override
+  String get aiProviderShowKey => '顯示密鑰';
+
+  @override
+  String get aiProviderHideKey => '隱藏密鑰';
+
+  @override
+  String get aiPromptShare => '分享提示詞';
+
+  @override
+  String get aiPromptPaste => '貼上提示詞';
+
+  @override
+  String get v4AIChatSend => '傳送訊息';
+
+  @override
+  String get v4RecurringLastGeneratedLabel => '最近產生';
+
+  @override
+  String get v4TransactionDetailTitle => '帳單詳情';
+
+  @override
+  String get v4TransactionDetailSnapshot => '歷史折算';
+
+  @override
+  String get v4TransactionDetailSnapshotRate => '記帳時匯率';
+
+  @override
+  String v4DetailConvertedScope(String currency) {
+    return '已按目前帳本幣種 $currency 彙總';
+  }
+
+  @override
+  String v4DetailMissingConversion(int count, String currencies) {
+    return '$count 筆未折算 · $currencies，暫不顯示彙總金額';
+  }
+
+  @override
+  String v4DetailRateDate(String date) {
+    return '匯率日期 $date';
+  }
+
+  @override
+  String v4DetailRatesStale(String date) {
+    return '匯率已超過 7 天 · $date';
+  }
+
+  @override
+  String get v4ShareCardTitle => '分享卡片';
+
+  @override
+  String get v4ShareCardProfile => '我的檔案';
+
+  @override
+  String get v4InsightsCategoryShare => '分類佔比';
+
+  @override
+  String get v4InsightsShareHint => '點選分類，檢視它在總額中的佔比';
+
+  @override
+  String get v4InsightsTapBar => '點柱形，檢視對應收支';
+
+  @override
+  String get v4InsightsAverageTitle => '平均值怎麼算';
+
+  @override
+  String get v4InsightsAverageDays => '按本週期截至今天已發生的天數計算，沒有記帳的日期也計入；不包含未來日期。';
+
+  @override
+  String get v4InsightsAverageMonths => '按本年度截至今天已發生的月份計算，沒有記帳的月份也計入；不包含未來月份。';
+
+  @override
+  String get v4InsightsAverageYears => '按帳本記錄跨越的年份計算，沒有記帳的年份也計入；不包含未來年份。';
+
+  @override
+  String get v4InsightsDaysUnit => '天';
+
+  @override
+  String get v4InsightsMonthsUnit => '個月';
+
+  @override
+  String get v4InsightsYearsUnit => '年';
+
+  @override
+  String get v4InsightsBalanceComposition => '收支構成';
+
+  @override
+  String get v4InsightsBalanceEquation => '結餘 = 收入 − 支出';
+
+  @override
+  String get v4InsightsPreviousPeriod => '上一期';
+
+  @override
+  String get v4InsightsNextPeriod => '下一期';
+
+  @override
+  String get v4InsightsOtherCategories => '其他分類';
+
+  @override
+  String get v4InsightsSortedByAmount => '按金額排序';
+
+  @override
+  String get v4InsightsNoData => '換個統計週期，或點上方 Tab 切換收支視角。';
+
+  @override
+  String v4InsightsTrendTitle(String type) {
+    return '$type趨勢';
+  }
+
+  @override
+  String v4InsightsAmountUnit(String currency) {
+    return '單位：$currency';
+  }
+
+  @override
+  String get v4InsightsCollapseCategories => '收起分類';
+
+  @override
+  String v4InsightsAllCategories(int count) {
+    return '全部 $count 個分類';
+  }
+
+  @override
+  String get v4AssetsAllAccounts => '全部帳戶';
+
+  @override
+  String get v4AssetsByCurrency => '按幣種檢視';
+
+  @override
+  String get v4AssetsUnifiedConversion => '統一折算';
+
+  @override
+  String get v4AssetsCurrencyView => '金額顯示方式';
+
+  @override
+  String get v4AssetsHiddenIncluded => '隱藏帳戶仍計入淨資產';
+
+  @override
+  String v4AssetsIncludesHidden(int count) {
+    return '含 $count 個隱藏帳戶';
+  }
+
+  @override
+  String get v4AssetsOrder => '帳戶排序';
+
+  @override
+  String get v4AssetsOrderHint => '在同一帳戶類型內調整順序，不改變餘額。';
+
+  @override
+  String get v4AssetsSeparateCurrencyHint => '分別檢視各幣種，不混合相加。';
+
+  @override
+  String get v4AssetsOriginal => '原幣';
+
+  @override
+  String get v4AssetsDefaultExpense => '預設支出';
+
+  @override
+  String get v4AssetsDefaultIncome => '預設收入';
+
+  @override
+  String get v4AssetsTrend => '趨勢';
+
+  @override
+  String get v4AssetsComposition => '構成';
+
+  @override
+  String get v4TransactionRowFieldsTitle => '完整帳單欄位';
+
+  @override
+  String v4TransactionRowMoreFields(int count) {
+    return '更多$count項';
+  }
+
+  @override
+  String get v4TransactionRowReadOnly => '唯讀';
+
+  @override
+  String get v4TransactionRowAccess => '存取狀態';
+
+  @override
+  String get v4SharePosterProfileEyebrow => '這是我的記帳日常';
+
+  @override
+  String get v4SharePosterDayCaption => '天，把生活認真記下。';
+
+  @override
+  String get v4SharePosterProfileJourney => '把記錄，變成一個小習慣。';
+
+  @override
+  String get v4SharePosterPromoInvite => '一起，把日子記下來。';
+
+  @override
+  String get v4SharePosterOpenSourceBody => '資料由你掌握，程式碼向你開放。\n和社群一起，讓記帳保持簡單。';
+
+  @override
+  String get v4SharePosterOpenSourceAction => '了解開源';
+
+  @override
+  String get v4SharePosterRecommend => '推薦給朋友';
+
+  @override
+  String get v4SharePosterTopIncome => 'TOP 3 收入';
+
+  @override
+  String get v4SharePosterAverageRecords => '日均記帳';
+
+  @override
+  String get v4ResourceParent => '上級';
+
+  @override
+  String get v4AccountNetWorthLabel => '計入淨資產';
+
+  @override
+  String get v4AccountIncluded => '已計入';
+
+  @override
+  String get v4AccountLinkedBooks => '關聯帳本';
+
+  @override
+  String get v4AccountCashflow => '帳戶收支';
+
+  @override
+  String get v4AccountNetFlow => '淨流入';
+
+  @override
+  String get v4AccountFlowRules => '含轉入與轉出 · 按收支計入規則彙總';
+
+  @override
+  String get v4AccountBalanceRangeNote => '目前餘額不隨時間範圍改變。';
+
+  @override
+  String get v4AccountNoTrend => '目前範圍暫無歷史記錄';
+
+  @override
+  String get v4AccountNoPeer => '請先新增另一個同幣種帳戶，再進行轉帳。';
+
+  @override
+  String get v4AccountActions => '帳戶操作';
+
+  @override
+  String get v4DetailAllTime => '全部時間';
+
+  @override
+  String v4AccountLedgerCount(int count) {
+    return '$count 個帳本';
+  }
+
+  @override
+  String get appearanceCardMaterial => '面板卡片材質';
+
+  @override
+  String get appearanceCardMaterialDescription => '調整面板上卡片的透明度和磨砂。列表行共用外層卡片，底部導覽保持清晰。';
+
+  @override
+  String get appearanceCardTransparency => '卡片透明度';
+
+  @override
+  String get appearanceCardOpaque => '不透明';
+
+  @override
+  String get appearanceCardTransparent => '更透明';
+
+  @override
+  String get appearanceCardBlur => '磨砂強度';
+
+  @override
+  String get appearanceCardBlurOff => '關閉';
+
+  @override
+  String get appearanceCardBlurStrong => '更強';
+
+  @override
+  String get appearanceCardMaterialReset => '恢復預設材質';
+
+  @override
+  String get appearanceCardMaterialPreview => '即時預覽';
+
+  @override
+  String get appearanceCardMaterialPreviewBody => '卡片文字與圖示保持清晰';
+
+  @override
+  String appearanceCardMaterialSummary(int transparency, int blur) {
+    return '透明度 $transparency% · 磨砂 $blur';
+  }
+
+  @override
+  String get aboutBrandStatement => '記下生活，也把資料留給自己。';
+
+  @override
+  String get aboutHelpSupport => '幫助與支援';
+
+  @override
+  String get aboutProductDetails => '了解這款產品';
+
+  @override
+  String get v4HomeBudgetAvailable => '預算可用';
+
+  @override
+  String get v4HomeUseCompactSummary => '切換為精簡彙總';
+
+  @override
+  String get v4HomeUseStandardSummary => '切換為完整彙總';
+
+  @override
+  String get v4HomeBudgetExceeded => '超支';
+
+  @override
+  String get recordingProgressSaving => '正在記帳';
+
+  @override
+  String get recordingProgressRecognizing => '正在辨識帳單';
+
+  @override
+  String get recordingProgressRecognizingDetail => '整理金額、分類與備註';
+
+  @override
+  String get recordingProgressSavingDetail => '正在儲存本次辨識的記錄';
+
+  @override
+  String get recordingProgressSlow => '這次處理時間稍長，仍在繼續處理。';
 
   @override
   String get v4RecurringPreviewTitle => '接下來的記帳日期';
