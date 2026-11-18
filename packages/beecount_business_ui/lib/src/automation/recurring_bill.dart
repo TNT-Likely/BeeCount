@@ -35,7 +35,6 @@ class BeeRecurringBillCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final muted = Theme.of(context).hintColor;
     final cards = BeeCardTheme.of(context);
-    final scheme = Theme.of(context).colorScheme;
     final hasNote = note?.trim().isNotEmpty ?? false;
     final hasWarning = warningMessage?.trim().isNotEmpty ?? false;
     final hasNextRun = nextRunLabel?.trim().isNotEmpty ?? false;
@@ -52,48 +51,27 @@ class BeeRecurringBillCard extends StatelessWidget {
           ],
         );
 
-    Widget buildNextPill() {
-      final bg = nextRunHighlighted
-          ? scheme.primary
-          : nextRunMuted
-              ? cards.soft
-              : scheme.primary.withValues(alpha: 0.12);
-      final fg = nextRunHighlighted
-          ? scheme.onPrimary
-          : nextRunMuted
-              ? muted
-              : scheme.onSurface;
-      return DecoratedBox(
-        decoration: BoxDecoration(
-          color: bg,
-          borderRadius: BorderRadius.circular(999),
-          border: nextRunHighlighted || nextRunMuted
-              ? null
-              : Border.all(color: cards.divider, width: 0.8),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.5, vertical: 4),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (!nextRunMuted) ...[
-                BeeLineIcon('Calendar', size: 12.5, color: fg),
-                const SizedBox(width: 4),
-              ],
-              Flexible(
-                child: Text(
-                  nextRunLabel!,
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    height: 1.3,
-                    color: fg,
-                  ),
-                ),
+    Widget buildNextRunDetail() {
+      final color = nextRunHighlighted && !nextRunMuted
+          ? beeToneColor(context, BeeTone.success)
+          : muted;
+      return Row(
+        children: [
+          BeeLineIcon('Calendar', size: 13.5, color: color),
+          const SizedBox(width: 4),
+          Expanded(
+            child: Text(
+              nextRunLabel!,
+              style: TextStyle(
+                fontSize: 11.5,
+                fontWeight:
+                    nextRunHighlighted ? FontWeight.w600 : FontWeight.w400,
+                height: 1.35,
+                color: color,
               ),
-            ],
+            ),
           ),
-        ),
+        ],
       );
     }
 
@@ -193,24 +171,19 @@ class BeeRecurringBillCard extends StatelessWidget {
               Divider(height: 1, color: cards.divider),
               const SizedBox(height: 9),
               Wrap(
-                alignment: WrapAlignment.spaceBetween,
+                spacing: 12,
+                runSpacing: 6,
                 crossAxisAlignment: WrapCrossAlignment.center,
-                spacing: 8,
-                runSpacing: 7,
                 children: [
-                  Wrap(
-                    spacing: 12,
-                    runSpacing: 6,
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    children: [
-                      detail('Repeat2', frequency),
-                      if (lastGenerated?.isNotEmpty ?? false)
-                        detail('Clock', lastGenerated!),
-                    ],
-                  ),
-                  if (hasNextRun) buildNextPill(),
+                  detail('Repeat2', frequency),
+                  if (lastGenerated?.isNotEmpty ?? false)
+                    detail('Clock', lastGenerated!),
                 ],
               ),
+              if (hasNextRun) ...[
+                const SizedBox(height: 7),
+                buildNextRunDetail(),
+              ],
               if (hasWarning) ...[
                 const SizedBox(height: 9),
                 DecoratedBox(

@@ -371,7 +371,7 @@ void main() {
     await t.runAsync(() => first.close());
   });
 
-  scenario('窄屏1.4倍字号下带下次排期胶囊与告警横幅的周期卡无溢出', (t) async {
+  scenario('窄屏1.4倍字号下带下次排期与告警横幅的周期卡无溢出', (t) async {
     screen(t, const Size(320, 640));
     await t.pumpWidget(MaterialApp(
         theme: beeTheme(brightness: Brightness.dark),

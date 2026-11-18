@@ -13,6 +13,7 @@ import 'package:beecount/pages/transaction/recurring_transaction_page.dart';
 import 'package:beecount/providers/database_providers.dart';
 import 'package:beecount/providers/statistics_providers.dart';
 import 'package:beecount/providers/sync_providers.dart';
+import 'package:beecount/providers/theme_providers.dart';
 import 'package:beecount_business_ui/recurring_editor.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -278,7 +279,8 @@ void main() {
       tag: 'splash-to-home',
     );
     await waitUi(
-      () => homeRow('QA 跨日补记584').evaluate().isNotEmpty &&
+      () =>
+          homeRow('QA 跨日补记584').evaluate().isNotEmpty &&
           homeRow('QA 远古防刷135').evaluate().isNotEmpty,
       tag: 'startup-rows',
     );
@@ -350,7 +352,8 @@ void main() {
       await waitUi(() => addBtn.evaluate().isNotEmpty, tag: 'add-btn');
       await tester.tap(addBtn.first);
       await waitUi(
-        () => find.byType(RecurringTransactionEditPage).evaluate().isNotEmpty &&
+        () =>
+            find.byType(RecurringTransactionEditPage).evaluate().isNotEmpty &&
             find.byType(BeeRecurringEditorForm).evaluate().isNotEmpty,
         tag: 'editor-open',
       );
@@ -476,7 +479,8 @@ void main() {
     await tester.pump(const Duration(milliseconds: 200));
     await tester.tap(dueCardFinder);
     await waitUi(
-      () => find.byType(RecurringTransactionEditPage).evaluate().isNotEmpty &&
+      () =>
+          find.byType(RecurringTransactionEditPage).evaluate().isNotEmpty &&
           find.byType(BeeRecurringEditorForm).evaluate().isNotEmpty,
       tag: 'edit-due-rule',
     );
@@ -572,10 +576,20 @@ void main() {
       tag: 'hidden-warning-cleared',
     );
     expect(find.text(l.v4RecurringStatusBlocked), findsNothing);
+    // Let the account-restored toast disappear before capturing card alignment.
+    await tester.pump(const Duration(seconds: 3));
     await capture('05-bills-healthy-tracking');
+    final originalThemeMode = container.read(themeModeProvider);
+    try {
+      container.read(themeModeProvider.notifier).state = ThemeMode.dark;
+      await capture('05b-bills-healthy-tracking-dark');
+    } finally {
+      container.read(themeModeProvider.notifier).state = originalThemeMode;
+      await tester.pump(const Duration(milliseconds: 300));
+    }
     pass(
       'R05',
-      'Hiding a linked account via production AccountEditPage showed inline warning and blocked pill on recurring cards; unhiding immediately restored healthy schedule status',
+      'Hiding a linked account via production AccountEditPage showed inline warning and blocked status on recurring cards; unhiding immediately restored healthy schedule status, captured in light and dark themes',
     );
 
     // -------------------------------------------------------------------------
@@ -675,7 +689,8 @@ void main() {
     await tapText(l.tabHome);
     container.read(statsRefreshProvider.notifier).state++;
     await waitUi(
-      () => homeRow('QA Cloud 周期核对后').evaluate().isNotEmpty &&
+      () =>
+          homeRow('QA Cloud 周期核对后').evaluate().isNotEmpty &&
           homeRow('QA 今日立即记账').evaluate().isNotEmpty,
       tag: 'home-final-rows',
     );
