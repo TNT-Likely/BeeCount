@@ -362,7 +362,7 @@ class _EditorValueRow extends StatelessWidget {
                       Row(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Flexible(
+                            Expanded(
                                 flex: 2,
                                 child: Text(value.label,
                                     style: TextStyle(
