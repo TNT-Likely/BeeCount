@@ -183,9 +183,12 @@ class LocalLedgerRepository implements LedgerRepository {
 
   @override
   Future<void> deleteLedger(int id) async {
-    // 先删除该账本下的所有交易，再删除账本本身
+    // 先删除该账本下的所有交易与周期规则，再删除账本本身（防止残留孤儿周期规则）
     await db.transaction(() async {
       await (db.delete(db.transactions)..where((t) => t.ledgerId.equals(id)))
+          .go();
+      await (db.delete(db.recurringTransactions)
+            ..where((r) => r.ledgerId.equals(id)))
           .go();
       await (db.delete(db.ledgers)..where((tbl) => tbl.id.equals(id))).go();
     });
@@ -233,6 +236,11 @@ class LocalLedgerRepository implements LedgerRepository {
         'UPDATE transactions SET ledger_id = ?1 WHERE ledger_id = ?2',
         variables: [d.Variable<int>(toId), d.Variable<int>(fromId)],
         updates: {db.transactions},
+      );
+      await db.customUpdate(
+        'UPDATE recurring_transactions SET ledger_id = ?1 WHERE ledger_id = ?2',
+        variables: [d.Variable<int>(toId), d.Variable<int>(fromId)],
+        updates: {db.recurringTransactions},
       );
       // 再更新主表ID（SQLite 允许更新 INTEGER PRIMARY KEY 的值）
       await db.customUpdate(

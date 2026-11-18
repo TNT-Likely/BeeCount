@@ -1551,7 +1551,7 @@
     }
   },
   "recurringTransactionUsageTitle": "使用说明",
-  "recurringTransactionUsageContent": "周期记账会在每次冷启动进入App时自动扫描并生成账单。设置日期后，系统会在该日期之后的冷启动时创建对应账单。例如：设置11月27日，则会在11月27日之后的首次启动时自动记账。",
+  "recurringTransactionUsageContent": "打开或切回 App、保存规则时会自动检查并补齐到期账单。点击卡片可编辑规则并查看接下来 3 次记账日期。",
   "ledgerSelectTitle": "选择账本",
   "ledgerSelect": "选择账本",
   "syncNotConfiguredMessage": "未配置云端",
@@ -4271,5 +4271,128 @@
   "recordingProgressRecognizing": "正在识别账单",
   "recordingProgressRecognizingDetail": "整理金额、分类与备注",
   "recordingProgressSavingDetail": "正在保存本次识别的记录",
-  "recordingProgressSlow": "这次处理时间稍长，仍在继续处理。"
+  "recordingProgressSlow": "这次处理时间稍长，仍在继续处理。",
+  "v4RecurringNotGeneratedYet": "尚未生成",
+  "v4RecurringNextToday": "下次 {date} · 今天",
+  "@v4RecurringNextToday": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "v4RecurringNextTomorrow": "下次 {date} · 明天",
+  "@v4RecurringNextTomorrow": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "v4RecurringNextInDays": "下次 {date} · {days}天后",
+  "@v4RecurringNextInDays": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "v4RecurringStatusPaused": "已暂停",
+  "v4RecurringStatusCompleted": "已完结",
+  "v4RecurringStatusBlocked": "等待账户恢复",
+  "v4RecurringAccountHiddenWarning": "关联账户「{account}」已隐藏，暂停自动记账",
+  "@v4RecurringAccountHiddenWarning": {
+    "placeholders": {
+      "account": {
+        "type": "String"
+      }
+    }
+  },
+  "v4RecurringToAccountHiddenWarning": "转入账户「{account}」已隐藏，暂停自动记账",
+  "@v4RecurringToAccountHiddenWarning": {
+    "placeholders": {
+      "account": {
+        "type": "String"
+      }
+    }
+  },
+  "v4RecurringAccountMissingWarning": "关联账户不存在，请重新选择账户",
+  "v4RecurringMonthlyOnDay": "{freq} {day} 日",
+  "@v4RecurringMonthlyOnDay": {
+    "placeholders": {
+      "freq": {
+        "type": "String"
+      },
+      "day": {
+        "type": "int"
+      }
+    }
+  },
+  "v4RecurringWithAnchor": "{freq} · {anchor}",
+  "@v4RecurringWithAnchor": {
+    "placeholders": {
+      "freq": {
+        "type": "String"
+      },
+      "anchor": {
+        "type": "String"
+      }
+    }
+  },
+  "v4RecurringPreviewTitle": "接下来的记账日期",
+  "v4RecurringPreviewCount": "接下来 {count} 次",
+  "@v4RecurringPreviewCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "v4RecurringPreviewEmptyEnded": "已超过结束日期，后续不再产生新的记账排期。",
+  "v4RecurringPreviewPausedHint": "当前规则处于已暂停状态，开启后将按周期恢复自动记账。",
+  "v4RecurringPreviewDueToday": "今天 · 保存后立即生成",
+  "v4RecurringPreviewPendingCatchUp": "待补记 · 保存后立即生成",
+  "v4RecurringPreviewTomorrow": "明天",
+  "v4RecurringPreviewInDays": "{days}天后",
+  "@v4RecurringPreviewInDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "v4RecurringPreviewMonthEndTag": "{when} · 月末对齐",
+  "@v4RecurringPreviewMonthEndTag": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "v4RecurringPreviewPreservedNote": "已保留上次进度（{date}），修改金额或备注不会重复生成当期账单。",
+  "@v4RecurringPreviewPreservedNote": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "v4RecurringPreviewMonthEndNote": "月末对齐：遇到天数不足的月份，自动在该月最后一天记账，次月恢复 {day} 日。",
+  "@v4RecurringPreviewMonthEndNote": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      }
+    }
+  },
+  "v4RecurringAccountHiddenBadge": "（已隐藏）",
+  "v4RecurringAmountExpense": "每次支出",
+  "v4RecurringAmountIncome": "每次收入",
+  "v4RecurringAmountTransfer": "每次转账",
+  "v4RecurringAutomatic": "自动记账",
+  "v4RecurringNextCaption": "下次记账 · {when}",
+  "v4RecurringUsageSummary": "打开或回到 App 时，自动补记到期账单。点击卡片可编辑规则。"
 }

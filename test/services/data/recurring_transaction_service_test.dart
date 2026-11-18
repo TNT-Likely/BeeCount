@@ -9,6 +9,7 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:beecount/cloud/sync/change_tracker.dart';
 import 'package:beecount/data/db.dart';
 import 'package:beecount/data/repositories/local/local_repository.dart';
 import 'package:beecount/services/data/recurring_transaction_service.dart';
@@ -210,5 +211,265 @@ void main() {
 
     expect(generated, hasLength(1));
     expectIsToday(generated.first.happenedAt);
+  });
+
+  // ==========================================================================
+  // 2026-11 周期记账巩固与 #584 漏触发修复回归测试
+  // ==========================================================================
+
+  test('同日 22:30 新建月度规则(带时分秒) → 归一化零点后当天立即生成首笔,不跳下月 (B2a)',
+      () async {
+    final id = await repo.addRecurringTransaction(
+      ledgerId: ledgerId,
+      type: 'expense',
+      amount: 99,
+      frequency: 'monthly',
+      interval: 1,
+      dayOfMonth: 18,
+      startDate: DateTime(2026, 11, 18, 22, 30, 45),
+    );
+
+    final service = RecurringTransactionService(repo);
+    final generated = await service.generatePendingTransactions(
+      now: DateTime(2026, 11, 18, 22, 31, 0),
+    );
+
+    expect(generated, hasLength(1));
+    expect(generated.single.happenedAt, DateTime(2026, 11, 18));
+    expect(generated.single.recurringId, id);
+  });
+
+  test('首期未在当天冷启动,次日打开正常补记首期账单,不再整月跳过 (#584 / B2b)', () async {
+    final id = await repo.addRecurringTransaction(
+      ledgerId: ledgerId,
+      type: 'income',
+      amount: 15000,
+      frequency: 'monthly',
+      interval: 1,
+      dayOfMonth: 15,
+      startDate: DateTime(2026, 11, 1),
+    );
+
+    final service = RecurringTransactionService(repo);
+    // 11月15日未打开,11月16日才启动扫描
+    final generated = await service.generatePendingTransactions(
+      now: DateTime(2026, 11, 16, 9, 0),
+    );
+
+    expect(generated, hasLength(1));
+    expect(generated.single.happenedAt, DateTime(2026, 11, 15));
+    expect(generated.single.recurringId, id);
+
+    final updated =
+        (await repo.getAllRecurringTransactions()).firstWhere((r) => r.id == id);
+    expect(updated.lastGeneratedDate, DateTime(2026, 11, 15));
+  });
+
+  test('远古未生成月度规则(2020年起)首次扫描只补当期最近1笔,不刷70条历史脏账 (#135+#584)',
+      () async {
+    await repo.addRecurringTransaction(
+      ledgerId: ledgerId,
+      type: 'expense',
+      amount: 50,
+      frequency: 'monthly',
+      interval: 1,
+      dayOfMonth: 15,
+      startDate: DateTime(2020, 1, 1),
+    );
+
+    final service = RecurringTransactionService(repo);
+    final generated = await service.generatePendingTransactions(
+      now: DateTime(2026, 11, 20, 10, 0),
+    );
+
+    expect(generated, hasLength(1));
+    expect(generated.single.happenedAt, DateTime(2026, 11, 15));
+  });
+
+  test('编辑规则金额或备注默认保留 lastGeneratedDate,不清空执行游标 (B3)', () async {
+    final id = await repo.addRecurringTransaction(
+      ledgerId: ledgerId,
+      type: 'expense',
+      amount: 100,
+      frequency: 'monthly',
+      interval: 3,
+      dayOfMonth: 15,
+      startDate: DateTime(2026, 8, 15),
+    );
+    await repo.updateLastGeneratedDate(id, DateTime(2026, 11, 15));
+
+    await repo.updateRecurringTransaction(
+      id: id,
+      ledgerId: ledgerId,
+      type: 'expense',
+      amount: 120,
+      note: '涨价后备注',
+      frequency: 'monthly',
+      interval: 3,
+      dayOfMonth: 15,
+      startDate: DateTime(2026, 8, 15),
+    );
+
+    final after =
+        (await repo.getAllRecurringTransactions()).firstWhere((r) => r.id == id);
+    expect(after.lastGeneratedDate, DateTime(2026, 11, 15));
+
+    // 同月再次扫描不应重复生成第二笔
+    final generated = await RecurringTransactionService(repo)
+        .generatePendingTransactions(now: DateTime(2026, 11, 20));
+    expect(generated, isEmpty);
+  });
+
+  test('结束日当天下午打开正常生成最后一期;结束日后打开仍补齐结束日前漏期 (B5)', () async {
+    final id1 = await repo.addRecurringTransaction(
+      ledgerId: ledgerId,
+      type: 'expense',
+      amount: 30,
+      frequency: 'monthly',
+      interval: 1,
+      dayOfMonth: 30,
+      startDate: DateTime(2026, 10, 1),
+      endDate: DateTime(2026, 11, 30),
+    );
+    await repo.updateLastGeneratedDate(id1, DateTime(2026, 10, 30));
+
+    final service = RecurringTransactionService(repo);
+    // 11月30日 15:30 打开(> endDate 00:00)
+    final genOnEndDay = await service.generatePendingTransactions(
+      now: DateTime(2026, 11, 30, 15, 30),
+    );
+    expect(genOnEndDay, hasLength(1));
+    expect(genOnEndDay.single.happenedAt, DateTime(2026, 11, 30));
+
+    // 另一条规则在 12月5日(> endDate)才打开,仍补记 11月30日那期并停止
+    final id2 = await repo.addRecurringTransaction(
+      ledgerId: ledgerId,
+      type: 'expense',
+      amount: 40,
+      frequency: 'monthly',
+      interval: 1,
+      dayOfMonth: 30,
+      startDate: DateTime(2026, 10, 1),
+      endDate: DateTime(2026, 11, 30),
+    );
+    await repo.updateLastGeneratedDate(id2, DateTime(2026, 10, 30));
+
+    final genAfterEnd = await service.generatePendingTransactions(
+      now: DateTime(2026, 12, 5, 9, 0),
+    );
+    expect(genAfterEnd, hasLength(1));
+    expect(genAfterEnd.single.happenedAt, DateTime(2026, 11, 30));
+  });
+
+  test('年度规则忽略历史残留 dayOfMonth(monthOfYear==null),严格锚定 startDate 月日 (B6)',
+      () async {
+    // 模拟旧版编辑器在 17 日创建 startDate=12月25日 的年度规则,意外写入 dayOfMonth=17
+    await repo.addRecurringTransaction(
+      ledgerId: ledgerId,
+      type: 'expense',
+      amount: 88,
+      frequency: 'yearly',
+      interval: 1,
+      dayOfMonth: 17,
+      monthOfYear: null,
+      startDate: DateTime(2026, 12, 25),
+    );
+
+    final rules = await repo.getAllRecurringTransactions();
+    final upcoming = RecurringTransactionService.previewUpcomingOccurrences(
+      RecurringScheduleSpec.fromModel(rules.single),
+      count: 2,
+      now: DateTime(2026, 11, 18),
+    );
+    expect(upcoming.map((e) => e.date).toList(), [
+      DateTime(2026, 12, 25),
+      DateTime(2027, 12, 25),
+    ]);
+  });
+
+  test('月末 31 日跨小月与平年 2 月推演自动月末对齐且次月恢复 31 日,无漂移', () {
+    final spec = RecurringScheduleSpec(
+      frequency: RecurringFrequency.monthly,
+      interval: 1,
+      dayOfMonth: 31,
+      startDate: DateTime(2026, 6, 30),
+      lastGeneratedDate: DateTime(2026, 10, 31),
+    );
+    final upcoming = RecurringTransactionService.previewUpcomingOccurrences(
+      spec,
+      count: 5,
+      now: DateTime(2026, 11, 18),
+    );
+    expect(upcoming.map((e) => e.date).toList(), [
+      DateTime(2026, 11, 30),
+      DateTime(2026, 12, 31),
+      DateTime(2027, 1, 31),
+      DateTime(2027, 2, 28),
+      DateTime(2027, 3, 31),
+    ]);
+    expect(upcoming[0].adjustedForMonthEnd, isTrue);
+    expect(upcoming[0].nominalDayOfMonth, 31);
+    expect(upcoming[1].adjustedForMonthEnd, isFalse);
+    expect(upcoming[3].adjustedForMonthEnd, isTrue);
+    expect(upcoming[4].adjustedForMonthEnd, isFalse);
+  });
+
+  test('多账本异常隔离 + ChangeTracker 登记 + SingleFlight 并发防重 + 删改账本级联 (#584/B4/B7)',
+      () async {
+    final tracker = ChangeTracker(db);
+    final trackedRepo = LocalRepository(db, changeTracker: tracker);
+    final ledgerB = await trackedRepo.createLedger(name: 'B', currency: 'CNY');
+
+    // A 账本挂一个已删除的不存在账户(accountId=999),应被安全隔离跳过
+    await trackedRepo.addRecurringTransaction(
+      ledgerId: ledgerId,
+      type: 'expense',
+      amount: 50,
+      accountId: 999,
+      frequency: 'daily',
+      interval: 1,
+      startDate: DateTime.now(),
+    );
+    // B 账本正常规则同一天应照常生成并写入 local_changes
+    final validRuleId = await trackedRepo.addRecurringTransaction(
+      ledgerId: ledgerB,
+      type: 'income',
+      amount: 888,
+      frequency: 'daily',
+      interval: 1,
+      startDate: DateTime.now(),
+    );
+
+    // 并发调用两次静态生成,SingleFlight 保证只生成 1 笔
+    final results = await Future.wait([
+      RecurringTransactionService.generatePendingTransactionsStatic(
+        repository: trackedRepo,
+      ),
+      RecurringTransactionService.generatePendingTransactionsStatic(
+        repository: trackedRepo,
+      ),
+    ]);
+    expect({...results[0], ...results[1]}, {ledgerB});
+
+    final bTxs = await trackedRepo.getTransactionsByLedger(ledgerB);
+    expect(bTxs, hasLength(1));
+    expect(bTxs.single.recurringId, validRuleId);
+
+    final unpushed = await tracker.getUnpushedChangesForLedger(ledgerB);
+    expect(
+      unpushed.where((c) => c.entityType == 'transaction' && c.action == 'create'),
+      hasLength(1),
+    );
+
+    // reassignLedgerId 同步迁移 recurring_transactions.ledger_id
+    await trackedRepo.reassignLedgerId(fromId: ledgerB, toId: 99);
+    expect(
+      (await trackedRepo.getRecurringTransactionsByLedger(99)).single.id,
+      validRuleId,
+    );
+
+    // deleteLedger 级联清理该账本下的 recurring_transactions
+    await trackedRepo.deleteLedger(99);
+    expect(await trackedRepo.getRecurringTransactionsByLedger(99), isEmpty);
   });
 }

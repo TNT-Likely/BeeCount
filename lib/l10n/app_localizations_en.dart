@@ -3659,7 +3659,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get recurringTransactionUsageTitle => 'Usage Guide';
 
   @override
-  String get recurringTransactionUsageContent => 'Recurring transactions are automatically scanned and generated when the app cold starts. After setting a date, the system will create corresponding bills on the first startup after that date. For example: if set to Nov 27, bills will be auto-recorded on the first launch after Nov 27.';
+  String get recurringTransactionUsageContent => 'Due recurring bills are automatically checked and recorded when opening or resuming the app, or upon saving a rule. Tap a card to edit and preview the next 3 scheduled dates.';
 
   @override
   String get ledgerSelectTitle => 'Select Ledger';
@@ -9333,4 +9333,120 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get recordingProgressSlow => 'This is taking a little longer. Processing is continuing.';
+
+  @override
+  String get v4RecurringNotGeneratedYet => 'Not generated yet';
+
+  @override
+  String v4RecurringNextToday(String date) {
+    return 'Next $date · Today';
+  }
+
+  @override
+  String v4RecurringNextTomorrow(String date) {
+    return 'Next $date · Tomorrow';
+  }
+
+  @override
+  String v4RecurringNextInDays(String date, int days) {
+    return 'Next $date · in ${days}d';
+  }
+
+  @override
+  String get v4RecurringStatusPaused => 'Paused';
+
+  @override
+  String get v4RecurringStatusCompleted => 'Ended';
+
+  @override
+  String get v4RecurringStatusBlocked => 'Account unavailable';
+
+  @override
+  String v4RecurringAccountHiddenWarning(String account) {
+    return 'Account \"$account\" is hidden; auto-recording is paused';
+  }
+
+  @override
+  String v4RecurringToAccountHiddenWarning(String account) {
+    return 'Target account \"$account\" is hidden; auto-recording is paused';
+  }
+
+  @override
+  String get v4RecurringAccountMissingWarning => 'Linked account is missing; please reselect';
+
+  @override
+  String v4RecurringMonthlyOnDay(String freq, int day) {
+    return '$freq · Day $day';
+  }
+
+  @override
+  String v4RecurringWithAnchor(String freq, String anchor) {
+    return '$freq · $anchor';
+  }
+
+  @override
+  String get v4RecurringPreviewTitle => 'Upcoming dates';
+
+  @override
+  String v4RecurringPreviewCount(int count) {
+    return 'Next $count';
+  }
+
+  @override
+  String get v4RecurringPreviewEmptyEnded => 'Past the end date; no further bills will be scheduled.';
+
+  @override
+  String get v4RecurringPreviewPausedHint => 'This rule is paused; enable it to resume automatic recording.';
+
+  @override
+  String get v4RecurringPreviewDueToday => 'Today · Generates on save';
+
+  @override
+  String get v4RecurringPreviewPendingCatchUp => 'Overdue · Generates on save';
+
+  @override
+  String get v4RecurringPreviewTomorrow => 'Tomorrow';
+
+  @override
+  String v4RecurringPreviewInDays(int days) {
+    return 'in ${days}d';
+  }
+
+  @override
+  String v4RecurringPreviewMonthEndTag(String when) {
+    return '$when · Month-end';
+  }
+
+  @override
+  String v4RecurringPreviewPreservedNote(String date) {
+    return 'Progress ($date) is preserved; editing amount or note will not duplicate the current period.';
+  }
+
+  @override
+  String v4RecurringPreviewMonthEndNote(int day) {
+    return 'Month-end alignment: shorter months record on their last day, then resume on day $day.';
+  }
+
+  @override
+  String get v4RecurringAccountHiddenBadge => '(Hidden)';
+
+  @override
+  String get v4RecurringAmountExpense => 'Per expense';
+
+  @override
+  String get v4RecurringAmountIncome => 'Per income';
+
+  @override
+  String get v4RecurringAmountTransfer => 'Per transfer';
+
+  @override
+  String get v4RecurringAutomatic => 'Auto-recording';
+
+  @override
+  String v4RecurringNextCaption(String when) {
+    return 'Next bill · $when';
+  }
+
+  @override
+  String get v4RecurringUsageSummary => 'Due bills are recorded when you open or return to the app. Tap a rule to edit its schedule.';
 }

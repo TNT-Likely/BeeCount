@@ -3728,5 +3728,12 @@
     "welcomeRestoreLedgersAccounts": "帳本與帳戶",
     "welcomeRestoreSettings": "應用設定與偏好",
     "welcomeRestoreTitle": "歡迎回來。",
-    "welcomeSelectBackup": "選擇備份檔案"
+    "welcomeSelectBackup": "選擇備份檔案",
+    "v4RecurringAmountExpense": "每次支出",
+    "v4RecurringAmountIncome": "每次收入",
+    "v4RecurringAmountTransfer": "每次轉帳",
+    "v4RecurringAutomatic": "自動記帳",
+    "v4RecurringNextCaption": "下次記帳 · {when}",
+    "v4RecurringUsageSummary": "開啟或回到 App 時，自動補記到期帳單。點擊卡片可編輯規則。",
+    "v4RecurringPreviewTitle": "接下來的記帳日期"
 }

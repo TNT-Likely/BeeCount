@@ -360,6 +360,7 @@ class LocalRepository extends BaseRepository {
     String? toAccountSyncIdOverride,
     bool excludeFromStats = false,
     bool excludeFromBudget = false,
+    int? recurringId,
     String? currencyCode,
     double? nativeAmount,
   }) async {
@@ -387,6 +388,7 @@ class LocalRepository extends BaseRepository {
       toAccountSyncIdOverride: toAccountSyncIdOverride,
       excludeFromStats: excludeFromStats,
       excludeFromBudget: excludeFromBudget,
+      recurringId: recurringId,
       currencyCode: cc,
       nativeAmount: na,
     );
@@ -2515,6 +2517,7 @@ class LocalRepository extends BaseRepository {
     DateTime? endDate,
     bool? enabled,
     DateTime? lastGeneratedDate,
+    bool updateLastGeneratedDate = false,
     String? currencyCode,
   }) =>
       _recurringTransactionRepo.updateRecurringTransaction(
@@ -2535,8 +2538,67 @@ class LocalRepository extends BaseRepository {
         endDate: endDate,
         enabled: enabled,
         lastGeneratedDate: lastGeneratedDate,
+        updateLastGeneratedDate: updateLastGeneratedDate,
         currencyCode: currencyCode,
       );
+
+  @override
+  Future<Transaction?> generateRecurringOccurrence({
+    required int recurringId,
+    required DateTime scheduledDate,
+  }) {
+    final targetDay =
+        DateTime(scheduledDate.year, scheduledDate.month, scheduledDate.day);
+    return db.transaction(() async {
+      final current = await (db.select(db.recurringTransactions)
+            ..where((r) => r.id.equals(recurringId)))
+          .getSingleOrNull();
+      if (current == null || !current.enabled) return null;
+
+      if (current.lastGeneratedDate != null) {
+        final lastDay = DateTime(
+          current.lastGeneratedDate!.year,
+          current.lastGeneratedDate!.month,
+          current.lastGeneratedDate!.day,
+        );
+        if (!targetDay.isAfter(lastDay)) return null;
+      }
+
+      final ledger = await getLedgerById(current.ledgerId);
+      if (ledger == null) return null;
+
+      final fromAccount = current.accountId != null
+          ? await getAccount(current.accountId!)
+          : null;
+      final toAccount = current.toAccountId != null
+          ? await getAccount(current.toAccountId!)
+          : null;
+      if ((fromAccount?.hidden ?? false) || (toAccount?.hidden ?? false)) {
+        return null;
+      }
+      if ((current.accountId != null && fromAccount == null) ||
+          (current.toAccountId != null && toAccount == null)) {
+        return null;
+      }
+
+      final txCurrency =
+          current.accountId != null ? null : current.currencyCode;
+      final txId = await addTransaction(
+        ledgerId: current.ledgerId,
+        type: current.type,
+        amount: current.amount,
+        categoryId: current.categoryId,
+        accountId: current.accountId,
+        toAccountId: current.toAccountId,
+        happenedAt: targetDay,
+        note: current.note,
+        recurringId: current.id,
+        currencyCode: txCurrency,
+      );
+      await updateLastGeneratedDate(current.id, targetDay);
+      return await _transactionRepo.getTransactionById(txId);
+    });
+  }
 
   @override
   Future<void> deleteRecurringTransaction(int id) =>

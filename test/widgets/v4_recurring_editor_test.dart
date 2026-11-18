@@ -220,7 +220,7 @@ void main() {
         l.recurringTransactionEveryNYears(12));
   });
 
-  scenario('编辑加载完整字段；保存沿用原Repository并记录lastGenerated实际清空', (t) async {
+  scenario('编辑加载完整字段；保存修改金额时保留原lastGeneratedDate执行游标', (t) async {
     final rule = await seed(end: DateTime(2051, 1, 1));
     await open(t, rule);
     expect(form(t).amountController.text, '123.45');
@@ -232,6 +232,8 @@ void main() {
     expect(
         form(t).values[BeeRecurringEditorField.account]!.value, 'QA USD cash');
     expect(form(t).values[BeeRecurringEditorField.dayOfMonth]!.value, '31');
+    expect(find.byKey(const ValueKey('recurring-editor-schedule-preview')),
+        findsOneWidget);
     await amount(t, '234.56');
     await save(t);
     expect(result, true);
@@ -249,13 +251,12 @@ void main() {
     expect(after.monthOfYear, isNull);
     expect(after.startDate, rule.startDate);
     expect(after.endDate, rule.endDate);
-    expect(after.lastGeneratedDate, isNull,
-        reason:
-            'Original adapter defaults to null and original local repository writes Value(null)');
+    expect(after.lastGeneratedDate, DateTime(2050, 2, 1),
+        reason: 'Editing amount/note preserves lastGeneratedDate cursor');
     expect(await db.select(db.transactions).get(), isEmpty);
   });
 
-  scenario('开始日期晚于最近生成日仍沿用原仓储无条件清空lastGenerated', (t) async {
+  scenario('开始日期调至晚于最近生成日时自动重置lastGenerated从新起点起算', (t) async {
     await open(t, await seed(start: DateTime(2051, 1, 1)));
     await save(t);
     expect((await repo.getAllRecurringTransactions()).single.lastGeneratedDate,
@@ -294,7 +295,7 @@ void main() {
         DateTime(2050, 2, 28));
   });
 
-  scenario('新建支出必须金额和分类，可不选账户，返回true且仅创建模板', (t) async {
+  scenario('新建今日到期支出保存后归一化零点并立即生成今日首笔交易', (t) async {
     await open(t);
     expect(form(t).type, 'expense');
     expect(form(t).showDayOfMonth, true);
@@ -314,8 +315,11 @@ void main() {
     await pick(t, BeeRecurringEditorField.category);
     await t.tap(find.text('QA coffee'));
     await t.pumpAndSettle();
+    expect(find.textContaining('Today · Generates on save'), findsOneWidget);
     await save(t);
     expect(result, true);
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
     final rule = (await repo.getAllRecurringTransactions()).single;
     expect(rule.type, 'expense');
     expect(rule.categoryId, 1);
@@ -323,9 +327,13 @@ void main() {
     expect(rule.note, isNull);
     expect(rule.currencyCode, isNull);
     expect(rule.enabled, true);
-    expect(
-        rule.startDate.difference(DateTime.now()).inMinutes.abs(), lessThan(2));
-    expect(await db.select(db.transactions).get(), isEmpty);
+    expect(rule.startDate, today);
+    expect(rule.lastGeneratedDate, today);
+    final txs = await db.select(db.transactions).get();
+    expect(txs, hasLength(1));
+    expect(txs.single.recurringId, rule.id);
+    expect(txs.single.amount, 12.50);
+    expect(txs.single.happenedAt, today);
   });
 
   scenario('类型切换清分类和转入账户，转账必须不同的双账户', (t) async {
@@ -457,7 +465,7 @@ void main() {
     final after = (await repo.getAllRecurringTransactions()).single;
     expect(after.frequency, 'weekly');
     expect(after.interval, 1);
-    expect(after.dayOfMonth, 1);
+    expect(after.dayOfMonth, isNull);
   });
 
   scenario('日期选择保留今天起始下界、结束下界和2100上界；清结束日期不打开滚轮', (t) async {
@@ -664,6 +672,21 @@ void main() {
                             amountLabel: 'Amount',
                             noteLabel: 'Note',
                             clearLabel: 'Clear',
+                            schedulePreview: const BeeRecurringSchedulePreviewData(
+                              title: 'Upcoming schedule',
+                              subtitle: 'Next 3',
+                              items: [
+                                BeeRecurringPreviewItem(
+                                  index: 1,
+                                  dateText: '2026/11/30',
+                                  weekdayText: 'Mon',
+                                  badgeText: 'in 12d · Month-end',
+                                  badgeTone: BeeRecurringPreviewBadgeTone.warning,
+                                ),
+                              ],
+                              footnote:
+                                  'Month-end alignment note for narrow compact screen',
+                            ),
                             onType: (_) => calls++))))));
         await t.pumpAndSettle();
         await t.ensureVisible(row(BeeRecurringEditorField.ledger));

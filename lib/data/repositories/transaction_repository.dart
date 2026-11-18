@@ -216,6 +216,7 @@ abstract class TransactionRepository {
     String? toAccountSyncIdOverride,
     bool excludeFromStats = false,
     bool excludeFromBudget = false,
+    int? recurringId,
     // v30 交易级多币种:未传时聚合层兜底(currencyCode=账户币种/本位币;
     // nativeAmount 外币先按有效汇率折算,取不到才 =amount,详设计 02 §六)。
     String? currencyCode,

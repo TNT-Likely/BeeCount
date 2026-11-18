@@ -38,8 +38,9 @@ void main() {
       try {
         await body(tester);
       } finally {
-        // Dispose provider-backed SQLite streams before the test framework's
-        // automatic unmount/invariant check; package tearDown is too late.
+        // Drain LoggerService 2s debounce timer and dispose SQLite streams
+        // before TestWidgetsFlutterBinding invariant check.
+        await tester.pump(const Duration(seconds: 3));
         await tester.pumpWidget(const SizedBox.shrink());
         await tester.pumpAndSettle();
       }
@@ -92,6 +93,7 @@ void main() {
           {Stream<List<RecurringTransaction>> Function()? load}) =>
       ProviderScope(
           overrides: [
+            databaseProvider.overrideWithValue(db),
             repositoryProvider.overrideWithValue(repo),
             if (load != null)
               allRecurringTransactionsProvider.overrideWith((ref) => load())
@@ -367,5 +369,113 @@ void main() {
     await t.pumpWidget(const SizedBox.shrink());
     await t.pumpAndSettle();
     await t.runAsync(() => first.close());
+  });
+
+  scenario('窄屏1.4倍字号下带下次排期与告警横幅的周期卡无溢出', (t) async {
+    screen(t, const Size(320, 640));
+    await t.pumpWidget(MaterialApp(
+        theme: beeTheme(brightness: Brightness.dark),
+        home: MediaQuery(
+            data: const MediaQueryData(textScaler: TextScaler.linear(1.4)),
+            child: Scaffold(
+                body: SingleChildScrollView(
+                    padding: const EdgeInsets.all(17),
+                    child: BeeRecurringBillCard(
+                        title: 'QA Rent & Utilities',
+                        ledger: 'Daily Ledger · CNY · CMB Checking',
+                        frequency: 'Monthly · Day 31',
+                        lastGenerated: 'Not generated yet',
+                        nextRunLabel: 'Next 11/30 · In 12 days',
+                        nextRunHighlighted: true,
+                        warningMessage:
+                            'Linked account "CMB Checking" is hidden; auto-recording paused',
+                        note: 'Monthly rent with month-end alignment',
+                        icon: const BeeLineIcon('Home'),
+                        amount: const Text('CNY -4,500.00'),
+                        enabled: true,
+                        toggleLabel: 'Enable QA rent'))))));
+    await t.pumpAndSettle();
+    expect(find.text('Next 11/30 · In 12 days'), findsOneWidget);
+    expect(find.textContaining('Linked account'), findsOneWidget);
+    expect(t.takeException(), isNull);
+  });
+
+  scenario('隐藏关联账户显示阻塞告警，取消隐藏后实时恢复排期状态', (t) async {
+    screen(t, const Size(398, 1000));
+    final accountId = await repo.createAccount(
+        ledgerId: 1, name: 'QA Hidden Card', initialBalance: 100);
+    await repo.setAccountHidden(accountId, true);
+    await db.customStatement(
+        'INSERT INTO recurring_transactions(id,ledger_id,type,amount,category_id,account_id,frequency,interval,day_of_month,start_date,enabled) VALUES(?,?,?,?,?,?,?,?,?,?,?)',
+        [
+          10,
+          1,
+          'expense',
+          88.0,
+          9,
+          accountId,
+          'monthly',
+          1,
+          15,
+          DateTime(2050, 1, 15).millisecondsSinceEpoch ~/ 1000,
+          1
+        ]);
+    await t.pumpWidget(host(const RecurringTransactionPage()));
+    await t.pumpAndSettle();
+    final l = AppLocalizationsEn();
+    expect(find.text(l.v4RecurringAccountHiddenWarning('QA Hidden Card')),
+        findsOneWidget);
+    expect(find.text(l.v4RecurringStatusBlocked), findsOneWidget);
+    expect(find.text('QA CNY · QA Hidden Card · CNY'), findsOneWidget);
+
+    await repo.setAccountHidden(accountId, false);
+    await t.pumpAndSettle();
+    expect(find.text(l.v4RecurringAccountHiddenWarning('QA Hidden Card')),
+        findsNothing);
+    expect(find.text(l.v4RecurringStatusBlocked), findsNothing);
+    expect(find.textContaining('Next '), findsOneWidget);
+    expect(t.takeException(), isNull);
+  });
+
+  scenario('重新开启今日到期的暂停规则立即补生成当期账单并记录recurringId', (t) async {
+    screen(t, const Size(398, 1000));
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    await db.customStatement(
+        'INSERT INTO recurring_transactions(id,ledger_id,type,amount,category_id,frequency,interval,day_of_month,start_date,note,enabled) VALUES(?,?,?,?,?,?,?,?,?,?,?)',
+        [
+          11,
+          1,
+          'expense',
+          66.0,
+          9,
+          'monthly',
+          1,
+          today.day,
+          today.millisecondsSinceEpoch ~/ 1000,
+          'qa-toggle-on-due',
+          0
+        ]);
+    await t.pumpWidget(host(const RecurringTransactionPage()));
+    await t.pumpAndSettle();
+    expect(find.text(AppLocalizationsEn().v4RecurringStatusPaused),
+        findsOneWidget);
+    expect(await db.select(db.transactions).get(), isEmpty);
+
+    await t.ensureVisible(toggle(11));
+    await t.tap(toggle(11));
+    await t.pump(const Duration(milliseconds: 200));
+    await t.pumpAndSettle();
+
+    final txs = await db.select(db.transactions).get();
+    expect(txs, hasLength(1));
+    expect(txs.single.note, 'qa-toggle-on-due');
+    expect(txs.single.amount, 66.0);
+    expect(txs.single.recurringId, 11);
+    final updatedRule = (await repo.getAllRecurringTransactions())
+        .singleWhere((r) => r.id == 11);
+    expect(updatedRule.enabled, isTrue);
+    expect(updatedRule.lastGeneratedDate, today);
+    expect(t.takeException(), isNull);
   });
 }

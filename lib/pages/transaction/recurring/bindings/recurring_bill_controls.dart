@@ -8,12 +8,17 @@ import '../../../../data/db.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../recurring_transaction_edit_page.dart';
 import '../../../../providers.dart';
+import '../../../../services/billing/post_processor.dart';
 import '../../../../services/data/recurring_transaction_service.dart';
 import '../../../../styles/tokens.dart';
 import '../../../../utils/category_utils.dart';
 import '../../../shared/formatting/amount_text.dart';
 import '../../../shared/scaffold/widgets/page_scaffold.dart';
 import '../../../shared/resources/bindings/recording_category_icon.dart';
+
+final _recurringAccountsProvider = StreamProvider.autoDispose<List<Account>>(
+  (ref) => ref.watch(repositoryProvider).watchAllAccounts(),
+);
 
 /// Keeps the original all-ledger stream and write/navigation contracts.
 class RecurringBillsControls extends ConsumerStatefulWidget {
@@ -41,6 +46,18 @@ class _RecurringBillsControlsState
     setState(() => pending.add(recurring.id));
     try {
       await repo.toggleRecurringTransaction(recurring.id, enabled);
+      if (enabled) {
+        final generatedLedgers =
+            await RecurringTransactionService.generatePendingTransactionsStatic(
+          repository: repo,
+          rescanIfBusy: true,
+        );
+        if (mounted) {
+          for (final ledgerId in generatedLedgers) {
+            await PostProcessor.run(ref, ledgerId: ledgerId);
+          }
+        }
+      }
       // Preserve the original grace period for a realtime repository update.
       await Future<void>.delayed(const Duration(milliseconds: 100));
       if (mounted) ref.invalidate(allRecurringTransactionsProvider);
@@ -96,7 +113,7 @@ class _RecurringBillsControlsState
                         if (index == 0) {
                           return BeeRecurringUsageNotice(
                               title: l.recurringTransactionUsageTitle,
-                              description: l.recurringTransactionUsageContent);
+                              description: l.v4RecurringUsageSummary);
                         }
                         final record = records[index - 1];
                         return RecurringBillBinding(
@@ -133,6 +150,49 @@ String recurringFrequencyLabel(
   };
 }
 
+String recurringScheduleLabel(
+  AppLocalizations l,
+  RecurringTransaction recurring,
+  String localeName,
+) {
+  final freq = recurringFrequencyLabel(l, recurring);
+  return switch (RecurringFrequency.fromString(recurring.frequency)) {
+    RecurringFrequency.daily => freq,
+    RecurringFrequency.monthly => l.v4RecurringMonthlyOnDay(
+        freq,
+        (recurring.dayOfMonth ?? recurring.startDate.day).clamp(1, 31),
+      ),
+    RecurringFrequency.weekly => () {
+        final dow = recurring.dayOfWeek;
+        // 2024-01-01 is Monday (weekday == 1).
+        final refDate = (dow != null && dow >= 1 && dow <= 7)
+            ? DateTime(2024, 1, dow)
+            : recurring.startDate;
+        return l.v4RecurringWithAnchor(
+          freq,
+          DateFormat.E(localeName).format(refDate),
+        );
+      }(),
+    RecurringFrequency.yearly => () {
+        final m = (recurring.monthOfYear ?? recurring.startDate.month).clamp(
+          1,
+          12,
+        );
+        final rawDay =
+            (recurring.monthOfYear != null && recurring.dayOfMonth != null
+                    ? recurring.dayOfMonth!
+                    : recurring.startDate.day)
+                .clamp(1, 31);
+        final maxDay = DateTime(2024, m + 1, 0).day;
+        final refDate = DateTime(2024, m, rawDay > maxDay ? maxDay : rawDay);
+        return l.v4RecurringWithAnchor(
+          freq,
+          DateFormat.Md(localeName).format(refDate),
+        );
+      }(),
+  };
+}
+
 /// The host resolves category images, per-ledger base currency, privacy and
 /// semantic amount colors; the reusable package only renders supplied widgets.
 class RecurringBillBinding extends ConsumerWidget {
@@ -150,8 +210,105 @@ class RecurringBillBinding extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
+    final localeName = Localizations.localeOf(context).toString();
     final ledger =
         ref.watch(ledgerByIdProvider(recurring.ledgerId)).valueOrNull;
+    final hasAccountRefs =
+        recurring.accountId != null || recurring.toAccountId != null;
+    final accountsAsync =
+        hasAccountRefs ? ref.watch(_recurringAccountsProvider) : null;
+    final accountsLoaded = accountsAsync?.hasValue ?? false;
+    final accountsList = accountsAsync?.valueOrNull ?? const <Account>[];
+
+    Account? findAccount(int? id) {
+      if (id == null) return null;
+      for (final account in accountsList) {
+        if (account.id == id) return account;
+      }
+      return null;
+    }
+
+    final fromAccount = findAccount(recurring.accountId);
+    final toAccount = recurring.type == 'transfer'
+        ? findAccount(recurring.toAccountId)
+        : null;
+
+    String? warningMessage;
+    var blockedByAccount = false;
+    if (accountsLoaded) {
+      if (recurring.accountId != null) {
+        if (fromAccount == null) {
+          blockedByAccount = true;
+          warningMessage = l.v4RecurringAccountMissingWarning;
+        } else if (fromAccount.hidden) {
+          blockedByAccount = true;
+          warningMessage = l.v4RecurringAccountHiddenWarning(fromAccount.name);
+        }
+      }
+      if (warningMessage == null &&
+          recurring.type == 'transfer' &&
+          recurring.toAccountId != null) {
+        if (toAccount == null) {
+          blockedByAccount = true;
+          warningMessage = l.v4RecurringAccountMissingWarning;
+        } else if (toAccount.hidden) {
+          blockedByAccount = true;
+          warningMessage = l.v4RecurringToAccountHiddenWarning(toAccount.name);
+        }
+      }
+    }
+
+    String? nextRunLabel;
+    var nextRunCaption = l.v4RecurringAutomatic;
+    var nextRunHighlighted = false;
+    var nextRunMuted = false;
+    if (!recurring.enabled) {
+      nextRunLabel = l.v4RecurringStatusPaused;
+      nextRunMuted = true;
+    } else if (blockedByAccount) {
+      nextRunLabel = l.v4RecurringStatusBlocked;
+      nextRunMuted = true;
+    } else {
+      final upcoming = RecurringTransactionService.previewUpcomingOccurrences(
+        RecurringScheduleSpec.fromModel(recurring),
+        count: 1,
+      );
+      if (upcoming.isEmpty) {
+        nextRunLabel = l.v4RecurringStatusCompleted;
+        nextRunMuted = true;
+      } else {
+        final next = upcoming.first;
+        nextRunLabel = DateFormat.MMMd(localeName).format(next.date);
+        final String relative;
+        if (next.daysFromToday <= 0) {
+          relative = l.calendarToday;
+          nextRunHighlighted = true;
+        } else if (next.daysFromToday == 1) {
+          relative = l.v4RecurringPreviewTomorrow;
+        } else {
+          relative = l.v4RecurringPreviewInDays(next.daysFromToday);
+        }
+        nextRunCaption = l.v4RecurringNextCaption(relative);
+      }
+    }
+
+    final baseLedger = ledger == null
+        ? l.billCardUnknownLedger
+        : '${ledger.name} · ${ledger.currency}';
+    final String? accountSummary;
+    if (recurring.type == 'transfer' &&
+        (fromAccount != null || toAccount != null)) {
+      accountSummary =
+          '${fromAccount?.name ?? l.accountNone} → ${toAccount?.name ?? l.accountNone}';
+    } else if (fromAccount != null) {
+      accountSummary = fromAccount.name;
+    } else {
+      accountSummary = null;
+    }
+    final ledgerSubtitle = accountSummary == null || ledger == null
+        ? baseLedger
+        : '${ledger.name} · $accountSummary · ${ledger.currency}';
+
     final code = recurring.currencyCode;
     // Match the original non-null foreign-code behavior while loading a book.
     final foreign = code != null &&
@@ -170,10 +327,13 @@ class RecurringBillBinding extends ConsumerWidget {
               : CategoryUtils.getDisplayName(category.name, context);
       return BeeRecurringBillCard(
           title: title,
-          ledger: ledger == null
-              ? l.billCardUnknownLedger
-              : '${ledger.name} · ${ledger.currency}',
-          frequency: recurringFrequencyLabel(l, recurring),
+          amountLabel: switch (recurring.type) {
+            'expense' => l.v4RecurringAmountExpense,
+            'income' => l.v4RecurringAmountIncome,
+            _ => l.v4RecurringAmountTransfer,
+          },
+          ledger: ledgerSubtitle,
+          frequency: recurringScheduleLabel(l, recurring, localeName),
           icon: recurring.type == 'transfer'
               ? const BeeLineIcon('ArrowLeftRight', size: 20)
               : category == null
@@ -195,14 +355,20 @@ class RecurringBillBinding extends ConsumerWidget {
                         : recurring.amount,
                     signed: recurring.type != 'transfer',
                     style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w700,
+                        fontSize: 23,
+                        fontWeight: FontWeight.w600,
+                        fontFeatures: const [FontFeature.tabularFigures()],
                         color: color))),
           ]),
           note: recurring.note,
           lastGenerated: recurring.lastGeneratedDate == null
-              ? null
-              : '${l.v4RecurringLastGeneratedLabel} ${DateFormat.Md().format(recurring.lastGeneratedDate!)}',
+              ? l.v4RecurringNotGeneratedYet
+              : '${l.v4RecurringLastGeneratedLabel} ${DateFormat.Md(localeName).format(recurring.lastGeneratedDate!)}',
+          nextRunCaption: nextRunCaption,
+          nextRunLabel: nextRunLabel,
+          nextRunHighlighted: nextRunHighlighted,
+          nextRunMuted: nextRunMuted,
+          warningMessage: warningMessage,
           enabled: recurring.enabled,
           toggleLabel: '${l.recurringTransactionTitle} · $title',
           busy: busy,

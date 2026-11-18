@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import '../../../../data/db.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../providers.dart';
+import '../../../../services/billing/post_processor.dart';
 import '../../../../services/data/recurring_transaction_service.dart';
 import '../../../../services/system/logger_service.dart';
 import '../../../../utils/category_utils.dart';
@@ -51,9 +52,118 @@ class RecurringEditorControls extends ConsumerStatefulWidget {
 class _RecurringEditorControlsState
     extends ConsumerState<RecurringEditorControls>
     with _RecurringEditorActions {
+  BeeRecurringSchedulePreviewData _buildSchedulePreview(
+    AppLocalizations l,
+    String localeName,
+  ) {
+    final effectiveLast = _effectiveDraftLastGenerated();
+    final effectiveDayOfMonth = _frequency == RecurringFrequency.monthly
+        ? (_dayOfMonth ?? _startDate.day)
+        : null;
+    final spec = RecurringScheduleSpec(
+      frequency: _frequency,
+      interval: _frequency == RecurringFrequency.daily ? 1 : _interval,
+      startDate: _startDate,
+      dayOfMonth: effectiveDayOfMonth,
+      endDate: _endDate,
+      lastGeneratedDate: effectiveLast,
+      enabled: _enabled,
+    );
+
+    if (!_enabled) {
+      return BeeRecurringSchedulePreviewData(
+        title: l.v4RecurringPreviewTitle,
+        emptyMessage: l.v4RecurringPreviewPausedHint,
+      );
+    }
+
+    final upcoming = RecurringTransactionService.previewUpcomingOccurrences(
+      spec,
+      count: 3,
+    );
+
+    final items = <BeeRecurringPreviewItem>[
+      for (var i = 0; i < upcoming.length; i++)
+        () {
+          final occ = upcoming[i];
+          final dateText = DateFormat('yyyy/MM/dd').format(occ.date);
+          final weekdayText = DateFormat.E(localeName).format(occ.date);
+          String whenText;
+          if (occ.daysFromToday == 0) {
+            whenText = occ.adjustedForMonthEnd
+                ? l.calendarToday
+                : l.v4RecurringPreviewDueToday;
+          } else if (occ.daysFromToday < 0) {
+            whenText = occ.adjustedForMonthEnd
+                ? l.calendarToday
+                : l.v4RecurringPreviewPendingCatchUp;
+          } else if (occ.daysFromToday == 1) {
+            whenText = l.v4RecurringPreviewTomorrow;
+          } else {
+            whenText = l.v4RecurringPreviewInDays(occ.daysFromToday);
+          }
+
+          if (occ.adjustedForMonthEnd) {
+            return BeeRecurringPreviewItem(
+              index: i + 1,
+              dateText: dateText,
+              weekdayText: weekdayText,
+              badgeText: l.v4RecurringPreviewMonthEndTag(whenText),
+              badgeTone: BeeRecurringPreviewBadgeTone.warning,
+            );
+          }
+          return BeeRecurringPreviewItem(
+            index: i + 1,
+            dateText: dateText,
+            weekdayText: weekdayText,
+            badgeText: whenText,
+            badgeTone: occ.daysFromToday <= 0
+                ? BeeRecurringPreviewBadgeTone.highlight
+                : BeeRecurringPreviewBadgeTone.neutral,
+          );
+        }(),
+    ];
+
+    String? footnote;
+    if (_accountHidden && _accountName != null) {
+      footnote = l.v4RecurringAccountHiddenWarning(_accountName!);
+    } else if (_toAccountHidden && _toAccountName != null) {
+      footnote = l.v4RecurringToAccountHiddenWarning(_toAccountName!);
+    } else if (_isEditing && effectiveLast != null) {
+      footnote = l.v4RecurringPreviewPreservedNote(
+        DateFormat('yyyy/MM/dd').format(effectiveLast),
+      );
+    } else if (_frequency == RecurringFrequency.monthly &&
+        (effectiveDayOfMonth ?? 1) >= 29) {
+      footnote = l.v4RecurringPreviewMonthEndNote(effectiveDayOfMonth!);
+    }
+
+    return BeeRecurringSchedulePreviewData(
+      title: l.v4RecurringPreviewTitle,
+      subtitle: upcoming.isNotEmpty
+          ? l.v4RecurringPreviewCount(upcoming.length)
+          : null,
+      items: items,
+      emptyMessage: upcoming.isEmpty ? l.v4RecurringPreviewEmptyEnded : null,
+      footnote: footnote,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context), currency = _effectiveCurrency();
+    final localeName = Localizations.localeOf(context).toString();
+    final accountValue = _accountName == null
+        ? l.accountNone
+        : _accountHidden
+            ? '$_accountName${l.v4RecurringAccountHiddenBadge}'
+            : _accountName!;
+    final toAccountValue = _toAccountName == null
+        ? l.accountNone
+        : _toAccountHidden
+            ? '$_toAccountName${l.v4RecurringAccountHiddenBadge}'
+            : _toAccountName!;
+
     final values = <BeeRecurringEditorField, BeeRecurringEditorValue>{
       BeeRecurringEditorField.ledger: BeeRecurringEditorValue(
           label: l.ledgerSelectTitle,
@@ -83,13 +193,13 @@ class _RecurringEditorControlsState
           label: _type == 'transfer'
               ? l.transferFromAccount
               : l.accountSelectTitle,
-          value: _accountName ?? l.accountNone,
+          value: accountValue,
           icon: 'Wallet',
           error: _getAccountErrorText(true),
           onSelect: () => _selectAccount(isFromAccount: true)),
       BeeRecurringEditorField.toAccount: BeeRecurringEditorValue(
           label: l.transferToAccount,
-          value: _toAccountName ?? l.accountNone,
+          value: toAccountValue,
           icon: 'ArrowRightLeft',
           error: _getAccountErrorText(false),
           onSelect: () => _selectAccount(isFromAccount: false)),
@@ -163,6 +273,8 @@ class _RecurringEditorControlsState
                             amountLabel: l.importFieldAmount,
                             noteLabel: l.commonNoteHint,
                             clearLabel: l.commonRemove,
+                            schedulePreview:
+                                _buildSchedulePreview(l, localeName),
                             showInterval:
                                 _frequency != RecurringFrequency.daily,
                             showDayOfMonth:

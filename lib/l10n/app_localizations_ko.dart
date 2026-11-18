@@ -9333,4 +9333,120 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get recordingProgressSlow => 'This is taking a little longer. Processing is continuing.';
+
+  @override
+  String get v4RecurringNotGeneratedYet => 'Not generated yet';
+
+  @override
+  String v4RecurringNextToday(String date) {
+    return 'Next $date · Today';
+  }
+
+  @override
+  String v4RecurringNextTomorrow(String date) {
+    return 'Next $date · Tomorrow';
+  }
+
+  @override
+  String v4RecurringNextInDays(String date, int days) {
+    return 'Next $date · in ${days}d';
+  }
+
+  @override
+  String get v4RecurringStatusPaused => 'Paused';
+
+  @override
+  String get v4RecurringStatusCompleted => 'Ended';
+
+  @override
+  String get v4RecurringStatusBlocked => 'Account unavailable';
+
+  @override
+  String v4RecurringAccountHiddenWarning(String account) {
+    return 'Account \"$account\" is hidden; auto-recording is paused';
+  }
+
+  @override
+  String v4RecurringToAccountHiddenWarning(String account) {
+    return 'Target account \"$account\" is hidden; auto-recording is paused';
+  }
+
+  @override
+  String get v4RecurringAccountMissingWarning => 'Linked account is missing; please reselect';
+
+  @override
+  String v4RecurringMonthlyOnDay(String freq, int day) {
+    return '$freq · Day $day';
+  }
+
+  @override
+  String v4RecurringWithAnchor(String freq, String anchor) {
+    return '$freq · $anchor';
+  }
+
+  @override
+  String get v4RecurringPreviewTitle => '예정된 기록 날짜';
+
+  @override
+  String v4RecurringPreviewCount(int count) {
+    return 'Next $count';
+  }
+
+  @override
+  String get v4RecurringPreviewEmptyEnded => 'Past the end date; no further bills will be scheduled.';
+
+  @override
+  String get v4RecurringPreviewPausedHint => 'This rule is paused; enable it to resume automatic recording.';
+
+  @override
+  String get v4RecurringPreviewDueToday => 'Today · Generates on save';
+
+  @override
+  String get v4RecurringPreviewPendingCatchUp => 'Overdue · Generates on save';
+
+  @override
+  String get v4RecurringPreviewTomorrow => 'Tomorrow';
+
+  @override
+  String v4RecurringPreviewInDays(int days) {
+    return 'in ${days}d';
+  }
+
+  @override
+  String v4RecurringPreviewMonthEndTag(String when) {
+    return '$when · Month-end';
+  }
+
+  @override
+  String v4RecurringPreviewPreservedNote(String date) {
+    return 'Progress ($date) is preserved; editing amount or note will not duplicate the current period.';
+  }
+
+  @override
+  String v4RecurringPreviewMonthEndNote(int day) {
+    return 'Month-end alignment: shorter months record on their last day, then resume on day $day.';
+  }
+
+  @override
+  String get v4RecurringAccountHiddenBadge => '(Hidden)';
+
+  @override
+  String get v4RecurringAmountExpense => '매회 지출';
+
+  @override
+  String get v4RecurringAmountIncome => '매회 수입';
+
+  @override
+  String get v4RecurringAmountTransfer => '매회 이체';
+
+  @override
+  String get v4RecurringAutomatic => '자동 기록';
+
+  @override
+  String v4RecurringNextCaption(String when) {
+    return '다음 기록 · $when';
+  }
+
+  @override
+  String get v4RecurringUsageSummary => '앱을 열거나 돌아오면 예정된 거래가 자동으로 기록됩니다. 규칙을 눌러 일정을 수정하세요.';
 }

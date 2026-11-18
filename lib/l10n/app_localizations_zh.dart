@@ -3659,7 +3659,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get recurringTransactionUsageTitle => '使用说明';
 
   @override
-  String get recurringTransactionUsageContent => '周期记账会在每次冷启动进入App时自动扫描并生成账单。设置日期后，系统会在该日期之后的冷启动时创建对应账单。例如：设置11月27日，则会在11月27日之后的首次启动时自动记账。';
+  String get recurringTransactionUsageContent => '打开或切回 App、保存规则时会自动检查并补齐到期账单。点击卡片可编辑规则并查看接下来 3 次记账日期。';
 
   @override
   String get ledgerSelectTitle => '选择账本';
@@ -9325,6 +9325,122 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get recordingProgressSlow => '这次处理时间稍长，仍在继续处理。';
+
+  @override
+  String get v4RecurringNotGeneratedYet => '尚未生成';
+
+  @override
+  String v4RecurringNextToday(String date) {
+    return '下次 $date · 今天';
+  }
+
+  @override
+  String v4RecurringNextTomorrow(String date) {
+    return '下次 $date · 明天';
+  }
+
+  @override
+  String v4RecurringNextInDays(String date, int days) {
+    return '下次 $date · $days天后';
+  }
+
+  @override
+  String get v4RecurringStatusPaused => '已暂停';
+
+  @override
+  String get v4RecurringStatusCompleted => '已完结';
+
+  @override
+  String get v4RecurringStatusBlocked => '等待账户恢复';
+
+  @override
+  String v4RecurringAccountHiddenWarning(String account) {
+    return '关联账户「$account」已隐藏，暂停自动记账';
+  }
+
+  @override
+  String v4RecurringToAccountHiddenWarning(String account) {
+    return '转入账户「$account」已隐藏，暂停自动记账';
+  }
+
+  @override
+  String get v4RecurringAccountMissingWarning => '关联账户不存在，请重新选择账户';
+
+  @override
+  String v4RecurringMonthlyOnDay(String freq, int day) {
+    return '$freq $day 日';
+  }
+
+  @override
+  String v4RecurringWithAnchor(String freq, String anchor) {
+    return '$freq · $anchor';
+  }
+
+  @override
+  String get v4RecurringPreviewTitle => '接下来的记账日期';
+
+  @override
+  String v4RecurringPreviewCount(int count) {
+    return '接下来 $count 次';
+  }
+
+  @override
+  String get v4RecurringPreviewEmptyEnded => '已超过结束日期，后续不再产生新的记账排期。';
+
+  @override
+  String get v4RecurringPreviewPausedHint => '当前规则处于已暂停状态，开启后将按周期恢复自动记账。';
+
+  @override
+  String get v4RecurringPreviewDueToday => '今天 · 保存后立即生成';
+
+  @override
+  String get v4RecurringPreviewPendingCatchUp => '待补记 · 保存后立即生成';
+
+  @override
+  String get v4RecurringPreviewTomorrow => '明天';
+
+  @override
+  String v4RecurringPreviewInDays(int days) {
+    return '$days天后';
+  }
+
+  @override
+  String v4RecurringPreviewMonthEndTag(String when) {
+    return '$when · 月末对齐';
+  }
+
+  @override
+  String v4RecurringPreviewPreservedNote(String date) {
+    return '已保留上次进度（$date），修改金额或备注不会重复生成当期账单。';
+  }
+
+  @override
+  String v4RecurringPreviewMonthEndNote(int day) {
+    return '月末对齐：遇到天数不足的月份，自动在该月最后一天记账，次月恢复 $day 日。';
+  }
+
+  @override
+  String get v4RecurringAccountHiddenBadge => '（已隐藏）';
+
+  @override
+  String get v4RecurringAmountExpense => '每次支出';
+
+  @override
+  String get v4RecurringAmountIncome => '每次收入';
+
+  @override
+  String get v4RecurringAmountTransfer => '每次转账';
+
+  @override
+  String get v4RecurringAutomatic => '自动记账';
+
+  @override
+  String v4RecurringNextCaption(String when) {
+    return '下次记账 · $when';
+  }
+
+  @override
+  String get v4RecurringUsageSummary => '打开或回到 App 时，自动补记到期账单。点击卡片可编辑规则。';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -18648,4 +18764,27 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get recordingProgressSlow => '這次處理時間稍長，仍在繼續處理。';
+
+  @override
+  String get v4RecurringPreviewTitle => '接下來的記帳日期';
+
+  @override
+  String get v4RecurringAmountExpense => '每次支出';
+
+  @override
+  String get v4RecurringAmountIncome => '每次收入';
+
+  @override
+  String get v4RecurringAmountTransfer => '每次轉帳';
+
+  @override
+  String get v4RecurringAutomatic => '自動記帳';
+
+  @override
+  String v4RecurringNextCaption(String when) {
+    return '下次記帳 · $when';
+  }
+
+  @override
+  String get v4RecurringUsageSummary => '開啟或回到 App 時，自動補記到期帳單。點擊卡片可編輯規則。';
 }

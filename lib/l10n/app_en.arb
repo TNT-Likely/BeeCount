@@ -1649,7 +1649,7 @@
     }
   },
   "recurringTransactionUsageTitle": "Usage Guide",
-  "recurringTransactionUsageContent": "Recurring transactions are automatically scanned and generated when the app cold starts. After setting a date, the system will create corresponding bills on the first startup after that date. For example: if set to Nov 27, bills will be auto-recorded on the first launch after Nov 27.",
+  "recurringTransactionUsageContent": "Due recurring bills are automatically checked and recorded when opening or resuming the app, or upon saving a rule. Tap a card to edit and preview the next 3 scheduled dates.",
   "ledgerSelectTitle": "Select Ledger",
   "ledgerSelect": "Select Ledger",
   "syncNotConfiguredMessage": "Cloud not configured",
@@ -4724,5 +4724,135 @@
   "recordingProgressRecognizing": "Reading your bill",
   "recordingProgressRecognizingDetail": "Organizing amounts, categories and notes",
   "recordingProgressSavingDetail": "Saving the entries from this recognition",
-  "recordingProgressSlow": "This is taking a little longer. Processing is continuing."
+  "recordingProgressSlow": "This is taking a little longer. Processing is continuing.",
+  "v4RecurringNotGeneratedYet": "Not generated yet",
+  "v4RecurringNextToday": "Next {date} · Today",
+  "@v4RecurringNextToday": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "v4RecurringNextTomorrow": "Next {date} · Tomorrow",
+  "@v4RecurringNextTomorrow": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "v4RecurringNextInDays": "Next {date} · in {days}d",
+  "@v4RecurringNextInDays": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "v4RecurringStatusPaused": "Paused",
+  "v4RecurringStatusCompleted": "Ended",
+  "v4RecurringStatusBlocked": "Account unavailable",
+  "v4RecurringAccountHiddenWarning": "Account \"{account}\" is hidden; auto-recording is paused",
+  "@v4RecurringAccountHiddenWarning": {
+    "placeholders": {
+      "account": {
+        "type": "String"
+      }
+    }
+  },
+  "v4RecurringToAccountHiddenWarning": "Target account \"{account}\" is hidden; auto-recording is paused",
+  "@v4RecurringToAccountHiddenWarning": {
+    "placeholders": {
+      "account": {
+        "type": "String"
+      }
+    }
+  },
+  "v4RecurringAccountMissingWarning": "Linked account is missing; please reselect",
+  "v4RecurringMonthlyOnDay": "{freq} · Day {day}",
+  "@v4RecurringMonthlyOnDay": {
+    "placeholders": {
+      "freq": {
+        "type": "String"
+      },
+      "day": {
+        "type": "int"
+      }
+    }
+  },
+  "v4RecurringWithAnchor": "{freq} · {anchor}",
+  "@v4RecurringWithAnchor": {
+    "placeholders": {
+      "freq": {
+        "type": "String"
+      },
+      "anchor": {
+        "type": "String"
+      }
+    }
+  },
+  "v4RecurringPreviewTitle": "Upcoming dates",
+  "v4RecurringPreviewCount": "Next {count}",
+  "@v4RecurringPreviewCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "v4RecurringPreviewEmptyEnded": "Past the end date; no further bills will be scheduled.",
+  "v4RecurringPreviewPausedHint": "This rule is paused; enable it to resume automatic recording.",
+  "v4RecurringPreviewDueToday": "Today · Generates on save",
+  "v4RecurringPreviewPendingCatchUp": "Overdue · Generates on save",
+  "v4RecurringPreviewTomorrow": "Tomorrow",
+  "v4RecurringPreviewInDays": "in {days}d",
+  "@v4RecurringPreviewInDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "v4RecurringPreviewMonthEndTag": "{when} · Month-end",
+  "@v4RecurringPreviewMonthEndTag": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "v4RecurringPreviewPreservedNote": "Progress ({date}) is preserved; editing amount or note will not duplicate the current period.",
+  "@v4RecurringPreviewPreservedNote": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "v4RecurringPreviewMonthEndNote": "Month-end alignment: shorter months record on their last day, then resume on day {day}.",
+  "@v4RecurringPreviewMonthEndNote": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      }
+    }
+  },
+  "v4RecurringAccountHiddenBadge": "(Hidden)",
+  "v4RecurringAmountExpense": "Per expense",
+  "v4RecurringAmountIncome": "Per income",
+  "v4RecurringAmountTransfer": "Per transfer",
+  "v4RecurringAutomatic": "Auto-recording",
+  "v4RecurringNextCaption": "Next bill · {when}",
+  "v4RecurringUsageSummary": "Due bills are recorded when you open or return to the app. Tap a rule to edit its schedule.",
+  "@v4RecurringNextCaption": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  }
 }
