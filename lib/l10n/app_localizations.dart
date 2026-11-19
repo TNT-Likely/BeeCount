@@ -7,6 +7,7 @@ import 'package:intl/intl.dart' as intl;
 
 import 'app_localizations_en.dart';
 import 'app_localizations_ko.dart';
+import 'app_localizations_ru.dart';
 import 'app_localizations_zh.dart';
 
 // ignore_for_file: type=lint
@@ -94,6 +95,7 @@ abstract class AppLocalizations {
   static const List<Locale> supportedLocales = <Locale>[
     Locale('en'),
     Locale('ko'),
+    Locale('ru'),
     Locale('zh'),
     Locale('zh', 'TW')
   ];
@@ -1170,7 +1172,7 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'Are you sure you want to delete the selected {count} transactions?\nThis action cannot be undone.'**
-  String searchBatchDeleteConfirmMessage(Object count);
+  String searchBatchDeleteConfirmMessage(int count);
 
   /// No description provided for @searchBatchSetNoteTitle.
   ///
@@ -1194,7 +1196,7 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'Successfully deleted {count} transactions'**
-  String searchBatchDeleteSuccess(Object count);
+  String searchBatchDeleteSuccess(int count);
 
   /// No description provided for @searchBatchDeleteFailed.
   ///
@@ -1230,7 +1232,7 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'{count} results'**
-  String searchResultsCount(Object count);
+  String searchResultsCount(int count);
 
   /// No description provided for @searchSummaryIncome.
   ///
@@ -2274,7 +2276,7 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'Skipped {count} non-transaction records (debts, etc.)'**
-  String importSkippedNonTransactionTypes(Object count);
+  String importSkippedNonTransactionTypes(int count);
 
   /// No description provided for @importTransactionFailed.
   ///
@@ -4020,7 +4022,7 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'This category has {count} transaction records. Please handle them first.'**
-  String categoryCannotDeleteMessage(Object count);
+  String categoryCannotDeleteMessage(int count);
 
   /// No description provided for @categoryShare.
   ///
@@ -4050,7 +4052,7 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'Are you sure you want to delete {count} unused categories? This action cannot be undone.'**
-  String categoryClearUnusedMessage(Object count);
+  String categoryClearUnusedMessage(int count);
 
   /// No description provided for @categoryClearUnusedListTitle.
   ///
@@ -4068,7 +4070,7 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'Deleted {count} categories'**
-  String categoryClearUnusedSuccess(Object count);
+  String categoryClearUnusedSuccess(int count);
 
   /// No description provided for @categoryClearUnusedFailed.
   ///
@@ -14574,7 +14576,7 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'Reconverted {count} foreign-currency transactions'**
-  String recalcForeignTxDone(Object count);
+  String recalcForeignTxDone(int count);
 
   /// No description provided for @txCurrencyPickerTitle.
   ///
@@ -14586,7 +14588,7 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'{count} transactions will be reconverted and synced'**
-  String recalcSyncCountHint(Object count);
+  String recalcSyncCountHint(int count);
 
   /// No description provided for @exportCsvHeaderCurrency.
   ///
@@ -17748,7 +17750,7 @@ class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> 
   }
 
   @override
-  bool isSupported(Locale locale) => <String>['en', 'ko', 'zh'].contains(locale.languageCode);
+  bool isSupported(Locale locale) => <String>['en', 'ko', 'ru', 'zh'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
@@ -17770,6 +17772,7 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
   switch (locale.languageCode) {
     case 'en': return AppLocalizationsEn();
     case 'ko': return AppLocalizationsKo();
+    case 'ru': return AppLocalizationsRu();
     case 'zh': return AppLocalizationsZh();
   }
 

@@ -587,7 +587,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get searchBatchDeleteConfirmTitle => '삭제 확인';
 
   @override
-  String searchBatchDeleteConfirmMessage(Object count) {
+  String searchBatchDeleteConfirmMessage(int count) {
     return '선택한 $count건의 거래를 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.';
   }
 
@@ -603,7 +603,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get searchBatchSetNoteHint => '메모 내용을 입력하세요 (비워두면 메모가 지워집니다)';
 
   @override
-  String searchBatchDeleteSuccess(Object count) {
+  String searchBatchDeleteSuccess(int count) {
     return '$count건의 거래를 삭제했습니다';
   }
 
@@ -633,7 +633,7 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String searchResultsCount(Object count) {
+  String searchResultsCount(int count) {
     return '$count개 결과';
   }
 
@@ -1195,7 +1195,7 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String importSkippedNonTransactionTypes(Object count) {
+  String importSkippedNonTransactionTypes(int count) {
     return '거래가 아닌 $count건(부채 등)을 건너뛰었습니다';
   }
 
@@ -2118,7 +2118,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get categoryCannotDelete => '삭제할 수 없습니다';
 
   @override
-  String categoryCannotDeleteMessage(Object count) {
+  String categoryCannotDeleteMessage(int count) {
     return '이 카테고리에는 $count건의 거래 기록이 있습니다. 먼저 처리해 주세요.';
   }
 
@@ -2135,7 +2135,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get categoryClearUnusedTitle => '사용하지 않는 카테고리 정리';
 
   @override
-  String categoryClearUnusedMessage(Object count) {
+  String categoryClearUnusedMessage(int count) {
     return '사용하지 않는 카테고리 $count개를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.';
   }
 
@@ -2146,7 +2146,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get categoryClearUnusedEmpty => '사용하지 않는 카테고리가 없습니다';
 
   @override
-  String categoryClearUnusedSuccess(Object count) {
+  String categoryClearUnusedSuccess(int count) {
     return '카테고리 $count개를 삭제했습니다';
   }
 
@@ -7705,7 +7705,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get recalcForeignTxAction => 'Reconvert at current rates';
 
   @override
-  String recalcForeignTxDone(Object count) {
+  String recalcForeignTxDone(int count) {
     return 'Reconverted $count foreign-currency transactions';
   }
 
@@ -7713,7 +7713,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get txCurrencyPickerTitle => 'Select currency';
 
   @override
-  String recalcSyncCountHint(Object count) {
+  String recalcSyncCountHint(int count) {
     return '$count transactions will be reconverted and synced';
   }
 

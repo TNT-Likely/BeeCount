@@ -587,7 +587,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get searchBatchDeleteConfirmTitle => 'Confirm Delete';
 
   @override
-  String searchBatchDeleteConfirmMessage(Object count) {
+  String searchBatchDeleteConfirmMessage(int count) {
     return 'Are you sure you want to delete the selected $count transactions?\nThis action cannot be undone.';
   }
 
@@ -603,7 +603,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get searchBatchSetNoteHint => 'Enter note content (leave empty to clear notes)';
 
   @override
-  String searchBatchDeleteSuccess(Object count) {
+  String searchBatchDeleteSuccess(int count) {
     return 'Successfully deleted $count transactions';
   }
 
@@ -633,7 +633,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String searchResultsCount(Object count) {
+  String searchResultsCount(int count) {
     return '$count results';
   }
 
@@ -1195,7 +1195,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String importSkippedNonTransactionTypes(Object count) {
+  String importSkippedNonTransactionTypes(int count) {
     return 'Skipped $count non-transaction records (debts, etc.)';
   }
 
@@ -2118,7 +2118,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get categoryCannotDelete => 'Cannot delete';
 
   @override
-  String categoryCannotDeleteMessage(Object count) {
+  String categoryCannotDeleteMessage(int count) {
     return 'This category has $count transaction records. Please handle them first.';
   }
 
@@ -2135,7 +2135,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get categoryClearUnusedTitle => 'Clear Unused Categories';
 
   @override
-  String categoryClearUnusedMessage(Object count) {
+  String categoryClearUnusedMessage(int count) {
     return 'Are you sure you want to delete $count unused categories? This action cannot be undone.';
   }
 
@@ -2146,7 +2146,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get categoryClearUnusedEmpty => 'No unused categories';
 
   @override
-  String categoryClearUnusedSuccess(Object count) {
+  String categoryClearUnusedSuccess(int count) {
     return 'Deleted $count categories';
   }
 
@@ -7705,7 +7705,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get recalcForeignTxAction => 'Reconvert at current rates';
 
   @override
-  String recalcForeignTxDone(Object count) {
+  String recalcForeignTxDone(int count) {
     return 'Reconverted $count foreign-currency transactions';
   }
 
@@ -7713,7 +7713,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get txCurrencyPickerTitle => 'Select currency';
 
   @override
-  String recalcSyncCountHint(Object count) {
+  String recalcSyncCountHint(int count) {
     return '$count transactions will be reconverted and synced';
   }
 
