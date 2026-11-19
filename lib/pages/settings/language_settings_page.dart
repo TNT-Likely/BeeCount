@@ -42,6 +42,7 @@ class _LanguageSettingsPageState extends ConsumerState<LanguageSettingsPage> {
       (locale: Locale('zh', 'TW'), detail: 'Chinese · Traditional'),
       (locale: Locale('en'), detail: 'English'),
       (locale: Locale('ko'), detail: 'Korean'),
+      (locale: Locale('ru'), detail: 'Russian'),
     ];
     return V4PageScaffold(
         body: Column(children: [

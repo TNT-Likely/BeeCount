@@ -79,7 +79,7 @@ void main() async {
 /// 检查翻译完整性
 Future<void> checkTranslationCompleteness() async {
   final l10nDir = Directory('lib/l10n');
-  final languages = ['zh', 'en', 'zh_TW'];
+  final languages = ['zh', 'en', 'zh_TW', 'ko', 'ru'];
 
   print('📊 第一步：检查翻译文件完整性');
   print('');
@@ -125,6 +125,8 @@ Future<void> checkTranslationCompleteness() async {
     'zh': '简体中文',
     'en': 'English',
     'zh_TW': '繁體中文',
+    'ko': '한국어',
+    'ru': 'Русский',
   };
 
   for (final lang in languages) {
@@ -260,7 +262,7 @@ Future<Map<String, Set<String>>> checkExtraKeys() async {
   print('');
 
   // 支持的语言列表 (排除中文)
-  final languages = ['en', 'zh_TW'];
+  final languages = ['en', 'zh_TW', 'ko', 'ru'];
 
   // 收集每个语言的多余键
   final Map<String, Set<String>> extraKeysMap = {};
@@ -297,6 +299,8 @@ Future<Map<String, Set<String>>> checkExtraKeys() async {
   final languageNames = {
     'en': 'English',
     'zh_TW': '繁體中文',
+    'ko': '한국어',
+    'ru': 'Русский',
   };
 
   for (final entry in extraKeysMap.entries) {

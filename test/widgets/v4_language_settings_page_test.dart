@@ -85,9 +85,11 @@ void main() {
     await t.pumpAndSettle();
   }
 
-  testWidgets('原五项语言、实际偏好和地区清理，刷新使用新语言文案', (t) async {
+  testWidgets('六项语言、实际偏好和地区清理，刷新使用新语言文案', (t) async {
     await open(t);
-    expect(find.byType(BeeOnboardingChoice), findsNWidgets(5));
+    expect(find.byType(BeeOnboardingChoice), findsNWidgets(6));
+    expect(find.text('Русский'), findsOneWidget);
+    expect(find.text('Russian'), findsOneWidget);
     for (final row in [
       (3, const Locale('en')),
       (2, const Locale('zh', 'TW')),

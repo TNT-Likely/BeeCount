@@ -61,6 +61,7 @@ class _AppearanceSettingsPageState
             'zh' => l.languageChinese,
             'en' => l.languageEnglish,
             'ko' => '한국어',
+            'ru' => 'Русский',
             _ => language.languageCode,
           };
     void open(Widget page) => Navigator.of(context)

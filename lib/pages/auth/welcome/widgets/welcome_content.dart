@@ -19,14 +19,16 @@ mixin _WelcomeContent on ConsumerState<WelcomePage>, _WelcomeActions {
       Locale('zh'),
       Locale('zh', 'TW'),
       Locale('en'),
-      Locale('ko')
+      Locale('ko'),
+      Locale('ru'),
     ];
     const details = [
       'System default',
       'Chinese · Simplified',
       'Chinese · Traditional',
       'English',
-      'Korean'
+      'Korean',
+      'Russian',
     ];
     return _step(
         step: 0,

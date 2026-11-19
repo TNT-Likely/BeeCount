@@ -171,7 +171,7 @@ void main() {
 
   testWidgets('五步导航保留货币和分类草稿，完成前不写数据库', (t) async {
     await open(t);
-    expect(find.byType(BeeOnboardingChoice), findsNWidgets(5));
+    expect(find.byType(BeeOnboardingChoice), findsNWidgets(6));
     await step(t, 1);
     await tap(t, '美元');
     await step(t, 2);
