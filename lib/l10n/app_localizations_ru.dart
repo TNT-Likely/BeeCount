@@ -202,7 +202,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get tabHome => 'Главная';
 
   @override
-  String get tabInsights => 'Статистика';
+  String get tabInsights => 'Анализ';
 
   @override
   String get tabAssets => 'Активы';
@@ -2366,118 +2366,118 @@ class AppLocalizationsRu extends AppLocalizations {
   String get categoryParentRequiredTitle => 'Ошибка';
 
   @override
-  String get categoryExpenseList => 'Питание-Транспорт-Покупки-Развлечения-Дом-Семья-Связь-Коммунальные услуги-Жильё-Медицина-Образование-Питомцы-Спорт-Электроника-Путешествия-Алкоголь и табак-Мама и малыш-Уход за собой-Ремонт-Общение-Самообучение-Автомобиль-Такси-Метро-Доставка еды-Обслуживание жилья-Парковка-Пожертвования-Подарки-Налоги-Напитки-Одежда-Перекусы-Деньги в подарок-Фрукты-Игры-Книги-Партнёр-Ремонт жилья-Товары для быта-Лотереи-Акции-Социальное страхование-Курьерская доставка-Работа';
+  String get categoryExpenseList => 'Питание-Транспорт-Покупки-Развлечения-Дом-Семья-Связь-Коммуналка-Жильё-Медицина-Образование-Питомцы-Спорт-Электроника-Путешествия-Алкоголь-Малыш-Красота-Ремонт-Общение-Учёба-Автомобиль-Такси-Метро-Доставка-Квартплата-Парковка-Донаты-Подарки-Налоги-Напитки-Одежда-Перекусы-Конверты-Фрукты-Игры-Книги-Партнёр-Отделка-Хозтовары-Лотереи-Акции-Соцстрах-Курьер-Работа';
 
   @override
-  String get categoryIncomeList => 'Зарплата-Сбережения-Деньги в подарок-Премии-Возмещение-Подработка-Подарки-Проценты-Возврат-Доход от инвестиций-Продажа вещей-Социальные выплаты-Возврат налогов и сборов-Жилищный накопительный фонд';
+  String get categoryIncomeList => 'Зарплата-Сбережения-Конверты-Премии-Возмещение-Подработка-Подарки-Проценты-Возврат-Инвестиции-Перепродажа-Соцвыплаты-Возвраты-Жилфонд';
 
   @override
-  String get categoryExpenseDining => 'Питание-Завтрак-Обед-Ужин-Доставка Meituan-Доставка Ele.me-Доставка JD-Рестораны-Еда';
+  String get categoryExpenseDining => 'Питание-Завтрак-Обед-Ужин-Meituan-Ele.me-JD-Рестораны-Еда';
 
   @override
   String get categoryExpenseSnacks => 'Перекусы-Печенье-Чипсы-Конфеты-Шоколад-Орехи';
 
   @override
-  String get categoryExpenseFruit => 'Фрукты-Яблоки-Бананы-Апельсины-Виноград-Арбузы-Другие фрукты';
+  String get categoryExpenseFruit => 'Фрукты-Яблоки-Бананы-Апельсины-Виноград-Арбузы-Прочие';
 
   @override
-  String get categoryExpenseBeverage => 'Напитки-Чай с молоком-Кофе-Сок-Газировка-Минеральная вода';
+  String get categoryExpenseBeverage => 'Напитки-Молочный чай-Кофе-Сок-Газировка-Минералка';
 
   @override
   String get categoryExpensePastry => 'Выпечка-Торты-Хлеб-Десерты-Печенье';
 
   @override
-  String get categoryExpenseCooking => 'Продукты для готовки-Овощи-Мясо-Рыба и морепродукты-Приправы-Крупы и масло';
+  String get categoryExpenseCooking => 'Продукты-Овощи-Мясо-Рыба, морепр.-Приправы-Крупы, масло';
 
   @override
-  String get categoryExpenseShopping => 'Покупки-Одежда-Обувь и головные уборы-Сумки-Аксессуары-Товары для быта';
+  String get categoryExpenseShopping => 'Покупки-Одежда-Обувь, шапки-Сумки-Аксессуары-Хозтовары';
 
   @override
   String get categoryExpensePets => 'Питомцы-Корм-Зоотовары-Ветеринария-Груминг';
 
   @override
-  String get categoryExpenseTransport => 'Транспорт-Метро-Автобус-Такси-Такси через приложение-Парковка-Топливо';
+  String get categoryExpenseTransport => 'Транспорт-Метро-Автобус-Такси-Такси онлайн-Парковка-Топливо';
 
   @override
-  String get categoryExpenseCar => 'Автомобиль-ТО-Ремонт авто-Автострахование-Автомойка-Штрафы за нарушение ПДД';
+  String get categoryExpenseCar => 'Автомобиль-ТО-Ремонт-Страховка-Автомойка-Штрафы';
 
   @override
   String get categoryExpenseClothing => 'Одежда-Верх-Брюки-Юбки-Обувь-Аксессуары';
 
   @override
-  String get categoryExpenseDailyGoods => 'Товары для быта-Средства гигиены-Бумажные изделия-Средства для уборки-Кухонные принадлежности';
+  String get categoryExpenseDailyGoods => 'Хозтовары-Гигиена-Бумага-Для уборки-Для кухни';
 
   @override
-  String get categoryExpenseEducation => 'Образование-Плата за обучение-Курсы-Книги-Канцтовары-Офисные принадлежности';
+  String get categoryExpenseEducation => 'Образование-Учёба-Курсы-Книги-Канцтовары-Для офиса';
 
   @override
-  String get categoryExpenseInvestLoss => 'Убытки от инвестиций-Убытки по акциям-Убытки по фондам-Прочие убытки от инвестиций';
+  String get categoryExpenseInvestLoss => 'Убытки-Акции-Фонды-Прочие';
 
   @override
-  String get categoryExpenseEntertainment => 'Развлечения-Кино-Караоке-Парк аттракционов-Бары-Другие развлечения';
+  String get categoryExpenseEntertainment => 'Развлечения-Кино-Караоке-Аттракционы-Бары-Прочие';
 
   @override
-  String get categoryExpenseGame => 'Игры-Пополнение игрового баланса-Игровое снаряжение-Игровые подписки';
+  String get categoryExpenseGame => 'Игры-Пополнение-Снаряжение-Подписки';
 
   @override
-  String get categoryExpenseHealthProducts => 'Товары для здоровья-Витамины-Функциональное питание-Пищевые добавки';
+  String get categoryExpenseHealthProducts => 'Здоровье-Витамины-Здоровая еда-БАДы';
 
   @override
-  String get categoryExpenseSubscription => 'Подписки-Видеосервисы-Музыкальные сервисы-Облачное хранилище-Другие подписки';
+  String get categoryExpenseSubscription => 'Подписки-Видео-Музыка-Облако-Прочие';
 
   @override
-  String get categoryExpenseSports => 'Спорт-Спортзал-Спортивное снаряжение-Спортивные занятия-Активный отдых';
+  String get categoryExpenseSports => 'Спорт-Спортзал-Экипировка-Занятия-На природе';
 
   @override
-  String get categoryExpenseHousing => 'Жильё-Аренда-Обслуживание жилья-Ипотека-Ремонт жилья';
+  String get categoryExpenseHousing => 'Жильё-Аренда-Квартплата-Ипотека-Отделка';
 
   @override
-  String get categoryExpenseHome => 'Дом-Мебель-Бытовая техника-Декор-Постельные принадлежности';
+  String get categoryExpenseHome => 'Дом-Мебель-Техника-Декор-Постельное';
 
   @override
-  String get categoryExpenseBeauty => 'Уход за собой-Уход за кожей-Косметика-Салон красоты-Маникюр';
+  String get categoryExpenseBeauty => 'Красота-Уход за кожей-Косметика-Салон-Маникюр';
 
   @override
-  String get categoryIncomeSalary => 'Зарплата-Оклад-Премия за результаты-Премия по итогам года-Оплата сверхурочных';
+  String get categoryIncomeSalary => 'Зарплата-Оклад-За результат-За год-Сверхурочные';
 
   @override
-  String get categoryIncomeInvestment => 'Сбережения-Доход от фондов-Дивиденды по акциям-Сберегательные продукты-Другие сбережения';
+  String get categoryIncomeInvestment => 'Сбережения-Фонды-Дивиденды-Финпродукты-Прочие';
 
   @override
-  String get categoryIncomeRedPacket => 'Деньги в подарок-Подарок на праздник-Подарок на день рождения-Ответный подарок';
+  String get categoryIncomeRedPacket => 'Конверты-На праздник-На ДР-Ответный дар';
 
   @override
-  String get categoryIncomeBonus => 'Премии-Годовая премия-Квартальная премия-Премия за проект-Другие премии';
+  String get categoryIncomeBonus => 'Премии-За год-За квартал-За проект-Прочие';
 
   @override
-  String get categoryIncomeReimbursement => 'Возмещение-Возмещение командировочных расходов-Возмещение расходов на питание-Прочие возмещения';
+  String get categoryIncomeReimbursement => 'Возмещение-Командировки-Питание-Прочее';
 
   @override
-  String get categoryIncomePartTime => 'Подработка-Доход от подработки-Дополнительный заработок';
+  String get categoryIncomePartTime => 'Подработка-Вторая работа-Доп. доход';
 
   @override
-  String get categoryIncomeGift => 'Денежные подарки-Подарок на свадьбу-Подарок на день рождения-Другие подарки';
+  String get categoryIncomeGift => 'Подарки-На свадьбу-На ДР-Прочие';
 
   @override
-  String get categoryIncomeInterest => 'Проценты-Банковские проценты-Другие проценты';
+  String get categoryIncomeInterest => 'Проценты-От банка-Прочие';
 
   @override
-  String get categoryIncomeRefund => 'Возврат-Возврат за покупки-Возврат за услуги-Другие возвраты';
+  String get categoryIncomeRefund => 'Возврат-За покупки-За услуги-Прочее';
 
   @override
-  String get categoryIncomeInvestIncome => 'Доход от инвестиций-Доход от акций-Инвестиции в фонды-Прочий доход от инвестиций';
+  String get categoryIncomeInvestIncome => 'Инвестиции-Акции-Фонды-Прочее';
 
   @override
-  String get categoryIncomeSecondHand => 'Продажа вещей-Ненужные вещи-Подержанные товары';
+  String get categoryIncomeSecondHand => 'Продажа б/у-Свои вещи-Товары б/у';
 
   @override
-  String get categoryIncomeSocialBenefit => 'Социальные выплаты-Пособие по безработице-Пособие по беременности и родам-Другие пособия';
+  String get categoryIncomeSocialBenefit => 'Соцвыплаты-Безработица-Декретные-Прочие';
 
   @override
-  String get categoryIncomeTaxRefund => 'Возврат налогов и сборов-Возврат подоходного налога-Другие возвраты сборов';
+  String get categoryIncomeTaxRefund => 'Возвраты-Подоходный-Сборы';
 
   @override
-  String get categoryIncomeProvidentFund => 'Жилищный накопительный фонд-Снятие средств из фонда-Проценты по накоплениям';
+  String get categoryIncomeProvidentFund => 'Жилфонд-Снятие-Проценты';
 
   @override
   String get personalizeTitle => 'Цвет темы';
@@ -6319,15 +6319,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String tagTransactionCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count транзакции',
-      many: '$count транзакций',
-      few: '$count транзакции',
-      one: '$count транзакция',
-    );
-    return '$_temp0';
+    return '$count шт.';
   }
 
   @override
@@ -9087,7 +9079,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get v4RecordingCalculationHint => 'Для расчётов: + − × ÷';
 
   @override
-  String get v4RecordingSaveNext => 'Сохранить и добавить ещё';
+  String get v4RecordingSaveNext => 'Ещё одну';
 
   @override
   String get v4RecordingClearAmount => 'Очистить сумму';
