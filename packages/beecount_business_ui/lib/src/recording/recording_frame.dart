@@ -16,10 +16,12 @@ class RecordingFrame extends StatelessWidget {
       this.narrow = false,
       this.keyboardVisible = false,
       this.transparentDock = false,
+      this.fitCategory = false,
       this.transfer = false});
   final Widget amount, category, details, keypad, actions;
   final Widget? authors;
-  final bool compact, narrow, keyboardVisible, transparentDock, transfer;
+  final bool compact, narrow, keyboardVisible, transparentDock, fitCategory;
+  final bool transfer;
   @override
   Widget build(BuildContext context) {
     final gap = transfer
@@ -27,11 +29,23 @@ class RecordingFrame extends StatelessWidget {
         : compact && narrow
             ? 6.0
             : 8.0;
+    final categoryContent = fitCategory
+        ? Column(
+            key: const ValueKey('recording-content'),
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+                Expanded(child: category),
+                if (authors != null) authors!
+              ])
+        : SingleChildScrollView(
+            key: const ValueKey('recording-content'),
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [category, if (authors != null) authors!]));
     return Column(children: [
       // Separate the segmented header from every amount card in both themes.
-      SizedBox(
-          key: const ValueKey('recording-header-gap'),
-          height: gap),
+      SizedBox(key: const ValueKey('recording-header-gap'), height: gap),
       Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16), child: amount),
       SizedBox(height: gap),
@@ -42,16 +56,7 @@ class RecordingFrame extends StatelessWidget {
                   borderRadius: BorderRadius.circular(22),
                   child: ColoredBox(
                       color: BeeCardTheme.of(context).surface,
-                      child: SingleChildScrollView(
-                          key: const ValueKey('recording-content'),
-                          keyboardDismissBehavior:
-                              ScrollViewKeyboardDismissBehavior.onDrag,
-                          child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                category,
-                                if (authors != null) authors!
-                              ])))))),
+                      child: categoryContent)))),
       SizedBox(height: gap),
       Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16), child: details),

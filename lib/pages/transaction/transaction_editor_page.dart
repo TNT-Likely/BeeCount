@@ -96,6 +96,7 @@ class _TransactionEditorPageState extends ConsumerState<TransactionEditorPage> {
   GlobalKey<AmountEditorSheetState> _cardEditorKey =
       GlobalKey<AmountEditorSheetState>();
   final _transferEditorKey = GlobalKey<TransferFormState>();
+  final _moreCategoriesFallback = ValueNotifier<VoidCallback?>(null);
   bool _cardReset = false;
   int? _retryTransactionId;
   bool _cardDirty = false;
@@ -105,6 +106,12 @@ class _TransactionEditorPageState extends ConsumerState<TransactionEditorPage> {
   int? _cardInitialAccountId;
   late int _cardLedgerId;
   late DateTime _cardInitialDate;
+
+  @override
+  void dispose() {
+    _moreCategoriesFallback.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -262,10 +269,12 @@ class _TransactionEditorPageState extends ConsumerState<TransactionEditorPage> {
                                     ledgerId: _cardLedgerId,
                                     kind: kind,
                                     selectedId: _cardCategory?.id,
+                                    moreInDetails: _moreCategoriesFallback,
                                     onSelected: (category) => setState(() {
                                           _cardCategory = category;
                                           _cardDirty = true;
                                         })),
+                                moreCategoriesFallback: _moreCategoriesFallback,
                                 canSubmit: _cardCategory != null,
                                 onLedgerChanged:
                                     widget.editingTransactionId == null &&
@@ -323,6 +332,7 @@ class _TransactionEditorPageState extends ConsumerState<TransactionEditorPage> {
     final accountId = await defaultRecordingAccount(ref, kind, ledgerId);
     if (!mounted) return;
     ref.read(currentLedgerIdProvider.notifier).state = ledgerId;
+    _moreCategoriesFallback.value = null;
     setState(() {
       _cardLedgerId = ledgerId;
       _cardInitialAccountId = accountId;
@@ -384,6 +394,7 @@ class _TransactionEditorPageState extends ConsumerState<TransactionEditorPage> {
         _cardLedgerId != previousLedger) {
       return;
     }
+    _moreCategoriesFallback.value = null;
     setState(() {
       _selectedType = index;
       _cardCategory = null;

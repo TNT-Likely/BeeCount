@@ -17,10 +17,12 @@ class BeeCategoryPicker extends StatefulWidget {
       required this.cancelLabel,
       required this.onConfirm,
       required this.onCancel,
+      this.initialParent,
       this.immediate = false,
       this.expandAllChildren = false});
   final List<BeeCategoryChoice> items;
   final String? selected;
+  final String? initialParent;
   final String searchLabel, emptyLabel, confirmLabel, cancelLabel;
   final ValueChanged<String> onConfirm;
   final VoidCallback onCancel;
@@ -31,6 +33,7 @@ class BeeCategoryPicker extends StatefulWidget {
 
 class _BeeCategoryPickerState extends State<BeeCategoryPicker> {
   late String? draft = widget.selected;
+  late String? browseParent = widget.initialParent;
   String query = '';
   @override
   void didUpdateWidget(covariant BeeCategoryPicker old) {
@@ -42,12 +45,18 @@ class _BeeCategoryPickerState extends State<BeeCategoryPicker> {
     if (!item.enabled && item.children.isEmpty) return;
     if (widget.immediate) {
       if (!direct && item.children.isNotEmpty) {
-        setState(() => draft = item.id);
+        setState(() {
+          browseParent = null;
+          draft = item.id;
+        });
       } else if (item.enabled) {
         widget.onConfirm(item.id);
       }
     } else {
-      setState(() => draft = item.id);
+      setState(() {
+        browseParent = null;
+        draft = item.id;
+      });
     }
   }
 
@@ -83,7 +92,8 @@ class _BeeCategoryPickerState extends State<BeeCategoryPicker> {
             i.label.toLowerCase().contains(q) ||
             i.children.any((c) => c.label.toLowerCase().contains(q)))
         .toList();
-    final parent = visible
+    final parent = visible.where((i) => i.id == browseParent).firstOrNull ??
+        visible
             .where((i) => i.id == draft || i.children.any((c) => c.id == draft))
             .firstOrNull ??
         visible.firstOrNull;
