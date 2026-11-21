@@ -204,9 +204,11 @@ class RecordingDetailsCard extends StatelessWidget {
       required this.attachment,
       this.account,
       this.noteToggle,
+      this.categoryAction,
       this.noteExpanded = true});
   final Widget note, date, tags, attachment;
   final Widget? account, noteToggle;
+  final Widget? categoryAction;
   final bool noteExpanded;
 
   @override
@@ -235,13 +237,14 @@ class RecordingDetailsCard extends StatelessWidget {
               if (account != null) Expanded(child: account!),
               if (account != null || (!noteExpanded && noteToggle != null))
                 const SizedBox(width: 4),
-              date,
+              if (categoryAction == null) date else Flexible(child: date),
               const SizedBox(width: 4),
-              if (noteExpanded || account == null)
+              if (noteExpanded || account == null || categoryAction != null)
                 Expanded(child: tags)
               else
                 tags,
               if (!noteExpanded) attachment,
+              if (categoryAction != null) categoryAction!,
             ])),
       ]));
 }
@@ -265,6 +268,46 @@ class RecordingCategoryTile extends StatelessWidget {
   final bool expanded;
   final bool hasChildren;
 
+  static const _iconExtent = 34.0;
+  static const _labelGap = 4.0;
+  static double _minimumHeight(bool compact) => compact ? 61 : 64;
+  static double _verticalPadding(bool compact) => compact ? 3 : 6;
+  static TextStyle? _labelStyle(
+          BuildContext context, bool compact, bool selected) =>
+      Theme.of(context).textTheme.bodySmall?.copyWith(
+          fontSize: compact ? 10 : 11,
+          fontWeight: selected ? FontWeight.w600 : FontWeight.w400);
+
+  static double heightFor(
+    BuildContext context,
+    String label, {
+    required double width,
+    required bool compact,
+    bool selected = false,
+  }) {
+    final defaults = DefaultTextStyle.of(context);
+    var style = defaults.style.merge(_labelStyle(context, compact, selected));
+    if (MediaQuery.boldTextOf(context)) {
+      style = style.merge(const TextStyle(fontWeight: FontWeight.bold));
+    }
+    final painter = TextPainter(
+      text: TextSpan(text: label, style: style),
+      textDirection: Directionality.of(context),
+      textScaler: MediaQuery.textScalerOf(context),
+      locale: Localizations.maybeLocaleOf(context),
+      textHeightBehavior: defaults.textHeightBehavior ??
+          DefaultTextHeightBehavior.maybeOf(context),
+      maxLines: 1,
+      ellipsis: '\u2026',
+    )..layout(maxWidth: width);
+    final height = _verticalPadding(compact) * 2 +
+        _iconExtent +
+        _labelGap +
+        painter.height;
+    painter.dispose();
+    return height > _minimumHeight(compact) ? height : _minimumHeight(compact);
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -276,15 +319,16 @@ class RecordingCategoryTile extends StatelessWidget {
           onTap: onTap,
           borderRadius: BorderRadius.circular(14),
           child: ConstrainedBox(
-              constraints: BoxConstraints(minHeight: compact ? 61 : 64),
+              constraints: BoxConstraints(minHeight: _minimumHeight(compact)),
               child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: compact ? 3 : 6),
+                  padding:
+                      EdgeInsets.symmetric(vertical: _verticalPadding(compact)),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Container(
-                          width: 34,
-                          height: 34,
+                          width: _iconExtent,
+                          height: _iconExtent,
                           decoration: BoxDecoration(
                               color: selected
                                   ? theme.colorScheme.primary
@@ -302,15 +346,11 @@ class RecordingCategoryTile extends StatelessWidget {
                                           : Icons.keyboard_arrow_down,
                                       size: 13)),
                           ])),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: _labelGap),
                       Text(label,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: theme.textTheme.bodySmall?.copyWith(
-                              fontSize: compact ? 10 : 11,
-                              fontWeight: selected
-                                  ? FontWeight.w600
-                                  : FontWeight.w400)),
+                          style: _labelStyle(context, compact, selected)),
                     ],
                   ))),
         ));

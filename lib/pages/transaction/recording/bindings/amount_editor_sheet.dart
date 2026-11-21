@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:intl/intl.dart';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:beecount_business_ui/beecount_business_ui.dart';
 import 'package:flutter/services.dart';
@@ -10,6 +11,7 @@ import 'package:decimal/decimal.dart';
 import 'package:flutter_cloud_sync/flutter_cloud_sync.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:beecount/pages/shared/pickers/wheel_date_picker.dart';
+import 'recording_category_section.dart';
 import '../../../../data/db.dart';
 import '../../../../providers/shared_ledger_providers.dart';
 import '../../../../styles/tokens.dart';
@@ -207,6 +209,7 @@ class AmountEditorSheet extends ConsumerStatefulWidget {
   // The page reads this above Scaffold, which removes handled keyboard insets.
   final bool systemKeyboardVisible;
   final Widget? categorySection;
+  final ValueListenable<VoidCallback?>? moreCategoriesFallback;
   final bool canSubmit;
   final bool externalDraftChanged;
   final Future<void> Function(int ledgerId)? onLedgerChanged;
@@ -240,6 +243,7 @@ class AmountEditorSheet extends ConsumerStatefulWidget {
     this.cardLayout = false,
     this.systemKeyboardVisible = false,
     this.categorySection,
+    this.moreCategoriesFallback,
     this.canSubmit = true,
     this.externalDraftChanged = false,
     this.onLedgerChanged,
@@ -1244,68 +1248,78 @@ class AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
     final narrow = MediaQuery.sizeOf(context).width <= 340;
     final dateLabel =
         '${narrow ? '${_date.month}.${_date.day.toString().padLeft(2, '0')}' : DateFormat.MMMd(l10n.localeName).format(_date)}${ref.watch(showTransactionTimeProvider) ? ' ${_date.hour.toString().padLeft(2, '0')}:${_date.minute.toString().padLeft(2, '0')}' : ''}';
-    final metadata = RecordingDetailsCard(
-      noteExpanded: noteExpanded,
-      noteToggle: compact
-          ? RecordingNoteToggle(
-              key: const ValueKey('recording-note-compact'),
-              label: l10n.commonNoteHint,
-              expanded: noteExpanded,
-              onTap: () {
-                if (noteExpanded) _noteFocusNode.unfocus();
-                setState(() => _cardNoteExpanded = !noteExpanded);
-                if (!noteExpanded) {
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    if (mounted) _noteFocusNode.requestFocus();
-                  });
-                }
-              })
-          : null,
-      note: RecordingNoteField(
-          fieldKey: const ValueKey('recording-note'),
-          focusNode: _noteFocusNode,
-          controller: _noteCtrl,
-          hint: l10n.commonNoteHint,
-          onChanged: (_) => setState(() {}),
-          historyLabel: l10n.appearanceNoteHistory,
-          historyKey: const ValueKey('recording-note-history'),
-          onHistory: _pickCardHistory),
-      attachment: RecordingAttachmentControl(
-          key: const ValueKey('recording-attachments'),
-          label:
-              '${l10n.attachmentAdd}${attachmentCount == 0 ? '' : ' · $attachmentCount'}',
-          count: attachmentCount,
-          onTap: () => _handleAttachmentTap(savedAttachments)),
-      account: accountsEnabled
-          ? RecordingAccountControl(
-              key: const ValueKey('recording-account'),
-              label: account?.name ?? l10n.accountNone,
-              onTap: _pickCardAccount,
-              fontSize: narrow ? 11 : 12,
-              icon: account == null
-                  ? null
-                  : AccountTypeIcon(type: account.type, size: 18))
-          : null,
-      date: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: narrow ? 83 : 115),
-          child: meta('recording-date', narrow ? '' : 'CalendarDays', dateLabel,
-              _pickDate)),
-      tags: Align(
-          alignment: Alignment.centerRight,
-          widthFactor: noteExpanded ? null : 1,
-          child: meta(
-              'recording-tags',
-              tags.isEmpty ? 'Tag' : '',
-              compact && !noteExpanded ? '' : l10n.tagSelectTitle,
-              _pickCardTags,
-              child: tags.isEmpty
-                  ? null
-                  : RecordingTagSummary(
-                      count: tags.length,
-                      first: BeeTag(
-                          tag: _tagPresentation(tags.first), compact: true)))),
-    );
+    Widget metadata(Widget? categoryAction) => RecordingDetailsCard(
+          categoryAction: categoryAction,
+          noteExpanded: noteExpanded,
+          noteToggle: compact
+              ? RecordingNoteToggle(
+                  key: const ValueKey('recording-note-compact'),
+                  label: l10n.commonNoteHint,
+                  expanded: noteExpanded,
+                  onTap: () {
+                    if (noteExpanded) _noteFocusNode.unfocus();
+                    setState(() => _cardNoteExpanded = !noteExpanded);
+                    if (!noteExpanded) {
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        if (mounted) _noteFocusNode.requestFocus();
+                      });
+                    }
+                  })
+              : null,
+          note: RecordingNoteField(
+              fieldKey: const ValueKey('recording-note'),
+              focusNode: _noteFocusNode,
+              controller: _noteCtrl,
+              hint: l10n.commonNoteHint,
+              onChanged: (_) => setState(() {}),
+              historyLabel: l10n.appearanceNoteHistory,
+              historyKey: const ValueKey('recording-note-history'),
+              onHistory: _pickCardHistory),
+          attachment: RecordingAttachmentControl(
+              key: const ValueKey('recording-attachments'),
+              label:
+                  '${l10n.attachmentAdd}${attachmentCount == 0 ? '' : ' · $attachmentCount'}',
+              count: attachmentCount,
+              onTap: () => _handleAttachmentTap(savedAttachments)),
+          account: accountsEnabled
+              ? RecordingAccountControl(
+                  key: const ValueKey('recording-account'),
+                  label: account?.name ?? l10n.accountNone,
+                  onTap: _pickCardAccount,
+                  fontSize: narrow ? 11 : 12,
+                  icon: account == null
+                      ? null
+                      : AccountTypeIcon(type: account.type, size: 18))
+              : null,
+          date: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: narrow ? 83 : 115),
+              child: meta('recording-date', narrow ? '' : 'CalendarDays',
+                  dateLabel, _pickDate)),
+          tags: Align(
+              alignment: Alignment.centerRight,
+              widthFactor: noteExpanded ? null : 1,
+              child: meta(
+                  'recording-tags',
+                  tags.isEmpty ? 'Tag' : '',
+                  compact && !noteExpanded ? '' : l10n.tagSelectTitle,
+                  _pickCardTags,
+                  child: tags.isEmpty
+                      ? null
+                      : RecordingTagSummary(
+                          count: tags.length,
+                          first: BeeTag(
+                              tag: _tagPresentation(tags.first),
+                              compact: true)))),
+        );
 
+    final fallback = widget.moreCategoriesFallback;
+    final details = fallback == null
+        ? metadata(null)
+        : ValueListenableBuilder<VoidCallback?>(
+            valueListenable: fallback,
+            builder: (context, action, child) => metadata(action == null
+                ? null
+                : RecordingMoreCategoriesButton(onPressed: action)));
     return PopScope(
       canPop: !_isSubmitting && (_discardConfirmed || !_hasCardDraft),
       onPopInvokedWithResult: (didPop, result) {
@@ -1315,8 +1329,9 @@ class AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
         absorbing: _isSubmitting,
         child: RecordingFrame(
             amount: amountCard,
-            details: metadata,
+            details: details,
             category: widget.categorySection ?? const SizedBox.shrink(),
+            fitCategory: fallback != null,
             authors: widget.editingTransactionId == null
                 ? null
                 : _TxAuthorAvatars(

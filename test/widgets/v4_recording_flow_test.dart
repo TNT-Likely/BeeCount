@@ -655,6 +655,48 @@ void main() {
     });
   }
 
+  recordingTest('分类末行及更多入口随高度重新排布，所有显示的格子完整可点', (tester) async {
+    for (var i = 0; i < 16; i++) {
+      await repo.createCategory(
+          name: '补充分类$i', kind: 'expense', sortOrder: 30 + i);
+    }
+    await open(tester, size: const Size(398, 844), textScale: 1.4);
+    final area = find.byKey(const ValueKey('recording-content'));
+    final more = find.byKey(const ValueKey('recording-more-categories'));
+    final tiles =
+        find.descendant(of: area, matching: find.byType(RecordingCategoryTile));
+
+    void expectCompleteRows() {
+      expect(more.hitTestable(), findsOneWidget);
+      final viewport = tester.getRect(area);
+      for (final element in tiles.evaluate()) {
+        final rect = tester.getRect(find.byWidget(element.widget));
+        expect(rect.top, greaterThanOrEqualTo(viewport.top - .01));
+        expect(rect.bottom, lessThanOrEqualTo(viewport.bottom + .01));
+      }
+    }
+
+    expectCompleteRows();
+    final tallCount = tiles.evaluate().length;
+    tester.view.physicalSize = const Size(398, 780);
+    await tester.pumpAndSettle();
+    expectCompleteRows();
+    expect(tiles.evaluate().length, lessThan(tallCount));
+
+    tester.view.physicalSize = const Size(320, 445);
+    await tester.pumpAndSettle();
+    expectCompleteRows();
+    expect(
+        find.descendant(
+            of: find.byKey(const ValueKey('recording-details')),
+            matching: more),
+        findsOneWidget);
+    await tester.tap(more);
+    await tester.pumpAndSettle();
+    expect(find.byType(BeeCategoryPicker), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   recordingTest('空白收支切换使用对应默认账户，已有金额草稿保留账户', (tester) async {
     final expenseAccount =
         await repo.createAccount(ledgerId: 1, name: '支出默认', currency: 'CNY');
@@ -897,7 +939,7 @@ void main() {
     await tester.pumpAndSettle();
     await category(tester, foodId);
     await tester.drag(
-        find.byType(SingleChildScrollView).first, const Offset(0, 1000));
+        find.byKey(const ValueKey('recording-content')), const Offset(0, 1000));
     await tester.pumpAndSettle();
     await capture(tester, 'foreign-currency-tags');
     await press(tester, 'recording-save');
@@ -1277,6 +1319,13 @@ void main() {
       await key(tester, '3');
       await key(tester, '2');
       await category(tester, foodId);
+      if (find.byType(BeeCategoryPicker).evaluate().isNotEmpty) {
+        expect(find.widgetWithText(RecordingSubcategoryChip, '午餐'),
+            findsOneWidget);
+        await tester.tap(find.descendant(
+            of: find.byType(BeeCategoryPicker), matching: find.text('取消')));
+        await tester.pumpAndSettle();
+      }
       final amount = find.byKey(const ValueKey('recording-amount'));
       final amountRect = tester.getRect(amount);
       final area = find.byKey(const ValueKey('recording-content'));
@@ -1340,8 +1389,8 @@ void main() {
       await category(tester, foodId);
       await capture(tester, '${config.name}-subcategory');
       await category(tester, foodId);
-      await tester.drag(
-          find.byType(SingleChildScrollView).first, const Offset(0, 1000));
+      await tester.drag(find.byKey(const ValueKey('recording-content')),
+          const Offset(0, 1000));
       await tester.pumpAndSettle();
       await capture(tester, config.name);
       final date = find.byKey(const ValueKey('recording-date'));
