@@ -45,7 +45,7 @@ void main() {
               tester,
               Column(children: [
                 BeeSummaryCard(
-                    compact: true,
+                    style: BeeHomeSummaryStyle.compact,
                     title: '2026年 10月',
                     amountLabel: '本月支出',
                     amount: '74,901,256,000.00',
@@ -89,6 +89,47 @@ void main() {
       }
     }
   }
+
+  testWidgets('滑动汇总在窄屏大字下容纳长金额，点选与横滑保持预算位置', (tester) async {
+    const budgetKey = Key('budget');
+    await open(
+        tester,
+        const Column(children: [
+          BeeSummaryCard(
+              style: BeeHomeSummaryStyle.sliding,
+              title: '2026年 10月',
+              amountLabel: '本月支出',
+              amount: '74,901,256,000.00',
+              incomeLabel: '本月收入',
+              income: '12,000,000,000.00',
+              expenseLabel: '本月结余',
+              expense: '−74,889,256,000.00',
+              prefix: '¥',
+              budgetIndicator: SizedBox(key: budgetKey, width: 72, height: 72)),
+        ]),
+        width: 320,
+        scale: 1.4,
+        dark: true);
+    final budgetPosition = tester.getRect(find.byKey(budgetKey));
+    final carousel = find.byType(PageView);
+    final controller = tester.widget<PageView>(carousel).controller!;
+    final incomeDot = find.byWidgetPredicate((widget) =>
+        widget is Semantics &&
+        widget.properties.button == true &&
+        widget.properties.label == '本月收入');
+    await tester.tap(incomeDot);
+    await tester.pumpAndSettle();
+    expect(controller.page, 1);
+    final dot = tester.widget<Container>(
+        find.descendant(of: incomeDot, matching: find.byType(Container)));
+    expect((dot.decoration as BoxDecoration).color,
+        Theme.of(tester.element(incomeDot)).colorScheme.primary);
+    await tester.drag(carousel, const Offset(-150, 0));
+    await tester.pumpAndSettle();
+    expect(controller.page, 2);
+    expect(tester.getRect(find.byKey(budgetKey)), budgetPosition);
+    expect(tester.takeException(), isNull);
+  });
 
   for (final item in [
     (used: 3286.5, budget: 5000.0, value: '34%'),

@@ -2,7 +2,7 @@
 name: isolated-app-cloud-qa
 description: "按改动范围执行 BeeCount 隔离验收：纯 App 改动使用独立设备与本地合成数据，需要 Cloud 联调时增加新数据库和真实双向同步；交付独立报告并清理本轮资源。不用于其他项目或发版。"
 metadata:
-  version: "0.4.0"
+  version: "0.4.1"
 ---
 
 # BeeCount App 与 Cloud 隔离验收
@@ -63,6 +63,6 @@ metadata:
 
 清理前确认独立报告和 ZIP 已保存在 run 外并通过校验。已发布的包保持原内容与 SHA256；清理状态另写最小回执，记录关联 PR 合并状态、已删除资源与结果。交付时明确环境已删除，不能继续将旧地址作为可用验收入口。
 
-用户授权开 PR 时，PR 保留简短验收摘要、限制、关联仓依赖和独立报告链接。已获授权上传验收包时，优先通过网页文件选择器上传独立 ZIP，将下载链接放进 PR 描述并回下载核对 SHA256；读取 [GitHub PR 附件交付](references/github-pr-attachments.md)。已有授权覆盖本次包与目标 PR 时沿用该授权。附件失败时交付本地完整包并说明限制。
+用户授权开 PR 时，在描述中记录验收摘要、覆盖范围和关联仓依赖。用户要求将报告或截图附到 PR 时，交给 [BeeCount PR 验收证据 skill](../beecount-pr-qa-evidence/SKILL.md)，传入已校验的 ZIP、代表性截图、实测源码 SHA 和目标 PR。上传及回下载校验复用本次报告。
 
 此 skill 不扩展合并、发版、部署或回复他人的权限；不为报告创建应用发版，按当前用户指令结束工作。

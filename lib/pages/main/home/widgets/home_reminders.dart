@@ -1,3 +1,4 @@
+import 'package:beecount_business_ui/beecount_business_ui.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -80,11 +81,12 @@ class _HomeRemindersState extends ConsumerState<HomeReminders> {
     if (current == null) return const SizedBox.shrink();
     final l10n = AppLocalizations.of(context);
     final overview = ref.watch(budgetOverviewProvider);
-    final showBudget = !ref.watch(homeCompactSummaryProvider) &&
-        budget &&
-        overview.hasValue &&
-        !overview.hasError &&
-        overview.valueOrNull?.totalBudget == null;
+    final showBudget =
+        ref.watch(homeSummaryStyleProvider) == BeeHomeSummaryStyle.full &&
+            budget &&
+            overview.hasValue &&
+            !overview.hasError &&
+            overview.valueOrNull?.totalBudget == null;
     final label =
         labelForDate(current.now, ref.watch(currentMonthStartDayProvider));
     final lastMonth = DateTime(label.year, label.month - 1);

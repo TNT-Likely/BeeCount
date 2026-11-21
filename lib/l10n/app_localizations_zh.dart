@@ -9309,6 +9309,32 @@ class AppLocalizationsZh extends AppLocalizations {
   String get v4HomeUseStandardSummary => '切换为完整汇总';
 
   @override
+  String get v4HomeSummaryStyle => '汇总样式';
+
+  @override
+  String get v4HomeSummaryFull => '完整';
+
+  @override
+  String get v4HomeSummaryCompact => '精简';
+
+  @override
+  String get v4HomeSummarySliding => '滑动';
+
+  @override
+  String v4HomeSummaryStyleOption(String style) {
+    return '$style汇总';
+  }
+
+  @override
+  String get v4HomeSummaryFullDescription => '突出支出，显示收入、结余和预算';
+
+  @override
+  String get v4HomeSummaryCompactDescription => '预算环与支出、收入、结余同屏';
+
+  @override
+  String get v4HomeSummarySlidingDescription => '固定预算环，横滑查看收支与结余';
+
+  @override
   String get v4HomeBudgetExceeded => '超支';
 
   @override

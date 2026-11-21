@@ -529,7 +529,9 @@ class _BusinessAcceptancePageState extends State<BusinessAcceptancePage> {
                 value: homeSummaryCompact,
                 onChanged: (v) => setState(() => homeSummaryCompact = v)),
             BeeSummaryCard(
-                compact: homeSummaryCompact,
+                style: homeSummaryCompact
+                    ? BeeHomeSummaryStyle.compact
+                    : BeeHomeSummaryStyle.full,
                 budgetIndicator: homeSummaryCompact
                     ? BeeHomeBudgetIndicator(
                         value: hidden ? '••' : '34%',

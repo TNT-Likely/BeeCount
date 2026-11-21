@@ -43,7 +43,8 @@ class HomeOverview extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     ref.watch(homeBrandPreferenceInitProvider);
     ref.watch(homeSummaryPreferenceInitProvider);
-    final compactSummary = ref.watch(homeCompactSummaryProvider);
+    final style = ref.watch(homeSummaryStyleProvider);
+    final fullSummary = style == BeeHomeSummaryStyle.full;
     final id = ref.watch(currentLedgerIdProvider);
     final ledger = ref.watch(currentLedgerProvider).valueOrNull;
     final month = ref.watch(selectedMonthProvider);
@@ -79,9 +80,9 @@ class HomeOverview extends ConsumerWidget {
                   showBrand: ref.watch(homeBrandVisibleProvider)))),
       const SizedBox(height: 5),
       BeeSummaryCard(
-        compact: compactSummary,
+        style: style,
         budgetIndicator:
-            compactSummary && ref.watch(homeBudgetCardEnabledProvider)
+            !fullSummary && ref.watch(homeBudgetCardEnabledProvider)
                 ? HomeBudgetIndicator(
                     diameter: MediaQuery.sizeOf(context).width < 350 ? 72 : 86)
                 : null,
@@ -90,9 +91,9 @@ class HomeOverview extends ConsumerWidget {
         amountLabel: l10n.v4HomeMonthExpense,
         amount: amount(expense),
         prefix: getCurrencySymbol(currency),
-        currencyLabel: compactSummary
-            ? currency
-            : '${getCurrencyName(currency, context)} · $currency',
+        currencyLabel: fullSummary
+            ? '${getCurrencyName(currency, context)} · $currency'
+            : currency,
         expenseLabel: l10n.v4HomeMonthBalance,
         expense: amount(income - expense),
         incomeLabel: l10n.v4HomeMonthIncome,
@@ -102,7 +103,7 @@ class HomeOverview extends ConsumerWidget {
         privacyLabel: hidden ? l10n.v4AmountsShow : l10n.v4AmountsHide,
         onPrivacyTap: () =>
             ref.read(hideAmountsProvider.notifier).state = !hidden,
-        budget: !compactSummary &&
+        budget: fullSummary &&
                 ref.watch(homeBudgetCardEnabledProvider) &&
                 ref.watch(budgetOverviewProvider).valueOrNull?.totalBudget !=
                     null

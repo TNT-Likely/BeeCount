@@ -122,6 +122,6 @@ python3 scripts/qa/isolated_app_cloud.py stop --run "$qa_run_dir"
 
 报告是自动验收时的证据快照，人工验收后的数据可能变化。报告中单列当前环境交接状态；生成 ZIP 不要求先停止服务，也不能将正在运行的环境写成已清理。
 
-PR 只保留简短验收摘要、范围限制、相关仓依赖和报告下载链接。用户授权上传时，使用独立附件保存 ZIP；附件不进入 Git 历史，也不为报告创建应用发版。上传后核对下载文件与本地 ZIP 的 SHA256；上传受限时交付本地包并说明实际限制。
+PR 保留简短验收摘要、覆盖范围和相关仓依赖。需要把独立 ZIP 与截图附到 PR 时，交给 [BeeCount PR 验收证据 skill](../../.agents/skills/beecount-pr-qa-evidence/SKILL.md)，使用同一份已校验的报告。
 
 原始 credential/env 文件、完整日志、App 二进制、数据库和私人备份不得提交。公开报告不含测试密码、token 或私人绝对路径；截图只含本次合成数据。

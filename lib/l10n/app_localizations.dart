@@ -17524,6 +17524,54 @@ abstract class AppLocalizations {
   /// **'Use full summary'**
   String get v4HomeUseStandardSummary;
 
+  /// No description provided for @v4HomeSummaryStyle.
+  ///
+  /// In en, this message translates to:
+  /// **'Summary style'**
+  String get v4HomeSummaryStyle;
+
+  /// No description provided for @v4HomeSummaryFull.
+  ///
+  /// In en, this message translates to:
+  /// **'Full'**
+  String get v4HomeSummaryFull;
+
+  /// No description provided for @v4HomeSummaryCompact.
+  ///
+  /// In en, this message translates to:
+  /// **'Compact'**
+  String get v4HomeSummaryCompact;
+
+  /// No description provided for @v4HomeSummarySliding.
+  ///
+  /// In en, this message translates to:
+  /// **'Sliding'**
+  String get v4HomeSummarySliding;
+
+  /// No description provided for @v4HomeSummaryStyleOption.
+  ///
+  /// In en, this message translates to:
+  /// **'{style} summary'**
+  String v4HomeSummaryStyleOption(String style);
+
+  /// No description provided for @v4HomeSummaryFullDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Emphasizes spending above income, balance, and budget'**
+  String get v4HomeSummaryFullDescription;
+
+  /// No description provided for @v4HomeSummaryCompactDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Shows the budget ring with spending, income, and balance'**
+  String get v4HomeSummaryCompactDescription;
+
+  /// No description provided for @v4HomeSummarySlidingDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Keeps the budget ring in place while you swipe between totals'**
+  String get v4HomeSummarySlidingDescription;
+
   /// No description provided for @v4HomeBudgetExceeded.
   ///
   /// In en, this message translates to:

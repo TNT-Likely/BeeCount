@@ -1,0 +1,4 @@
+interface:
+  display_name: "BeeCount PR 验收证据"
+  short_description: "把 BeeCount 隔离验收 ZIP 与代表性截图附到 GitHub PR，并回下载核验"
+  default_prompt: "使用 $beecount-pr-qa-evidence 将已核验的 BeeCount 报告和关键截图补充到目标 PR，并核对附件。"
