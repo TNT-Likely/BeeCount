@@ -592,7 +592,8 @@ def review(root, manifest, cloud_repo=None):
     subprocess.run(['open', '-a', 'Simulator', '--args', '-CurrentDeviceUDID', manifest['udid']], check=True)
     print(f'QA review ready: {manifest["device_name"]}', flush=True)
     print(f'Cloud remains available: {manifest["cloud_origin"]}', flush=True)
-    print('Normal QA App and Cloud stay running until the user confirms acceptance is complete.', flush=True)
+    print('QA App and Cloud remain running for review. Clean up after all related PRs merge or the user ends review.',
+          flush=True)
 
 
 def stop(root, manifest):

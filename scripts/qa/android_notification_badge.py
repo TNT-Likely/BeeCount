@@ -67,7 +67,7 @@ def prepare(args):
              android_app_id=APP_ID, avd_name='BeeCount-QA-' + root.name,
              protected_serials=[line.split()[0] for line in qa.command([ADB, 'devices']).splitlines()[1:] if line.strip()],
              protected_avds=qa.command([EMULATOR, '-list-avds']).splitlines(),
-             cloud='not-applicable', pull_requests=['https://github.com/TNT-Likely/BeeCount/pull/569'], **identity)
+             cloud='not-applicable', pull_requests=[], **identity)
     for port in range(5554, 5586, 2):
         try:
             with socket.socket() as a, socket.socket() as b:

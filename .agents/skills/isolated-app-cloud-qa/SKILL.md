@@ -1,8 +1,8 @@
 ---
 name: isolated-app-cloud-qa
-description: "按改动范围执行 BeeCount 隔离验收：纯 App 改动使用独立设备与本地合成数据，需要 Cloud 联调时增加新数据库和真实双向同步；交付独立报告并清理本轮资源。不用于其他项目或发版。"
+description: "按改动范围执行 BeeCount 隔离验收。纯 App 使用独立设备与合成数据，Cloud 联调验证真实双向同步。自动向已授权 PR 发布验收证据，关联 PR 合并后清理本轮资源。"
 metadata:
-  version: "0.4.1"
+  version: "0.5.0"
 ---
 
 # BeeCount App 与 Cloud 隔离验收
@@ -19,7 +19,7 @@ metadata:
 
 - 读取 [references/beecount.md](references/beecount.md)，先按验收范围选择 App 独立入口或同仓联调 runner。skill 源码位于 `.agents/skills/isolated-app-cloud-qa`，Codex 与 Claude Code 项目入口读取同一目录。
 - Flutter iOS 与 Python/FastAPI：需要创建或排查适配时读取 [references/flutter-ios-fastapi.md](references/flutter-ios-fastapi.md)。
-- 验收结束或关联 PR 全部合并后，读取 [references/cleanup.md](references/cleanup.md)，完整删除本轮临时环境，包括失败、重试和已被替代的 run。
+- 需要开 PR、交付已有 PR 或接续合并时，按 [PR 验收交接](references/pr-lifecycle.md) 保存轮次记录、发布附件并回收环境。
 - 相关 checkout 按本次实际路径定位并核对 remote；不假定用户主目录。项目级安装见 [安装说明](../../../docs/contributing/PROJECT_SKILLS_ZH.md)。不要将本项目 skill 安装到用户全局，也不在本次迁移中扩展其他项目适配。
 
 ## 运行前必须确定的身份
@@ -47,9 +47,9 @@ metadata:
 6. 仅联调：经真实 Cloud 写接口或实际 web UI 修改，再从 App 拉回并核对。区分“web 写 API 已测”与“web 前端已测”。
 7. 按功能风险选择取消、重复操作、权限、附件等场景，不附带无关的同步或共享角色验收。联调涉及故障恢复时仅影响 QA 服务，明确是服务 503 模拟还是实际设备断网。
 8. 切回正常应用入口并重启，确认仍在运行、页面可见、数据持久化。集成入口通过不能替代正常入口验证。
-9. 整理脱敏证据，切回正常 App，保持本次隔离设备运行，记录运行身份与版本并交给用户人工验收；联调时同时保留实际使用的隔离服务。再次打开时复用同一环境和数据，不重装或重新准备 fixture。
+9. 整理脱敏证据，切回正常 App，保持本次隔离设备运行并记录身份与版本，供人工验收。联调时同时保留实际使用的隔离服务。再次打开时复用同一环境和数据，不重装或重新准备 fixture。
    仅联调且 Cloud 有 web 前端时，交接同一源码版本的网页与实际 QA API；打开浏览器，用本次私有账号登录，选中与 App 一致的账本并展示被测对象。登录凭证不打印或进入公开包，保留页面供用户继续操作。
-10. 关联 PR 全部确认已合并后，默认视为本轮验收结束，立即停止并删除本轮拥有的测试环境，无需再等待用户确认关闭。用户提前确认验收结束或要求完整清理时也执行；用户明确要求继续保留环境时遵从该要求。仅创建 PR、输出报告或结束聊天仍需保留人工验收环境。按清理参考核对身份，删除临时数据库、附件、备份、源码副本、构建产物、专用浏览器 profile 和模拟器本身，只保留 run 外的独立报告、ZIP 与最小清理回执；不能只执行保留数据的 `stop`。
+10. 保存 run 外的已校验报告和 PR 交接记录。有已授权的目标 PR 时，在同一轮自动发布 ZIP 与代表截图并回下载核验。用户同时授权开 PR 时，创建后接着发布，无需再调用一次 skill。人工验收环境保留至所有关联 PR 合并，或用户提前结束验收。确认合并后立即按[完整清理](references/cleanup.md)回收，明确要求继续保留时遵从该要求。
 
 ## 失败与报告
 
@@ -63,6 +63,6 @@ metadata:
 
 清理前确认独立报告和 ZIP 已保存在 run 外并通过校验。已发布的包保持原内容与 SHA256；清理状态另写最小回执，记录关联 PR 合并状态、已删除资源与结果。交付时明确环境已删除，不能继续将旧地址作为可用验收入口。
 
-用户授权开 PR 时，在描述中记录验收摘要、覆盖范围和关联仓依赖。用户要求将报告或截图附到 PR 时，交给 [BeeCount PR 验收证据 skill](../beecount-pr-qa-evidence/SKILL.md)，传入已校验的 ZIP、代表性截图、实测源码 SHA 和目标 PR。上传及回下载校验复用本次报告。
+PR 正文保留验收摘要、覆盖范围和关联仓依赖。使用 [BeeCount PR 验收证据 skill](../beecount-pr-qa-evidence/SKILL.md) 发布已校验的 ZIP、代表性截图和实测源码 SHA。
 
 此 skill 不扩展合并、发版、部署或回复他人的权限；不为报告创建应用发版，按当前用户指令结束工作。

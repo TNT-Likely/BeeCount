@@ -1,4 +1,4 @@
 interface:
   display_name: "BeeCount 隔离验收"
   short_description: "按改动范围隔离验收 BeeCount，纯 App 本地验证，Cloud 联调按需启用"
-  default_prompt: "使用 $isolated-app-cloud-qa 按改动范围验收当前 BeeCount 功能：纯 App 使用独立设备和本地数据，仅需要联调时启动 Cloud，并交付真实证据。"
+  default_prompt: "使用 $isolated-app-cloud-qa 按改动范围验收当前 BeeCount 功能，向已授权的 PR 发布报告和截图，并在关联 PR 合并后清理隔离环境。"

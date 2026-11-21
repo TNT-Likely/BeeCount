@@ -81,7 +81,7 @@ python3 scripts/qa/notification_badge_check.py --run "$qa_run_dir"
 
 打开 QA Cloud 的浏览器页面，使用本次私有凭证登录和 App 相同的 QA 账号，选中同一账本并展示交易列表。凭证只在内存与授权的 QA 登录表单中使用，不打印到聊天、日志或公开报告。保留登录页面供用户继续操作；自动验收、浏览器页面查看与用户人工验收分开记录。
 
-自动验收或报告打包完成后保持本地服务和模拟器运行。交付时说明 App 入口、Cloud 地址、run 身份及版本，标记等待用户验收。关联 PR 全部确认已合并后，默认视为本轮验收结束，立即停止并完整删除测试环境，无需再次等待关闭确认；用户提前确认验收结束或要求完整清理时也执行，明确要求继续保留环境时除外。
+自动验收或报告打包完成后保持本地服务和模拟器运行。交付时说明 App 入口、Cloud 地址、run 身份及版本，并按 [PR 验收交接](../../.agents/skills/isolated-app-cloud-qa/references/pr-lifecycle.md) 保存本机轮次记录。接续合并时按 PR 查找记录，确认所有关联 PR 已合并后立即清理。用户提前结束验收或要求完整清理时也执行，明确要求继续保留环境时除外。
 
 以下命令只用于临时停止，不属于完整清理：
 
@@ -122,6 +122,6 @@ python3 scripts/qa/isolated_app_cloud.py stop --run "$qa_run_dir"
 
 报告是自动验收时的证据快照，人工验收后的数据可能变化。报告中单列当前环境交接状态；生成 ZIP 不要求先停止服务，也不能将正在运行的环境写成已清理。
 
-PR 保留简短验收摘要、覆盖范围和相关仓依赖。需要把独立 ZIP 与截图附到 PR 时，交给 [BeeCount PR 验收证据 skill](../../.agents/skills/beecount-pr-qa-evidence/SKILL.md)，使用同一份已校验的报告。
+PR 保留简短验收摘要、覆盖范围和相关仓依赖。已经授权交付目标 PR 时，报告校验后直接使用 [BeeCount PR 验收证据 skill](../../.agents/skills/beecount-pr-qa-evidence/SKILL.md) 发布独立 ZIP 与关键截图，并从 PR 回下载核验。
 
 原始 credential/env 文件、完整日志、App 二进制、数据库和私人备份不得提交。公开报告不含测试密码、token 或私人绝对路径；截图只含本次合成数据。
