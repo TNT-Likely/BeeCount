@@ -1028,6 +1028,9 @@ class _BeeBottomBar extends StatelessWidget {
     );
   }
 
+  EdgeInsets get _tabPadding => EdgeInsets.symmetric(
+      horizontal: l10n.localeName == 'ru' ? 4 : 18, vertical: 6);
+
   Widget _buildTabItem(int index, IconData icon, IconData activeIcon,
       String label, Color inactiveColor,
       {String? dotAnchor}) {
@@ -1041,7 +1044,7 @@ class _BeeBottomBar extends StatelessWidget {
         child: Center(
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
+            padding: _tabPadding,
             decoration: BoxDecoration(
               color: isActive
                   ? primaryColor.withValues(alpha: 0.12)
@@ -1151,7 +1154,7 @@ class _BeeBottomBar extends StatelessWidget {
         child: Center(
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
+            padding: _tabPadding,
             decoration: BoxDecoration(
               color: isActive
                   ? primaryColor.withValues(alpha: 0.12)

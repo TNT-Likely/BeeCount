@@ -80,6 +80,8 @@ class LanguageNotifier extends StateNotifier<Locale?> {
         return l10n.languageEnglish;
       case 'ko':
         return '한국어';
+      case 'ru':
+        return 'Русский';
       default:
         return locale.languageCode;
     }

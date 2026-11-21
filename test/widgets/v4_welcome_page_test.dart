@@ -171,7 +171,7 @@ void main() {
 
   testWidgets('五步导航保留货币和分类草稿，完成前不写数据库', (t) async {
     await open(t);
-    expect(find.byType(BeeOnboardingChoice), findsNWidgets(5));
+    expect(find.byType(BeeOnboardingChoice), findsNWidgets(6));
     await step(t, 1);
     await tap(t, '美元');
     await step(t, 2);
@@ -415,6 +415,32 @@ void main() {
         isNull);
     await close(t);
   });
+  testWidgets('320 深色 140% 可选择俄语，欢迎页页眉和主要动作可读', (t) async {
+    await open(t,
+        size: const Size(320, 568), scale: 1.4, brightness: Brightness.dark);
+    await t.ensureVisible(find.text('Русский'));
+    await tap(t, 'Русский');
+    expect(l(t).localeName, 'ru');
+
+    await step(t, 1);
+    final brand = find.descendant(
+      of: find.byWidgetPredicate(
+          (widget) => widget is BeeOnboardingStep && widget.step == 1),
+      matching: find.text(l(t).appTitle),
+    );
+    final progress = t.getRect(find.text('02 / 05'));
+    expect(t.getRect(brand.first).right, lessThan(progress.left));
+    for (var i = 1; i < 5; i++) {
+      await step(t, i);
+      final label = i == 4 ? l(t).commonFinish : l(t).commonNext;
+      final rect =
+          t.getRect(find.widgetWithText(BeeButton, label).hitTestable());
+      expect(rect.bottom, lessThanOrEqualTo(568));
+      expect(t.takeException(), isNull);
+    }
+    await close(t);
+  });
+
   testWidgets('320深色140%五步均可滚动，主要动作固定可见且无横向溢出', (t) async {
     await open(t,
         size: const Size(320, 568), scale: 1.4, brightness: Brightness.dark);

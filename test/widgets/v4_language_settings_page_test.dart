@@ -85,12 +85,15 @@ void main() {
     await t.pumpAndSettle();
   }
 
-  testWidgets('原五项语言、实际偏好和地区清理，刷新使用新语言文案', (t) async {
+  testWidgets('六项语言、实际偏好和地区清理，刷新使用新语言文案', (t) async {
     await open(t);
-    expect(find.byType(BeeOnboardingChoice), findsNWidgets(5));
+    expect(find.byType(BeeOnboardingChoice), findsNWidgets(6));
+    expect(find.text('Русский'), findsOneWidget);
+    expect(find.text('Russian'), findsOneWidget);
     for (final row in [
       (3, const Locale('en')),
       (2, const Locale('zh', 'TW')),
+      (5, const Locale('ru')),
       (4, const Locale('ko')),
       (1, const Locale('zh'))
     ]) {
@@ -117,22 +120,34 @@ void main() {
     expect(prefs.containsKey('selected_language_country'), isFalse);
     expect(await db.customSelect('SELECT * FROM ledgers').get(), hasLength(1));
     expect(await db.customSelect('SELECT * FROM transactions').get(), isEmpty);
-    expect(renderer.updates, hasLength(5));
+    expect(renderer.updates, hasLength(6));
     await t.pumpWidget(const SizedBox.shrink());
   });
-  testWidgets('重新创建Provider从真实偏好恢复英语选中态', (t) async {
+  testWidgets('重新创建Provider从真实偏好恢复俄语选中态', (t) async {
     await open(t);
-    await choose(t, 3);
+    await choose(t, 5);
     await t.pumpWidget(const SizedBox.shrink());
     container.dispose();
     container = makeContainer();
     await open(t);
-    expect(container.read(languageProvider), const Locale('en'));
-    expect(find.text(lookupAppLocalizations(const Locale('en')).languageTitle),
-        findsOneWidget);
+    expect(container.read(languageProvider), const Locale('ru'));
+    final translated = lookupAppLocalizations(const Locale('ru'));
+    expect(find.text(translated.languageTitle), findsOneWidget);
+    expect(
+      [0, 1, 2, 5, 11, 21, 22].map(translated.searchResultsCount),
+      [
+        '0 результатов',
+        '1 результат',
+        '2 результата',
+        '5 результатов',
+        '11 результатов',
+        '21 результат',
+        '22 результата',
+      ],
+    );
     expect(
         t
-            .widget<BeeOnboardingChoice>(find.byType(BeeOnboardingChoice).at(3))
+            .widget<BeeOnboardingChoice>(find.byType(BeeOnboardingChoice).at(5))
             .selected,
         isTrue);
     await t.pumpWidget(const SizedBox.shrink());

@@ -334,16 +334,37 @@
   "searchBatchChangeCategory": "Change Category",
   "searchBatchDeleteConfirmTitle": "Confirm Delete",
   "searchBatchDeleteConfirmMessage": "Are you sure you want to delete the selected {count} transactions?\nThis action cannot be undone.",
+  "@searchBatchDeleteConfirmMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "searchBatchSetNoteTitle": "Batch Set Note",
   "searchBatchSetNoteMessage": "Set the same note for the selected {count} transactions",
   "searchBatchSetNoteHint": "Enter note content (leave empty to clear notes)",
   "searchBatchDeleteSuccess": "Successfully deleted {count} transactions",
+  "@searchBatchDeleteSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "searchBatchDeleteFailed": "Delete failed: {error}",
   "searchBatchSetNoteSuccess": "Successfully set note for {count} transactions",
   "searchBatchSetNoteFailed": "Set note failed: {error}",
   "searchBatchChangeCategorySuccess": "Successfully changed category for {count} transactions",
   "searchBatchChangeCategoryFailed": "Change category failed: {error}",
   "searchResultsCount": "{count} results",
+  "@searchResultsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "searchSummaryIncome": "Income total",
   "searchSummaryExpense": "Expense total",
   "searchFilterTitle": "Filter",
@@ -605,6 +626,13 @@
   "importCancelled": "Import Cancelled",
   "importCompleted": "Import Completed{cancelled}, success {ok}, failed {fail}",
   "importSkippedNonTransactionTypes": "Skipped {count} non-transaction records (debts, etc.)",
+  "@importSkippedNonTransactionTypes": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "importTransactionFailed": "Import failed, all changes have been rolled back: {error}",
   "importFileOpenError": "Unable to open file picker: {error}",
   "@importFileOpenError": {
@@ -976,14 +1004,35 @@
   "categoryCreated": "Category \"{name}\" created",
   "categoryCannotDelete": "Cannot delete",
   "categoryCannotDeleteMessage": "This category has {count} transaction records. Please handle them first.",
+  "@categoryCannotDeleteMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "categoryShare": "Share Categories",
   "categoryImport": "Import Categories",
   "categoryClearUnused": "Clear Unused Categories",
   "categoryClearUnusedTitle": "Clear Unused Categories",
   "categoryClearUnusedMessage": "Are you sure you want to delete {count} unused categories? This action cannot be undone.",
+  "@categoryClearUnusedMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "categoryClearUnusedListTitle": "Categories to be deleted:",
   "categoryClearUnusedEmpty": "No unused categories",
   "categoryClearUnusedSuccess": "Deleted {count} categories",
+  "@categoryClearUnusedSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "categoryClearUnusedFailed": "Clear failed",
   "categoryShareScopeTitle": "Select Scope",
   "categoryShareScopeExpense": "Expense categories only",
@@ -3740,14 +3789,18 @@
   "recalcForeignTxDone": "Reconverted {count} foreign-currency transactions",
   "@recalcForeignTxDone": {
     "placeholders": {
-      "count": {}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "txCurrencyPickerTitle": "Select currency",
   "recalcSyncCountHint": "{count} transactions will be reconverted and synced",
   "@recalcSyncCountHint": {
     "placeholders": {
-      "count": {}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "exportCsvHeaderCurrency": "Currency",

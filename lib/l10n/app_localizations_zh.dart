@@ -587,7 +587,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get searchBatchDeleteConfirmTitle => '确认删除';
 
   @override
-  String searchBatchDeleteConfirmMessage(Object count) {
+  String searchBatchDeleteConfirmMessage(int count) {
     return '确定要删除选中的 $count 笔记账吗?\n此操作无法撤销。';
   }
 
@@ -603,7 +603,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get searchBatchSetNoteHint => '输入备注内容 (留空则清空备注)';
 
   @override
-  String searchBatchDeleteSuccess(Object count) {
+  String searchBatchDeleteSuccess(int count) {
     return '成功删除 $count 笔记账';
   }
 
@@ -633,7 +633,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String searchResultsCount(Object count) {
+  String searchResultsCount(int count) {
     return '共 $count 条结果';
   }
 
@@ -1195,7 +1195,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String importSkippedNonTransactionTypes(Object count) {
+  String importSkippedNonTransactionTypes(int count) {
     return '跳过 $count 条非收支记录（债务等）';
   }
 
@@ -2118,7 +2118,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get categoryCannotDelete => '无法删除';
 
   @override
-  String categoryCannotDeleteMessage(Object count) {
+  String categoryCannotDeleteMessage(int count) {
     return '该分类下还有 $count 笔交易记录，请先处理这些记录。';
   }
 
@@ -2135,7 +2135,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get categoryClearUnusedTitle => '清空未使用分类';
 
   @override
-  String categoryClearUnusedMessage(Object count) {
+  String categoryClearUnusedMessage(int count) {
     return '确定要删除 $count 个未使用的分类吗？此操作无法撤销。';
   }
 
@@ -2146,7 +2146,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get categoryClearUnusedEmpty => '没有未使用的分类';
 
   @override
-  String categoryClearUnusedSuccess(Object count) {
+  String categoryClearUnusedSuccess(int count) {
     return '已删除 $count 个分类';
   }
 
@@ -7699,7 +7699,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get recalcForeignTxAction => '按当前汇率重算折算';
 
   @override
-  String recalcForeignTxDone(Object count) {
+  String recalcForeignTxDone(int count) {
     return '已重算 $count 笔外币交易的折算值';
   }
 
@@ -7707,7 +7707,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get txCurrencyPickerTitle => '选择币种';
 
   @override
-  String recalcSyncCountHint(Object count) {
+  String recalcSyncCountHint(int count) {
     return '将重算并同步 $count 笔交易';
   }
 
@@ -10026,7 +10026,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get searchBatchDeleteConfirmTitle => '確認刪除';
 
   @override
-  String searchBatchDeleteConfirmMessage(Object count) {
+  String searchBatchDeleteConfirmMessage(int count) {
     return '確定要刪除選中的 $count 筆記帳嗎?\n此操作無法復原。';
   }
 
@@ -10042,7 +10042,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get searchBatchSetNoteHint => '輸入備註內容 (留空則清空備註)';
 
   @override
-  String searchBatchDeleteSuccess(Object count) {
+  String searchBatchDeleteSuccess(int count) {
     return '成功刪除 $count 筆記帳';
   }
 
@@ -10072,7 +10072,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   }
 
   @override
-  String searchResultsCount(Object count) {
+  String searchResultsCount(int count) {
     return '共 $count 條結果';
   }
 
@@ -10634,7 +10634,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   }
 
   @override
-  String importSkippedNonTransactionTypes(Object count) {
+  String importSkippedNonTransactionTypes(int count) {
     return '跳過 $count 條非收支記錄（債務等）';
   }
 
@@ -11557,7 +11557,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get categoryCannotDelete => '無法刪除';
 
   @override
-  String categoryCannotDeleteMessage(Object count) {
+  String categoryCannotDeleteMessage(int count) {
     return '該分類下還有 $count 筆交易記錄，請先處理這些記錄。';
   }
 
@@ -11574,7 +11574,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get categoryClearUnusedTitle => '清空未使用分類';
 
   @override
-  String categoryClearUnusedMessage(Object count) {
+  String categoryClearUnusedMessage(int count) {
     return '確定要刪除 $count 個未使用的分類嗎？此操作無法撤銷。';
   }
 
@@ -11585,7 +11585,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get categoryClearUnusedEmpty => '沒有未使用的分類';
 
   @override
-  String categoryClearUnusedSuccess(Object count) {
+  String categoryClearUnusedSuccess(int count) {
     return '已刪除 $count 個分類';
   }
 
@@ -17138,7 +17138,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get recalcForeignTxAction => '按當前匯率重算折算';
 
   @override
-  String recalcForeignTxDone(Object count) {
+  String recalcForeignTxDone(int count) {
     return '已重算 $count 筆外幣交易的折算值';
   }
 
@@ -17146,7 +17146,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get txCurrencyPickerTitle => '選擇幣種';
 
   @override
-  String recalcSyncCountHint(Object count) {
+  String recalcSyncCountHint(int count) {
     return '將重算並同步 $count 筆交易';
   }
 
