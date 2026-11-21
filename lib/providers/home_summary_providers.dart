@@ -1,21 +1,31 @@
+import 'package:beecount_business_ui/beecount_business_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Device-local, explicitly chosen layout. Existing installs keep the long card.
 const homeCompactSummaryKey = 'v4_home_compact_summary';
-final homeCompactSummaryProvider = StateProvider<bool>((ref) => false);
+const homeSummaryStyleKey = 'v4_home_summary_style';
+final homeSummaryStyleProvider =
+    StateProvider<BeeHomeSummaryStyle>((ref) => BeeHomeSummaryStyle.full);
 final homeSummaryPreferenceInitProvider = FutureProvider<void>((ref) async {
   final preferences = await SharedPreferences.getInstance();
-  ref.read(homeCompactSummaryProvider.notifier).state =
-      preferences.getBool(homeCompactSummaryKey) ?? false;
+  final style = switch (preferences.get(homeSummaryStyleKey)) {
+    'full' => BeeHomeSummaryStyle.full,
+    'compact' => BeeHomeSummaryStyle.compact,
+    'sliding' => BeeHomeSummaryStyle.sliding,
+    _ => preferences.get(homeCompactSummaryKey) == true
+        ? BeeHomeSummaryStyle.compact
+        : BeeHomeSummaryStyle.full,
+  };
+  ref.read(homeSummaryStyleProvider.notifier).state = style;
 });
 
-Future<void> setHomeCompactSummary(WidgetRef ref, bool compact) async {
+Future<void> setHomeSummaryStyle(
+    WidgetRef ref, BeeHomeSummaryStyle style) async {
   // Finish restoration before a user choice, so late initialization cannot
   // overwrite the click. Startup also awaits this before preparing Home.
   await ref.read(homeSummaryPreferenceInitProvider.future);
   if (!ref.context.mounted) return;
-  ref.read(homeCompactSummaryProvider.notifier).state = compact;
+  ref.read(homeSummaryStyleProvider.notifier).state = style;
   final preferences = await SharedPreferences.getInstance();
-  await preferences.setBool(homeCompactSummaryKey, compact);
+  await preferences.setString(homeSummaryStyleKey, style.name);
 }

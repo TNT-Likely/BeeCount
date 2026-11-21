@@ -4772,6 +4772,19 @@
   "v4HomeBudgetAvailable": "Budget left",
   "v4HomeUseCompactSummary": "Use compact summary",
   "v4HomeUseStandardSummary": "Use full summary",
+  "v4HomeSummaryStyle": "Summary style",
+  "v4HomeSummaryFull": "Full",
+  "v4HomeSummaryCompact": "Compact",
+  "v4HomeSummarySliding": "Sliding",
+  "v4HomeSummaryStyleOption": "{style} summary",
+  "@v4HomeSummaryStyleOption": {
+    "placeholders": {
+      "style": { "type": "String" }
+    }
+  },
+  "v4HomeSummaryFullDescription": "Emphasizes spending above income, balance, and budget",
+  "v4HomeSummaryCompactDescription": "Shows the budget ring with spending, income, and balance",
+  "v4HomeSummarySlidingDescription": "Keeps the budget ring in place while you swipe between totals",
   "v4HomeBudgetExceeded": "Over",
   "recordingProgressSaving": "Recording your entries",
   "recordingProgressRecognizing": "Reading your bill",

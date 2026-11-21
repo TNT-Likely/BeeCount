@@ -7,11 +7,12 @@ class BeeMenuAction<T> {
       {required this.value,
       required this.label,
       this.icon,
+      this.trailing,
       this.enabled = true,
       this.danger = false});
   final T value;
   final String label;
-  final Widget? icon;
+  final Widget? icon, trailing;
   final bool enabled, danger;
 }
 
@@ -39,12 +40,17 @@ Future<T?> showBeeContextMenu<T>(BuildContext context,
                   const SizedBox(width: 10)
                 ],
                 Flexible(
+                    fit: item.trailing == null ? FlexFit.loose : FlexFit.tight,
                     child: Text(item.label,
                         style: TextStyle(
                             fontSize: 13,
                             color: item.danger
                                 ? Theme.of(context).colorScheme.error
-                                : null)))
+                                : null))),
+                if (item.trailing != null) ...[
+                  const SizedBox(width: 12),
+                  item.trailing!,
+                ],
               ])))
           .toList());
 }

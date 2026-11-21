@@ -668,7 +668,7 @@ void main() {
     });
   }
 
-  testWidgets('首页更多手动切换完整和紧凑汇总，持久化且不重建明细或改数据', (tester) async {
+  testWidgets('首页更多选择三种汇总样式，可取消且不重建明细或改数据', (tester) async {
     final original = await repo.getTransactionsByLedger(1);
     tester.view.physicalSize = const Size(398, 900);
     tester.view.devicePixelRatio = 1;
@@ -688,16 +688,44 @@ void main() {
             home: const HomePage())));
     await tester.pumpAndSettle();
     final l = AppLocalizations.of(tester.element(find.byType(HomePage)));
-    expect(tester.widget<BeeSummaryCard>(find.byType(BeeSummaryCard)).compact,
-        false);
+    final card = find.byType(BeeSummaryCard);
+    expect(tester.widget<BeeSummaryCard>(card).style, BeeHomeSummaryStyle.full);
     final feed =
         tester.state<TransactionListState>(find.byType(TransactionList));
-    await tester.tap(find.byType(BeeMenuButton<String>));
+
+    Future<void> openStyles(String current) async {
+      await tester.tap(find.byType(BeeMenuButton<String>));
+      await tester.pumpAndSettle();
+      expect(find.text(current), findsOneWidget);
+      await tester.tap(find.text(l.v4HomeSummaryStyle));
+      await tester.pumpAndSettle();
+      expect(find.byType(BeeSheet), findsOneWidget);
+      expect(
+          tester
+              .widget<BeeMenuRow>(find.widgetWithText(
+                  BeeMenuRow, l.v4HomeSummaryStyleOption(current)))
+              .selected,
+          true);
+    }
+
+    Future<void> pick(String label) async {
+      await tester.tap(find.text(l.v4HomeSummaryStyleOption(label)));
+      await tester.pumpAndSettle();
+      expect(find.byType(BeeSheet), findsNothing);
+    }
+
+    await openStyles(l.v4HomeSummaryFull);
+    await tester.tap(find.byType(CloseButton));
     await tester.pumpAndSettle();
-    await tester.tap(find.text(l.v4HomeUseCompactSummary));
-    await tester.pumpAndSettle();
-    var summary = tester.widget<BeeSummaryCard>(find.byType(BeeSummaryCard));
-    expect(summary.compact, true);
+    expect(tester.widget<BeeSummaryCard>(card).style, BeeHomeSummaryStyle.full);
+    expect((await SharedPreferences.getInstance()).get(homeSummaryStyleKey),
+        isNull);
+
+    await openStyles(l.v4HomeSummaryFull);
+    await pick(l.v4HomeSummaryCompact);
+    final summary = tester.widget<BeeSummaryCard>(card);
+    final compactHeight = tester.getSize(card).height;
+    expect(summary.style, BeeHomeSummaryStyle.compact);
     expect(summary.income, '12,000.00');
     expect(summary.expense, '8,713.50');
     expect(summary.currencyLabel, 'CNY');
@@ -712,8 +740,14 @@ void main() {
             tester.state<TransactionListState>(find.byType(TransactionList))),
         true);
     expect(
-        (await SharedPreferences.getInstance()).getBool(homeCompactSummaryKey),
-        true);
+        (await SharedPreferences.getInstance()).getString(homeSummaryStyleKey),
+        'compact');
+    await openStyles(l.v4HomeSummaryCompact);
+    await pick(l.v4HomeSummarySliding);
+    expect(
+        tester.widget<BeeSummaryCard>(card).style, BeeHomeSummaryStyle.sliding);
+    expect(tester.getSize(card).height, lessThan(compactHeight));
+    expect(find.byType(PageView), findsOneWidget);
     await tester.tap(find.bySemanticsLabel(l.v4AmountsHide).first);
     await tester.pumpAndSettle();
     expect(
@@ -721,19 +755,19 @@ void main() {
             .widget<BeeHomeBudgetIndicator>(find.byType(BeeHomeBudgetIndicator))
             .value,
         '••');
-    await tester.tap(find.byType(BeeMenuButton<String>));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text(l.v4HomeUseStandardSummary));
-    await tester.pumpAndSettle();
-    summary = tester.widget<BeeSummaryCard>(find.byType(BeeSummaryCard));
-    expect(summary.compact, false);
+    expect(
+        (await SharedPreferences.getInstance()).getString(homeSummaryStyleKey),
+        'sliding');
+    await openStyles(l.v4HomeSummarySliding);
+    await pick(l.v4HomeSummaryFull);
+    expect(tester.widget<BeeSummaryCard>(card).style, BeeHomeSummaryStyle.full);
     expect(
         identical(feed,
             tester.state<TransactionListState>(find.byType(TransactionList))),
         true);
     expect(
-        (await SharedPreferences.getInstance()).getBool(homeCompactSummaryKey),
-        false);
+        (await SharedPreferences.getInstance()).getString(homeSummaryStyleKey),
+        'full');
     expect(
         (await repo.getTransactionsByLedger(1)).map((t) => t.toJson()).toList(),
         original.map((t) => t.toJson()).toList());
@@ -741,16 +775,25 @@ void main() {
     await close(tester);
   });
 
-  test('首页汇总偏好默认为长版，保存后重建容器仍恢复手动选择', () async {
-    expect(container.read(homeCompactSummaryProvider), false);
+  test('首页汇总样式兼容旧偏好，新样式优先且无效值回退', () async {
+    expect(container.read(homeSummaryStyleProvider), BeeHomeSummaryStyle.full);
     await container.read(homeSummaryPreferenceInitProvider.future);
-    expect(container.read(homeCompactSummaryProvider), false);
+    expect(container.read(homeSummaryStyleProvider), BeeHomeSummaryStyle.full);
     final preferences = await SharedPreferences.getInstance();
     await preferences.setBool(homeCompactSummaryKey, true);
     final restored = ProviderContainer();
     try {
       await restored.read(homeSummaryPreferenceInitProvider.future);
-      expect(restored.read(homeCompactSummaryProvider), true);
+      expect(
+          restored.read(homeSummaryStyleProvider), BeeHomeSummaryStyle.compact);
+      await preferences.setString(homeSummaryStyleKey, 'sliding');
+      await restored.refresh(homeSummaryPreferenceInitProvider.future);
+      expect(
+          restored.read(homeSummaryStyleProvider), BeeHomeSummaryStyle.sliding);
+      await preferences.setString(homeSummaryStyleKey, 'unknown');
+      await restored.refresh(homeSummaryPreferenceInitProvider.future);
+      expect(
+          restored.read(homeSummaryStyleProvider), BeeHomeSummaryStyle.compact);
     } finally {
       restored.dispose();
     }

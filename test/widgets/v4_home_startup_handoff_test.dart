@@ -152,13 +152,18 @@ void main() {
     logger.disposeForTesting();
   }
 
-  for (final compact in [false, true]) {
+  for (final style in BeeHomeSummaryStyle.values) {
     testWidgets(
         'startup stays on Splash; its first Home frame consumes complete '
-        '20 rows and full count/day totals without a second preview or spinner compact=$compact',
+        '20 rows and full count/day totals without a second preview or spinner style=$style',
         (tester) async {
       final preferences = await SharedPreferences.getInstance();
-      await preferences.setBool(homeCompactSummaryKey, compact);
+      if (style == BeeHomeSummaryStyle.sliding) {
+        await preferences.setString(homeSummaryStyleKey, style.name);
+      } else {
+        await preferences.setBool(
+            homeCompactSummaryKey, style == BeeHomeSummaryStyle.compact);
+      }
       repo.previewGate = Completer<void>();
       repo.fullGate = Completer<void>();
       repo.failSecondPreview = true;
@@ -172,8 +177,8 @@ void main() {
       repo.previewGate!.complete();
       await waitForHome(tester);
       expect(find.byType(SplashPage), findsNothing);
-      expect(tester.widget<BeeSummaryCard>(find.byType(BeeSummaryCard)).compact,
-          compact);
+      expect(tester.widget<BeeSummaryCard>(find.byType(BeeSummaryCard)).style,
+          style);
       expect(
           find
               .byWidgetPredicate((widget) =>

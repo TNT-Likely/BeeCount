@@ -9317,6 +9317,32 @@ class AppLocalizationsKo extends AppLocalizations {
   String get v4HomeUseStandardSummary => 'Use full summary';
 
   @override
+  String get v4HomeSummaryStyle => 'Summary style';
+
+  @override
+  String get v4HomeSummaryFull => 'Full';
+
+  @override
+  String get v4HomeSummaryCompact => 'Compact';
+
+  @override
+  String get v4HomeSummarySliding => 'Sliding';
+
+  @override
+  String v4HomeSummaryStyleOption(String style) {
+    return '$style summary';
+  }
+
+  @override
+  String get v4HomeSummaryFullDescription => 'Emphasizes spending above income, balance, and budget';
+
+  @override
+  String get v4HomeSummaryCompactDescription => 'Shows the budget ring with spending, income, and balance';
+
+  @override
+  String get v4HomeSummarySlidingDescription => 'Keeps the budget ring in place while you swipe between totals';
+
+  @override
   String get v4HomeBudgetExceeded => 'Over';
 
   @override
