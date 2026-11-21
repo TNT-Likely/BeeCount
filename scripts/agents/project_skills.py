@@ -12,7 +12,7 @@ import re
 import shutil
 import subprocess
 
-SKILLS = ('beecount-release', 'isolated-app-cloud-qa')
+SKILLS = ('beecount-release', 'isolated-app-cloud-qa', 'beecount-pr-qa-evidence')
 CLIENT_ROOTS = ('.agents/skills', '.claude/skills')
 SOURCE_REPO = Path(__file__).resolve().parents[2]
 
@@ -159,7 +159,7 @@ def uninstall(project: Path, dry_run: bool) -> None:
 def migrate_global(project: Path, source: Path, backup_dir: Path | None, dry_run: bool) -> None:
     status(project, source)  # 项目级入口可读后，才迁走旧全局安装。
     home = Path.home()
-    names = (*SKILLS, 'release')
+    names = ('beecount-release', 'isolated-app-cloud-qa', 'release')
     roots = (home / '.codex/skills', home / '.agents/skills', home / '.claude/skills')
     candidates = []
     for root in roots:

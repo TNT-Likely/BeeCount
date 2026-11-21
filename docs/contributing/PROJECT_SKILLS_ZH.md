@@ -1,6 +1,6 @@
 # BeeCount 项目 skill
 
-BeeCount 定制的发布与隔离验收流程随项目维护，不再通过 honeycomb 或用户级 skill 分发。
+BeeCount 的发布、隔离验收和 PR 验收证据交付流程随项目维护。
 
 ## 一份源码，两个客户端入口
 
@@ -8,10 +8,11 @@ BeeCount 定制的发布与隔离验收流程随项目维护，不再通过 hone
 |---|---|
 | 发布流程源码 | `.agents/skills/beecount-release/` |
 | 隔离验收源码 | `.agents/skills/isolated-app-cloud-qa/` |
+| PR 验收证据源码 | `.agents/skills/beecount-pr-qa-evidence/` |
 | Codex 项目发现 | `.agents/skills/<name>/SKILL.md`，直接读取源码 |
 | Claude Code 项目发现 | `.claude/skills/<name>`，相对链接到同一份源码 |
 
-克隆 BeeCount 后，这两个入口随仓库到位。进入该仓启动新会话：Codex 可使用 `$beecount-release`、`$isolated-app-cloud-qa`；Claude Code 可使用 `/beecount-release`、`/isolated-app-cloud-qa`。也可按任务自动选择。旧通用名称 `release` 不再作为本项目入口。
+克隆 BeeCount 后，进入该仓启动新会话。Codex 可用 `$beecount-release`、`$isolated-app-cloud-qa`、`$beecount-pr-qa-evidence`，Claude Code 可用同名斜杠命令。也可按任务自动选择。
 
 skill 使用标准 `name` / `description` frontmatter、相对 references 和可选 Codex UI 元数据。流程正文不依赖特定客户端的交互工具，不安装 MCP、hook 或 plugin；需要什么授权按当前用户请求决定。读取到 skill 不代表发布或验收已经执行。
 
@@ -19,7 +20,7 @@ Codex 与 Claude Code 均支持项目 skill 目录及目录符号链接，依据
 
 ## 在 Cloud / Website 使用
 
-这两个技能跨 BeeCount 家族仓库工作；源码仍只维护在 BeeCount。安装器将同一源目录引用到明确指定的项目，不写用户级目录：
+这些 skill 可用于 BeeCount 家族仓库。源码集中维护在 BeeCount，安装器将源目录引用到指定项目的 skill 目录。
 
 ```sh
 python3 scripts/agents/project_skills.py install --project ../BeeCount-Cloud
