@@ -579,6 +579,9 @@ BeeCount officially maintains 3 languages (Simplified Chinese, Traditional Chine
 **Community-contributed:**
 
 - 한국어 / Korean (ko)
+- Русский / Russian (ru)
+
+Korean and Russian translations are updated through community contributions. Missing strings fall back to English. Pull requests to add or improve translations are welcome.
 
 ### Adding a New Language
 

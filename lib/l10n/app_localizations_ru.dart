@@ -2369,7 +2369,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get categoryExpenseList => 'Питание-Транспорт-Покупки-Развлечения-Дом-Семья-Связь-Коммуналка-Жильё-Медицина-Образование-Питомцы-Спорт-Электроника-Путешествия-Алкоголь-Малыш-Красота-Ремонт-Общение-Учёба-Автомобиль-Такси-Метро-Доставка-Квартплата-Парковка-Донаты-Подарки-Налоги-Напитки-Одежда-Перекусы-Конверты-Фрукты-Игры-Книги-Партнёр-Отделка-Хозтовары-Лотереи-Акции-Соцстрах-Курьер-Работа';
 
   @override
-  String get categoryIncomeList => 'Зарплата-Сбережения-Конверты-Премии-Возмещение-Подработка-Подарки-Проценты-Возврат-Инвестиции-Перепродажа-Соцвыплаты-Возвраты-Жилфонд';
+  String get categoryIncomeList => 'Зарплата-Сбережения-Конверты-Премии-Возмещение-Подработка-Подарки-Проценты-Возврат-Инвестиции-Перепродажа-Соцвыплаты-Возврат налогов-Жилфонд';
 
   @override
   String get categoryExpenseDining => 'Питание-Завтрак-Обед-Ужин-Meituan-Ele.me-JD-Рестораны-Еда';
@@ -2474,7 +2474,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get categoryIncomeSocialBenefit => 'Соцвыплаты-Безработица-Декретные-Прочие';
 
   @override
-  String get categoryIncomeTaxRefund => 'Возвраты-Подоходный-Сборы';
+  String get categoryIncomeTaxRefund => 'Возврат налогов-Возврат НДФЛ-Прочие возвраты';
 
   @override
   String get categoryIncomeProvidentFund => 'Жилфонд-Снятие-Проценты';

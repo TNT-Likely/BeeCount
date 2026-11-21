@@ -37,37 +37,52 @@ class BeeOnboardingStep extends StatelessWidget {
                 child: Column(children: [
                   SizedBox(
                       height: 54,
-                      child: Stack(alignment: Alignment.center, children: [
-                        Row(mainAxisSize: MainAxisSize.min, children: [
-                          BeeBrandMark(
-                              size: 38,
-                              corner: 13,
-                              background: BeeCardTheme.of(context).surface,
-                              mark: illustration),
-                          const SizedBox(width: 10),
-                          Flexible(
-                              child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                Text(brandTitle,
-                                    style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500)),
-                                Text(brandSubtitle,
-                                    style: TextStyle(
-                                        fontSize: 10,
-                                        letterSpacing: .4,
-                                        color: Theme.of(context).hintColor)),
-                              ])),
-                        ]),
-                        Positioned(
-                            right: 0,
-                            child: Text(
-                                '${(step + 1).toString().padLeft(2, '0')} / ${total.toString().padLeft(2, '0')}',
-                                style: TextStyle(
-                                    fontSize: 11,
-                                    color: Theme.of(context).hintColor))),
+                      child: Row(children: [
+                        Expanded(
+                          child: Center(
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                BeeBrandMark(
+                                    size: 38,
+                                    corner: 13,
+                                    background:
+                                        BeeCardTheme.of(context).surface,
+                                    mark: illustration),
+                                const SizedBox(width: 10),
+                                Flexible(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(brandTitle,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w500)),
+                                      Text(brandSubtitle,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                              fontSize: 10,
+                                              letterSpacing: .4,
+                                              color:
+                                                  Theme.of(context).hintColor)),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                            '${(step + 1).toString().padLeft(2, '0')} / ${total.toString().padLeft(2, '0')}',
+                            style: TextStyle(
+                                fontSize: 11,
+                                color: Theme.of(context).hintColor)),
                       ])),
                   const SizedBox(height: 5),
                   ConstrainedBox(
