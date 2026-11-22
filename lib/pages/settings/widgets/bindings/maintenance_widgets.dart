@@ -48,7 +48,7 @@ class MaintenanceWidgetsControls extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final primaryColor = ref.watch(primaryColorProvider);
+    final primaryColor = ref.watch(displaySkinPrimaryColorProvider);
     final redForIncome = ref.watch(incomeExpenseColorSchemeProvider);
     final dark = BeeTokens.isDark(context);
 

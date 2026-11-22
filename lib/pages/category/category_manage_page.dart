@@ -62,7 +62,7 @@ class _CategoryManagePageState extends ConsumerState<CategoryManagePage>
   Widget build(BuildContext context) {
     final categoriesWithCountAsync = ref.watch(categoriesWithCountProvider);
     final l10n = AppLocalizations.of(context);
-    final primaryColor = ref.watch(primaryColorProvider);
+    final primaryColor = ref.watch(displaySkinPrimaryColorProvider);
 
     return V4PageScaffold(
       body: Column(

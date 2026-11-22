@@ -42,7 +42,7 @@ class LedgerCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final primaryColor = ref.watch(primaryColorProvider);
+    final primaryColor = ref.watch(displaySkinPrimaryColorProvider);
     final l10n = AppLocalizations.of(context);
 
     // 获取同步状态

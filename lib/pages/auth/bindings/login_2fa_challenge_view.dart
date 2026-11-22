@@ -122,7 +122,7 @@ class _Login2FAChallengeDialogState
       verifying: _verifying,
       canSubmit: _canSubmit,
       errorMessage: _errorMessage,
-      primaryColor: ref.watch(primaryColorProvider),
+      primaryColor: ref.watch(displaySkinPrimaryColorProvider),
       foregroundColor: BeeTokens.textPrimary(context),
       secondaryColor: BeeTokens.textSecondary(context),
       hintColor: BeeTokens.textTertiary(context),

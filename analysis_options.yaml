@@ -3,3 +3,4 @@ include: package:flutter_lints/flutter.yaml
 analyzer:
   exclude:
     - .docs/**
+    - tool/official_app/**

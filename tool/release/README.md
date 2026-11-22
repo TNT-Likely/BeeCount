@@ -159,3 +159,11 @@ App Store签名IPA不能直接侧载，安装走TestFlight。Apple处理成功�
 使用 `docs/releases/BETA_TEMPLATE.md`，每版独立文档。`## 更新摘要` 只列相对上一Beta的3–5项用户可见差异，不拼接全部commit。摘要缺失或无效时plan即拒绝。升级注意、待验收范围和反馈issue580另列。
 
 Release禁用自动生成日志，`make_latest=false`，不替代正式Latest。TG沿用已发布正文的同一摘要，最多5项、每项80个Unicode码点，总长最多1400字符/15行，附双端状态、Release与反馈链接，不堆积历史提交。
+
+## iOS 正式包的官方付费皮肤
+
+在 `main` 上手动运行现有的 `Release` 时，可勾选 `official_skins`。iOS job 使用 `ios-app-store` 环境，检出两个私有仓库的 `main`，通过构建目录里的 `pubspec_overrides.yaml` 接入本地 Flutter 包。
+
+`tool/official_app/main.dart` 把私有画面、购买和权益接到主工程的皮肤选择与调节页面。Flutter 自动注册商业包提供的 iOS StoreKit 插件。随后按原流程编译、归档、签名和上传 App Store Connect，官方 IPA 只上传到 Apple。
+
+`official_skins` 默认关闭。普通克隆使用 `lib/main.dart`，可直接运行免费皮肤。构建时可传 `BEECOUNT_SKINS_ENABLED=false` 关闭皮肤，官方入口的 `BEECOUNT_PAID_SKINS_ENABLED` 控制付费合集。
