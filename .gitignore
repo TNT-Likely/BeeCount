@@ -18,8 +18,6 @@ migrate_working_dir/
 !.claude/skills/beecount-release
 !.claude/skills/isolated-app-cloud-qa
 !.claude/skills/beecount-pr-qa-evidence
-AGENTS.md
-CLAUDE.md
 PROJECT_IMPROVEMENTS.md
 assets/config.json
 /marketing/

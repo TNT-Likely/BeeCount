@@ -153,10 +153,10 @@ def instruction_plan(project: Path) -> dict[Path, str]:
     changes = {}
     for filename in ('AGENTS.md', 'CLAUDE.md'):
         path = project / filename
+        if git(project, 'ls-files', '--', filename):
+            continue  # 仓库跟踪的说明由项目维护。
         if path.is_symlink() or (path.exists() and not path.is_file()):
             raise ValueError(f'Expected a regular local instruction file: {filename}')
-        if git(project, 'ls-files', '--', filename):
-            raise ValueError(f'Use an ignored local instruction file: {filename}')
         original = path.read_text() if path.exists() else ''
         block = instruction_block(filename)
         if RULE_BEGIN in original or RULE_END in original:
@@ -180,7 +180,8 @@ def bootstrap(project: Path, source: Path, dry_run: bool) -> None:
     exclude = Path(git(project, 'rev-parse', '--path-format=absolute', '--git-path', 'info/exclude'))
     if not dry_run:
         text = exclude.read_text() if exclude.exists() else ''
-        missing = [f'/{name}' for name in ('AGENTS.md', 'CLAUDE.md') if f'/{name}' not in text.splitlines()]
+        missing = [f'/{name}' for name in ('AGENTS.md', 'CLAUDE.md')
+                   if f'/{name}' not in text.splitlines() and not git(project, 'ls-files', '--', name)]
         if missing:
             exclude.parent.mkdir(parents=True, exist_ok=True)
             with exclude.open('a') as file:
@@ -273,7 +274,8 @@ def main() -> None:
             bootstrap(project, args.source_repo, args.dry_run)
         elif args.action == 'status':
             status(project, args.source_repo)
-            print(json.dumps({path.name: path not in instruction_plan(project)
+            pending_instructions = instruction_plan(project)
+            print(json.dumps({path.name: path.is_file() and path not in pending_instructions
                               for path in (project / 'AGENTS.md', project / 'CLAUDE.md')},
                              ensure_ascii=False, indent=2))
         elif args.action == 'uninstall':
