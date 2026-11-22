@@ -26,7 +26,7 @@ final class AgentBrandMark extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final primary = ref.watch(primaryColorProvider);
+    final primary = ref.watch(displaySkinPrimaryColorProvider);
     final iconSize = size * 0.58;
     final mark = SizedBox.square(
       key: const ValueKey('agent-brand-mark-frame'),

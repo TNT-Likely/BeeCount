@@ -73,3 +73,7 @@ tmp
 
 # 本地设计原型（不提交）
 design-prototypes/
+
+# Local official package checkouts
+/.official/
+/pubspec_overrides.yaml

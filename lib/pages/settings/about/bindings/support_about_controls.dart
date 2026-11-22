@@ -74,7 +74,7 @@ class _SupportAboutControlsState extends ConsumerState<SupportAboutControls> {
     final l = AppLocalizations.of(context),
         locale = Localizations.localeOf(context),
         platform = ref.watch(supportPlatformProvider),
-        primary = ref.watch(primaryColorProvider);
+        primary = ref.watch(displaySkinPrimaryColorProvider);
     final simplified =
         locale.languageCode == 'zh' && locale.countryCode != 'TW';
     Future<bool> open(String url) => platform.open(Uri.parse(url));

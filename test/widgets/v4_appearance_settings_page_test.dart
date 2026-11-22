@@ -2,6 +2,7 @@ import 'package:beecount/data/db.dart';
 import 'package:beecount/data/repositories/local/local_repository.dart';
 import 'package:beecount/l10n/app_localizations.dart';
 import 'package:beecount/models/note_history.dart';
+import 'package:beecount/pages/settings/appearance/skin_editor.dart';
 import 'package:beecount/pages/settings/appearance_settings_page.dart';
 import 'package:beecount/pages/settings/language_settings_page.dart';
 import 'package:beecount/pages/settings/font_settings_page.dart';
@@ -103,7 +104,17 @@ void main() {
     expect(t.getSize(find.byType(BeeSurface).first).height, lessThan(360),
         reason: '新增材质入口后的六行组仍用紧凑分隔，不能混入24px分组间距');
     final s = l(t);
-    expect(find.text(s.appearanceCardMaterial), findsOneWidget);
+    final adjustment =
+        skinAdjustmentTitle(t.element(find.byType(AppearanceSettingsPage)));
+    expect(find.text(adjustment), findsOneWidget);
+    await reveal(t, adjustment);
+    await t.tap(find.text(adjustment));
+    await t.pumpAndSettle();
+    final editor = t.widget<SkinEditor>(find.byType(SkinEditor));
+    expect(editor.editingActive, isTrue);
+    await t.tap(find.byType(CloseButton));
+    await t.pumpAndSettle();
+    expect(find.byType(SkinEditor), findsNothing);
     await choose(t, s.appearanceThemeMode, s.appearanceThemeModeDark);
     expect(container.read(themeModeProvider), ThemeMode.dark);
     expect(prefs.getString('themeMode'), 'dark');
@@ -128,7 +139,6 @@ void main() {
     await t.pumpAndSettle();
     expect(container.read(compactAmountProvider), false);
     for (final pair in [
-      (s.appearanceSkinAnimation, skinAnimationEnabledProvider),
       (s.appearanceShowTransactionTime, showTransactionTimeProvider)
     ]) {
       await reveal(t, pair.$1);

@@ -53,7 +53,7 @@ class CategoryIconWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final primaryColor = ref.watch(primaryColorProvider);
+    final primaryColor = ref.watch(displaySkinPrimaryColorProvider);
     final iconColor = color ?? primaryColor;
 
     // 检查是否有自定义图标

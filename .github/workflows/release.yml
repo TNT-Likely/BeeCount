@@ -7,6 +7,10 @@ on:
       - "!*-beta.*"
   workflow_dispatch:
     inputs:
+      official_skins:
+        description: "在 iOS App Store 包中接入官方付费皮肤"
+        type: boolean
+        default: false
       tag_name:
         description: "Release tag (手动运行可自定义，留空则使用 manual-<short_sha>)"
         required: false
@@ -386,6 +390,9 @@ jobs:
     runs-on: macos-latest
     needs: [check-branch]
     if: always() && !contains(github.ref_name, '-beta.') && !contains(github.event.inputs.tag_name, '-beta.') && needs.check-branch.result == 'success'
+    environment: ${{ inputs.official_skins && 'ios-app-store' || 'ios-standard-release' }}
+    env:
+      OFFICIAL_SKINS: ${{ inputs.official_skins == true }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -450,6 +457,39 @@ jobs:
           key: pub-${{ runner.os }}-${{ env.FLUTTER_VERSION }}-${{ github.sha }}
           restore-keys: |
             pub-${{ runner.os }}-${{ env.FLUTTER_VERSION }}-
+
+      - name: Checkout official skin artwork
+        if: inputs.official_skins
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ secrets.IOS_APP_STORE_SKINS_REPOSITORY }}
+          ref: main
+          path: .official/BeeCount-Skins
+          ssh-key: ${{ secrets.IOS_APP_STORE_SKINS_SSH_KEY }}
+          persist-credentials: false
+
+      - name: Checkout official purchase packages
+        if: inputs.official_skins
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ secrets.IOS_APP_STORE_COMMERCIAL_REPOSITORY }}
+          ref: main
+          path: .official/BeeCount-Commercial
+          ssh-key: ${{ secrets.IOS_APP_STORE_COMMERCIAL_SSH_KEY }}
+          persist-credentials: false
+
+      - name: Use official Flutter path packages
+        if: inputs.official_skins
+        run: |
+          ruby -ryaml - <<'RUBY'
+          overrides = YAML.safe_load(File.read('pubspec.yaml')).fetch('dependency_overrides', {})
+          {
+            'beecount_skins' => '.official/BeeCount-Skins',
+            'beecount_commercial' => '.official/BeeCount-Commercial',
+            'beecount_storekit' => '.official/BeeCount-Commercial/native/storekit'
+          }.each { |name, path| overrides[name] = { 'path' => path } }
+          File.write('pubspec_overrides.yaml', YAML.dump('dependency_overrides' => overrides))
+          RUBY
 
       - name: Flutter pub get
         run: flutter pub get
@@ -585,10 +625,27 @@ jobs:
           export CI_VERSION='${{ steps.meta.outputs.tag_name }}'
           export GIT_COMMIT='${{ github.sha }}'
           export BUILD_TIME='${{ github.run_id }}'
+          official_args=()
+          build_output=/dev/stderr
+          if [[ "$OFFICIAL_SKINS" == true ]]; then
+            if [[ "$IOS_SIGNING_ENABLED" != true ]]; then
+              echo "::error::官方 iOS 包需要原 Release 签名配置"
+              exit 1
+            fi
+            official_args=(--target tool/official_app/main.dart
+              --dart-define=BEECOUNT_PAID_SKINS_ENABLED=true
+              --dart-define=BEECOUNT_SKIN_SALES=true
+              --dart-define=BEECOUNT_SKIN_PRODUCTION_SALES=true)
+            build_output="$RUNNER_TEMP/official-ios-build.log"
+          fi
           flutter build ios --release --no-codesign \
+            "${official_args[@]}" \
             --dart-define=CI_VERSION="$CI_VERSION" \
             --dart-define=GIT_COMMIT="$GIT_COMMIT" \
-            --dart-define=BUILD_TIME="$BUILD_TIME"
+            --dart-define=BUILD_TIME="$BUILD_TIME" > "$build_output" 2>&1 || {
+              echo "::error::iOS 编译失败"
+              exit 1
+            }
 
       - name: Configure Xcode project for signing
         if: env.IOS_SIGNING_ENABLED == 'true'
@@ -635,23 +692,24 @@ jobs:
         run: |
           echo "📦 Building iOS archive..."
 
-          # Archive the app (只显示错误和警告,减少日志噪音)
-          # 完全依赖project.pbxproj中的配置
-          if xcodebuild archive \
+          result=0
+          xcodebuild archive \
             -workspace ios/Runner.xcworkspace \
             -scheme Runner \
             -configuration Release \
             -archivePath build/ios/Runner.xcarchive \
-            -quiet \
-            2>&1 | grep -E "error:|warning:|note:|failed|succeeded" | tee xcodebuild-archive.log; then
+            -quiet > xcodebuild-archive.log 2>&1 || result=$?
 
-            echo "✅ Archive created successfully"
-            ls -lh build/ios/Runner.xcarchive/Products/Applications/ 2>/dev/null || true
-          else
-            echo "❌ Archive failed! Full log:"
-            cat xcodebuild-archive.log
-            exit 1
+          if [[ "$OFFICIAL_SKINS" != true ]]; then
+            grep -E "error:|warning:|note:|failed|succeeded" xcodebuild-archive.log || true
           fi
+          if [[ "$result" != 0 ]]; then
+            echo "::error::iOS 归档失败"
+            exit "$result"
+          fi
+
+          echo "✅ Archive created successfully"
+          ls -lh build/ios/Runner.xcarchive/Products/Applications/ 2>/dev/null || true
 
       - name: Export IPA from archive
         if: env.IOS_SIGNING_ENABLED == 'true'
@@ -714,6 +772,7 @@ jobs:
           security delete-keychain $RUNNER_TEMP/app-signing.keychain-db || true
 
       - name: Build iOS (debug simulator, unsigned)
+        if: '!inputs.official_skins'
         run: |
           export CI_VERSION='${{ steps.meta.outputs.tag_name }}'
           export GIT_COMMIT='${{ github.sha }}'
@@ -724,6 +783,7 @@ jobs:
             --dart-define=BUILD_TIME="$BUILD_TIME"
 
       - name: Package iOS Runner.app (unsigned)
+        if: '!inputs.official_skins'
         run: |
           set -euo pipefail
           VERSION="${{ steps.meta.outputs.tag_name }}"
@@ -742,6 +802,7 @@ jobs:
           ls -la beecount-${VERSION}-*
 
       - name: Package iOS Simulator Runner.app (debug, unsigned)
+        if: '!inputs.official_skins'
         run: |
           set -euo pipefail
           VERSION="${{ steps.meta.outputs.tag_name }}"
@@ -765,6 +826,10 @@ jobs:
           IPA_FILE="beecount-${VERSION}-signed.ipa"
 
           if [ -z "${APPLE_ID:-}" ] || [ -z "${APPLE_APP_SPECIFIC_PASSWORD:-}" ]; then
+            if [[ "$OFFICIAL_SKINS" == true ]]; then
+              echo "::error::官方包需要 App Store Connect 上传凭据"
+              exit 1
+            fi
             echo "⚠️  APPLE_ID or APPLE_APP_SPECIFIC_PASSWORD not set, skipping TestFlight upload"
             exit 0
           fi
@@ -785,6 +850,7 @@ jobs:
           echo "✅ Successfully uploaded to TestFlight!"
 
       - name: Upload iOS artifacts
+        if: '!inputs.official_skins'
         uses: actions/upload-artifact@v4
         with:
           name: ios
@@ -870,6 +936,7 @@ jobs:
           ls -R ./dist || true
 
       - name: Download iOS artifacts
+        if: '!inputs.official_skins'
         uses: actions/download-artifact@v4
         with:
           name: ios

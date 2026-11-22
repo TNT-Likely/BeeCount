@@ -3,6 +3,7 @@ library;
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'src/page_material.dart';
+import 'src/surface_scope.dart';
 export 'src/line_icon.dart';
 export 'src/line_chart.dart';
 export 'src/column_chart.dart';
@@ -22,6 +23,7 @@ export 'src/launch_motion.dart';
 export 'src/local_sheet.dart';
 export 'src/system_bars.dart';
 export 'src/page_material.dart';
+export 'src/surface_scope.dart';
 export 'src/material_controls.dart';
 export 'src/motion/typewriter_text.dart';
 
@@ -134,9 +136,11 @@ class BeeSurface extends StatelessWidget {
               filter: ui.ImageFilter.blur(sigmaX: blur, sigmaY: blur),
               child: content));
     }
+    final scope = BeeSurfaceScope.maybeOf(context);
     return BeeSceneSurface(
         controller: BeeSceneScope.maybeOf(context),
-        child: _BeeSurfaceBackdrop(child: content));
+        child: _BeeSurfaceBackdrop(
+            child: scope?.wrap(context, content) ?? content));
   }
 }
 
