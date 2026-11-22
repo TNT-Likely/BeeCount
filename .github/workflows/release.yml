@@ -866,7 +866,6 @@ jobs:
         if: inputs.release_scope == 'ios-app-store'
         env:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-          IOS_P12_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
           RELEASE_VERSION_NAME: ${{ steps.meta.outputs.tag_name }}
         run: |
           set -euo pipefail

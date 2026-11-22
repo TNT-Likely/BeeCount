@@ -77,13 +77,12 @@ def verify(version, build, ipa):
     with tempfile.TemporaryDirectory(prefix='store-verification-', dir=folder) as temp:
         directory = Path(temp)
         certificate = apple.command(
-            ['openssl', 'pkcs12', '-in', folder / 'build_certificate.p12',
-             '-clcerts', '-nokeys', '-passin', 'env:IOS_P12_PASSWORD'],
+            ['security', 'find-certificate', '-a', '-c', 'Apple Distribution',
+             '-p', folder / 'app-signing.keychain-db'],
             label='distribution-certificate', run=directory,
-            env={'PATH': os.environ['PATH'], 'IOS_P12_PASSWORD': os.environ['IOS_P12_PASSWORD']},
         )
         pem = re.findall(rb'-----BEGIN CERTIFICATE-----\s+([A-Za-z0-9+/=\s]+)-----END CERTIFICATE-----', certificate)
-        gate.require(len(pem) == 1, '分发材料须有唯一叶证书')
+        gate.require(len(pem) == 1, 'Release 签名钥匙串须有唯一 Apple Distribution 证书')
         digest = hashlib.sha256(base64.b64decode(pem[0])).hexdigest()
         static = apple.verify_ipa(ipa, {'appVersion': version, 'buildNumber': build},
                                   digest, directory)
