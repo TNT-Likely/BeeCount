@@ -127,7 +127,7 @@ python3 -m unittest discover -s tool/release -p 'test_*.py' -v
 
 ## Android / iOS 统一 Beta 发布
 
-只使用 `.github/workflows/beta-release.yml` 的 **Beta Release** 手动入口，在 Actions 选择 `v4` 分支。默认新版本为 `4.0.0-beta.6`；发布前提交对应的 `docs/releases/<version>.md`，不能用默认值跳过版本核对。
+使用 `.github/workflows/beta-release.yml` 的 **Beta Release** 手动入口。完整双端发布在 Actions 选择 `v4` 分支，发布前提交对应的 `docs/releases/<version>.md`。
 
 `mode=release` 在同一私有 macOS Runner 冻结源码、版本和短说明，依次验证正式签名 ARM64 APK 与 App Store 签名 arm64 IPA。默认 `ios_delivery=testflight` 还要求上传成功、Apple processingState=VALID、内测说明更新成功；选择 `ipa` 时只归档已签名 IPA，不宣称 TestFlight 可用。
 
@@ -153,6 +153,12 @@ App Store签名IPA不能直接侧载，安装走TestFlight。Apple处理成功�
 如果已留下通知意图却没有成功回执，自动重跑拒绝发送，避免网络超时造成重复消息。维护者先核对TG群，再显式选择 `mode=notify-only`、原版本和实际iOS build补发；已有成功回执时手动模式也不会重发。通知模式不构建、不分配code、不访问签名secrets、不改tag或二进制，只追加通知意图/回执。旧的按平台或部分成功通知入口已停用。
 
 发布中断留下草稿时不能靠重跑整套流程覆盖，先核对是否已有任何对外交付，再处理版本预留。构建与签名失败时不会为了公告而创建Release。
+
+### 仅 iOS 内部 TestFlight
+
+在 **Beta Release** 中选择要测试的分支，填写 `mode=ios-only`、`version=4.0.1`、`ios_delivery=testflight` 和可用的 `ios_build_number`。该模式固定到触发时所选分支的提交，`source_ref` 用于双端发布。
+
+该模式用公开仓源码复用现有 Apple 签名、验包和上传凭据。构建号以 App Store Connect 记录为准。Apple 处理通过后，工作流摘要会提供 **TestFlight Internal Only** 构建链接。付费皮肤测试包使用私有组装源码。
 
 ### 每个 Beta 的说明
 

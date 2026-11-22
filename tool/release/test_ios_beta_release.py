@@ -52,6 +52,38 @@ def android_record():
 
 
 class VersionAndInputTests(unittest.TestCase):
+    def test_ios_only_plan_has_its_own_version_and_build_number(self):
+        settings = {**env(), 'GITHUB_REPOSITORY': beta.REPOSITORY, 'GITHUB_REF_NAME': 'test/ios-testflight',
+                    'GITHUB_EVENT_NAME': 'workflow_dispatch', 'GITHUB_REF_TYPE': 'branch', 'GITHUB_SHA': SHA,
+                    'IOS_BETA_MODE': 'testflight', 'BETA_SOURCE_REF': 'v4', 'BETA_VERSION': '4.0.1',
+                    'IOS_BUILD_NUMBER': '301', 'BETA_ATOMIC': '1'}
+        with (mock.patch.dict(os.environ, settings, clear=True),
+              mock.patch.object(ios.subprocess, 'run', return_value=mock.Mock(returncode=0, stdout=SHA + '\n')) as git,
+              mock.patch.object(beta, 'source_sha', side_effect=AssertionError('must use the selected branch')),
+              mock.patch.object(beta, 'GitHub', side_effect=AssertionError('GitHub Release access')),
+              mock.patch.object(ios, 'freeze_plan') as freeze):
+            ios.plan_ios_only()
+        git.assert_called_once_with(['git', 'rev-parse', 'HEAD'], capture_output=True, text=True)
+        state = freeze.call_args.args[0]
+        self.assertEqual((state['iosOnly'], state['sourceSha'], state['appVersion'], state['buildNumber']),
+                         (True, SHA, '4.0.1', 301))
+        self.assertNotIn('androidVersionCode', state)
+        with mock.patch.dict(os.environ, {**settings, 'IOS_BUILD_NUMBER': ''}, clear=True):
+            with self.assertRaisesRegex(gate.GateError, 'ios_build_number'):
+                ios.plan_ios_only()
+
+    def test_ios_only_rejects_a_checkout_that_differs_from_the_trigger(self):
+        settings = {**env(), 'GITHUB_REPOSITORY': beta.REPOSITORY, 'GITHUB_EVENT_NAME': 'workflow_dispatch',
+                    'GITHUB_REF_TYPE': 'branch', 'GITHUB_SHA': SHA, 'IOS_BETA_MODE': 'testflight',
+                    'BETA_VERSION': '4.0.1', 'IOS_BUILD_NUMBER': '301'}
+        checkout = mock.Mock(returncode=0, stdout='b' * 40 + '\n')
+        with (mock.patch.dict(os.environ, settings, clear=True),
+              mock.patch.object(ios.subprocess, 'run', return_value=checkout),
+              mock.patch.object(ios, 'freeze_plan') as freeze):
+            with self.assertRaisesRegex(gate.GateError, '检出的源码'):
+                ios.plan_ios_only()
+        freeze.assert_not_called()
+
     def test_beta_name_is_mapped_to_numeric_apple_version_and_shared_code(self):
         self.assertEqual(ios.ios_version('4.0.0-beta.5',230),('4.0.0',230))
         self.assertEqual(ios.ios_version('4.0.0-beta.5',230,'231','229'),('4.0.0',231))
@@ -203,6 +235,42 @@ class SyntheticIpaIdentityTests(unittest.TestCase):
 
 
 class AppStoreApiTests(unittest.TestCase):
+    def test_ios_only_upload_uses_internal_audience_without_creating_a_release(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            run = Path(temporary)
+            for folder in ('api', 'dist', 'signing'):
+                (run / folder).mkdir()
+            key_id = env()['APPLE_API_KEY_ID']
+            (run / 'api' / f'AuthKey_{key_id}.p8').write_bytes(KEY)
+            package = run / 'dist' / ios.public_names('4.0.1', 301)[0]
+            package.write_bytes(b'fixture IPA')
+            (run / 'signing/ExportOptions.plist').write_bytes(plistlib.dumps({'destination': 'export'}))
+            context = dict(iosOnly=True, status='verified', mode='testflight', run=str(run),
+                           versionName='4.0.1', appVersion='4.0.1', buildNumber=301,
+                           sourceSha=SHA, dist=str(run / 'dist'), notificationSummary=['iOS internal test'],
+                           artifact=dict(ipaSha256=hashlib.sha256(package.read_bytes()).hexdigest()))
+            client = mock.Mock()
+            client.all.side_effect = [
+                [{'id': 'testflight-id', 'attributes': {'processingState': 'VALID', 'buildAudienceType': 'INTERNAL_ONLY'}}],
+                [],
+            ]
+            client.request.return_value = {'data': {'attributes': {'version': '4.0.1', 'platform': 'IOS'}}}
+            settings = {**env(), 'GITHUB_RUN_ID': '123', 'GITHUB_STEP_SUMMARY': str(run / 'summary')}
+            with (mock.patch.dict(os.environ, settings, clear=True),
+                  mock.patch.object(ios, 'context_read', return_value=context),
+                  mock.patch.object(ios, 'context_write'),
+                  mock.patch.object(ios, 'AppStore', return_value=client),
+                  mock.patch.object(ios, 'app_store_preflight', return_value={'id': '1', 'attributes': {'primaryLocale': 'en-US'}}),
+                  mock.patch.object(ios, 'command') as command,
+                  mock.patch.object(beta, 'GitHub', side_effect=AssertionError('GitHub Release write'))):
+                ios.upload()
+            upload = command.call_args.args[0]
+            self.assertEqual(upload[:2], ['xcodebuild', '-exportArchive'])
+            options = plistlib.loads(upload[upload.index('-exportOptionsPlist') + 1].read_bytes())
+            self.assertEqual(options, {'destination': 'upload', 'testFlightInternalTestingOnly': True})
+            self.assertEqual(context['status'], 'testflight-processed')
+            self.assertIn('testflight-id', (run / 'summary').read_text())
+
     def test_real_openssl_synthetic_p256_signature_has_jose_size(self):
         with tempfile.TemporaryDirectory()as tmp:
             key=Path(tmp)/'fake.p8'

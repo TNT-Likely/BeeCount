@@ -69,6 +69,19 @@ class DeliveryTests(unittest.TestCase):
         self.assertNotIn('continue-on-error: true',workflow)
         self.assertNotIn('google-play',workflow)
 
+    def test_ios_only_skips_android_release_and_notification_steps(self):
+        root = Path(__file__).resolve().parents[2]
+        workflow = (root / '.github/workflows/beta-release.yml').read_text()
+        self.assertIn('options: [release, ios-only, notify-only]', workflow)
+        self.assertIn("github.ref_type == 'branch'", workflow)
+        self.assertIn("inputs.mode == 'ios-only' && github.sha || 'v4'", workflow)
+        for name in ('Check mandatory Android signing inputs', 'Freeze one source, version floor and curated notes',
+                     'Setup Java 17', 'Setup Android SDK', 'Install locked Android build tools',
+                     'Build and verify signed ARM64 APK privately', 'Publish one Release only after both platforms succeed'):
+            self.assertIn(f'- name: {name}\n        if: inputs.mode == \'release\'', workflow)
+        self.assertIn("inputs.mode == 'release' && needs.release.result == 'success'", workflow)
+        self.assertIn('ios_beta_release.py plan_ios_only', workflow)
+
     def test_notification_plan_checks_ios_identity_before_merging(self):
         with tempfile.TemporaryDirectory() as temp:
             paths=dict(BETA_CONTEXT=temp+'/android.json',IOS_BETA_CONTEXT=temp+'/ios.json',

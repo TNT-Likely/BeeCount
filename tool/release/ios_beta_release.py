@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """iOS stage of the unified Beta delivery; never enters the stable release flow.
 
-Only an already published, receipted Android Beta may supply source/version/notes.
+The full Beta shares the Android version and source. Internal iOS TestFlight can
+also be planned independently.
 Private source/signing copies live under RUNNER_TEMP. No debug/unsigned fallback.
 """
 from __future__ import annotations
@@ -260,6 +261,45 @@ def require_tag(client, version, source):
         obj = client.request('GET', f'/repos/{beta.REPOSITORY}/git/tags/{obj["sha"]}')['object']
     gate.require(obj.get('type') == 'commit' and obj.get('sha') == source, 'Beta tag不再指向原冻结源码')
 
+def freeze_plan(state):
+    gate.require(not context_path().exists(), 'iOS发布上下文已存在，拒绝覆盖')
+    run = Path(tempfile.mkdtemp(prefix='beecount-ios-beta-run-', dir=os.environ['RUNNER_TEMP']))
+    run.chmod(0o700)
+    state.update(status='planned', run=str(run), workflowRun=os.environ['GITHUB_RUN_ID'],
+                 profiles=[], keychain=None)
+    gate.write_private(context_path(), b'{}')
+    context_write(state)
+    if state['mode'] == 'testflight':
+        key_dir = run / 'api'
+        key_dir.mkdir(mode=0o700)
+        key_path = key_dir / ('AuthKey_' + os.environ['APPLE_API_KEY_ID'] + '.p8')
+        gate.write_private(key_path, api_key())
+        app_store_preflight(AppStore(key_path, run), state)
+    output = os.environ.get('GITHUB_OUTPUT')
+    if output:
+        with open(output, 'a') as f:
+            f.write(f'artifact_dir={run / "dist"}\nversion={state["versionName"]}\nbuild_number={state["buildNumber"]}\n')
+    print(f'iOS候选已冻结：{state["versionName"]} / {state["appVersion"]}+{state["buildNumber"]}')
+
+
+def plan_ios_only():
+    gate.require(os.environ.get('GITHUB_REPOSITORY') == beta.REPOSITORY
+                 and os.environ.get('GITHUB_EVENT_NAME') == 'workflow_dispatch'
+                 and os.environ.get('GITHUB_REF_TYPE') == 'branch', 'iOS单独内测需要从目标仓库的分支手动运行')
+    gate.require(os.environ.get('IOS_BETA_MODE') == 'testflight', 'ios-only 模式请选择 testflight')
+    number = os.environ.get('IOS_BUILD_NUMBER', '')
+    gate.require(re.fullmatch(r'[1-9][0-9]*', number), 'ios-only 模式需明确填写正整数 ios_build_number')
+    version = parse_version(os.environ.get('BETA_VERSION', ''))
+    app_version = f'{version.major}.{version.minor}.{version.patch}'
+    signing_inputs('testflight')
+    sha = os.environ.get('GITHUB_SHA', '')
+    gate.require(re.fullmatch(r'[0-9a-f]{40}', sha), '缺少所选分支的完整提交 SHA')
+    checkout = subprocess.run(['git', 'rev-parse', 'HEAD'], capture_output=True, text=True)
+    gate.require(checkout.returncode == 0 and checkout.stdout.strip() == sha, '检出的源码与触发分支的提交不一致')
+    freeze_plan(dict(iosOnly=True, mode='testflight', sourceSha=sha, versionName=version.name,
+                     appVersion=app_version, buildNumber=int(number),
+                     notificationSummary=[f'iOS {app_version} 内部测试构建']))
+
 
 def plan():
     gate.require(os.environ.get('GITHUB_REPOSITORY') == beta.REPOSITORY
@@ -293,27 +333,9 @@ def plan():
     summary = beta.extract_update_summary(release.get('body'))
     if os.environ.get('TESTFLIGHT_PUBLIC_URL'):
         gate.require(re.fullmatch(r'https://testflight\.apple\.com/join/[A-Za-z0-9]+',os.environ['TESTFLIGHT_PUBLIC_URL']) is not None, 'TestFlight公开链接格式无效')
-    gate.require(not context_path().exists(), 'iOS发布上下文已存在，拒绝覆盖')
-    run = Path(tempfile.mkdtemp(prefix='beecount-ios-beta-run-', dir=os.environ['RUNNER_TEMP']))
-    run.chmod(0o700)
-    state = dict(status='planned', atomic=atomic, run=str(run), mode=mode, sourceSha=sha,
-                 versionName=version, appVersion=app_version, buildNumber=number,
-                 androidVersionCode=record['versionCode'], releaseId=release['id'],
-                 releaseUrl=release['html_url'], notificationSummary=summary,
-                 workflowRun=os.environ['GITHUB_RUN_ID'], profiles=[], keychain=None)
-    gate.write_private(context_path(), b'{}')
-    context_write(state)
-    if mode == 'testflight':
-        key_dir = run/'api'
-        key_dir.mkdir(mode=0o700)
-        key_path = key_dir/('AuthKey_'+os.environ['APPLE_API_KEY_ID']+'.p8')
-        gate.write_private(key_path,api_key())
-        app_store_preflight(AppStore(key_path,run),state)
-    output = os.environ.get('GITHUB_OUTPUT')
-    if output:
-        with open(output, 'a') as f:
-            f.write(f'artifact_dir={run / "dist"}\nversion={version}\nbuild_number={number}\n')
-    print(f'iOS候选已冻结：{version} / {app_version}+{number}，尚未构建、上传或通知')
+    freeze_plan(dict(atomic=atomic, mode=mode, sourceSha=sha, versionName=version, appVersion=app_version,
+                     buildNumber=number, androidVersionCode=record['versionCode'], releaseId=release['id'],
+                     releaseUrl=release['html_url'], notificationSummary=summary))
 
 
 def configure_signing(context, source, run):
@@ -485,11 +507,15 @@ def build():
     shutil.copy2(ipas[0], dist / name)
     (dist / checksum).write_text(artifact['ipaSha256'] + '  ' + name + '\n')
     receipt = dict(schemaVersion=1,kind='beecount-ios-beta-release',versionName=context['versionName'],
-                   sourceSha=context['sourceSha'],androidVersionCode=context['androidVersionCode'],
+                   sourceSha=context['sourceSha'],
                    **artifact, sourceArchiveSha256=archive_hash, releaseOverlaySha256=overlay['overlaySha256'],
                    dependencyLockUnchanged=True,generatedSourceOverlay=generated,workflowRun=os.environ['GITHUB_RUN_ID'],
                    distribution='app-store',testflightStatus='not-uploaded',
                    functionalAcceptance='已验证签名、版本、真机架构及权限；不等同于真机功能验收。')
+    if context.get('iosOnly'):
+        receipt['kind'] = 'beecount-ios-testflight-candidate'
+    else:
+        receipt['androidVersionCode'] = context['androidVersionCode']
     (dist / receipt_name).write_text(json.dumps(receipt,ensure_ascii=False,indent=2))
     context.update(status='verified',artifact=artifact,dist=str(dist),receipt=receipt)
     context_write(context)
@@ -498,7 +524,7 @@ def build():
 
 def publish():
     context = context_read()
-    gate.require(not context.get('atomic'), '私有双端候选只能通过统一原子发布入口公开')
+    gate.require(not context.get('atomic') and not context.get('iosOnly'), '该 iOS 候选不允许直接发布 GitHub Release')
     gate.require(context['status'] == 'verified', '仅允许已验包IPA进入GitHub prerelease')
     client = beta.GitHub()
     release, record = get_release(client, context['versionName'])
@@ -599,7 +625,8 @@ def app_store_preflight(client, context):
 
 def upload():
     context = context_read()
-    expected = 'verified' if context.get('atomic') else 'published'
+    internal = context.get('iosOnly', False)
+    expected = 'verified' if context.get('atomic') or internal else 'published'
     gate.require(context['status'] == expected and context['mode'] == 'testflight',
                  'TestFlight需已签名验包；私有原子候选不得提前发布')
     run = Path(context['run'])
@@ -615,7 +642,19 @@ def upload():
     env = dict(build_environment(),API_PRIVATE_KEYS_DIR=str(key_dir))
     auth = ['--api-key',os.environ['APPLE_API_KEY_ID'],'--api-issuer',os.environ['APPLE_API_ISSUER_ID']]
     command(['xcrun','altool','--validate-app',ipa,'--type','ios',*auth], env=env,label='app-store-validate',run=run)
-    command(['xcrun','altool','--upload-app','-f',ipa,'--type','ios',*auth],env=env,label='testflight-upload',run=run)
+    if internal:
+        options = plistlib.loads((run / 'signing' / 'ExportOptions.plist').read_bytes())
+        options.update(destination='upload', testFlightInternalTestingOnly=True)
+        upload_options = run / 'InternalTestFlight.plist'
+        gate.write_private(upload_options, plistlib.dumps(options))
+        command(['xcodebuild', '-exportArchive', '-archivePath', run / 'BeeCount.xcarchive',
+                 '-exportOptionsPlist', upload_options, '-exportPath', run / 'internal-testflight',
+                 '-allowProvisioningUpdates', '-authenticationKeyPath', key_path,
+                 '-authenticationKeyID', os.environ['APPLE_API_KEY_ID'],
+                 '-authenticationKeyIssuerID', os.environ['APPLE_API_ISSUER_ID']],
+                label='testflight-upload', run=run)
+    else:
+        command(['xcrun','altool','--upload-app','-f',ipa,'--type','ios',*auth],env=env,label='testflight-upload',run=run)
     context['status'] = 'uploaded-awaiting-processing'
     context_write(context)
     build_record = None
@@ -630,6 +669,12 @@ def upload():
                 break
         time.sleep(20)
     gate.require(build_record is not None, 'Apple处理等待超时；IPA保留，需到App Store Connect检查，不自动重复上传')
+    if internal:
+        gate.require(build_record['attributes'].get('buildAudienceType') == 'INTERNAL_ONLY',
+                     'Apple 返回的构建分发范围与内部 TestFlight 不符')
+        train = client.request('GET', f'/v1/builds/{build_record["id"]}/preReleaseVersion')['data']['attributes']
+        gate.require((train['version'], train['platform']) == (context['appVersion'], 'IOS'),
+                     'Apple 返回的 TestFlight 版本或平台与候选不符')
     locale = app.get('attributes',{}).get('primaryLocale')
     gate.require(isinstance(locale,str) and re.fullmatch(r'[A-Za-z0-9-]{2,20}',locale), 'App主语言缺失，无法写入本次内测说明')
     notes = '\n'.join('• '+x for x in context['notificationSummary']) + '\n\n反馈：' + beta.FEEDBACK
@@ -652,13 +697,20 @@ def upload():
                   workflowRun=os.environ['GITHUB_RUN_ID'])
     receipt_name = f'ios-testflight-{context["buildNumber"]}.json'
     payload = json.dumps(record,ensure_ascii=False,indent=2).encode()
-    if not context.get('atomic'):
+    if not context.get('atomic') and not internal:
         client = beta.GitHub()
         release, _ = get_release(client, context['versionName'])
         metadata.save(client, release, receipt_name, record)
     (Path(context['dist'])/receipt_name).write_bytes(payload)
     context.update(status='testflight-processed',testflight=record)
     context_write(context)
+    if internal:
+        summary = os.environ.get('GITHUB_STEP_SUMMARY')
+        if summary:
+            issuer = os.environ['APPLE_API_ISSUER_ID']
+            url = f'https://appstoreconnect.apple.com/teams/{issuer}/apps/{app["id"]}/testflight/ios/{build_record["id"]}'
+            with open(summary, 'a') as output:
+                output.write(f'[iOS {context["appVersion"]} ({context["buildNumber"]}) 内部 TestFlight]({url})\n')
     print('Apple已处理TestFlight build，简短内测说明已更新；测试组/合规/外部Beta审核状态须另核验')
 
 
@@ -683,6 +735,7 @@ def telegram_text(context, public_url=''):
 
 def notify():
     context = context_read()
+    gate.require(not context.get('iosOnly'), 'iOS内部TestFlight无需发布公告')
     gate.require(context['status'] == ('testflight-processed' if context['mode'] == 'testflight' else 'published'), 'iOS交付尚未完整成功，拒绝成功公告')
     token, chat = os.environ.get('TELEGRAM_BOT_TOKEN',''),os.environ.get('TELEGRAM_CHAT_ID','')
     gate.require(bool(token and chat), 'iOS资产已发布，但TG凭据缺失')
@@ -780,7 +833,7 @@ def cleanup():
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('action',choices=['plan','build','publish','upload','notify','notification_plan','cleanup'])
+    parser.add_argument('action',choices=['plan','plan_ios_only','build','publish','upload','notify','notification_plan','cleanup'])
     args = parser.parse_args(argv)
     try:
         globals()[args.action]()
