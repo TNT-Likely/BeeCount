@@ -1,5 +1,4 @@
 name: Release
-run-name: ${{ inputs.release_scope == 'ios-app-store' && format('iOS App Store {0}', inputs.tag_name) || inputs.release_scope == 'android' && format('Android {0}', inputs.tag_name) || '' }}
 
 on:
   push:
@@ -8,14 +7,6 @@ on:
       - "!*-beta.*"
   workflow_dispatch:
     inputs:
-      release_scope:
-        description: "发布范围"
-        type: choice
-        options:
-          - standard
-          - ios-app-store
-          - android
-        default: standard
       tag_name:
         description: "Release tag (手动运行可自定义，留空则使用 manual-<short_sha>)"
         required: false
@@ -34,14 +25,6 @@ on:
         default: "true"
       android_version_code_floor:
         description: "所有已交付正式版/Beta的最高Android versionCode；留空使用仓库变量ANDROID_VERSION_CODE_FLOOR，均空则拒绝构建"
-        required: false
-        default: ""
-      play_release_notes:
-        description: "Google Play 更新说明，JSON 对象，按语言标签提供"
-        required: false
-        default: ""
-      github_release_notes:
-        description: "GitHub Release 正文（可选）"
         required: false
         default: ""
 
@@ -72,7 +55,6 @@ jobs:
       - name: Check branch
         env:
           INPUT_TAG: ${{ inputs.tag_name }}
-          INPUT_SCOPE: ${{ inputs.release_scope }}
         run: |
           set -euo pipefail
           TARGET_TAG="${INPUT_TAG:-${GITHUB_REF_NAME}}"
@@ -89,27 +71,13 @@ jobs:
             echo "Current branch: $GITHUB_REF_NAME"
             exit 1
           fi
-          if [[ "$INPUT_SCOPE" == ios-app-store || "$INPUT_SCOPE" == android ]]; then
-            if [[ "$GITHUB_REPOSITORY" != TNT-Likely/BeeCount || "$GITHUB_REF" != refs/heads/main || \
-                  ! "$INPUT_TAG" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-              echo "::error::单平台正式发布只接受 BeeCount 主仓 main 和正式版本号"
-              exit 1
-            fi
-            if [[ "$INPUT_SCOPE" == ios-app-store && "$GITHUB_RUN_ATTEMPT" != 1 ]]; then
-              echo "::error::请重新 dispatch 以生成新的主线候选。历史候选源码见构建回执。"
-              exit 1
-            fi
-          fi
           echo "✅ Branch check passed: $GITHUB_REF_NAME"
 
   android:
     name: Android (APK + AAB)
     runs-on: ubuntu-latest
     needs: [check-branch]
-    if: always() && inputs.release_scope != 'ios-app-store' && !contains(github.ref_name, '-beta.') && !contains(github.event.inputs.tag_name, '-beta.') && needs.check-branch.result == 'success'
-    env:
-      ANDROID_ONLY: ${{ inputs.release_scope == 'android' }}
-      BEECOUNT_REQUIRE_PRODUCTION_SIGNING: ${{ inputs.release_scope == 'android' }}
+    if: always() && !contains(github.ref_name, '-beta.') && !contains(github.event.inputs.tag_name, '-beta.') && needs.check-branch.result == 'success'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -160,12 +128,7 @@ jobs:
           cache: true
 
       - name: Flutter pub get
-        run: |
-          if [[ "$ANDROID_ONLY" == true ]]; then
-            flutter pub get --enforce-lockfile
-          else
-            flutter pub get
-          fi
+        run: flutter pub get
 
       - name: Setup Android signing from secrets (optional)
         env:
@@ -175,13 +138,6 @@ jobs:
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
           set -euo pipefail
-          umask 077
-          if [[ "$ANDROID_ONLY" == true ]] &&
-            [[ -z "$ANDROID_KEYSTORE_BASE64" || -z "$ANDROID_KEYSTORE_PASSWORD" ||
-               -z "$ANDROID_KEY_ALIAS" || -z "$ANDROID_KEY_PASSWORD" ]]; then
-            echo "::error::Android 正式发布需要官方签名凭据"
-            exit 1
-          fi
           if [ -n "${ANDROID_KEYSTORE_BASE64:-}" ]; then
             echo "Writing Android keystore from secret..."
             mkdir -p android/app
@@ -197,24 +153,7 @@ jobs:
             echo "No Android signing secrets provided; will use fallback CI keystore in Gradle."
           fi
 
-      - name: Setup Python for Google Play
-        if: inputs.release_scope == 'android'
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Check current Google Play versionCode floor
-        if: inputs.release_scope == 'android'
-        env:
-          GOOGLE_PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
-        run: |
-          set -euo pipefail
-          python3 -m pip install google-auth google-api-python-client
-          floor=$(python3 tool/release/google_play_release.py floor)
-          echo "GOOGLE_PLAY_FLOOR=$floor" >> "$GITHUB_ENV"
-
       - name: Update pubspec.yaml version
-        id: android_version
         env:
           RELEASE_VERSION_NAME: ${{ steps.meta.outputs.tag_name }}
           ANDROID_VERSION_CODE_FLOOR: ${{ github.event.inputs.android_version_code_floor || vars.ANDROID_VERSION_CODE_FLOOR }}
@@ -230,18 +169,12 @@ jobs:
             exit 1
           fi
           python3 -m unittest discover -s tool/release -p 'test_android_version_code.py'
-          if [[ "$ANDROID_ONLY" == true ]]; then
-            ANDROID_VERSION_CODE_FLOOR=$(python3 -c \
-              'import os; print(max(int(os.environ["ANDROID_VERSION_CODE_FLOOR"]), int(os.environ["GOOGLE_PLAY_FLOOR"])))')
-          fi
           # 与本地APK共用全局floor：4.0.0 Beta为226..299；正式从300起，以后逐次+1。
           # 每次本地实际交付后须更新floor；Beta序号不能替代真实已发最高code。
           BUILD_NUMBER=$(python3 tool/release/android_version_code.py "$CLEAN_VERSION" \
             --minimum-code "$ANDROID_VERSION_CODE_FLOOR")
           sed -i "s/^version: .*/version: ${CLEAN_VERSION}+${BUILD_NUMBER}/" pubspec.yaml
           grep "^version:" pubspec.yaml
-          echo "code=$BUILD_NUMBER" >> "$GITHUB_OUTPUT"
-          echo "name=$CLEAN_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Build APK (release)
         run: |
@@ -343,33 +276,6 @@ jobs:
           echo "=== Final Android artifacts ==="
           find build/app/outputs -name "beecount-*"
 
-      - name: Verify official Android APK and AAB
-        if: inputs.release_scope == 'android'
-        env:
-          EXPECTED_CERT: ${{ vars.ANDROID_RELEASE_CERT_SHA256 }}
-          VERSION: ${{ steps.android_version.outputs.name }}
-          CODE: ${{ steps.android_version.outputs.code }}
-        run: |
-          set -euo pipefail
-          shopt -s nullglob
-          tools="$ANDROID_HOME/build-tools/35.0.0"
-          apks=(build/app/outputs/apk/prod/release/beecount-*.apk)
-          [[ "$EXPECTED_CERT" =~ ^[0-9a-fA-F]{64}$ && ${#apks[@]} == 4 ]]
-          for artifact in "${apks[@]}"; do
-            certificate=$("$tools/apksigner" verify --print-certs "$artifact" |
-              awk -F ': ' '/^Signer #[0-9]+ certificate SHA-256 digest: / { print tolower($2) }')
-            [[ "$certificate" == "${EXPECTED_CERT,,}" ]]
-            badging=$("$tools/aapt" dump badging "$artifact")
-            [[ "$badging" == *"package: name='com.tntlikely.beecount' versionCode='$CODE' versionName='$VERSION'"* ]]
-            [[ "$badging" == *"targetSdkVersion:'36'"* ]]
-          done
-          bundle="build/app/outputs/bundle/prodRelease/beecount-$VERSION.aab"
-          jarsigner -verify "$bundle"
-          certificate=$(LC_ALL=C keytool -printcert -jarfile "$bundle" |
-            awk '/SHA256:/ && !seen++ {gsub(/:/,"",$2); print tolower($2)}')
-          [[ "$certificate" == "${EXPECTED_CERT,,}" ]]
-          echo "4 个 APK 与 Google Play AAB 签名核验通过"
-
       - name: Upload Android artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -379,104 +285,117 @@ jobs:
             build/app/outputs/apk/prod/release/beecount-*.apk
             build/app/outputs/bundle/prodRelease/beecount-*.aab
 
-      - name: Upload AAB to Google Play production
+      - name: Upload AAB to Google Play Console
         if: (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')) || github.event_name == 'workflow_dispatch'
         env:
           GOOGLE_PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
-          PLAY_RELEASE_NOTES: ${{ inputs.play_release_notes }}
-          VERSION: ${{ steps.android_version.outputs.name }}
-          CODE: ${{ steps.android_version.outputs.code }}
         run: |
-          set -euo pipefail
-          if [[ -z "$GOOGLE_PLAY_SERVICE_ACCOUNT_JSON" ]]; then
-            if [[ "$ANDROID_ONLY" == true ]]; then
-              echo "::error::Android 正式发布需要 Google Play 凭据"
-              exit 1
-            fi
-            echo "Google Play 凭据为空，跳过商店上传"
+          VERSION="${{ steps.meta.outputs.tag_name }}"
+          AAB_FILE="build/app/outputs/bundle/prodRelease/beecount-${VERSION}.aab"
+
+          if [ -z "${GOOGLE_PLAY_SERVICE_ACCOUNT_JSON:-}" ]; then
+            echo "⚠️  GOOGLE_PLAY_SERVICE_ACCOUNT_JSON not set, skipping Google Play upload"
             exit 0
           fi
-          if [[ "$ANDROID_ONLY" != true ]]; then
-            python3 -m pip install google-auth google-api-python-client
+
+          if [ ! -f "$AAB_FILE" ]; then
+            echo "❌ AAB file not found: $AAB_FILE"
+            exit 1
           fi
-          python3 tool/release/google_play_release.py publish \
-            "build/app/outputs/bundle/prodRelease/beecount-$VERSION.aab" "$VERSION" "$CODE"
+
+          echo "📤 Uploading $AAB_FILE to Google Play Console..."
+
+          # 保存服务账户 JSON 到临时文件
+          echo "$GOOGLE_PLAY_SERVICE_ACCOUNT_JSON" > /tmp/service-account.json
+
+          # 使用 Google Play Developer API 上传
+          # 安装 google-play CLI 工具
+          pip install google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client
+
+          # 创建上传脚本
+          cat > /tmp/upload_to_play.py << 'UPLOAD_SCRIPT'
+          import sys
+          import json
+          from google.oauth2 import service_account
+          from googleapiclient.discovery import build
+          from googleapiclient.http import MediaFileUpload
+
+          # 配置
+          PACKAGE_NAME = 'com.tntlikely.beecount'
+          AAB_FILE = sys.argv[1]
+          TRACK = 'production'  # internal, alpha, beta, production
+
+          # 认证
+          credentials = service_account.Credentials.from_service_account_file(
+              '/tmp/service-account.json',
+              scopes=['https://www.googleapis.com/auth/androidpublisher']
+          )
+
+          # 创建 API 客户端
+          service = build('androidpublisher', 'v3', credentials=credentials)
+
+          try:
+              # 创建编辑
+              edit = service.edits().insert(body={}, packageName=PACKAGE_NAME).execute()
+              edit_id = edit['id']
+              print(f"✅ Created edit: {edit_id}")
+
+              # 上传 AAB
+              media = MediaFileUpload(AAB_FILE, mimetype='application/octet-stream', resumable=True)
+              bundle = service.edits().bundles().upload(
+                  packageName=PACKAGE_NAME,
+                  editId=edit_id,
+                  media_body=media
+              ).execute()
+              version_code = bundle['versionCode']
+              print(f"✅ Uploaded AAB, version code: {version_code}")
+
+              # 分配到轨道
+              track_body = {
+                  'releases': [{
+                      'versionCodes': [version_code],
+                      'status': 'completed'
+                  }]
+              }
+              service.edits().tracks().update(
+                  packageName=PACKAGE_NAME,
+                  editId=edit_id,
+                  track=TRACK,
+                  body=track_body
+              ).execute()
+              print(f"✅ Assigned to {TRACK} track")
+
+              # 提交编辑
+              service.edits().commit(packageName=PACKAGE_NAME, editId=edit_id).execute()
+              print("✅ Changes committed to Google Play Console!")
+
+          except Exception as e:
+              print(f"❌ Upload failed: {e}")
+              sys.exit(1)
+          UPLOAD_SCRIPT
+
+          python /tmp/upload_to_play.py "$AAB_FILE"
+
+          # 清理
+          rm -f /tmp/service-account.json /tmp/upload_to_play.py
+
+          echo "✅ Successfully uploaded to Google Play Console (alpha track)!"
 
   ios:
-    name: ${{ inputs.release_scope == 'ios-app-store' && 'iOS App Store' || 'iOS (app.zip + unsigned .ipa)' }}
-    runs-on: ${{ inputs.release_scope == 'ios-app-store' && 'macos-26' || 'macos-latest' }}
+    name: iOS (app.zip + unsigned .ipa)
+    runs-on: macos-latest
     needs: [check-branch]
-    if: always() && inputs.release_scope != 'android' && !contains(github.ref_name, '-beta.') && !contains(github.event.inputs.tag_name, '-beta.') && needs.check-branch.result == 'success' && (inputs.release_scope != 'ios-app-store' || github.run_attempt == 1)
-    environment: ${{ inputs.release_scope == 'ios-app-store' && 'ios-app-store' || 'ios-standard-release' }}
-    permissions:
-      contents: read
-    env:
-      IOS_APP_STORE: ${{ inputs.release_scope == 'ios-app-store' }}
-    defaults:
-      run:
-        working-directory: ${{ inputs.release_scope == 'ios-app-store' && 'release-sources/BeeCount-Commercial/.local/BeeCount' || '.' }}
+    if: always() && !contains(github.ref_name, '-beta.') && !contains(github.event.inputs.tag_name, '-beta.') && needs.check-branch.result == 'success'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           fetch-tags: true
-          persist-credentials: false
-
-      - name: Verify official source credentials and configuration
-        if: inputs.release_scope == 'ios-app-store'
-        working-directory: .
-        env:
-          SKINS_REPOSITORY: ${{ secrets.IOS_APP_STORE_SKINS_REPOSITORY }}
-          SKINS_DEPLOY_KEY: ${{ secrets.IOS_APP_STORE_SKINS_SSH_KEY }}
-          COMMERCIAL_REPOSITORY: ${{ secrets.IOS_APP_STORE_COMMERCIAL_REPOSITORY }}
-          COMMERCIAL_DEPLOY_KEY: ${{ secrets.IOS_APP_STORE_COMMERCIAL_SSH_KEY }}
-        run: |
-          set -euo pipefail
-          if [[ -z "$SKINS_REPOSITORY" || -z "$SKINS_DEPLOY_KEY" ||
-                -z "$COMMERCIAL_REPOSITORY" || -z "$COMMERCIAL_DEPLOY_KEY" ]]; then
-            echo "::error::受保护环境的私库只读凭据必须已配置"
-            exit 1
-          fi
-
-      - name: Checkout reviewed skin artwork
-        if: inputs.release_scope == 'ios-app-store'
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ secrets.IOS_APP_STORE_SKINS_REPOSITORY }}
-          ref: main
-          ssh-key: ${{ secrets.IOS_APP_STORE_SKINS_SSH_KEY }}
-          persist-credentials: false
-          path: release-sources/BeeCount-Skins
-
-      - name: Checkout reviewed commercial source
-        if: inputs.release_scope == 'ios-app-store'
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ secrets.IOS_APP_STORE_COMMERCIAL_REPOSITORY }}
-          ref: main
-          ssh-key: ${{ secrets.IOS_APP_STORE_COMMERCIAL_SSH_KEY }}
-          persist-credentials: false
-          path: release-sources/BeeCount-Commercial
-
-      - name: Assemble the official App from three main branches
-        if: inputs.release_scope == 'ios-app-store'
-        working-directory: .
-        run: |
-          set -euo pipefail
-          umask 077
-          commercial="$GITHUB_WORKSPACE/release-sources/BeeCount-Commercial"
-          if ! python3 "$commercial/tool/prepare_source.py" \
-            --source "$GITHUB_WORKSPACE" --prepare --integrate \
-            --output "$commercial/.local/BeeCount" > "$RUNNER_TEMP/ios-assembly.log" 2>&1; then
-            echo "::error::正式源码组装失败。请核对三个分支与已审阅集成锚点。"
-            exit 1
-          fi
 
       - name: Prepare release metadata
         id: meta
         shell: bash
-        working-directory: .
         run: |
           set -euo pipefail
           IS_TAG="false"
@@ -496,19 +415,7 @@ jobs:
           fi
           echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
 
-      - name: Select the verified App Store Xcode and SDK
-        if: inputs.release_scope == 'ios-app-store'
-        env:
-          DEVELOPER_DIR: /Applications/Xcode_26.3.app/Contents/Developer
-        run: |
-          set -euo pipefail
-          test -d "$DEVELOPER_DIR"
-          echo "DEVELOPER_DIR=$DEVELOPER_DIR" >> "$GITHUB_ENV"
-          xcodebuild -version
-          xcrun --sdk iphoneos --show-sdk-version
-
       - name: Select latest Xcode
-        if: inputs.release_scope != 'ios-app-store'
         run: |
           echo "📱 Available Xcode versions:"
           ls -la /Applications/ | grep Xcode || true
@@ -537,7 +444,6 @@ jobs:
 
       # 手动缓存 pub 依赖
       - name: Cache pub dependencies
-        if: inputs.release_scope != 'ios-app-store'
         uses: actions/cache@v4
         with:
           path: ~/.pub-cache
@@ -546,50 +452,7 @@ jobs:
             pub-${{ runner.os }}-${{ env.FLUTTER_VERSION }}-
 
       - name: Flutter pub get
-        run: |
-          set -euo pipefail
-          if [[ "$IOS_APP_STORE" != true ]]; then
-            flutter pub get
-            exit
-          fi
-          umask 077
-          commercial="$GITHUB_WORKSPACE/release-sources/BeeCount-Commercial"
-          if ! { flutter pub get &&
-            python3 "$commercial/tool/prepare_source.py" --source "$GITHUB_WORKSPACE" \
-              --verify-lock --output "$PWD"; } > "$RUNNER_TEMP/ios-pub-get.log" 2>&1; then
-            echo "::error::正式候选依赖解析或 Flutter 依赖锁校验失败"
-            exit 1
-          fi
-
-      - name: Setup Ruby for locked CocoaPods
-        if: inputs.release_scope == 'ios-app-store'
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: "3.3"
-
-      - name: Setup CocoaPods 1.16.2 in deployment mode
-        if: inputs.release_scope == 'ios-app-store'
-        run: |
-          set -euo pipefail
-          export GEM_HOME="$RUNNER_TEMP/ios-store-gems"
-          export GEM_PATH="$GEM_HOME"
-          gem install cocoapods -v 1.16.2 --no-document --install-dir "$GEM_HOME"
-          echo "GEM_HOME=$GEM_HOME" >> "$GITHUB_ENV"
-          export PATH="$GEM_HOME/bin:$PATH"
-          echo "$GEM_HOME/bin" >> "$GITHUB_PATH"
-          python3 "$GITHUB_WORKSPACE/tool/release/ios_app_store.py" locked-pods
-
-      - name: Read the current App Store Connect build number floor
-        if: inputs.release_scope == 'ios-app-store'
-        env:
-          APPLE_API_KEY_CONTENT: ${{ secrets.APPLE_API_KEY_CONTENT }}
-          APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
-          APPLE_API_ISSUER_ID: ${{ secrets.APPLE_API_ISSUER_ID }}
-          IOS_BUILD_NUMBER_FLOOR: ${{ vars.IOS_BUILD_NUMBER_FLOOR }}
-        run: |
-          set -euo pipefail
-          current=$(python3 "$GITHUB_WORKSPACE/tool/release/ios_app_store.py" build-number)
-          echo "OFFICIAL_IOS_BUILD_NUMBER=$current" >> "$GITHUB_ENV"
+        run: flutter pub get
 
       - name: Update pubspec.yaml version (iOS)
         env:
@@ -600,17 +463,13 @@ jobs:
           set -euo pipefail
           VERSION="$RELEASE_VERSION_NAME"
           CLEAN_VERSION=${VERSION#v}
-          if [[ "${IOS_APP_STORE:-false}" == true ]]; then
-            BUILD_NUMBER="$OFFICIAL_IOS_BUILD_NUMBER"
-          else
-            if [[ ! "${ANDROID_VERSION_CODE_FLOOR:-}" =~ ^[0-9]+$ || ! "${IOS_BUILD_NUMBER_FLOOR:-0}" =~ ^[0-9]+$ ]]; then
-              echo "::error::必须提供有效的已交付版本水位，拒绝退回工作流run_number。"
-              exit 1
-            fi
-            # iOS可能用过单独重试build；取两端最高水位，再复用300起的正式规则。
-            DELIVERY_FLOOR=$(python3 -c 'import os; print(max(int(os.environ["ANDROID_VERSION_CODE_FLOOR"]), int(os.environ.get("IOS_BUILD_NUMBER_FLOOR", "0") or "0")))')
-            BUILD_NUMBER=$(python3 tool/release/android_version_code.py "$CLEAN_VERSION" --minimum-code "$DELIVERY_FLOOR")
+          if [[ ! "${ANDROID_VERSION_CODE_FLOOR:-}" =~ ^[0-9]+$ || ! "${IOS_BUILD_NUMBER_FLOOR:-0}" =~ ^[0-9]+$ ]]; then
+            echo "::error::必须提供有效的已交付版本水位，拒绝退回工作流run_number。"
+            exit 1
           fi
+          # iOS可能用过单独重试build；取两端最高水位，再复用300起的正式规则。
+          DELIVERY_FLOOR=$(python3 -c 'import os; print(max(int(os.environ["ANDROID_VERSION_CODE_FLOOR"]), int(os.environ.get("IOS_BUILD_NUMBER_FLOOR", "0") or "0")))')
+          BUILD_NUMBER=$(python3 tool/release/android_version_code.py "$CLEAN_VERSION" --minimum-code "$DELIVERY_FLOOR")
           cp pubspec.yaml pubspec.yaml.backup
           sed -i "" "s/^version: .*/version: ${CLEAN_VERSION}+${BUILD_NUMBER}/" pubspec.yaml
           grep "^version:" pubspec.yaml
@@ -624,13 +483,6 @@ jobs:
           IOS_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
           set -euo pipefail
-          umask 077
-          if [[ "$IOS_APP_STORE" == true ]] &&
-            [[ -z "$IOS_P12_BASE64" || -z "$IOS_P12_PASSWORD" || -z "$IOS_PROVISION_PROFILE_BASE64" ||
-               -z "$IOS_WIDGET_PROVISION_PROFILE_BASE64" || -z "$IOS_TEAM_ID" ]]; then
-            echo "::error::iOS App Store 发布需要原 Release 的主 App 与 Widget 分发凭据"
-            exit 1
-          fi
           if [ -n "${IOS_P12_BASE64:-}" ]; then
             echo "📱 Setting up iOS code signing from secrets..."
 
@@ -721,12 +573,6 @@ jobs:
               '</plist>' \
               > ios/ExportOptions.plist
 
-            if [[ "$IOS_APP_STORE" == true ]]; then
-              plutil -replace method -string app-store-connect ios/ExportOptions.plist
-              plutil -insert manageAppVersionAndBuildNumber -bool NO ios/ExportOptions.plist
-              plutil -insert destination -string export ios/ExportOptions.plist
-            fi
-
             echo "✅ iOS signing configured"
             echo "IOS_SIGNING_ENABLED=true" >> $GITHUB_ENV
           else
@@ -736,26 +582,9 @@ jobs:
 
       - name: Build iOS (no codesign)
         run: |
-          set -euo pipefail
           export CI_VERSION='${{ steps.meta.outputs.tag_name }}'
           export GIT_COMMIT='${{ github.sha }}'
           export BUILD_TIME='${{ github.run_id }}'
-          if [[ "$IOS_APP_STORE" == true ]]; then
-            umask 077
-            /usr/libexec/PlistBuddy -c 'Delete :ITSAppUsesNonExemptEncryption' ios/Runner/Info.plist >/dev/null 2>&1 || true
-            /usr/libexec/PlistBuddy -c 'Add :ITSAppUsesNonExemptEncryption bool false' ios/Runner/Info.plist
-            if ! flutter build ios --config-only --release --no-codesign --no-pub \
-              --build-name="$CI_VERSION" --build-number="$OFFICIAL_IOS_BUILD_NUMBER" \
-              --dart-define=CI_VERSION="$CI_VERSION" --dart-define=GIT_COMMIT="$GIT_COMMIT" \
-              --dart-define=BUILD_TIME="$BUILD_TIME" --dart-define=BEECOUNT_SKINS_ENABLED=true \
-              --dart-define=BEECOUNT_PAID_SKINS_ENABLED=true --dart-define=BEECOUNT_SKIN_SALES=true \
-              --dart-define=BEECOUNT_SKIN_PRODUCTION_SALES=true \
-              > "$RUNNER_TEMP/ios-config.log" 2>&1; then
-              echo "::error::Flutter 正式归档配置或 CocoaPods 锁定安装失败"
-              exit 1
-            fi
-            exit
-          fi
           flutter build ios --release --no-codesign \
             --dart-define=CI_VERSION="$CI_VERSION" \
             --dart-define=GIT_COMMIT="$GIT_COMMIT" \
@@ -765,22 +594,8 @@ jobs:
         if: env.IOS_SIGNING_ENABLED == 'true'
         env:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-          RELEASE_VERSION_NAME: ${{ steps.meta.outputs.tag_name }}
         run: |
-          set -euo pipefail
           PROJECT_FILE="ios/Runner.xcodeproj/project.pbxproj"
-          if [[ "$IOS_APP_STORE" == true ]]; then
-            umask 077
-            # 安装和信任链沿用上方 Release 步骤；精确设定 App、Widget 的归档版本和描述文件。
-            config="$RUNNER_TEMP/ios-store-signing.json"
-            python3 -c 'import json,os,sys; print(json.dumps(dict(
-              team=os.environ["APPLE_TEAM_ID"], mainProfile="BeeCount_AppStore",
-              widgetProfile="BeeCount_Widget_AppStore", certificate="Apple Distribution",
-              appVersion=os.environ["RELEASE_VERSION_NAME"], buildNumber=os.environ["OFFICIAL_IOS_BUILD_NUMBER"])))' > "$config"
-            ruby "$GITHUB_WORKSPACE/tool/release/configure_ios_beta_signing.rb" \
-              ios/Runner.xcodeproj "$config"
-            exit
-          fi
 
           echo "🔧 Configuring manual signing for iOS..."
 
@@ -815,82 +630,90 @@ jobs:
 
       - name: Build iOS archive with xcodebuild
         if: env.IOS_SIGNING_ENABLED == 'true'
+        env:
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
-          set -euo pipefail
-          umask 077
-          log="$RUNNER_TEMP/ios-archive.log"
-          if ! xcodebuild archive \
+          echo "📦 Building iOS archive..."
+
+          # Archive the app (只显示错误和警告,减少日志噪音)
+          # 完全依赖project.pbxproj中的配置
+          if xcodebuild archive \
             -workspace ios/Runner.xcworkspace \
             -scheme Runner \
             -configuration Release \
-            -destination 'generic/platform=iOS' \
             -archivePath build/ios/Runner.xcarchive \
-            -quiet > "$log" 2>&1; then
-            if [[ "$IOS_APP_STORE" != true ]]; then tail -80 "$log"; fi
-            echo "::error::iOS 归档失败"
+            -quiet \
+            2>&1 | grep -E "error:|warning:|note:|failed|succeeded" | tee xcodebuild-archive.log; then
+
+            echo "✅ Archive created successfully"
+            ls -lh build/ios/Runner.xcarchive/Products/Applications/ 2>/dev/null || true
+          else
+            echo "❌ Archive failed! Full log:"
+            cat xcodebuild-archive.log
             exit 1
           fi
-          test -d build/ios/Runner.xcarchive
-          echo "iOS archive created"
 
       - name: Export IPA from archive
         if: env.IOS_SIGNING_ENABLED == 'true'
         run: |
-          set -euo pipefail
-          umask 077
-          log="$RUNNER_TEMP/ios-export.log"
-          if ! xcodebuild -exportArchive \
+          echo "📤 Exporting IPA..."
+
+          # Export IPA (只显示关键信息)
+          if xcodebuild -exportArchive \
             -archivePath build/ios/Runner.xcarchive \
             -exportPath build/ios/ipa \
             -exportOptionsPlist ios/ExportOptions.plist \
-            -quiet > "$log" 2>&1; then
-            if [[ "$IOS_APP_STORE" != true ]]; then tail -80 "$log"; fi
-            echo "::error::App Store IPA 导出失败"
+            -quiet \
+            2>&1 | grep -E "error:|warning:|Exported|succeeded" | tee xcodebuild-export.log; then
+
+            echo "✅ IPA exported successfully"
+            ls -lh build/ios/ipa/
+
+            # 验证IPA文件
+            if [ -f build/ios/ipa/*.ipa ]; then
+              echo ""
+              echo "IPA file details:"
+              ls -lh build/ios/ipa/*.ipa
+
+              # 显示IPA签名信息
+              echo ""
+              echo "IPA signing info:"
+              unzip -l build/ios/ipa/*.ipa | grep -E "Payload|PlugIns|\.app" | head -20
+            else
+              echo "❌ Error: IPA file not found in build/ios/ipa/"
+              exit 1
+            fi
+          else
+            echo ""
+            echo "❌ Export failed. Check xcodebuild-export.log for details"
+            echo "Last 50 lines of export log:"
+            tail -50 xcodebuild-export.log
             exit 1
           fi
 
       - name: Copy signed IPA to release directory
         if: env.IOS_SIGNING_ENABLED == 'true'
-        env:
-          RELEASE_VERSION_NAME: ${{ steps.meta.outputs.tag_name }}
         run: |
           set -euo pipefail
-          shopt -s nullglob
-          ipas=(build/ios/ipa/*.ipa)
-          if [[ ${#ipas[@]} != 1 ]]; then
-            echo "::error::签名导出应产生一个 IPA"
+          VERSION="${{ steps.meta.outputs.tag_name }}"
+
+          # flutter build ipa 会在 build/ios/ipa 目录生成 IPA
+          if [ -f build/ios/ipa/*.ipa ]; then
+            cp build/ios/ipa/*.ipa beecount-${VERSION}-signed.ipa
+            echo "✅ Copied signed IPA: beecount-${VERSION}-signed.ipa"
+            ls -lh beecount-${VERSION}-signed.ipa
+          else
+            echo "❌ Signed IPA not found in build/ios/ipa/"
+            ls -la build/ios/ipa/ || true
             exit 1
           fi
-          cp "${ipas[0]}" "beecount-$RELEASE_VERSION_NAME-signed.ipa"
-
-      - name: Verify official App Store IPA and write receipt
-        if: inputs.release_scope == 'ios-app-store'
-        env:
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-          RELEASE_VERSION_NAME: ${{ steps.meta.outputs.tag_name }}
-        run: |
-          set -euo pipefail
-          umask 077
-          commercial="$GITHUB_WORKSPACE/release-sources/BeeCount-Commercial"
-          python3 "$commercial/tool/prepare_source.py" --source "$GITHUB_WORKSPACE" \
-            --verify-lock --output "$PWD"
-          python3 "$GITHUB_WORKSPACE/tool/release/ios_app_store.py" verify \
-            "$RELEASE_VERSION_NAME" "$OFFICIAL_IOS_BUILD_NUMBER" "beecount-$RELEASE_VERSION_NAME-signed.ipa"
-          {
-            echo '### BeeCount App Store build'
-            echo
-            echo '~~~json'
-            cat "$RUNNER_TEMP/ios-app-store-receipt.json"
-            echo '~~~'
-          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Cleanup iOS keychain
         if: always() && env.IOS_SIGNING_ENABLED == 'true'
         run: |
-          security delete-keychain "$RUNNER_TEMP/app-signing.keychain-db" || true
+          security delete-keychain $RUNNER_TEMP/app-signing.keychain-db || true
 
       - name: Build iOS (debug simulator, unsigned)
-        if: inputs.release_scope != 'ios-app-store'
         run: |
           export CI_VERSION='${{ steps.meta.outputs.tag_name }}'
           export GIT_COMMIT='${{ github.sha }}'
@@ -901,7 +724,6 @@ jobs:
             --dart-define=BUILD_TIME="$BUILD_TIME"
 
       - name: Package iOS Runner.app (unsigned)
-        if: inputs.release_scope != 'ios-app-store'
         run: |
           set -euo pipefail
           VERSION="${{ steps.meta.outputs.tag_name }}"
@@ -920,7 +742,6 @@ jobs:
           ls -la beecount-${VERSION}-*
 
       - name: Package iOS Simulator Runner.app (debug, unsigned)
-        if: inputs.release_scope != 'ios-app-store'
         run: |
           set -euo pipefail
           VERSION="${{ steps.meta.outputs.tag_name }}"
@@ -938,30 +759,14 @@ jobs:
         env:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
-          APPLE_API_KEY_CONTENT: ${{ inputs.release_scope == 'ios-app-store' && secrets.APPLE_API_KEY_CONTENT || '' }}
-          APPLE_API_KEY_ID: ${{ inputs.release_scope == 'ios-app-store' && secrets.APPLE_API_KEY_ID || '' }}
-          APPLE_API_ISSUER_ID: ${{ inputs.release_scope == 'ios-app-store' && secrets.APPLE_API_ISSUER_ID || '' }}
-          IOS_BUILD_NUMBER_FLOOR: ${{ vars.IOS_BUILD_NUMBER_FLOOR }}
-          RELEASE_VERSION_NAME: ${{ steps.meta.outputs.tag_name }}
         run: |
           set -euo pipefail
-          IPA_FILE="beecount-$RELEASE_VERSION_NAME-signed.ipa"
+          VERSION="${{ steps.meta.outputs.tag_name }}"
+          IPA_FILE="beecount-${VERSION}-signed.ipa"
 
           if [ -z "${APPLE_ID:-}" ] || [ -z "${APPLE_APP_SPECIFIC_PASSWORD:-}" ]; then
-            if [[ "$IOS_APP_STORE" == true ]]; then
-              echo "::error::正式版需要原 Release 的 App Store Connect 上传凭据"
-              exit 1
-            fi
             echo "⚠️  APPLE_ID or APPLE_APP_SPECIFIC_PASSWORD not set, skipping TestFlight upload"
             exit 0
-          fi
-
-          if [[ "$IOS_APP_STORE" == true ]]; then
-            current=$(python3 "$GITHUB_WORKSPACE/tool/release/ios_app_store.py" build-number)
-            if [[ "$current" != "$OFFICIAL_IOS_BUILD_NUMBER" ]]; then
-              echo "::error::Apple 构建号水位已推进，请为这个版本重新 dispatch"
-              exit 1
-            fi
           fi
 
           if [ ! -f "$IPA_FILE" ]; then
@@ -980,7 +785,6 @@ jobs:
           echo "✅ Successfully uploaded to TestFlight!"
 
       - name: Upload iOS artifacts
-        if: inputs.release_scope != 'ios-app-store'
         uses: actions/upload-artifact@v4
         with:
           name: ios
@@ -997,7 +801,7 @@ jobs:
       - check-branch
       - android
       - ios
-    if: always() && inputs.release_scope != 'ios-app-store' && !contains(github.ref_name, '-beta.') && !contains(github.event.inputs.tag_name, '-beta.') && needs.check-branch.result == 'success' && needs.android.result == 'success' && (inputs.release_scope == 'android' || needs.ios.result == 'success')
+    if: always() && !contains(github.ref_name, '-beta.') && !contains(github.event.inputs.tag_name, '-beta.') && needs.check-branch.result == 'success' && needs.android.result == 'success' && needs.ios.result == 'success'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -1066,7 +870,6 @@ jobs:
           ls -R ./dist || true
 
       - name: Download iOS artifacts
-        if: inputs.release_scope != 'android'
         uses: actions/download-artifact@v4
         with:
           name: ios
@@ -1076,13 +879,7 @@ jobs:
         id: notes
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_RELEASE_NOTES: ${{ inputs.github_release_notes }}
         run: |
-          if [[ -n "$GITHUB_RELEASE_NOTES" ]]; then
-            printf '%s\n' "$GITHUB_RELEASE_NOTES" > RELEASE_NOTES.md
-            echo "notes_file=RELEASE_NOTES.md" >> "$GITHUB_OUTPUT"
-            exit
-          fi
           TAG="${{ steps.meta.outputs.tag_name }}"
           # 获取上一个 tag（不含当前 tag）
           PREV_TAG=$(git tag --list --sort=-version:refname | grep -v "^${TAG}$" | head -n1)
@@ -1116,7 +913,6 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.meta.outputs.tag_name }}
-          target_commitish: ${{ github.sha }}
           name: ${{ steps.meta.outputs.release_name }}
           prerelease: ${{ steps.meta.outputs.prerelease == 'true' }}
           body_path: ${{ steps.notes.outputs.notes_file }}
@@ -1128,7 +924,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Send Telegram notification
-        if: ${{ steps.meta.outputs.create_release == 'true' && inputs.release_scope != 'android' }}
+        if: ${{ steps.meta.outputs.create_release == 'true' }}
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
