@@ -1,6 +1,6 @@
 # BeeCount 项目 skill
 
-BeeCount 的发布、隔离验收和 PR 验收证据交付流程随项目维护。
+BeeCount 的发布、HTML 设计、PR、隔离验收与回收流程随项目维护。
 
 ## 一份源码，两个客户端入口
 
@@ -9,10 +9,13 @@ BeeCount 的发布、隔离验收和 PR 验收证据交付流程随项目维护�
 | 发布流程源码 | `.agents/skills/beecount-release/` |
 | 隔离验收源码 | `.agents/skills/isolated-app-cloud-qa/` |
 | PR 验收证据源码 | `.agents/skills/beecount-pr-qa-evidence/` |
+| 开发流程源码 | `.agents/skills/beecount-delivery/`，串联设计、PR、证据和回收 |
 | Codex 项目发现 | `.agents/skills/<name>/SKILL.md`，直接读取源码 |
 | Claude Code 项目发现 | `.claude/skills/<name>`，相对链接到同一份源码 |
 
 克隆 BeeCount 后，进入该仓启动新会话。Codex 可用 `$beecount-release`、`$isolated-app-cloud-qa`、`$beecount-pr-qa-evidence`，Claude Code 可用同名斜杠命令。也可按任务自动选择。
+
+BeeCount 的项目规则集中在 `AGENTS.md`，`CLAUDE.md` 通过 `@AGENTS.md` 引用。两个入口随仓库分发，新 clone 和 worktree 可直接读取。`python3 scripts/agents/project_skills.py bootstrap` 核对项目 Skill 入口，并为使用本地指令文件的工作区安装受管指令段。
 
 skill 使用标准 `name` / `description` frontmatter、相对 references 和可选 Codex UI 元数据。流程正文不依赖特定客户端的交互工具，不安装 MCP、hook 或 plugin；需要什么授权按当前用户请求决定。读取到 skill 不代表发布或验收已经执行。
 
