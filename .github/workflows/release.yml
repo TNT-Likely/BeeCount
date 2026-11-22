@@ -1,5 +1,5 @@
 name: Release
-run-name: ${{ inputs.release_scope == 'ios-app-store' && format('iOS App Store {0}', inputs.tag_name) || '' }}
+run-name: ${{ inputs.release_scope == 'ios-app-store' && format('iOS App Store {0}', inputs.tag_name) || inputs.release_scope == 'android' && format('Android {0}', inputs.tag_name) || '' }}
 
 on:
   push:
@@ -14,6 +14,7 @@ on:
         options:
           - standard
           - ios-app-store
+          - android
         default: standard
       tag_name:
         description: "Release tag (手动运行可自定义，留空则使用 manual-<short_sha>)"
@@ -33,6 +34,14 @@ on:
         default: "true"
       android_version_code_floor:
         description: "所有已交付正式版/Beta的最高Android versionCode；留空使用仓库变量ANDROID_VERSION_CODE_FLOOR，均空则拒绝构建"
+        required: false
+        default: ""
+      play_release_notes:
+        description: "Google Play 更新说明，JSON 对象，按语言标签提供"
+        required: false
+        default: ""
+      github_release_notes:
+        description: "GitHub Release 正文（可选）"
         required: false
         default: ""
 
@@ -80,13 +89,13 @@ jobs:
             echo "Current branch: $GITHUB_REF_NAME"
             exit 1
           fi
-          if [[ "$INPUT_SCOPE" == ios-app-store ]]; then
+          if [[ "$INPUT_SCOPE" == ios-app-store || "$INPUT_SCOPE" == android ]]; then
             if [[ "$GITHUB_REPOSITORY" != TNT-Likely/BeeCount || "$GITHUB_REF" != refs/heads/main || \
                   ! "$INPUT_TAG" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-              echo "::error::iOS App Store 发布只接受 BeeCount 主仓 main 和正式版本号"
+              echo "::error::单平台正式发布只接受 BeeCount 主仓 main 和正式版本号"
               exit 1
             fi
-            if [[ "$GITHUB_RUN_ATTEMPT" != 1 ]]; then
+            if [[ "$INPUT_SCOPE" == ios-app-store && "$GITHUB_RUN_ATTEMPT" != 1 ]]; then
               echo "::error::请重新 dispatch 以生成新的主线候选。历史候选源码见构建回执。"
               exit 1
             fi
@@ -98,6 +107,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: [check-branch]
     if: always() && inputs.release_scope != 'ios-app-store' && !contains(github.ref_name, '-beta.') && !contains(github.event.inputs.tag_name, '-beta.') && needs.check-branch.result == 'success'
+    env:
+      ANDROID_ONLY: ${{ inputs.release_scope == 'android' }}
+      BEECOUNT_REQUIRE_PRODUCTION_SIGNING: ${{ inputs.release_scope == 'android' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -148,7 +160,12 @@ jobs:
           cache: true
 
       - name: Flutter pub get
-        run: flutter pub get
+        run: |
+          if [[ "$ANDROID_ONLY" == true ]]; then
+            flutter pub get --enforce-lockfile
+          else
+            flutter pub get
+          fi
 
       - name: Setup Android signing from secrets (optional)
         env:
@@ -158,6 +175,13 @@ jobs:
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
           set -euo pipefail
+          umask 077
+          if [[ "$ANDROID_ONLY" == true ]] &&
+            [[ -z "$ANDROID_KEYSTORE_BASE64" || -z "$ANDROID_KEYSTORE_PASSWORD" ||
+               -z "$ANDROID_KEY_ALIAS" || -z "$ANDROID_KEY_PASSWORD" ]]; then
+            echo "::error::Android 正式发布需要官方签名凭据"
+            exit 1
+          fi
           if [ -n "${ANDROID_KEYSTORE_BASE64:-}" ]; then
             echo "Writing Android keystore from secret..."
             mkdir -p android/app
@@ -173,7 +197,24 @@ jobs:
             echo "No Android signing secrets provided; will use fallback CI keystore in Gradle."
           fi
 
+      - name: Setup Python for Google Play
+        if: inputs.release_scope == 'android'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Check current Google Play versionCode floor
+        if: inputs.release_scope == 'android'
+        env:
+          GOOGLE_PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
+        run: |
+          set -euo pipefail
+          python3 -m pip install google-auth google-api-python-client
+          floor=$(python3 tool/release/google_play_release.py floor)
+          echo "GOOGLE_PLAY_FLOOR=$floor" >> "$GITHUB_ENV"
+
       - name: Update pubspec.yaml version
+        id: android_version
         env:
           RELEASE_VERSION_NAME: ${{ steps.meta.outputs.tag_name }}
           ANDROID_VERSION_CODE_FLOOR: ${{ github.event.inputs.android_version_code_floor || vars.ANDROID_VERSION_CODE_FLOOR }}
@@ -189,12 +230,18 @@ jobs:
             exit 1
           fi
           python3 -m unittest discover -s tool/release -p 'test_android_version_code.py'
+          if [[ "$ANDROID_ONLY" == true ]]; then
+            ANDROID_VERSION_CODE_FLOOR=$(python3 -c \
+              'import os; print(max(int(os.environ["ANDROID_VERSION_CODE_FLOOR"]), int(os.environ["GOOGLE_PLAY_FLOOR"])))')
+          fi
           # 与本地APK共用全局floor：4.0.0 Beta为226..299；正式从300起，以后逐次+1。
           # 每次本地实际交付后须更新floor；Beta序号不能替代真实已发最高code。
           BUILD_NUMBER=$(python3 tool/release/android_version_code.py "$CLEAN_VERSION" \
             --minimum-code "$ANDROID_VERSION_CODE_FLOOR")
           sed -i "s/^version: .*/version: ${CLEAN_VERSION}+${BUILD_NUMBER}/" pubspec.yaml
           grep "^version:" pubspec.yaml
+          echo "code=$BUILD_NUMBER" >> "$GITHUB_OUTPUT"
+          echo "name=$CLEAN_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Build APK (release)
         run: |
@@ -296,6 +343,33 @@ jobs:
           echo "=== Final Android artifacts ==="
           find build/app/outputs -name "beecount-*"
 
+      - name: Verify official Android APK and AAB
+        if: inputs.release_scope == 'android'
+        env:
+          EXPECTED_CERT: ${{ vars.ANDROID_RELEASE_CERT_SHA256 }}
+          VERSION: ${{ steps.android_version.outputs.name }}
+          CODE: ${{ steps.android_version.outputs.code }}
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          tools="$ANDROID_HOME/build-tools/35.0.0"
+          apks=(build/app/outputs/apk/prod/release/beecount-*.apk)
+          [[ "$EXPECTED_CERT" =~ ^[0-9a-fA-F]{64}$ && ${#apks[@]} == 4 ]]
+          for artifact in "${apks[@]}"; do
+            certificate=$("$tools/apksigner" verify --print-certs "$artifact" |
+              awk -F ': ' '/^Signer #[0-9]+ certificate SHA-256 digest: / { print tolower($2) }')
+            [[ "$certificate" == "${EXPECTED_CERT,,}" ]]
+            badging=$("$tools/aapt" dump badging "$artifact")
+            [[ "$badging" == *"package: name='com.tntlikely.beecount' versionCode='$CODE' versionName='$VERSION'"* ]]
+            [[ "$badging" == *"targetSdkVersion:'36'"* ]]
+          done
+          bundle="build/app/outputs/bundle/prodRelease/beecount-$VERSION.aab"
+          jarsigner -verify "$bundle"
+          certificate=$(LC_ALL=C keytool -printcert -jarfile "$bundle" |
+            awk '/SHA256:/ && !seen++ {gsub(/:/,"",$2); print tolower($2)}')
+          [[ "$certificate" == "${EXPECTED_CERT,,}" ]]
+          echo "4 个 APK 与 Google Play AAB 签名核验通过"
+
       - name: Upload Android artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -305,107 +379,34 @@ jobs:
             build/app/outputs/apk/prod/release/beecount-*.apk
             build/app/outputs/bundle/prodRelease/beecount-*.aab
 
-      - name: Upload AAB to Google Play Console
+      - name: Upload AAB to Google Play production
         if: (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')) || github.event_name == 'workflow_dispatch'
         env:
           GOOGLE_PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
+          PLAY_RELEASE_NOTES: ${{ inputs.play_release_notes }}
+          VERSION: ${{ steps.android_version.outputs.name }}
+          CODE: ${{ steps.android_version.outputs.code }}
         run: |
-          VERSION="${{ steps.meta.outputs.tag_name }}"
-          AAB_FILE="build/app/outputs/bundle/prodRelease/beecount-${VERSION}.aab"
-
-          if [ -z "${GOOGLE_PLAY_SERVICE_ACCOUNT_JSON:-}" ]; then
-            echo "⚠️  GOOGLE_PLAY_SERVICE_ACCOUNT_JSON not set, skipping Google Play upload"
+          set -euo pipefail
+          if [[ -z "$GOOGLE_PLAY_SERVICE_ACCOUNT_JSON" ]]; then
+            if [[ "$ANDROID_ONLY" == true ]]; then
+              echo "::error::Android 正式发布需要 Google Play 凭据"
+              exit 1
+            fi
+            echo "Google Play 凭据为空，跳过商店上传"
             exit 0
           fi
-
-          if [ ! -f "$AAB_FILE" ]; then
-            echo "❌ AAB file not found: $AAB_FILE"
-            exit 1
+          if [[ "$ANDROID_ONLY" != true ]]; then
+            python3 -m pip install google-auth google-api-python-client
           fi
-
-          echo "📤 Uploading $AAB_FILE to Google Play Console..."
-
-          # 保存服务账户 JSON 到临时文件
-          echo "$GOOGLE_PLAY_SERVICE_ACCOUNT_JSON" > /tmp/service-account.json
-
-          # 使用 Google Play Developer API 上传
-          # 安装 google-play CLI 工具
-          pip install google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client
-
-          # 创建上传脚本
-          cat > /tmp/upload_to_play.py << 'UPLOAD_SCRIPT'
-          import sys
-          import json
-          from google.oauth2 import service_account
-          from googleapiclient.discovery import build
-          from googleapiclient.http import MediaFileUpload
-
-          # 配置
-          PACKAGE_NAME = 'com.tntlikely.beecount'
-          AAB_FILE = sys.argv[1]
-          TRACK = 'production'  # internal, alpha, beta, production
-
-          # 认证
-          credentials = service_account.Credentials.from_service_account_file(
-              '/tmp/service-account.json',
-              scopes=['https://www.googleapis.com/auth/androidpublisher']
-          )
-
-          # 创建 API 客户端
-          service = build('androidpublisher', 'v3', credentials=credentials)
-
-          try:
-              # 创建编辑
-              edit = service.edits().insert(body={}, packageName=PACKAGE_NAME).execute()
-              edit_id = edit['id']
-              print(f"✅ Created edit: {edit_id}")
-
-              # 上传 AAB
-              media = MediaFileUpload(AAB_FILE, mimetype='application/octet-stream', resumable=True)
-              bundle = service.edits().bundles().upload(
-                  packageName=PACKAGE_NAME,
-                  editId=edit_id,
-                  media_body=media
-              ).execute()
-              version_code = bundle['versionCode']
-              print(f"✅ Uploaded AAB, version code: {version_code}")
-
-              # 分配到轨道
-              track_body = {
-                  'releases': [{
-                      'versionCodes': [version_code],
-                      'status': 'completed'
-                  }]
-              }
-              service.edits().tracks().update(
-                  packageName=PACKAGE_NAME,
-                  editId=edit_id,
-                  track=TRACK,
-                  body=track_body
-              ).execute()
-              print(f"✅ Assigned to {TRACK} track")
-
-              # 提交编辑
-              service.edits().commit(packageName=PACKAGE_NAME, editId=edit_id).execute()
-              print("✅ Changes committed to Google Play Console!")
-
-          except Exception as e:
-              print(f"❌ Upload failed: {e}")
-              sys.exit(1)
-          UPLOAD_SCRIPT
-
-          python /tmp/upload_to_play.py "$AAB_FILE"
-
-          # 清理
-          rm -f /tmp/service-account.json /tmp/upload_to_play.py
-
-          echo "✅ Successfully uploaded to Google Play Console (alpha track)!"
+          python3 tool/release/google_play_release.py publish \
+            "build/app/outputs/bundle/prodRelease/beecount-$VERSION.aab" "$VERSION" "$CODE"
 
   ios:
     name: ${{ inputs.release_scope == 'ios-app-store' && 'iOS App Store' || 'iOS (app.zip + unsigned .ipa)' }}
     runs-on: ${{ inputs.release_scope == 'ios-app-store' && 'macos-26' || 'macos-latest' }}
     needs: [check-branch]
-    if: always() && !contains(github.ref_name, '-beta.') && !contains(github.event.inputs.tag_name, '-beta.') && needs.check-branch.result == 'success' && (inputs.release_scope != 'ios-app-store' || github.run_attempt == 1)
+    if: always() && inputs.release_scope != 'android' && !contains(github.ref_name, '-beta.') && !contains(github.event.inputs.tag_name, '-beta.') && needs.check-branch.result == 'success' && (inputs.release_scope != 'ios-app-store' || github.run_attempt == 1)
     environment: ${{ inputs.release_scope == 'ios-app-store' && 'ios-app-store' || 'ios-standard-release' }}
     permissions:
       contents: read
@@ -996,7 +997,7 @@ jobs:
       - check-branch
       - android
       - ios
-    if: always() && inputs.release_scope != 'ios-app-store' && !contains(github.ref_name, '-beta.') && !contains(github.event.inputs.tag_name, '-beta.') && needs.check-branch.result == 'success' && needs.android.result == 'success' && needs.ios.result == 'success'
+    if: always() && inputs.release_scope != 'ios-app-store' && !contains(github.ref_name, '-beta.') && !contains(github.event.inputs.tag_name, '-beta.') && needs.check-branch.result == 'success' && needs.android.result == 'success' && (inputs.release_scope == 'android' || needs.ios.result == 'success')
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -1065,6 +1066,7 @@ jobs:
           ls -R ./dist || true
 
       - name: Download iOS artifacts
+        if: inputs.release_scope != 'android'
         uses: actions/download-artifact@v4
         with:
           name: ios
@@ -1074,7 +1076,13 @@ jobs:
         id: notes
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_RELEASE_NOTES: ${{ inputs.github_release_notes }}
         run: |
+          if [[ -n "$GITHUB_RELEASE_NOTES" ]]; then
+            printf '%s\n' "$GITHUB_RELEASE_NOTES" > RELEASE_NOTES.md
+            echo "notes_file=RELEASE_NOTES.md" >> "$GITHUB_OUTPUT"
+            exit
+          fi
           TAG="${{ steps.meta.outputs.tag_name }}"
           # 获取上一个 tag（不含当前 tag）
           PREV_TAG=$(git tag --list --sort=-version:refname | grep -v "^${TAG}$" | head -n1)
@@ -1108,6 +1116,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.meta.outputs.tag_name }}
+          target_commitish: ${{ github.sha }}
           name: ${{ steps.meta.outputs.release_name }}
           prerelease: ${{ steps.meta.outputs.prerelease == 'true' }}
           body_path: ${{ steps.notes.outputs.notes_file }}
@@ -1119,7 +1128,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Send Telegram notification
-        if: ${{ steps.meta.outputs.create_release == 'true' }}
+        if: ${{ steps.meta.outputs.create_release == 'true' && inputs.release_scope != 'android' }}
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
