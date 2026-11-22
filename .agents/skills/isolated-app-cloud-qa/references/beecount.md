@@ -8,7 +8,7 @@ App 仓维护 `scripts/qa/isolated_app_cloud.py`、`scripts/qa/test_isolation.py
 
 保留同样的隔离身份核验：私有 run 与所有权标记、源码/skill hash、原有设备保护名单、run 所属的 UDID/serial、独立包和共享容器、安装前产物核验及已有 QA 数据备份。按被测功能设置本地 fixture 和可见断言；交接同一正常入口 App，清理实际创建的本轮资源。
 
-`isolated_app_cloud.py prepare` 默认启动 Cloud。仅 App 用 prepare --app-only 准备一台隔离 iOS 模拟器，然后 build 和 run；review 复用原有安装及数据，restart-check 重启正常 App。Android 使用下方私有 AVD 入口。复用所需的源码副本、产物和设备核验能力，按实际独立 App 入口执行；需要适配测试驱动时移除 Cloud 探针、鉴权、同步 fixture 及 Cloud 特有的可见文字依赖，不能伪造服务成功结果。现有 `notification_badge_check.py` 依赖已完成联调的正常入口 App，仅用于复用该类 run，不作为纯 App 验收必须启动 Cloud 的理由。
+`isolated_app_cloud.py prepare` 默认启动 Cloud。仅 App 用 prepare --app-only 准备一台隔离 iOS 模拟器，然后 build 和 run；review 复用原有安装及数据，restart-check 重启正常 App。重复 prepare 时传同一个 --round，默认复用同运行时的已登记设备。确有需要时才加 --new-run。Android 使用下方私有 AVD 入口。复用所需的源码副本、产物和设备核验能力，按实际独立 App 入口执行；需要适配测试驱动时移除 Cloud 探针、鉴权、同步 fixture 及 Cloud 特有的可见文字依赖，不能伪造服务成功结果。现有 `notification_badge_check.py` 依赖已完成联调的正常入口 App，仅用于复用该类 run，不作为纯 App 验收必须启动 Cloud 的理由。
 
 ### Android 角标专项
 

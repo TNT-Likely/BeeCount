@@ -81,7 +81,7 @@ def run_lock(root):
 
 
 @contextmanager
-def edit_round(directory, round_id, *, create=False):
+def edit_round(directory, round_id, *, create=False, persist=True):
     round_id = checked_id(round_id)
     directory.mkdir(mode=0o700, parents=True, exist_ok=True)
     destination = directory / (round_id + '.json')
@@ -95,7 +95,8 @@ def edit_round(directory, round_id, *, create=False):
         else:
             raise ValueError(f'QA round does not exist: {round_id}')
         yield record
-        write_json(destination, record)
+        if persist:
+            write_json(destination, record)
 
 
 def save(directory, source):
@@ -133,16 +134,24 @@ def register_run(directory, round_id, root):
     if manifest['root'] != str(root) or marker.read_text().strip() != run_id:
         raise ValueError('QA owner does not match the registered run')
     item = {'id': run_id, 'root': str(root), 'manifest': str(manifest_path)}
-    with edit_round(directory, round_id, create=True) as record:
-        runs = record.setdefault('runs', [])
-        for previous in runs:
-            if previous.get('id', previous.get('run_id')) == run_id:
-                if previous.get('root') != item['root']:
-                    raise ValueError('Existing run ID belongs to another directory')
-                return
-        if record.get('cleanup_receipt'):
-            raise ValueError('Start a new QA round after cleanup')
-        runs.append(item)
+    directory.mkdir(mode=0o700, parents=True, exist_ok=True)
+    with file_lock(directory / '.registration.lock'):
+        for path in directory.glob('*.json'):
+            if path.stem == round_id:
+                continue
+            other, _ = read_record(path)
+            if any(run.get('root') == str(root) for run in other.get('runs', [])):
+                raise ValueError('This run is already owned by another round')
+        with edit_round(directory, round_id, create=True) as record:
+            runs = record.setdefault('runs', [])
+            for previous in runs:
+                if previous.get('id', previous.get('run_id')) == run_id:
+                    if previous.get('root') != item['root']:
+                        raise ValueError('Existing run ID belongs to another directory')
+                    return
+            if record.get('cleanup_receipt'):
+                raise ValueError('Start a new QA round after cleanup')
+            runs.append(item)
 
 
 def register_prepared_run(args, root):

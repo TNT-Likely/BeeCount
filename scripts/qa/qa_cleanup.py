@@ -2,6 +2,7 @@
 import json
 import os
 from pathlib import Path
+import plistlib
 import shutil
 import signal
 import subprocess
@@ -127,6 +128,10 @@ def cleanup_ios(identity, apply):
         raise ValueError('Simulator name or runtime changed')
     storage = Path(device['dataPath']).parent if device.get('dataPath') else (
         Path.home() / 'Library/Developer/CoreSimulator/Devices' / udid)
+    for info in (storage / 'data/Containers/Bundle/Application').glob('*/*.app/Info.plist'):
+        app_id = plistlib.loads(info.read_bytes()).get('CFBundleIdentifier', '')
+        if not any(app_id == allowed or app_id.startswith(allowed + '.') for allowed in QA_APP_IDS):
+            raise ValueError('Simulator contains an application outside the verified BeeCount QA IDs')
     if apply:
         if device['state'] != 'Shutdown':
             command('xcrun', 'simctl', 'shutdown', udid)
@@ -202,7 +207,7 @@ def verify_disappeared(intent):
     return dict(intent, state='removed')
 
 def cleanup_round(directory, round_id, apply, end_review):
-    with edit_round(directory, round_id) as record:
+    with edit_round(directory, round_id, persist=apply) as record:
         if record.get('cleanup_receipt'):
             return {'round': round_id, 'state': 'already cleaned'}
         if record.get('keep_after_merge') and not end_review:

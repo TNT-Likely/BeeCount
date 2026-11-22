@@ -1,5 +1,6 @@
 """Regression checks for handoff, retries and ownership-sensitive cleanup."""
 import json
+import plistlib
 from pathlib import Path
 import tempfile
 import unittest
@@ -42,6 +43,34 @@ class LifecycleTests(unittest.TestCase):
         self.assertEqual(record['pending_pr_repos'], ['tnt-likely/beecount-cloud'])
         self.assertEqual(len(record['runs']), 1)
         self.assertEqual(len(lifecycle.find(self.registry, APP_PR.lower())), 1)
+
+    def test_run_cannot_be_registered_to_two_rounds(self):
+        with self.assertRaisesRegex(ValueError, 'another round'):
+            lifecycle.register_run(self.registry, 'different', self.root)
+
+    def test_cleanup_preview_preserves_registry(self):
+        record = self.registry / 'example.json'
+        original = record.read_bytes()
+        self.assertEqual(qa_cleanup.cleanup_round(self.registry, 'example', False, True)['state'],
+                         'ready')
+        self.assertEqual(record.read_bytes(), original)
+        self.assertTrue(self.root.is_dir())
+
+    def test_cleanup_refuses_simulator_with_production_app(self):
+        device_root = self.base / 'simulated-device'
+        bundle = device_root / 'data/Containers/Bundle/Application/id/Runner.app'
+        bundle.mkdir(parents=True)
+        (bundle / 'Info.plist').write_bytes(plistlib.dumps({
+            'CFBundleIdentifier': 'com.tntlikely.beecount',
+        }))
+        runtime = 'fixture-runtime'
+        identity = {'udid': 'fixture-udid', 'protected_udids': [],
+                    'runtime': runtime, 'device_name': 'fixture-device'}
+        data = {'udid': identity['udid'], 'name': identity['device_name'],
+                'dataPath': str(device_root / 'data'), 'state': 'Shutdown'}
+        with patch.object(qa_cleanup, 'ios_devices', return_value=[(runtime, data)]):
+            with self.assertRaisesRegex(ValueError, 'outside'):
+                qa_cleanup.cleanup_ios(identity, False)
 
     def test_cleanup_waits_for_each_associated_pr(self):
         with lifecycle.edit_round(self.registry, 'example') as record:

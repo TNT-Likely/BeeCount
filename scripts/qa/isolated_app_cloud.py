@@ -20,7 +20,8 @@ import time
 import urllib.parse
 import urllib.request
 
-from pr_lifecycle import add_round_arguments, register_prepared_run, run_lock, write_json
+from pr_lifecycle import (add_round_arguments, checked_id, file_lock, read_record,
+                          register_prepared_run, registry, run_lock, write_json)
 
 APP_ID = 'com.tntlikely.beecount.qa'
 GROUP_ID = 'group.com.tntlikely.beecount.qa'
@@ -119,6 +120,30 @@ def read_skill_identity(args):
 
 
 def prepare(args):
+    if args.app_only and args.round:
+        round_id = checked_id(args.round)
+        directory = registry(Path(args.registry_repo) if args.registry_repo else PROJECT)
+        directory.mkdir(mode=0o700, parents=True, exist_ok=True)
+        with file_lock(directory / (round_id + '.prepare.lock')):
+            path = directory / (round_id + '.json')
+            if path.exists() and not args.new_run:
+                record, _ = read_record(path)
+                for item in reversed(record.get('runs', [])):
+                    root = Path(item['root'])
+                    if not root.is_dir():
+                        continue
+                    _, manifest = load_run(root)
+                    if (manifest.get('mode') == 'app-only' and
+                            manifest.get('runtime') == args.runtime and manifest.get('udid')):
+                        device(manifest)
+                        print(f'Reusing QA round: {round_id}; run: {root}', flush=True)
+                        return
+            prepare_new(args)
+    else:
+        prepare_new(args)
+
+
+def prepare_new(args):
     skill_source, skill_identity = read_skill_identity(args)
     root = Path(tempfile.mkdtemp(prefix='beecount-qa-')).resolve()
     root.chmod(0o700)
@@ -270,6 +295,9 @@ def snapshot(root, manifest):
     target = inside(root, root / 'app-source')
     if target.exists():
         raise ValueError('App snapshot already exists; create a fresh run for new code')
+    if target.exists():
+        # Rebuild the generated source copy while retaining the owned device and fixture.
+        shutil.rmtree(target)
     target.mkdir()
     files = command(['git', '-C', PROJECT, 'ls-files', '-z']).split('\0')
     files += [str(p.relative_to(PROJECT)) for directory in ('scripts/qa', 'integration_test', 'test_driver')
@@ -855,6 +883,7 @@ def main():
     parser.add_argument('--run')
     parser.add_argument('--cloud-repo')
     parser.add_argument('--app-only', action='store_true', help='Prepare a disposable iOS App-only simulator')
+    parser.add_argument('--new-run', action='store_true', help='Create a separate owned App-only simulator when required')
     parser.add_argument('--cloud-python', help='Read-only Python runtime override; defaults to the Cloud checkout .venv')
     parser.add_argument('--cloud-ref', default='origin/main')
     parser.add_argument('--scenario', choices=tuple(SCENARIOS), default='transaction-copy')
@@ -885,7 +914,10 @@ def main():
             elif manifest.get('mode') == 'app-only' and args.action in ('run', 'review', 'restart-check'):
                 if args.action == 'restart-check':
                     command(['xcrun', 'simctl', 'terminate', manifest['udid'], APP_ID])
-                open_app_only(root, manifest, install=args.action == 'run' and not manifest.get('review_pending'))
+                install = args.action == 'run' and (
+                    not manifest.get('normal_artifact_hash') or
+                    manifest.get('artifact_hash') != manifest.get('normal_artifact_hash'))
+                open_app_only(root, manifest, install=install)
             elif args.action == 'run':
                 run(root, manifest, args.flutter)
             elif args.action == 'restart-check':
