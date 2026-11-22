@@ -159,3 +159,17 @@ App Store签名IPA不能直接侧载，安装走TestFlight。Apple处理成功�
 使用 `docs/releases/BETA_TEMPLATE.md`，每版独立文档。`## 更新摘要` 只列相对上一Beta的3–5项用户可见差异，不拼接全部commit。摘要缺失或无效时plan即拒绝。升级注意、待验收范围和反馈issue580另列。
 
 Release禁用自动生成日志，`make_latest=false`，不替代正式Latest。TG沿用已发布正文的同一摘要，最多5项、每项80个Unicode码点，总长最多1400字符/15行，附双端状态、Release与反馈链接，不堆积历史提交。
+
+## iOS App Store 正式发布
+
+从主仓 `main` 手动运行现有 `Release`，选择 `ios-app-store` 并填写正式版本号：
+
+```sh
+gh workflow run release.yml --ref main -f release_scope=ios-app-store -f tag_name=4.0.1
+```
+
+工作流使用限定 `main` 的 GitHub 环境 `ios-app-store`，分别以只读 SSH deploy key 检出画师库和商业库的 `main`。在该环境配置 `IOS_APP_STORE_SKINS_REPOSITORY`、`IOS_APP_STORE_SKINS_SSH_KEY`、`IOS_APP_STORE_COMMERCIAL_REPOSITORY`、`IOS_APP_STORE_COMMERCIAL_SSH_KEY` 和 `IOS_APP_STORE_METRICS_URL`。Apple Distribution、主 App 和 Widget 描述文件、App Store Connect API 与上传凭据沿用现有仓库配置。正式候选开启皮肤和付费能力，统计仍需用户同意及生产 StoreKit 验证。
+
+Runner 从已审阅的源码组装，检查 Flutter 和 CocoaPods 锁并查询 Apple 最新构建号。归档、签名、App Store 导出和上传在 `Release` 的 iOS 任务内完成。构建摘要记录三个源码提交和 IPA SHA-256。正式 IPA 只上传 Apple。标准发布模式保持原 Android 和 GitHub Release 产物。
+
+一次 dispatch 对应一次主线候选。失败后的新候选用新 dispatch，历史候选按摘要中的提交重建。上传后在 App Store Connect 核对 `VALID`、`APP_STORE_ELIGIBLE`、构建号和加密声明，再验收和提审。
