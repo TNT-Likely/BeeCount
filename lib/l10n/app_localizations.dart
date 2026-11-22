@@ -17803,7 +17803,7 @@ abstract class AppLocalizations {
   /// No description provided for @fullDataExportDescription.
   ///
   /// In en, this message translates to:
-  /// **'Package all ledgers on this device into one ZIP. Open it to browse records and image attachments by ledger name.'**
+  /// **'Package all ledgers on this device into one ZIP. Open it to browse CSV records and image attachments by ledger name.'**
   String get fullDataExportDescription;
 
   /// No description provided for @fullDataExportLedgers.
@@ -17851,7 +17851,7 @@ abstract class AppLocalizations {
   /// No description provided for @fullDataExportMissing.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, one{One file is unavailable.} other{{count} files are unavailable.}} See the archive manifest for details.'**
+  /// **'{count, plural, one{One file is unavailable.} other{{count} files are unavailable.}} See missing_files.csv for details.'**
   String fullDataExportMissing(int count);
 
   /// No description provided for @fullDataExportShare.

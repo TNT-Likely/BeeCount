@@ -9475,7 +9475,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get fullDataExportSubtitle => '所有账本、图片附件和配置 · ZIP';
 
   @override
-  String get fullDataExportDescription => '将此设备上的所有账本打包成一个 ZIP。解压后可按账本名称浏览账单和图片附件。';
+  String get fullDataExportDescription => '将此设备上的所有账本打包成一个 ZIP。解压后可按账本名称浏览账单 CSV 和图片附件。';
 
   @override
   String get fullDataExportLedgers => '所有账本与账单';
@@ -9502,7 +9502,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String fullDataExportMissing(int count) {
-    return '$count 项文件未能加入。归档清单列出了缺失项。';
+    return '$count 项文件未能加入。缺失项见 missing_files.csv。';
   }
 
   @override

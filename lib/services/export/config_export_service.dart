@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'dart:io';
+import 'package:path/path.dart' as path;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:yaml/yaml.dart';
 import 'package:flutter_cloud_sync/flutter_cloud_sync.dart';
@@ -14,7 +16,7 @@ import '../../ai/providers/ai_provider_manager.dart';
 // 导入 OrderingTerm
 typedef OrderingTerm = d.OrderingTerm;
 
-/// 递归转换 Map 为 Map<String, dynamic>
+/// 递归转换 Map 为 `Map<String, dynamic>`
 /// YAML 解析后的 Map 可能是 YamlMap，键可能不是 String 类型
 Map<String, dynamic> _convertToStringDynamicMap(Map map) {
   return map.map((key, value) {
@@ -1063,7 +1065,9 @@ class CategoryItem {
     );
   }
 
-  factory CategoryItem.fromDb(Category category, String? parentName) {
+  factory CategoryItem.fromDb(Category category, String? parentName,
+      {bool portable = false}) {
+    final iconPath = category.customIconPath;
     return CategoryItem(
       name: category.name,
       kind: category.kind,
@@ -1072,7 +1076,9 @@ class CategoryItem {
       parentName: parentName,
       level: category.level,
       iconType: category.iconType,
-      customIconPath: category.customIconPath,
+      customIconPath: portable && iconPath != null && iconPath.isNotEmpty
+          ? 'custom_icons/${path.basename(iconPath)}'
+          : iconPath,
       communityIconId: category.communityIconId,
     );
   }
@@ -1248,20 +1254,49 @@ class ConfigExportService {
     }
   }
 
+  // Portable archives need the same schema with quoting for arbitrary names
+  // and notes. Keep existing configuration exports and their comments intact.
+  static void _writePortableYaml(StringBuffer output, Object? value, int depth) {
+    final indent = '  ' * depth;
+
+    void writeValue(String prefix, Object? child) {
+      if ((child is Map && child.isNotEmpty) ||
+          (child is List && child.isNotEmpty)) {
+        output.writeln(prefix);
+        _writePortableYaml(output, child, depth + 1);
+      } else {
+        output.writeln('$prefix ${jsonEncode(child)}');
+      }
+    }
+
+    if (value is Map) {
+      for (final entry in value.entries) {
+        writeValue('$indent${entry.key}:', entry.value);
+      }
+    } else if (value is List) {
+      for (final item in value) {
+        writeValue('$indent-', item);
+      }
+    }
+  }
+
   /// 导出配置到YAML字符串
   /// [repository] 数据仓库实例，用于导出周期账单等数据
   /// [ledgerId] 账本ID，用于过滤导出的周期账单
   /// [options] 导出选项，控制导出哪些内容
+  /// [portable] 使用相同配置结构，导出已有分类和可迁移设置。
   static Future<String> exportToYaml({
     BaseRepository? repository,
     int? ledgerId,
     ExportOptions options = ExportOptions.all,
+    bool portable = false,
+    SharedPreferences? preferences,
   }) async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = preferences ?? await SharedPreferences.getInstance();
 
     // 读取Supabase配置
     SupabaseConfig? supabaseConfig;
-    final supabaseCfgRaw = prefs.getString('cloud_supabase_cfg');
+    final supabaseCfgRaw = portable ? null : prefs.getString('cloud_supabase_cfg');
     if (supabaseCfgRaw != null) {
       try {
         final cfg = decodeCloudConfig(supabaseCfgRaw);
@@ -1281,7 +1316,7 @@ class ConfigExportService {
 
     // 读取WebDAV配置
     WebdavConfig? webdavConfig;
-    final webdavCfgRaw = prefs.getString('cloud_webdav_cfg');
+    final webdavCfgRaw = portable ? null : prefs.getString('cloud_webdav_cfg');
     if (webdavCfgRaw != null) {
       try {
         final cfg = decodeCloudConfig(webdavCfgRaw);
@@ -1302,7 +1337,7 @@ class ConfigExportService {
 
     // 读取S3配置
     S3Config? s3Config;
-    final s3CfgRaw = prefs.getString('cloud_s3_cfg');
+    final s3CfgRaw = portable ? null : prefs.getString('cloud_s3_cfg');
     if (s3CfgRaw != null) {
       try {
         final cfg = decodeCloudConfig(s3CfgRaw);
@@ -1331,7 +1366,7 @@ class ConfigExportService {
     // 勾选才带上。当前实现：cloud_beecount_cloud_cfg 里只存 base_url+email，
     // session token 另一把 SharedPreferences key 管 —— 导出 yaml 只取前者。
     BeeCountCloudConfig? beecountCloudConfig;
-    final beecountCfgRaw = prefs.getString('cloud_beecount_cloud_cfg');
+    final beecountCfgRaw = portable ? null : prefs.getString('cloud_beecount_cloud_cfg');
     if (beecountCfgRaw != null) {
       try {
         final cfg = decodeCloudConfig(beecountCfgRaw);
@@ -1353,43 +1388,46 @@ class ConfigExportService {
       }
     }
 
-    // 读取AI配置
     AIConfig? aiConfig;
-    final glmApiKey = prefs.getString(AIConstants.keyGlmApiKey);
-    final glmModel = prefs.getString(AIConstants.keyGlmModel);
-    final glmVisionModel = prefs.getString(AIConstants.keyGlmVisionModel);
-    final aiStrategy = prefs.getString(AIConstants.keyAiStrategy);
-    final aiEnabled = prefs.getBool(AIConstants.keyAiBillExtractionEnabled);
-    final aiUseVision = prefs.getBool(AIConstants.keyAiUseVision);
+    if (!portable) {
+      // 读取AI配置
+      final glmApiKey = prefs.getString(AIConstants.keyGlmApiKey);
+      final glmModel = prefs.getString(AIConstants.keyGlmModel);
+      final glmVisionModel = prefs.getString(AIConstants.keyGlmVisionModel);
+      final aiStrategy = prefs.getString(AIConstants.keyAiStrategy);
+      final aiEnabled = prefs.getBool(AIConstants.keyAiBillExtractionEnabled);
+      final aiUseVision = prefs.getBool(AIConstants.keyAiUseVision);
 
-    // 读取服务商列表和能力绑定
-    List<AIServiceProviderConfig>? aiProviders;
-    AICapabilityBinding? aiCapabilityBinding;
-    try {
-      aiProviders = await AIProviderManager.getProviders();
-      aiCapabilityBinding = await AIProviderManager.getCapabilityBinding();
-      logger.info('ConfigExport', 'AI服务商数量: ${aiProviders.length}');
-      for (final p in aiProviders) {
-        logger.info('ConfigExport', '  服务商: ${p.name} (${p.id}), isBuiltIn=${p.isBuiltIn}');
+      // 读取服务商列表和能力绑定
+      List<AIServiceProviderConfig>? aiProviders;
+      AICapabilityBinding? aiCapabilityBinding;
+      try {
+        aiProviders = await AIProviderManager.getProviders();
+        aiCapabilityBinding = await AIProviderManager.getCapabilityBinding();
+        logger.info('ConfigExport', 'AI服务商数量: ${aiProviders.length}');
+        for (final p in aiProviders) {
+          logger.info('ConfigExport', '  服务商: ${p.name} (${p.id}), isBuiltIn=${p.isBuiltIn}');
+        }
+        logger.info('ConfigExport', 'AI能力绑定: text=${aiCapabilityBinding.textProviderId}, vision=${aiCapabilityBinding.visionProviderId}, speech=${aiCapabilityBinding.speechProviderId}');
+      } catch (e) {
+        logger.warning('ConfigExport', '读取AI服务商配置失败: $e');
       }
-      logger.info('ConfigExport', 'AI能力绑定: text=${aiCapabilityBinding.textProviderId}, vision=${aiCapabilityBinding.visionProviderId}, speech=${aiCapabilityBinding.speechProviderId}');
-    } catch (e) {
-      logger.warning('ConfigExport', '读取AI服务商配置失败: $e');
-    }
 
-    if (glmApiKey != null || aiStrategy != null || aiEnabled != null ||
-        aiUseVision != null || glmModel != null || glmVisionModel != null ||
-        aiProviders != null || aiCapabilityBinding != null) {
-      aiConfig = AIConfig(
-        glmApiKey: glmApiKey,
-        glmModel: glmModel,
-        glmVisionModel: glmVisionModel,
-        strategy: aiStrategy,
-        enabled: aiEnabled,
-        useVision: aiUseVision,
-        providers: aiProviders,
-        capabilityBinding: aiCapabilityBinding,
-      );
+      if (glmApiKey != null || aiStrategy != null || aiEnabled != null ||
+          aiUseVision != null || glmModel != null || glmVisionModel != null ||
+          aiProviders != null || aiCapabilityBinding != null) {
+        aiConfig = AIConfig(
+          glmApiKey: glmApiKey,
+          glmModel: glmModel,
+          glmVisionModel: glmVisionModel,
+          strategy: aiStrategy,
+          enabled: aiEnabled,
+          useVision: aiUseVision,
+          providers: aiProviders,
+          capabilityBinding: aiCapabilityBinding,
+        );
+      }
+
     }
 
     // 预先获取所有账本、分类、账户的名称映射（用于关联数据导出）
@@ -1418,7 +1456,6 @@ class ConfigExportService {
     final Set<int> requiredAccountIds = {};
 
     // 读取应用设置
-    AppSettingsConfig? appSettings;
     final accountFeatureEnabled = prefs.getBool('account_feature_enabled');
     final defaultIncomeAccountId = prefs.getInt('default_income_account_id');
     final defaultExpenseAccountId = prefs.getInt('default_expense_account_id');
@@ -1445,8 +1482,8 @@ class ConfigExportService {
     final noteHistoryLimit =
         prefs.getInt('noteHistoryLimit') ?? 20;
     final incomeExpenseColorScheme = prefs.getBool('incomeExpenseColorScheme');
-    final cloudServiceType = prefs.getString('cloud_active_type');
-    final autoSync = prefs.getBool('auto_sync');
+    final cloudServiceType = portable ? null : prefs.getString('cloud_active_type');
+    final autoSync = portable ? null : prefs.getBool('auto_sync');
     final autoScreenshotEnabled =
         prefs.getBool('auto_screenshot_billing_enabled');
     final shortcutPreferCamera = prefs.getBool('shortcut_prefer_camera');
@@ -1467,64 +1504,35 @@ class ConfigExportService {
       }
     }
 
-    // 如果有任何应用设置，就创建配置对象
-    if (accountFeatureEnabled != null ||
-        defaultIncomeAccountName != null ||
-        defaultExpenseAccountName != null ||
-        reminderEnabled != null ||
-        reminderHour != null ||
-        reminderMinute != null ||
-        languageCode != null ||
-        countryCode != null ||
-        primaryColor != null ||
-        fontScaleLevel != null ||
-        customFontScale != null ||
-        themeMode != null ||
-        darkModePatternStyle != null ||
-        headerSkin != null ||
-        skinCardOpacity != null ||
-        skinCardBlur != null ||
-        compactAmount != null ||
-        showTransactionTime != null ||
-        noteDisplayMode != null ||
-        noteHistoryScope != null ||
-        noteHistorySort != null ||
-        noteHistoryLimit != null ||
-        incomeExpenseColorScheme != null ||
-        cloudServiceType != null ||
-        autoSync != null ||
-        autoScreenshotEnabled != null ||
-        shortcutPreferCamera != null) {
-      appSettings = AppSettingsConfig(
-        accountFeatureEnabled: accountFeatureEnabled,
-        defaultIncomeAccountName: defaultIncomeAccountName,
-        defaultExpenseAccountName: defaultExpenseAccountName,
-        reminderEnabled: reminderEnabled,
-        reminderHour: reminderHour,
-        reminderMinute: reminderMinute,
-        languageCode: languageCode,
-        countryCode: countryCode,
-        primaryColor: primaryColor,
-        fontScaleLevel: fontScaleLevel,
-        customFontScale: customFontScale,
-        themeMode: themeMode,
-        darkModePatternStyle: darkModePatternStyle,
-        headerSkin: headerSkin,
-        skinCardOpacity: skinCardOpacity,
-        skinCardBlur: skinCardBlur,
-        compactAmount: compactAmount,
-        showTransactionTime: showTransactionTime,
-        noteDisplayMode: noteDisplayMode,
-        noteHistoryScope: noteHistoryScope,
-        noteHistorySort: noteHistorySort,
-        noteHistoryLimit: noteHistoryLimit,
-        incomeExpenseColorScheme: incomeExpenseColorScheme,
-        cloudServiceType: cloudServiceType,
-        autoSync: autoSync,
-        autoScreenshotEnabled: autoScreenshotEnabled,
-        shortcutPreferCamera: shortcutPreferCamera,
-      );
-    }
+    final appSettings = AppSettingsConfig(
+      accountFeatureEnabled: accountFeatureEnabled,
+      defaultIncomeAccountName: defaultIncomeAccountName,
+      defaultExpenseAccountName: defaultExpenseAccountName,
+      reminderEnabled: reminderEnabled,
+      reminderHour: reminderHour,
+      reminderMinute: reminderMinute,
+      languageCode: languageCode,
+      countryCode: countryCode,
+      primaryColor: primaryColor,
+      fontScaleLevel: fontScaleLevel,
+      customFontScale: customFontScale,
+      themeMode: themeMode,
+      darkModePatternStyle: darkModePatternStyle,
+      headerSkin: headerSkin,
+      skinCardOpacity: skinCardOpacity,
+      skinCardBlur: skinCardBlur,
+      compactAmount: compactAmount,
+      showTransactionTime: showTransactionTime,
+      noteDisplayMode: noteDisplayMode,
+      noteHistoryScope: noteHistoryScope,
+      noteHistorySort: noteHistorySort,
+      noteHistoryLimit: noteHistoryLimit,
+      incomeExpenseColorScheme: incomeExpenseColorScheme,
+      cloudServiceType: cloudServiceType,
+      autoSync: autoSync,
+      autoScreenshotEnabled: autoScreenshotEnabled,
+      shortcutPreferCamera: shortcutPreferCamera,
+    );
 
     // 读取周期账单配置（导出全部账本的周期记账）
     RecurringTransactionsConfig? recurringConfig;
@@ -1619,25 +1627,30 @@ class ConfigExportService {
     CategoriesConfig? categoriesConfig;
     if (repository != null && (options.categories || requiredCategoryIds.isNotEmpty)) {
       try {
-        // 获取所有分类（收入、支出和转账）
-        final expenseCategories = await repository.getTopLevelCategories('expense');
-        final incomeCategories = await repository.getTopLevelCategories('income');
         final categoriesList = <Category>[];
-        categoriesList.addAll(expenseCategories);
-        categoriesList.addAll(incomeCategories);
+        if (portable) {
+          categoriesList.addAll(await repository.getAllCategories());
+        } else {
+          // 获取所有分类（收入、支出和转账）
+          final expenseCategories = await repository.getTopLevelCategories('expense');
+          final incomeCategories = await repository.getTopLevelCategories('income');
+          categoriesList.addAll(expenseCategories);
+          categoriesList.addAll(incomeCategories);
 
-        // 获取虚拟转账分类
-        try {
-          final transferCategory = await repository.getTransferCategory();
-          categoriesList.add(transferCategory);
-        } catch (e) {
-          // 转账分类不存在时忽略
-        }
+          // 获取虚拟转账分类
+          try {
+            final transferCategory = await repository.getTransferCategory();
+            categoriesList.add(transferCategory);
+          } catch (e) {
+            // 转账分类不存在时忽略
+          }
 
-        // 获取所有子分类
-        for (final category in [...expenseCategories, ...incomeCategories]) {
-          final subCategories = await repository.getSubCategories(category.id);
-          categoriesList.addAll(subCategories);
+          // 获取所有子分类
+          for (final category in [...expenseCategories, ...incomeCategories]) {
+            final subCategories = await repository.getSubCategories(category.id);
+            categoriesList.addAll(subCategories);
+          }
+
         }
 
         if (categoriesList.isNotEmpty) {
@@ -1675,7 +1688,7 @@ class ConfigExportService {
                 if (category.parentId != null && categoryMap.containsKey(category.parentId)) {
                   parentName = categoryMap[category.parentId]!.name;
                 }
-                return CategoryItem.fromDb(category, parentName);
+                return CategoryItem.fromDb(category, parentName, portable: portable);
               }).toList(),
             );
           }
@@ -1738,7 +1751,7 @@ class ConfigExportService {
     final exportS3 = options.appSettings ? s3Config : null;
     final exportBeecountCloud =
         options.appSettings ? beecountCloudConfig : null;
-    final exportAi = options.ai ? aiConfig : null;
+    final exportAi = options.ai && !portable ? aiConfig : null;
     final exportAppSettings = options.appSettings ? appSettings : null;
 
     logger.info('ConfigExport', '导出选项: ai=${options.ai}, aiConfig是否存在=${aiConfig != null}');
@@ -1763,6 +1776,11 @@ class ConfigExportService {
 
     // 转换为YAML格式
     final yamlMap = config.toYaml();
+    if (portable) {
+      final output = StringBuffer('# BeeCount 应用配置\n');
+      _writePortableYaml(output, yamlMap, 0);
+      return output.toString();
+    }
 
     // 手动构建YAML字符串以保持良好格式
     final buffer = StringBuffer();

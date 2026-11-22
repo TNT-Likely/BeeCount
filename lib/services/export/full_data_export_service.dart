@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
 
@@ -11,6 +10,11 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../data/db.dart';
+import '../../data/repositories/local/local_repository.dart';
+import '../../l10n/app_localizations.dart';
+import '../../utils/app_localizations_resolver.dart';
+import 'config_export_service.dart' show ConfigExportService;
+import 'transaction_csv_export.dart';
 
 class FullDataExportResult {
   const FullDataExportResult(
@@ -25,7 +29,6 @@ class FullDataExportResult {
 typedef _LedgerFiles = ({
   Ledger ledger,
   Directory directory,
-  int transactions,
   List<TransactionAttachment> attachments,
 });
 
@@ -43,46 +46,6 @@ class FullDataExportService {
         _preferences = preferences,
         _downloadAttachment = downloadAttachment;
 
-  // Configuration backups can contain login credentials and provider API keys.
-  // Export only known portable settings in this freely shareable archive.
-  static const _settings = {
-    'account_feature_enabled',
-    'default_income_account_id',
-    'default_expense_account_id',
-    'reminder_enabled',
-    'reminder_hour',
-    'reminder_minute',
-    'selected_language',
-    'selected_language_country',
-    'primaryColor',
-    'fontScaleLevel',
-    'customFontScale',
-    'themeMode',
-    'darkModePatternStyle',
-    'headerSkin',
-    'skinCardOpacity',
-    'skinCardBlur',
-    'compactAmount',
-    'showTransactionTime',
-    'noteDisplayMode',
-    'noteHistoryScope',
-    'noteHistorySort',
-    'noteHistoryLimit',
-    'incomeExpenseColorScheme',
-    'auto_screenshot_billing_enabled',
-    'shortcut_prefer_camera',
-    'assetTrendView',
-    'v4_home_summary_style',
-    'attachmentKeepOriginal',
-    'hideAmounts',
-    'skinAnimationEnabled',
-    'headerDecorationStyle',
-    'userChosenPrimaryColor',
-    'displayName',
-    'selected_currency',
-    'current_ledger_id',
-  };
-
   final BeeDatabase _db;
   final Future<Directory> Function() _documents;
   final Future<Directory> Function() _temporary;
@@ -90,7 +53,7 @@ class FullDataExportService {
   final Future<Uint8List?> Function(String)? _downloadAttachment;
   bool _running = false;
 
-  Future<FullDataExportResult> export() async {
+  Future<FullDataExportResult> export({AppLocalizations? l10n}) async {
     if (_running) throw StateError('An export is already running');
     _running = true;
     Directory? working;
@@ -103,38 +66,35 @@ class FullDataExportService {
           await Directory(p.join(working.path, 'contents')).create();
       final ledgers =
           await Directory(p.join(contents.path, 'ledgers')).create();
-      final settings = {
-        for (final key in _settings)
-          if (prefs.containsKey(key)) key: prefs.get(key),
-      };
-      final (snapshots, config) = await _db.transaction(
-        () => _snapshot(ledgers, contents, settings),
-      );
+      final repository = LocalRepository(_db);
+      final language = l10n ?? resolveAppLocalizations(null);
+      final (snapshots, categories) = await _db.transaction(() async {
+        final snapshot = await _snapshot(ledgers, repository, language);
+        final config = await ConfigExportService.exportToYaml(
+            repository: repository, portable: true, preferences: prefs);
+        await File(p.join(contents.path, 'config.yaml')).writeAsString(config);
+        return snapshot;
+      });
       final missing = <Map<String, Object?>>[];
       var fileCount = 0;
-      final index = <Map<String, Object?>>[];
       for (final snapshot in snapshots) {
-        final copied = await _exportAttachments(snapshot, documents, missing);
-        fileCount += copied;
-        index.add({
-          'id': snapshot.ledger.id,
-          'name': snapshot.ledger.name,
-          'directory': 'ledgers/${p.basename(snapshot.directory.path)}',
-          'transactionCount': snapshot.transactions,
-          'attachmentFileCount': copied,
-        });
+        fileCount += await _exportAttachments(snapshot, documents, missing);
       }
-      await _exportConfigAssets(config, contents, documents,
+      await _exportConfigAssets(categories, contents, documents,
           prefs.getString('user_avatar_path'), missing);
-      await _writeJson(contents, 'config.json', config);
-      await _writeJson(contents, 'manifest.json', {
-        'format': 'beecount-data-export',
-        'version': 1,
-        'exportedAt': DateTime.now().toUtc().toIso8601String(),
-        'databaseSchemaVersion': _db.schemaVersion,
-        'ledgers': index,
-        'missingFiles': missing,
-      });
+      if (missing.isNotEmpty) {
+        await _writeCsv(contents, 'missing_files.csv', [
+          ['kind', 'ledgerId', 'transactionId', 'fileName', 'archivePath'],
+          for (final file in missing)
+            [
+              file['kind'],
+              file['ledgerId'],
+              file['transactionId'],
+              file['fileName'],
+              file['archivePath']
+            ],
+        ]);
+      }
       final timestamp = DateTime.now()
           .toUtc()
           .toIso8601String()
@@ -155,203 +115,48 @@ class FullDataExportService {
     }
   }
 
-  Future<(List<_LedgerFiles>, Map<String, Object?>)> _snapshot(
+  Future<(List<_LedgerFiles>, List<Category>)> _snapshot(
     Directory ledgersDirectory,
-    Directory contents,
-    Map<String, Object?> settings,
+    LocalRepository repository,
+    AppLocalizations l10n,
   ) async {
-    final ledgers = await (_db.select(_db.ledgers)
-          ..orderBy([(row) => OrderingTerm.asc(row.id)]))
-        .get();
-    final accounts = await _db.select(_db.accounts).get();
-    final categories = await _db.select(_db.categories).get();
-    final config = <String, Object?>{
-      'settings': settings,
-      'accounts': _rows(accounts),
-      'categories': _rows(categories),
-      'tags': _rows(await _db.select(_db.tags).get()),
-      'exchangeRateOverrides':
-          _rows(await _db.select(_db.exchangeRateOverrides).get()),
-    };
-    await _writeJson(contents, 'conversations.json', {
-      'conversations': _rows(await _db.select(_db.conversations).get()),
-      'messages': _rows(await _db.select(_db.messages).get()),
-      'memories': _rows(await _db.select(_db.agentMemories).get()),
-      'summaries':
-          _rows(await _db.select(_db.agentConversationSummaries).get()),
-    });
+    final ledgers = await repository.getAllLedgers();
     final folderNames = <String>{};
     final snapshots = <_LedgerFiles>[];
-    final accountMap = {for (final row in accounts) row.id: row};
-    final categoryMap = {for (final row in categories) row.id: row.name};
     for (final ledger in ledgers) {
-      final baseName = _safeName(ledger.name, 'Ledger');
-      var name = baseName;
+      final base = _safeName(ledger.name, 'Ledger');
+      var folder = base;
       for (var suffix = 1;
-          folderNames.contains(name.toLowerCase()) ||
-              await Directory(p.join(ledgersDirectory.path, name)).exists();
+          folderNames.contains(folder.toLowerCase()) ||
+              await Directory(p.join(ledgersDirectory.path, folder)).exists();
           suffix++) {
-        name = '$baseName (${ledger.id}-$suffix)';
+        folder = '$base (${ledger.id}-$suffix)';
       }
-      folderNames.add(name.toLowerCase());
+      folderNames.add(folder.toLowerCase());
       final directory =
-          await Directory(p.join(ledgersDirectory.path, name)).create();
+          await Directory(p.join(ledgersDirectory.path, folder)).create();
+      final csv = await buildTransactionExportCsv(
+        repo: repository,
+        ledgerId: ledger.id,
+        l10n: l10n,
+      );
+      // Use the same UTF-8 BOM as the standalone CSV export.
+      await File(p.join(directory.path, 'transactions.csv'))
+          .writeAsString('\uFEFF$csv');
+      final transactionIds = _db.selectOnly(_db.transactions)
+        ..addColumns([_db.transactions.id])
+        ..where(_db.transactions.ledgerId.equals(ledger.id));
+      final attachments = await (_db.select(_db.transactionAttachments)
+            ..where((row) => row.transactionId.isInQuery(transactionIds))
+            ..orderBy([
+              (row) => OrderingTerm.asc(row.sortOrder),
+              (row) => OrderingTerm.asc(row.id)
+            ]))
+          .get();
       snapshots.add(
-          await _snapshotLedger(ledger, directory, accountMap, categoryMap));
+          (ledger: ledger, directory: directory, attachments: attachments));
     }
-    return (snapshots, config);
-  }
-
-  Future<_LedgerFiles> _snapshotLedger(
-    Ledger ledger,
-    Directory directory,
-    Map<int, Account> accounts,
-    Map<int, String> categories,
-  ) async {
-    final syncId = ledger.syncId;
-    final transactionIds = _db.selectOnly(_db.transactions)
-      ..addColumns([_db.transactions.id])
-      ..where(_db.transactions.ledgerId.equals(ledger.id));
-    final transactionSyncIds = _db.selectOnly(_db.transactions)
-      ..addColumns([_db.transactions.syncId])
-      ..where(_db.transactions.ledgerId.equals(ledger.id));
-    final sharedAccounts = syncId == null
-        ? <SharedLedgerAccount>[]
-        : await (_db.select(_db.sharedLedgerAccounts)
-              ..where((row) => row.ledgerSyncId.equals(syncId)))
-            .get();
-    final sharedCategories = syncId == null
-        ? <SharedLedgerCategory>[]
-        : await (_db.select(_db.sharedLedgerCategories)
-              ..where((row) => row.ledgerSyncId.equals(syncId)))
-            .get();
-    await _writeJson(directory, 'ledger.json', {
-      'ledger': ledger.toJson(),
-      'recurringTransactions': _rows(
-          await (_db.select(_db.recurringTransactions)
-                ..where((row) => row.ledgerId.equals(ledger.id)))
-              .get()),
-      'budgets': _rows(await (_db.select(_db.budgets)
-            ..where((row) => row.ledgerId.equals(ledger.id)))
-          .get()),
-      'transactionTags': _rows(await (_db.select(_db.transactionTags)
-            ..where((row) => row.transactionId.isInQuery(transactionIds)))
-          .get()),
-      'transactionTagOverrides': _rows(await (_db
-              .select(_db.transactionTagOverrides)
-            ..where(
-                (row) => row.transactionSyncId.isInQuery(transactionSyncIds)))
-          .get()),
-      'sharedAccounts': _rows(sharedAccounts),
-      'sharedCategories': _rows(sharedCategories),
-      if (syncId != null)
-        'sharedTags': _rows(await (_db.select(_db.sharedLedgerTags)
-              ..where((row) => row.ledgerSyncId.equals(syncId)))
-            .get()),
-      if (syncId != null)
-        'members': _rows(await (_db.select(_db.ledgerMembers)
-              ..where((row) => row.ledgerSyncId.equals(syncId)))
-            .get()),
-    });
-    final attachments = await (_db.select(_db.transactionAttachments)
-          ..where((row) => row.transactionId.isInQuery(transactionIds))
-          ..orderBy([(row) => OrderingTerm.asc(row.id)]))
-        .get();
-    final count = await _writeTransactions(
-      directory,
-      ledger,
-      accounts,
-      categories,
-      {for (final row in sharedAccounts) row.syncId: row},
-      {for (final row in sharedCategories) row.syncId: row.name},
-    );
-    return (
-      ledger: ledger,
-      directory: directory,
-      transactions: count,
-      attachments: attachments
-    );
-  }
-
-  Future<int> _writeTransactions(
-    Directory directory,
-    Ledger ledger,
-    Map<int, Account> accounts,
-    Map<int, String> categories,
-    Map<String, SharedLedgerAccount> sharedAccounts,
-    Map<String, String> sharedCategories,
-  ) async {
-    const csv = ListToCsvConverter(eol: '\r\n');
-    final jsonSink =
-        File(p.join(directory.path, 'transactions.json')).openWrite();
-    final csvSink =
-        File(p.join(directory.path, 'transactions.csv')).openWrite();
-    var count = 0;
-    int? cursor;
-    try {
-      jsonSink.write('[');
-      csvSink.write('\uFEFF');
-      csvSink.write(csv.convert([
-        [
-          'id',
-          'date',
-          'type',
-          'amount',
-          'currency',
-          'ledgerAmount',
-          'category',
-          'account',
-          'toAccount',
-          'note',
-        ]
-      ]));
-      csvSink.write('\r\n');
-      while (true) {
-        final lastId = cursor;
-        final rows = await (_db.select(_db.transactions)
-              ..where((row) =>
-                  row.ledgerId.equals(ledger.id) &
-                  (lastId == null
-                      ? const Constant(true)
-                      : row.id.isBiggerThanValue(lastId)))
-              ..orderBy([(row) => OrderingTerm.asc(row.id)])
-              ..limit(500))
-            .get();
-        if (rows.isEmpty) break;
-        for (final row in rows) {
-          if (count++ > 0) jsonSink.write(',');
-          jsonSink.write(jsonEncode(row.toJson()));
-          final account = accounts[row.accountId];
-          final shared = sharedAccounts[row.accountSyncIdOverride];
-          csvSink.write(csv.convert([
-            [
-              row.id,
-              row.happenedAt.toUtc().toIso8601String(),
-              _csvText(row.type),
-              row.amount,
-              _csvText(row.currencyCode ??
-                  account?.currency ??
-                  shared?.currency ??
-                  ledger.currency),
-              row.nativeAmount ?? row.amount,
-              _csvText(categories[row.categoryId] ??
-                  sharedCategories[row.categorySyncIdOverride]),
-              _csvText(account?.name ?? shared?.name),
-              _csvText(accounts[row.toAccountId]?.name ??
-                  sharedAccounts[row.toAccountSyncIdOverride]?.name),
-              _csvText(row.note),
-            ]
-          ]));
-          csvSink.write('\r\n');
-        }
-        cursor = rows.last.id;
-        await Future.wait([jsonSink.flush(), csvSink.flush()]);
-      }
-      jsonSink.write(']');
-    } finally {
-      await Future.wait([jsonSink.close(), csvSink.close()]);
-    }
-    return count;
+    return (snapshots, await repository.getAllCategories());
   }
 
   Future<int> _exportAttachments(
@@ -359,36 +164,34 @@ class FullDataExportService {
     Directory documents,
     List<Map<String, Object?>> missing,
   ) async {
+    if (snapshot.attachments.isEmpty) return 0;
     final directory =
-        await Directory(p.join(snapshot.directory.path, 'attachments'))
-            .create();
-    final records = <Map<String, Object?>>[];
-    final paths = <String, String>{};
+        await Directory(p.join(snapshot.directory.path, 'images')).create();
+    final copied = <String>{};
     final original = Directory(p.join(documents.path, 'attachments'));
     for (final attachment in snapshot.attachments) {
-      final lookup = attachment.fileName;
-      var archived = paths[lookup];
-      if (archived == null) {
-        final name = '${attachment.id}_${_safeName(lookup, 'image')}';
-        final destination = File(p.join(directory.path, name));
-        if (await _copyFile(original, lookup, destination) ||
-            await _download(attachment, destination)) {
-          archived = 'attachments/$name';
-          paths[lookup] = archived;
-        }
+      final name = attachment.fileName;
+      if (copied.contains(name) || !_safeFileName(name)) continue;
+      final destination = File(p.join(directory.path, name));
+      if (await _copyFile(original, name, destination) ||
+          await _download(attachment, destination)) {
+        copied.add(name);
       }
-      if (archived == null) {
+    }
+    for (final attachment in snapshot.attachments) {
+      if (!copied.contains(attachment.fileName)) {
         missing.add({
           'kind': 'attachment',
           'ledgerId': snapshot.ledger.id,
           'transactionId': attachment.transactionId,
-          'fileName': lookup
+          'fileName': attachment.fileName,
+          'archivePath': _safeFileName(attachment.fileName)
+              ? 'ledgers/${p.basename(snapshot.directory.path)}/images/${attachment.fileName}'
+              : '',
         });
       }
-      records.add({...attachment.toJson(), 'archivePath': archived});
     }
-    await _writeJson(snapshot.directory, 'attachments.json', records);
-    return paths.length;
+    return copied.length;
   }
 
   Future<bool> _download(
@@ -414,47 +217,43 @@ class FullDataExportService {
   }
 
   static Future<void> _exportConfigAssets(
-    Map<String, Object?> config,
+    List<Category> categories,
     Directory contents,
     Directory documents,
     String? avatar,
     List<Map<String, Object?>> missing,
   ) async {
     final icons = Directory(p.join(documents.path, 'custom_icons'));
-    final categories = config['categories']! as List<Map<String, dynamic>>;
-    final exported = <String, String>{};
+    final checked = <String>{};
     for (final category in categories) {
-      final path = category['customIconPath'] as String?;
-      if (path == null || path.isEmpty) continue;
-      final name = p.basename(path);
-      var relative = exported[name];
-      if (relative == null) {
-        final archiveName = '${category['id']}_${_safeName(name, 'icon')}';
-        final target = 'assets/custom_icons/$archiveName';
-        if (await _copyFile(icons, name, File(p.join(contents.path, target)))) {
-          relative = target;
-          exported[name] = target;
-        } else {
-          missing.add({
-            'kind': 'categoryIcon',
-            'categoryId': category['id'],
-            'fileName': name
-          });
-        }
+      final icon = category.customIconPath;
+      if (icon == null || icon.isEmpty) continue;
+      final name = p.basename(icon);
+      if (!checked.add(name)) continue;
+      final target = 'custom_icons/$name';
+      if (!await _copyFile(icons, name, File(p.join(contents.path, target)))) {
+        missing.add(
+            {'kind': 'categoryIcon', 'fileName': name, 'archivePath': target});
       }
-      category['customIconPath'] = relative;
     }
     if (avatar != null && avatar.isNotEmpty) {
       final name = p.basename(avatar);
-      final target = 'assets/avatar/${_safeName(name, 'avatar')}';
-      if (await _copyFile(Directory(p.join(documents.path, 'avatars')), name,
+      final target = 'avatar/$name';
+      if (!await _copyFile(Directory(p.join(documents.path, 'avatars')), name,
           File(p.join(contents.path, target)))) {
-        config['avatar'] = target;
-      } else {
-        missing.add({'kind': 'avatar', 'fileName': name});
+        missing
+            .add({'kind': 'avatar', 'fileName': name, 'archivePath': target});
       }
     }
   }
+
+  static bool _safeFileName(String name) =>
+      name.isNotEmpty &&
+      name != '.' &&
+      name != '..' &&
+      !name.endsWith('.') &&
+      !name.endsWith(' ') &&
+      !RegExp(r'[<>:"/\\|?*\x00-\x1F\x7F]').hasMatch(name);
 
   static Future<bool> _copyFile(
       Directory source, String name, File destination) async {
@@ -498,12 +297,29 @@ class FullDataExportService {
     return RegExp(r'^\s*[=+\-@]|^[\t\r\n]').hasMatch(value) ? "'$value" : value;
   }
 
-  static List<Map<String, dynamic>> _rows(Iterable<DataClass> rows) =>
-      rows.map((row) => row.toJson()).toList();
+  static const _csv = ListToCsvConverter(eol: '\r\n');
 
-  static Future<void> _writeJson(
-      Directory root, String name, Object data) async {
-    await File(p.join(root.path, name)).writeAsString(jsonEncode(data));
+  static void _writeRow(IOSink sink, List<Object?> row) {
+    sink.write(_csv.convert([
+      [
+        for (final cell in row)
+          if (cell is String) _csvText(cell) else cell ?? ''
+      ],
+    ]));
+    sink.write('\r\n');
+  }
+
+  static Future<void> _writeCsv(
+      Directory root, String name, Iterable<List<Object?>> rows) async {
+    final sink = File(p.join(root.path, name)).openWrite();
+    try {
+      sink.write('\uFEFF');
+      for (final row in rows) {
+        _writeRow(sink, row);
+      }
+    } finally {
+      await sink.close();
+    }
   }
 
   static Future<void> _zipInBackground(String source, String output) =>
@@ -519,7 +335,7 @@ class FullDataExportService {
         await zip.addFile(
             entry,
             name,
-            name.endsWith('.json') || name.endsWith('.csv')
+            name.endsWith('.csv') || name == 'config.yaml'
                 ? ZipFileEncoder.GZIP
                 : ZipFileEncoder.STORE);
       }

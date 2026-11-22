@@ -3,7 +3,7 @@ import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';
 
 import '../../utils/app_localizations_resolver.dart';
-import '../../pages/data/export/bindings/export_csv.dart';
+import '../../services/export/transaction_csv_export.dart';
 
 class ExportSample extends StatefulWidget {
   const ExportSample({super.key, this.liveData});

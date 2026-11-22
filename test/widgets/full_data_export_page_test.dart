@@ -18,7 +18,7 @@ class _Export extends FullDataExportService {
   int calls = 0;
 
   @override
-  Future<FullDataExportResult> export() {
+  Future<FullDataExportResult> export({AppLocalizations? l10n}) {
     calls++;
     return next.future;
   }

@@ -9937,7 +9937,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get fullDataExportSubtitle => 'All ledgers, image attachments, and settings · ZIP';
 
   @override
-  String get fullDataExportDescription => 'Package all ledgers on this device into one ZIP. Open it to browse records and image attachments by ledger name.';
+  String get fullDataExportDescription => 'Package all ledgers on this device into one ZIP. Open it to browse CSV records and image attachments by ledger name.';
 
   @override
   String get fullDataExportLedgers => 'All ledgers and records';
@@ -9982,7 +9982,7 @@ class AppLocalizationsRu extends AppLocalizations {
       other: '$count files are unavailable.',
       one: 'One file is unavailable.',
     );
-    return '$_temp0 See the archive manifest for details.';
+    return '$_temp0 See missing_files.csv for details.';
   }
 
   @override

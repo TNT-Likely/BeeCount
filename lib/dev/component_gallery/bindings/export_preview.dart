@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../l10n/app_localizations.dart';
 import '../../../providers.dart';
-import '../../../pages/data/export/bindings/export_csv.dart';
+import '../../../services/export/transaction_csv_export.dart';
 
 /// Read-only production data preview; the gallery never starts file I/O.
 class ExportPreview extends ConsumerWidget {

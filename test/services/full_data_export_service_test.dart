@@ -2,14 +2,21 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:archive/archive.dart';
+import 'package:beecount/ai/providers/ai_constants.dart';
 import 'package:beecount/data/db.dart';
+import 'package:beecount/data/repositories/local/local_repository.dart';
+import 'package:beecount/l10n/app_localizations_zh.dart';
+import 'package:beecount/services/export/config_export_service.dart';
 import 'package:beecount/services/export/full_data_export_service.dart';
+import 'package:beecount/services/export/transaction_csv_export.dart';
 import 'package:crypto/crypto.dart';
+import 'package:csv/csv.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:yaml/yaml.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -27,14 +34,17 @@ void main() {
     }
     final png =
         await File('test/fixtures/design/category-coffee.png').readAsBytes();
-    for (final dir in ['attachments', 'avatars', 'custom_icons']) {
+    final storedName = 'sha_${sha256.convert(png)}.png';
+    await File(p.join(documents.path, 'attachments', storedName))
+        .writeAsBytes(png);
+    for (final dir in ['avatars', 'custom_icons']) {
       await File(p.join(documents.path, dir, 'qa.png')).writeAsBytes(png);
     }
     SharedPreferences.setMockInitialValues({
       'themeMode': 'dark',
       'user_avatar_path': 'avatars/qa.png',
       'cloud_supabase_cfg': 'DO_NOT_EXPORT',
-      'ai_api_key': 'DO_NOT_EXPORT',
+      AIConstants.keyGlmApiKey: 'DO_NOT_EXPORT',
     });
     final db = BeeDatabase.forTesting(NativeDatabase.memory());
     addTearDown(db.close);
@@ -45,10 +55,10 @@ void main() {
             ledgerId: 10, name: 'QA Bank', currency: const Value('USD')));
     final categoryId = await db.into(db.categories).insert(
         CategoriesCompanion.insert(
-            name: 'QA food',
+            name: 'QA "food"',
             kind: 'expense',
             iconType: const Value('custom'),
-            customIconPath: const Value('custom_icons/qa.png')));
+            customIconPath: const Value('/old/container/custom_icons/qa.png')));
     final tagId =
         await db.into(db.tags).insert(TagsCompanion.insert(name: 'QA tag'));
     final txId =
@@ -67,8 +77,6 @@ void main() {
     await db
         .into(db.budgets)
         .insert(BudgetsCompanion.insert(ledgerId: 10, amount: 500));
-    await db.into(db.conversations).insert(
-        ConversationsCompanion.insert(title: const Value('QA conversation')));
     await db.batch((batch) {
       batch.insertAll(
           db.transactions,
@@ -77,7 +85,12 @@ void main() {
               (index) => TransactionsCompanion.insert(
                   ledgerId: 20, type: 'income', amount: index.toDouble())));
     });
-    for (final name in ['qa.png', 'qa.png', 'remote.png', '../forbidden.png']) {
+    for (final name in [
+      storedName,
+      storedName,
+      'remote.png',
+      '../forbidden.png'
+    ]) {
       await db
           .into(db.transactionAttachments)
           .insert(TransactionAttachmentsCompanion.insert(
@@ -95,7 +108,10 @@ void main() {
         documents: () async => documents,
         temporary: () async => scratch,
         downloadAttachment: (id) async => id == 'remote' ? png : null);
-    final result = await service.export();
+    final l10n = AppLocalizationsZh();
+    final repo = LocalRepository(db);
+    final categoryCount = (await repo.getAllCategories()).length;
+    final result = await service.export(l10n: l10n);
     expect(result.ledgerCount, 3);
     expect(result.attachmentCount, 2);
     expect(result.missingFileCount, 1);
@@ -104,50 +120,72 @@ void main() {
 
     final archive =
         ZipDecoder().decodeBytes(await result.file.readAsBytes(), verify: true);
-    dynamic jsonAt(String name) =>
-        jsonDecode(utf8.decode(archive.findFile(name)!.content as List<int>));
-    final manifest = jsonAt('manifest.json') as Map;
-    final ledgers = manifest['ledgers'] as List;
-    final folders = ledgers.map((row) => row['directory'] as String).toList();
-    expect(folders, hasLength(3));
-    expect(folders.toSet(), hasLength(3));
-    expect(folders.first, 'ledgers/旅行_2026');
-    expect(ledgers.first['name'], '旅行/2026');
-    expect(ledgers[1]['transactionCount'], 503);
-    expect(folders.last, 'ledgers/家庭');
-    expect(jsonAt('${folders.last}/transactions.json'), isEmpty);
-    expect(jsonAt('${folders[1]}/transactions.json'), hasLength(503));
-    final ledger = jsonAt('${folders.first}/ledger.json') as Map;
-    expect(ledger['budgets'], hasLength(1));
-    expect(ledger['transactionTags'].single['tagId'], tagId);
-    final transaction =
-        (jsonAt('${folders.first}/transactions.json') as List).single;
-    expect(transaction['amount'], 20.125);
-    expect(transaction['nativeAmount'], 145.52);
-    expect(transaction['excludeFromBudget'], isTrue);
-    final csv = utf8.decode(archive
-        .findFile('${folders.first}/transactions.csv')!
-        .content as List<int>);
-    expect(csv, contains('USD'));
-    expect(csv, contains('QA Bank'));
-    expect(csv, contains("'=unsafe formula"));
-    final attachments = jsonAt('${folders.first}/attachments.json') as List;
-    expect(attachments[0]['archivePath'], attachments[1]['archivePath']);
-    for (final attachment in [attachments[0], attachments[2]]) {
-      final asset =
-          archive.findFile('${folders.first}/${attachment['archivePath']}');
-      expect(asset!.content, png);
+    String textAt(String entry) =>
+        utf8.decode(archive.findFile(entry)!.content as List<int>);
+    expect(archive.files.map((file) => p.extension(file.name)).toSet(),
+        {'.csv', '.png', '.yaml'});
+    final yaml = textAt('config.yaml');
+    final config = AppConfig.fromYaml(loadYaml(yaml) as Map);
+    expect(config.ledgers!.items.map((ledger) => ledger.name).toSet(),
+        {'旅行/2026', '旅行_2026', '家庭'});
+    expect(config.appSettings!.themeMode, 'dark');
+    expect(config.accounts!.items.single.name, 'QA Bank');
+    expect(config.budgets!.items.single.ledgerName, '旅行/2026');
+    expect(config.tags!.items.single.name, 'QA tag');
+    final icon =
+        config.categories!.items.singleWhere((row) => row.name == 'QA "food"');
+    expect(icon.customIconPath, 'custom_icons/qa.png');
+    expect(archive.findFile(icon.customIconPath!)!.content, png);
+    expect(archive.findFile('avatar/qa.png')!.content, png);
+    expect(yaml, isNot(contains('DO_NOT_EXPORT')));
+    expect(config.ai, isNull);
+    expect(config.supabase, isNull);
+    expect((await repo.getAllCategories()).length, categoryCount);
+
+    final restored = BeeDatabase.forTesting(NativeDatabase.memory());
+    addTearDown(restored.close);
+    final restoreRepo = LocalRepository(restored);
+    await ConfigExportService.importFromYaml(
+      yaml,
+      repository: restoreRepo,
+      options: const ExportOptions(
+        categories: false,
+        accounts: false,
+        recurringTransactions: false,
+        budgets: false,
+        appSettings: false,
+        ai: false,
+      ),
+    );
+    expect((await restoreRepo.getAllLedgers()).map((row) => row.name).toSet(),
+        {'旅行/2026', '旅行_2026', '家庭'});
+    expect((await restoreRepo.getAllTags()).single.name, 'QA tag');
+
+    for (final (id, folder) in [
+      (10, '旅行_2026'),
+      (20, '旅行_2026 (20-1)'),
+      (30, '家庭'),
+    ]) {
+      final standalone = await buildTransactionExportCsv(
+        repo: repo,
+        ledgerId: id,
+        l10n: l10n,
+      );
+      final zipped = archive.findFile('ledgers/$folder/transactions.csv')!;
+      expect(zipped.content, utf8.encode('\uFEFF$standalone'));
     }
-    expect(attachments[3]['archivePath'], isNull);
-    expect(manifest['missingFiles'].single['fileName'], '../forbidden.png');
-    final config = jsonAt('config.json') as Map;
-    expect(config['settings'], {'themeMode': 'dark'});
-    final icon = config['categories']
-        .firstWhere((row) => row['id'] == categoryId)['customIconPath'];
-    expect(archive.findFile(icon)!.content, png);
-    expect(archive.findFile(config['avatar'])!.content, png);
-    expect(jsonAt('conversations.json')['conversations'].single['title'],
-        'QA conversation');
+    const folder = 'ledgers/旅行_2026';
+    final csv = textAt('$folder/transactions.csv');
+    expect(csv, contains(storedName));
+    expect(csv, contains('remote.png'));
+    for (final name in [storedName, 'remote.png']) {
+      expect(archive.findFile('$folder/images/$name')!.content, png);
+    }
+    final missing =
+        const CsvToListConverter(eol: '\r\n', shouldParseNumbers: false)
+            .convert(textAt('missing_files.csv').replaceFirst('\uFEFF', ''));
+    expect(missing, hasLength(2));
+    expect(missing.last, ['attachment', '10', '$txId', '../forbidden.png', '']);
     expect((await db.select(db.transactions).get()).length, 504);
   });
 }

@@ -8,7 +8,7 @@ import 'package:path/path.dart' as p;
 import '../../../../l10n/app_localizations.dart';
 import '../../../../providers.dart';
 import '../../../shared/dialogs/app_dialogs.dart';
-import 'export_csv.dart';
+import '../../../../services/export/transaction_csv_export.dart';
 import 'export_platform.dart';
 import '../../../shared/scaffold/widgets/page_scaffold.dart';
 

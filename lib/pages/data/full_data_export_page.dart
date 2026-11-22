@@ -59,7 +59,9 @@ class _FullDataExportPageState extends ConsumerState<FullDataExportPage> {
       _result = null;
     });
     try {
-      final result = await ref.read(fullDataExportServiceProvider).export();
+      final result = await ref.read(fullDataExportServiceProvider).export(
+            l10n: AppLocalizations.of(context),
+          );
       if (mounted) setState(() => _result = result);
     } catch (_) {
       if (mounted) {
