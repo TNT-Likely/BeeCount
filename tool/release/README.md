@@ -158,7 +158,9 @@ App Store签名IPA不能直接侧载，安装走TestFlight。Apple处理成功�
 
 在 **Beta Release** 中选择要测试的分支，填写 `mode=ios-only`、`version=4.0.1`、`ios_delivery=testflight` 和可用的 `ios_build_number`。该模式固定到触发时所选分支的提交，`source_ref` 用于双端发布。
 
-该模式用公开仓源码复用现有 Apple 签名、验包和上传凭据。构建号以 App Store Connect 记录为准。Apple 处理通过后，工作流摘要会提供 **TestFlight Internal Only** 构建链接。付费皮肤测试包使用私有组装源码。
+该模式复用现有 Apple 签名、验包和上传凭据。构建号以 App Store Connect 记录为准。Apple 处理通过后，工作流摘要会提供 **TestFlight Internal Only** 构建链接。
+
+如需构建私有候选，在受信任的测试分支选择 `ios_prepared_source=true`。维护者为 `ios-beta-candidate` 环境设置允许部署的分支，并配置 `IOS_BETA_SOURCE_REPOSITORY`、`IOS_BETA_SOURCE_SHA`（完整提交）和该仓库的只读 `IOS_BETA_SOURCE_SSH_KEY`。候选仓根目录的 `.ios-beta-source.json` 记录公开基线 `baseSha`、额外 `dartDefines` 和签名 IPA 中应存在的 `requiredAppTokens`。候选使用相对依赖路径和固定锁文件。流程会核对候选提交、基线与产物内容，源码、IPA 与诊断日志留在本次 runner 内。
 
 ### 每个 Beta 的说明
 

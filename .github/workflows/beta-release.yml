@@ -31,6 +31,10 @@ on:
         description: "ios-only 必填；完整双端留空沿用 Android code"
         required: false
         default: ""
+      ios_prepared_source:
+        description: "ios-only 使用环境中固定的预组装源码"
+        type: boolean
+        default: false
 
 # 与正式版共用串行锁。两端候选留在同一私有Runner，全部成功才公开。
 concurrency:
@@ -45,6 +49,7 @@ jobs:
     if: inputs.mode == 'release' || (inputs.mode == 'ios-only' && github.repository == 'TNT-Likely/BeeCount' && github.ref_type == 'branch')
     name: ${{ inputs.mode == 'ios-only' && 'iOS internal TestFlight' || 'Verify both platforms then publish one Beta' }}
     runs-on: ${{ inputs.mode == 'ios-only' && 'macos-26' || 'macos-15' }}
+    environment: ${{ inputs.mode == 'ios-only' && inputs.ios_prepared_source && 'ios-beta-candidate' || 'beta' }}
     timeout-minutes: 120
     permissions:
       contents: write
@@ -56,6 +61,7 @@ jobs:
       BETA_CHANNEL_FLOOR: ${{ inputs.android_version_code_floor || vars.ANDROID_VERSION_CODE_FLOOR }}
       BETA_EXPECTED_CERTIFICATE: ${{ vars.ANDROID_RELEASE_CERT_SHA256 }}
       IOS_BETA_MODE: ${{ inputs.ios_delivery }}
+      IOS_BETA_PREPARED_SOURCE: ${{ inputs.mode == 'ios-only' && inputs.ios_prepared_source }}
       IOS_BUILD_NUMBER: ${{ inputs.ios_build_number }}
       IOS_BUILD_NUMBER_FLOOR: ${{ vars.IOS_BUILD_NUMBER_FLOOR || '225' }}
       TESTFLIGHT_PUBLIC_URL: ${{ vars.TESTFLIGHT_PUBLIC_URL }}
@@ -79,6 +85,34 @@ jobs:
           echo "IOS_BETA_CONTEXT=$RUNNER_TEMP/beecount-ios-beta-context.json" >> "$GITHUB_ENV"
       - name: Test release gates
         run: python3 -m unittest discover -s tool/release -p 'test_*.py' -v
+      - name: Check prepared source configuration
+        if: inputs.mode == 'ios-only' && inputs.ios_prepared_source
+        env:
+          IOS_BETA_SOURCE_REPOSITORY: ${{ secrets.IOS_BETA_SOURCE_REPOSITORY }}
+          IOS_BETA_SOURCE_SHA: ${{ secrets.IOS_BETA_SOURCE_SHA }}
+          IOS_BETA_SOURCE_SSH_KEY: ${{ secrets.IOS_BETA_SOURCE_SSH_KEY }}
+        run: |
+          if [[ -z "$IOS_BETA_SOURCE_REPOSITORY" || -z "$IOS_BETA_SOURCE_SSH_KEY" || ! "$IOS_BETA_SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo '::error::预组装源码需要专用环境内的仓库、固定提交和只读密钥'
+            exit 1
+          fi
+      - name: Checkout pinned prepared source
+        if: inputs.mode == 'ios-only' && inputs.ios_prepared_source
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ secrets.IOS_BETA_SOURCE_REPOSITORY }}
+          ref: ${{ secrets.IOS_BETA_SOURCE_SHA }}
+          ssh-key: ${{ secrets.IOS_BETA_SOURCE_SSH_KEY }}
+          path: .ios-beta-candidate
+          persist-credentials: false
+      - name: Plan iOS internal TestFlight
+        if: inputs.mode == 'ios-only'
+        env:
+          IOS_BETA_SOURCE_SHA: ${{ secrets.IOS_BETA_SOURCE_SHA }}
+          APPLE_API_KEY_CONTENT: ${{ secrets.APPLE_API_KEY_CONTENT }}
+          APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
+          APPLE_API_ISSUER_ID: ${{ secrets.APPLE_API_ISSUER_ID }}
+        run: python3 tool/release/ios_beta_release.py plan_ios_only
       - name: Check mandatory Android signing inputs
         if: inputs.mode == 'release'
         env:
@@ -119,17 +153,13 @@ jobs:
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: python3 tool/release/beta_release.py build
       - name: Freeze iOS candidate
+        if: inputs.mode == 'release'
         env:
-          GH_TOKEN: ${{ inputs.mode == 'release' && github.token || '' }}
+          GH_TOKEN: ${{ github.token }}
           APPLE_API_KEY_CONTENT: ${{ secrets.APPLE_API_KEY_CONTENT }}
           APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
           APPLE_API_ISSUER_ID: ${{ secrets.APPLE_API_ISSUER_ID }}
-        run: |
-          if [[ "$BETA_WORKFLOW_MODE" == 'ios-only' ]]; then
-            python3 tool/release/ios_beta_release.py plan_ios_only
-          else
-            python3 tool/release/ios_beta_release.py plan
-          fi
+        run: python3 tool/release/ios_beta_release.py plan
       - name: Select Xcode 26 and verify iOS SDK
         run: |
           if [[ "$BETA_WORKFLOW_MODE" == 'release' ]]; then

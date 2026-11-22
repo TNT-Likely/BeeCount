@@ -18,6 +18,7 @@ import subprocess
 import tempfile
 import unittest
 from unittest import mock
+import zipfile
 
 import ios_beta_release as ios
 import beta_release as beta
@@ -68,6 +69,15 @@ class VersionAndInputTests(unittest.TestCase):
         self.assertEqual((state['iosOnly'], state['sourceSha'], state['appVersion'], state['buildNumber']),
                          (True, SHA, '4.0.1', 301))
         self.assertNotIn('androidVersionCode', state)
+        private_sha = 'b' * 40
+        with (mock.patch.dict(os.environ, {**settings, 'IOS_BETA_PREPARED_SOURCE': 'true'}, clear=True),
+              mock.patch.object(ios.subprocess, 'run', return_value=mock.Mock(returncode=0, stdout=SHA + '\n')),
+              mock.patch.object(ios, 'import_prepared_source', return_value=(private_sha, {'baseSha': SHA})) as load,
+              mock.patch.object(ios, 'freeze_plan') as freeze):
+            ios.plan_ios_only()
+        load.assert_called_once_with(SHA)
+        self.assertEqual(freeze.call_args.args[0]['sourceSha'], private_sha)
+        self.assertIn('preparedSource', freeze.call_args.args[0])
         with mock.patch.dict(os.environ, {**settings, 'IOS_BUILD_NUMBER': ''}, clear=True):
             with self.assertRaisesRegex(gate.GateError, 'ios_build_number'):
                 ios.plan_ios_only()
@@ -83,6 +93,29 @@ class VersionAndInputTests(unittest.TestCase):
             with self.assertRaisesRegex(gate.GateError, '检出的源码'):
                 ios.plan_ios_only()
         freeze.assert_not_called()
+
+    def test_prepared_source_needs_an_explicit_pin_and_cannot_override_release_identity(self):
+        with mock.patch.dict(os.environ, {}, clear=True), self.assertRaisesRegex(gate.GateError, '提交 SHA'):
+            ios.import_prepared_source(SHA)
+        manifest = {'baseSha': SHA, 'dartDefines': {'CUSTOM_FEATURE': 'true'}, 'requiredAppTokens': ['sample.token']}
+        self.assertEqual(ios.read_prepared_source_manifest(json.dumps(manifest)), manifest)
+        manifest['dartDefines']['GIT_COMMIT'] = SHA
+        with self.assertRaisesRegex(gate.GateError, 'Dart 编译参数'):
+            ios.read_prepared_source_manifest(json.dumps(manifest))
+
+    def test_prepared_payload_rejects_missing_content_and_local_storekit_data(self):
+        with tempfile.TemporaryDirectory() as temp:
+            path = Path(temp) / 'candidate.ipa'
+            with zipfile.ZipFile(path, 'w') as ipa:
+                ipa.writestr('Payload/Sample.app/Frameworks/App.framework/App', b'sample.token')
+            with zipfile.ZipFile(path) as ipa:
+                ios.verify_prepared_payload(ipa, ['sample.token'])
+                with self.assertRaisesRegex(gate.GateError, '预期的应用内容'):
+                    ios.verify_prepared_payload(ipa, ['missing.token'])
+            with zipfile.ZipFile(path, 'a') as ipa:
+                ipa.writestr('Payload/Sample.app/Local.storekit', '{}')
+            with zipfile.ZipFile(path) as ipa, self.assertRaisesRegex(gate.GateError, 'StoreKit 配置'):
+                ios.verify_prepared_payload(ipa, ['sample.token'])
 
     def test_beta_name_is_mapped_to_numeric_apple_version_and_shared_code(self):
         self.assertEqual(ios.ios_version('4.0.0-beta.5',230),('4.0.0',230))

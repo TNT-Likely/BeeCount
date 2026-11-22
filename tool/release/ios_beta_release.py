@@ -40,6 +40,7 @@ MODES = ('ipa', 'testflight')
 SIGNING_KEYS = ('APPLE_CERTIFICATE_P12', 'APPLE_CERTIFICATE_PASSWORD',
                 'APPLE_PROVISIONING_PROFILE', 'APPLE_PROVISIONING_PROFILE_WIDGET', 'APPLE_TEAM_ID')
 API_KEYS = ('APPLE_API_KEY_CONTENT', 'APPLE_API_KEY_ID', 'APPLE_API_ISSUER_ID')
+PREPARED_SOURCE_KEYS = ('IOS_BETA_SOURCE_REPOSITORY', 'IOS_BETA_SOURCE_SHA', 'IOS_BETA_SOURCE_SSH_KEY')
 MAX_ASSET = 1_500_000_000
 
 
@@ -205,7 +206,7 @@ def command(args, *, cwd=None, env=None, label='command', run=None):
         path = logs / (label + '.log')
         path.write_bytes(result.stdout + result.stderr)
         path.chmod(0o600)
-    if result.returncode != 0:
+    if result.returncode != 0 and os.environ.get('IOS_BETA_PREPARED_SOURCE') != 'true':
         diagnostic = build_diagnostic(result.stdout + result.stderr, label)
         if diagnostic:
             print('已脱敏构建诊断：\n' + diagnostic)
@@ -215,7 +216,8 @@ def command(args, *, cwd=None, env=None, label='command', run=None):
 
 def build_environment():
     # Flutter/Pods/Xcode source scripts never inherit signing/API/GitHub/TG secrets.
-    private = set(SIGNING_KEYS) | set(API_KEYS) | {'GH_TOKEN','GITHUB_TOKEN','TELEGRAM_BOT_TOKEN','TELEGRAM_CHAT_ID'}
+    private = set(SIGNING_KEYS) | set(API_KEYS) | set(PREPARED_SOURCE_KEYS) | {
+        'GH_TOKEN','GITHUB_TOKEN','TELEGRAM_BOT_TOKEN','TELEGRAM_CHAT_ID'}
     return {k:v for k,v in os.environ.items() if k not in private}
 
 
@@ -282,6 +284,43 @@ def freeze_plan(state):
     print(f'iOS候选已冻结：{state["versionName"]} / {state["appVersion"]}+{state["buildNumber"]}')
 
 
+def read_prepared_source_manifest(raw):
+    try:
+        config = json.loads(raw)
+    except (UnicodeError, ValueError):
+        raise gate.GateError('预组装源码清单不是有效 JSON') from None
+    gate.require(isinstance(config, dict) and set(config) == {'baseSha', 'dartDefines', 'requiredAppTokens'},
+                 '预组装源码清单字段无效')
+    base = config['baseSha']
+    gate.require(isinstance(base, str) and re.fullmatch(r'[0-9a-f]{40}', base), '预组装源码缺少完整基线 SHA')
+    defines = config['dartDefines']
+    gate.require(isinstance(defines, dict) and all(
+        re.fullmatch(r'[A-Z][A-Z0-9_]*', key) and key not in {'CI_VERSION', 'GIT_COMMIT', 'BUILD_TIME'}
+        and isinstance(value, str) and re.fullmatch(r'[A-Za-z0-9_./:+-]{1,128}', value)
+        for key, value in defines.items()), '预组装源码 Dart 编译参数无效')
+    tokens = config['requiredAppTokens']
+    gate.require(isinstance(tokens, list) and 0 < len(tokens) <= 128 and all(
+        isinstance(token, str) and re.fullmatch(r'[A-Za-z0-9_.-]{1,128}', token)
+        for token in tokens), '预组装源码缺少有效的产物校验标记')
+    return config
+
+
+def import_prepared_source(trigger_sha):
+    source_sha = os.environ.get('IOS_BETA_SOURCE_SHA', '')
+    gate.require(re.fullmatch(r'[0-9a-f]{40}', source_sha), '预组装源码需要固定的完整提交 SHA')
+    checkout = Path.cwd() / '.ios-beta-candidate'
+    gate.require((checkout / '.git').is_dir(), '预组装源码未检出')
+    actual = command(['git', '-C', checkout, 'rev-parse', 'HEAD'], label='prepared-source-commit').decode().strip()
+    gate.require(actual == source_sha, '预组装源码仓库与固定提交不符')
+    command(['git', 'fetch', '--quiet', '--no-tags', '--no-write-fetch-head', checkout, source_sha],
+            label='prepared-source-import')
+    manifest = command(['git', 'show', source_sha + ':.ios-beta-source.json'], label='prepared-source-manifest')
+    config = read_prepared_source_manifest(manifest)
+    command(['git', 'merge-base', '--is-ancestor', config['baseSha'], trigger_sha],
+            label='prepared-source-base')
+    return source_sha, config
+
+
 def plan_ios_only():
     gate.require(os.environ.get('GITHUB_REPOSITORY') == beta.REPOSITORY
                  and os.environ.get('GITHUB_EVENT_NAME') == 'workflow_dispatch'
@@ -296,9 +335,12 @@ def plan_ios_only():
     gate.require(re.fullmatch(r'[0-9a-f]{40}', sha), '缺少所选分支的完整提交 SHA')
     checkout = subprocess.run(['git', 'rev-parse', 'HEAD'], capture_output=True, text=True)
     gate.require(checkout.returncode == 0 and checkout.stdout.strip() == sha, '检出的源码与触发分支的提交不一致')
-    freeze_plan(dict(iosOnly=True, mode='testflight', sourceSha=sha, versionName=version.name,
-                     appVersion=app_version, buildNumber=int(number),
-                     notificationSummary=[f'iOS {app_version} 内部测试构建']))
+    state = dict(iosOnly=True, mode='testflight', sourceSha=sha, versionName=version.name,
+                 appVersion=app_version, buildNumber=int(number),
+                 notificationSummary=[f'iOS {app_version} 内部测试构建'])
+    if os.environ.get('IOS_BETA_PREPARED_SOURCE') == 'true':
+        state['sourceSha'], state['preparedSource'] = import_prepared_source(sha)
+    freeze_plan(state)
 
 
 def plan():
@@ -394,6 +436,17 @@ def configure_signing(context, source, run):
     return options_path, hashlib.sha256(certificate).hexdigest()
 
 
+def verify_prepared_payload(ipa, required_tokens):
+    names = ipa.namelist()
+    gate.require(not any(PurePosixPath(name).suffix.lower() == '.storekit' for name in names),
+                 '预组装 IPA 包含本地 StoreKit 配置')
+    engines = [name for name in names
+               if re.fullmatch(r'Payload/[^/]+\.app/Frameworks/App\.framework/App', name)]
+    gate.require(len(engines) == 1, '预组装 IPA 缺少唯一 Flutter 应用产物')
+    engine = ipa.read(engines[0])
+    gate.require(all(token.encode() in engine for token in required_tokens), '预组装 IPA 缺少预期的应用内容')
+
+
 def verify_ipa(path, context, certificate, run):
     extracted = run / ('verify-' + secrets.token_hex(4))
     extracted.mkdir(mode=0o700)
@@ -408,6 +461,8 @@ def verify_ipa(path, context, certificate, run):
                          and not stat.S_ISLNK(item.external_attr >> 16), 'IPA含越界路径或符号链接')
             gate.require(relative.suffix.lower() not in {'.p8','.p12','.keystore','.sqlite','.db'}, 'IPA包含私钥或数据库')
             gate.require(relative.name not in {'kernel_blob.bin','app.dill'}, 'IPA包含debug/JIT内核')
+        if context.get('preparedSource'):
+            verify_prepared_payload(z, context['preparedSource']['requiredAppTokens'])
         z.extractall(extracted)
     apps = list((extracted / 'Payload').glob('*.app'))
     gate.require(len(apps) == 1, 'IPA缺少唯一主App')
@@ -483,10 +538,13 @@ def build():
     generated = gate.generated_source_overlay(production_before,gate.production_source_hashes(source))
     expected_production = gate.production_source_hashes(source)
     options, certificate = configure_signing(context, source, run)
+    extra_defines = context.get('preparedSource', {}).get('dartDefines', {})
     command(['flutter','build','ios','--config-only','--release','--no-pub',
              '--build-name=' + context['appVersion'], '--build-number=' + str(context['buildNumber']),
              '--dart-define=CI_VERSION=' + context['versionName'], '--dart-define=GIT_COMMIT=' + context['sourceSha'],
-             '--dart-define=BUILD_TIME=' + os.environ['GITHUB_RUN_ID']], cwd=source, label='flutter-config', run=run)
+             '--dart-define=BUILD_TIME=' + os.environ['GITHUB_RUN_ID'],
+             *(f'--dart-define={key}={value}' for key, value in extra_defines.items())],
+            cwd=source, label='flutter-config', run=run)
     command(['pod','_1.16.2_','install','--deployment'], cwd=source / 'ios', label='pod-install', run=run)
     gate.require(all(gate.sha256(source / name) == value for name,value in locks.items()), 'iOS构建依赖锁发生漂移，拒绝继续')
     archive = run / 'BeeCount.xcarchive'
