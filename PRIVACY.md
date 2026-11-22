@@ -104,7 +104,7 @@ You can turn off “Share skin usage statistics” in Mine → Personalization �
 
 ## 8. Open Source
 
-BeeCount’s public source is available under the MIT License. You can review the public code, build the app yourself from source and contribute improvements. Self-built versions from this repository can be used without the skin statistics service. [BeeCount repository](https://github.com/TNT-Likely/BeeCount).
+BeeCount’s public source is available under the project’s software license. You can review the public code, build the app yourself from source and contribute improvements. Self-built versions from this repository can be used without the skin statistics service. [BeeCount repository](https://github.com/TNT-Likely/BeeCount).
 
 ## 9. Changes to This Policy
 
@@ -197,7 +197,7 @@ If you have any questions about this Privacy Policy, please contact us:
 
 ### 6. 开源透明
 
-蜜蜂记账公开源码采用 MIT 许可。你可以查看公开代码、自行构建或提交改进。自行从该仓库构建的版本无需配置皮肤统计服务即可使用。 [BeeCount 仓库](https://github.com/TNT-Likely/BeeCount)。
+蜜蜂记账依项目软件许可证开放源码。你可以查看公开代码、自行构建或提交改进。自行从该仓库构建的版本无需配置皮肤统计服务即可使用。 [BeeCount 仓库](https://github.com/TNT-Likely/BeeCount)。
 
 ### 7. 联系我们
 
