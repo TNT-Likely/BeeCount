@@ -20,7 +20,7 @@ mixin _AccountsOverviewBindings on ConsumerState<AccountsPage> {
     final accountDisplay = AccountCardDisplayData.watch(ref);
     final ledgerId = ref.watch(currentLedgerIdProvider);
     final accountsAsync = ref.watch(allAccountsStreamProvider);
-    final primaryColor = ref.watch(primaryColorProvider);
+    final primaryColor = ref.watch(displaySkinPrimaryColorProvider);
     final allStatsAsync = ref.watch(allAccountStatsProvider);
     final netWorthByCurrencyAsync =
         ref.watch(netWorthBreakdownByCurrencyProvider);

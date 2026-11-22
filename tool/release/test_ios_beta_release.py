@@ -78,6 +78,15 @@ class VersionAndInputTests(unittest.TestCase):
         load.assert_called_once_with(SHA)
         self.assertEqual(freeze.call_args.args[0]['sourceSha'], private_sha)
         self.assertIn('preparedSource', freeze.call_args.args[0])
+        packages = {'BeeCount-Skins': 'c' * 40, 'BeeCount-Commercial': 'd' * 40}
+        with (mock.patch.dict(os.environ, {**settings, 'IOS_BETA_OFFICIAL_SKINS': 'true'}, clear=True),
+              mock.patch.object(ios.subprocess, 'run', return_value=mock.Mock(returncode=0, stdout=SHA + '\n')),
+              mock.patch.object(ios, 'official_repository_commits', return_value=packages),
+              mock.patch.object(ios, 'freeze_plan') as freeze):
+            ios.plan_ios_only()
+        self.assertEqual(freeze.call_args.args[0]['sourceSha'], SHA)
+        self.assertEqual(freeze.call_args.args[0]['officialSkins'], packages)
+        self.assertNotIn('preparedSource', freeze.call_args.args[0])
         with mock.patch.dict(os.environ, {**settings, 'IOS_BUILD_NUMBER': ''}, clear=True):
             with self.assertRaisesRegex(gate.GateError, 'ios_build_number'):
                 ios.plan_ios_only()

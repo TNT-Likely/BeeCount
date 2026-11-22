@@ -1393,7 +1393,7 @@ class AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
   Future<void> _showFlagsDialog() async {
     if (widget.transactionKind == 'transfer') return;
     final l10n = AppLocalizations.of(context);
-    final primary = ref.watch(primaryColorProvider);
+    final primary = ref.watch(displaySkinPrimaryColorProvider);
     final kind = widget.transactionKind;
     final showStats = kind != 'transfer';
     final showBudget = kind == 'expense';

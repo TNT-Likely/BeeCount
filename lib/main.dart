@@ -7,6 +7,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app.dart';
+import 'skins/premium_skin_canvas.dart';
+import 'skins/premium_skins.dart';
 import 'pages/auth/bindings/login_2fa_challenge_view.dart';
 import 'theme.dart';
 import 'providers.dart';
@@ -41,7 +43,9 @@ import 'package:path_provider/path_provider.dart';
 final GlobalKey<NavigatorState> globalNavigatorKey =
     GlobalKey<NavigatorState>();
 
-Future<void> main() async {
+Future<void> main() => runBeeCount();
+
+Future<void> runBeeCount({PremiumSkins? premiumSkins}) async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Edge-to-edge:让 Flutter 自己把内容(PrimaryHeader/皮肤)画到状态栏底下,
@@ -95,6 +99,10 @@ Future<void> main() async {
   // 切账本触发的小组件渲染全靠它,必须真正生效。
   final container = ProviderContainer(
     observers: const [_WidgetUpdateObserver()],
+    overrides: [
+      if (premiumSkins != null)
+        premiumSkinsProvider.overrideWith((_) => premiumSkins),
+    ],
   );
 
   // 初始化应用模式（需要在生成重复交易之前，确保模式正确）
@@ -501,7 +509,7 @@ class MainApp extends ConsumerWidget {
 
     // 周期交易生成已统一在 appSplashInitProvider 中处理
 
-    final primary = ref.watch(primaryColorProvider);
+    final primary = ref.watch(displaySkinPrimaryColorProvider);
     final platform = Theme.of(context).platform; // 当前平台
     final base = BeeTheme.lightTheme(platform: platform);
     final baseTextTheme = base.textTheme;
@@ -600,7 +608,7 @@ class MainApp extends ConsumerWidget {
           return BeeSystemBars(
               child: Stack(
             children: [
-              child ?? const SizedBox.shrink(),
+              PremiumSkinCanvas(child: child ?? const SizedBox.shrink()),
               if (showPrivacy)
                 Positioned.fill(
                   child: BackdropFilter(

@@ -43,6 +43,8 @@ API_KEYS = ('APPLE_API_KEY_CONTENT', 'APPLE_API_KEY_ID', 'APPLE_API_ISSUER_ID')
 PREPARED_SOURCE_KEYS = ('IOS_BETA_SOURCE_REPOSITORY', 'IOS_BETA_SOURCE_SHA', 'IOS_BETA_SOURCE_SSH_KEY')
 MAX_ASSET = 1_500_000_000
 
+OFFICIAL_REPOSITORIES = ('BeeCount-Skins', 'BeeCount-Commercial')
+
 
 def signing_inputs(mode):
     gate.require(mode in MODES, 'iOS Beta 模式只能是 ipa 或 testflight')
@@ -206,7 +208,9 @@ def command(args, *, cwd=None, env=None, label='command', run=None):
         path = logs / (label + '.log')
         path.write_bytes(result.stdout + result.stderr)
         path.chmod(0o600)
-    if result.returncode != 0 and os.environ.get('IOS_BETA_PREPARED_SOURCE') != 'true':
+    private_source = any(os.environ.get(flag) == 'true' for flag in
+                         ('IOS_BETA_PREPARED_SOURCE', 'IOS_BETA_OFFICIAL_SKINS'))
+    if result.returncode != 0 and not private_source:
         diagnostic = build_diagnostic(result.stdout + result.stderr, label)
         if diagnostic:
             print('已脱敏构建诊断：\n' + diagnostic)
@@ -321,6 +325,19 @@ def import_prepared_source(trigger_sha):
     return source_sha, config
 
 
+def official_repository_commits():
+    checkouts = Path.cwd() / '.official'
+    commits = {}
+    for name in OFFICIAL_REPOSITORIES:
+        checkout = checkouts / name
+        gate.require((checkout / '.git').is_dir(), '缺少官方 Flutter 本地依赖')
+        commit = command(['git', '-C', checkout, 'rev-parse', 'HEAD'],
+                         label='official-package-commit').decode().strip()
+        gate.require(re.fullmatch(r'[0-9a-f]{40}', commit), '官方依赖提交无效')
+        commits[name] = commit
+    return commits
+
+
 def plan_ios_only():
     gate.require(os.environ.get('GITHUB_REPOSITORY') == beta.REPOSITORY
                  and os.environ.get('GITHUB_EVENT_NAME') == 'workflow_dispatch'
@@ -338,7 +355,15 @@ def plan_ios_only():
     state = dict(iosOnly=True, mode='testflight', sourceSha=sha, versionName=version.name,
                  appVersion=app_version, buildNumber=int(number),
                  notificationSummary=[f'iOS {app_version} 内部测试构建'])
-    if os.environ.get('IOS_BETA_PREPARED_SOURCE') == 'true':
+    if os.environ.get('IOS_BETA_OFFICIAL_SKINS') == 'true':
+        gate.require(os.environ.get('IOS_BETA_PREPARED_SOURCE') != 'true',
+                     '官方包依赖与预组装源码只能选择一种')
+        state['officialSkins'] = official_repository_commits()
+        state['notificationSummary'] = [
+            '在皮肤页试穿秋日手记并调整外观。',
+            '验证 Apple 沙盒购买、恢复购买和应用已购皮肤。',
+        ]
+    elif os.environ.get('IOS_BETA_PREPARED_SOURCE') == 'true':
         state['sourceSha'], state['preparedSource'] = import_prepared_source(sha)
     freeze_plan(state)
 
@@ -466,6 +491,10 @@ def verify_ipa(path, context, certificate, run):
         z.extractall(extracted)
     apps = list((extracted / 'Payload').glob('*.app'))
     gate.require(len(apps) == 1, 'IPA缺少唯一主App')
+    if context.get('officialSkins'):
+        gate.require((apps[0] / 'Frameworks/beecount_storekit.framework/beecount_storekit').is_file(),
+                     '官方 IPA 缺少 StoreKit 插件')
+        gate.require(not any(apps[0].rglob('*.storekit')), '官方 IPA 包含本地 StoreKit 配置')
     identities = validate_ipa_tree(apps[0], context, os.environ['APPLE_TEAM_ID'])
     for index, (app, bundle, info) in enumerate(identities):
         command(['codesign', '--verify', '--strict', '--deep', app], label=f'verify-signature-{index}', run=run)
@@ -489,7 +518,7 @@ def verify_ipa(path, context, certificate, run):
                 architecture='arm64', sdk=identities[0][2]['DTSDKName'])
 
 
-def enforce_locked_pods(run):
+def enforce_locked_pods(run, *, allow_new_plugin=False):
     pod = shutil.which('pod')
     gate.require(pod is not None, '缺少本轮固定CocoaPods')
     version = command([pod,'_1.16.2_','--version'],label='cocoapods-version',run=run).decode().strip()
@@ -509,6 +538,8 @@ def enforce_locked_pods(run):
     version = command(['ruby', '-e', 'require "json"; puts JSON::VERSION'],
                       label='json-serializer-version',run=run).decode().strip()
     gate.require(version == '2.7.2', 'Podspec序列化必须固定JSON 2.7.2，不能修改依赖锁绕过')
+    if allow_new_plugin:
+        return
     # Flutter 3.27 config-only also invokes pod install. Enforce deployment
     # on that implicit invocation, before an unlocked resolver could run.
     wrapper = tools/'pod'
@@ -530,21 +561,51 @@ def build():
     overlay = gate.release_overlay(source)
     context.update(source=str(source), sourceArchiveSha256=archive_hash, releaseOverlaySha256=overlay['overlaySha256'])
     context_write(context)
+    official = context.get('officialSkins')
     lock_paths = ['pubspec.lock', 'ios/Podfile.lock']
     locks = {name: gate.sha256(source / name) for name in lock_paths}
-    enforce_locked_pods(run)
+    if official:
+        gate.require(official_repository_commits() == official, '官方依赖在构建前发生变化')
+        (source / '.official').symlink_to(Path.cwd() / '.official', target_is_directory=True)
+        shutil.copyfile('pubspec_overrides.yaml', source / 'pubspec_overrides.yaml')
+        original_lock = run / 'public-pubspec.lock'
+        shutil.copyfile(source / 'pubspec.lock', original_lock)
+
+    enforce_locked_pods(run, allow_new_plugin=bool(official))
     production_before = gate.production_source_hashes(source)
-    command(['flutter','pub','get','--enforce-lockfile'], cwd=source, label='pub-get', run=run)
-    generated = gate.generated_source_overlay(production_before,gate.production_source_hashes(source))
-    expected_production = gate.production_source_hashes(source)
+    command(['flutter', 'pub', 'get', *([] if official else ['--enforce-lockfile'])],
+            cwd=source, label='pub-get', run=run)
+    resolved = gate.production_source_hashes(source)
+    if official:
+        verify_pub_lock = """
+            original = YAML.safe_load(File.read(ARGV[0]))
+            resolved = YAML.safe_load(File.read(ARGV[1]))
+            %w[beecount_skins beecount_commercial beecount_storekit].each do |package|
+              abort "missing official path package" unless resolved['packages'].delete(package)&.fetch('source') == 'path'
+            end
+            abort "public dependency lock changed" unless original == resolved
+        """
+        command(['ruby', '-ryaml', '-e', verify_pub_lock, original_lock, source / 'pubspec.lock'],
+                label='verify-official-pub-lock', run=run)
+        production_before['pubspec.lock'] = resolved['pubspec.lock']
+        locks['pubspec.lock'] = resolved['pubspec.lock']
+    generated = gate.generated_source_overlay(production_before, resolved)
     options, certificate = configure_signing(context, source, run)
     extra_defines = context.get('preparedSource', {}).get('dartDefines', {})
-    command(['flutter','build','ios','--config-only','--release','--no-pub',
+    target = []
+    if official:
+        target = ['--target', 'tool/official_app/main.dart']
+        extra_defines = {'BEECOUNT_PAID_SKINS_ENABLED': 'true', 'BEECOUNT_SKIN_SALES': 'true'}
+    command(['flutter','build','ios','--config-only','--release','--no-pub', *target,
              '--build-name=' + context['appVersion'], '--build-number=' + str(context['buildNumber']),
              '--dart-define=CI_VERSION=' + context['versionName'], '--dart-define=GIT_COMMIT=' + context['sourceSha'],
              '--dart-define=BUILD_TIME=' + os.environ['GITHUB_RUN_ID'],
              *(f'--dart-define={key}={value}' for key, value in extra_defines.items())],
             cwd=source, label='flutter-config', run=run)
+    if official:
+        command(['pod', '_1.16.2_', 'install', '--no-repo-update'],
+                cwd=source / 'ios', label='resolve-official-pod', run=run)
+        locks['ios/Podfile.lock'] = gate.sha256(source / 'ios/Podfile.lock')
     command(['pod','_1.16.2_','install','--deployment'], cwd=source / 'ios', label='pod-install', run=run)
     gate.require(all(gate.sha256(source / name) == value for name,value in locks.items()), 'iOS构建依赖锁发生漂移，拒绝继续')
     archive = run / 'BeeCount.xcarchive'
@@ -554,7 +615,7 @@ def build():
     export = run / 'export'
     command(['xcodebuild','-exportArchive','-archivePath',archive,'-exportOptionsPlist',options,
              '-exportPath',export,'-quiet'], cwd=source, label='export', run=run)
-    gate.require(gate.production_source_hashes(source) == expected_production, 'iOS构建修改了冻结的业务源码/依赖，拒绝发布')
+    gate.require(gate.production_source_hashes(source) == resolved, 'iOS构建修改了冻结的业务源码/依赖，拒绝发布')
     gate.require(all(gate.sha256(source / name) == value for name,value in locks.items()), 'iOS归档后依赖锁漂移')
     ipas = list(export.glob('*.ipa'))
     gate.require(len(ipas) == 1, '没有唯一已签名IPA，拒绝unsigned/debug回退')
@@ -570,6 +631,9 @@ def build():
                    dependencyLockUnchanged=True,generatedSourceOverlay=generated,workflowRun=os.environ['GITHUB_RUN_ID'],
                    distribution='app-store',testflightStatus='not-uploaded',
                    functionalAcceptance='已验证签名、版本、真机架构及权限；不等同于真机功能验收。')
+    if official:
+        receipt['officialSkins'] = official
+        print('官方皮肤和 StoreKit 插件已通过验包')
     if context.get('iosOnly'):
         receipt['kind'] = 'beecount-ios-testflight-candidate'
     else:

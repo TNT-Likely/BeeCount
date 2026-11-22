@@ -323,7 +323,7 @@ class _CloudSharedSyncControlsState
                 MaterialPageRoute(builder: (_) => const LogCenterPage()),
               ),
               style: TextButton.styleFrom(
-                foregroundColor: ref.watch(primaryColorProvider),
+                foregroundColor: ref.watch(displaySkinPrimaryColorProvider),
                 padding: EdgeInsets.zero,
                 minimumSize: const Size(0, 36),
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,

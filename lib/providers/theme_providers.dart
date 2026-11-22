@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/note_history.dart';
 import '../services/system/logger_service.dart';
 import '../styles/header_skins.dart';
+import '../skins/premium_skins.dart';
 import '../theme.dart';
 import '../widget/widget_manager.dart';
 import '../providers.dart';
@@ -489,6 +490,26 @@ final effectiveHeaderSkinProvider = Provider<String>((ref) =>
     ref.watch(headerSkinsEnabledProvider)
         ? ref.watch(headerSkinProvider)
         : kHeaderSkinNone);
+
+/// Display colors follow the active paid skin; saved free preferences keep their original providers.
+final displaySkinPrimaryColorProvider = Provider<Color>((ref) {
+  final selected = ref.watch(premiumSkinsProvider).selectedSkin;
+  if (selected == null || !ref.watch(headerSkinsEnabledProvider)) {
+    return ref.watch(primaryColorProvider);
+  }
+  final brightness = switch (ref.watch(themeModeProvider)) {
+    ThemeMode.dark => Brightness.dark,
+    ThemeMode.light => Brightness.light,
+    ThemeMode.system =>
+      WidgetsBinding.instance.platformDispatcher.platformBrightness,
+  };
+  return selected.colors(brightness).accent;
+});
+
+final displayHeaderSkinProvider = Provider<String>((ref) =>
+    ref.watch(premiumSkinsProvider).active
+        ? kHeaderSkinNone
+        : ref.watch(effectiveHeaderSkinProvider));
 
 final headerSkinInitProvider = FutureProvider<void>((ref) async {
   final prefs = await SharedPreferences.getInstance();

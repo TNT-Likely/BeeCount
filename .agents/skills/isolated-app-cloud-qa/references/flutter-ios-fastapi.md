@@ -6,7 +6,7 @@
 
 - 在源码副本修改主包、测试包、widget extension、App Group 和硬编码组名；正式 checkout 的 iOS 配置不改写。移除正式 iCloud/ubiquity entitlement 与 Info 配置。
 - 同时读取构建产物的 Info.plist 与实际签名 entitlement。模拟器上也要核验；必要时用 QA entitlement 重新 ad-hoc 签名后再检查。
-- `flutter drive --use-application-binary` 可以安装并验证已检查的同一产物；显式指定新 UDID。不要用 `-d booted` 或全局 `simctl shutdown all`。
+- `flutter drive --use-application-binary` 可以安装并验证已检查的同一产物；显式指定 manifest 中已核验的 UDID。不要用 `-d booted` 或全局 `simctl shutdown all`。
 - `get_app_container` 查不到容器时，区分“首次安装不存在”与“已有应用无法备份”。已有应用需同时备份 data 和 App Group。
 
 ## Cloud 初始化（仅联调）

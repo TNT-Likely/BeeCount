@@ -5,9 +5,10 @@ import '../../l10n/app_localizations.dart';
 import '../../providers.dart';
 import '../../providers/feature_highlight_providers.dart';
 import 'appearance/bindings/appearance_dialogs.dart';
-import 'appearance/bindings/skin_material_sheet.dart';
+import 'appearance/skin_editor.dart';
+import '../../skins/premium_skins.dart';
 import '../shared/scaffold/widgets/page_scaffold.dart';
-import '../../styles/header_skins.dart';
+import '../../styles/header_skins.dart' show headerSkinById;
 import '../../utils/currencies.dart';
 import '../shared/selectors/currency_picker_sheet.dart';
 import '../shared/widgets/feature_dot.dart';
@@ -50,6 +51,9 @@ class _AppearanceSettingsPageState
         language = ref.watch(languageProvider),
         mode = ref.watch(themeModeProvider),
         skinId = ref.watch(headerSkinProvider);
+    final paid = ref.watch(premiumSkinsProvider);
+    final paidSkin = paid.selectedSkin;
+    final currentSkin = activeSkinId(skinId, paid);
     final modeNames = [
       l.appearanceThemeModeSystem,
       l.appearanceThemeModeLight,
@@ -131,34 +135,31 @@ class _AppearanceSettingsPageState
                 entry(
                     'Image',
                     l.headerSkinTitle,
-                    skinId == kHeaderSkinNone
-                        ? l.headerSkinNone
-                        : headerSkinById(skinId)?.nameOf(l) ?? l.headerSkinNone,
+                    paidSkin != null
+                        ? premiumSkinName(context, paidSkin)
+                        : headerSkinById(currentSkin)?.nameOf(l) ??
+                            l.headerSkinNone,
                     () => open(const HeaderSkinPage()),
                     dot: true),
               if (ref.watch(headerSkinsEnabledProvider))
                 entry(
-                    'Layers',
-                    l.appearanceCardMaterial,
+                    'SlidersHorizontal',
+                    skinAdjustmentTitle(context),
                     l.appearanceCardMaterialSummary(
-                        ((1 -
-                                    BeePageMaterial.normalizeOpacity(
-                                        ref.watch(skinCardOpacityProvider))) *
+                        ((paidSkin != null
+                                    ? paid.appearance.transparency
+                                    : 1 -
+                                        BeePageMaterial.normalizeOpacity(ref
+                                            .watch(skinCardOpacityProvider))) *
                                 100)
                             .round(),
-                        BeePageMaterial.normalizeBlur(
-                                ref.watch(skinCardBlurProvider))
+                        (paidSkin != null
+                                ? paid.appearance.blur
+                                : BeePageMaterial.normalizeBlur(
+                                    ref.watch(skinCardBlurProvider)))
                             .round()),
-                    () => showSkinMaterialSheet(context)),
-              if (ref.watch(headerSkinsEnabledProvider))
-                BeeToggleRow(
-                    title: l.appearanceSkinAnimation,
-                    leading: const BeeLineIcon('Sparkles'),
-                    subtitle: l.appearanceSkinAnimationDesc,
-                    value: ref.watch(skinAnimationEnabledProvider),
-                    onChanged: (v) => ref
-                        .read(skinAnimationEnabledProvider.notifier)
-                        .state = v),
+                    () => showSkinEditor(context, currentSkin,
+                        editingActive: true)),
               entry('Maximize', l.mineDisplayScale, l.mineDisplayScaleSubtitle,
                   () => open(const FontSettingsPage())),
             ]),

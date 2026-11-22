@@ -1,4 +1,5 @@
 name: Beta Release
+run-name: ${{ inputs.mode == 'ios-only' && format('iOS TestFlight {0} ({1})', inputs.version, inputs.ios_build_number) || 'Beta Release' }}
 
 on:
   workflow_dispatch:
@@ -31,6 +32,10 @@ on:
         description: "ios-only 必填；完整双端留空沿用 Android code"
         required: false
         default: ""
+      official_skins:
+        description: "iOS 内测包直接引用两个私有库并开启沙盒购买"
+        type: boolean
+        default: false
       ios_prepared_source:
         description: "ios-only 使用环境中固定的预组装源码"
         type: boolean
@@ -49,7 +54,7 @@ jobs:
     if: inputs.mode == 'release' || (inputs.mode == 'ios-only' && github.repository == 'TNT-Likely/BeeCount' && github.ref_type == 'branch')
     name: ${{ inputs.mode == 'ios-only' && 'iOS internal TestFlight' || 'Verify both platforms then publish one Beta' }}
     runs-on: macos-15
-    environment: ${{ inputs.mode == 'ios-only' && inputs.ios_prepared_source && 'ios-beta-candidate' || 'beta' }}
+    environment: ${{ inputs.mode == 'ios-only' && (inputs.official_skins && 'ios-app-store' || inputs.ios_prepared_source && 'ios-beta-candidate') || 'beta' }}
     timeout-minutes: 120
     permissions:
       contents: write
@@ -61,6 +66,7 @@ jobs:
       BETA_CHANNEL_FLOOR: ${{ inputs.android_version_code_floor || vars.ANDROID_VERSION_CODE_FLOOR }}
       BETA_EXPECTED_CERTIFICATE: ${{ vars.ANDROID_RELEASE_CERT_SHA256 }}
       IOS_BETA_MODE: ${{ inputs.ios_delivery }}
+      IOS_BETA_OFFICIAL_SKINS: ${{ inputs.mode == 'ios-only' && inputs.official_skins }}
       IOS_BETA_PREPARED_SOURCE: ${{ inputs.mode == 'ios-only' && inputs.ios_prepared_source }}
       IOS_BUILD_NUMBER: ${{ inputs.ios_build_number }}
       IOS_BUILD_NUMBER_FLOOR: ${{ vars.IOS_BUILD_NUMBER_FLOOR || '225' }}
@@ -105,6 +111,39 @@ jobs:
           ssh-key: ${{ secrets.IOS_BETA_SOURCE_SSH_KEY }}
           path: .ios-beta-candidate
           persist-credentials: false
+      - name: Checkout official skin artwork
+        if: inputs.mode == 'ios-only' && inputs.official_skins
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ secrets.IOS_APP_STORE_SKINS_REPOSITORY }}
+          ref: main
+          path: .official/BeeCount-Skins
+          ssh-key: ${{ secrets.IOS_APP_STORE_SKINS_SSH_KEY }}
+          persist-credentials: false
+
+      - name: Checkout official purchase packages
+        if: inputs.mode == 'ios-only' && inputs.official_skins
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ secrets.IOS_APP_STORE_COMMERCIAL_REPOSITORY }}
+          ref: main
+          path: .official/BeeCount-Commercial
+          ssh-key: ${{ secrets.IOS_APP_STORE_COMMERCIAL_SSH_KEY }}
+          persist-credentials: false
+
+      - name: Use official Flutter path packages
+        if: inputs.mode == 'ios-only' && inputs.official_skins
+        run: |
+          ruby -ryaml - <<'RUBY'
+          overrides = YAML.safe_load(File.read('pubspec.yaml')).fetch('dependency_overrides', {})
+          {
+            'beecount_skins' => '.official/BeeCount-Skins',
+            'beecount_commercial' => '.official/BeeCount-Commercial',
+            'beecount_storekit' => '.official/BeeCount-Commercial/native/storekit'
+          }.each { |name, path| overrides[name] = { 'path' => path } }
+          File.write('pubspec_overrides.yaml', YAML.dump('dependency_overrides' => overrides))
+          RUBY
+
       - name: Plan iOS internal TestFlight
         if: inputs.mode == 'ios-only'
         env:

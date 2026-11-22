@@ -35,6 +35,7 @@ import 'services/data/recurring_transaction_service.dart';
 import 'services/system/logger_service.dart';
 import 'services/security/app_lock_service.dart';
 import 'providers/security_providers.dart';
+import 'skins/premium_skins.dart';
 import 'styles/tokens.dart';
 import 'styles/header_skins.dart';
 import 'providers/avatar_providers.dart';
@@ -818,12 +819,12 @@ class _BeeAppState extends ConsumerState<BeeApp>
   Widget build(BuildContext context) {
     final idx = ref.watch(bottomTabIndexProvider);
     final l10n = AppLocalizations.of(context);
-    final primaryColor = ref.watch(primaryColorProvider);
+    final primaryColor = ref.watch(displaySkinPrimaryColorProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bottomPadding = MediaQuery.of(context).padding.bottom;
     final avatarPath = ref.watch(avatarPathProvider).asData?.value;
     // 头部皮肤可附带悬浮 tab 装饰层(如一周年皮肤),随皮肤选择联动。
-    final headerSkin = headerSkinById(ref.watch(effectiveHeaderSkinProvider));
+    final headerSkin = headerSkinById(ref.watch(displayHeaderSkinProvider));
 
     return PopScope(
       canPop: false,
@@ -935,7 +936,7 @@ class _BeeAppState extends ConsumerState<BeeApp>
 }
 
 /// Telegram 风格悬浮胶囊底部导航栏
-class _BeeBottomBar extends StatelessWidget {
+class _BeeBottomBar extends ConsumerWidget {
   final int currentIndex;
   final Color primaryColor;
   final bool isDark;
@@ -967,8 +968,16 @@ class _BeeBottomBar extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    final bgColor = BeeTokens.tabBarBackground(context).withValues(alpha: 1);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final runtime = ref.watch(premiumSkinsProvider);
+    final colors = Theme.of(context).colorScheme;
+    final fallback = BeeTokens.tabBarBackground(context).withValues(alpha: 1);
+    final active = runtime.active && ref.watch(headerSkinsEnabledProvider);
+    final bgColor = active
+        ? Color.lerp(colors.surface, colors.primary, isDark ? .13 : .075)!
+            .withValues(alpha: .96 + BeeCardTheme.of(context).surface.a * .04)
+        : fallback;
+    final artwork = active ? runtime.navigationArtwork(context) : null;
     final inactiveColor = isDark ? Colors.white70 : Colors.black54;
 
     const barHeight = 56.0;
@@ -992,6 +1001,8 @@ class _BeeBottomBar extends StatelessWidget {
             child: RepaintBoundary(
                 child: Stack(
               children: [
+                if (artwork != null)
+                  Positioned.fill(child: IgnorePointer(child: artwork)),
                 // 皮肤的悬浮 tab 装饰层(垫在图标之下,不影响点按)
                 if (skin?.tabBarBuilder != null)
                   Positioned.fill(

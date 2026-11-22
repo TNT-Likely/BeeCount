@@ -1,3 +1,4 @@
+import 'package:beecount/skins/premium_skins.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -35,7 +36,7 @@ class _V4PageScaffoldState extends ConsumerState<V4PageScaffold> {
 
   @override
   Widget build(BuildContext context) {
-    final skin = headerSkinById(ref.watch(effectiveHeaderSkinProvider));
+    final skin = headerSkinById(ref.watch(displayHeaderSkinProvider));
     final dark = Theme.of(context).brightness == Brightness.dark;
     final primary = skin?.boundPrimary ?? Theme.of(context).colorScheme.primary;
     final top = MediaQuery.paddingOf(context).top;
@@ -44,7 +45,11 @@ class _V4PageScaffoldState extends ConsumerState<V4PageScaffold> {
         : widget.profileHeaderSkin
             ? HeaderSkinPageRole.profile
             : HeaderSkinPageRole.detail;
-    final canvas = widget.backgroundColor ?? BeeCardTheme.of(context).canvas;
+    final paidSkinActive = ref.watch(headerSkinsEnabledProvider) &&
+        ref.watch(premiumSkinsProvider).active;
+    final canvas = paidSkinActive
+        ? Colors.transparent
+        : widget.backgroundColor ?? BeeCardTheme.of(context).canvas;
     scene.scheduleMeasure();
     Widget decoration(Widget child) => Positioned.fill(
         child: IgnorePointer(child: ExcludeSemantics(child: child)));
