@@ -33,6 +33,26 @@ import '../utils/path_helper.dart';
 /// 返回非 null 字符串 = 错误信息(UI 就地展示,让用户重试)。
 ///
 /// 这样 view 留在原地,失败可重试,不再"输错就跳走没提示"。
+/// BeeCount-Cloud 二次开发 REST API 异常。
+///
+/// 携带 HTTP 状态码,供 UI 区分:
+/// - 404 资源不存在(如关联交易无效)
+/// - 409 业务冲突(改绑归档/停用联系人、公司重名、报销异公司)
+/// - 423 锁账(该日期前交易/账户初始金额被冻结)
+/// - 429 限流
+class CloudSecondaryApiException implements Exception {
+  final int statusCode;
+  final String message;
+
+  const CloudSecondaryApiException({
+    required this.statusCode,
+    required this.message,
+  });
+
+  @override
+  String toString() => 'CloudSecondaryApiException($statusCode): $message';
+}
+
 class TwoFactorChallengeRequest {
   final String challengeToken;
   final List<String> availableMethods; // ['totp', 'recovery_code']
@@ -1799,6 +1819,42 @@ class BeeCountCloudAuthService implements CloudAuthService {
     final now = DateTime.now().toUtc();
     return now.isAfter(
         session.accessTokenExpiresAt.subtract(const Duration(seconds: 30)));
+  }
+
+  /// ===== BeeCount-Cloud 二次开发 REST 通用入口 =====
+  ///
+  /// 供联系人/借款/储蓄罐/报销/物品/定期/成员等「服务端直管实体」使用。
+  /// 这些实体不走 sync change log,需直接 GET/POST/PATCH/DELETE REST。
+  /// 复用本类的 requireAccessToken(含自动刷新/静默重登)与 baseUrl/apiPrefix。
+  ///
+  /// [path] 以 '/' 开头,相对于 apiPrefix(如 '/contacts')。
+  /// 返回解码后的 JSON:成功为 Map/List,204 NoContent 为 null。
+  /// 非 2xx 抛 [CloudSecondaryApiException],含 statusCode 与服务端 detail,
+  /// 供上层区分 404/409(业务冲突)/423(锁账)/429(限流)。
+  Future<dynamic> requestSecondaryJson(
+    String method,
+    String path, {
+    Map<String, dynamic>? query,
+    Object? body,
+  }) async {
+    final token = await requireAccessToken();
+    final uri = Uri.parse('$baseUrl$apiPrefix$path')
+        .replace(queryParameters: query?.map((k, v) => MapEntry(k, '$v')));
+    final request = http.Request(method.toUpperCase(), uri);
+    request.headers['Content-Type'] = 'application/json';
+    request.headers['Authorization'] = 'Bearer $token';
+    if (body != null) request.body = jsonEncode(body);
+
+    final streamed = await _httpClient.send(request);
+    final response = await http.Response.fromStream(streamed);
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      if (response.body.isEmpty) return null;
+      return jsonDecode(response.body); // 可为 Map / List / 标量
+    }
+    throw CloudSecondaryApiException(
+      statusCode: response.statusCode,
+      message: _extractErrorMessage(response),
+    );
   }
 
   Future<http.Response> _request({

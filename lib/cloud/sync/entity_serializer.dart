@@ -47,6 +47,26 @@ class EntitySerializer {
       // 语义等价;省略保持 payload 干净。
       if (tx.currencyCode != null) 'currencyCode': tx.currencyCode,
       if (tx.nativeAmount != null) 'nativeAmount': tx.nativeAmount,
+      // ===== Cloud 二次开发字段(0022-0035) =====
+      // 注意与 server _LEDGER_MERGE_SPECS 的 camelCase 键一一对应。
+      // 优惠:amount 为实付,优惠仅明细不冲减余额(0023)。
+      'discountAmount': tx.discountAmount,
+      'transferFeeAmount': tx.transferFeeAmount,
+      'transferDiscountAmount': tx.transferDiscountAmount,
+      if (tx.transferFeeAccountId != null)
+        'transferFeeAccountId': tx.transferFeeAccountId,
+      if (tx.transferFeeAccountName != null)
+        'transferFeeAccountName': tx.transferFeeAccountName,
+      // 退款(0025):从原单发起,不计收入。
+      'isRefund': tx.isRefund ?? false,
+      if (tx.refundOfSyncId != null) 'refundOfSyncId': tx.refundOfSyncId,
+      // 组合付款(0028)/消费成员(0024):JSON 数组字符串,[] 语义=清空。
+      if (tx.paymentSplitsJson != null)
+        'paymentSplits': jsonDecode(tx.paymentSplitsJson!),
+      if (tx.memberSplitsJson != null)
+        'memberSplits': jsonDecode(tx.memberSplitsJson!),
+      if (tx.memberNamesCsv != null) 'memberNames': tx.memberNamesCsv,
+      'isReimbursement': tx.isReimbursement ?? false,
       if (ledgerSyncId != null && ledgerSyncId.isNotEmpty)
         'ledgerSyncId': ledgerSyncId,
       'categoryName': categoryName,
@@ -90,7 +110,22 @@ class EntitySerializer {
       if (account.paymentDueDay != null) 'paymentDueDay': account.paymentDueDay,
       if (account.bankName != null) 'bankName': account.bankName,
       if (account.cardLastFour != null) 'cardLastFour': account.cardLastFour,
+      if (account.cardNumber != null) 'cardNumber': account.cardNumber,
       if (account.note != null) 'note': account.note,
+      // ===== Cloud 账户图标/背景 + 信用卡账单(0041/0032) =====
+      if (account.iconKey != null) 'iconKey': account.iconKey,
+      if (account.iconType != null) 'iconType': account.iconType,
+      if (account.backgroundKey != null)
+        'backgroundKey': account.backgroundKey,
+      if (account.billStatus != null) 'billStatus': account.billStatus,
+      if (account.billAmountDue != null)
+        'billAmountDue': account.billAmountDue,
+      if (account.billMinimumAmount != null)
+        'billMinimumAmount': account.billMinimumAmount,
+      if (account.billPaidAmount != null)
+        'billPaidAmount': account.billPaidAmount,
+      if (account.billRemainingAmount != null)
+        'billRemainingAmount': account.billRemainingAmount,
       // 账户隐藏(#240)。非空 bool + 默认 false,同账单标记的
       // excludeFromStats/excludeFromBudget 无条件发送(不用 if-null 省略)。
       'hidden': account.hidden,

@@ -6,6 +6,7 @@ import '../../../../data/db.dart' as db;
 import '../../../../l10n/app_localizations.dart';
 import '../../../../providers.dart';
 import '../../../../utils/account_type_utils.dart';
+import '../../../cloud_secondary/cloud_account_icon.dart';
 import '../../../../utils/credit_card_amounts.dart';
 import '../../../../utils/currencies.dart';
 import '../../../../utils/format_money.dart';
@@ -44,7 +45,10 @@ class AccountDetailSummary extends ConsumerWidget {
         symbol = getDistinctCurrencySymbol(account.currency);
     final metadata = [
       if (account.bankName?.isNotEmpty == true) account.bankName!,
-      if (account.cardLastFour?.isNotEmpty == true)
+      if (account.cardNumber?.isNotEmpty == true)
+        account.cardNumber!,
+      if (account.cardLastFour?.isNotEmpty == true &&
+          account.cardNumber?.isEmpty != false)
         '**** ${account.cardLastFour}',
       if (account.note?.isNotEmpty == true) account.note!
     ];
@@ -92,7 +96,13 @@ class AccountDetailSummary extends ConsumerWidget {
                       title: account.name,
                       caption:
                           '${getAccountTypeLabel(context, account.type)} · ${account.currency}',
-                      icon: AccountTypeIcon(type: account.type, size: 32),
+                      icon: CloudAccountIcon.isBuiltIn(account.iconKey)
+                          ? CloudAccountIcon(
+                              iconKey: account.iconKey!,
+                              iconType: account.iconType,
+                              size: 32,
+                            )
+                          : AccountTypeIcon(type: account.type, size: 32),
                       balanceLabel: label,
                       currency: account.currency,
                       prefix: hidden ? '' : symbol,

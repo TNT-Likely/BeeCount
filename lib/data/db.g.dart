@@ -654,6 +654,60 @@ class $AccountsTable extends Accounts with TableInfo<$AccountsTable, Account> {
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('CHECK ("hidden" IN (0, 1))'),
       defaultValue: const Constant(false));
+  static const VerificationMeta _iconKeyMeta =
+      const VerificationMeta('iconKey');
+  @override
+  late final GeneratedColumn<String> iconKey = GeneratedColumn<String>(
+      'icon_key', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _iconTypeMeta =
+      const VerificationMeta('iconType');
+  @override
+  late final GeneratedColumn<String> iconType = GeneratedColumn<String>(
+      'icon_type', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _backgroundKeyMeta =
+      const VerificationMeta('backgroundKey');
+  @override
+  late final GeneratedColumn<String> backgroundKey = GeneratedColumn<String>(
+      'background_key', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _billStatusMeta =
+      const VerificationMeta('billStatus');
+  @override
+  late final GeneratedColumn<int> billStatus = GeneratedColumn<int>(
+      'bill_status', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _billAmountDueMeta =
+      const VerificationMeta('billAmountDue');
+  @override
+  late final GeneratedColumn<double> billAmountDue = GeneratedColumn<double>(
+      'bill_amount_due', aliasedName, true,
+      type: DriftSqlType.double, requiredDuringInsert: false);
+  static const VerificationMeta _billMinimumAmountMeta =
+      const VerificationMeta('billMinimumAmount');
+  @override
+  late final GeneratedColumn<double> billMinimumAmount =
+      GeneratedColumn<double>('bill_minimum_amount', aliasedName, true,
+          type: DriftSqlType.double, requiredDuringInsert: false);
+  static const VerificationMeta _billPaidAmountMeta =
+      const VerificationMeta('billPaidAmount');
+  @override
+  late final GeneratedColumn<double> billPaidAmount = GeneratedColumn<double>(
+      'bill_paid_amount', aliasedName, true,
+      type: DriftSqlType.double, requiredDuringInsert: false);
+  static const VerificationMeta _billRemainingAmountMeta =
+      const VerificationMeta('billRemainingAmount');
+  @override
+  late final GeneratedColumn<double> billRemainingAmount =
+      GeneratedColumn<double>('bill_remaining_amount', aliasedName, true,
+          type: DriftSqlType.double, requiredDuringInsert: false);
+  static const VerificationMeta _cardNumberMeta =
+      const VerificationMeta('cardNumber');
+  @override
+  late final GeneratedColumn<String> cardNumber = GeneratedColumn<String>(
+      'card_number', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -672,7 +726,16 @@ class $AccountsTable extends Accounts with TableInfo<$AccountsTable, Account> {
         cardLastFour,
         note,
         syncId,
-        hidden
+        hidden,
+        iconKey,
+        iconType,
+        backgroundKey,
+        billStatus,
+        billAmountDue,
+        billMinimumAmount,
+        billPaidAmount,
+        billRemainingAmount,
+        cardNumber
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -765,6 +828,56 @@ class $AccountsTable extends Accounts with TableInfo<$AccountsTable, Account> {
       context.handle(_hiddenMeta,
           hidden.isAcceptableOrUnknown(data['hidden']!, _hiddenMeta));
     }
+    if (data.containsKey('icon_key')) {
+      context.handle(_iconKeyMeta,
+          iconKey.isAcceptableOrUnknown(data['icon_key']!, _iconKeyMeta));
+    }
+    if (data.containsKey('icon_type')) {
+      context.handle(_iconTypeMeta,
+          iconType.isAcceptableOrUnknown(data['icon_type']!, _iconTypeMeta));
+    }
+    if (data.containsKey('background_key')) {
+      context.handle(
+          _backgroundKeyMeta,
+          backgroundKey.isAcceptableOrUnknown(
+              data['background_key']!, _backgroundKeyMeta));
+    }
+    if (data.containsKey('bill_status')) {
+      context.handle(
+          _billStatusMeta,
+          billStatus.isAcceptableOrUnknown(
+              data['bill_status']!, _billStatusMeta));
+    }
+    if (data.containsKey('bill_amount_due')) {
+      context.handle(
+          _billAmountDueMeta,
+          billAmountDue.isAcceptableOrUnknown(
+              data['bill_amount_due']!, _billAmountDueMeta));
+    }
+    if (data.containsKey('bill_minimum_amount')) {
+      context.handle(
+          _billMinimumAmountMeta,
+          billMinimumAmount.isAcceptableOrUnknown(
+              data['bill_minimum_amount']!, _billMinimumAmountMeta));
+    }
+    if (data.containsKey('bill_paid_amount')) {
+      context.handle(
+          _billPaidAmountMeta,
+          billPaidAmount.isAcceptableOrUnknown(
+              data['bill_paid_amount']!, _billPaidAmountMeta));
+    }
+    if (data.containsKey('bill_remaining_amount')) {
+      context.handle(
+          _billRemainingAmountMeta,
+          billRemainingAmount.isAcceptableOrUnknown(
+              data['bill_remaining_amount']!, _billRemainingAmountMeta));
+    }
+    if (data.containsKey('card_number')) {
+      context.handle(
+          _cardNumberMeta,
+          cardNumber.isAcceptableOrUnknown(
+              data['card_number']!, _cardNumberMeta));
+    }
     return context;
   }
 
@@ -808,6 +921,24 @@ class $AccountsTable extends Accounts with TableInfo<$AccountsTable, Account> {
           .read(DriftSqlType.string, data['${effectivePrefix}sync_id']),
       hidden: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}hidden'])!,
+      iconKey: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}icon_key']),
+      iconType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}icon_type']),
+      backgroundKey: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}background_key']),
+      billStatus: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}bill_status']),
+      billAmountDue: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}bill_amount_due']),
+      billMinimumAmount: attachedDatabase.typeMapping.read(
+          DriftSqlType.double, data['${effectivePrefix}bill_minimum_amount']),
+      billPaidAmount: attachedDatabase.typeMapping.read(
+          DriftSqlType.double, data['${effectivePrefix}bill_paid_amount']),
+      billRemainingAmount: attachedDatabase.typeMapping.read(
+          DriftSqlType.double, data['${effectivePrefix}bill_remaining_amount']),
+      cardNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}card_number']),
     );
   }
 
@@ -838,6 +969,21 @@ class Account extends DataClass implements Insertable<Account> {
   /// 隐藏:true 时该账户不再出现在记账/转账/周期选择器,账户管理页移入「已隐藏」分区。
   /// 仍计入账户余额、净资产、资产构成、净值趋势(.docs/account-archive/01 §二 D1)。
   final bool hidden;
+
+  /// 账户图标/背景(Cloud 迁移 0041):icon_type = bank|card|custom。
+  final String? iconKey;
+  final String? iconType;
+  final String? backgroundKey;
+
+  /// 信用卡账单派生字段(Cloud 0022/0032):账单日在本表用 billingDay(日号)。
+  final int? billStatus;
+  final double? billAmountDue;
+  final double? billMinimumAmount;
+  final double? billPaidAmount;
+  final double? billRemainingAmount;
+
+  /// Cloud 的完整卡号(最长 23),App 老字段 cardLastFour 保留兼容。
+  final String? cardNumber;
   const Account(
       {required this.id,
       required this.ledgerId,
@@ -855,7 +1001,16 @@ class Account extends DataClass implements Insertable<Account> {
       this.cardLastFour,
       this.note,
       this.syncId,
-      required this.hidden});
+      required this.hidden,
+      this.iconKey,
+      this.iconType,
+      this.backgroundKey,
+      this.billStatus,
+      this.billAmountDue,
+      this.billMinimumAmount,
+      this.billPaidAmount,
+      this.billRemainingAmount,
+      this.cardNumber});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -894,6 +1049,33 @@ class Account extends DataClass implements Insertable<Account> {
       map['sync_id'] = Variable<String>(syncId);
     }
     map['hidden'] = Variable<bool>(hidden);
+    if (!nullToAbsent || iconKey != null) {
+      map['icon_key'] = Variable<String>(iconKey);
+    }
+    if (!nullToAbsent || iconType != null) {
+      map['icon_type'] = Variable<String>(iconType);
+    }
+    if (!nullToAbsent || backgroundKey != null) {
+      map['background_key'] = Variable<String>(backgroundKey);
+    }
+    if (!nullToAbsent || billStatus != null) {
+      map['bill_status'] = Variable<int>(billStatus);
+    }
+    if (!nullToAbsent || billAmountDue != null) {
+      map['bill_amount_due'] = Variable<double>(billAmountDue);
+    }
+    if (!nullToAbsent || billMinimumAmount != null) {
+      map['bill_minimum_amount'] = Variable<double>(billMinimumAmount);
+    }
+    if (!nullToAbsent || billPaidAmount != null) {
+      map['bill_paid_amount'] = Variable<double>(billPaidAmount);
+    }
+    if (!nullToAbsent || billRemainingAmount != null) {
+      map['bill_remaining_amount'] = Variable<double>(billRemainingAmount);
+    }
+    if (!nullToAbsent || cardNumber != null) {
+      map['card_number'] = Variable<String>(cardNumber);
+    }
     return map;
   }
 
@@ -931,6 +1113,33 @@ class Account extends DataClass implements Insertable<Account> {
       syncId:
           syncId == null && nullToAbsent ? const Value.absent() : Value(syncId),
       hidden: Value(hidden),
+      iconKey: iconKey == null && nullToAbsent
+          ? const Value.absent()
+          : Value(iconKey),
+      iconType: iconType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(iconType),
+      backgroundKey: backgroundKey == null && nullToAbsent
+          ? const Value.absent()
+          : Value(backgroundKey),
+      billStatus: billStatus == null && nullToAbsent
+          ? const Value.absent()
+          : Value(billStatus),
+      billAmountDue: billAmountDue == null && nullToAbsent
+          ? const Value.absent()
+          : Value(billAmountDue),
+      billMinimumAmount: billMinimumAmount == null && nullToAbsent
+          ? const Value.absent()
+          : Value(billMinimumAmount),
+      billPaidAmount: billPaidAmount == null && nullToAbsent
+          ? const Value.absent()
+          : Value(billPaidAmount),
+      billRemainingAmount: billRemainingAmount == null && nullToAbsent
+          ? const Value.absent()
+          : Value(billRemainingAmount),
+      cardNumber: cardNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(cardNumber),
     );
   }
 
@@ -955,6 +1164,17 @@ class Account extends DataClass implements Insertable<Account> {
       note: serializer.fromJson<String?>(json['note']),
       syncId: serializer.fromJson<String?>(json['syncId']),
       hidden: serializer.fromJson<bool>(json['hidden']),
+      iconKey: serializer.fromJson<String?>(json['iconKey']),
+      iconType: serializer.fromJson<String?>(json['iconType']),
+      backgroundKey: serializer.fromJson<String?>(json['backgroundKey']),
+      billStatus: serializer.fromJson<int?>(json['billStatus']),
+      billAmountDue: serializer.fromJson<double?>(json['billAmountDue']),
+      billMinimumAmount:
+          serializer.fromJson<double?>(json['billMinimumAmount']),
+      billPaidAmount: serializer.fromJson<double?>(json['billPaidAmount']),
+      billRemainingAmount:
+          serializer.fromJson<double?>(json['billRemainingAmount']),
+      cardNumber: serializer.fromJson<String?>(json['cardNumber']),
     );
   }
   @override
@@ -978,6 +1198,15 @@ class Account extends DataClass implements Insertable<Account> {
       'note': serializer.toJson<String?>(note),
       'syncId': serializer.toJson<String?>(syncId),
       'hidden': serializer.toJson<bool>(hidden),
+      'iconKey': serializer.toJson<String?>(iconKey),
+      'iconType': serializer.toJson<String?>(iconType),
+      'backgroundKey': serializer.toJson<String?>(backgroundKey),
+      'billStatus': serializer.toJson<int?>(billStatus),
+      'billAmountDue': serializer.toJson<double?>(billAmountDue),
+      'billMinimumAmount': serializer.toJson<double?>(billMinimumAmount),
+      'billPaidAmount': serializer.toJson<double?>(billPaidAmount),
+      'billRemainingAmount': serializer.toJson<double?>(billRemainingAmount),
+      'cardNumber': serializer.toJson<String?>(cardNumber),
     };
   }
 
@@ -998,7 +1227,16 @@ class Account extends DataClass implements Insertable<Account> {
           Value<String?> cardLastFour = const Value.absent(),
           Value<String?> note = const Value.absent(),
           Value<String?> syncId = const Value.absent(),
-          bool? hidden}) =>
+          bool? hidden,
+          Value<String?> iconKey = const Value.absent(),
+          Value<String?> iconType = const Value.absent(),
+          Value<String?> backgroundKey = const Value.absent(),
+          Value<int?> billStatus = const Value.absent(),
+          Value<double?> billAmountDue = const Value.absent(),
+          Value<double?> billMinimumAmount = const Value.absent(),
+          Value<double?> billPaidAmount = const Value.absent(),
+          Value<double?> billRemainingAmount = const Value.absent(),
+          Value<String?> cardNumber = const Value.absent()}) =>
       Account(
         id: id ?? this.id,
         ledgerId: ledgerId ?? this.ledgerId,
@@ -1019,6 +1257,22 @@ class Account extends DataClass implements Insertable<Account> {
         note: note.present ? note.value : this.note,
         syncId: syncId.present ? syncId.value : this.syncId,
         hidden: hidden ?? this.hidden,
+        iconKey: iconKey.present ? iconKey.value : this.iconKey,
+        iconType: iconType.present ? iconType.value : this.iconType,
+        backgroundKey:
+            backgroundKey.present ? backgroundKey.value : this.backgroundKey,
+        billStatus: billStatus.present ? billStatus.value : this.billStatus,
+        billAmountDue:
+            billAmountDue.present ? billAmountDue.value : this.billAmountDue,
+        billMinimumAmount: billMinimumAmount.present
+            ? billMinimumAmount.value
+            : this.billMinimumAmount,
+        billPaidAmount:
+            billPaidAmount.present ? billPaidAmount.value : this.billPaidAmount,
+        billRemainingAmount: billRemainingAmount.present
+            ? billRemainingAmount.value
+            : this.billRemainingAmount,
+        cardNumber: cardNumber.present ? cardNumber.value : this.cardNumber,
       );
   Account copyWithCompanion(AccountsCompanion data) {
     return Account(
@@ -1047,6 +1301,27 @@ class Account extends DataClass implements Insertable<Account> {
       note: data.note.present ? data.note.value : this.note,
       syncId: data.syncId.present ? data.syncId.value : this.syncId,
       hidden: data.hidden.present ? data.hidden.value : this.hidden,
+      iconKey: data.iconKey.present ? data.iconKey.value : this.iconKey,
+      iconType: data.iconType.present ? data.iconType.value : this.iconType,
+      backgroundKey: data.backgroundKey.present
+          ? data.backgroundKey.value
+          : this.backgroundKey,
+      billStatus:
+          data.billStatus.present ? data.billStatus.value : this.billStatus,
+      billAmountDue: data.billAmountDue.present
+          ? data.billAmountDue.value
+          : this.billAmountDue,
+      billMinimumAmount: data.billMinimumAmount.present
+          ? data.billMinimumAmount.value
+          : this.billMinimumAmount,
+      billPaidAmount: data.billPaidAmount.present
+          ? data.billPaidAmount.value
+          : this.billPaidAmount,
+      billRemainingAmount: data.billRemainingAmount.present
+          ? data.billRemainingAmount.value
+          : this.billRemainingAmount,
+      cardNumber:
+          data.cardNumber.present ? data.cardNumber.value : this.cardNumber,
     );
   }
 
@@ -1069,30 +1344,49 @@ class Account extends DataClass implements Insertable<Account> {
           ..write('cardLastFour: $cardLastFour, ')
           ..write('note: $note, ')
           ..write('syncId: $syncId, ')
-          ..write('hidden: $hidden')
+          ..write('hidden: $hidden, ')
+          ..write('iconKey: $iconKey, ')
+          ..write('iconType: $iconType, ')
+          ..write('backgroundKey: $backgroundKey, ')
+          ..write('billStatus: $billStatus, ')
+          ..write('billAmountDue: $billAmountDue, ')
+          ..write('billMinimumAmount: $billMinimumAmount, ')
+          ..write('billPaidAmount: $billPaidAmount, ')
+          ..write('billRemainingAmount: $billRemainingAmount, ')
+          ..write('cardNumber: $cardNumber')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(
-      id,
-      ledgerId,
-      name,
-      type,
-      currency,
-      initialBalance,
-      createdAt,
-      updatedAt,
-      sortOrder,
-      creditLimit,
-      billingDay,
-      paymentDueDay,
-      bankName,
-      cardLastFour,
-      note,
-      syncId,
-      hidden);
+  int get hashCode => Object.hashAll([
+        id,
+        ledgerId,
+        name,
+        type,
+        currency,
+        initialBalance,
+        createdAt,
+        updatedAt,
+        sortOrder,
+        creditLimit,
+        billingDay,
+        paymentDueDay,
+        bankName,
+        cardLastFour,
+        note,
+        syncId,
+        hidden,
+        iconKey,
+        iconType,
+        backgroundKey,
+        billStatus,
+        billAmountDue,
+        billMinimumAmount,
+        billPaidAmount,
+        billRemainingAmount,
+        cardNumber
+      ]);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1113,7 +1407,16 @@ class Account extends DataClass implements Insertable<Account> {
           other.cardLastFour == this.cardLastFour &&
           other.note == this.note &&
           other.syncId == this.syncId &&
-          other.hidden == this.hidden);
+          other.hidden == this.hidden &&
+          other.iconKey == this.iconKey &&
+          other.iconType == this.iconType &&
+          other.backgroundKey == this.backgroundKey &&
+          other.billStatus == this.billStatus &&
+          other.billAmountDue == this.billAmountDue &&
+          other.billMinimumAmount == this.billMinimumAmount &&
+          other.billPaidAmount == this.billPaidAmount &&
+          other.billRemainingAmount == this.billRemainingAmount &&
+          other.cardNumber == this.cardNumber);
 }
 
 class AccountsCompanion extends UpdateCompanion<Account> {
@@ -1134,6 +1437,15 @@ class AccountsCompanion extends UpdateCompanion<Account> {
   final Value<String?> note;
   final Value<String?> syncId;
   final Value<bool> hidden;
+  final Value<String?> iconKey;
+  final Value<String?> iconType;
+  final Value<String?> backgroundKey;
+  final Value<int?> billStatus;
+  final Value<double?> billAmountDue;
+  final Value<double?> billMinimumAmount;
+  final Value<double?> billPaidAmount;
+  final Value<double?> billRemainingAmount;
+  final Value<String?> cardNumber;
   const AccountsCompanion({
     this.id = const Value.absent(),
     this.ledgerId = const Value.absent(),
@@ -1152,6 +1464,15 @@ class AccountsCompanion extends UpdateCompanion<Account> {
     this.note = const Value.absent(),
     this.syncId = const Value.absent(),
     this.hidden = const Value.absent(),
+    this.iconKey = const Value.absent(),
+    this.iconType = const Value.absent(),
+    this.backgroundKey = const Value.absent(),
+    this.billStatus = const Value.absent(),
+    this.billAmountDue = const Value.absent(),
+    this.billMinimumAmount = const Value.absent(),
+    this.billPaidAmount = const Value.absent(),
+    this.billRemainingAmount = const Value.absent(),
+    this.cardNumber = const Value.absent(),
   });
   AccountsCompanion.insert({
     this.id = const Value.absent(),
@@ -1171,6 +1492,15 @@ class AccountsCompanion extends UpdateCompanion<Account> {
     this.note = const Value.absent(),
     this.syncId = const Value.absent(),
     this.hidden = const Value.absent(),
+    this.iconKey = const Value.absent(),
+    this.iconType = const Value.absent(),
+    this.backgroundKey = const Value.absent(),
+    this.billStatus = const Value.absent(),
+    this.billAmountDue = const Value.absent(),
+    this.billMinimumAmount = const Value.absent(),
+    this.billPaidAmount = const Value.absent(),
+    this.billRemainingAmount = const Value.absent(),
+    this.cardNumber = const Value.absent(),
   })  : ledgerId = Value(ledgerId),
         name = Value(name);
   static Insertable<Account> custom({
@@ -1191,6 +1521,15 @@ class AccountsCompanion extends UpdateCompanion<Account> {
     Expression<String>? note,
     Expression<String>? syncId,
     Expression<bool>? hidden,
+    Expression<String>? iconKey,
+    Expression<String>? iconType,
+    Expression<String>? backgroundKey,
+    Expression<int>? billStatus,
+    Expression<double>? billAmountDue,
+    Expression<double>? billMinimumAmount,
+    Expression<double>? billPaidAmount,
+    Expression<double>? billRemainingAmount,
+    Expression<String>? cardNumber,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -1210,6 +1549,16 @@ class AccountsCompanion extends UpdateCompanion<Account> {
       if (note != null) 'note': note,
       if (syncId != null) 'sync_id': syncId,
       if (hidden != null) 'hidden': hidden,
+      if (iconKey != null) 'icon_key': iconKey,
+      if (iconType != null) 'icon_type': iconType,
+      if (backgroundKey != null) 'background_key': backgroundKey,
+      if (billStatus != null) 'bill_status': billStatus,
+      if (billAmountDue != null) 'bill_amount_due': billAmountDue,
+      if (billMinimumAmount != null) 'bill_minimum_amount': billMinimumAmount,
+      if (billPaidAmount != null) 'bill_paid_amount': billPaidAmount,
+      if (billRemainingAmount != null)
+        'bill_remaining_amount': billRemainingAmount,
+      if (cardNumber != null) 'card_number': cardNumber,
     });
   }
 
@@ -1230,7 +1579,16 @@ class AccountsCompanion extends UpdateCompanion<Account> {
       Value<String?>? cardLastFour,
       Value<String?>? note,
       Value<String?>? syncId,
-      Value<bool>? hidden}) {
+      Value<bool>? hidden,
+      Value<String?>? iconKey,
+      Value<String?>? iconType,
+      Value<String?>? backgroundKey,
+      Value<int?>? billStatus,
+      Value<double?>? billAmountDue,
+      Value<double?>? billMinimumAmount,
+      Value<double?>? billPaidAmount,
+      Value<double?>? billRemainingAmount,
+      Value<String?>? cardNumber}) {
     return AccountsCompanion(
       id: id ?? this.id,
       ledgerId: ledgerId ?? this.ledgerId,
@@ -1249,6 +1607,15 @@ class AccountsCompanion extends UpdateCompanion<Account> {
       note: note ?? this.note,
       syncId: syncId ?? this.syncId,
       hidden: hidden ?? this.hidden,
+      iconKey: iconKey ?? this.iconKey,
+      iconType: iconType ?? this.iconType,
+      backgroundKey: backgroundKey ?? this.backgroundKey,
+      billStatus: billStatus ?? this.billStatus,
+      billAmountDue: billAmountDue ?? this.billAmountDue,
+      billMinimumAmount: billMinimumAmount ?? this.billMinimumAmount,
+      billPaidAmount: billPaidAmount ?? this.billPaidAmount,
+      billRemainingAmount: billRemainingAmount ?? this.billRemainingAmount,
+      cardNumber: cardNumber ?? this.cardNumber,
     );
   }
 
@@ -1306,6 +1673,34 @@ class AccountsCompanion extends UpdateCompanion<Account> {
     if (hidden.present) {
       map['hidden'] = Variable<bool>(hidden.value);
     }
+    if (iconKey.present) {
+      map['icon_key'] = Variable<String>(iconKey.value);
+    }
+    if (iconType.present) {
+      map['icon_type'] = Variable<String>(iconType.value);
+    }
+    if (backgroundKey.present) {
+      map['background_key'] = Variable<String>(backgroundKey.value);
+    }
+    if (billStatus.present) {
+      map['bill_status'] = Variable<int>(billStatus.value);
+    }
+    if (billAmountDue.present) {
+      map['bill_amount_due'] = Variable<double>(billAmountDue.value);
+    }
+    if (billMinimumAmount.present) {
+      map['bill_minimum_amount'] = Variable<double>(billMinimumAmount.value);
+    }
+    if (billPaidAmount.present) {
+      map['bill_paid_amount'] = Variable<double>(billPaidAmount.value);
+    }
+    if (billRemainingAmount.present) {
+      map['bill_remaining_amount'] =
+          Variable<double>(billRemainingAmount.value);
+    }
+    if (cardNumber.present) {
+      map['card_number'] = Variable<String>(cardNumber.value);
+    }
     return map;
   }
 
@@ -1328,7 +1723,16 @@ class AccountsCompanion extends UpdateCompanion<Account> {
           ..write('cardLastFour: $cardLastFour, ')
           ..write('note: $note, ')
           ..write('syncId: $syncId, ')
-          ..write('hidden: $hidden')
+          ..write('hidden: $hidden, ')
+          ..write('iconKey: $iconKey, ')
+          ..write('iconType: $iconType, ')
+          ..write('backgroundKey: $backgroundKey, ')
+          ..write('billStatus: $billStatus, ')
+          ..write('billAmountDue: $billAmountDue, ')
+          ..write('billMinimumAmount: $billMinimumAmount, ')
+          ..write('billPaidAmount: $billPaidAmount, ')
+          ..write('billRemainingAmount: $billRemainingAmount, ')
+          ..write('cardNumber: $cardNumber')
           ..write(')'))
         .toString();
   }
@@ -2013,6 +2417,78 @@ class $TransactionsTable extends Transactions
   late final GeneratedColumn<double> nativeAmount = GeneratedColumn<double>(
       'native_amount', aliasedName, true,
       type: DriftSqlType.double, requiredDuringInsert: false);
+  static const VerificationMeta _discountAmountMeta =
+      const VerificationMeta('discountAmount');
+  @override
+  late final GeneratedColumn<double> discountAmount = GeneratedColumn<double>(
+      'discount_amount', aliasedName, true,
+      type: DriftSqlType.double, requiredDuringInsert: false);
+  static const VerificationMeta _transferFeeAmountMeta =
+      const VerificationMeta('transferFeeAmount');
+  @override
+  late final GeneratedColumn<double> transferFeeAmount =
+      GeneratedColumn<double>('transfer_fee_amount', aliasedName, true,
+          type: DriftSqlType.double, requiredDuringInsert: false);
+  static const VerificationMeta _transferDiscountAmountMeta =
+      const VerificationMeta('transferDiscountAmount');
+  @override
+  late final GeneratedColumn<double> transferDiscountAmount =
+      GeneratedColumn<double>('transfer_discount_amount', aliasedName, true,
+          type: DriftSqlType.double, requiredDuringInsert: false);
+  static const VerificationMeta _transferFeeAccountIdMeta =
+      const VerificationMeta('transferFeeAccountId');
+  @override
+  late final GeneratedColumn<String> transferFeeAccountId =
+      GeneratedColumn<String>('transfer_fee_account_id', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _transferFeeAccountNameMeta =
+      const VerificationMeta('transferFeeAccountName');
+  @override
+  late final GeneratedColumn<String> transferFeeAccountName =
+      GeneratedColumn<String>('transfer_fee_account_name', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _isRefundMeta =
+      const VerificationMeta('isRefund');
+  @override
+  late final GeneratedColumn<bool> isRefund = GeneratedColumn<bool>(
+      'is_refund', aliasedName, true,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_refund" IN (0, 1))'));
+  static const VerificationMeta _refundOfSyncIdMeta =
+      const VerificationMeta('refundOfSyncId');
+  @override
+  late final GeneratedColumn<String> refundOfSyncId = GeneratedColumn<String>(
+      'refund_of_sync_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _paymentSplitsJsonMeta =
+      const VerificationMeta('paymentSplitsJson');
+  @override
+  late final GeneratedColumn<String> paymentSplitsJson =
+      GeneratedColumn<String>('payment_splits_json', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _memberSplitsJsonMeta =
+      const VerificationMeta('memberSplitsJson');
+  @override
+  late final GeneratedColumn<String> memberSplitsJson = GeneratedColumn<String>(
+      'member_splits_json', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _memberNamesCsvMeta =
+      const VerificationMeta('memberNamesCsv');
+  @override
+  late final GeneratedColumn<String> memberNamesCsv = GeneratedColumn<String>(
+      'member_names_csv', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _isReimbursementMeta =
+      const VerificationMeta('isReimbursement');
+  @override
+  late final GeneratedColumn<bool> isReimbursement = GeneratedColumn<bool>(
+      'is_reimbursement', aliasedName, true,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("is_reimbursement" IN (0, 1))'));
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -2035,7 +2511,18 @@ class $TransactionsTable extends Transactions
         excludeFromStats,
         excludeFromBudget,
         currencyCode,
-        nativeAmount
+        nativeAmount,
+        discountAmount,
+        transferFeeAmount,
+        transferDiscountAmount,
+        transferFeeAccountId,
+        transferFeeAccountName,
+        isRefund,
+        refundOfSyncId,
+        paymentSplitsJson,
+        memberSplitsJson,
+        memberNamesCsv,
+        isReimbursement
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -2165,6 +2652,70 @@ class $TransactionsTable extends Transactions
           nativeAmount.isAcceptableOrUnknown(
               data['native_amount']!, _nativeAmountMeta));
     }
+    if (data.containsKey('discount_amount')) {
+      context.handle(
+          _discountAmountMeta,
+          discountAmount.isAcceptableOrUnknown(
+              data['discount_amount']!, _discountAmountMeta));
+    }
+    if (data.containsKey('transfer_fee_amount')) {
+      context.handle(
+          _transferFeeAmountMeta,
+          transferFeeAmount.isAcceptableOrUnknown(
+              data['transfer_fee_amount']!, _transferFeeAmountMeta));
+    }
+    if (data.containsKey('transfer_discount_amount')) {
+      context.handle(
+          _transferDiscountAmountMeta,
+          transferDiscountAmount.isAcceptableOrUnknown(
+              data['transfer_discount_amount']!, _transferDiscountAmountMeta));
+    }
+    if (data.containsKey('transfer_fee_account_id')) {
+      context.handle(
+          _transferFeeAccountIdMeta,
+          transferFeeAccountId.isAcceptableOrUnknown(
+              data['transfer_fee_account_id']!, _transferFeeAccountIdMeta));
+    }
+    if (data.containsKey('transfer_fee_account_name')) {
+      context.handle(
+          _transferFeeAccountNameMeta,
+          transferFeeAccountName.isAcceptableOrUnknown(
+              data['transfer_fee_account_name']!, _transferFeeAccountNameMeta));
+    }
+    if (data.containsKey('is_refund')) {
+      context.handle(_isRefundMeta,
+          isRefund.isAcceptableOrUnknown(data['is_refund']!, _isRefundMeta));
+    }
+    if (data.containsKey('refund_of_sync_id')) {
+      context.handle(
+          _refundOfSyncIdMeta,
+          refundOfSyncId.isAcceptableOrUnknown(
+              data['refund_of_sync_id']!, _refundOfSyncIdMeta));
+    }
+    if (data.containsKey('payment_splits_json')) {
+      context.handle(
+          _paymentSplitsJsonMeta,
+          paymentSplitsJson.isAcceptableOrUnknown(
+              data['payment_splits_json']!, _paymentSplitsJsonMeta));
+    }
+    if (data.containsKey('member_splits_json')) {
+      context.handle(
+          _memberSplitsJsonMeta,
+          memberSplitsJson.isAcceptableOrUnknown(
+              data['member_splits_json']!, _memberSplitsJsonMeta));
+    }
+    if (data.containsKey('member_names_csv')) {
+      context.handle(
+          _memberNamesCsvMeta,
+          memberNamesCsv.isAcceptableOrUnknown(
+              data['member_names_csv']!, _memberNamesCsvMeta));
+    }
+    if (data.containsKey('is_reimbursement')) {
+      context.handle(
+          _isReimbursementMeta,
+          isReimbursement.isAcceptableOrUnknown(
+              data['is_reimbursement']!, _isReimbursementMeta));
+    }
     return context;
   }
 
@@ -2219,6 +2770,31 @@ class $TransactionsTable extends Transactions
           .read(DriftSqlType.string, data['${effectivePrefix}currency_code']),
       nativeAmount: attachedDatabase.typeMapping
           .read(DriftSqlType.double, data['${effectivePrefix}native_amount']),
+      discountAmount: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}discount_amount']),
+      transferFeeAmount: attachedDatabase.typeMapping.read(
+          DriftSqlType.double, data['${effectivePrefix}transfer_fee_amount']),
+      transferDiscountAmount: attachedDatabase.typeMapping.read(
+          DriftSqlType.double,
+          data['${effectivePrefix}transfer_discount_amount']),
+      transferFeeAccountId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}transfer_fee_account_id']),
+      transferFeeAccountName: attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}transfer_fee_account_name']),
+      isRefund: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_refund']),
+      refundOfSyncId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}refund_of_sync_id']),
+      paymentSplitsJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}payment_splits_json']),
+      memberSplitsJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}member_splits_json']),
+      memberNamesCsv: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}member_names_csv']),
+      isReimbursement: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_reimbursement']),
     );
   }
 
@@ -2263,6 +2839,29 @@ class Transaction extends DataClass implements Insertable<Transaction> {
   /// 单币种/未折算 == amount(隐含汇率 1.0)。账本维度统计读本列(?? amount),
   /// 账户维度(余额等)仍读 amount。
   final double? nativeAmount;
+
+  /// 支出优惠(Cloud 0023):amount 为实付,优惠仅明细不冲减余额。
+  final double? discountAmount;
+
+  /// 转账手续费/优惠(Cloud 0022):金额为原币金额。
+  final double? transferFeeAmount;
+  final double? transferDiscountAmount;
+  final String? transferFeeAccountId;
+  final String? transferFeeAccountName;
+
+  /// 退款(Cloud 0025):isRefund 0/1, refundOfSyncId 指向原单。
+  final bool? isRefund;
+  final String? refundOfSyncId;
+
+  /// 组合付款(Cloud 0028):payment_splits JSON [{accountId, accountName, amount}]。
+  final String? paymentSplitsJson;
+
+  /// 消费成员(Cloud 0024):member splits JSON。
+  final String? memberSplitsJson;
+  final String? memberNamesCsv;
+
+  /// 报销标记(Cloud 0035):true 时强制 exclude_from_stats/budget。
+  final bool? isReimbursement;
   const Transaction(
       {required this.id,
       required this.ledgerId,
@@ -2284,7 +2883,18 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       required this.excludeFromStats,
       required this.excludeFromBudget,
       this.currencyCode,
-      this.nativeAmount});
+      this.nativeAmount,
+      this.discountAmount,
+      this.transferFeeAmount,
+      this.transferDiscountAmount,
+      this.transferFeeAccountId,
+      this.transferFeeAccountName,
+      this.isRefund,
+      this.refundOfSyncId,
+      this.paymentSplitsJson,
+      this.memberSplitsJson,
+      this.memberNamesCsv,
+      this.isReimbursement});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -2339,6 +2949,41 @@ class Transaction extends DataClass implements Insertable<Transaction> {
     if (!nullToAbsent || nativeAmount != null) {
       map['native_amount'] = Variable<double>(nativeAmount);
     }
+    if (!nullToAbsent || discountAmount != null) {
+      map['discount_amount'] = Variable<double>(discountAmount);
+    }
+    if (!nullToAbsent || transferFeeAmount != null) {
+      map['transfer_fee_amount'] = Variable<double>(transferFeeAmount);
+    }
+    if (!nullToAbsent || transferDiscountAmount != null) {
+      map['transfer_discount_amount'] =
+          Variable<double>(transferDiscountAmount);
+    }
+    if (!nullToAbsent || transferFeeAccountId != null) {
+      map['transfer_fee_account_id'] = Variable<String>(transferFeeAccountId);
+    }
+    if (!nullToAbsent || transferFeeAccountName != null) {
+      map['transfer_fee_account_name'] =
+          Variable<String>(transferFeeAccountName);
+    }
+    if (!nullToAbsent || isRefund != null) {
+      map['is_refund'] = Variable<bool>(isRefund);
+    }
+    if (!nullToAbsent || refundOfSyncId != null) {
+      map['refund_of_sync_id'] = Variable<String>(refundOfSyncId);
+    }
+    if (!nullToAbsent || paymentSplitsJson != null) {
+      map['payment_splits_json'] = Variable<String>(paymentSplitsJson);
+    }
+    if (!nullToAbsent || memberSplitsJson != null) {
+      map['member_splits_json'] = Variable<String>(memberSplitsJson);
+    }
+    if (!nullToAbsent || memberNamesCsv != null) {
+      map['member_names_csv'] = Variable<String>(memberNamesCsv);
+    }
+    if (!nullToAbsent || isReimbursement != null) {
+      map['is_reimbursement'] = Variable<bool>(isReimbursement);
+    }
     return map;
   }
 
@@ -2390,6 +3035,39 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       nativeAmount: nativeAmount == null && nullToAbsent
           ? const Value.absent()
           : Value(nativeAmount),
+      discountAmount: discountAmount == null && nullToAbsent
+          ? const Value.absent()
+          : Value(discountAmount),
+      transferFeeAmount: transferFeeAmount == null && nullToAbsent
+          ? const Value.absent()
+          : Value(transferFeeAmount),
+      transferDiscountAmount: transferDiscountAmount == null && nullToAbsent
+          ? const Value.absent()
+          : Value(transferDiscountAmount),
+      transferFeeAccountId: transferFeeAccountId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(transferFeeAccountId),
+      transferFeeAccountName: transferFeeAccountName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(transferFeeAccountName),
+      isRefund: isRefund == null && nullToAbsent
+          ? const Value.absent()
+          : Value(isRefund),
+      refundOfSyncId: refundOfSyncId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(refundOfSyncId),
+      paymentSplitsJson: paymentSplitsJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(paymentSplitsJson),
+      memberSplitsJson: memberSplitsJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(memberSplitsJson),
+      memberNamesCsv: memberNamesCsv == null && nullToAbsent
+          ? const Value.absent()
+          : Value(memberNamesCsv),
+      isReimbursement: isReimbursement == null && nullToAbsent
+          ? const Value.absent()
+          : Value(isReimbursement),
     );
   }
 
@@ -2423,6 +3101,22 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       excludeFromBudget: serializer.fromJson<bool>(json['excludeFromBudget']),
       currencyCode: serializer.fromJson<String?>(json['currencyCode']),
       nativeAmount: serializer.fromJson<double?>(json['nativeAmount']),
+      discountAmount: serializer.fromJson<double?>(json['discountAmount']),
+      transferFeeAmount:
+          serializer.fromJson<double?>(json['transferFeeAmount']),
+      transferDiscountAmount:
+          serializer.fromJson<double?>(json['transferDiscountAmount']),
+      transferFeeAccountId:
+          serializer.fromJson<String?>(json['transferFeeAccountId']),
+      transferFeeAccountName:
+          serializer.fromJson<String?>(json['transferFeeAccountName']),
+      isRefund: serializer.fromJson<bool?>(json['isRefund']),
+      refundOfSyncId: serializer.fromJson<String?>(json['refundOfSyncId']),
+      paymentSplitsJson:
+          serializer.fromJson<String?>(json['paymentSplitsJson']),
+      memberSplitsJson: serializer.fromJson<String?>(json['memberSplitsJson']),
+      memberNamesCsv: serializer.fromJson<String?>(json['memberNamesCsv']),
+      isReimbursement: serializer.fromJson<bool?>(json['isReimbursement']),
     );
   }
   @override
@@ -2453,6 +3147,19 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       'excludeFromBudget': serializer.toJson<bool>(excludeFromBudget),
       'currencyCode': serializer.toJson<String?>(currencyCode),
       'nativeAmount': serializer.toJson<double?>(nativeAmount),
+      'discountAmount': serializer.toJson<double?>(discountAmount),
+      'transferFeeAmount': serializer.toJson<double?>(transferFeeAmount),
+      'transferDiscountAmount':
+          serializer.toJson<double?>(transferDiscountAmount),
+      'transferFeeAccountId': serializer.toJson<String?>(transferFeeAccountId),
+      'transferFeeAccountName':
+          serializer.toJson<String?>(transferFeeAccountName),
+      'isRefund': serializer.toJson<bool?>(isRefund),
+      'refundOfSyncId': serializer.toJson<String?>(refundOfSyncId),
+      'paymentSplitsJson': serializer.toJson<String?>(paymentSplitsJson),
+      'memberSplitsJson': serializer.toJson<String?>(memberSplitsJson),
+      'memberNamesCsv': serializer.toJson<String?>(memberNamesCsv),
+      'isReimbursement': serializer.toJson<bool?>(isReimbursement),
     };
   }
 
@@ -2477,7 +3184,18 @@ class Transaction extends DataClass implements Insertable<Transaction> {
           bool? excludeFromStats,
           bool? excludeFromBudget,
           Value<String?> currencyCode = const Value.absent(),
-          Value<double?> nativeAmount = const Value.absent()}) =>
+          Value<double?> nativeAmount = const Value.absent(),
+          Value<double?> discountAmount = const Value.absent(),
+          Value<double?> transferFeeAmount = const Value.absent(),
+          Value<double?> transferDiscountAmount = const Value.absent(),
+          Value<String?> transferFeeAccountId = const Value.absent(),
+          Value<String?> transferFeeAccountName = const Value.absent(),
+          Value<bool?> isRefund = const Value.absent(),
+          Value<String?> refundOfSyncId = const Value.absent(),
+          Value<String?> paymentSplitsJson = const Value.absent(),
+          Value<String?> memberSplitsJson = const Value.absent(),
+          Value<String?> memberNamesCsv = const Value.absent(),
+          Value<bool?> isReimbursement = const Value.absent()}) =>
       Transaction(
         id: id ?? this.id,
         ledgerId: ledgerId ?? this.ledgerId,
@@ -2514,6 +3232,34 @@ class Transaction extends DataClass implements Insertable<Transaction> {
             currencyCode.present ? currencyCode.value : this.currencyCode,
         nativeAmount:
             nativeAmount.present ? nativeAmount.value : this.nativeAmount,
+        discountAmount:
+            discountAmount.present ? discountAmount.value : this.discountAmount,
+        transferFeeAmount: transferFeeAmount.present
+            ? transferFeeAmount.value
+            : this.transferFeeAmount,
+        transferDiscountAmount: transferDiscountAmount.present
+            ? transferDiscountAmount.value
+            : this.transferDiscountAmount,
+        transferFeeAccountId: transferFeeAccountId.present
+            ? transferFeeAccountId.value
+            : this.transferFeeAccountId,
+        transferFeeAccountName: transferFeeAccountName.present
+            ? transferFeeAccountName.value
+            : this.transferFeeAccountName,
+        isRefund: isRefund.present ? isRefund.value : this.isRefund,
+        refundOfSyncId:
+            refundOfSyncId.present ? refundOfSyncId.value : this.refundOfSyncId,
+        paymentSplitsJson: paymentSplitsJson.present
+            ? paymentSplitsJson.value
+            : this.paymentSplitsJson,
+        memberSplitsJson: memberSplitsJson.present
+            ? memberSplitsJson.value
+            : this.memberSplitsJson,
+        memberNamesCsv:
+            memberNamesCsv.present ? memberNamesCsv.value : this.memberNamesCsv,
+        isReimbursement: isReimbursement.present
+            ? isReimbursement.value
+            : this.isReimbursement,
       );
   Transaction copyWithCompanion(TransactionsCompanion data) {
     return Transaction(
@@ -2562,6 +3308,37 @@ class Transaction extends DataClass implements Insertable<Transaction> {
       nativeAmount: data.nativeAmount.present
           ? data.nativeAmount.value
           : this.nativeAmount,
+      discountAmount: data.discountAmount.present
+          ? data.discountAmount.value
+          : this.discountAmount,
+      transferFeeAmount: data.transferFeeAmount.present
+          ? data.transferFeeAmount.value
+          : this.transferFeeAmount,
+      transferDiscountAmount: data.transferDiscountAmount.present
+          ? data.transferDiscountAmount.value
+          : this.transferDiscountAmount,
+      transferFeeAccountId: data.transferFeeAccountId.present
+          ? data.transferFeeAccountId.value
+          : this.transferFeeAccountId,
+      transferFeeAccountName: data.transferFeeAccountName.present
+          ? data.transferFeeAccountName.value
+          : this.transferFeeAccountName,
+      isRefund: data.isRefund.present ? data.isRefund.value : this.isRefund,
+      refundOfSyncId: data.refundOfSyncId.present
+          ? data.refundOfSyncId.value
+          : this.refundOfSyncId,
+      paymentSplitsJson: data.paymentSplitsJson.present
+          ? data.paymentSplitsJson.value
+          : this.paymentSplitsJson,
+      memberSplitsJson: data.memberSplitsJson.present
+          ? data.memberSplitsJson.value
+          : this.memberSplitsJson,
+      memberNamesCsv: data.memberNamesCsv.present
+          ? data.memberNamesCsv.value
+          : this.memberNamesCsv,
+      isReimbursement: data.isReimbursement.present
+          ? data.isReimbursement.value
+          : this.isReimbursement,
     );
   }
 
@@ -2588,7 +3365,18 @@ class Transaction extends DataClass implements Insertable<Transaction> {
           ..write('excludeFromStats: $excludeFromStats, ')
           ..write('excludeFromBudget: $excludeFromBudget, ')
           ..write('currencyCode: $currencyCode, ')
-          ..write('nativeAmount: $nativeAmount')
+          ..write('nativeAmount: $nativeAmount, ')
+          ..write('discountAmount: $discountAmount, ')
+          ..write('transferFeeAmount: $transferFeeAmount, ')
+          ..write('transferDiscountAmount: $transferDiscountAmount, ')
+          ..write('transferFeeAccountId: $transferFeeAccountId, ')
+          ..write('transferFeeAccountName: $transferFeeAccountName, ')
+          ..write('isRefund: $isRefund, ')
+          ..write('refundOfSyncId: $refundOfSyncId, ')
+          ..write('paymentSplitsJson: $paymentSplitsJson, ')
+          ..write('memberSplitsJson: $memberSplitsJson, ')
+          ..write('memberNamesCsv: $memberNamesCsv, ')
+          ..write('isReimbursement: $isReimbursement')
           ..write(')'))
         .toString();
   }
@@ -2615,7 +3403,18 @@ class Transaction extends DataClass implements Insertable<Transaction> {
         excludeFromStats,
         excludeFromBudget,
         currencyCode,
-        nativeAmount
+        nativeAmount,
+        discountAmount,
+        transferFeeAmount,
+        transferDiscountAmount,
+        transferFeeAccountId,
+        transferFeeAccountName,
+        isRefund,
+        refundOfSyncId,
+        paymentSplitsJson,
+        memberSplitsJson,
+        memberNamesCsv,
+        isReimbursement
       ]);
   @override
   bool operator ==(Object other) =>
@@ -2641,7 +3440,18 @@ class Transaction extends DataClass implements Insertable<Transaction> {
           other.excludeFromStats == this.excludeFromStats &&
           other.excludeFromBudget == this.excludeFromBudget &&
           other.currencyCode == this.currencyCode &&
-          other.nativeAmount == this.nativeAmount);
+          other.nativeAmount == this.nativeAmount &&
+          other.discountAmount == this.discountAmount &&
+          other.transferFeeAmount == this.transferFeeAmount &&
+          other.transferDiscountAmount == this.transferDiscountAmount &&
+          other.transferFeeAccountId == this.transferFeeAccountId &&
+          other.transferFeeAccountName == this.transferFeeAccountName &&
+          other.isRefund == this.isRefund &&
+          other.refundOfSyncId == this.refundOfSyncId &&
+          other.paymentSplitsJson == this.paymentSplitsJson &&
+          other.memberSplitsJson == this.memberSplitsJson &&
+          other.memberNamesCsv == this.memberNamesCsv &&
+          other.isReimbursement == this.isReimbursement);
 }
 
 class TransactionsCompanion extends UpdateCompanion<Transaction> {
@@ -2666,6 +3476,17 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
   final Value<bool> excludeFromBudget;
   final Value<String?> currencyCode;
   final Value<double?> nativeAmount;
+  final Value<double?> discountAmount;
+  final Value<double?> transferFeeAmount;
+  final Value<double?> transferDiscountAmount;
+  final Value<String?> transferFeeAccountId;
+  final Value<String?> transferFeeAccountName;
+  final Value<bool?> isRefund;
+  final Value<String?> refundOfSyncId;
+  final Value<String?> paymentSplitsJson;
+  final Value<String?> memberSplitsJson;
+  final Value<String?> memberNamesCsv;
+  final Value<bool?> isReimbursement;
   const TransactionsCompanion({
     this.id = const Value.absent(),
     this.ledgerId = const Value.absent(),
@@ -2688,6 +3509,17 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     this.excludeFromBudget = const Value.absent(),
     this.currencyCode = const Value.absent(),
     this.nativeAmount = const Value.absent(),
+    this.discountAmount = const Value.absent(),
+    this.transferFeeAmount = const Value.absent(),
+    this.transferDiscountAmount = const Value.absent(),
+    this.transferFeeAccountId = const Value.absent(),
+    this.transferFeeAccountName = const Value.absent(),
+    this.isRefund = const Value.absent(),
+    this.refundOfSyncId = const Value.absent(),
+    this.paymentSplitsJson = const Value.absent(),
+    this.memberSplitsJson = const Value.absent(),
+    this.memberNamesCsv = const Value.absent(),
+    this.isReimbursement = const Value.absent(),
   });
   TransactionsCompanion.insert({
     this.id = const Value.absent(),
@@ -2711,6 +3543,17 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     this.excludeFromBudget = const Value.absent(),
     this.currencyCode = const Value.absent(),
     this.nativeAmount = const Value.absent(),
+    this.discountAmount = const Value.absent(),
+    this.transferFeeAmount = const Value.absent(),
+    this.transferDiscountAmount = const Value.absent(),
+    this.transferFeeAccountId = const Value.absent(),
+    this.transferFeeAccountName = const Value.absent(),
+    this.isRefund = const Value.absent(),
+    this.refundOfSyncId = const Value.absent(),
+    this.paymentSplitsJson = const Value.absent(),
+    this.memberSplitsJson = const Value.absent(),
+    this.memberNamesCsv = const Value.absent(),
+    this.isReimbursement = const Value.absent(),
   })  : ledgerId = Value(ledgerId),
         type = Value(type),
         amount = Value(amount);
@@ -2736,6 +3579,17 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     Expression<bool>? excludeFromBudget,
     Expression<String>? currencyCode,
     Expression<double>? nativeAmount,
+    Expression<double>? discountAmount,
+    Expression<double>? transferFeeAmount,
+    Expression<double>? transferDiscountAmount,
+    Expression<String>? transferFeeAccountId,
+    Expression<String>? transferFeeAccountName,
+    Expression<bool>? isRefund,
+    Expression<String>? refundOfSyncId,
+    Expression<String>? paymentSplitsJson,
+    Expression<String>? memberSplitsJson,
+    Expression<String>? memberNamesCsv,
+    Expression<bool>? isReimbursement,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -2764,6 +3618,20 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
       if (excludeFromBudget != null) 'exclude_from_budget': excludeFromBudget,
       if (currencyCode != null) 'currency_code': currencyCode,
       if (nativeAmount != null) 'native_amount': nativeAmount,
+      if (discountAmount != null) 'discount_amount': discountAmount,
+      if (transferFeeAmount != null) 'transfer_fee_amount': transferFeeAmount,
+      if (transferDiscountAmount != null)
+        'transfer_discount_amount': transferDiscountAmount,
+      if (transferFeeAccountId != null)
+        'transfer_fee_account_id': transferFeeAccountId,
+      if (transferFeeAccountName != null)
+        'transfer_fee_account_name': transferFeeAccountName,
+      if (isRefund != null) 'is_refund': isRefund,
+      if (refundOfSyncId != null) 'refund_of_sync_id': refundOfSyncId,
+      if (paymentSplitsJson != null) 'payment_splits_json': paymentSplitsJson,
+      if (memberSplitsJson != null) 'member_splits_json': memberSplitsJson,
+      if (memberNamesCsv != null) 'member_names_csv': memberNamesCsv,
+      if (isReimbursement != null) 'is_reimbursement': isReimbursement,
     });
   }
 
@@ -2788,7 +3656,18 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
       Value<bool>? excludeFromStats,
       Value<bool>? excludeFromBudget,
       Value<String?>? currencyCode,
-      Value<double?>? nativeAmount}) {
+      Value<double?>? nativeAmount,
+      Value<double?>? discountAmount,
+      Value<double?>? transferFeeAmount,
+      Value<double?>? transferDiscountAmount,
+      Value<String?>? transferFeeAccountId,
+      Value<String?>? transferFeeAccountName,
+      Value<bool?>? isRefund,
+      Value<String?>? refundOfSyncId,
+      Value<String?>? paymentSplitsJson,
+      Value<String?>? memberSplitsJson,
+      Value<String?>? memberNamesCsv,
+      Value<bool?>? isReimbursement}) {
     return TransactionsCompanion(
       id: id ?? this.id,
       ledgerId: ledgerId ?? this.ledgerId,
@@ -2814,6 +3693,19 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
       excludeFromBudget: excludeFromBudget ?? this.excludeFromBudget,
       currencyCode: currencyCode ?? this.currencyCode,
       nativeAmount: nativeAmount ?? this.nativeAmount,
+      discountAmount: discountAmount ?? this.discountAmount,
+      transferFeeAmount: transferFeeAmount ?? this.transferFeeAmount,
+      transferDiscountAmount:
+          transferDiscountAmount ?? this.transferDiscountAmount,
+      transferFeeAccountId: transferFeeAccountId ?? this.transferFeeAccountId,
+      transferFeeAccountName:
+          transferFeeAccountName ?? this.transferFeeAccountName,
+      isRefund: isRefund ?? this.isRefund,
+      refundOfSyncId: refundOfSyncId ?? this.refundOfSyncId,
+      paymentSplitsJson: paymentSplitsJson ?? this.paymentSplitsJson,
+      memberSplitsJson: memberSplitsJson ?? this.memberSplitsJson,
+      memberNamesCsv: memberNamesCsv ?? this.memberNamesCsv,
+      isReimbursement: isReimbursement ?? this.isReimbursement,
     );
   }
 
@@ -2887,6 +3779,42 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
     if (nativeAmount.present) {
       map['native_amount'] = Variable<double>(nativeAmount.value);
     }
+    if (discountAmount.present) {
+      map['discount_amount'] = Variable<double>(discountAmount.value);
+    }
+    if (transferFeeAmount.present) {
+      map['transfer_fee_amount'] = Variable<double>(transferFeeAmount.value);
+    }
+    if (transferDiscountAmount.present) {
+      map['transfer_discount_amount'] =
+          Variable<double>(transferDiscountAmount.value);
+    }
+    if (transferFeeAccountId.present) {
+      map['transfer_fee_account_id'] =
+          Variable<String>(transferFeeAccountId.value);
+    }
+    if (transferFeeAccountName.present) {
+      map['transfer_fee_account_name'] =
+          Variable<String>(transferFeeAccountName.value);
+    }
+    if (isRefund.present) {
+      map['is_refund'] = Variable<bool>(isRefund.value);
+    }
+    if (refundOfSyncId.present) {
+      map['refund_of_sync_id'] = Variable<String>(refundOfSyncId.value);
+    }
+    if (paymentSplitsJson.present) {
+      map['payment_splits_json'] = Variable<String>(paymentSplitsJson.value);
+    }
+    if (memberSplitsJson.present) {
+      map['member_splits_json'] = Variable<String>(memberSplitsJson.value);
+    }
+    if (memberNamesCsv.present) {
+      map['member_names_csv'] = Variable<String>(memberNamesCsv.value);
+    }
+    if (isReimbursement.present) {
+      map['is_reimbursement'] = Variable<bool>(isReimbursement.value);
+    }
     return map;
   }
 
@@ -2913,7 +3841,18 @@ class TransactionsCompanion extends UpdateCompanion<Transaction> {
           ..write('excludeFromStats: $excludeFromStats, ')
           ..write('excludeFromBudget: $excludeFromBudget, ')
           ..write('currencyCode: $currencyCode, ')
-          ..write('nativeAmount: $nativeAmount')
+          ..write('nativeAmount: $nativeAmount, ')
+          ..write('discountAmount: $discountAmount, ')
+          ..write('transferFeeAmount: $transferFeeAmount, ')
+          ..write('transferDiscountAmount: $transferDiscountAmount, ')
+          ..write('transferFeeAccountId: $transferFeeAccountId, ')
+          ..write('transferFeeAccountName: $transferFeeAccountName, ')
+          ..write('isRefund: $isRefund, ')
+          ..write('refundOfSyncId: $refundOfSyncId, ')
+          ..write('paymentSplitsJson: $paymentSplitsJson, ')
+          ..write('memberSplitsJson: $memberSplitsJson, ')
+          ..write('memberNamesCsv: $memberNamesCsv, ')
+          ..write('isReimbursement: $isReimbursement')
           ..write(')'))
         .toString();
   }
@@ -12473,6 +13412,6319 @@ class ExchangeRateOverridesCompanion
   }
 }
 
+class $CloudContactsTable extends CloudContacts
+    with TableInfo<$CloudContactsTable, CloudContact> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CloudContactsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _syncIdMeta = const VerificationMeta('syncId');
+  @override
+  late final GeneratedColumn<String> syncId = GeneratedColumn<String>(
+      'sync_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+      'name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _noteMeta = const VerificationMeta('note');
+  @override
+  late final GeneratedColumn<String> note = GeneratedColumn<String>(
+      'note', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _avatarFileIdMeta =
+      const VerificationMeta('avatarFileId');
+  @override
+  late final GeneratedColumn<String> avatarFileId = GeneratedColumn<String>(
+      'avatar_file_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _contactTagMeta =
+      const VerificationMeta('contactTag');
+  @override
+  late final GeneratedColumn<String> contactTag = GeneratedColumn<String>(
+      'contact_tag', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _phoneMeta = const VerificationMeta('phone');
+  @override
+  late final GeneratedColumn<String> phone = GeneratedColumn<String>(
+      'phone', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _wechatMeta = const VerificationMeta('wechat');
+  @override
+  late final GeneratedColumn<String> wechat = GeneratedColumn<String>(
+      'wechat', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _alipayMeta = const VerificationMeta('alipay');
+  @override
+  late final GeneratedColumn<String> alipay = GeneratedColumn<String>(
+      'alipay', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _profileJsonMeta =
+      const VerificationMeta('profileJson');
+  @override
+  late final GeneratedColumn<String> profileJson = GeneratedColumn<String>(
+      'profile_json', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _isArchivedMeta =
+      const VerificationMeta('isArchived');
+  @override
+  late final GeneratedColumn<bool> isArchived = GeneratedColumn<bool>(
+      'is_archived', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_archived" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _isActiveMeta =
+      const VerificationMeta('isActive');
+  @override
+  late final GeneratedColumn<bool> isActive = GeneratedColumn<bool>(
+      'is_active', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_active" IN (0, 1))'),
+      defaultValue: const Constant(true));
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        syncId,
+        name,
+        note,
+        avatarFileId,
+        contactTag,
+        phone,
+        wechat,
+        alipay,
+        profileJson,
+        isArchived,
+        isActive,
+        updatedAt
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'cloud_contacts';
+  @override
+  VerificationContext validateIntegrity(Insertable<CloudContact> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('sync_id')) {
+      context.handle(_syncIdMeta,
+          syncId.isAcceptableOrUnknown(data['sync_id']!, _syncIdMeta));
+    } else if (isInserting) {
+      context.missing(_syncIdMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('note')) {
+      context.handle(
+          _noteMeta, note.isAcceptableOrUnknown(data['note']!, _noteMeta));
+    }
+    if (data.containsKey('avatar_file_id')) {
+      context.handle(
+          _avatarFileIdMeta,
+          avatarFileId.isAcceptableOrUnknown(
+              data['avatar_file_id']!, _avatarFileIdMeta));
+    }
+    if (data.containsKey('contact_tag')) {
+      context.handle(
+          _contactTagMeta,
+          contactTag.isAcceptableOrUnknown(
+              data['contact_tag']!, _contactTagMeta));
+    }
+    if (data.containsKey('phone')) {
+      context.handle(
+          _phoneMeta, phone.isAcceptableOrUnknown(data['phone']!, _phoneMeta));
+    }
+    if (data.containsKey('wechat')) {
+      context.handle(_wechatMeta,
+          wechat.isAcceptableOrUnknown(data['wechat']!, _wechatMeta));
+    }
+    if (data.containsKey('alipay')) {
+      context.handle(_alipayMeta,
+          alipay.isAcceptableOrUnknown(data['alipay']!, _alipayMeta));
+    }
+    if (data.containsKey('profile_json')) {
+      context.handle(
+          _profileJsonMeta,
+          profileJson.isAcceptableOrUnknown(
+              data['profile_json']!, _profileJsonMeta));
+    }
+    if (data.containsKey('is_archived')) {
+      context.handle(
+          _isArchivedMeta,
+          isArchived.isAcceptableOrUnknown(
+              data['is_archived']!, _isArchivedMeta));
+    }
+    if (data.containsKey('is_active')) {
+      context.handle(_isActiveMeta,
+          isActive.isAcceptableOrUnknown(data['is_active']!, _isActiveMeta));
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {syncId};
+  @override
+  CloudContact map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CloudContact(
+      syncId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}sync_id'])!,
+      name: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      note: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}note']),
+      avatarFileId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}avatar_file_id']),
+      contactTag: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}contact_tag']),
+      phone: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}phone']),
+      wechat: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}wechat']),
+      alipay: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}alipay']),
+      profileJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}profile_json']),
+      isArchived: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_archived'])!,
+      isActive: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_active'])!,
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at']),
+    );
+  }
+
+  @override
+  $CloudContactsTable createAlias(String alias) {
+    return $CloudContactsTable(attachedDatabase, alias);
+  }
+}
+
+class CloudContact extends DataClass implements Insertable<CloudContact> {
+  final String syncId;
+  final String name;
+  final String? note;
+  final String? avatarFileId;
+  final String? contactTag;
+  final String? phone;
+  final String? wechat;
+  final String? alipay;
+  final String? profileJson;
+  final bool isArchived;
+  final bool isActive;
+  final DateTime? updatedAt;
+  const CloudContact(
+      {required this.syncId,
+      required this.name,
+      this.note,
+      this.avatarFileId,
+      this.contactTag,
+      this.phone,
+      this.wechat,
+      this.alipay,
+      this.profileJson,
+      required this.isArchived,
+      required this.isActive,
+      this.updatedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['sync_id'] = Variable<String>(syncId);
+    map['name'] = Variable<String>(name);
+    if (!nullToAbsent || note != null) {
+      map['note'] = Variable<String>(note);
+    }
+    if (!nullToAbsent || avatarFileId != null) {
+      map['avatar_file_id'] = Variable<String>(avatarFileId);
+    }
+    if (!nullToAbsent || contactTag != null) {
+      map['contact_tag'] = Variable<String>(contactTag);
+    }
+    if (!nullToAbsent || phone != null) {
+      map['phone'] = Variable<String>(phone);
+    }
+    if (!nullToAbsent || wechat != null) {
+      map['wechat'] = Variable<String>(wechat);
+    }
+    if (!nullToAbsent || alipay != null) {
+      map['alipay'] = Variable<String>(alipay);
+    }
+    if (!nullToAbsent || profileJson != null) {
+      map['profile_json'] = Variable<String>(profileJson);
+    }
+    map['is_archived'] = Variable<bool>(isArchived);
+    map['is_active'] = Variable<bool>(isActive);
+    if (!nullToAbsent || updatedAt != null) {
+      map['updated_at'] = Variable<DateTime>(updatedAt);
+    }
+    return map;
+  }
+
+  CloudContactsCompanion toCompanion(bool nullToAbsent) {
+    return CloudContactsCompanion(
+      syncId: Value(syncId),
+      name: Value(name),
+      note: note == null && nullToAbsent ? const Value.absent() : Value(note),
+      avatarFileId: avatarFileId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(avatarFileId),
+      contactTag: contactTag == null && nullToAbsent
+          ? const Value.absent()
+          : Value(contactTag),
+      phone:
+          phone == null && nullToAbsent ? const Value.absent() : Value(phone),
+      wechat:
+          wechat == null && nullToAbsent ? const Value.absent() : Value(wechat),
+      alipay:
+          alipay == null && nullToAbsent ? const Value.absent() : Value(alipay),
+      profileJson: profileJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(profileJson),
+      isArchived: Value(isArchived),
+      isActive: Value(isActive),
+      updatedAt: updatedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(updatedAt),
+    );
+  }
+
+  factory CloudContact.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CloudContact(
+      syncId: serializer.fromJson<String>(json['syncId']),
+      name: serializer.fromJson<String>(json['name']),
+      note: serializer.fromJson<String?>(json['note']),
+      avatarFileId: serializer.fromJson<String?>(json['avatarFileId']),
+      contactTag: serializer.fromJson<String?>(json['contactTag']),
+      phone: serializer.fromJson<String?>(json['phone']),
+      wechat: serializer.fromJson<String?>(json['wechat']),
+      alipay: serializer.fromJson<String?>(json['alipay']),
+      profileJson: serializer.fromJson<String?>(json['profileJson']),
+      isArchived: serializer.fromJson<bool>(json['isArchived']),
+      isActive: serializer.fromJson<bool>(json['isActive']),
+      updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'syncId': serializer.toJson<String>(syncId),
+      'name': serializer.toJson<String>(name),
+      'note': serializer.toJson<String?>(note),
+      'avatarFileId': serializer.toJson<String?>(avatarFileId),
+      'contactTag': serializer.toJson<String?>(contactTag),
+      'phone': serializer.toJson<String?>(phone),
+      'wechat': serializer.toJson<String?>(wechat),
+      'alipay': serializer.toJson<String?>(alipay),
+      'profileJson': serializer.toJson<String?>(profileJson),
+      'isArchived': serializer.toJson<bool>(isArchived),
+      'isActive': serializer.toJson<bool>(isActive),
+      'updatedAt': serializer.toJson<DateTime?>(updatedAt),
+    };
+  }
+
+  CloudContact copyWith(
+          {String? syncId,
+          String? name,
+          Value<String?> note = const Value.absent(),
+          Value<String?> avatarFileId = const Value.absent(),
+          Value<String?> contactTag = const Value.absent(),
+          Value<String?> phone = const Value.absent(),
+          Value<String?> wechat = const Value.absent(),
+          Value<String?> alipay = const Value.absent(),
+          Value<String?> profileJson = const Value.absent(),
+          bool? isArchived,
+          bool? isActive,
+          Value<DateTime?> updatedAt = const Value.absent()}) =>
+      CloudContact(
+        syncId: syncId ?? this.syncId,
+        name: name ?? this.name,
+        note: note.present ? note.value : this.note,
+        avatarFileId:
+            avatarFileId.present ? avatarFileId.value : this.avatarFileId,
+        contactTag: contactTag.present ? contactTag.value : this.contactTag,
+        phone: phone.present ? phone.value : this.phone,
+        wechat: wechat.present ? wechat.value : this.wechat,
+        alipay: alipay.present ? alipay.value : this.alipay,
+        profileJson: profileJson.present ? profileJson.value : this.profileJson,
+        isArchived: isArchived ?? this.isArchived,
+        isActive: isActive ?? this.isActive,
+        updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
+      );
+  CloudContact copyWithCompanion(CloudContactsCompanion data) {
+    return CloudContact(
+      syncId: data.syncId.present ? data.syncId.value : this.syncId,
+      name: data.name.present ? data.name.value : this.name,
+      note: data.note.present ? data.note.value : this.note,
+      avatarFileId: data.avatarFileId.present
+          ? data.avatarFileId.value
+          : this.avatarFileId,
+      contactTag:
+          data.contactTag.present ? data.contactTag.value : this.contactTag,
+      phone: data.phone.present ? data.phone.value : this.phone,
+      wechat: data.wechat.present ? data.wechat.value : this.wechat,
+      alipay: data.alipay.present ? data.alipay.value : this.alipay,
+      profileJson:
+          data.profileJson.present ? data.profileJson.value : this.profileJson,
+      isArchived:
+          data.isArchived.present ? data.isArchived.value : this.isArchived,
+      isActive: data.isActive.present ? data.isActive.value : this.isActive,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CloudContact(')
+          ..write('syncId: $syncId, ')
+          ..write('name: $name, ')
+          ..write('note: $note, ')
+          ..write('avatarFileId: $avatarFileId, ')
+          ..write('contactTag: $contactTag, ')
+          ..write('phone: $phone, ')
+          ..write('wechat: $wechat, ')
+          ..write('alipay: $alipay, ')
+          ..write('profileJson: $profileJson, ')
+          ..write('isArchived: $isArchived, ')
+          ..write('isActive: $isActive, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(syncId, name, note, avatarFileId, contactTag,
+      phone, wechat, alipay, profileJson, isArchived, isActive, updatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CloudContact &&
+          other.syncId == this.syncId &&
+          other.name == this.name &&
+          other.note == this.note &&
+          other.avatarFileId == this.avatarFileId &&
+          other.contactTag == this.contactTag &&
+          other.phone == this.phone &&
+          other.wechat == this.wechat &&
+          other.alipay == this.alipay &&
+          other.profileJson == this.profileJson &&
+          other.isArchived == this.isArchived &&
+          other.isActive == this.isActive &&
+          other.updatedAt == this.updatedAt);
+}
+
+class CloudContactsCompanion extends UpdateCompanion<CloudContact> {
+  final Value<String> syncId;
+  final Value<String> name;
+  final Value<String?> note;
+  final Value<String?> avatarFileId;
+  final Value<String?> contactTag;
+  final Value<String?> phone;
+  final Value<String?> wechat;
+  final Value<String?> alipay;
+  final Value<String?> profileJson;
+  final Value<bool> isArchived;
+  final Value<bool> isActive;
+  final Value<DateTime?> updatedAt;
+  final Value<int> rowid;
+  const CloudContactsCompanion({
+    this.syncId = const Value.absent(),
+    this.name = const Value.absent(),
+    this.note = const Value.absent(),
+    this.avatarFileId = const Value.absent(),
+    this.contactTag = const Value.absent(),
+    this.phone = const Value.absent(),
+    this.wechat = const Value.absent(),
+    this.alipay = const Value.absent(),
+    this.profileJson = const Value.absent(),
+    this.isArchived = const Value.absent(),
+    this.isActive = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CloudContactsCompanion.insert({
+    required String syncId,
+    required String name,
+    this.note = const Value.absent(),
+    this.avatarFileId = const Value.absent(),
+    this.contactTag = const Value.absent(),
+    this.phone = const Value.absent(),
+    this.wechat = const Value.absent(),
+    this.alipay = const Value.absent(),
+    this.profileJson = const Value.absent(),
+    this.isArchived = const Value.absent(),
+    this.isActive = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : syncId = Value(syncId),
+        name = Value(name);
+  static Insertable<CloudContact> custom({
+    Expression<String>? syncId,
+    Expression<String>? name,
+    Expression<String>? note,
+    Expression<String>? avatarFileId,
+    Expression<String>? contactTag,
+    Expression<String>? phone,
+    Expression<String>? wechat,
+    Expression<String>? alipay,
+    Expression<String>? profileJson,
+    Expression<bool>? isArchived,
+    Expression<bool>? isActive,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (syncId != null) 'sync_id': syncId,
+      if (name != null) 'name': name,
+      if (note != null) 'note': note,
+      if (avatarFileId != null) 'avatar_file_id': avatarFileId,
+      if (contactTag != null) 'contact_tag': contactTag,
+      if (phone != null) 'phone': phone,
+      if (wechat != null) 'wechat': wechat,
+      if (alipay != null) 'alipay': alipay,
+      if (profileJson != null) 'profile_json': profileJson,
+      if (isArchived != null) 'is_archived': isArchived,
+      if (isActive != null) 'is_active': isActive,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CloudContactsCompanion copyWith(
+      {Value<String>? syncId,
+      Value<String>? name,
+      Value<String?>? note,
+      Value<String?>? avatarFileId,
+      Value<String?>? contactTag,
+      Value<String?>? phone,
+      Value<String?>? wechat,
+      Value<String?>? alipay,
+      Value<String?>? profileJson,
+      Value<bool>? isArchived,
+      Value<bool>? isActive,
+      Value<DateTime?>? updatedAt,
+      Value<int>? rowid}) {
+    return CloudContactsCompanion(
+      syncId: syncId ?? this.syncId,
+      name: name ?? this.name,
+      note: note ?? this.note,
+      avatarFileId: avatarFileId ?? this.avatarFileId,
+      contactTag: contactTag ?? this.contactTag,
+      phone: phone ?? this.phone,
+      wechat: wechat ?? this.wechat,
+      alipay: alipay ?? this.alipay,
+      profileJson: profileJson ?? this.profileJson,
+      isArchived: isArchived ?? this.isArchived,
+      isActive: isActive ?? this.isActive,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (syncId.present) {
+      map['sync_id'] = Variable<String>(syncId.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (note.present) {
+      map['note'] = Variable<String>(note.value);
+    }
+    if (avatarFileId.present) {
+      map['avatar_file_id'] = Variable<String>(avatarFileId.value);
+    }
+    if (contactTag.present) {
+      map['contact_tag'] = Variable<String>(contactTag.value);
+    }
+    if (phone.present) {
+      map['phone'] = Variable<String>(phone.value);
+    }
+    if (wechat.present) {
+      map['wechat'] = Variable<String>(wechat.value);
+    }
+    if (alipay.present) {
+      map['alipay'] = Variable<String>(alipay.value);
+    }
+    if (profileJson.present) {
+      map['profile_json'] = Variable<String>(profileJson.value);
+    }
+    if (isArchived.present) {
+      map['is_archived'] = Variable<bool>(isArchived.value);
+    }
+    if (isActive.present) {
+      map['is_active'] = Variable<bool>(isActive.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CloudContactsCompanion(')
+          ..write('syncId: $syncId, ')
+          ..write('name: $name, ')
+          ..write('note: $note, ')
+          ..write('avatarFileId: $avatarFileId, ')
+          ..write('contactTag: $contactTag, ')
+          ..write('phone: $phone, ')
+          ..write('wechat: $wechat, ')
+          ..write('alipay: $alipay, ')
+          ..write('profileJson: $profileJson, ')
+          ..write('isArchived: $isArchived, ')
+          ..write('isActive: $isActive, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $CloudLoansTable extends CloudLoans
+    with TableInfo<$CloudLoansTable, CloudLoan> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CloudLoansTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _syncIdMeta = const VerificationMeta('syncId');
+  @override
+  late final GeneratedColumn<String> syncId = GeneratedColumn<String>(
+      'sync_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _contactIdMeta =
+      const VerificationMeta('contactId');
+  @override
+  late final GeneratedColumn<String> contactId = GeneratedColumn<String>(
+      'contact_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _directionMeta =
+      const VerificationMeta('direction');
+  @override
+  late final GeneratedColumn<String> direction = GeneratedColumn<String>(
+      'direction', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _amountMeta = const VerificationMeta('amount');
+  @override
+  late final GeneratedColumn<double> amount = GeneratedColumn<double>(
+      'amount', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _currencyCodeMeta =
+      const VerificationMeta('currencyCode');
+  @override
+  late final GeneratedColumn<String> currencyCode = GeneratedColumn<String>(
+      'currency_code', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _happenedAtMeta =
+      const VerificationMeta('happenedAt');
+  @override
+  late final GeneratedColumn<DateTime> happenedAt = GeneratedColumn<DateTime>(
+      'happened_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _dueAtMeta = const VerificationMeta('dueAt');
+  @override
+  late final GeneratedColumn<String> dueAt = GeneratedColumn<String>(
+      'due_at', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _interestTypeMeta =
+      const VerificationMeta('interestType');
+  @override
+  late final GeneratedColumn<String> interestType = GeneratedColumn<String>(
+      'interest_type', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _interestRateMeta =
+      const VerificationMeta('interestRate');
+  @override
+  late final GeneratedColumn<double> interestRate = GeneratedColumn<double>(
+      'interest_rate', aliasedName, true,
+      type: DriftSqlType.double, requiredDuringInsert: false);
+  static const VerificationMeta _interestAmountMeta =
+      const VerificationMeta('interestAmount');
+  @override
+  late final GeneratedColumn<double> interestAmount = GeneratedColumn<double>(
+      'interest_amount', aliasedName, true,
+      type: DriftSqlType.double, requiredDuringInsert: false);
+  static const VerificationMeta _noteMeta = const VerificationMeta('note');
+  @override
+  late final GeneratedColumn<String> note = GeneratedColumn<String>(
+      'note', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+      'status', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _accountIdMeta =
+      const VerificationMeta('accountId');
+  @override
+  late final GeneratedColumn<String> accountId = GeneratedColumn<String>(
+      'account_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _accountNameMeta =
+      const VerificationMeta('accountName');
+  @override
+  late final GeneratedColumn<String> accountName = GeneratedColumn<String>(
+      'account_name', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _txSyncIdMeta =
+      const VerificationMeta('txSyncId');
+  @override
+  late final GeneratedColumn<String> txSyncId = GeneratedColumn<String>(
+      'tx_sync_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        syncId,
+        contactId,
+        direction,
+        amount,
+        currencyCode,
+        happenedAt,
+        dueAt,
+        interestType,
+        interestRate,
+        interestAmount,
+        note,
+        status,
+        accountId,
+        accountName,
+        txSyncId,
+        updatedAt
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'cloud_loans';
+  @override
+  VerificationContext validateIntegrity(Insertable<CloudLoan> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('sync_id')) {
+      context.handle(_syncIdMeta,
+          syncId.isAcceptableOrUnknown(data['sync_id']!, _syncIdMeta));
+    } else if (isInserting) {
+      context.missing(_syncIdMeta);
+    }
+    if (data.containsKey('contact_id')) {
+      context.handle(_contactIdMeta,
+          contactId.isAcceptableOrUnknown(data['contact_id']!, _contactIdMeta));
+    }
+    if (data.containsKey('direction')) {
+      context.handle(_directionMeta,
+          direction.isAcceptableOrUnknown(data['direction']!, _directionMeta));
+    } else if (isInserting) {
+      context.missing(_directionMeta);
+    }
+    if (data.containsKey('amount')) {
+      context.handle(_amountMeta,
+          amount.isAcceptableOrUnknown(data['amount']!, _amountMeta));
+    } else if (isInserting) {
+      context.missing(_amountMeta);
+    }
+    if (data.containsKey('currency_code')) {
+      context.handle(
+          _currencyCodeMeta,
+          currencyCode.isAcceptableOrUnknown(
+              data['currency_code']!, _currencyCodeMeta));
+    }
+    if (data.containsKey('happened_at')) {
+      context.handle(
+          _happenedAtMeta,
+          happenedAt.isAcceptableOrUnknown(
+              data['happened_at']!, _happenedAtMeta));
+    }
+    if (data.containsKey('due_at')) {
+      context.handle(
+          _dueAtMeta, dueAt.isAcceptableOrUnknown(data['due_at']!, _dueAtMeta));
+    }
+    if (data.containsKey('interest_type')) {
+      context.handle(
+          _interestTypeMeta,
+          interestType.isAcceptableOrUnknown(
+              data['interest_type']!, _interestTypeMeta));
+    }
+    if (data.containsKey('interest_rate')) {
+      context.handle(
+          _interestRateMeta,
+          interestRate.isAcceptableOrUnknown(
+              data['interest_rate']!, _interestRateMeta));
+    }
+    if (data.containsKey('interest_amount')) {
+      context.handle(
+          _interestAmountMeta,
+          interestAmount.isAcceptableOrUnknown(
+              data['interest_amount']!, _interestAmountMeta));
+    }
+    if (data.containsKey('note')) {
+      context.handle(
+          _noteMeta, note.isAcceptableOrUnknown(data['note']!, _noteMeta));
+    }
+    if (data.containsKey('status')) {
+      context.handle(_statusMeta,
+          status.isAcceptableOrUnknown(data['status']!, _statusMeta));
+    }
+    if (data.containsKey('account_id')) {
+      context.handle(_accountIdMeta,
+          accountId.isAcceptableOrUnknown(data['account_id']!, _accountIdMeta));
+    }
+    if (data.containsKey('account_name')) {
+      context.handle(
+          _accountNameMeta,
+          accountName.isAcceptableOrUnknown(
+              data['account_name']!, _accountNameMeta));
+    }
+    if (data.containsKey('tx_sync_id')) {
+      context.handle(_txSyncIdMeta,
+          txSyncId.isAcceptableOrUnknown(data['tx_sync_id']!, _txSyncIdMeta));
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {syncId};
+  @override
+  CloudLoan map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CloudLoan(
+      syncId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}sync_id'])!,
+      contactId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}contact_id']),
+      direction: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}direction'])!,
+      amount: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}amount'])!,
+      currencyCode: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}currency_code']),
+      happenedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}happened_at']),
+      dueAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}due_at']),
+      interestType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}interest_type']),
+      interestRate: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}interest_rate']),
+      interestAmount: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}interest_amount']),
+      note: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}note']),
+      status: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}status']),
+      accountId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}account_id']),
+      accountName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}account_name']),
+      txSyncId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}tx_sync_id']),
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at']),
+    );
+  }
+
+  @override
+  $CloudLoansTable createAlias(String alias) {
+    return $CloudLoansTable(attachedDatabase, alias);
+  }
+}
+
+class CloudLoan extends DataClass implements Insertable<CloudLoan> {
+  final String syncId;
+  final String? contactId;
+  final String direction;
+  final double amount;
+  final String? currencyCode;
+  final DateTime? happenedAt;
+  final String? dueAt;
+  final String? interestType;
+  final double? interestRate;
+  final double? interestAmount;
+  final String? note;
+  final String? status;
+  final String? accountId;
+  final String? accountName;
+  final String? txSyncId;
+  final DateTime? updatedAt;
+  const CloudLoan(
+      {required this.syncId,
+      this.contactId,
+      required this.direction,
+      required this.amount,
+      this.currencyCode,
+      this.happenedAt,
+      this.dueAt,
+      this.interestType,
+      this.interestRate,
+      this.interestAmount,
+      this.note,
+      this.status,
+      this.accountId,
+      this.accountName,
+      this.txSyncId,
+      this.updatedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['sync_id'] = Variable<String>(syncId);
+    if (!nullToAbsent || contactId != null) {
+      map['contact_id'] = Variable<String>(contactId);
+    }
+    map['direction'] = Variable<String>(direction);
+    map['amount'] = Variable<double>(amount);
+    if (!nullToAbsent || currencyCode != null) {
+      map['currency_code'] = Variable<String>(currencyCode);
+    }
+    if (!nullToAbsent || happenedAt != null) {
+      map['happened_at'] = Variable<DateTime>(happenedAt);
+    }
+    if (!nullToAbsent || dueAt != null) {
+      map['due_at'] = Variable<String>(dueAt);
+    }
+    if (!nullToAbsent || interestType != null) {
+      map['interest_type'] = Variable<String>(interestType);
+    }
+    if (!nullToAbsent || interestRate != null) {
+      map['interest_rate'] = Variable<double>(interestRate);
+    }
+    if (!nullToAbsent || interestAmount != null) {
+      map['interest_amount'] = Variable<double>(interestAmount);
+    }
+    if (!nullToAbsent || note != null) {
+      map['note'] = Variable<String>(note);
+    }
+    if (!nullToAbsent || status != null) {
+      map['status'] = Variable<String>(status);
+    }
+    if (!nullToAbsent || accountId != null) {
+      map['account_id'] = Variable<String>(accountId);
+    }
+    if (!nullToAbsent || accountName != null) {
+      map['account_name'] = Variable<String>(accountName);
+    }
+    if (!nullToAbsent || txSyncId != null) {
+      map['tx_sync_id'] = Variable<String>(txSyncId);
+    }
+    if (!nullToAbsent || updatedAt != null) {
+      map['updated_at'] = Variable<DateTime>(updatedAt);
+    }
+    return map;
+  }
+
+  CloudLoansCompanion toCompanion(bool nullToAbsent) {
+    return CloudLoansCompanion(
+      syncId: Value(syncId),
+      contactId: contactId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(contactId),
+      direction: Value(direction),
+      amount: Value(amount),
+      currencyCode: currencyCode == null && nullToAbsent
+          ? const Value.absent()
+          : Value(currencyCode),
+      happenedAt: happenedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(happenedAt),
+      dueAt:
+          dueAt == null && nullToAbsent ? const Value.absent() : Value(dueAt),
+      interestType: interestType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(interestType),
+      interestRate: interestRate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(interestRate),
+      interestAmount: interestAmount == null && nullToAbsent
+          ? const Value.absent()
+          : Value(interestAmount),
+      note: note == null && nullToAbsent ? const Value.absent() : Value(note),
+      status:
+          status == null && nullToAbsent ? const Value.absent() : Value(status),
+      accountId: accountId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(accountId),
+      accountName: accountName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(accountName),
+      txSyncId: txSyncId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(txSyncId),
+      updatedAt: updatedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(updatedAt),
+    );
+  }
+
+  factory CloudLoan.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CloudLoan(
+      syncId: serializer.fromJson<String>(json['syncId']),
+      contactId: serializer.fromJson<String?>(json['contactId']),
+      direction: serializer.fromJson<String>(json['direction']),
+      amount: serializer.fromJson<double>(json['amount']),
+      currencyCode: serializer.fromJson<String?>(json['currencyCode']),
+      happenedAt: serializer.fromJson<DateTime?>(json['happenedAt']),
+      dueAt: serializer.fromJson<String?>(json['dueAt']),
+      interestType: serializer.fromJson<String?>(json['interestType']),
+      interestRate: serializer.fromJson<double?>(json['interestRate']),
+      interestAmount: serializer.fromJson<double?>(json['interestAmount']),
+      note: serializer.fromJson<String?>(json['note']),
+      status: serializer.fromJson<String?>(json['status']),
+      accountId: serializer.fromJson<String?>(json['accountId']),
+      accountName: serializer.fromJson<String?>(json['accountName']),
+      txSyncId: serializer.fromJson<String?>(json['txSyncId']),
+      updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'syncId': serializer.toJson<String>(syncId),
+      'contactId': serializer.toJson<String?>(contactId),
+      'direction': serializer.toJson<String>(direction),
+      'amount': serializer.toJson<double>(amount),
+      'currencyCode': serializer.toJson<String?>(currencyCode),
+      'happenedAt': serializer.toJson<DateTime?>(happenedAt),
+      'dueAt': serializer.toJson<String?>(dueAt),
+      'interestType': serializer.toJson<String?>(interestType),
+      'interestRate': serializer.toJson<double?>(interestRate),
+      'interestAmount': serializer.toJson<double?>(interestAmount),
+      'note': serializer.toJson<String?>(note),
+      'status': serializer.toJson<String?>(status),
+      'accountId': serializer.toJson<String?>(accountId),
+      'accountName': serializer.toJson<String?>(accountName),
+      'txSyncId': serializer.toJson<String?>(txSyncId),
+      'updatedAt': serializer.toJson<DateTime?>(updatedAt),
+    };
+  }
+
+  CloudLoan copyWith(
+          {String? syncId,
+          Value<String?> contactId = const Value.absent(),
+          String? direction,
+          double? amount,
+          Value<String?> currencyCode = const Value.absent(),
+          Value<DateTime?> happenedAt = const Value.absent(),
+          Value<String?> dueAt = const Value.absent(),
+          Value<String?> interestType = const Value.absent(),
+          Value<double?> interestRate = const Value.absent(),
+          Value<double?> interestAmount = const Value.absent(),
+          Value<String?> note = const Value.absent(),
+          Value<String?> status = const Value.absent(),
+          Value<String?> accountId = const Value.absent(),
+          Value<String?> accountName = const Value.absent(),
+          Value<String?> txSyncId = const Value.absent(),
+          Value<DateTime?> updatedAt = const Value.absent()}) =>
+      CloudLoan(
+        syncId: syncId ?? this.syncId,
+        contactId: contactId.present ? contactId.value : this.contactId,
+        direction: direction ?? this.direction,
+        amount: amount ?? this.amount,
+        currencyCode:
+            currencyCode.present ? currencyCode.value : this.currencyCode,
+        happenedAt: happenedAt.present ? happenedAt.value : this.happenedAt,
+        dueAt: dueAt.present ? dueAt.value : this.dueAt,
+        interestType:
+            interestType.present ? interestType.value : this.interestType,
+        interestRate:
+            interestRate.present ? interestRate.value : this.interestRate,
+        interestAmount:
+            interestAmount.present ? interestAmount.value : this.interestAmount,
+        note: note.present ? note.value : this.note,
+        status: status.present ? status.value : this.status,
+        accountId: accountId.present ? accountId.value : this.accountId,
+        accountName: accountName.present ? accountName.value : this.accountName,
+        txSyncId: txSyncId.present ? txSyncId.value : this.txSyncId,
+        updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
+      );
+  CloudLoan copyWithCompanion(CloudLoansCompanion data) {
+    return CloudLoan(
+      syncId: data.syncId.present ? data.syncId.value : this.syncId,
+      contactId: data.contactId.present ? data.contactId.value : this.contactId,
+      direction: data.direction.present ? data.direction.value : this.direction,
+      amount: data.amount.present ? data.amount.value : this.amount,
+      currencyCode: data.currencyCode.present
+          ? data.currencyCode.value
+          : this.currencyCode,
+      happenedAt:
+          data.happenedAt.present ? data.happenedAt.value : this.happenedAt,
+      dueAt: data.dueAt.present ? data.dueAt.value : this.dueAt,
+      interestType: data.interestType.present
+          ? data.interestType.value
+          : this.interestType,
+      interestRate: data.interestRate.present
+          ? data.interestRate.value
+          : this.interestRate,
+      interestAmount: data.interestAmount.present
+          ? data.interestAmount.value
+          : this.interestAmount,
+      note: data.note.present ? data.note.value : this.note,
+      status: data.status.present ? data.status.value : this.status,
+      accountId: data.accountId.present ? data.accountId.value : this.accountId,
+      accountName:
+          data.accountName.present ? data.accountName.value : this.accountName,
+      txSyncId: data.txSyncId.present ? data.txSyncId.value : this.txSyncId,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CloudLoan(')
+          ..write('syncId: $syncId, ')
+          ..write('contactId: $contactId, ')
+          ..write('direction: $direction, ')
+          ..write('amount: $amount, ')
+          ..write('currencyCode: $currencyCode, ')
+          ..write('happenedAt: $happenedAt, ')
+          ..write('dueAt: $dueAt, ')
+          ..write('interestType: $interestType, ')
+          ..write('interestRate: $interestRate, ')
+          ..write('interestAmount: $interestAmount, ')
+          ..write('note: $note, ')
+          ..write('status: $status, ')
+          ..write('accountId: $accountId, ')
+          ..write('accountName: $accountName, ')
+          ..write('txSyncId: $txSyncId, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      syncId,
+      contactId,
+      direction,
+      amount,
+      currencyCode,
+      happenedAt,
+      dueAt,
+      interestType,
+      interestRate,
+      interestAmount,
+      note,
+      status,
+      accountId,
+      accountName,
+      txSyncId,
+      updatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CloudLoan &&
+          other.syncId == this.syncId &&
+          other.contactId == this.contactId &&
+          other.direction == this.direction &&
+          other.amount == this.amount &&
+          other.currencyCode == this.currencyCode &&
+          other.happenedAt == this.happenedAt &&
+          other.dueAt == this.dueAt &&
+          other.interestType == this.interestType &&
+          other.interestRate == this.interestRate &&
+          other.interestAmount == this.interestAmount &&
+          other.note == this.note &&
+          other.status == this.status &&
+          other.accountId == this.accountId &&
+          other.accountName == this.accountName &&
+          other.txSyncId == this.txSyncId &&
+          other.updatedAt == this.updatedAt);
+}
+
+class CloudLoansCompanion extends UpdateCompanion<CloudLoan> {
+  final Value<String> syncId;
+  final Value<String?> contactId;
+  final Value<String> direction;
+  final Value<double> amount;
+  final Value<String?> currencyCode;
+  final Value<DateTime?> happenedAt;
+  final Value<String?> dueAt;
+  final Value<String?> interestType;
+  final Value<double?> interestRate;
+  final Value<double?> interestAmount;
+  final Value<String?> note;
+  final Value<String?> status;
+  final Value<String?> accountId;
+  final Value<String?> accountName;
+  final Value<String?> txSyncId;
+  final Value<DateTime?> updatedAt;
+  final Value<int> rowid;
+  const CloudLoansCompanion({
+    this.syncId = const Value.absent(),
+    this.contactId = const Value.absent(),
+    this.direction = const Value.absent(),
+    this.amount = const Value.absent(),
+    this.currencyCode = const Value.absent(),
+    this.happenedAt = const Value.absent(),
+    this.dueAt = const Value.absent(),
+    this.interestType = const Value.absent(),
+    this.interestRate = const Value.absent(),
+    this.interestAmount = const Value.absent(),
+    this.note = const Value.absent(),
+    this.status = const Value.absent(),
+    this.accountId = const Value.absent(),
+    this.accountName = const Value.absent(),
+    this.txSyncId = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CloudLoansCompanion.insert({
+    required String syncId,
+    this.contactId = const Value.absent(),
+    required String direction,
+    required double amount,
+    this.currencyCode = const Value.absent(),
+    this.happenedAt = const Value.absent(),
+    this.dueAt = const Value.absent(),
+    this.interestType = const Value.absent(),
+    this.interestRate = const Value.absent(),
+    this.interestAmount = const Value.absent(),
+    this.note = const Value.absent(),
+    this.status = const Value.absent(),
+    this.accountId = const Value.absent(),
+    this.accountName = const Value.absent(),
+    this.txSyncId = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : syncId = Value(syncId),
+        direction = Value(direction),
+        amount = Value(amount);
+  static Insertable<CloudLoan> custom({
+    Expression<String>? syncId,
+    Expression<String>? contactId,
+    Expression<String>? direction,
+    Expression<double>? amount,
+    Expression<String>? currencyCode,
+    Expression<DateTime>? happenedAt,
+    Expression<String>? dueAt,
+    Expression<String>? interestType,
+    Expression<double>? interestRate,
+    Expression<double>? interestAmount,
+    Expression<String>? note,
+    Expression<String>? status,
+    Expression<String>? accountId,
+    Expression<String>? accountName,
+    Expression<String>? txSyncId,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (syncId != null) 'sync_id': syncId,
+      if (contactId != null) 'contact_id': contactId,
+      if (direction != null) 'direction': direction,
+      if (amount != null) 'amount': amount,
+      if (currencyCode != null) 'currency_code': currencyCode,
+      if (happenedAt != null) 'happened_at': happenedAt,
+      if (dueAt != null) 'due_at': dueAt,
+      if (interestType != null) 'interest_type': interestType,
+      if (interestRate != null) 'interest_rate': interestRate,
+      if (interestAmount != null) 'interest_amount': interestAmount,
+      if (note != null) 'note': note,
+      if (status != null) 'status': status,
+      if (accountId != null) 'account_id': accountId,
+      if (accountName != null) 'account_name': accountName,
+      if (txSyncId != null) 'tx_sync_id': txSyncId,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CloudLoansCompanion copyWith(
+      {Value<String>? syncId,
+      Value<String?>? contactId,
+      Value<String>? direction,
+      Value<double>? amount,
+      Value<String?>? currencyCode,
+      Value<DateTime?>? happenedAt,
+      Value<String?>? dueAt,
+      Value<String?>? interestType,
+      Value<double?>? interestRate,
+      Value<double?>? interestAmount,
+      Value<String?>? note,
+      Value<String?>? status,
+      Value<String?>? accountId,
+      Value<String?>? accountName,
+      Value<String?>? txSyncId,
+      Value<DateTime?>? updatedAt,
+      Value<int>? rowid}) {
+    return CloudLoansCompanion(
+      syncId: syncId ?? this.syncId,
+      contactId: contactId ?? this.contactId,
+      direction: direction ?? this.direction,
+      amount: amount ?? this.amount,
+      currencyCode: currencyCode ?? this.currencyCode,
+      happenedAt: happenedAt ?? this.happenedAt,
+      dueAt: dueAt ?? this.dueAt,
+      interestType: interestType ?? this.interestType,
+      interestRate: interestRate ?? this.interestRate,
+      interestAmount: interestAmount ?? this.interestAmount,
+      note: note ?? this.note,
+      status: status ?? this.status,
+      accountId: accountId ?? this.accountId,
+      accountName: accountName ?? this.accountName,
+      txSyncId: txSyncId ?? this.txSyncId,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (syncId.present) {
+      map['sync_id'] = Variable<String>(syncId.value);
+    }
+    if (contactId.present) {
+      map['contact_id'] = Variable<String>(contactId.value);
+    }
+    if (direction.present) {
+      map['direction'] = Variable<String>(direction.value);
+    }
+    if (amount.present) {
+      map['amount'] = Variable<double>(amount.value);
+    }
+    if (currencyCode.present) {
+      map['currency_code'] = Variable<String>(currencyCode.value);
+    }
+    if (happenedAt.present) {
+      map['happened_at'] = Variable<DateTime>(happenedAt.value);
+    }
+    if (dueAt.present) {
+      map['due_at'] = Variable<String>(dueAt.value);
+    }
+    if (interestType.present) {
+      map['interest_type'] = Variable<String>(interestType.value);
+    }
+    if (interestRate.present) {
+      map['interest_rate'] = Variable<double>(interestRate.value);
+    }
+    if (interestAmount.present) {
+      map['interest_amount'] = Variable<double>(interestAmount.value);
+    }
+    if (note.present) {
+      map['note'] = Variable<String>(note.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (accountId.present) {
+      map['account_id'] = Variable<String>(accountId.value);
+    }
+    if (accountName.present) {
+      map['account_name'] = Variable<String>(accountName.value);
+    }
+    if (txSyncId.present) {
+      map['tx_sync_id'] = Variable<String>(txSyncId.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CloudLoansCompanion(')
+          ..write('syncId: $syncId, ')
+          ..write('contactId: $contactId, ')
+          ..write('direction: $direction, ')
+          ..write('amount: $amount, ')
+          ..write('currencyCode: $currencyCode, ')
+          ..write('happenedAt: $happenedAt, ')
+          ..write('dueAt: $dueAt, ')
+          ..write('interestType: $interestType, ')
+          ..write('interestRate: $interestRate, ')
+          ..write('interestAmount: $interestAmount, ')
+          ..write('note: $note, ')
+          ..write('status: $status, ')
+          ..write('accountId: $accountId, ')
+          ..write('accountName: $accountName, ')
+          ..write('txSyncId: $txSyncId, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $CloudLoanRepaymentsTable extends CloudLoanRepayments
+    with TableInfo<$CloudLoanRepaymentsTable, CloudLoanRepayment> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CloudLoanRepaymentsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _syncIdMeta = const VerificationMeta('syncId');
+  @override
+  late final GeneratedColumn<String> syncId = GeneratedColumn<String>(
+      'sync_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _loanIdMeta = const VerificationMeta('loanId');
+  @override
+  late final GeneratedColumn<String> loanId = GeneratedColumn<String>(
+      'loan_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _amountMeta = const VerificationMeta('amount');
+  @override
+  late final GeneratedColumn<double> amount = GeneratedColumn<double>(
+      'amount', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _repaidAtMeta =
+      const VerificationMeta('repaidAt');
+  @override
+  late final GeneratedColumn<DateTime> repaidAt = GeneratedColumn<DateTime>(
+      'repaid_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _noteMeta = const VerificationMeta('note');
+  @override
+  late final GeneratedColumn<String> note = GeneratedColumn<String>(
+      'note', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _accountIdMeta =
+      const VerificationMeta('accountId');
+  @override
+  late final GeneratedColumn<String> accountId = GeneratedColumn<String>(
+      'account_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _txSyncIdMeta =
+      const VerificationMeta('txSyncId');
+  @override
+  late final GeneratedColumn<String> txSyncId = GeneratedColumn<String>(
+      'tx_sync_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _interestAmountMeta =
+      const VerificationMeta('interestAmount');
+  @override
+  late final GeneratedColumn<double> interestAmount = GeneratedColumn<double>(
+      'interest_amount', aliasedName, true,
+      type: DriftSqlType.double, requiredDuringInsert: false);
+  static const VerificationMeta _groupIdMeta =
+      const VerificationMeta('groupId');
+  @override
+  late final GeneratedColumn<String> groupId = GeneratedColumn<String>(
+      'group_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        syncId,
+        loanId,
+        amount,
+        repaidAt,
+        note,
+        accountId,
+        txSyncId,
+        interestAmount,
+        groupId
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'cloud_loan_repayments';
+  @override
+  VerificationContext validateIntegrity(Insertable<CloudLoanRepayment> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('sync_id')) {
+      context.handle(_syncIdMeta,
+          syncId.isAcceptableOrUnknown(data['sync_id']!, _syncIdMeta));
+    } else if (isInserting) {
+      context.missing(_syncIdMeta);
+    }
+    if (data.containsKey('loan_id')) {
+      context.handle(_loanIdMeta,
+          loanId.isAcceptableOrUnknown(data['loan_id']!, _loanIdMeta));
+    } else if (isInserting) {
+      context.missing(_loanIdMeta);
+    }
+    if (data.containsKey('amount')) {
+      context.handle(_amountMeta,
+          amount.isAcceptableOrUnknown(data['amount']!, _amountMeta));
+    } else if (isInserting) {
+      context.missing(_amountMeta);
+    }
+    if (data.containsKey('repaid_at')) {
+      context.handle(_repaidAtMeta,
+          repaidAt.isAcceptableOrUnknown(data['repaid_at']!, _repaidAtMeta));
+    }
+    if (data.containsKey('note')) {
+      context.handle(
+          _noteMeta, note.isAcceptableOrUnknown(data['note']!, _noteMeta));
+    }
+    if (data.containsKey('account_id')) {
+      context.handle(_accountIdMeta,
+          accountId.isAcceptableOrUnknown(data['account_id']!, _accountIdMeta));
+    }
+    if (data.containsKey('tx_sync_id')) {
+      context.handle(_txSyncIdMeta,
+          txSyncId.isAcceptableOrUnknown(data['tx_sync_id']!, _txSyncIdMeta));
+    }
+    if (data.containsKey('interest_amount')) {
+      context.handle(
+          _interestAmountMeta,
+          interestAmount.isAcceptableOrUnknown(
+              data['interest_amount']!, _interestAmountMeta));
+    }
+    if (data.containsKey('group_id')) {
+      context.handle(_groupIdMeta,
+          groupId.isAcceptableOrUnknown(data['group_id']!, _groupIdMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {syncId};
+  @override
+  CloudLoanRepayment map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CloudLoanRepayment(
+      syncId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}sync_id'])!,
+      loanId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}loan_id'])!,
+      amount: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}amount'])!,
+      repaidAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}repaid_at']),
+      note: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}note']),
+      accountId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}account_id']),
+      txSyncId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}tx_sync_id']),
+      interestAmount: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}interest_amount']),
+      groupId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}group_id']),
+    );
+  }
+
+  @override
+  $CloudLoanRepaymentsTable createAlias(String alias) {
+    return $CloudLoanRepaymentsTable(attachedDatabase, alias);
+  }
+}
+
+class CloudLoanRepayment extends DataClass
+    implements Insertable<CloudLoanRepayment> {
+  final String syncId;
+  final String loanId;
+  final double amount;
+  final DateTime? repaidAt;
+  final String? note;
+  final String? accountId;
+  final String? txSyncId;
+  final double? interestAmount;
+  final String? groupId;
+  const CloudLoanRepayment(
+      {required this.syncId,
+      required this.loanId,
+      required this.amount,
+      this.repaidAt,
+      this.note,
+      this.accountId,
+      this.txSyncId,
+      this.interestAmount,
+      this.groupId});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['sync_id'] = Variable<String>(syncId);
+    map['loan_id'] = Variable<String>(loanId);
+    map['amount'] = Variable<double>(amount);
+    if (!nullToAbsent || repaidAt != null) {
+      map['repaid_at'] = Variable<DateTime>(repaidAt);
+    }
+    if (!nullToAbsent || note != null) {
+      map['note'] = Variable<String>(note);
+    }
+    if (!nullToAbsent || accountId != null) {
+      map['account_id'] = Variable<String>(accountId);
+    }
+    if (!nullToAbsent || txSyncId != null) {
+      map['tx_sync_id'] = Variable<String>(txSyncId);
+    }
+    if (!nullToAbsent || interestAmount != null) {
+      map['interest_amount'] = Variable<double>(interestAmount);
+    }
+    if (!nullToAbsent || groupId != null) {
+      map['group_id'] = Variable<String>(groupId);
+    }
+    return map;
+  }
+
+  CloudLoanRepaymentsCompanion toCompanion(bool nullToAbsent) {
+    return CloudLoanRepaymentsCompanion(
+      syncId: Value(syncId),
+      loanId: Value(loanId),
+      amount: Value(amount),
+      repaidAt: repaidAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(repaidAt),
+      note: note == null && nullToAbsent ? const Value.absent() : Value(note),
+      accountId: accountId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(accountId),
+      txSyncId: txSyncId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(txSyncId),
+      interestAmount: interestAmount == null && nullToAbsent
+          ? const Value.absent()
+          : Value(interestAmount),
+      groupId: groupId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(groupId),
+    );
+  }
+
+  factory CloudLoanRepayment.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CloudLoanRepayment(
+      syncId: serializer.fromJson<String>(json['syncId']),
+      loanId: serializer.fromJson<String>(json['loanId']),
+      amount: serializer.fromJson<double>(json['amount']),
+      repaidAt: serializer.fromJson<DateTime?>(json['repaidAt']),
+      note: serializer.fromJson<String?>(json['note']),
+      accountId: serializer.fromJson<String?>(json['accountId']),
+      txSyncId: serializer.fromJson<String?>(json['txSyncId']),
+      interestAmount: serializer.fromJson<double?>(json['interestAmount']),
+      groupId: serializer.fromJson<String?>(json['groupId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'syncId': serializer.toJson<String>(syncId),
+      'loanId': serializer.toJson<String>(loanId),
+      'amount': serializer.toJson<double>(amount),
+      'repaidAt': serializer.toJson<DateTime?>(repaidAt),
+      'note': serializer.toJson<String?>(note),
+      'accountId': serializer.toJson<String?>(accountId),
+      'txSyncId': serializer.toJson<String?>(txSyncId),
+      'interestAmount': serializer.toJson<double?>(interestAmount),
+      'groupId': serializer.toJson<String?>(groupId),
+    };
+  }
+
+  CloudLoanRepayment copyWith(
+          {String? syncId,
+          String? loanId,
+          double? amount,
+          Value<DateTime?> repaidAt = const Value.absent(),
+          Value<String?> note = const Value.absent(),
+          Value<String?> accountId = const Value.absent(),
+          Value<String?> txSyncId = const Value.absent(),
+          Value<double?> interestAmount = const Value.absent(),
+          Value<String?> groupId = const Value.absent()}) =>
+      CloudLoanRepayment(
+        syncId: syncId ?? this.syncId,
+        loanId: loanId ?? this.loanId,
+        amount: amount ?? this.amount,
+        repaidAt: repaidAt.present ? repaidAt.value : this.repaidAt,
+        note: note.present ? note.value : this.note,
+        accountId: accountId.present ? accountId.value : this.accountId,
+        txSyncId: txSyncId.present ? txSyncId.value : this.txSyncId,
+        interestAmount:
+            interestAmount.present ? interestAmount.value : this.interestAmount,
+        groupId: groupId.present ? groupId.value : this.groupId,
+      );
+  CloudLoanRepayment copyWithCompanion(CloudLoanRepaymentsCompanion data) {
+    return CloudLoanRepayment(
+      syncId: data.syncId.present ? data.syncId.value : this.syncId,
+      loanId: data.loanId.present ? data.loanId.value : this.loanId,
+      amount: data.amount.present ? data.amount.value : this.amount,
+      repaidAt: data.repaidAt.present ? data.repaidAt.value : this.repaidAt,
+      note: data.note.present ? data.note.value : this.note,
+      accountId: data.accountId.present ? data.accountId.value : this.accountId,
+      txSyncId: data.txSyncId.present ? data.txSyncId.value : this.txSyncId,
+      interestAmount: data.interestAmount.present
+          ? data.interestAmount.value
+          : this.interestAmount,
+      groupId: data.groupId.present ? data.groupId.value : this.groupId,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CloudLoanRepayment(')
+          ..write('syncId: $syncId, ')
+          ..write('loanId: $loanId, ')
+          ..write('amount: $amount, ')
+          ..write('repaidAt: $repaidAt, ')
+          ..write('note: $note, ')
+          ..write('accountId: $accountId, ')
+          ..write('txSyncId: $txSyncId, ')
+          ..write('interestAmount: $interestAmount, ')
+          ..write('groupId: $groupId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(syncId, loanId, amount, repaidAt, note,
+      accountId, txSyncId, interestAmount, groupId);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CloudLoanRepayment &&
+          other.syncId == this.syncId &&
+          other.loanId == this.loanId &&
+          other.amount == this.amount &&
+          other.repaidAt == this.repaidAt &&
+          other.note == this.note &&
+          other.accountId == this.accountId &&
+          other.txSyncId == this.txSyncId &&
+          other.interestAmount == this.interestAmount &&
+          other.groupId == this.groupId);
+}
+
+class CloudLoanRepaymentsCompanion extends UpdateCompanion<CloudLoanRepayment> {
+  final Value<String> syncId;
+  final Value<String> loanId;
+  final Value<double> amount;
+  final Value<DateTime?> repaidAt;
+  final Value<String?> note;
+  final Value<String?> accountId;
+  final Value<String?> txSyncId;
+  final Value<double?> interestAmount;
+  final Value<String?> groupId;
+  final Value<int> rowid;
+  const CloudLoanRepaymentsCompanion({
+    this.syncId = const Value.absent(),
+    this.loanId = const Value.absent(),
+    this.amount = const Value.absent(),
+    this.repaidAt = const Value.absent(),
+    this.note = const Value.absent(),
+    this.accountId = const Value.absent(),
+    this.txSyncId = const Value.absent(),
+    this.interestAmount = const Value.absent(),
+    this.groupId = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CloudLoanRepaymentsCompanion.insert({
+    required String syncId,
+    required String loanId,
+    required double amount,
+    this.repaidAt = const Value.absent(),
+    this.note = const Value.absent(),
+    this.accountId = const Value.absent(),
+    this.txSyncId = const Value.absent(),
+    this.interestAmount = const Value.absent(),
+    this.groupId = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : syncId = Value(syncId),
+        loanId = Value(loanId),
+        amount = Value(amount);
+  static Insertable<CloudLoanRepayment> custom({
+    Expression<String>? syncId,
+    Expression<String>? loanId,
+    Expression<double>? amount,
+    Expression<DateTime>? repaidAt,
+    Expression<String>? note,
+    Expression<String>? accountId,
+    Expression<String>? txSyncId,
+    Expression<double>? interestAmount,
+    Expression<String>? groupId,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (syncId != null) 'sync_id': syncId,
+      if (loanId != null) 'loan_id': loanId,
+      if (amount != null) 'amount': amount,
+      if (repaidAt != null) 'repaid_at': repaidAt,
+      if (note != null) 'note': note,
+      if (accountId != null) 'account_id': accountId,
+      if (txSyncId != null) 'tx_sync_id': txSyncId,
+      if (interestAmount != null) 'interest_amount': interestAmount,
+      if (groupId != null) 'group_id': groupId,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CloudLoanRepaymentsCompanion copyWith(
+      {Value<String>? syncId,
+      Value<String>? loanId,
+      Value<double>? amount,
+      Value<DateTime?>? repaidAt,
+      Value<String?>? note,
+      Value<String?>? accountId,
+      Value<String?>? txSyncId,
+      Value<double?>? interestAmount,
+      Value<String?>? groupId,
+      Value<int>? rowid}) {
+    return CloudLoanRepaymentsCompanion(
+      syncId: syncId ?? this.syncId,
+      loanId: loanId ?? this.loanId,
+      amount: amount ?? this.amount,
+      repaidAt: repaidAt ?? this.repaidAt,
+      note: note ?? this.note,
+      accountId: accountId ?? this.accountId,
+      txSyncId: txSyncId ?? this.txSyncId,
+      interestAmount: interestAmount ?? this.interestAmount,
+      groupId: groupId ?? this.groupId,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (syncId.present) {
+      map['sync_id'] = Variable<String>(syncId.value);
+    }
+    if (loanId.present) {
+      map['loan_id'] = Variable<String>(loanId.value);
+    }
+    if (amount.present) {
+      map['amount'] = Variable<double>(amount.value);
+    }
+    if (repaidAt.present) {
+      map['repaid_at'] = Variable<DateTime>(repaidAt.value);
+    }
+    if (note.present) {
+      map['note'] = Variable<String>(note.value);
+    }
+    if (accountId.present) {
+      map['account_id'] = Variable<String>(accountId.value);
+    }
+    if (txSyncId.present) {
+      map['tx_sync_id'] = Variable<String>(txSyncId.value);
+    }
+    if (interestAmount.present) {
+      map['interest_amount'] = Variable<double>(interestAmount.value);
+    }
+    if (groupId.present) {
+      map['group_id'] = Variable<String>(groupId.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CloudLoanRepaymentsCompanion(')
+          ..write('syncId: $syncId, ')
+          ..write('loanId: $loanId, ')
+          ..write('amount: $amount, ')
+          ..write('repaidAt: $repaidAt, ')
+          ..write('note: $note, ')
+          ..write('accountId: $accountId, ')
+          ..write('txSyncId: $txSyncId, ')
+          ..write('interestAmount: $interestAmount, ')
+          ..write('groupId: $groupId, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $CloudSavingPlansTable extends CloudSavingPlans
+    with TableInfo<$CloudSavingPlansTable, CloudSavingPlan> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CloudSavingPlansTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _syncIdMeta = const VerificationMeta('syncId');
+  @override
+  late final GeneratedColumn<String> syncId = GeneratedColumn<String>(
+      'sync_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+      'name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _iconMeta = const VerificationMeta('icon');
+  @override
+  late final GeneratedColumn<String> icon = GeneratedColumn<String>(
+      'icon', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _targetAmountMeta =
+      const VerificationMeta('targetAmount');
+  @override
+  late final GeneratedColumn<double> targetAmount = GeneratedColumn<double>(
+      'target_amount', aliasedName, true,
+      type: DriftSqlType.double, requiredDuringInsert: false);
+  static const VerificationMeta _currencyCodeMeta =
+      const VerificationMeta('currencyCode');
+  @override
+  late final GeneratedColumn<String> currencyCode = GeneratedColumn<String>(
+      'currency_code', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _deadlineMeta =
+      const VerificationMeta('deadline');
+  @override
+  late final GeneratedColumn<String> deadline = GeneratedColumn<String>(
+      'deadline', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _accountIdMeta =
+      const VerificationMeta('accountId');
+  @override
+  late final GeneratedColumn<String> accountId = GeneratedColumn<String>(
+      'account_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _planTypeMeta =
+      const VerificationMeta('planType');
+  @override
+  late final GeneratedColumn<String> planType = GeneratedColumn<String>(
+      'plan_type', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _monthlyAmountMeta =
+      const VerificationMeta('monthlyAmount');
+  @override
+  late final GeneratedColumn<double> monthlyAmount = GeneratedColumn<double>(
+      'monthly_amount', aliasedName, true,
+      type: DriftSqlType.double, requiredDuringInsert: false);
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+      'status', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _noteMeta = const VerificationMeta('note');
+  @override
+  late final GeneratedColumn<String> note = GeneratedColumn<String>(
+      'note', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        syncId,
+        name,
+        icon,
+        targetAmount,
+        currencyCode,
+        deadline,
+        accountId,
+        planType,
+        monthlyAmount,
+        status,
+        note
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'cloud_saving_plans';
+  @override
+  VerificationContext validateIntegrity(Insertable<CloudSavingPlan> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('sync_id')) {
+      context.handle(_syncIdMeta,
+          syncId.isAcceptableOrUnknown(data['sync_id']!, _syncIdMeta));
+    } else if (isInserting) {
+      context.missing(_syncIdMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('icon')) {
+      context.handle(
+          _iconMeta, icon.isAcceptableOrUnknown(data['icon']!, _iconMeta));
+    }
+    if (data.containsKey('target_amount')) {
+      context.handle(
+          _targetAmountMeta,
+          targetAmount.isAcceptableOrUnknown(
+              data['target_amount']!, _targetAmountMeta));
+    }
+    if (data.containsKey('currency_code')) {
+      context.handle(
+          _currencyCodeMeta,
+          currencyCode.isAcceptableOrUnknown(
+              data['currency_code']!, _currencyCodeMeta));
+    }
+    if (data.containsKey('deadline')) {
+      context.handle(_deadlineMeta,
+          deadline.isAcceptableOrUnknown(data['deadline']!, _deadlineMeta));
+    }
+    if (data.containsKey('account_id')) {
+      context.handle(_accountIdMeta,
+          accountId.isAcceptableOrUnknown(data['account_id']!, _accountIdMeta));
+    }
+    if (data.containsKey('plan_type')) {
+      context.handle(_planTypeMeta,
+          planType.isAcceptableOrUnknown(data['plan_type']!, _planTypeMeta));
+    }
+    if (data.containsKey('monthly_amount')) {
+      context.handle(
+          _monthlyAmountMeta,
+          monthlyAmount.isAcceptableOrUnknown(
+              data['monthly_amount']!, _monthlyAmountMeta));
+    }
+    if (data.containsKey('status')) {
+      context.handle(_statusMeta,
+          status.isAcceptableOrUnknown(data['status']!, _statusMeta));
+    }
+    if (data.containsKey('note')) {
+      context.handle(
+          _noteMeta, note.isAcceptableOrUnknown(data['note']!, _noteMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {syncId};
+  @override
+  CloudSavingPlan map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CloudSavingPlan(
+      syncId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}sync_id'])!,
+      name: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      icon: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}icon']),
+      targetAmount: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}target_amount']),
+      currencyCode: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}currency_code']),
+      deadline: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}deadline']),
+      accountId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}account_id']),
+      planType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}plan_type']),
+      monthlyAmount: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}monthly_amount']),
+      status: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}status']),
+      note: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}note']),
+    );
+  }
+
+  @override
+  $CloudSavingPlansTable createAlias(String alias) {
+    return $CloudSavingPlansTable(attachedDatabase, alias);
+  }
+}
+
+class CloudSavingPlan extends DataClass implements Insertable<CloudSavingPlan> {
+  final String syncId;
+  final String name;
+  final String? icon;
+  final double? targetAmount;
+  final String? currencyCode;
+  final String? deadline;
+  final String? accountId;
+  final String? planType;
+  final double? monthlyAmount;
+  final String? status;
+  final String? note;
+  const CloudSavingPlan(
+      {required this.syncId,
+      required this.name,
+      this.icon,
+      this.targetAmount,
+      this.currencyCode,
+      this.deadline,
+      this.accountId,
+      this.planType,
+      this.monthlyAmount,
+      this.status,
+      this.note});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['sync_id'] = Variable<String>(syncId);
+    map['name'] = Variable<String>(name);
+    if (!nullToAbsent || icon != null) {
+      map['icon'] = Variable<String>(icon);
+    }
+    if (!nullToAbsent || targetAmount != null) {
+      map['target_amount'] = Variable<double>(targetAmount);
+    }
+    if (!nullToAbsent || currencyCode != null) {
+      map['currency_code'] = Variable<String>(currencyCode);
+    }
+    if (!nullToAbsent || deadline != null) {
+      map['deadline'] = Variable<String>(deadline);
+    }
+    if (!nullToAbsent || accountId != null) {
+      map['account_id'] = Variable<String>(accountId);
+    }
+    if (!nullToAbsent || planType != null) {
+      map['plan_type'] = Variable<String>(planType);
+    }
+    if (!nullToAbsent || monthlyAmount != null) {
+      map['monthly_amount'] = Variable<double>(monthlyAmount);
+    }
+    if (!nullToAbsent || status != null) {
+      map['status'] = Variable<String>(status);
+    }
+    if (!nullToAbsent || note != null) {
+      map['note'] = Variable<String>(note);
+    }
+    return map;
+  }
+
+  CloudSavingPlansCompanion toCompanion(bool nullToAbsent) {
+    return CloudSavingPlansCompanion(
+      syncId: Value(syncId),
+      name: Value(name),
+      icon: icon == null && nullToAbsent ? const Value.absent() : Value(icon),
+      targetAmount: targetAmount == null && nullToAbsent
+          ? const Value.absent()
+          : Value(targetAmount),
+      currencyCode: currencyCode == null && nullToAbsent
+          ? const Value.absent()
+          : Value(currencyCode),
+      deadline: deadline == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deadline),
+      accountId: accountId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(accountId),
+      planType: planType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(planType),
+      monthlyAmount: monthlyAmount == null && nullToAbsent
+          ? const Value.absent()
+          : Value(monthlyAmount),
+      status:
+          status == null && nullToAbsent ? const Value.absent() : Value(status),
+      note: note == null && nullToAbsent ? const Value.absent() : Value(note),
+    );
+  }
+
+  factory CloudSavingPlan.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CloudSavingPlan(
+      syncId: serializer.fromJson<String>(json['syncId']),
+      name: serializer.fromJson<String>(json['name']),
+      icon: serializer.fromJson<String?>(json['icon']),
+      targetAmount: serializer.fromJson<double?>(json['targetAmount']),
+      currencyCode: serializer.fromJson<String?>(json['currencyCode']),
+      deadline: serializer.fromJson<String?>(json['deadline']),
+      accountId: serializer.fromJson<String?>(json['accountId']),
+      planType: serializer.fromJson<String?>(json['planType']),
+      monthlyAmount: serializer.fromJson<double?>(json['monthlyAmount']),
+      status: serializer.fromJson<String?>(json['status']),
+      note: serializer.fromJson<String?>(json['note']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'syncId': serializer.toJson<String>(syncId),
+      'name': serializer.toJson<String>(name),
+      'icon': serializer.toJson<String?>(icon),
+      'targetAmount': serializer.toJson<double?>(targetAmount),
+      'currencyCode': serializer.toJson<String?>(currencyCode),
+      'deadline': serializer.toJson<String?>(deadline),
+      'accountId': serializer.toJson<String?>(accountId),
+      'planType': serializer.toJson<String?>(planType),
+      'monthlyAmount': serializer.toJson<double?>(monthlyAmount),
+      'status': serializer.toJson<String?>(status),
+      'note': serializer.toJson<String?>(note),
+    };
+  }
+
+  CloudSavingPlan copyWith(
+          {String? syncId,
+          String? name,
+          Value<String?> icon = const Value.absent(),
+          Value<double?> targetAmount = const Value.absent(),
+          Value<String?> currencyCode = const Value.absent(),
+          Value<String?> deadline = const Value.absent(),
+          Value<String?> accountId = const Value.absent(),
+          Value<String?> planType = const Value.absent(),
+          Value<double?> monthlyAmount = const Value.absent(),
+          Value<String?> status = const Value.absent(),
+          Value<String?> note = const Value.absent()}) =>
+      CloudSavingPlan(
+        syncId: syncId ?? this.syncId,
+        name: name ?? this.name,
+        icon: icon.present ? icon.value : this.icon,
+        targetAmount:
+            targetAmount.present ? targetAmount.value : this.targetAmount,
+        currencyCode:
+            currencyCode.present ? currencyCode.value : this.currencyCode,
+        deadline: deadline.present ? deadline.value : this.deadline,
+        accountId: accountId.present ? accountId.value : this.accountId,
+        planType: planType.present ? planType.value : this.planType,
+        monthlyAmount:
+            monthlyAmount.present ? monthlyAmount.value : this.monthlyAmount,
+        status: status.present ? status.value : this.status,
+        note: note.present ? note.value : this.note,
+      );
+  CloudSavingPlan copyWithCompanion(CloudSavingPlansCompanion data) {
+    return CloudSavingPlan(
+      syncId: data.syncId.present ? data.syncId.value : this.syncId,
+      name: data.name.present ? data.name.value : this.name,
+      icon: data.icon.present ? data.icon.value : this.icon,
+      targetAmount: data.targetAmount.present
+          ? data.targetAmount.value
+          : this.targetAmount,
+      currencyCode: data.currencyCode.present
+          ? data.currencyCode.value
+          : this.currencyCode,
+      deadline: data.deadline.present ? data.deadline.value : this.deadline,
+      accountId: data.accountId.present ? data.accountId.value : this.accountId,
+      planType: data.planType.present ? data.planType.value : this.planType,
+      monthlyAmount: data.monthlyAmount.present
+          ? data.monthlyAmount.value
+          : this.monthlyAmount,
+      status: data.status.present ? data.status.value : this.status,
+      note: data.note.present ? data.note.value : this.note,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CloudSavingPlan(')
+          ..write('syncId: $syncId, ')
+          ..write('name: $name, ')
+          ..write('icon: $icon, ')
+          ..write('targetAmount: $targetAmount, ')
+          ..write('currencyCode: $currencyCode, ')
+          ..write('deadline: $deadline, ')
+          ..write('accountId: $accountId, ')
+          ..write('planType: $planType, ')
+          ..write('monthlyAmount: $monthlyAmount, ')
+          ..write('status: $status, ')
+          ..write('note: $note')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(syncId, name, icon, targetAmount,
+      currencyCode, deadline, accountId, planType, monthlyAmount, status, note);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CloudSavingPlan &&
+          other.syncId == this.syncId &&
+          other.name == this.name &&
+          other.icon == this.icon &&
+          other.targetAmount == this.targetAmount &&
+          other.currencyCode == this.currencyCode &&
+          other.deadline == this.deadline &&
+          other.accountId == this.accountId &&
+          other.planType == this.planType &&
+          other.monthlyAmount == this.monthlyAmount &&
+          other.status == this.status &&
+          other.note == this.note);
+}
+
+class CloudSavingPlansCompanion extends UpdateCompanion<CloudSavingPlan> {
+  final Value<String> syncId;
+  final Value<String> name;
+  final Value<String?> icon;
+  final Value<double?> targetAmount;
+  final Value<String?> currencyCode;
+  final Value<String?> deadline;
+  final Value<String?> accountId;
+  final Value<String?> planType;
+  final Value<double?> monthlyAmount;
+  final Value<String?> status;
+  final Value<String?> note;
+  final Value<int> rowid;
+  const CloudSavingPlansCompanion({
+    this.syncId = const Value.absent(),
+    this.name = const Value.absent(),
+    this.icon = const Value.absent(),
+    this.targetAmount = const Value.absent(),
+    this.currencyCode = const Value.absent(),
+    this.deadline = const Value.absent(),
+    this.accountId = const Value.absent(),
+    this.planType = const Value.absent(),
+    this.monthlyAmount = const Value.absent(),
+    this.status = const Value.absent(),
+    this.note = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CloudSavingPlansCompanion.insert({
+    required String syncId,
+    required String name,
+    this.icon = const Value.absent(),
+    this.targetAmount = const Value.absent(),
+    this.currencyCode = const Value.absent(),
+    this.deadline = const Value.absent(),
+    this.accountId = const Value.absent(),
+    this.planType = const Value.absent(),
+    this.monthlyAmount = const Value.absent(),
+    this.status = const Value.absent(),
+    this.note = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : syncId = Value(syncId),
+        name = Value(name);
+  static Insertable<CloudSavingPlan> custom({
+    Expression<String>? syncId,
+    Expression<String>? name,
+    Expression<String>? icon,
+    Expression<double>? targetAmount,
+    Expression<String>? currencyCode,
+    Expression<String>? deadline,
+    Expression<String>? accountId,
+    Expression<String>? planType,
+    Expression<double>? monthlyAmount,
+    Expression<String>? status,
+    Expression<String>? note,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (syncId != null) 'sync_id': syncId,
+      if (name != null) 'name': name,
+      if (icon != null) 'icon': icon,
+      if (targetAmount != null) 'target_amount': targetAmount,
+      if (currencyCode != null) 'currency_code': currencyCode,
+      if (deadline != null) 'deadline': deadline,
+      if (accountId != null) 'account_id': accountId,
+      if (planType != null) 'plan_type': planType,
+      if (monthlyAmount != null) 'monthly_amount': monthlyAmount,
+      if (status != null) 'status': status,
+      if (note != null) 'note': note,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CloudSavingPlansCompanion copyWith(
+      {Value<String>? syncId,
+      Value<String>? name,
+      Value<String?>? icon,
+      Value<double?>? targetAmount,
+      Value<String?>? currencyCode,
+      Value<String?>? deadline,
+      Value<String?>? accountId,
+      Value<String?>? planType,
+      Value<double?>? monthlyAmount,
+      Value<String?>? status,
+      Value<String?>? note,
+      Value<int>? rowid}) {
+    return CloudSavingPlansCompanion(
+      syncId: syncId ?? this.syncId,
+      name: name ?? this.name,
+      icon: icon ?? this.icon,
+      targetAmount: targetAmount ?? this.targetAmount,
+      currencyCode: currencyCode ?? this.currencyCode,
+      deadline: deadline ?? this.deadline,
+      accountId: accountId ?? this.accountId,
+      planType: planType ?? this.planType,
+      monthlyAmount: monthlyAmount ?? this.monthlyAmount,
+      status: status ?? this.status,
+      note: note ?? this.note,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (syncId.present) {
+      map['sync_id'] = Variable<String>(syncId.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (icon.present) {
+      map['icon'] = Variable<String>(icon.value);
+    }
+    if (targetAmount.present) {
+      map['target_amount'] = Variable<double>(targetAmount.value);
+    }
+    if (currencyCode.present) {
+      map['currency_code'] = Variable<String>(currencyCode.value);
+    }
+    if (deadline.present) {
+      map['deadline'] = Variable<String>(deadline.value);
+    }
+    if (accountId.present) {
+      map['account_id'] = Variable<String>(accountId.value);
+    }
+    if (planType.present) {
+      map['plan_type'] = Variable<String>(planType.value);
+    }
+    if (monthlyAmount.present) {
+      map['monthly_amount'] = Variable<double>(monthlyAmount.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (note.present) {
+      map['note'] = Variable<String>(note.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CloudSavingPlansCompanion(')
+          ..write('syncId: $syncId, ')
+          ..write('name: $name, ')
+          ..write('icon: $icon, ')
+          ..write('targetAmount: $targetAmount, ')
+          ..write('currencyCode: $currencyCode, ')
+          ..write('deadline: $deadline, ')
+          ..write('accountId: $accountId, ')
+          ..write('planType: $planType, ')
+          ..write('monthlyAmount: $monthlyAmount, ')
+          ..write('status: $status, ')
+          ..write('note: $note, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $CloudSavingContributionsTable extends CloudSavingContributions
+    with TableInfo<$CloudSavingContributionsTable, CloudSavingContribution> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CloudSavingContributionsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _syncIdMeta = const VerificationMeta('syncId');
+  @override
+  late final GeneratedColumn<String> syncId = GeneratedColumn<String>(
+      'sync_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _planIdMeta = const VerificationMeta('planId');
+  @override
+  late final GeneratedColumn<String> planId = GeneratedColumn<String>(
+      'plan_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _amountMeta = const VerificationMeta('amount');
+  @override
+  late final GeneratedColumn<double> amount = GeneratedColumn<double>(
+      'amount', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _happenedAtMeta =
+      const VerificationMeta('happenedAt');
+  @override
+  late final GeneratedColumn<DateTime> happenedAt = GeneratedColumn<DateTime>(
+      'happened_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _noteMeta = const VerificationMeta('note');
+  @override
+  late final GeneratedColumn<String> note = GeneratedColumn<String>(
+      'note', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _txSyncIdMeta =
+      const VerificationMeta('txSyncId');
+  @override
+  late final GeneratedColumn<String> txSyncId = GeneratedColumn<String>(
+      'tx_sync_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _accountIdMeta =
+      const VerificationMeta('accountId');
+  @override
+  late final GeneratedColumn<String> accountId = GeneratedColumn<String>(
+      'account_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _accountNameMeta =
+      const VerificationMeta('accountName');
+  @override
+  late final GeneratedColumn<String> accountName = GeneratedColumn<String>(
+      'account_name', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _receiveAccountIdMeta =
+      const VerificationMeta('receiveAccountId');
+  @override
+  late final GeneratedColumn<String> receiveAccountId = GeneratedColumn<String>(
+      'receive_account_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _receiveAccountNameMeta =
+      const VerificationMeta('receiveAccountName');
+  @override
+  late final GeneratedColumn<String> receiveAccountName =
+      GeneratedColumn<String>('receive_account_name', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        syncId,
+        planId,
+        amount,
+        happenedAt,
+        note,
+        txSyncId,
+        accountId,
+        accountName,
+        receiveAccountId,
+        receiveAccountName
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'cloud_saving_contributions';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<CloudSavingContribution> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('sync_id')) {
+      context.handle(_syncIdMeta,
+          syncId.isAcceptableOrUnknown(data['sync_id']!, _syncIdMeta));
+    } else if (isInserting) {
+      context.missing(_syncIdMeta);
+    }
+    if (data.containsKey('plan_id')) {
+      context.handle(_planIdMeta,
+          planId.isAcceptableOrUnknown(data['plan_id']!, _planIdMeta));
+    } else if (isInserting) {
+      context.missing(_planIdMeta);
+    }
+    if (data.containsKey('amount')) {
+      context.handle(_amountMeta,
+          amount.isAcceptableOrUnknown(data['amount']!, _amountMeta));
+    } else if (isInserting) {
+      context.missing(_amountMeta);
+    }
+    if (data.containsKey('happened_at')) {
+      context.handle(
+          _happenedAtMeta,
+          happenedAt.isAcceptableOrUnknown(
+              data['happened_at']!, _happenedAtMeta));
+    }
+    if (data.containsKey('note')) {
+      context.handle(
+          _noteMeta, note.isAcceptableOrUnknown(data['note']!, _noteMeta));
+    }
+    if (data.containsKey('tx_sync_id')) {
+      context.handle(_txSyncIdMeta,
+          txSyncId.isAcceptableOrUnknown(data['tx_sync_id']!, _txSyncIdMeta));
+    }
+    if (data.containsKey('account_id')) {
+      context.handle(_accountIdMeta,
+          accountId.isAcceptableOrUnknown(data['account_id']!, _accountIdMeta));
+    }
+    if (data.containsKey('account_name')) {
+      context.handle(
+          _accountNameMeta,
+          accountName.isAcceptableOrUnknown(
+              data['account_name']!, _accountNameMeta));
+    }
+    if (data.containsKey('receive_account_id')) {
+      context.handle(
+          _receiveAccountIdMeta,
+          receiveAccountId.isAcceptableOrUnknown(
+              data['receive_account_id']!, _receiveAccountIdMeta));
+    }
+    if (data.containsKey('receive_account_name')) {
+      context.handle(
+          _receiveAccountNameMeta,
+          receiveAccountName.isAcceptableOrUnknown(
+              data['receive_account_name']!, _receiveAccountNameMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {syncId};
+  @override
+  CloudSavingContribution map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CloudSavingContribution(
+      syncId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}sync_id'])!,
+      planId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}plan_id'])!,
+      amount: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}amount'])!,
+      happenedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}happened_at']),
+      note: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}note']),
+      txSyncId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}tx_sync_id']),
+      accountId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}account_id']),
+      accountName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}account_name']),
+      receiveAccountId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}receive_account_id']),
+      receiveAccountName: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}receive_account_name']),
+    );
+  }
+
+  @override
+  $CloudSavingContributionsTable createAlias(String alias) {
+    return $CloudSavingContributionsTable(attachedDatabase, alias);
+  }
+}
+
+class CloudSavingContribution extends DataClass
+    implements Insertable<CloudSavingContribution> {
+  final String syncId;
+  final String planId;
+  final double amount;
+  final DateTime? happenedAt;
+  final String? note;
+  final String? txSyncId;
+  final String? accountId;
+  final String? accountName;
+  final String? receiveAccountId;
+  final String? receiveAccountName;
+  const CloudSavingContribution(
+      {required this.syncId,
+      required this.planId,
+      required this.amount,
+      this.happenedAt,
+      this.note,
+      this.txSyncId,
+      this.accountId,
+      this.accountName,
+      this.receiveAccountId,
+      this.receiveAccountName});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['sync_id'] = Variable<String>(syncId);
+    map['plan_id'] = Variable<String>(planId);
+    map['amount'] = Variable<double>(amount);
+    if (!nullToAbsent || happenedAt != null) {
+      map['happened_at'] = Variable<DateTime>(happenedAt);
+    }
+    if (!nullToAbsent || note != null) {
+      map['note'] = Variable<String>(note);
+    }
+    if (!nullToAbsent || txSyncId != null) {
+      map['tx_sync_id'] = Variable<String>(txSyncId);
+    }
+    if (!nullToAbsent || accountId != null) {
+      map['account_id'] = Variable<String>(accountId);
+    }
+    if (!nullToAbsent || accountName != null) {
+      map['account_name'] = Variable<String>(accountName);
+    }
+    if (!nullToAbsent || receiveAccountId != null) {
+      map['receive_account_id'] = Variable<String>(receiveAccountId);
+    }
+    if (!nullToAbsent || receiveAccountName != null) {
+      map['receive_account_name'] = Variable<String>(receiveAccountName);
+    }
+    return map;
+  }
+
+  CloudSavingContributionsCompanion toCompanion(bool nullToAbsent) {
+    return CloudSavingContributionsCompanion(
+      syncId: Value(syncId),
+      planId: Value(planId),
+      amount: Value(amount),
+      happenedAt: happenedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(happenedAt),
+      note: note == null && nullToAbsent ? const Value.absent() : Value(note),
+      txSyncId: txSyncId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(txSyncId),
+      accountId: accountId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(accountId),
+      accountName: accountName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(accountName),
+      receiveAccountId: receiveAccountId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(receiveAccountId),
+      receiveAccountName: receiveAccountName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(receiveAccountName),
+    );
+  }
+
+  factory CloudSavingContribution.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CloudSavingContribution(
+      syncId: serializer.fromJson<String>(json['syncId']),
+      planId: serializer.fromJson<String>(json['planId']),
+      amount: serializer.fromJson<double>(json['amount']),
+      happenedAt: serializer.fromJson<DateTime?>(json['happenedAt']),
+      note: serializer.fromJson<String?>(json['note']),
+      txSyncId: serializer.fromJson<String?>(json['txSyncId']),
+      accountId: serializer.fromJson<String?>(json['accountId']),
+      accountName: serializer.fromJson<String?>(json['accountName']),
+      receiveAccountId: serializer.fromJson<String?>(json['receiveAccountId']),
+      receiveAccountName:
+          serializer.fromJson<String?>(json['receiveAccountName']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'syncId': serializer.toJson<String>(syncId),
+      'planId': serializer.toJson<String>(planId),
+      'amount': serializer.toJson<double>(amount),
+      'happenedAt': serializer.toJson<DateTime?>(happenedAt),
+      'note': serializer.toJson<String?>(note),
+      'txSyncId': serializer.toJson<String?>(txSyncId),
+      'accountId': serializer.toJson<String?>(accountId),
+      'accountName': serializer.toJson<String?>(accountName),
+      'receiveAccountId': serializer.toJson<String?>(receiveAccountId),
+      'receiveAccountName': serializer.toJson<String?>(receiveAccountName),
+    };
+  }
+
+  CloudSavingContribution copyWith(
+          {String? syncId,
+          String? planId,
+          double? amount,
+          Value<DateTime?> happenedAt = const Value.absent(),
+          Value<String?> note = const Value.absent(),
+          Value<String?> txSyncId = const Value.absent(),
+          Value<String?> accountId = const Value.absent(),
+          Value<String?> accountName = const Value.absent(),
+          Value<String?> receiveAccountId = const Value.absent(),
+          Value<String?> receiveAccountName = const Value.absent()}) =>
+      CloudSavingContribution(
+        syncId: syncId ?? this.syncId,
+        planId: planId ?? this.planId,
+        amount: amount ?? this.amount,
+        happenedAt: happenedAt.present ? happenedAt.value : this.happenedAt,
+        note: note.present ? note.value : this.note,
+        txSyncId: txSyncId.present ? txSyncId.value : this.txSyncId,
+        accountId: accountId.present ? accountId.value : this.accountId,
+        accountName: accountName.present ? accountName.value : this.accountName,
+        receiveAccountId: receiveAccountId.present
+            ? receiveAccountId.value
+            : this.receiveAccountId,
+        receiveAccountName: receiveAccountName.present
+            ? receiveAccountName.value
+            : this.receiveAccountName,
+      );
+  CloudSavingContribution copyWithCompanion(
+      CloudSavingContributionsCompanion data) {
+    return CloudSavingContribution(
+      syncId: data.syncId.present ? data.syncId.value : this.syncId,
+      planId: data.planId.present ? data.planId.value : this.planId,
+      amount: data.amount.present ? data.amount.value : this.amount,
+      happenedAt:
+          data.happenedAt.present ? data.happenedAt.value : this.happenedAt,
+      note: data.note.present ? data.note.value : this.note,
+      txSyncId: data.txSyncId.present ? data.txSyncId.value : this.txSyncId,
+      accountId: data.accountId.present ? data.accountId.value : this.accountId,
+      accountName:
+          data.accountName.present ? data.accountName.value : this.accountName,
+      receiveAccountId: data.receiveAccountId.present
+          ? data.receiveAccountId.value
+          : this.receiveAccountId,
+      receiveAccountName: data.receiveAccountName.present
+          ? data.receiveAccountName.value
+          : this.receiveAccountName,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CloudSavingContribution(')
+          ..write('syncId: $syncId, ')
+          ..write('planId: $planId, ')
+          ..write('amount: $amount, ')
+          ..write('happenedAt: $happenedAt, ')
+          ..write('note: $note, ')
+          ..write('txSyncId: $txSyncId, ')
+          ..write('accountId: $accountId, ')
+          ..write('accountName: $accountName, ')
+          ..write('receiveAccountId: $receiveAccountId, ')
+          ..write('receiveAccountName: $receiveAccountName')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(syncId, planId, amount, happenedAt, note,
+      txSyncId, accountId, accountName, receiveAccountId, receiveAccountName);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CloudSavingContribution &&
+          other.syncId == this.syncId &&
+          other.planId == this.planId &&
+          other.amount == this.amount &&
+          other.happenedAt == this.happenedAt &&
+          other.note == this.note &&
+          other.txSyncId == this.txSyncId &&
+          other.accountId == this.accountId &&
+          other.accountName == this.accountName &&
+          other.receiveAccountId == this.receiveAccountId &&
+          other.receiveAccountName == this.receiveAccountName);
+}
+
+class CloudSavingContributionsCompanion
+    extends UpdateCompanion<CloudSavingContribution> {
+  final Value<String> syncId;
+  final Value<String> planId;
+  final Value<double> amount;
+  final Value<DateTime?> happenedAt;
+  final Value<String?> note;
+  final Value<String?> txSyncId;
+  final Value<String?> accountId;
+  final Value<String?> accountName;
+  final Value<String?> receiveAccountId;
+  final Value<String?> receiveAccountName;
+  final Value<int> rowid;
+  const CloudSavingContributionsCompanion({
+    this.syncId = const Value.absent(),
+    this.planId = const Value.absent(),
+    this.amount = const Value.absent(),
+    this.happenedAt = const Value.absent(),
+    this.note = const Value.absent(),
+    this.txSyncId = const Value.absent(),
+    this.accountId = const Value.absent(),
+    this.accountName = const Value.absent(),
+    this.receiveAccountId = const Value.absent(),
+    this.receiveAccountName = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CloudSavingContributionsCompanion.insert({
+    required String syncId,
+    required String planId,
+    required double amount,
+    this.happenedAt = const Value.absent(),
+    this.note = const Value.absent(),
+    this.txSyncId = const Value.absent(),
+    this.accountId = const Value.absent(),
+    this.accountName = const Value.absent(),
+    this.receiveAccountId = const Value.absent(),
+    this.receiveAccountName = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : syncId = Value(syncId),
+        planId = Value(planId),
+        amount = Value(amount);
+  static Insertable<CloudSavingContribution> custom({
+    Expression<String>? syncId,
+    Expression<String>? planId,
+    Expression<double>? amount,
+    Expression<DateTime>? happenedAt,
+    Expression<String>? note,
+    Expression<String>? txSyncId,
+    Expression<String>? accountId,
+    Expression<String>? accountName,
+    Expression<String>? receiveAccountId,
+    Expression<String>? receiveAccountName,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (syncId != null) 'sync_id': syncId,
+      if (planId != null) 'plan_id': planId,
+      if (amount != null) 'amount': amount,
+      if (happenedAt != null) 'happened_at': happenedAt,
+      if (note != null) 'note': note,
+      if (txSyncId != null) 'tx_sync_id': txSyncId,
+      if (accountId != null) 'account_id': accountId,
+      if (accountName != null) 'account_name': accountName,
+      if (receiveAccountId != null) 'receive_account_id': receiveAccountId,
+      if (receiveAccountName != null)
+        'receive_account_name': receiveAccountName,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CloudSavingContributionsCompanion copyWith(
+      {Value<String>? syncId,
+      Value<String>? planId,
+      Value<double>? amount,
+      Value<DateTime?>? happenedAt,
+      Value<String?>? note,
+      Value<String?>? txSyncId,
+      Value<String?>? accountId,
+      Value<String?>? accountName,
+      Value<String?>? receiveAccountId,
+      Value<String?>? receiveAccountName,
+      Value<int>? rowid}) {
+    return CloudSavingContributionsCompanion(
+      syncId: syncId ?? this.syncId,
+      planId: planId ?? this.planId,
+      amount: amount ?? this.amount,
+      happenedAt: happenedAt ?? this.happenedAt,
+      note: note ?? this.note,
+      txSyncId: txSyncId ?? this.txSyncId,
+      accountId: accountId ?? this.accountId,
+      accountName: accountName ?? this.accountName,
+      receiveAccountId: receiveAccountId ?? this.receiveAccountId,
+      receiveAccountName: receiveAccountName ?? this.receiveAccountName,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (syncId.present) {
+      map['sync_id'] = Variable<String>(syncId.value);
+    }
+    if (planId.present) {
+      map['plan_id'] = Variable<String>(planId.value);
+    }
+    if (amount.present) {
+      map['amount'] = Variable<double>(amount.value);
+    }
+    if (happenedAt.present) {
+      map['happened_at'] = Variable<DateTime>(happenedAt.value);
+    }
+    if (note.present) {
+      map['note'] = Variable<String>(note.value);
+    }
+    if (txSyncId.present) {
+      map['tx_sync_id'] = Variable<String>(txSyncId.value);
+    }
+    if (accountId.present) {
+      map['account_id'] = Variable<String>(accountId.value);
+    }
+    if (accountName.present) {
+      map['account_name'] = Variable<String>(accountName.value);
+    }
+    if (receiveAccountId.present) {
+      map['receive_account_id'] = Variable<String>(receiveAccountId.value);
+    }
+    if (receiveAccountName.present) {
+      map['receive_account_name'] = Variable<String>(receiveAccountName.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CloudSavingContributionsCompanion(')
+          ..write('syncId: $syncId, ')
+          ..write('planId: $planId, ')
+          ..write('amount: $amount, ')
+          ..write('happenedAt: $happenedAt, ')
+          ..write('note: $note, ')
+          ..write('txSyncId: $txSyncId, ')
+          ..write('accountId: $accountId, ')
+          ..write('accountName: $accountName, ')
+          ..write('receiveAccountId: $receiveAccountId, ')
+          ..write('receiveAccountName: $receiveAccountName, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $CloudReimbursementsTable extends CloudReimbursements
+    with TableInfo<$CloudReimbursementsTable, CloudReimbursement> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CloudReimbursementsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _syncIdMeta = const VerificationMeta('syncId');
+  @override
+  late final GeneratedColumn<String> syncId = GeneratedColumn<String>(
+      'sync_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _amountMeta = const VerificationMeta('amount');
+  @override
+  late final GeneratedColumn<double> amount = GeneratedColumn<double>(
+      'amount', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _happenedAtMeta =
+      const VerificationMeta('happenedAt');
+  @override
+  late final GeneratedColumn<DateTime> happenedAt = GeneratedColumn<DateTime>(
+      'happened_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _noteMeta = const VerificationMeta('note');
+  @override
+  late final GeneratedColumn<String> note = GeneratedColumn<String>(
+      'note', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _iconMeta = const VerificationMeta('icon');
+  @override
+  late final GeneratedColumn<String> icon = GeneratedColumn<String>(
+      'icon', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _receiveAccountIdMeta =
+      const VerificationMeta('receiveAccountId');
+  @override
+  late final GeneratedColumn<String> receiveAccountId = GeneratedColumn<String>(
+      'receive_account_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _receiveAccountNameMeta =
+      const VerificationMeta('receiveAccountName');
+  @override
+  late final GeneratedColumn<String> receiveAccountName =
+      GeneratedColumn<String>('receive_account_name', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _companyIdMeta =
+      const VerificationMeta('companyId');
+  @override
+  late final GeneratedColumn<String> companyId = GeneratedColumn<String>(
+      'company_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _companyNameMeta =
+      const VerificationMeta('companyName');
+  @override
+  late final GeneratedColumn<String> companyName = GeneratedColumn<String>(
+      'company_name', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _txSyncIdMeta =
+      const VerificationMeta('txSyncId');
+  @override
+  late final GeneratedColumn<String> txSyncId = GeneratedColumn<String>(
+      'tx_sync_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        syncId,
+        amount,
+        happenedAt,
+        note,
+        icon,
+        receiveAccountId,
+        receiveAccountName,
+        companyId,
+        companyName,
+        txSyncId
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'cloud_reimbursements';
+  @override
+  VerificationContext validateIntegrity(Insertable<CloudReimbursement> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('sync_id')) {
+      context.handle(_syncIdMeta,
+          syncId.isAcceptableOrUnknown(data['sync_id']!, _syncIdMeta));
+    } else if (isInserting) {
+      context.missing(_syncIdMeta);
+    }
+    if (data.containsKey('amount')) {
+      context.handle(_amountMeta,
+          amount.isAcceptableOrUnknown(data['amount']!, _amountMeta));
+    } else if (isInserting) {
+      context.missing(_amountMeta);
+    }
+    if (data.containsKey('happened_at')) {
+      context.handle(
+          _happenedAtMeta,
+          happenedAt.isAcceptableOrUnknown(
+              data['happened_at']!, _happenedAtMeta));
+    }
+    if (data.containsKey('note')) {
+      context.handle(
+          _noteMeta, note.isAcceptableOrUnknown(data['note']!, _noteMeta));
+    }
+    if (data.containsKey('icon')) {
+      context.handle(
+          _iconMeta, icon.isAcceptableOrUnknown(data['icon']!, _iconMeta));
+    }
+    if (data.containsKey('receive_account_id')) {
+      context.handle(
+          _receiveAccountIdMeta,
+          receiveAccountId.isAcceptableOrUnknown(
+              data['receive_account_id']!, _receiveAccountIdMeta));
+    }
+    if (data.containsKey('receive_account_name')) {
+      context.handle(
+          _receiveAccountNameMeta,
+          receiveAccountName.isAcceptableOrUnknown(
+              data['receive_account_name']!, _receiveAccountNameMeta));
+    }
+    if (data.containsKey('company_id')) {
+      context.handle(_companyIdMeta,
+          companyId.isAcceptableOrUnknown(data['company_id']!, _companyIdMeta));
+    }
+    if (data.containsKey('company_name')) {
+      context.handle(
+          _companyNameMeta,
+          companyName.isAcceptableOrUnknown(
+              data['company_name']!, _companyNameMeta));
+    }
+    if (data.containsKey('tx_sync_id')) {
+      context.handle(_txSyncIdMeta,
+          txSyncId.isAcceptableOrUnknown(data['tx_sync_id']!, _txSyncIdMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {syncId};
+  @override
+  CloudReimbursement map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CloudReimbursement(
+      syncId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}sync_id'])!,
+      amount: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}amount'])!,
+      happenedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}happened_at']),
+      note: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}note']),
+      icon: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}icon']),
+      receiveAccountId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}receive_account_id']),
+      receiveAccountName: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}receive_account_name']),
+      companyId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}company_id']),
+      companyName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}company_name']),
+      txSyncId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}tx_sync_id']),
+    );
+  }
+
+  @override
+  $CloudReimbursementsTable createAlias(String alias) {
+    return $CloudReimbursementsTable(attachedDatabase, alias);
+  }
+}
+
+class CloudReimbursement extends DataClass
+    implements Insertable<CloudReimbursement> {
+  final String syncId;
+  final double amount;
+  final DateTime? happenedAt;
+  final String? note;
+  final String? icon;
+  final String? receiveAccountId;
+  final String? receiveAccountName;
+  final String? companyId;
+  final String? companyName;
+  final String? txSyncId;
+  const CloudReimbursement(
+      {required this.syncId,
+      required this.amount,
+      this.happenedAt,
+      this.note,
+      this.icon,
+      this.receiveAccountId,
+      this.receiveAccountName,
+      this.companyId,
+      this.companyName,
+      this.txSyncId});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['sync_id'] = Variable<String>(syncId);
+    map['amount'] = Variable<double>(amount);
+    if (!nullToAbsent || happenedAt != null) {
+      map['happened_at'] = Variable<DateTime>(happenedAt);
+    }
+    if (!nullToAbsent || note != null) {
+      map['note'] = Variable<String>(note);
+    }
+    if (!nullToAbsent || icon != null) {
+      map['icon'] = Variable<String>(icon);
+    }
+    if (!nullToAbsent || receiveAccountId != null) {
+      map['receive_account_id'] = Variable<String>(receiveAccountId);
+    }
+    if (!nullToAbsent || receiveAccountName != null) {
+      map['receive_account_name'] = Variable<String>(receiveAccountName);
+    }
+    if (!nullToAbsent || companyId != null) {
+      map['company_id'] = Variable<String>(companyId);
+    }
+    if (!nullToAbsent || companyName != null) {
+      map['company_name'] = Variable<String>(companyName);
+    }
+    if (!nullToAbsent || txSyncId != null) {
+      map['tx_sync_id'] = Variable<String>(txSyncId);
+    }
+    return map;
+  }
+
+  CloudReimbursementsCompanion toCompanion(bool nullToAbsent) {
+    return CloudReimbursementsCompanion(
+      syncId: Value(syncId),
+      amount: Value(amount),
+      happenedAt: happenedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(happenedAt),
+      note: note == null && nullToAbsent ? const Value.absent() : Value(note),
+      icon: icon == null && nullToAbsent ? const Value.absent() : Value(icon),
+      receiveAccountId: receiveAccountId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(receiveAccountId),
+      receiveAccountName: receiveAccountName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(receiveAccountName),
+      companyId: companyId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(companyId),
+      companyName: companyName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(companyName),
+      txSyncId: txSyncId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(txSyncId),
+    );
+  }
+
+  factory CloudReimbursement.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CloudReimbursement(
+      syncId: serializer.fromJson<String>(json['syncId']),
+      amount: serializer.fromJson<double>(json['amount']),
+      happenedAt: serializer.fromJson<DateTime?>(json['happenedAt']),
+      note: serializer.fromJson<String?>(json['note']),
+      icon: serializer.fromJson<String?>(json['icon']),
+      receiveAccountId: serializer.fromJson<String?>(json['receiveAccountId']),
+      receiveAccountName:
+          serializer.fromJson<String?>(json['receiveAccountName']),
+      companyId: serializer.fromJson<String?>(json['companyId']),
+      companyName: serializer.fromJson<String?>(json['companyName']),
+      txSyncId: serializer.fromJson<String?>(json['txSyncId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'syncId': serializer.toJson<String>(syncId),
+      'amount': serializer.toJson<double>(amount),
+      'happenedAt': serializer.toJson<DateTime?>(happenedAt),
+      'note': serializer.toJson<String?>(note),
+      'icon': serializer.toJson<String?>(icon),
+      'receiveAccountId': serializer.toJson<String?>(receiveAccountId),
+      'receiveAccountName': serializer.toJson<String?>(receiveAccountName),
+      'companyId': serializer.toJson<String?>(companyId),
+      'companyName': serializer.toJson<String?>(companyName),
+      'txSyncId': serializer.toJson<String?>(txSyncId),
+    };
+  }
+
+  CloudReimbursement copyWith(
+          {String? syncId,
+          double? amount,
+          Value<DateTime?> happenedAt = const Value.absent(),
+          Value<String?> note = const Value.absent(),
+          Value<String?> icon = const Value.absent(),
+          Value<String?> receiveAccountId = const Value.absent(),
+          Value<String?> receiveAccountName = const Value.absent(),
+          Value<String?> companyId = const Value.absent(),
+          Value<String?> companyName = const Value.absent(),
+          Value<String?> txSyncId = const Value.absent()}) =>
+      CloudReimbursement(
+        syncId: syncId ?? this.syncId,
+        amount: amount ?? this.amount,
+        happenedAt: happenedAt.present ? happenedAt.value : this.happenedAt,
+        note: note.present ? note.value : this.note,
+        icon: icon.present ? icon.value : this.icon,
+        receiveAccountId: receiveAccountId.present
+            ? receiveAccountId.value
+            : this.receiveAccountId,
+        receiveAccountName: receiveAccountName.present
+            ? receiveAccountName.value
+            : this.receiveAccountName,
+        companyId: companyId.present ? companyId.value : this.companyId,
+        companyName: companyName.present ? companyName.value : this.companyName,
+        txSyncId: txSyncId.present ? txSyncId.value : this.txSyncId,
+      );
+  CloudReimbursement copyWithCompanion(CloudReimbursementsCompanion data) {
+    return CloudReimbursement(
+      syncId: data.syncId.present ? data.syncId.value : this.syncId,
+      amount: data.amount.present ? data.amount.value : this.amount,
+      happenedAt:
+          data.happenedAt.present ? data.happenedAt.value : this.happenedAt,
+      note: data.note.present ? data.note.value : this.note,
+      icon: data.icon.present ? data.icon.value : this.icon,
+      receiveAccountId: data.receiveAccountId.present
+          ? data.receiveAccountId.value
+          : this.receiveAccountId,
+      receiveAccountName: data.receiveAccountName.present
+          ? data.receiveAccountName.value
+          : this.receiveAccountName,
+      companyId: data.companyId.present ? data.companyId.value : this.companyId,
+      companyName:
+          data.companyName.present ? data.companyName.value : this.companyName,
+      txSyncId: data.txSyncId.present ? data.txSyncId.value : this.txSyncId,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CloudReimbursement(')
+          ..write('syncId: $syncId, ')
+          ..write('amount: $amount, ')
+          ..write('happenedAt: $happenedAt, ')
+          ..write('note: $note, ')
+          ..write('icon: $icon, ')
+          ..write('receiveAccountId: $receiveAccountId, ')
+          ..write('receiveAccountName: $receiveAccountName, ')
+          ..write('companyId: $companyId, ')
+          ..write('companyName: $companyName, ')
+          ..write('txSyncId: $txSyncId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(syncId, amount, happenedAt, note, icon,
+      receiveAccountId, receiveAccountName, companyId, companyName, txSyncId);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CloudReimbursement &&
+          other.syncId == this.syncId &&
+          other.amount == this.amount &&
+          other.happenedAt == this.happenedAt &&
+          other.note == this.note &&
+          other.icon == this.icon &&
+          other.receiveAccountId == this.receiveAccountId &&
+          other.receiveAccountName == this.receiveAccountName &&
+          other.companyId == this.companyId &&
+          other.companyName == this.companyName &&
+          other.txSyncId == this.txSyncId);
+}
+
+class CloudReimbursementsCompanion extends UpdateCompanion<CloudReimbursement> {
+  final Value<String> syncId;
+  final Value<double> amount;
+  final Value<DateTime?> happenedAt;
+  final Value<String?> note;
+  final Value<String?> icon;
+  final Value<String?> receiveAccountId;
+  final Value<String?> receiveAccountName;
+  final Value<String?> companyId;
+  final Value<String?> companyName;
+  final Value<String?> txSyncId;
+  final Value<int> rowid;
+  const CloudReimbursementsCompanion({
+    this.syncId = const Value.absent(),
+    this.amount = const Value.absent(),
+    this.happenedAt = const Value.absent(),
+    this.note = const Value.absent(),
+    this.icon = const Value.absent(),
+    this.receiveAccountId = const Value.absent(),
+    this.receiveAccountName = const Value.absent(),
+    this.companyId = const Value.absent(),
+    this.companyName = const Value.absent(),
+    this.txSyncId = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CloudReimbursementsCompanion.insert({
+    required String syncId,
+    required double amount,
+    this.happenedAt = const Value.absent(),
+    this.note = const Value.absent(),
+    this.icon = const Value.absent(),
+    this.receiveAccountId = const Value.absent(),
+    this.receiveAccountName = const Value.absent(),
+    this.companyId = const Value.absent(),
+    this.companyName = const Value.absent(),
+    this.txSyncId = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : syncId = Value(syncId),
+        amount = Value(amount);
+  static Insertable<CloudReimbursement> custom({
+    Expression<String>? syncId,
+    Expression<double>? amount,
+    Expression<DateTime>? happenedAt,
+    Expression<String>? note,
+    Expression<String>? icon,
+    Expression<String>? receiveAccountId,
+    Expression<String>? receiveAccountName,
+    Expression<String>? companyId,
+    Expression<String>? companyName,
+    Expression<String>? txSyncId,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (syncId != null) 'sync_id': syncId,
+      if (amount != null) 'amount': amount,
+      if (happenedAt != null) 'happened_at': happenedAt,
+      if (note != null) 'note': note,
+      if (icon != null) 'icon': icon,
+      if (receiveAccountId != null) 'receive_account_id': receiveAccountId,
+      if (receiveAccountName != null)
+        'receive_account_name': receiveAccountName,
+      if (companyId != null) 'company_id': companyId,
+      if (companyName != null) 'company_name': companyName,
+      if (txSyncId != null) 'tx_sync_id': txSyncId,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CloudReimbursementsCompanion copyWith(
+      {Value<String>? syncId,
+      Value<double>? amount,
+      Value<DateTime?>? happenedAt,
+      Value<String?>? note,
+      Value<String?>? icon,
+      Value<String?>? receiveAccountId,
+      Value<String?>? receiveAccountName,
+      Value<String?>? companyId,
+      Value<String?>? companyName,
+      Value<String?>? txSyncId,
+      Value<int>? rowid}) {
+    return CloudReimbursementsCompanion(
+      syncId: syncId ?? this.syncId,
+      amount: amount ?? this.amount,
+      happenedAt: happenedAt ?? this.happenedAt,
+      note: note ?? this.note,
+      icon: icon ?? this.icon,
+      receiveAccountId: receiveAccountId ?? this.receiveAccountId,
+      receiveAccountName: receiveAccountName ?? this.receiveAccountName,
+      companyId: companyId ?? this.companyId,
+      companyName: companyName ?? this.companyName,
+      txSyncId: txSyncId ?? this.txSyncId,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (syncId.present) {
+      map['sync_id'] = Variable<String>(syncId.value);
+    }
+    if (amount.present) {
+      map['amount'] = Variable<double>(amount.value);
+    }
+    if (happenedAt.present) {
+      map['happened_at'] = Variable<DateTime>(happenedAt.value);
+    }
+    if (note.present) {
+      map['note'] = Variable<String>(note.value);
+    }
+    if (icon.present) {
+      map['icon'] = Variable<String>(icon.value);
+    }
+    if (receiveAccountId.present) {
+      map['receive_account_id'] = Variable<String>(receiveAccountId.value);
+    }
+    if (receiveAccountName.present) {
+      map['receive_account_name'] = Variable<String>(receiveAccountName.value);
+    }
+    if (companyId.present) {
+      map['company_id'] = Variable<String>(companyId.value);
+    }
+    if (companyName.present) {
+      map['company_name'] = Variable<String>(companyName.value);
+    }
+    if (txSyncId.present) {
+      map['tx_sync_id'] = Variable<String>(txSyncId.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CloudReimbursementsCompanion(')
+          ..write('syncId: $syncId, ')
+          ..write('amount: $amount, ')
+          ..write('happenedAt: $happenedAt, ')
+          ..write('note: $note, ')
+          ..write('icon: $icon, ')
+          ..write('receiveAccountId: $receiveAccountId, ')
+          ..write('receiveAccountName: $receiveAccountName, ')
+          ..write('companyId: $companyId, ')
+          ..write('companyName: $companyName, ')
+          ..write('txSyncId: $txSyncId, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $CloudReimbursementItemsTable extends CloudReimbursementItems
+    with TableInfo<$CloudReimbursementItemsTable, CloudReimbursementItem> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CloudReimbursementItemsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _syncIdMeta = const VerificationMeta('syncId');
+  @override
+  late final GeneratedColumn<String> syncId = GeneratedColumn<String>(
+      'sync_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _txSyncIdMeta =
+      const VerificationMeta('txSyncId');
+  @override
+  late final GeneratedColumn<String> txSyncId = GeneratedColumn<String>(
+      'tx_sync_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _amountMeta = const VerificationMeta('amount');
+  @override
+  late final GeneratedColumn<double> amount = GeneratedColumn<double>(
+      'amount', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _happenedAtMeta =
+      const VerificationMeta('happenedAt');
+  @override
+  late final GeneratedColumn<DateTime> happenedAt = GeneratedColumn<DateTime>(
+      'happened_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _noteMeta = const VerificationMeta('note');
+  @override
+  late final GeneratedColumn<String> note = GeneratedColumn<String>(
+      'note', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _categoryNameMeta =
+      const VerificationMeta('categoryName');
+  @override
+  late final GeneratedColumn<String> categoryName = GeneratedColumn<String>(
+      'category_name', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _accountIdMeta =
+      const VerificationMeta('accountId');
+  @override
+  late final GeneratedColumn<String> accountId = GeneratedColumn<String>(
+      'account_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _accountNameMeta =
+      const VerificationMeta('accountName');
+  @override
+  late final GeneratedColumn<String> accountName = GeneratedColumn<String>(
+      'account_name', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _companyIdMeta =
+      const VerificationMeta('companyId');
+  @override
+  late final GeneratedColumn<String> companyId = GeneratedColumn<String>(
+      'company_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _companyNameMeta =
+      const VerificationMeta('companyName');
+  @override
+  late final GeneratedColumn<String> companyName = GeneratedColumn<String>(
+      'company_name', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+      'status', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _reimbursementIdMeta =
+      const VerificationMeta('reimbursementId');
+  @override
+  late final GeneratedColumn<String> reimbursementId = GeneratedColumn<String>(
+      'reimbursement_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        syncId,
+        txSyncId,
+        amount,
+        happenedAt,
+        note,
+        categoryName,
+        accountId,
+        accountName,
+        companyId,
+        companyName,
+        status,
+        reimbursementId
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'cloud_reimbursement_items';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<CloudReimbursementItem> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('sync_id')) {
+      context.handle(_syncIdMeta,
+          syncId.isAcceptableOrUnknown(data['sync_id']!, _syncIdMeta));
+    } else if (isInserting) {
+      context.missing(_syncIdMeta);
+    }
+    if (data.containsKey('tx_sync_id')) {
+      context.handle(_txSyncIdMeta,
+          txSyncId.isAcceptableOrUnknown(data['tx_sync_id']!, _txSyncIdMeta));
+    }
+    if (data.containsKey('amount')) {
+      context.handle(_amountMeta,
+          amount.isAcceptableOrUnknown(data['amount']!, _amountMeta));
+    } else if (isInserting) {
+      context.missing(_amountMeta);
+    }
+    if (data.containsKey('happened_at')) {
+      context.handle(
+          _happenedAtMeta,
+          happenedAt.isAcceptableOrUnknown(
+              data['happened_at']!, _happenedAtMeta));
+    }
+    if (data.containsKey('note')) {
+      context.handle(
+          _noteMeta, note.isAcceptableOrUnknown(data['note']!, _noteMeta));
+    }
+    if (data.containsKey('category_name')) {
+      context.handle(
+          _categoryNameMeta,
+          categoryName.isAcceptableOrUnknown(
+              data['category_name']!, _categoryNameMeta));
+    }
+    if (data.containsKey('account_id')) {
+      context.handle(_accountIdMeta,
+          accountId.isAcceptableOrUnknown(data['account_id']!, _accountIdMeta));
+    }
+    if (data.containsKey('account_name')) {
+      context.handle(
+          _accountNameMeta,
+          accountName.isAcceptableOrUnknown(
+              data['account_name']!, _accountNameMeta));
+    }
+    if (data.containsKey('company_id')) {
+      context.handle(_companyIdMeta,
+          companyId.isAcceptableOrUnknown(data['company_id']!, _companyIdMeta));
+    }
+    if (data.containsKey('company_name')) {
+      context.handle(
+          _companyNameMeta,
+          companyName.isAcceptableOrUnknown(
+              data['company_name']!, _companyNameMeta));
+    }
+    if (data.containsKey('status')) {
+      context.handle(_statusMeta,
+          status.isAcceptableOrUnknown(data['status']!, _statusMeta));
+    }
+    if (data.containsKey('reimbursement_id')) {
+      context.handle(
+          _reimbursementIdMeta,
+          reimbursementId.isAcceptableOrUnknown(
+              data['reimbursement_id']!, _reimbursementIdMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {syncId};
+  @override
+  CloudReimbursementItem map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CloudReimbursementItem(
+      syncId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}sync_id'])!,
+      txSyncId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}tx_sync_id']),
+      amount: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}amount'])!,
+      happenedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}happened_at']),
+      note: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}note']),
+      categoryName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}category_name']),
+      accountId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}account_id']),
+      accountName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}account_name']),
+      companyId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}company_id']),
+      companyName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}company_name']),
+      status: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}status']),
+      reimbursementId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}reimbursement_id']),
+    );
+  }
+
+  @override
+  $CloudReimbursementItemsTable createAlias(String alias) {
+    return $CloudReimbursementItemsTable(attachedDatabase, alias);
+  }
+}
+
+class CloudReimbursementItem extends DataClass
+    implements Insertable<CloudReimbursementItem> {
+  final String syncId;
+  final String? txSyncId;
+  final double amount;
+  final DateTime? happenedAt;
+  final String? note;
+  final String? categoryName;
+  final String? accountId;
+  final String? accountName;
+  final String? companyId;
+  final String? companyName;
+  final String? status;
+  final String? reimbursementId;
+  const CloudReimbursementItem(
+      {required this.syncId,
+      this.txSyncId,
+      required this.amount,
+      this.happenedAt,
+      this.note,
+      this.categoryName,
+      this.accountId,
+      this.accountName,
+      this.companyId,
+      this.companyName,
+      this.status,
+      this.reimbursementId});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['sync_id'] = Variable<String>(syncId);
+    if (!nullToAbsent || txSyncId != null) {
+      map['tx_sync_id'] = Variable<String>(txSyncId);
+    }
+    map['amount'] = Variable<double>(amount);
+    if (!nullToAbsent || happenedAt != null) {
+      map['happened_at'] = Variable<DateTime>(happenedAt);
+    }
+    if (!nullToAbsent || note != null) {
+      map['note'] = Variable<String>(note);
+    }
+    if (!nullToAbsent || categoryName != null) {
+      map['category_name'] = Variable<String>(categoryName);
+    }
+    if (!nullToAbsent || accountId != null) {
+      map['account_id'] = Variable<String>(accountId);
+    }
+    if (!nullToAbsent || accountName != null) {
+      map['account_name'] = Variable<String>(accountName);
+    }
+    if (!nullToAbsent || companyId != null) {
+      map['company_id'] = Variable<String>(companyId);
+    }
+    if (!nullToAbsent || companyName != null) {
+      map['company_name'] = Variable<String>(companyName);
+    }
+    if (!nullToAbsent || status != null) {
+      map['status'] = Variable<String>(status);
+    }
+    if (!nullToAbsent || reimbursementId != null) {
+      map['reimbursement_id'] = Variable<String>(reimbursementId);
+    }
+    return map;
+  }
+
+  CloudReimbursementItemsCompanion toCompanion(bool nullToAbsent) {
+    return CloudReimbursementItemsCompanion(
+      syncId: Value(syncId),
+      txSyncId: txSyncId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(txSyncId),
+      amount: Value(amount),
+      happenedAt: happenedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(happenedAt),
+      note: note == null && nullToAbsent ? const Value.absent() : Value(note),
+      categoryName: categoryName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(categoryName),
+      accountId: accountId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(accountId),
+      accountName: accountName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(accountName),
+      companyId: companyId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(companyId),
+      companyName: companyName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(companyName),
+      status:
+          status == null && nullToAbsent ? const Value.absent() : Value(status),
+      reimbursementId: reimbursementId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(reimbursementId),
+    );
+  }
+
+  factory CloudReimbursementItem.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CloudReimbursementItem(
+      syncId: serializer.fromJson<String>(json['syncId']),
+      txSyncId: serializer.fromJson<String?>(json['txSyncId']),
+      amount: serializer.fromJson<double>(json['amount']),
+      happenedAt: serializer.fromJson<DateTime?>(json['happenedAt']),
+      note: serializer.fromJson<String?>(json['note']),
+      categoryName: serializer.fromJson<String?>(json['categoryName']),
+      accountId: serializer.fromJson<String?>(json['accountId']),
+      accountName: serializer.fromJson<String?>(json['accountName']),
+      companyId: serializer.fromJson<String?>(json['companyId']),
+      companyName: serializer.fromJson<String?>(json['companyName']),
+      status: serializer.fromJson<String?>(json['status']),
+      reimbursementId: serializer.fromJson<String?>(json['reimbursementId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'syncId': serializer.toJson<String>(syncId),
+      'txSyncId': serializer.toJson<String?>(txSyncId),
+      'amount': serializer.toJson<double>(amount),
+      'happenedAt': serializer.toJson<DateTime?>(happenedAt),
+      'note': serializer.toJson<String?>(note),
+      'categoryName': serializer.toJson<String?>(categoryName),
+      'accountId': serializer.toJson<String?>(accountId),
+      'accountName': serializer.toJson<String?>(accountName),
+      'companyId': serializer.toJson<String?>(companyId),
+      'companyName': serializer.toJson<String?>(companyName),
+      'status': serializer.toJson<String?>(status),
+      'reimbursementId': serializer.toJson<String?>(reimbursementId),
+    };
+  }
+
+  CloudReimbursementItem copyWith(
+          {String? syncId,
+          Value<String?> txSyncId = const Value.absent(),
+          double? amount,
+          Value<DateTime?> happenedAt = const Value.absent(),
+          Value<String?> note = const Value.absent(),
+          Value<String?> categoryName = const Value.absent(),
+          Value<String?> accountId = const Value.absent(),
+          Value<String?> accountName = const Value.absent(),
+          Value<String?> companyId = const Value.absent(),
+          Value<String?> companyName = const Value.absent(),
+          Value<String?> status = const Value.absent(),
+          Value<String?> reimbursementId = const Value.absent()}) =>
+      CloudReimbursementItem(
+        syncId: syncId ?? this.syncId,
+        txSyncId: txSyncId.present ? txSyncId.value : this.txSyncId,
+        amount: amount ?? this.amount,
+        happenedAt: happenedAt.present ? happenedAt.value : this.happenedAt,
+        note: note.present ? note.value : this.note,
+        categoryName:
+            categoryName.present ? categoryName.value : this.categoryName,
+        accountId: accountId.present ? accountId.value : this.accountId,
+        accountName: accountName.present ? accountName.value : this.accountName,
+        companyId: companyId.present ? companyId.value : this.companyId,
+        companyName: companyName.present ? companyName.value : this.companyName,
+        status: status.present ? status.value : this.status,
+        reimbursementId: reimbursementId.present
+            ? reimbursementId.value
+            : this.reimbursementId,
+      );
+  CloudReimbursementItem copyWithCompanion(
+      CloudReimbursementItemsCompanion data) {
+    return CloudReimbursementItem(
+      syncId: data.syncId.present ? data.syncId.value : this.syncId,
+      txSyncId: data.txSyncId.present ? data.txSyncId.value : this.txSyncId,
+      amount: data.amount.present ? data.amount.value : this.amount,
+      happenedAt:
+          data.happenedAt.present ? data.happenedAt.value : this.happenedAt,
+      note: data.note.present ? data.note.value : this.note,
+      categoryName: data.categoryName.present
+          ? data.categoryName.value
+          : this.categoryName,
+      accountId: data.accountId.present ? data.accountId.value : this.accountId,
+      accountName:
+          data.accountName.present ? data.accountName.value : this.accountName,
+      companyId: data.companyId.present ? data.companyId.value : this.companyId,
+      companyName:
+          data.companyName.present ? data.companyName.value : this.companyName,
+      status: data.status.present ? data.status.value : this.status,
+      reimbursementId: data.reimbursementId.present
+          ? data.reimbursementId.value
+          : this.reimbursementId,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CloudReimbursementItem(')
+          ..write('syncId: $syncId, ')
+          ..write('txSyncId: $txSyncId, ')
+          ..write('amount: $amount, ')
+          ..write('happenedAt: $happenedAt, ')
+          ..write('note: $note, ')
+          ..write('categoryName: $categoryName, ')
+          ..write('accountId: $accountId, ')
+          ..write('accountName: $accountName, ')
+          ..write('companyId: $companyId, ')
+          ..write('companyName: $companyName, ')
+          ..write('status: $status, ')
+          ..write('reimbursementId: $reimbursementId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      syncId,
+      txSyncId,
+      amount,
+      happenedAt,
+      note,
+      categoryName,
+      accountId,
+      accountName,
+      companyId,
+      companyName,
+      status,
+      reimbursementId);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CloudReimbursementItem &&
+          other.syncId == this.syncId &&
+          other.txSyncId == this.txSyncId &&
+          other.amount == this.amount &&
+          other.happenedAt == this.happenedAt &&
+          other.note == this.note &&
+          other.categoryName == this.categoryName &&
+          other.accountId == this.accountId &&
+          other.accountName == this.accountName &&
+          other.companyId == this.companyId &&
+          other.companyName == this.companyName &&
+          other.status == this.status &&
+          other.reimbursementId == this.reimbursementId);
+}
+
+class CloudReimbursementItemsCompanion
+    extends UpdateCompanion<CloudReimbursementItem> {
+  final Value<String> syncId;
+  final Value<String?> txSyncId;
+  final Value<double> amount;
+  final Value<DateTime?> happenedAt;
+  final Value<String?> note;
+  final Value<String?> categoryName;
+  final Value<String?> accountId;
+  final Value<String?> accountName;
+  final Value<String?> companyId;
+  final Value<String?> companyName;
+  final Value<String?> status;
+  final Value<String?> reimbursementId;
+  final Value<int> rowid;
+  const CloudReimbursementItemsCompanion({
+    this.syncId = const Value.absent(),
+    this.txSyncId = const Value.absent(),
+    this.amount = const Value.absent(),
+    this.happenedAt = const Value.absent(),
+    this.note = const Value.absent(),
+    this.categoryName = const Value.absent(),
+    this.accountId = const Value.absent(),
+    this.accountName = const Value.absent(),
+    this.companyId = const Value.absent(),
+    this.companyName = const Value.absent(),
+    this.status = const Value.absent(),
+    this.reimbursementId = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CloudReimbursementItemsCompanion.insert({
+    required String syncId,
+    this.txSyncId = const Value.absent(),
+    required double amount,
+    this.happenedAt = const Value.absent(),
+    this.note = const Value.absent(),
+    this.categoryName = const Value.absent(),
+    this.accountId = const Value.absent(),
+    this.accountName = const Value.absent(),
+    this.companyId = const Value.absent(),
+    this.companyName = const Value.absent(),
+    this.status = const Value.absent(),
+    this.reimbursementId = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : syncId = Value(syncId),
+        amount = Value(amount);
+  static Insertable<CloudReimbursementItem> custom({
+    Expression<String>? syncId,
+    Expression<String>? txSyncId,
+    Expression<double>? amount,
+    Expression<DateTime>? happenedAt,
+    Expression<String>? note,
+    Expression<String>? categoryName,
+    Expression<String>? accountId,
+    Expression<String>? accountName,
+    Expression<String>? companyId,
+    Expression<String>? companyName,
+    Expression<String>? status,
+    Expression<String>? reimbursementId,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (syncId != null) 'sync_id': syncId,
+      if (txSyncId != null) 'tx_sync_id': txSyncId,
+      if (amount != null) 'amount': amount,
+      if (happenedAt != null) 'happened_at': happenedAt,
+      if (note != null) 'note': note,
+      if (categoryName != null) 'category_name': categoryName,
+      if (accountId != null) 'account_id': accountId,
+      if (accountName != null) 'account_name': accountName,
+      if (companyId != null) 'company_id': companyId,
+      if (companyName != null) 'company_name': companyName,
+      if (status != null) 'status': status,
+      if (reimbursementId != null) 'reimbursement_id': reimbursementId,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CloudReimbursementItemsCompanion copyWith(
+      {Value<String>? syncId,
+      Value<String?>? txSyncId,
+      Value<double>? amount,
+      Value<DateTime?>? happenedAt,
+      Value<String?>? note,
+      Value<String?>? categoryName,
+      Value<String?>? accountId,
+      Value<String?>? accountName,
+      Value<String?>? companyId,
+      Value<String?>? companyName,
+      Value<String?>? status,
+      Value<String?>? reimbursementId,
+      Value<int>? rowid}) {
+    return CloudReimbursementItemsCompanion(
+      syncId: syncId ?? this.syncId,
+      txSyncId: txSyncId ?? this.txSyncId,
+      amount: amount ?? this.amount,
+      happenedAt: happenedAt ?? this.happenedAt,
+      note: note ?? this.note,
+      categoryName: categoryName ?? this.categoryName,
+      accountId: accountId ?? this.accountId,
+      accountName: accountName ?? this.accountName,
+      companyId: companyId ?? this.companyId,
+      companyName: companyName ?? this.companyName,
+      status: status ?? this.status,
+      reimbursementId: reimbursementId ?? this.reimbursementId,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (syncId.present) {
+      map['sync_id'] = Variable<String>(syncId.value);
+    }
+    if (txSyncId.present) {
+      map['tx_sync_id'] = Variable<String>(txSyncId.value);
+    }
+    if (amount.present) {
+      map['amount'] = Variable<double>(amount.value);
+    }
+    if (happenedAt.present) {
+      map['happened_at'] = Variable<DateTime>(happenedAt.value);
+    }
+    if (note.present) {
+      map['note'] = Variable<String>(note.value);
+    }
+    if (categoryName.present) {
+      map['category_name'] = Variable<String>(categoryName.value);
+    }
+    if (accountId.present) {
+      map['account_id'] = Variable<String>(accountId.value);
+    }
+    if (accountName.present) {
+      map['account_name'] = Variable<String>(accountName.value);
+    }
+    if (companyId.present) {
+      map['company_id'] = Variable<String>(companyId.value);
+    }
+    if (companyName.present) {
+      map['company_name'] = Variable<String>(companyName.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (reimbursementId.present) {
+      map['reimbursement_id'] = Variable<String>(reimbursementId.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CloudReimbursementItemsCompanion(')
+          ..write('syncId: $syncId, ')
+          ..write('txSyncId: $txSyncId, ')
+          ..write('amount: $amount, ')
+          ..write('happenedAt: $happenedAt, ')
+          ..write('note: $note, ')
+          ..write('categoryName: $categoryName, ')
+          ..write('accountId: $accountId, ')
+          ..write('accountName: $accountName, ')
+          ..write('companyId: $companyId, ')
+          ..write('companyName: $companyName, ')
+          ..write('status: $status, ')
+          ..write('reimbursementId: $reimbursementId, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $CloudCompaniesTable extends CloudCompanies
+    with TableInfo<$CloudCompaniesTable, CloudCompany> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CloudCompaniesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _syncIdMeta = const VerificationMeta('syncId');
+  @override
+  late final GeneratedColumn<String> syncId = GeneratedColumn<String>(
+      'sync_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+      'name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _noteMeta = const VerificationMeta('note');
+  @override
+  late final GeneratedColumn<String> note = GeneratedColumn<String>(
+      'note', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [syncId, name, note];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'cloud_companies';
+  @override
+  VerificationContext validateIntegrity(Insertable<CloudCompany> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('sync_id')) {
+      context.handle(_syncIdMeta,
+          syncId.isAcceptableOrUnknown(data['sync_id']!, _syncIdMeta));
+    } else if (isInserting) {
+      context.missing(_syncIdMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('note')) {
+      context.handle(
+          _noteMeta, note.isAcceptableOrUnknown(data['note']!, _noteMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {syncId};
+  @override
+  CloudCompany map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CloudCompany(
+      syncId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}sync_id'])!,
+      name: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      note: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}note']),
+    );
+  }
+
+  @override
+  $CloudCompaniesTable createAlias(String alias) {
+    return $CloudCompaniesTable(attachedDatabase, alias);
+  }
+}
+
+class CloudCompany extends DataClass implements Insertable<CloudCompany> {
+  final String syncId;
+  final String name;
+  final String? note;
+  const CloudCompany({required this.syncId, required this.name, this.note});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['sync_id'] = Variable<String>(syncId);
+    map['name'] = Variable<String>(name);
+    if (!nullToAbsent || note != null) {
+      map['note'] = Variable<String>(note);
+    }
+    return map;
+  }
+
+  CloudCompaniesCompanion toCompanion(bool nullToAbsent) {
+    return CloudCompaniesCompanion(
+      syncId: Value(syncId),
+      name: Value(name),
+      note: note == null && nullToAbsent ? const Value.absent() : Value(note),
+    );
+  }
+
+  factory CloudCompany.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CloudCompany(
+      syncId: serializer.fromJson<String>(json['syncId']),
+      name: serializer.fromJson<String>(json['name']),
+      note: serializer.fromJson<String?>(json['note']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'syncId': serializer.toJson<String>(syncId),
+      'name': serializer.toJson<String>(name),
+      'note': serializer.toJson<String?>(note),
+    };
+  }
+
+  CloudCompany copyWith(
+          {String? syncId,
+          String? name,
+          Value<String?> note = const Value.absent()}) =>
+      CloudCompany(
+        syncId: syncId ?? this.syncId,
+        name: name ?? this.name,
+        note: note.present ? note.value : this.note,
+      );
+  CloudCompany copyWithCompanion(CloudCompaniesCompanion data) {
+    return CloudCompany(
+      syncId: data.syncId.present ? data.syncId.value : this.syncId,
+      name: data.name.present ? data.name.value : this.name,
+      note: data.note.present ? data.note.value : this.note,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CloudCompany(')
+          ..write('syncId: $syncId, ')
+          ..write('name: $name, ')
+          ..write('note: $note')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(syncId, name, note);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CloudCompany &&
+          other.syncId == this.syncId &&
+          other.name == this.name &&
+          other.note == this.note);
+}
+
+class CloudCompaniesCompanion extends UpdateCompanion<CloudCompany> {
+  final Value<String> syncId;
+  final Value<String> name;
+  final Value<String?> note;
+  final Value<int> rowid;
+  const CloudCompaniesCompanion({
+    this.syncId = const Value.absent(),
+    this.name = const Value.absent(),
+    this.note = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CloudCompaniesCompanion.insert({
+    required String syncId,
+    required String name,
+    this.note = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : syncId = Value(syncId),
+        name = Value(name);
+  static Insertable<CloudCompany> custom({
+    Expression<String>? syncId,
+    Expression<String>? name,
+    Expression<String>? note,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (syncId != null) 'sync_id': syncId,
+      if (name != null) 'name': name,
+      if (note != null) 'note': note,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CloudCompaniesCompanion copyWith(
+      {Value<String>? syncId,
+      Value<String>? name,
+      Value<String?>? note,
+      Value<int>? rowid}) {
+    return CloudCompaniesCompanion(
+      syncId: syncId ?? this.syncId,
+      name: name ?? this.name,
+      note: note ?? this.note,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (syncId.present) {
+      map['sync_id'] = Variable<String>(syncId.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (note.present) {
+      map['note'] = Variable<String>(note.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CloudCompaniesCompanion(')
+          ..write('syncId: $syncId, ')
+          ..write('name: $name, ')
+          ..write('note: $note, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $CloudItemsTable extends CloudItems
+    with TableInfo<$CloudItemsTable, CloudItem> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CloudItemsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _syncIdMeta = const VerificationMeta('syncId');
+  @override
+  late final GeneratedColumn<String> syncId = GeneratedColumn<String>(
+      'sync_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+      'name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _priceMeta = const VerificationMeta('price');
+  @override
+  late final GeneratedColumn<double> price = GeneratedColumn<double>(
+      'price', aliasedName, true,
+      type: DriftSqlType.double, requiredDuringInsert: false);
+  static const VerificationMeta _purchasedAtMeta =
+      const VerificationMeta('purchasedAt');
+  @override
+  late final GeneratedColumn<DateTime> purchasedAt = GeneratedColumn<DateTime>(
+      'purchased_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _purchaseChannelMeta =
+      const VerificationMeta('purchaseChannel');
+  @override
+  late final GeneratedColumn<String> purchaseChannel = GeneratedColumn<String>(
+      'purchase_channel', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _categoryNameMeta =
+      const VerificationMeta('categoryName');
+  @override
+  late final GeneratedColumn<String> categoryName = GeneratedColumn<String>(
+      'category_name', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _locationMeta =
+      const VerificationMeta('location');
+  @override
+  late final GeneratedColumn<String> location = GeneratedColumn<String>(
+      'location', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _linkModeMeta =
+      const VerificationMeta('linkMode');
+  @override
+  late final GeneratedColumn<String> linkMode = GeneratedColumn<String>(
+      'link_mode', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _txSyncIdsJsonMeta =
+      const VerificationMeta('txSyncIdsJson');
+  @override
+  late final GeneratedColumn<String> txSyncIdsJson = GeneratedColumn<String>(
+      'tx_sync_ids_json', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _accountIdMeta =
+      const VerificationMeta('accountId');
+  @override
+  late final GeneratedColumn<String> accountId = GeneratedColumn<String>(
+      'account_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _averageModeMeta =
+      const VerificationMeta('averageMode');
+  @override
+  late final GeneratedColumn<String> averageMode = GeneratedColumn<String>(
+      'average_mode', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _noteMeta = const VerificationMeta('note');
+  @override
+  late final GeneratedColumn<String> note = GeneratedColumn<String>(
+      'note', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        syncId,
+        name,
+        price,
+        purchasedAt,
+        purchaseChannel,
+        categoryName,
+        location,
+        linkMode,
+        txSyncIdsJson,
+        accountId,
+        averageMode,
+        note
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'cloud_items';
+  @override
+  VerificationContext validateIntegrity(Insertable<CloudItem> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('sync_id')) {
+      context.handle(_syncIdMeta,
+          syncId.isAcceptableOrUnknown(data['sync_id']!, _syncIdMeta));
+    } else if (isInserting) {
+      context.missing(_syncIdMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('price')) {
+      context.handle(
+          _priceMeta, price.isAcceptableOrUnknown(data['price']!, _priceMeta));
+    }
+    if (data.containsKey('purchased_at')) {
+      context.handle(
+          _purchasedAtMeta,
+          purchasedAt.isAcceptableOrUnknown(
+              data['purchased_at']!, _purchasedAtMeta));
+    }
+    if (data.containsKey('purchase_channel')) {
+      context.handle(
+          _purchaseChannelMeta,
+          purchaseChannel.isAcceptableOrUnknown(
+              data['purchase_channel']!, _purchaseChannelMeta));
+    }
+    if (data.containsKey('category_name')) {
+      context.handle(
+          _categoryNameMeta,
+          categoryName.isAcceptableOrUnknown(
+              data['category_name']!, _categoryNameMeta));
+    }
+    if (data.containsKey('location')) {
+      context.handle(_locationMeta,
+          location.isAcceptableOrUnknown(data['location']!, _locationMeta));
+    }
+    if (data.containsKey('link_mode')) {
+      context.handle(_linkModeMeta,
+          linkMode.isAcceptableOrUnknown(data['link_mode']!, _linkModeMeta));
+    }
+    if (data.containsKey('tx_sync_ids_json')) {
+      context.handle(
+          _txSyncIdsJsonMeta,
+          txSyncIdsJson.isAcceptableOrUnknown(
+              data['tx_sync_ids_json']!, _txSyncIdsJsonMeta));
+    }
+    if (data.containsKey('account_id')) {
+      context.handle(_accountIdMeta,
+          accountId.isAcceptableOrUnknown(data['account_id']!, _accountIdMeta));
+    }
+    if (data.containsKey('average_mode')) {
+      context.handle(
+          _averageModeMeta,
+          averageMode.isAcceptableOrUnknown(
+              data['average_mode']!, _averageModeMeta));
+    }
+    if (data.containsKey('note')) {
+      context.handle(
+          _noteMeta, note.isAcceptableOrUnknown(data['note']!, _noteMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {syncId};
+  @override
+  CloudItem map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CloudItem(
+      syncId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}sync_id'])!,
+      name: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      price: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}price']),
+      purchasedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}purchased_at']),
+      purchaseChannel: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}purchase_channel']),
+      categoryName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}category_name']),
+      location: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}location']),
+      linkMode: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}link_mode']),
+      txSyncIdsJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}tx_sync_ids_json']),
+      accountId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}account_id']),
+      averageMode: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}average_mode']),
+      note: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}note']),
+    );
+  }
+
+  @override
+  $CloudItemsTable createAlias(String alias) {
+    return $CloudItemsTable(attachedDatabase, alias);
+  }
+}
+
+class CloudItem extends DataClass implements Insertable<CloudItem> {
+  final String syncId;
+  final String name;
+  final double? price;
+  final DateTime? purchasedAt;
+  final String? purchaseChannel;
+  final String? categoryName;
+  final String? location;
+  final String? linkMode;
+  final String? txSyncIdsJson;
+  final String? accountId;
+  final String? averageMode;
+  final String? note;
+  const CloudItem(
+      {required this.syncId,
+      required this.name,
+      this.price,
+      this.purchasedAt,
+      this.purchaseChannel,
+      this.categoryName,
+      this.location,
+      this.linkMode,
+      this.txSyncIdsJson,
+      this.accountId,
+      this.averageMode,
+      this.note});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['sync_id'] = Variable<String>(syncId);
+    map['name'] = Variable<String>(name);
+    if (!nullToAbsent || price != null) {
+      map['price'] = Variable<double>(price);
+    }
+    if (!nullToAbsent || purchasedAt != null) {
+      map['purchased_at'] = Variable<DateTime>(purchasedAt);
+    }
+    if (!nullToAbsent || purchaseChannel != null) {
+      map['purchase_channel'] = Variable<String>(purchaseChannel);
+    }
+    if (!nullToAbsent || categoryName != null) {
+      map['category_name'] = Variable<String>(categoryName);
+    }
+    if (!nullToAbsent || location != null) {
+      map['location'] = Variable<String>(location);
+    }
+    if (!nullToAbsent || linkMode != null) {
+      map['link_mode'] = Variable<String>(linkMode);
+    }
+    if (!nullToAbsent || txSyncIdsJson != null) {
+      map['tx_sync_ids_json'] = Variable<String>(txSyncIdsJson);
+    }
+    if (!nullToAbsent || accountId != null) {
+      map['account_id'] = Variable<String>(accountId);
+    }
+    if (!nullToAbsent || averageMode != null) {
+      map['average_mode'] = Variable<String>(averageMode);
+    }
+    if (!nullToAbsent || note != null) {
+      map['note'] = Variable<String>(note);
+    }
+    return map;
+  }
+
+  CloudItemsCompanion toCompanion(bool nullToAbsent) {
+    return CloudItemsCompanion(
+      syncId: Value(syncId),
+      name: Value(name),
+      price:
+          price == null && nullToAbsent ? const Value.absent() : Value(price),
+      purchasedAt: purchasedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(purchasedAt),
+      purchaseChannel: purchaseChannel == null && nullToAbsent
+          ? const Value.absent()
+          : Value(purchaseChannel),
+      categoryName: categoryName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(categoryName),
+      location: location == null && nullToAbsent
+          ? const Value.absent()
+          : Value(location),
+      linkMode: linkMode == null && nullToAbsent
+          ? const Value.absent()
+          : Value(linkMode),
+      txSyncIdsJson: txSyncIdsJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(txSyncIdsJson),
+      accountId: accountId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(accountId),
+      averageMode: averageMode == null && nullToAbsent
+          ? const Value.absent()
+          : Value(averageMode),
+      note: note == null && nullToAbsent ? const Value.absent() : Value(note),
+    );
+  }
+
+  factory CloudItem.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CloudItem(
+      syncId: serializer.fromJson<String>(json['syncId']),
+      name: serializer.fromJson<String>(json['name']),
+      price: serializer.fromJson<double?>(json['price']),
+      purchasedAt: serializer.fromJson<DateTime?>(json['purchasedAt']),
+      purchaseChannel: serializer.fromJson<String?>(json['purchaseChannel']),
+      categoryName: serializer.fromJson<String?>(json['categoryName']),
+      location: serializer.fromJson<String?>(json['location']),
+      linkMode: serializer.fromJson<String?>(json['linkMode']),
+      txSyncIdsJson: serializer.fromJson<String?>(json['txSyncIdsJson']),
+      accountId: serializer.fromJson<String?>(json['accountId']),
+      averageMode: serializer.fromJson<String?>(json['averageMode']),
+      note: serializer.fromJson<String?>(json['note']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'syncId': serializer.toJson<String>(syncId),
+      'name': serializer.toJson<String>(name),
+      'price': serializer.toJson<double?>(price),
+      'purchasedAt': serializer.toJson<DateTime?>(purchasedAt),
+      'purchaseChannel': serializer.toJson<String?>(purchaseChannel),
+      'categoryName': serializer.toJson<String?>(categoryName),
+      'location': serializer.toJson<String?>(location),
+      'linkMode': serializer.toJson<String?>(linkMode),
+      'txSyncIdsJson': serializer.toJson<String?>(txSyncIdsJson),
+      'accountId': serializer.toJson<String?>(accountId),
+      'averageMode': serializer.toJson<String?>(averageMode),
+      'note': serializer.toJson<String?>(note),
+    };
+  }
+
+  CloudItem copyWith(
+          {String? syncId,
+          String? name,
+          Value<double?> price = const Value.absent(),
+          Value<DateTime?> purchasedAt = const Value.absent(),
+          Value<String?> purchaseChannel = const Value.absent(),
+          Value<String?> categoryName = const Value.absent(),
+          Value<String?> location = const Value.absent(),
+          Value<String?> linkMode = const Value.absent(),
+          Value<String?> txSyncIdsJson = const Value.absent(),
+          Value<String?> accountId = const Value.absent(),
+          Value<String?> averageMode = const Value.absent(),
+          Value<String?> note = const Value.absent()}) =>
+      CloudItem(
+        syncId: syncId ?? this.syncId,
+        name: name ?? this.name,
+        price: price.present ? price.value : this.price,
+        purchasedAt: purchasedAt.present ? purchasedAt.value : this.purchasedAt,
+        purchaseChannel: purchaseChannel.present
+            ? purchaseChannel.value
+            : this.purchaseChannel,
+        categoryName:
+            categoryName.present ? categoryName.value : this.categoryName,
+        location: location.present ? location.value : this.location,
+        linkMode: linkMode.present ? linkMode.value : this.linkMode,
+        txSyncIdsJson:
+            txSyncIdsJson.present ? txSyncIdsJson.value : this.txSyncIdsJson,
+        accountId: accountId.present ? accountId.value : this.accountId,
+        averageMode: averageMode.present ? averageMode.value : this.averageMode,
+        note: note.present ? note.value : this.note,
+      );
+  CloudItem copyWithCompanion(CloudItemsCompanion data) {
+    return CloudItem(
+      syncId: data.syncId.present ? data.syncId.value : this.syncId,
+      name: data.name.present ? data.name.value : this.name,
+      price: data.price.present ? data.price.value : this.price,
+      purchasedAt:
+          data.purchasedAt.present ? data.purchasedAt.value : this.purchasedAt,
+      purchaseChannel: data.purchaseChannel.present
+          ? data.purchaseChannel.value
+          : this.purchaseChannel,
+      categoryName: data.categoryName.present
+          ? data.categoryName.value
+          : this.categoryName,
+      location: data.location.present ? data.location.value : this.location,
+      linkMode: data.linkMode.present ? data.linkMode.value : this.linkMode,
+      txSyncIdsJson: data.txSyncIdsJson.present
+          ? data.txSyncIdsJson.value
+          : this.txSyncIdsJson,
+      accountId: data.accountId.present ? data.accountId.value : this.accountId,
+      averageMode:
+          data.averageMode.present ? data.averageMode.value : this.averageMode,
+      note: data.note.present ? data.note.value : this.note,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CloudItem(')
+          ..write('syncId: $syncId, ')
+          ..write('name: $name, ')
+          ..write('price: $price, ')
+          ..write('purchasedAt: $purchasedAt, ')
+          ..write('purchaseChannel: $purchaseChannel, ')
+          ..write('categoryName: $categoryName, ')
+          ..write('location: $location, ')
+          ..write('linkMode: $linkMode, ')
+          ..write('txSyncIdsJson: $txSyncIdsJson, ')
+          ..write('accountId: $accountId, ')
+          ..write('averageMode: $averageMode, ')
+          ..write('note: $note')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      syncId,
+      name,
+      price,
+      purchasedAt,
+      purchaseChannel,
+      categoryName,
+      location,
+      linkMode,
+      txSyncIdsJson,
+      accountId,
+      averageMode,
+      note);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CloudItem &&
+          other.syncId == this.syncId &&
+          other.name == this.name &&
+          other.price == this.price &&
+          other.purchasedAt == this.purchasedAt &&
+          other.purchaseChannel == this.purchaseChannel &&
+          other.categoryName == this.categoryName &&
+          other.location == this.location &&
+          other.linkMode == this.linkMode &&
+          other.txSyncIdsJson == this.txSyncIdsJson &&
+          other.accountId == this.accountId &&
+          other.averageMode == this.averageMode &&
+          other.note == this.note);
+}
+
+class CloudItemsCompanion extends UpdateCompanion<CloudItem> {
+  final Value<String> syncId;
+  final Value<String> name;
+  final Value<double?> price;
+  final Value<DateTime?> purchasedAt;
+  final Value<String?> purchaseChannel;
+  final Value<String?> categoryName;
+  final Value<String?> location;
+  final Value<String?> linkMode;
+  final Value<String?> txSyncIdsJson;
+  final Value<String?> accountId;
+  final Value<String?> averageMode;
+  final Value<String?> note;
+  final Value<int> rowid;
+  const CloudItemsCompanion({
+    this.syncId = const Value.absent(),
+    this.name = const Value.absent(),
+    this.price = const Value.absent(),
+    this.purchasedAt = const Value.absent(),
+    this.purchaseChannel = const Value.absent(),
+    this.categoryName = const Value.absent(),
+    this.location = const Value.absent(),
+    this.linkMode = const Value.absent(),
+    this.txSyncIdsJson = const Value.absent(),
+    this.accountId = const Value.absent(),
+    this.averageMode = const Value.absent(),
+    this.note = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CloudItemsCompanion.insert({
+    required String syncId,
+    required String name,
+    this.price = const Value.absent(),
+    this.purchasedAt = const Value.absent(),
+    this.purchaseChannel = const Value.absent(),
+    this.categoryName = const Value.absent(),
+    this.location = const Value.absent(),
+    this.linkMode = const Value.absent(),
+    this.txSyncIdsJson = const Value.absent(),
+    this.accountId = const Value.absent(),
+    this.averageMode = const Value.absent(),
+    this.note = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : syncId = Value(syncId),
+        name = Value(name);
+  static Insertable<CloudItem> custom({
+    Expression<String>? syncId,
+    Expression<String>? name,
+    Expression<double>? price,
+    Expression<DateTime>? purchasedAt,
+    Expression<String>? purchaseChannel,
+    Expression<String>? categoryName,
+    Expression<String>? location,
+    Expression<String>? linkMode,
+    Expression<String>? txSyncIdsJson,
+    Expression<String>? accountId,
+    Expression<String>? averageMode,
+    Expression<String>? note,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (syncId != null) 'sync_id': syncId,
+      if (name != null) 'name': name,
+      if (price != null) 'price': price,
+      if (purchasedAt != null) 'purchased_at': purchasedAt,
+      if (purchaseChannel != null) 'purchase_channel': purchaseChannel,
+      if (categoryName != null) 'category_name': categoryName,
+      if (location != null) 'location': location,
+      if (linkMode != null) 'link_mode': linkMode,
+      if (txSyncIdsJson != null) 'tx_sync_ids_json': txSyncIdsJson,
+      if (accountId != null) 'account_id': accountId,
+      if (averageMode != null) 'average_mode': averageMode,
+      if (note != null) 'note': note,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CloudItemsCompanion copyWith(
+      {Value<String>? syncId,
+      Value<String>? name,
+      Value<double?>? price,
+      Value<DateTime?>? purchasedAt,
+      Value<String?>? purchaseChannel,
+      Value<String?>? categoryName,
+      Value<String?>? location,
+      Value<String?>? linkMode,
+      Value<String?>? txSyncIdsJson,
+      Value<String?>? accountId,
+      Value<String?>? averageMode,
+      Value<String?>? note,
+      Value<int>? rowid}) {
+    return CloudItemsCompanion(
+      syncId: syncId ?? this.syncId,
+      name: name ?? this.name,
+      price: price ?? this.price,
+      purchasedAt: purchasedAt ?? this.purchasedAt,
+      purchaseChannel: purchaseChannel ?? this.purchaseChannel,
+      categoryName: categoryName ?? this.categoryName,
+      location: location ?? this.location,
+      linkMode: linkMode ?? this.linkMode,
+      txSyncIdsJson: txSyncIdsJson ?? this.txSyncIdsJson,
+      accountId: accountId ?? this.accountId,
+      averageMode: averageMode ?? this.averageMode,
+      note: note ?? this.note,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (syncId.present) {
+      map['sync_id'] = Variable<String>(syncId.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (price.present) {
+      map['price'] = Variable<double>(price.value);
+    }
+    if (purchasedAt.present) {
+      map['purchased_at'] = Variable<DateTime>(purchasedAt.value);
+    }
+    if (purchaseChannel.present) {
+      map['purchase_channel'] = Variable<String>(purchaseChannel.value);
+    }
+    if (categoryName.present) {
+      map['category_name'] = Variable<String>(categoryName.value);
+    }
+    if (location.present) {
+      map['location'] = Variable<String>(location.value);
+    }
+    if (linkMode.present) {
+      map['link_mode'] = Variable<String>(linkMode.value);
+    }
+    if (txSyncIdsJson.present) {
+      map['tx_sync_ids_json'] = Variable<String>(txSyncIdsJson.value);
+    }
+    if (accountId.present) {
+      map['account_id'] = Variable<String>(accountId.value);
+    }
+    if (averageMode.present) {
+      map['average_mode'] = Variable<String>(averageMode.value);
+    }
+    if (note.present) {
+      map['note'] = Variable<String>(note.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CloudItemsCompanion(')
+          ..write('syncId: $syncId, ')
+          ..write('name: $name, ')
+          ..write('price: $price, ')
+          ..write('purchasedAt: $purchasedAt, ')
+          ..write('purchaseChannel: $purchaseChannel, ')
+          ..write('categoryName: $categoryName, ')
+          ..write('location: $location, ')
+          ..write('linkMode: $linkMode, ')
+          ..write('txSyncIdsJson: $txSyncIdsJson, ')
+          ..write('accountId: $accountId, ')
+          ..write('averageMode: $averageMode, ')
+          ..write('note: $note, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $CloudItemFlowsTable extends CloudItemFlows
+    with TableInfo<$CloudItemFlowsTable, CloudItemFlow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CloudItemFlowsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _syncIdMeta = const VerificationMeta('syncId');
+  @override
+  late final GeneratedColumn<String> syncId = GeneratedColumn<String>(
+      'sync_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _itemIdMeta = const VerificationMeta('itemId');
+  @override
+  late final GeneratedColumn<String> itemId = GeneratedColumn<String>(
+      'item_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _flowTypeMeta =
+      const VerificationMeta('flowType');
+  @override
+  late final GeneratedColumn<String> flowType = GeneratedColumn<String>(
+      'flow_type', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _amountMeta = const VerificationMeta('amount');
+  @override
+  late final GeneratedColumn<double> amount = GeneratedColumn<double>(
+      'amount', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _happenedAtMeta =
+      const VerificationMeta('happenedAt');
+  @override
+  late final GeneratedColumn<DateTime> happenedAt = GeneratedColumn<DateTime>(
+      'happened_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _categoryNameMeta =
+      const VerificationMeta('categoryName');
+  @override
+  late final GeneratedColumn<String> categoryName = GeneratedColumn<String>(
+      'category_name', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _noteMeta = const VerificationMeta('note');
+  @override
+  late final GeneratedColumn<String> note = GeneratedColumn<String>(
+      'note', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _txSyncIdsJsonMeta =
+      const VerificationMeta('txSyncIdsJson');
+  @override
+  late final GeneratedColumn<String> txSyncIdsJson = GeneratedColumn<String>(
+      'tx_sync_ids_json', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        syncId,
+        itemId,
+        flowType,
+        amount,
+        happenedAt,
+        categoryName,
+        note,
+        txSyncIdsJson
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'cloud_item_flows';
+  @override
+  VerificationContext validateIntegrity(Insertable<CloudItemFlow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('sync_id')) {
+      context.handle(_syncIdMeta,
+          syncId.isAcceptableOrUnknown(data['sync_id']!, _syncIdMeta));
+    } else if (isInserting) {
+      context.missing(_syncIdMeta);
+    }
+    if (data.containsKey('item_id')) {
+      context.handle(_itemIdMeta,
+          itemId.isAcceptableOrUnknown(data['item_id']!, _itemIdMeta));
+    } else if (isInserting) {
+      context.missing(_itemIdMeta);
+    }
+    if (data.containsKey('flow_type')) {
+      context.handle(_flowTypeMeta,
+          flowType.isAcceptableOrUnknown(data['flow_type']!, _flowTypeMeta));
+    } else if (isInserting) {
+      context.missing(_flowTypeMeta);
+    }
+    if (data.containsKey('amount')) {
+      context.handle(_amountMeta,
+          amount.isAcceptableOrUnknown(data['amount']!, _amountMeta));
+    } else if (isInserting) {
+      context.missing(_amountMeta);
+    }
+    if (data.containsKey('happened_at')) {
+      context.handle(
+          _happenedAtMeta,
+          happenedAt.isAcceptableOrUnknown(
+              data['happened_at']!, _happenedAtMeta));
+    }
+    if (data.containsKey('category_name')) {
+      context.handle(
+          _categoryNameMeta,
+          categoryName.isAcceptableOrUnknown(
+              data['category_name']!, _categoryNameMeta));
+    }
+    if (data.containsKey('note')) {
+      context.handle(
+          _noteMeta, note.isAcceptableOrUnknown(data['note']!, _noteMeta));
+    }
+    if (data.containsKey('tx_sync_ids_json')) {
+      context.handle(
+          _txSyncIdsJsonMeta,
+          txSyncIdsJson.isAcceptableOrUnknown(
+              data['tx_sync_ids_json']!, _txSyncIdsJsonMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {syncId};
+  @override
+  CloudItemFlow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CloudItemFlow(
+      syncId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}sync_id'])!,
+      itemId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}item_id'])!,
+      flowType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}flow_type'])!,
+      amount: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}amount'])!,
+      happenedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}happened_at']),
+      categoryName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}category_name']),
+      note: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}note']),
+      txSyncIdsJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}tx_sync_ids_json']),
+    );
+  }
+
+  @override
+  $CloudItemFlowsTable createAlias(String alias) {
+    return $CloudItemFlowsTable(attachedDatabase, alias);
+  }
+}
+
+class CloudItemFlow extends DataClass implements Insertable<CloudItemFlow> {
+  final String syncId;
+  final String itemId;
+  final String flowType;
+  final double amount;
+  final DateTime? happenedAt;
+  final String? categoryName;
+  final String? note;
+  final String? txSyncIdsJson;
+  const CloudItemFlow(
+      {required this.syncId,
+      required this.itemId,
+      required this.flowType,
+      required this.amount,
+      this.happenedAt,
+      this.categoryName,
+      this.note,
+      this.txSyncIdsJson});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['sync_id'] = Variable<String>(syncId);
+    map['item_id'] = Variable<String>(itemId);
+    map['flow_type'] = Variable<String>(flowType);
+    map['amount'] = Variable<double>(amount);
+    if (!nullToAbsent || happenedAt != null) {
+      map['happened_at'] = Variable<DateTime>(happenedAt);
+    }
+    if (!nullToAbsent || categoryName != null) {
+      map['category_name'] = Variable<String>(categoryName);
+    }
+    if (!nullToAbsent || note != null) {
+      map['note'] = Variable<String>(note);
+    }
+    if (!nullToAbsent || txSyncIdsJson != null) {
+      map['tx_sync_ids_json'] = Variable<String>(txSyncIdsJson);
+    }
+    return map;
+  }
+
+  CloudItemFlowsCompanion toCompanion(bool nullToAbsent) {
+    return CloudItemFlowsCompanion(
+      syncId: Value(syncId),
+      itemId: Value(itemId),
+      flowType: Value(flowType),
+      amount: Value(amount),
+      happenedAt: happenedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(happenedAt),
+      categoryName: categoryName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(categoryName),
+      note: note == null && nullToAbsent ? const Value.absent() : Value(note),
+      txSyncIdsJson: txSyncIdsJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(txSyncIdsJson),
+    );
+  }
+
+  factory CloudItemFlow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CloudItemFlow(
+      syncId: serializer.fromJson<String>(json['syncId']),
+      itemId: serializer.fromJson<String>(json['itemId']),
+      flowType: serializer.fromJson<String>(json['flowType']),
+      amount: serializer.fromJson<double>(json['amount']),
+      happenedAt: serializer.fromJson<DateTime?>(json['happenedAt']),
+      categoryName: serializer.fromJson<String?>(json['categoryName']),
+      note: serializer.fromJson<String?>(json['note']),
+      txSyncIdsJson: serializer.fromJson<String?>(json['txSyncIdsJson']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'syncId': serializer.toJson<String>(syncId),
+      'itemId': serializer.toJson<String>(itemId),
+      'flowType': serializer.toJson<String>(flowType),
+      'amount': serializer.toJson<double>(amount),
+      'happenedAt': serializer.toJson<DateTime?>(happenedAt),
+      'categoryName': serializer.toJson<String?>(categoryName),
+      'note': serializer.toJson<String?>(note),
+      'txSyncIdsJson': serializer.toJson<String?>(txSyncIdsJson),
+    };
+  }
+
+  CloudItemFlow copyWith(
+          {String? syncId,
+          String? itemId,
+          String? flowType,
+          double? amount,
+          Value<DateTime?> happenedAt = const Value.absent(),
+          Value<String?> categoryName = const Value.absent(),
+          Value<String?> note = const Value.absent(),
+          Value<String?> txSyncIdsJson = const Value.absent()}) =>
+      CloudItemFlow(
+        syncId: syncId ?? this.syncId,
+        itemId: itemId ?? this.itemId,
+        flowType: flowType ?? this.flowType,
+        amount: amount ?? this.amount,
+        happenedAt: happenedAt.present ? happenedAt.value : this.happenedAt,
+        categoryName:
+            categoryName.present ? categoryName.value : this.categoryName,
+        note: note.present ? note.value : this.note,
+        txSyncIdsJson:
+            txSyncIdsJson.present ? txSyncIdsJson.value : this.txSyncIdsJson,
+      );
+  CloudItemFlow copyWithCompanion(CloudItemFlowsCompanion data) {
+    return CloudItemFlow(
+      syncId: data.syncId.present ? data.syncId.value : this.syncId,
+      itemId: data.itemId.present ? data.itemId.value : this.itemId,
+      flowType: data.flowType.present ? data.flowType.value : this.flowType,
+      amount: data.amount.present ? data.amount.value : this.amount,
+      happenedAt:
+          data.happenedAt.present ? data.happenedAt.value : this.happenedAt,
+      categoryName: data.categoryName.present
+          ? data.categoryName.value
+          : this.categoryName,
+      note: data.note.present ? data.note.value : this.note,
+      txSyncIdsJson: data.txSyncIdsJson.present
+          ? data.txSyncIdsJson.value
+          : this.txSyncIdsJson,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CloudItemFlow(')
+          ..write('syncId: $syncId, ')
+          ..write('itemId: $itemId, ')
+          ..write('flowType: $flowType, ')
+          ..write('amount: $amount, ')
+          ..write('happenedAt: $happenedAt, ')
+          ..write('categoryName: $categoryName, ')
+          ..write('note: $note, ')
+          ..write('txSyncIdsJson: $txSyncIdsJson')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(syncId, itemId, flowType, amount, happenedAt,
+      categoryName, note, txSyncIdsJson);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CloudItemFlow &&
+          other.syncId == this.syncId &&
+          other.itemId == this.itemId &&
+          other.flowType == this.flowType &&
+          other.amount == this.amount &&
+          other.happenedAt == this.happenedAt &&
+          other.categoryName == this.categoryName &&
+          other.note == this.note &&
+          other.txSyncIdsJson == this.txSyncIdsJson);
+}
+
+class CloudItemFlowsCompanion extends UpdateCompanion<CloudItemFlow> {
+  final Value<String> syncId;
+  final Value<String> itemId;
+  final Value<String> flowType;
+  final Value<double> amount;
+  final Value<DateTime?> happenedAt;
+  final Value<String?> categoryName;
+  final Value<String?> note;
+  final Value<String?> txSyncIdsJson;
+  final Value<int> rowid;
+  const CloudItemFlowsCompanion({
+    this.syncId = const Value.absent(),
+    this.itemId = const Value.absent(),
+    this.flowType = const Value.absent(),
+    this.amount = const Value.absent(),
+    this.happenedAt = const Value.absent(),
+    this.categoryName = const Value.absent(),
+    this.note = const Value.absent(),
+    this.txSyncIdsJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CloudItemFlowsCompanion.insert({
+    required String syncId,
+    required String itemId,
+    required String flowType,
+    required double amount,
+    this.happenedAt = const Value.absent(),
+    this.categoryName = const Value.absent(),
+    this.note = const Value.absent(),
+    this.txSyncIdsJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : syncId = Value(syncId),
+        itemId = Value(itemId),
+        flowType = Value(flowType),
+        amount = Value(amount);
+  static Insertable<CloudItemFlow> custom({
+    Expression<String>? syncId,
+    Expression<String>? itemId,
+    Expression<String>? flowType,
+    Expression<double>? amount,
+    Expression<DateTime>? happenedAt,
+    Expression<String>? categoryName,
+    Expression<String>? note,
+    Expression<String>? txSyncIdsJson,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (syncId != null) 'sync_id': syncId,
+      if (itemId != null) 'item_id': itemId,
+      if (flowType != null) 'flow_type': flowType,
+      if (amount != null) 'amount': amount,
+      if (happenedAt != null) 'happened_at': happenedAt,
+      if (categoryName != null) 'category_name': categoryName,
+      if (note != null) 'note': note,
+      if (txSyncIdsJson != null) 'tx_sync_ids_json': txSyncIdsJson,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CloudItemFlowsCompanion copyWith(
+      {Value<String>? syncId,
+      Value<String>? itemId,
+      Value<String>? flowType,
+      Value<double>? amount,
+      Value<DateTime?>? happenedAt,
+      Value<String?>? categoryName,
+      Value<String?>? note,
+      Value<String?>? txSyncIdsJson,
+      Value<int>? rowid}) {
+    return CloudItemFlowsCompanion(
+      syncId: syncId ?? this.syncId,
+      itemId: itemId ?? this.itemId,
+      flowType: flowType ?? this.flowType,
+      amount: amount ?? this.amount,
+      happenedAt: happenedAt ?? this.happenedAt,
+      categoryName: categoryName ?? this.categoryName,
+      note: note ?? this.note,
+      txSyncIdsJson: txSyncIdsJson ?? this.txSyncIdsJson,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (syncId.present) {
+      map['sync_id'] = Variable<String>(syncId.value);
+    }
+    if (itemId.present) {
+      map['item_id'] = Variable<String>(itemId.value);
+    }
+    if (flowType.present) {
+      map['flow_type'] = Variable<String>(flowType.value);
+    }
+    if (amount.present) {
+      map['amount'] = Variable<double>(amount.value);
+    }
+    if (happenedAt.present) {
+      map['happened_at'] = Variable<DateTime>(happenedAt.value);
+    }
+    if (categoryName.present) {
+      map['category_name'] = Variable<String>(categoryName.value);
+    }
+    if (note.present) {
+      map['note'] = Variable<String>(note.value);
+    }
+    if (txSyncIdsJson.present) {
+      map['tx_sync_ids_json'] = Variable<String>(txSyncIdsJson.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CloudItemFlowsCompanion(')
+          ..write('syncId: $syncId, ')
+          ..write('itemId: $itemId, ')
+          ..write('flowType: $flowType, ')
+          ..write('amount: $amount, ')
+          ..write('happenedAt: $happenedAt, ')
+          ..write('categoryName: $categoryName, ')
+          ..write('note: $note, ')
+          ..write('txSyncIdsJson: $txSyncIdsJson, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $CloudDepositsTable extends CloudDeposits
+    with TableInfo<$CloudDepositsTable, CloudDeposit> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CloudDepositsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _syncIdMeta = const VerificationMeta('syncId');
+  @override
+  late final GeneratedColumn<String> syncId = GeneratedColumn<String>(
+      'sync_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+      'name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _depositTypeMeta =
+      const VerificationMeta('depositType');
+  @override
+  late final GeneratedColumn<String> depositType = GeneratedColumn<String>(
+      'deposit_type', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _principalMeta =
+      const VerificationMeta('principal');
+  @override
+  late final GeneratedColumn<double> principal = GeneratedColumn<double>(
+      'principal', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _currencyCodeMeta =
+      const VerificationMeta('currencyCode');
+  @override
+  late final GeneratedColumn<String> currencyCode = GeneratedColumn<String>(
+      'currency_code', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _startedAtMeta =
+      const VerificationMeta('startedAt');
+  @override
+  late final GeneratedColumn<DateTime> startedAt = GeneratedColumn<DateTime>(
+      'started_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _termMonthsMeta =
+      const VerificationMeta('termMonths');
+  @override
+  late final GeneratedColumn<int> termMonths = GeneratedColumn<int>(
+      'term_months', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _annualRateMeta =
+      const VerificationMeta('annualRate');
+  @override
+  late final GeneratedColumn<double> annualRate = GeneratedColumn<double>(
+      'annual_rate', aliasedName, true,
+      type: DriftSqlType.double, requiredDuringInsert: false);
+  static const VerificationMeta _maturityAtMeta =
+      const VerificationMeta('maturityAt');
+  @override
+  late final GeneratedColumn<String> maturityAt = GeneratedColumn<String>(
+      'maturity_at', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _onMaturityMeta =
+      const VerificationMeta('onMaturity');
+  @override
+  late final GeneratedColumn<String> onMaturity = GeneratedColumn<String>(
+      'on_maturity', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+      'status', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _accountIdMeta =
+      const VerificationMeta('accountId');
+  @override
+  late final GeneratedColumn<String> accountId = GeneratedColumn<String>(
+      'account_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _flowTxSyncIdMeta =
+      const VerificationMeta('flowTxSyncId');
+  @override
+  late final GeneratedColumn<String> flowTxSyncId = GeneratedColumn<String>(
+      'flow_tx_sync_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        syncId,
+        name,
+        depositType,
+        principal,
+        currencyCode,
+        startedAt,
+        termMonths,
+        annualRate,
+        maturityAt,
+        onMaturity,
+        status,
+        accountId,
+        flowTxSyncId
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'cloud_deposits';
+  @override
+  VerificationContext validateIntegrity(Insertable<CloudDeposit> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('sync_id')) {
+      context.handle(_syncIdMeta,
+          syncId.isAcceptableOrUnknown(data['sync_id']!, _syncIdMeta));
+    } else if (isInserting) {
+      context.missing(_syncIdMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('deposit_type')) {
+      context.handle(
+          _depositTypeMeta,
+          depositType.isAcceptableOrUnknown(
+              data['deposit_type']!, _depositTypeMeta));
+    }
+    if (data.containsKey('principal')) {
+      context.handle(_principalMeta,
+          principal.isAcceptableOrUnknown(data['principal']!, _principalMeta));
+    } else if (isInserting) {
+      context.missing(_principalMeta);
+    }
+    if (data.containsKey('currency_code')) {
+      context.handle(
+          _currencyCodeMeta,
+          currencyCode.isAcceptableOrUnknown(
+              data['currency_code']!, _currencyCodeMeta));
+    }
+    if (data.containsKey('started_at')) {
+      context.handle(_startedAtMeta,
+          startedAt.isAcceptableOrUnknown(data['started_at']!, _startedAtMeta));
+    }
+    if (data.containsKey('term_months')) {
+      context.handle(
+          _termMonthsMeta,
+          termMonths.isAcceptableOrUnknown(
+              data['term_months']!, _termMonthsMeta));
+    }
+    if (data.containsKey('annual_rate')) {
+      context.handle(
+          _annualRateMeta,
+          annualRate.isAcceptableOrUnknown(
+              data['annual_rate']!, _annualRateMeta));
+    }
+    if (data.containsKey('maturity_at')) {
+      context.handle(
+          _maturityAtMeta,
+          maturityAt.isAcceptableOrUnknown(
+              data['maturity_at']!, _maturityAtMeta));
+    }
+    if (data.containsKey('on_maturity')) {
+      context.handle(
+          _onMaturityMeta,
+          onMaturity.isAcceptableOrUnknown(
+              data['on_maturity']!, _onMaturityMeta));
+    }
+    if (data.containsKey('status')) {
+      context.handle(_statusMeta,
+          status.isAcceptableOrUnknown(data['status']!, _statusMeta));
+    }
+    if (data.containsKey('account_id')) {
+      context.handle(_accountIdMeta,
+          accountId.isAcceptableOrUnknown(data['account_id']!, _accountIdMeta));
+    }
+    if (data.containsKey('flow_tx_sync_id')) {
+      context.handle(
+          _flowTxSyncIdMeta,
+          flowTxSyncId.isAcceptableOrUnknown(
+              data['flow_tx_sync_id']!, _flowTxSyncIdMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {syncId};
+  @override
+  CloudDeposit map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CloudDeposit(
+      syncId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}sync_id'])!,
+      name: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      depositType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}deposit_type']),
+      principal: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}principal'])!,
+      currencyCode: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}currency_code']),
+      startedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}started_at']),
+      termMonths: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}term_months']),
+      annualRate: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}annual_rate']),
+      maturityAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}maturity_at']),
+      onMaturity: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}on_maturity']),
+      status: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}status']),
+      accountId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}account_id']),
+      flowTxSyncId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}flow_tx_sync_id']),
+    );
+  }
+
+  @override
+  $CloudDepositsTable createAlias(String alias) {
+    return $CloudDepositsTable(attachedDatabase, alias);
+  }
+}
+
+class CloudDeposit extends DataClass implements Insertable<CloudDeposit> {
+  final String syncId;
+  final String name;
+  final String? depositType;
+  final double principal;
+  final String? currencyCode;
+  final DateTime? startedAt;
+  final int? termMonths;
+  final double? annualRate;
+  final String? maturityAt;
+  final String? onMaturity;
+  final String? status;
+  final String? accountId;
+  final String? flowTxSyncId;
+  const CloudDeposit(
+      {required this.syncId,
+      required this.name,
+      this.depositType,
+      required this.principal,
+      this.currencyCode,
+      this.startedAt,
+      this.termMonths,
+      this.annualRate,
+      this.maturityAt,
+      this.onMaturity,
+      this.status,
+      this.accountId,
+      this.flowTxSyncId});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['sync_id'] = Variable<String>(syncId);
+    map['name'] = Variable<String>(name);
+    if (!nullToAbsent || depositType != null) {
+      map['deposit_type'] = Variable<String>(depositType);
+    }
+    map['principal'] = Variable<double>(principal);
+    if (!nullToAbsent || currencyCode != null) {
+      map['currency_code'] = Variable<String>(currencyCode);
+    }
+    if (!nullToAbsent || startedAt != null) {
+      map['started_at'] = Variable<DateTime>(startedAt);
+    }
+    if (!nullToAbsent || termMonths != null) {
+      map['term_months'] = Variable<int>(termMonths);
+    }
+    if (!nullToAbsent || annualRate != null) {
+      map['annual_rate'] = Variable<double>(annualRate);
+    }
+    if (!nullToAbsent || maturityAt != null) {
+      map['maturity_at'] = Variable<String>(maturityAt);
+    }
+    if (!nullToAbsent || onMaturity != null) {
+      map['on_maturity'] = Variable<String>(onMaturity);
+    }
+    if (!nullToAbsent || status != null) {
+      map['status'] = Variable<String>(status);
+    }
+    if (!nullToAbsent || accountId != null) {
+      map['account_id'] = Variable<String>(accountId);
+    }
+    if (!nullToAbsent || flowTxSyncId != null) {
+      map['flow_tx_sync_id'] = Variable<String>(flowTxSyncId);
+    }
+    return map;
+  }
+
+  CloudDepositsCompanion toCompanion(bool nullToAbsent) {
+    return CloudDepositsCompanion(
+      syncId: Value(syncId),
+      name: Value(name),
+      depositType: depositType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(depositType),
+      principal: Value(principal),
+      currencyCode: currencyCode == null && nullToAbsent
+          ? const Value.absent()
+          : Value(currencyCode),
+      startedAt: startedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(startedAt),
+      termMonths: termMonths == null && nullToAbsent
+          ? const Value.absent()
+          : Value(termMonths),
+      annualRate: annualRate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(annualRate),
+      maturityAt: maturityAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(maturityAt),
+      onMaturity: onMaturity == null && nullToAbsent
+          ? const Value.absent()
+          : Value(onMaturity),
+      status:
+          status == null && nullToAbsent ? const Value.absent() : Value(status),
+      accountId: accountId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(accountId),
+      flowTxSyncId: flowTxSyncId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(flowTxSyncId),
+    );
+  }
+
+  factory CloudDeposit.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CloudDeposit(
+      syncId: serializer.fromJson<String>(json['syncId']),
+      name: serializer.fromJson<String>(json['name']),
+      depositType: serializer.fromJson<String?>(json['depositType']),
+      principal: serializer.fromJson<double>(json['principal']),
+      currencyCode: serializer.fromJson<String?>(json['currencyCode']),
+      startedAt: serializer.fromJson<DateTime?>(json['startedAt']),
+      termMonths: serializer.fromJson<int?>(json['termMonths']),
+      annualRate: serializer.fromJson<double?>(json['annualRate']),
+      maturityAt: serializer.fromJson<String?>(json['maturityAt']),
+      onMaturity: serializer.fromJson<String?>(json['onMaturity']),
+      status: serializer.fromJson<String?>(json['status']),
+      accountId: serializer.fromJson<String?>(json['accountId']),
+      flowTxSyncId: serializer.fromJson<String?>(json['flowTxSyncId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'syncId': serializer.toJson<String>(syncId),
+      'name': serializer.toJson<String>(name),
+      'depositType': serializer.toJson<String?>(depositType),
+      'principal': serializer.toJson<double>(principal),
+      'currencyCode': serializer.toJson<String?>(currencyCode),
+      'startedAt': serializer.toJson<DateTime?>(startedAt),
+      'termMonths': serializer.toJson<int?>(termMonths),
+      'annualRate': serializer.toJson<double?>(annualRate),
+      'maturityAt': serializer.toJson<String?>(maturityAt),
+      'onMaturity': serializer.toJson<String?>(onMaturity),
+      'status': serializer.toJson<String?>(status),
+      'accountId': serializer.toJson<String?>(accountId),
+      'flowTxSyncId': serializer.toJson<String?>(flowTxSyncId),
+    };
+  }
+
+  CloudDeposit copyWith(
+          {String? syncId,
+          String? name,
+          Value<String?> depositType = const Value.absent(),
+          double? principal,
+          Value<String?> currencyCode = const Value.absent(),
+          Value<DateTime?> startedAt = const Value.absent(),
+          Value<int?> termMonths = const Value.absent(),
+          Value<double?> annualRate = const Value.absent(),
+          Value<String?> maturityAt = const Value.absent(),
+          Value<String?> onMaturity = const Value.absent(),
+          Value<String?> status = const Value.absent(),
+          Value<String?> accountId = const Value.absent(),
+          Value<String?> flowTxSyncId = const Value.absent()}) =>
+      CloudDeposit(
+        syncId: syncId ?? this.syncId,
+        name: name ?? this.name,
+        depositType: depositType.present ? depositType.value : this.depositType,
+        principal: principal ?? this.principal,
+        currencyCode:
+            currencyCode.present ? currencyCode.value : this.currencyCode,
+        startedAt: startedAt.present ? startedAt.value : this.startedAt,
+        termMonths: termMonths.present ? termMonths.value : this.termMonths,
+        annualRate: annualRate.present ? annualRate.value : this.annualRate,
+        maturityAt: maturityAt.present ? maturityAt.value : this.maturityAt,
+        onMaturity: onMaturity.present ? onMaturity.value : this.onMaturity,
+        status: status.present ? status.value : this.status,
+        accountId: accountId.present ? accountId.value : this.accountId,
+        flowTxSyncId:
+            flowTxSyncId.present ? flowTxSyncId.value : this.flowTxSyncId,
+      );
+  CloudDeposit copyWithCompanion(CloudDepositsCompanion data) {
+    return CloudDeposit(
+      syncId: data.syncId.present ? data.syncId.value : this.syncId,
+      name: data.name.present ? data.name.value : this.name,
+      depositType:
+          data.depositType.present ? data.depositType.value : this.depositType,
+      principal: data.principal.present ? data.principal.value : this.principal,
+      currencyCode: data.currencyCode.present
+          ? data.currencyCode.value
+          : this.currencyCode,
+      startedAt: data.startedAt.present ? data.startedAt.value : this.startedAt,
+      termMonths:
+          data.termMonths.present ? data.termMonths.value : this.termMonths,
+      annualRate:
+          data.annualRate.present ? data.annualRate.value : this.annualRate,
+      maturityAt:
+          data.maturityAt.present ? data.maturityAt.value : this.maturityAt,
+      onMaturity:
+          data.onMaturity.present ? data.onMaturity.value : this.onMaturity,
+      status: data.status.present ? data.status.value : this.status,
+      accountId: data.accountId.present ? data.accountId.value : this.accountId,
+      flowTxSyncId: data.flowTxSyncId.present
+          ? data.flowTxSyncId.value
+          : this.flowTxSyncId,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CloudDeposit(')
+          ..write('syncId: $syncId, ')
+          ..write('name: $name, ')
+          ..write('depositType: $depositType, ')
+          ..write('principal: $principal, ')
+          ..write('currencyCode: $currencyCode, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('termMonths: $termMonths, ')
+          ..write('annualRate: $annualRate, ')
+          ..write('maturityAt: $maturityAt, ')
+          ..write('onMaturity: $onMaturity, ')
+          ..write('status: $status, ')
+          ..write('accountId: $accountId, ')
+          ..write('flowTxSyncId: $flowTxSyncId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      syncId,
+      name,
+      depositType,
+      principal,
+      currencyCode,
+      startedAt,
+      termMonths,
+      annualRate,
+      maturityAt,
+      onMaturity,
+      status,
+      accountId,
+      flowTxSyncId);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CloudDeposit &&
+          other.syncId == this.syncId &&
+          other.name == this.name &&
+          other.depositType == this.depositType &&
+          other.principal == this.principal &&
+          other.currencyCode == this.currencyCode &&
+          other.startedAt == this.startedAt &&
+          other.termMonths == this.termMonths &&
+          other.annualRate == this.annualRate &&
+          other.maturityAt == this.maturityAt &&
+          other.onMaturity == this.onMaturity &&
+          other.status == this.status &&
+          other.accountId == this.accountId &&
+          other.flowTxSyncId == this.flowTxSyncId);
+}
+
+class CloudDepositsCompanion extends UpdateCompanion<CloudDeposit> {
+  final Value<String> syncId;
+  final Value<String> name;
+  final Value<String?> depositType;
+  final Value<double> principal;
+  final Value<String?> currencyCode;
+  final Value<DateTime?> startedAt;
+  final Value<int?> termMonths;
+  final Value<double?> annualRate;
+  final Value<String?> maturityAt;
+  final Value<String?> onMaturity;
+  final Value<String?> status;
+  final Value<String?> accountId;
+  final Value<String?> flowTxSyncId;
+  final Value<int> rowid;
+  const CloudDepositsCompanion({
+    this.syncId = const Value.absent(),
+    this.name = const Value.absent(),
+    this.depositType = const Value.absent(),
+    this.principal = const Value.absent(),
+    this.currencyCode = const Value.absent(),
+    this.startedAt = const Value.absent(),
+    this.termMonths = const Value.absent(),
+    this.annualRate = const Value.absent(),
+    this.maturityAt = const Value.absent(),
+    this.onMaturity = const Value.absent(),
+    this.status = const Value.absent(),
+    this.accountId = const Value.absent(),
+    this.flowTxSyncId = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CloudDepositsCompanion.insert({
+    required String syncId,
+    required String name,
+    this.depositType = const Value.absent(),
+    required double principal,
+    this.currencyCode = const Value.absent(),
+    this.startedAt = const Value.absent(),
+    this.termMonths = const Value.absent(),
+    this.annualRate = const Value.absent(),
+    this.maturityAt = const Value.absent(),
+    this.onMaturity = const Value.absent(),
+    this.status = const Value.absent(),
+    this.accountId = const Value.absent(),
+    this.flowTxSyncId = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : syncId = Value(syncId),
+        name = Value(name),
+        principal = Value(principal);
+  static Insertable<CloudDeposit> custom({
+    Expression<String>? syncId,
+    Expression<String>? name,
+    Expression<String>? depositType,
+    Expression<double>? principal,
+    Expression<String>? currencyCode,
+    Expression<DateTime>? startedAt,
+    Expression<int>? termMonths,
+    Expression<double>? annualRate,
+    Expression<String>? maturityAt,
+    Expression<String>? onMaturity,
+    Expression<String>? status,
+    Expression<String>? accountId,
+    Expression<String>? flowTxSyncId,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (syncId != null) 'sync_id': syncId,
+      if (name != null) 'name': name,
+      if (depositType != null) 'deposit_type': depositType,
+      if (principal != null) 'principal': principal,
+      if (currencyCode != null) 'currency_code': currencyCode,
+      if (startedAt != null) 'started_at': startedAt,
+      if (termMonths != null) 'term_months': termMonths,
+      if (annualRate != null) 'annual_rate': annualRate,
+      if (maturityAt != null) 'maturity_at': maturityAt,
+      if (onMaturity != null) 'on_maturity': onMaturity,
+      if (status != null) 'status': status,
+      if (accountId != null) 'account_id': accountId,
+      if (flowTxSyncId != null) 'flow_tx_sync_id': flowTxSyncId,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CloudDepositsCompanion copyWith(
+      {Value<String>? syncId,
+      Value<String>? name,
+      Value<String?>? depositType,
+      Value<double>? principal,
+      Value<String?>? currencyCode,
+      Value<DateTime?>? startedAt,
+      Value<int?>? termMonths,
+      Value<double?>? annualRate,
+      Value<String?>? maturityAt,
+      Value<String?>? onMaturity,
+      Value<String?>? status,
+      Value<String?>? accountId,
+      Value<String?>? flowTxSyncId,
+      Value<int>? rowid}) {
+    return CloudDepositsCompanion(
+      syncId: syncId ?? this.syncId,
+      name: name ?? this.name,
+      depositType: depositType ?? this.depositType,
+      principal: principal ?? this.principal,
+      currencyCode: currencyCode ?? this.currencyCode,
+      startedAt: startedAt ?? this.startedAt,
+      termMonths: termMonths ?? this.termMonths,
+      annualRate: annualRate ?? this.annualRate,
+      maturityAt: maturityAt ?? this.maturityAt,
+      onMaturity: onMaturity ?? this.onMaturity,
+      status: status ?? this.status,
+      accountId: accountId ?? this.accountId,
+      flowTxSyncId: flowTxSyncId ?? this.flowTxSyncId,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (syncId.present) {
+      map['sync_id'] = Variable<String>(syncId.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (depositType.present) {
+      map['deposit_type'] = Variable<String>(depositType.value);
+    }
+    if (principal.present) {
+      map['principal'] = Variable<double>(principal.value);
+    }
+    if (currencyCode.present) {
+      map['currency_code'] = Variable<String>(currencyCode.value);
+    }
+    if (startedAt.present) {
+      map['started_at'] = Variable<DateTime>(startedAt.value);
+    }
+    if (termMonths.present) {
+      map['term_months'] = Variable<int>(termMonths.value);
+    }
+    if (annualRate.present) {
+      map['annual_rate'] = Variable<double>(annualRate.value);
+    }
+    if (maturityAt.present) {
+      map['maturity_at'] = Variable<String>(maturityAt.value);
+    }
+    if (onMaturity.present) {
+      map['on_maturity'] = Variable<String>(onMaturity.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (accountId.present) {
+      map['account_id'] = Variable<String>(accountId.value);
+    }
+    if (flowTxSyncId.present) {
+      map['flow_tx_sync_id'] = Variable<String>(flowTxSyncId.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CloudDepositsCompanion(')
+          ..write('syncId: $syncId, ')
+          ..write('name: $name, ')
+          ..write('depositType: $depositType, ')
+          ..write('principal: $principal, ')
+          ..write('currencyCode: $currencyCode, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('termMonths: $termMonths, ')
+          ..write('annualRate: $annualRate, ')
+          ..write('maturityAt: $maturityAt, ')
+          ..write('onMaturity: $onMaturity, ')
+          ..write('status: $status, ')
+          ..write('accountId: $accountId, ')
+          ..write('flowTxSyncId: $flowTxSyncId, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $CloudMembersTable extends CloudMembers
+    with TableInfo<$CloudMembersTable, CloudMember> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CloudMembersTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _syncIdMeta = const VerificationMeta('syncId');
+  @override
+  late final GeneratedColumn<String> syncId = GeneratedColumn<String>(
+      'sync_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+      'name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _noteMeta = const VerificationMeta('note');
+  @override
+  late final GeneratedColumn<String> note = GeneratedColumn<String>(
+      'note', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _contactIdMeta =
+      const VerificationMeta('contactId');
+  @override
+  late final GeneratedColumn<String> contactId = GeneratedColumn<String>(
+      'contact_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [syncId, name, note, contactId];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'cloud_members';
+  @override
+  VerificationContext validateIntegrity(Insertable<CloudMember> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('sync_id')) {
+      context.handle(_syncIdMeta,
+          syncId.isAcceptableOrUnknown(data['sync_id']!, _syncIdMeta));
+    } else if (isInserting) {
+      context.missing(_syncIdMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('note')) {
+      context.handle(
+          _noteMeta, note.isAcceptableOrUnknown(data['note']!, _noteMeta));
+    }
+    if (data.containsKey('contact_id')) {
+      context.handle(_contactIdMeta,
+          contactId.isAcceptableOrUnknown(data['contact_id']!, _contactIdMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {syncId};
+  @override
+  CloudMember map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CloudMember(
+      syncId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}sync_id'])!,
+      name: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      note: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}note']),
+      contactId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}contact_id']),
+    );
+  }
+
+  @override
+  $CloudMembersTable createAlias(String alias) {
+    return $CloudMembersTable(attachedDatabase, alias);
+  }
+}
+
+class CloudMember extends DataClass implements Insertable<CloudMember> {
+  final String syncId;
+  final String name;
+  final String? note;
+  final String? contactId;
+  const CloudMember(
+      {required this.syncId, required this.name, this.note, this.contactId});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['sync_id'] = Variable<String>(syncId);
+    map['name'] = Variable<String>(name);
+    if (!nullToAbsent || note != null) {
+      map['note'] = Variable<String>(note);
+    }
+    if (!nullToAbsent || contactId != null) {
+      map['contact_id'] = Variable<String>(contactId);
+    }
+    return map;
+  }
+
+  CloudMembersCompanion toCompanion(bool nullToAbsent) {
+    return CloudMembersCompanion(
+      syncId: Value(syncId),
+      name: Value(name),
+      note: note == null && nullToAbsent ? const Value.absent() : Value(note),
+      contactId: contactId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(contactId),
+    );
+  }
+
+  factory CloudMember.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CloudMember(
+      syncId: serializer.fromJson<String>(json['syncId']),
+      name: serializer.fromJson<String>(json['name']),
+      note: serializer.fromJson<String?>(json['note']),
+      contactId: serializer.fromJson<String?>(json['contactId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'syncId': serializer.toJson<String>(syncId),
+      'name': serializer.toJson<String>(name),
+      'note': serializer.toJson<String?>(note),
+      'contactId': serializer.toJson<String?>(contactId),
+    };
+  }
+
+  CloudMember copyWith(
+          {String? syncId,
+          String? name,
+          Value<String?> note = const Value.absent(),
+          Value<String?> contactId = const Value.absent()}) =>
+      CloudMember(
+        syncId: syncId ?? this.syncId,
+        name: name ?? this.name,
+        note: note.present ? note.value : this.note,
+        contactId: contactId.present ? contactId.value : this.contactId,
+      );
+  CloudMember copyWithCompanion(CloudMembersCompanion data) {
+    return CloudMember(
+      syncId: data.syncId.present ? data.syncId.value : this.syncId,
+      name: data.name.present ? data.name.value : this.name,
+      note: data.note.present ? data.note.value : this.note,
+      contactId: data.contactId.present ? data.contactId.value : this.contactId,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CloudMember(')
+          ..write('syncId: $syncId, ')
+          ..write('name: $name, ')
+          ..write('note: $note, ')
+          ..write('contactId: $contactId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(syncId, name, note, contactId);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CloudMember &&
+          other.syncId == this.syncId &&
+          other.name == this.name &&
+          other.note == this.note &&
+          other.contactId == this.contactId);
+}
+
+class CloudMembersCompanion extends UpdateCompanion<CloudMember> {
+  final Value<String> syncId;
+  final Value<String> name;
+  final Value<String?> note;
+  final Value<String?> contactId;
+  final Value<int> rowid;
+  const CloudMembersCompanion({
+    this.syncId = const Value.absent(),
+    this.name = const Value.absent(),
+    this.note = const Value.absent(),
+    this.contactId = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CloudMembersCompanion.insert({
+    required String syncId,
+    required String name,
+    this.note = const Value.absent(),
+    this.contactId = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : syncId = Value(syncId),
+        name = Value(name);
+  static Insertable<CloudMember> custom({
+    Expression<String>? syncId,
+    Expression<String>? name,
+    Expression<String>? note,
+    Expression<String>? contactId,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (syncId != null) 'sync_id': syncId,
+      if (name != null) 'name': name,
+      if (note != null) 'note': note,
+      if (contactId != null) 'contact_id': contactId,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CloudMembersCompanion copyWith(
+      {Value<String>? syncId,
+      Value<String>? name,
+      Value<String?>? note,
+      Value<String?>? contactId,
+      Value<int>? rowid}) {
+    return CloudMembersCompanion(
+      syncId: syncId ?? this.syncId,
+      name: name ?? this.name,
+      note: note ?? this.note,
+      contactId: contactId ?? this.contactId,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (syncId.present) {
+      map['sync_id'] = Variable<String>(syncId.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (note.present) {
+      map['note'] = Variable<String>(note.value);
+    }
+    if (contactId.present) {
+      map['contact_id'] = Variable<String>(contactId.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CloudMembersCompanion(')
+          ..write('syncId: $syncId, ')
+          ..write('name: $name, ')
+          ..write('note: $note, ')
+          ..write('contactId: $contactId, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$BeeDatabase extends GeneratedDatabase {
   _$BeeDatabase(QueryExecutor e) : super(e);
   $BeeDatabaseManager get managers => $BeeDatabaseManager(this);
@@ -12510,6 +19762,23 @@ abstract class _$BeeDatabase extends GeneratedDatabase {
   late final $ExchangeRatesTable exchangeRates = $ExchangeRatesTable(this);
   late final $ExchangeRateOverridesTable exchangeRateOverrides =
       $ExchangeRateOverridesTable(this);
+  late final $CloudContactsTable cloudContacts = $CloudContactsTable(this);
+  late final $CloudLoansTable cloudLoans = $CloudLoansTable(this);
+  late final $CloudLoanRepaymentsTable cloudLoanRepayments =
+      $CloudLoanRepaymentsTable(this);
+  late final $CloudSavingPlansTable cloudSavingPlans =
+      $CloudSavingPlansTable(this);
+  late final $CloudSavingContributionsTable cloudSavingContributions =
+      $CloudSavingContributionsTable(this);
+  late final $CloudReimbursementsTable cloudReimbursements =
+      $CloudReimbursementsTable(this);
+  late final $CloudReimbursementItemsTable cloudReimbursementItems =
+      $CloudReimbursementItemsTable(this);
+  late final $CloudCompaniesTable cloudCompanies = $CloudCompaniesTable(this);
+  late final $CloudItemsTable cloudItems = $CloudItemsTable(this);
+  late final $CloudItemFlowsTable cloudItemFlows = $CloudItemFlowsTable(this);
+  late final $CloudDepositsTable cloudDeposits = $CloudDepositsTable(this);
+  late final $CloudMembersTable cloudMembers = $CloudMembersTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -12539,7 +19808,19 @@ abstract class _$BeeDatabase extends GeneratedDatabase {
         transactionTagOverrides,
         syncPullErrors,
         exchangeRates,
-        exchangeRateOverrides
+        exchangeRateOverrides,
+        cloudContacts,
+        cloudLoans,
+        cloudLoanRepayments,
+        cloudSavingPlans,
+        cloudSavingContributions,
+        cloudReimbursements,
+        cloudReimbursementItems,
+        cloudCompanies,
+        cloudItems,
+        cloudItemFlows,
+        cloudDeposits,
+        cloudMembers
       ];
 }
 
@@ -12811,6 +20092,15 @@ typedef $$AccountsTableCreateCompanionBuilder = AccountsCompanion Function({
   Value<String?> note,
   Value<String?> syncId,
   Value<bool> hidden,
+  Value<String?> iconKey,
+  Value<String?> iconType,
+  Value<String?> backgroundKey,
+  Value<int?> billStatus,
+  Value<double?> billAmountDue,
+  Value<double?> billMinimumAmount,
+  Value<double?> billPaidAmount,
+  Value<double?> billRemainingAmount,
+  Value<String?> cardNumber,
 });
 typedef $$AccountsTableUpdateCompanionBuilder = AccountsCompanion Function({
   Value<int> id,
@@ -12830,6 +20120,15 @@ typedef $$AccountsTableUpdateCompanionBuilder = AccountsCompanion Function({
   Value<String?> note,
   Value<String?> syncId,
   Value<bool> hidden,
+  Value<String?> iconKey,
+  Value<String?> iconType,
+  Value<String?> backgroundKey,
+  Value<int?> billStatus,
+  Value<double?> billAmountDue,
+  Value<double?> billMinimumAmount,
+  Value<double?> billPaidAmount,
+  Value<double?> billRemainingAmount,
+  Value<String?> cardNumber,
 });
 
 class $$AccountsTableFilterComposer
@@ -12892,6 +20191,36 @@ class $$AccountsTableFilterComposer
 
   ColumnFilters<bool> get hidden => $composableBuilder(
       column: $table.hidden, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get iconKey => $composableBuilder(
+      column: $table.iconKey, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get iconType => $composableBuilder(
+      column: $table.iconType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get backgroundKey => $composableBuilder(
+      column: $table.backgroundKey, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get billStatus => $composableBuilder(
+      column: $table.billStatus, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get billAmountDue => $composableBuilder(
+      column: $table.billAmountDue, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get billMinimumAmount => $composableBuilder(
+      column: $table.billMinimumAmount,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get billPaidAmount => $composableBuilder(
+      column: $table.billPaidAmount,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get billRemainingAmount => $composableBuilder(
+      column: $table.billRemainingAmount,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get cardNumber => $composableBuilder(
+      column: $table.cardNumber, builder: (column) => ColumnFilters(column));
 }
 
 class $$AccountsTableOrderingComposer
@@ -12956,6 +20285,38 @@ class $$AccountsTableOrderingComposer
 
   ColumnOrderings<bool> get hidden => $composableBuilder(
       column: $table.hidden, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get iconKey => $composableBuilder(
+      column: $table.iconKey, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get iconType => $composableBuilder(
+      column: $table.iconType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get backgroundKey => $composableBuilder(
+      column: $table.backgroundKey,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get billStatus => $composableBuilder(
+      column: $table.billStatus, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get billAmountDue => $composableBuilder(
+      column: $table.billAmountDue,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get billMinimumAmount => $composableBuilder(
+      column: $table.billMinimumAmount,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get billPaidAmount => $composableBuilder(
+      column: $table.billPaidAmount,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get billRemainingAmount => $composableBuilder(
+      column: $table.billRemainingAmount,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get cardNumber => $composableBuilder(
+      column: $table.cardNumber, builder: (column) => ColumnOrderings(column));
 }
 
 class $$AccountsTableAnnotationComposer
@@ -13017,6 +20378,33 @@ class $$AccountsTableAnnotationComposer
 
   GeneratedColumn<bool> get hidden =>
       $composableBuilder(column: $table.hidden, builder: (column) => column);
+
+  GeneratedColumn<String> get iconKey =>
+      $composableBuilder(column: $table.iconKey, builder: (column) => column);
+
+  GeneratedColumn<String> get iconType =>
+      $composableBuilder(column: $table.iconType, builder: (column) => column);
+
+  GeneratedColumn<String> get backgroundKey => $composableBuilder(
+      column: $table.backgroundKey, builder: (column) => column);
+
+  GeneratedColumn<int> get billStatus => $composableBuilder(
+      column: $table.billStatus, builder: (column) => column);
+
+  GeneratedColumn<double> get billAmountDue => $composableBuilder(
+      column: $table.billAmountDue, builder: (column) => column);
+
+  GeneratedColumn<double> get billMinimumAmount => $composableBuilder(
+      column: $table.billMinimumAmount, builder: (column) => column);
+
+  GeneratedColumn<double> get billPaidAmount => $composableBuilder(
+      column: $table.billPaidAmount, builder: (column) => column);
+
+  GeneratedColumn<double> get billRemainingAmount => $composableBuilder(
+      column: $table.billRemainingAmount, builder: (column) => column);
+
+  GeneratedColumn<String> get cardNumber => $composableBuilder(
+      column: $table.cardNumber, builder: (column) => column);
 }
 
 class $$AccountsTableTableManager extends RootTableManager<
@@ -13059,6 +20447,15 @@ class $$AccountsTableTableManager extends RootTableManager<
             Value<String?> note = const Value.absent(),
             Value<String?> syncId = const Value.absent(),
             Value<bool> hidden = const Value.absent(),
+            Value<String?> iconKey = const Value.absent(),
+            Value<String?> iconType = const Value.absent(),
+            Value<String?> backgroundKey = const Value.absent(),
+            Value<int?> billStatus = const Value.absent(),
+            Value<double?> billAmountDue = const Value.absent(),
+            Value<double?> billMinimumAmount = const Value.absent(),
+            Value<double?> billPaidAmount = const Value.absent(),
+            Value<double?> billRemainingAmount = const Value.absent(),
+            Value<String?> cardNumber = const Value.absent(),
           }) =>
               AccountsCompanion(
             id: id,
@@ -13078,6 +20475,15 @@ class $$AccountsTableTableManager extends RootTableManager<
             note: note,
             syncId: syncId,
             hidden: hidden,
+            iconKey: iconKey,
+            iconType: iconType,
+            backgroundKey: backgroundKey,
+            billStatus: billStatus,
+            billAmountDue: billAmountDue,
+            billMinimumAmount: billMinimumAmount,
+            billPaidAmount: billPaidAmount,
+            billRemainingAmount: billRemainingAmount,
+            cardNumber: cardNumber,
           ),
           createCompanionCallback: ({
             Value<int> id = const Value.absent(),
@@ -13097,6 +20503,15 @@ class $$AccountsTableTableManager extends RootTableManager<
             Value<String?> note = const Value.absent(),
             Value<String?> syncId = const Value.absent(),
             Value<bool> hidden = const Value.absent(),
+            Value<String?> iconKey = const Value.absent(),
+            Value<String?> iconType = const Value.absent(),
+            Value<String?> backgroundKey = const Value.absent(),
+            Value<int?> billStatus = const Value.absent(),
+            Value<double?> billAmountDue = const Value.absent(),
+            Value<double?> billMinimumAmount = const Value.absent(),
+            Value<double?> billPaidAmount = const Value.absent(),
+            Value<double?> billRemainingAmount = const Value.absent(),
+            Value<String?> cardNumber = const Value.absent(),
           }) =>
               AccountsCompanion.insert(
             id: id,
@@ -13116,6 +20531,15 @@ class $$AccountsTableTableManager extends RootTableManager<
             note: note,
             syncId: syncId,
             hidden: hidden,
+            iconKey: iconKey,
+            iconType: iconType,
+            backgroundKey: backgroundKey,
+            billStatus: billStatus,
+            billAmountDue: billAmountDue,
+            billMinimumAmount: billMinimumAmount,
+            billPaidAmount: billPaidAmount,
+            billRemainingAmount: billRemainingAmount,
+            cardNumber: cardNumber,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
@@ -13412,6 +20836,17 @@ typedef $$TransactionsTableCreateCompanionBuilder = TransactionsCompanion
   Value<bool> excludeFromBudget,
   Value<String?> currencyCode,
   Value<double?> nativeAmount,
+  Value<double?> discountAmount,
+  Value<double?> transferFeeAmount,
+  Value<double?> transferDiscountAmount,
+  Value<String?> transferFeeAccountId,
+  Value<String?> transferFeeAccountName,
+  Value<bool?> isRefund,
+  Value<String?> refundOfSyncId,
+  Value<String?> paymentSplitsJson,
+  Value<String?> memberSplitsJson,
+  Value<String?> memberNamesCsv,
+  Value<bool?> isReimbursement,
 });
 typedef $$TransactionsTableUpdateCompanionBuilder = TransactionsCompanion
     Function({
@@ -13436,6 +20871,17 @@ typedef $$TransactionsTableUpdateCompanionBuilder = TransactionsCompanion
   Value<bool> excludeFromBudget,
   Value<String?> currencyCode,
   Value<double?> nativeAmount,
+  Value<double?> discountAmount,
+  Value<double?> transferFeeAmount,
+  Value<double?> transferDiscountAmount,
+  Value<String?> transferFeeAccountId,
+  Value<String?> transferFeeAccountName,
+  Value<bool?> isRefund,
+  Value<String?> refundOfSyncId,
+  Value<String?> paymentSplitsJson,
+  Value<String?> memberSplitsJson,
+  Value<String?> memberNamesCsv,
+  Value<bool?> isReimbursement,
 });
 
 class $$TransactionsTableFilterComposer
@@ -13517,6 +20963,49 @@ class $$TransactionsTableFilterComposer
 
   ColumnFilters<double> get nativeAmount => $composableBuilder(
       column: $table.nativeAmount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get discountAmount => $composableBuilder(
+      column: $table.discountAmount,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get transferFeeAmount => $composableBuilder(
+      column: $table.transferFeeAmount,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get transferDiscountAmount => $composableBuilder(
+      column: $table.transferDiscountAmount,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get transferFeeAccountId => $composableBuilder(
+      column: $table.transferFeeAccountId,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get transferFeeAccountName => $composableBuilder(
+      column: $table.transferFeeAccountName,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isRefund => $composableBuilder(
+      column: $table.isRefund, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get refundOfSyncId => $composableBuilder(
+      column: $table.refundOfSyncId,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get paymentSplitsJson => $composableBuilder(
+      column: $table.paymentSplitsJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get memberSplitsJson => $composableBuilder(
+      column: $table.memberSplitsJson,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get memberNamesCsv => $composableBuilder(
+      column: $table.memberNamesCsv,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isReimbursement => $composableBuilder(
+      column: $table.isReimbursement,
+      builder: (column) => ColumnFilters(column));
 }
 
 class $$TransactionsTableOrderingComposer
@@ -13600,6 +21089,49 @@ class $$TransactionsTableOrderingComposer
   ColumnOrderings<double> get nativeAmount => $composableBuilder(
       column: $table.nativeAmount,
       builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get discountAmount => $composableBuilder(
+      column: $table.discountAmount,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get transferFeeAmount => $composableBuilder(
+      column: $table.transferFeeAmount,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get transferDiscountAmount => $composableBuilder(
+      column: $table.transferDiscountAmount,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get transferFeeAccountId => $composableBuilder(
+      column: $table.transferFeeAccountId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get transferFeeAccountName => $composableBuilder(
+      column: $table.transferFeeAccountName,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isRefund => $composableBuilder(
+      column: $table.isRefund, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get refundOfSyncId => $composableBuilder(
+      column: $table.refundOfSyncId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get paymentSplitsJson => $composableBuilder(
+      column: $table.paymentSplitsJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get memberSplitsJson => $composableBuilder(
+      column: $table.memberSplitsJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get memberNamesCsv => $composableBuilder(
+      column: $table.memberNamesCsv,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isReimbursement => $composableBuilder(
+      column: $table.isReimbursement,
+      builder: (column) => ColumnOrderings(column));
 }
 
 class $$TransactionsTableAnnotationComposer
@@ -13673,6 +21205,39 @@ class $$TransactionsTableAnnotationComposer
 
   GeneratedColumn<double> get nativeAmount => $composableBuilder(
       column: $table.nativeAmount, builder: (column) => column);
+
+  GeneratedColumn<double> get discountAmount => $composableBuilder(
+      column: $table.discountAmount, builder: (column) => column);
+
+  GeneratedColumn<double> get transferFeeAmount => $composableBuilder(
+      column: $table.transferFeeAmount, builder: (column) => column);
+
+  GeneratedColumn<double> get transferDiscountAmount => $composableBuilder(
+      column: $table.transferDiscountAmount, builder: (column) => column);
+
+  GeneratedColumn<String> get transferFeeAccountId => $composableBuilder(
+      column: $table.transferFeeAccountId, builder: (column) => column);
+
+  GeneratedColumn<String> get transferFeeAccountName => $composableBuilder(
+      column: $table.transferFeeAccountName, builder: (column) => column);
+
+  GeneratedColumn<bool> get isRefund =>
+      $composableBuilder(column: $table.isRefund, builder: (column) => column);
+
+  GeneratedColumn<String> get refundOfSyncId => $composableBuilder(
+      column: $table.refundOfSyncId, builder: (column) => column);
+
+  GeneratedColumn<String> get paymentSplitsJson => $composableBuilder(
+      column: $table.paymentSplitsJson, builder: (column) => column);
+
+  GeneratedColumn<String> get memberSplitsJson => $composableBuilder(
+      column: $table.memberSplitsJson, builder: (column) => column);
+
+  GeneratedColumn<String> get memberNamesCsv => $composableBuilder(
+      column: $table.memberNamesCsv, builder: (column) => column);
+
+  GeneratedColumn<bool> get isReimbursement => $composableBuilder(
+      column: $table.isReimbursement, builder: (column) => column);
 }
 
 class $$TransactionsTableTableManager extends RootTableManager<
@@ -13722,6 +21287,17 @@ class $$TransactionsTableTableManager extends RootTableManager<
             Value<bool> excludeFromBudget = const Value.absent(),
             Value<String?> currencyCode = const Value.absent(),
             Value<double?> nativeAmount = const Value.absent(),
+            Value<double?> discountAmount = const Value.absent(),
+            Value<double?> transferFeeAmount = const Value.absent(),
+            Value<double?> transferDiscountAmount = const Value.absent(),
+            Value<String?> transferFeeAccountId = const Value.absent(),
+            Value<String?> transferFeeAccountName = const Value.absent(),
+            Value<bool?> isRefund = const Value.absent(),
+            Value<String?> refundOfSyncId = const Value.absent(),
+            Value<String?> paymentSplitsJson = const Value.absent(),
+            Value<String?> memberSplitsJson = const Value.absent(),
+            Value<String?> memberNamesCsv = const Value.absent(),
+            Value<bool?> isReimbursement = const Value.absent(),
           }) =>
               TransactionsCompanion(
             id: id,
@@ -13745,6 +21321,17 @@ class $$TransactionsTableTableManager extends RootTableManager<
             excludeFromBudget: excludeFromBudget,
             currencyCode: currencyCode,
             nativeAmount: nativeAmount,
+            discountAmount: discountAmount,
+            transferFeeAmount: transferFeeAmount,
+            transferDiscountAmount: transferDiscountAmount,
+            transferFeeAccountId: transferFeeAccountId,
+            transferFeeAccountName: transferFeeAccountName,
+            isRefund: isRefund,
+            refundOfSyncId: refundOfSyncId,
+            paymentSplitsJson: paymentSplitsJson,
+            memberSplitsJson: memberSplitsJson,
+            memberNamesCsv: memberNamesCsv,
+            isReimbursement: isReimbursement,
           ),
           createCompanionCallback: ({
             Value<int> id = const Value.absent(),
@@ -13768,6 +21355,17 @@ class $$TransactionsTableTableManager extends RootTableManager<
             Value<bool> excludeFromBudget = const Value.absent(),
             Value<String?> currencyCode = const Value.absent(),
             Value<double?> nativeAmount = const Value.absent(),
+            Value<double?> discountAmount = const Value.absent(),
+            Value<double?> transferFeeAmount = const Value.absent(),
+            Value<double?> transferDiscountAmount = const Value.absent(),
+            Value<String?> transferFeeAccountId = const Value.absent(),
+            Value<String?> transferFeeAccountName = const Value.absent(),
+            Value<bool?> isRefund = const Value.absent(),
+            Value<String?> refundOfSyncId = const Value.absent(),
+            Value<String?> paymentSplitsJson = const Value.absent(),
+            Value<String?> memberSplitsJson = const Value.absent(),
+            Value<String?> memberNamesCsv = const Value.absent(),
+            Value<bool?> isReimbursement = const Value.absent(),
           }) =>
               TransactionsCompanion.insert(
             id: id,
@@ -13791,6 +21389,17 @@ class $$TransactionsTableTableManager extends RootTableManager<
             excludeFromBudget: excludeFromBudget,
             currencyCode: currencyCode,
             nativeAmount: nativeAmount,
+            discountAmount: discountAmount,
+            transferFeeAmount: transferFeeAmount,
+            transferDiscountAmount: transferDiscountAmount,
+            transferFeeAccountId: transferFeeAccountId,
+            transferFeeAccountName: transferFeeAccountName,
+            isRefund: isRefund,
+            refundOfSyncId: refundOfSyncId,
+            paymentSplitsJson: paymentSplitsJson,
+            memberSplitsJson: memberSplitsJson,
+            memberNamesCsv: memberNamesCsv,
+            isReimbursement: isReimbursement,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
@@ -18532,6 +26141,3023 @@ typedef $$ExchangeRateOverridesTableProcessedTableManager
         ),
         ExchangeRateOverride,
         PrefetchHooks Function()>;
+typedef $$CloudContactsTableCreateCompanionBuilder = CloudContactsCompanion
+    Function({
+  required String syncId,
+  required String name,
+  Value<String?> note,
+  Value<String?> avatarFileId,
+  Value<String?> contactTag,
+  Value<String?> phone,
+  Value<String?> wechat,
+  Value<String?> alipay,
+  Value<String?> profileJson,
+  Value<bool> isArchived,
+  Value<bool> isActive,
+  Value<DateTime?> updatedAt,
+  Value<int> rowid,
+});
+typedef $$CloudContactsTableUpdateCompanionBuilder = CloudContactsCompanion
+    Function({
+  Value<String> syncId,
+  Value<String> name,
+  Value<String?> note,
+  Value<String?> avatarFileId,
+  Value<String?> contactTag,
+  Value<String?> phone,
+  Value<String?> wechat,
+  Value<String?> alipay,
+  Value<String?> profileJson,
+  Value<bool> isArchived,
+  Value<bool> isActive,
+  Value<DateTime?> updatedAt,
+  Value<int> rowid,
+});
+
+class $$CloudContactsTableFilterComposer
+    extends Composer<_$BeeDatabase, $CloudContactsTable> {
+  $$CloudContactsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get syncId => $composableBuilder(
+      column: $table.syncId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get note => $composableBuilder(
+      column: $table.note, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get avatarFileId => $composableBuilder(
+      column: $table.avatarFileId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get contactTag => $composableBuilder(
+      column: $table.contactTag, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get phone => $composableBuilder(
+      column: $table.phone, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get wechat => $composableBuilder(
+      column: $table.wechat, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get alipay => $composableBuilder(
+      column: $table.alipay, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get profileJson => $composableBuilder(
+      column: $table.profileJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isArchived => $composableBuilder(
+      column: $table.isArchived, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isActive => $composableBuilder(
+      column: $table.isActive, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$CloudContactsTableOrderingComposer
+    extends Composer<_$BeeDatabase, $CloudContactsTable> {
+  $$CloudContactsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get syncId => $composableBuilder(
+      column: $table.syncId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get note => $composableBuilder(
+      column: $table.note, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get avatarFileId => $composableBuilder(
+      column: $table.avatarFileId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get contactTag => $composableBuilder(
+      column: $table.contactTag, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get phone => $composableBuilder(
+      column: $table.phone, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get wechat => $composableBuilder(
+      column: $table.wechat, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get alipay => $composableBuilder(
+      column: $table.alipay, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get profileJson => $composableBuilder(
+      column: $table.profileJson, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isArchived => $composableBuilder(
+      column: $table.isArchived, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isActive => $composableBuilder(
+      column: $table.isActive, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$CloudContactsTableAnnotationComposer
+    extends Composer<_$BeeDatabase, $CloudContactsTable> {
+  $$CloudContactsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get syncId =>
+      $composableBuilder(column: $table.syncId, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get note =>
+      $composableBuilder(column: $table.note, builder: (column) => column);
+
+  GeneratedColumn<String> get avatarFileId => $composableBuilder(
+      column: $table.avatarFileId, builder: (column) => column);
+
+  GeneratedColumn<String> get contactTag => $composableBuilder(
+      column: $table.contactTag, builder: (column) => column);
+
+  GeneratedColumn<String> get phone =>
+      $composableBuilder(column: $table.phone, builder: (column) => column);
+
+  GeneratedColumn<String> get wechat =>
+      $composableBuilder(column: $table.wechat, builder: (column) => column);
+
+  GeneratedColumn<String> get alipay =>
+      $composableBuilder(column: $table.alipay, builder: (column) => column);
+
+  GeneratedColumn<String> get profileJson => $composableBuilder(
+      column: $table.profileJson, builder: (column) => column);
+
+  GeneratedColumn<bool> get isArchived => $composableBuilder(
+      column: $table.isArchived, builder: (column) => column);
+
+  GeneratedColumn<bool> get isActive =>
+      $composableBuilder(column: $table.isActive, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$CloudContactsTableTableManager extends RootTableManager<
+    _$BeeDatabase,
+    $CloudContactsTable,
+    CloudContact,
+    $$CloudContactsTableFilterComposer,
+    $$CloudContactsTableOrderingComposer,
+    $$CloudContactsTableAnnotationComposer,
+    $$CloudContactsTableCreateCompanionBuilder,
+    $$CloudContactsTableUpdateCompanionBuilder,
+    (
+      CloudContact,
+      BaseReferences<_$BeeDatabase, $CloudContactsTable, CloudContact>
+    ),
+    CloudContact,
+    PrefetchHooks Function()> {
+  $$CloudContactsTableTableManager(_$BeeDatabase db, $CloudContactsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CloudContactsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CloudContactsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CloudContactsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> syncId = const Value.absent(),
+            Value<String> name = const Value.absent(),
+            Value<String?> note = const Value.absent(),
+            Value<String?> avatarFileId = const Value.absent(),
+            Value<String?> contactTag = const Value.absent(),
+            Value<String?> phone = const Value.absent(),
+            Value<String?> wechat = const Value.absent(),
+            Value<String?> alipay = const Value.absent(),
+            Value<String?> profileJson = const Value.absent(),
+            Value<bool> isArchived = const Value.absent(),
+            Value<bool> isActive = const Value.absent(),
+            Value<DateTime?> updatedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              CloudContactsCompanion(
+            syncId: syncId,
+            name: name,
+            note: note,
+            avatarFileId: avatarFileId,
+            contactTag: contactTag,
+            phone: phone,
+            wechat: wechat,
+            alipay: alipay,
+            profileJson: profileJson,
+            isArchived: isArchived,
+            isActive: isActive,
+            updatedAt: updatedAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String syncId,
+            required String name,
+            Value<String?> note = const Value.absent(),
+            Value<String?> avatarFileId = const Value.absent(),
+            Value<String?> contactTag = const Value.absent(),
+            Value<String?> phone = const Value.absent(),
+            Value<String?> wechat = const Value.absent(),
+            Value<String?> alipay = const Value.absent(),
+            Value<String?> profileJson = const Value.absent(),
+            Value<bool> isArchived = const Value.absent(),
+            Value<bool> isActive = const Value.absent(),
+            Value<DateTime?> updatedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              CloudContactsCompanion.insert(
+            syncId: syncId,
+            name: name,
+            note: note,
+            avatarFileId: avatarFileId,
+            contactTag: contactTag,
+            phone: phone,
+            wechat: wechat,
+            alipay: alipay,
+            profileJson: profileJson,
+            isArchived: isArchived,
+            isActive: isActive,
+            updatedAt: updatedAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$CloudContactsTableProcessedTableManager = ProcessedTableManager<
+    _$BeeDatabase,
+    $CloudContactsTable,
+    CloudContact,
+    $$CloudContactsTableFilterComposer,
+    $$CloudContactsTableOrderingComposer,
+    $$CloudContactsTableAnnotationComposer,
+    $$CloudContactsTableCreateCompanionBuilder,
+    $$CloudContactsTableUpdateCompanionBuilder,
+    (
+      CloudContact,
+      BaseReferences<_$BeeDatabase, $CloudContactsTable, CloudContact>
+    ),
+    CloudContact,
+    PrefetchHooks Function()>;
+typedef $$CloudLoansTableCreateCompanionBuilder = CloudLoansCompanion Function({
+  required String syncId,
+  Value<String?> contactId,
+  required String direction,
+  required double amount,
+  Value<String?> currencyCode,
+  Value<DateTime?> happenedAt,
+  Value<String?> dueAt,
+  Value<String?> interestType,
+  Value<double?> interestRate,
+  Value<double?> interestAmount,
+  Value<String?> note,
+  Value<String?> status,
+  Value<String?> accountId,
+  Value<String?> accountName,
+  Value<String?> txSyncId,
+  Value<DateTime?> updatedAt,
+  Value<int> rowid,
+});
+typedef $$CloudLoansTableUpdateCompanionBuilder = CloudLoansCompanion Function({
+  Value<String> syncId,
+  Value<String?> contactId,
+  Value<String> direction,
+  Value<double> amount,
+  Value<String?> currencyCode,
+  Value<DateTime?> happenedAt,
+  Value<String?> dueAt,
+  Value<String?> interestType,
+  Value<double?> interestRate,
+  Value<double?> interestAmount,
+  Value<String?> note,
+  Value<String?> status,
+  Value<String?> accountId,
+  Value<String?> accountName,
+  Value<String?> txSyncId,
+  Value<DateTime?> updatedAt,
+  Value<int> rowid,
+});
+
+class $$CloudLoansTableFilterComposer
+    extends Composer<_$BeeDatabase, $CloudLoansTable> {
+  $$CloudLoansTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get syncId => $composableBuilder(
+      column: $table.syncId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get contactId => $composableBuilder(
+      column: $table.contactId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get direction => $composableBuilder(
+      column: $table.direction, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get amount => $composableBuilder(
+      column: $table.amount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get currencyCode => $composableBuilder(
+      column: $table.currencyCode, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get happenedAt => $composableBuilder(
+      column: $table.happenedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get dueAt => $composableBuilder(
+      column: $table.dueAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get interestType => $composableBuilder(
+      column: $table.interestType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get interestRate => $composableBuilder(
+      column: $table.interestRate, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get interestAmount => $composableBuilder(
+      column: $table.interestAmount,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get note => $composableBuilder(
+      column: $table.note, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get accountId => $composableBuilder(
+      column: $table.accountId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get accountName => $composableBuilder(
+      column: $table.accountName, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get txSyncId => $composableBuilder(
+      column: $table.txSyncId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$CloudLoansTableOrderingComposer
+    extends Composer<_$BeeDatabase, $CloudLoansTable> {
+  $$CloudLoansTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get syncId => $composableBuilder(
+      column: $table.syncId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get contactId => $composableBuilder(
+      column: $table.contactId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get direction => $composableBuilder(
+      column: $table.direction, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get amount => $composableBuilder(
+      column: $table.amount, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get currencyCode => $composableBuilder(
+      column: $table.currencyCode,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get happenedAt => $composableBuilder(
+      column: $table.happenedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get dueAt => $composableBuilder(
+      column: $table.dueAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get interestType => $composableBuilder(
+      column: $table.interestType,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get interestRate => $composableBuilder(
+      column: $table.interestRate,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get interestAmount => $composableBuilder(
+      column: $table.interestAmount,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get note => $composableBuilder(
+      column: $table.note, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get accountId => $composableBuilder(
+      column: $table.accountId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get accountName => $composableBuilder(
+      column: $table.accountName, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get txSyncId => $composableBuilder(
+      column: $table.txSyncId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$CloudLoansTableAnnotationComposer
+    extends Composer<_$BeeDatabase, $CloudLoansTable> {
+  $$CloudLoansTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get syncId =>
+      $composableBuilder(column: $table.syncId, builder: (column) => column);
+
+  GeneratedColumn<String> get contactId =>
+      $composableBuilder(column: $table.contactId, builder: (column) => column);
+
+  GeneratedColumn<String> get direction =>
+      $composableBuilder(column: $table.direction, builder: (column) => column);
+
+  GeneratedColumn<double> get amount =>
+      $composableBuilder(column: $table.amount, builder: (column) => column);
+
+  GeneratedColumn<String> get currencyCode => $composableBuilder(
+      column: $table.currencyCode, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get happenedAt => $composableBuilder(
+      column: $table.happenedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get dueAt =>
+      $composableBuilder(column: $table.dueAt, builder: (column) => column);
+
+  GeneratedColumn<String> get interestType => $composableBuilder(
+      column: $table.interestType, builder: (column) => column);
+
+  GeneratedColumn<double> get interestRate => $composableBuilder(
+      column: $table.interestRate, builder: (column) => column);
+
+  GeneratedColumn<double> get interestAmount => $composableBuilder(
+      column: $table.interestAmount, builder: (column) => column);
+
+  GeneratedColumn<String> get note =>
+      $composableBuilder(column: $table.note, builder: (column) => column);
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<String> get accountId =>
+      $composableBuilder(column: $table.accountId, builder: (column) => column);
+
+  GeneratedColumn<String> get accountName => $composableBuilder(
+      column: $table.accountName, builder: (column) => column);
+
+  GeneratedColumn<String> get txSyncId =>
+      $composableBuilder(column: $table.txSyncId, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$CloudLoansTableTableManager extends RootTableManager<
+    _$BeeDatabase,
+    $CloudLoansTable,
+    CloudLoan,
+    $$CloudLoansTableFilterComposer,
+    $$CloudLoansTableOrderingComposer,
+    $$CloudLoansTableAnnotationComposer,
+    $$CloudLoansTableCreateCompanionBuilder,
+    $$CloudLoansTableUpdateCompanionBuilder,
+    (CloudLoan, BaseReferences<_$BeeDatabase, $CloudLoansTable, CloudLoan>),
+    CloudLoan,
+    PrefetchHooks Function()> {
+  $$CloudLoansTableTableManager(_$BeeDatabase db, $CloudLoansTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CloudLoansTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CloudLoansTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CloudLoansTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> syncId = const Value.absent(),
+            Value<String?> contactId = const Value.absent(),
+            Value<String> direction = const Value.absent(),
+            Value<double> amount = const Value.absent(),
+            Value<String?> currencyCode = const Value.absent(),
+            Value<DateTime?> happenedAt = const Value.absent(),
+            Value<String?> dueAt = const Value.absent(),
+            Value<String?> interestType = const Value.absent(),
+            Value<double?> interestRate = const Value.absent(),
+            Value<double?> interestAmount = const Value.absent(),
+            Value<String?> note = const Value.absent(),
+            Value<String?> status = const Value.absent(),
+            Value<String?> accountId = const Value.absent(),
+            Value<String?> accountName = const Value.absent(),
+            Value<String?> txSyncId = const Value.absent(),
+            Value<DateTime?> updatedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              CloudLoansCompanion(
+            syncId: syncId,
+            contactId: contactId,
+            direction: direction,
+            amount: amount,
+            currencyCode: currencyCode,
+            happenedAt: happenedAt,
+            dueAt: dueAt,
+            interestType: interestType,
+            interestRate: interestRate,
+            interestAmount: interestAmount,
+            note: note,
+            status: status,
+            accountId: accountId,
+            accountName: accountName,
+            txSyncId: txSyncId,
+            updatedAt: updatedAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String syncId,
+            Value<String?> contactId = const Value.absent(),
+            required String direction,
+            required double amount,
+            Value<String?> currencyCode = const Value.absent(),
+            Value<DateTime?> happenedAt = const Value.absent(),
+            Value<String?> dueAt = const Value.absent(),
+            Value<String?> interestType = const Value.absent(),
+            Value<double?> interestRate = const Value.absent(),
+            Value<double?> interestAmount = const Value.absent(),
+            Value<String?> note = const Value.absent(),
+            Value<String?> status = const Value.absent(),
+            Value<String?> accountId = const Value.absent(),
+            Value<String?> accountName = const Value.absent(),
+            Value<String?> txSyncId = const Value.absent(),
+            Value<DateTime?> updatedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              CloudLoansCompanion.insert(
+            syncId: syncId,
+            contactId: contactId,
+            direction: direction,
+            amount: amount,
+            currencyCode: currencyCode,
+            happenedAt: happenedAt,
+            dueAt: dueAt,
+            interestType: interestType,
+            interestRate: interestRate,
+            interestAmount: interestAmount,
+            note: note,
+            status: status,
+            accountId: accountId,
+            accountName: accountName,
+            txSyncId: txSyncId,
+            updatedAt: updatedAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$CloudLoansTableProcessedTableManager = ProcessedTableManager<
+    _$BeeDatabase,
+    $CloudLoansTable,
+    CloudLoan,
+    $$CloudLoansTableFilterComposer,
+    $$CloudLoansTableOrderingComposer,
+    $$CloudLoansTableAnnotationComposer,
+    $$CloudLoansTableCreateCompanionBuilder,
+    $$CloudLoansTableUpdateCompanionBuilder,
+    (CloudLoan, BaseReferences<_$BeeDatabase, $CloudLoansTable, CloudLoan>),
+    CloudLoan,
+    PrefetchHooks Function()>;
+typedef $$CloudLoanRepaymentsTableCreateCompanionBuilder
+    = CloudLoanRepaymentsCompanion Function({
+  required String syncId,
+  required String loanId,
+  required double amount,
+  Value<DateTime?> repaidAt,
+  Value<String?> note,
+  Value<String?> accountId,
+  Value<String?> txSyncId,
+  Value<double?> interestAmount,
+  Value<String?> groupId,
+  Value<int> rowid,
+});
+typedef $$CloudLoanRepaymentsTableUpdateCompanionBuilder
+    = CloudLoanRepaymentsCompanion Function({
+  Value<String> syncId,
+  Value<String> loanId,
+  Value<double> amount,
+  Value<DateTime?> repaidAt,
+  Value<String?> note,
+  Value<String?> accountId,
+  Value<String?> txSyncId,
+  Value<double?> interestAmount,
+  Value<String?> groupId,
+  Value<int> rowid,
+});
+
+class $$CloudLoanRepaymentsTableFilterComposer
+    extends Composer<_$BeeDatabase, $CloudLoanRepaymentsTable> {
+  $$CloudLoanRepaymentsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get syncId => $composableBuilder(
+      column: $table.syncId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get loanId => $composableBuilder(
+      column: $table.loanId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get amount => $composableBuilder(
+      column: $table.amount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get repaidAt => $composableBuilder(
+      column: $table.repaidAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get note => $composableBuilder(
+      column: $table.note, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get accountId => $composableBuilder(
+      column: $table.accountId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get txSyncId => $composableBuilder(
+      column: $table.txSyncId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get interestAmount => $composableBuilder(
+      column: $table.interestAmount,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get groupId => $composableBuilder(
+      column: $table.groupId, builder: (column) => ColumnFilters(column));
+}
+
+class $$CloudLoanRepaymentsTableOrderingComposer
+    extends Composer<_$BeeDatabase, $CloudLoanRepaymentsTable> {
+  $$CloudLoanRepaymentsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get syncId => $composableBuilder(
+      column: $table.syncId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get loanId => $composableBuilder(
+      column: $table.loanId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get amount => $composableBuilder(
+      column: $table.amount, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get repaidAt => $composableBuilder(
+      column: $table.repaidAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get note => $composableBuilder(
+      column: $table.note, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get accountId => $composableBuilder(
+      column: $table.accountId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get txSyncId => $composableBuilder(
+      column: $table.txSyncId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get interestAmount => $composableBuilder(
+      column: $table.interestAmount,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get groupId => $composableBuilder(
+      column: $table.groupId, builder: (column) => ColumnOrderings(column));
+}
+
+class $$CloudLoanRepaymentsTableAnnotationComposer
+    extends Composer<_$BeeDatabase, $CloudLoanRepaymentsTable> {
+  $$CloudLoanRepaymentsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get syncId =>
+      $composableBuilder(column: $table.syncId, builder: (column) => column);
+
+  GeneratedColumn<String> get loanId =>
+      $composableBuilder(column: $table.loanId, builder: (column) => column);
+
+  GeneratedColumn<double> get amount =>
+      $composableBuilder(column: $table.amount, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get repaidAt =>
+      $composableBuilder(column: $table.repaidAt, builder: (column) => column);
+
+  GeneratedColumn<String> get note =>
+      $composableBuilder(column: $table.note, builder: (column) => column);
+
+  GeneratedColumn<String> get accountId =>
+      $composableBuilder(column: $table.accountId, builder: (column) => column);
+
+  GeneratedColumn<String> get txSyncId =>
+      $composableBuilder(column: $table.txSyncId, builder: (column) => column);
+
+  GeneratedColumn<double> get interestAmount => $composableBuilder(
+      column: $table.interestAmount, builder: (column) => column);
+
+  GeneratedColumn<String> get groupId =>
+      $composableBuilder(column: $table.groupId, builder: (column) => column);
+}
+
+class $$CloudLoanRepaymentsTableTableManager extends RootTableManager<
+    _$BeeDatabase,
+    $CloudLoanRepaymentsTable,
+    CloudLoanRepayment,
+    $$CloudLoanRepaymentsTableFilterComposer,
+    $$CloudLoanRepaymentsTableOrderingComposer,
+    $$CloudLoanRepaymentsTableAnnotationComposer,
+    $$CloudLoanRepaymentsTableCreateCompanionBuilder,
+    $$CloudLoanRepaymentsTableUpdateCompanionBuilder,
+    (
+      CloudLoanRepayment,
+      BaseReferences<_$BeeDatabase, $CloudLoanRepaymentsTable,
+          CloudLoanRepayment>
+    ),
+    CloudLoanRepayment,
+    PrefetchHooks Function()> {
+  $$CloudLoanRepaymentsTableTableManager(
+      _$BeeDatabase db, $CloudLoanRepaymentsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CloudLoanRepaymentsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CloudLoanRepaymentsTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CloudLoanRepaymentsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> syncId = const Value.absent(),
+            Value<String> loanId = const Value.absent(),
+            Value<double> amount = const Value.absent(),
+            Value<DateTime?> repaidAt = const Value.absent(),
+            Value<String?> note = const Value.absent(),
+            Value<String?> accountId = const Value.absent(),
+            Value<String?> txSyncId = const Value.absent(),
+            Value<double?> interestAmount = const Value.absent(),
+            Value<String?> groupId = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              CloudLoanRepaymentsCompanion(
+            syncId: syncId,
+            loanId: loanId,
+            amount: amount,
+            repaidAt: repaidAt,
+            note: note,
+            accountId: accountId,
+            txSyncId: txSyncId,
+            interestAmount: interestAmount,
+            groupId: groupId,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String syncId,
+            required String loanId,
+            required double amount,
+            Value<DateTime?> repaidAt = const Value.absent(),
+            Value<String?> note = const Value.absent(),
+            Value<String?> accountId = const Value.absent(),
+            Value<String?> txSyncId = const Value.absent(),
+            Value<double?> interestAmount = const Value.absent(),
+            Value<String?> groupId = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              CloudLoanRepaymentsCompanion.insert(
+            syncId: syncId,
+            loanId: loanId,
+            amount: amount,
+            repaidAt: repaidAt,
+            note: note,
+            accountId: accountId,
+            txSyncId: txSyncId,
+            interestAmount: interestAmount,
+            groupId: groupId,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$CloudLoanRepaymentsTableProcessedTableManager = ProcessedTableManager<
+    _$BeeDatabase,
+    $CloudLoanRepaymentsTable,
+    CloudLoanRepayment,
+    $$CloudLoanRepaymentsTableFilterComposer,
+    $$CloudLoanRepaymentsTableOrderingComposer,
+    $$CloudLoanRepaymentsTableAnnotationComposer,
+    $$CloudLoanRepaymentsTableCreateCompanionBuilder,
+    $$CloudLoanRepaymentsTableUpdateCompanionBuilder,
+    (
+      CloudLoanRepayment,
+      BaseReferences<_$BeeDatabase, $CloudLoanRepaymentsTable,
+          CloudLoanRepayment>
+    ),
+    CloudLoanRepayment,
+    PrefetchHooks Function()>;
+typedef $$CloudSavingPlansTableCreateCompanionBuilder
+    = CloudSavingPlansCompanion Function({
+  required String syncId,
+  required String name,
+  Value<String?> icon,
+  Value<double?> targetAmount,
+  Value<String?> currencyCode,
+  Value<String?> deadline,
+  Value<String?> accountId,
+  Value<String?> planType,
+  Value<double?> monthlyAmount,
+  Value<String?> status,
+  Value<String?> note,
+  Value<int> rowid,
+});
+typedef $$CloudSavingPlansTableUpdateCompanionBuilder
+    = CloudSavingPlansCompanion Function({
+  Value<String> syncId,
+  Value<String> name,
+  Value<String?> icon,
+  Value<double?> targetAmount,
+  Value<String?> currencyCode,
+  Value<String?> deadline,
+  Value<String?> accountId,
+  Value<String?> planType,
+  Value<double?> monthlyAmount,
+  Value<String?> status,
+  Value<String?> note,
+  Value<int> rowid,
+});
+
+class $$CloudSavingPlansTableFilterComposer
+    extends Composer<_$BeeDatabase, $CloudSavingPlansTable> {
+  $$CloudSavingPlansTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get syncId => $composableBuilder(
+      column: $table.syncId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get icon => $composableBuilder(
+      column: $table.icon, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get targetAmount => $composableBuilder(
+      column: $table.targetAmount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get currencyCode => $composableBuilder(
+      column: $table.currencyCode, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get deadline => $composableBuilder(
+      column: $table.deadline, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get accountId => $composableBuilder(
+      column: $table.accountId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get planType => $composableBuilder(
+      column: $table.planType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get monthlyAmount => $composableBuilder(
+      column: $table.monthlyAmount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get note => $composableBuilder(
+      column: $table.note, builder: (column) => ColumnFilters(column));
+}
+
+class $$CloudSavingPlansTableOrderingComposer
+    extends Composer<_$BeeDatabase, $CloudSavingPlansTable> {
+  $$CloudSavingPlansTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get syncId => $composableBuilder(
+      column: $table.syncId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get icon => $composableBuilder(
+      column: $table.icon, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get targetAmount => $composableBuilder(
+      column: $table.targetAmount,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get currencyCode => $composableBuilder(
+      column: $table.currencyCode,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get deadline => $composableBuilder(
+      column: $table.deadline, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get accountId => $composableBuilder(
+      column: $table.accountId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get planType => $composableBuilder(
+      column: $table.planType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get monthlyAmount => $composableBuilder(
+      column: $table.monthlyAmount,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get note => $composableBuilder(
+      column: $table.note, builder: (column) => ColumnOrderings(column));
+}
+
+class $$CloudSavingPlansTableAnnotationComposer
+    extends Composer<_$BeeDatabase, $CloudSavingPlansTable> {
+  $$CloudSavingPlansTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get syncId =>
+      $composableBuilder(column: $table.syncId, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get icon =>
+      $composableBuilder(column: $table.icon, builder: (column) => column);
+
+  GeneratedColumn<double> get targetAmount => $composableBuilder(
+      column: $table.targetAmount, builder: (column) => column);
+
+  GeneratedColumn<String> get currencyCode => $composableBuilder(
+      column: $table.currencyCode, builder: (column) => column);
+
+  GeneratedColumn<String> get deadline =>
+      $composableBuilder(column: $table.deadline, builder: (column) => column);
+
+  GeneratedColumn<String> get accountId =>
+      $composableBuilder(column: $table.accountId, builder: (column) => column);
+
+  GeneratedColumn<String> get planType =>
+      $composableBuilder(column: $table.planType, builder: (column) => column);
+
+  GeneratedColumn<double> get monthlyAmount => $composableBuilder(
+      column: $table.monthlyAmount, builder: (column) => column);
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<String> get note =>
+      $composableBuilder(column: $table.note, builder: (column) => column);
+}
+
+class $$CloudSavingPlansTableTableManager extends RootTableManager<
+    _$BeeDatabase,
+    $CloudSavingPlansTable,
+    CloudSavingPlan,
+    $$CloudSavingPlansTableFilterComposer,
+    $$CloudSavingPlansTableOrderingComposer,
+    $$CloudSavingPlansTableAnnotationComposer,
+    $$CloudSavingPlansTableCreateCompanionBuilder,
+    $$CloudSavingPlansTableUpdateCompanionBuilder,
+    (
+      CloudSavingPlan,
+      BaseReferences<_$BeeDatabase, $CloudSavingPlansTable, CloudSavingPlan>
+    ),
+    CloudSavingPlan,
+    PrefetchHooks Function()> {
+  $$CloudSavingPlansTableTableManager(
+      _$BeeDatabase db, $CloudSavingPlansTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CloudSavingPlansTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CloudSavingPlansTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CloudSavingPlansTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> syncId = const Value.absent(),
+            Value<String> name = const Value.absent(),
+            Value<String?> icon = const Value.absent(),
+            Value<double?> targetAmount = const Value.absent(),
+            Value<String?> currencyCode = const Value.absent(),
+            Value<String?> deadline = const Value.absent(),
+            Value<String?> accountId = const Value.absent(),
+            Value<String?> planType = const Value.absent(),
+            Value<double?> monthlyAmount = const Value.absent(),
+            Value<String?> status = const Value.absent(),
+            Value<String?> note = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              CloudSavingPlansCompanion(
+            syncId: syncId,
+            name: name,
+            icon: icon,
+            targetAmount: targetAmount,
+            currencyCode: currencyCode,
+            deadline: deadline,
+            accountId: accountId,
+            planType: planType,
+            monthlyAmount: monthlyAmount,
+            status: status,
+            note: note,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String syncId,
+            required String name,
+            Value<String?> icon = const Value.absent(),
+            Value<double?> targetAmount = const Value.absent(),
+            Value<String?> currencyCode = const Value.absent(),
+            Value<String?> deadline = const Value.absent(),
+            Value<String?> accountId = const Value.absent(),
+            Value<String?> planType = const Value.absent(),
+            Value<double?> monthlyAmount = const Value.absent(),
+            Value<String?> status = const Value.absent(),
+            Value<String?> note = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              CloudSavingPlansCompanion.insert(
+            syncId: syncId,
+            name: name,
+            icon: icon,
+            targetAmount: targetAmount,
+            currencyCode: currencyCode,
+            deadline: deadline,
+            accountId: accountId,
+            planType: planType,
+            monthlyAmount: monthlyAmount,
+            status: status,
+            note: note,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$CloudSavingPlansTableProcessedTableManager = ProcessedTableManager<
+    _$BeeDatabase,
+    $CloudSavingPlansTable,
+    CloudSavingPlan,
+    $$CloudSavingPlansTableFilterComposer,
+    $$CloudSavingPlansTableOrderingComposer,
+    $$CloudSavingPlansTableAnnotationComposer,
+    $$CloudSavingPlansTableCreateCompanionBuilder,
+    $$CloudSavingPlansTableUpdateCompanionBuilder,
+    (
+      CloudSavingPlan,
+      BaseReferences<_$BeeDatabase, $CloudSavingPlansTable, CloudSavingPlan>
+    ),
+    CloudSavingPlan,
+    PrefetchHooks Function()>;
+typedef $$CloudSavingContributionsTableCreateCompanionBuilder
+    = CloudSavingContributionsCompanion Function({
+  required String syncId,
+  required String planId,
+  required double amount,
+  Value<DateTime?> happenedAt,
+  Value<String?> note,
+  Value<String?> txSyncId,
+  Value<String?> accountId,
+  Value<String?> accountName,
+  Value<String?> receiveAccountId,
+  Value<String?> receiveAccountName,
+  Value<int> rowid,
+});
+typedef $$CloudSavingContributionsTableUpdateCompanionBuilder
+    = CloudSavingContributionsCompanion Function({
+  Value<String> syncId,
+  Value<String> planId,
+  Value<double> amount,
+  Value<DateTime?> happenedAt,
+  Value<String?> note,
+  Value<String?> txSyncId,
+  Value<String?> accountId,
+  Value<String?> accountName,
+  Value<String?> receiveAccountId,
+  Value<String?> receiveAccountName,
+  Value<int> rowid,
+});
+
+class $$CloudSavingContributionsTableFilterComposer
+    extends Composer<_$BeeDatabase, $CloudSavingContributionsTable> {
+  $$CloudSavingContributionsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get syncId => $composableBuilder(
+      column: $table.syncId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get planId => $composableBuilder(
+      column: $table.planId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get amount => $composableBuilder(
+      column: $table.amount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get happenedAt => $composableBuilder(
+      column: $table.happenedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get note => $composableBuilder(
+      column: $table.note, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get txSyncId => $composableBuilder(
+      column: $table.txSyncId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get accountId => $composableBuilder(
+      column: $table.accountId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get accountName => $composableBuilder(
+      column: $table.accountName, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get receiveAccountId => $composableBuilder(
+      column: $table.receiveAccountId,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get receiveAccountName => $composableBuilder(
+      column: $table.receiveAccountName,
+      builder: (column) => ColumnFilters(column));
+}
+
+class $$CloudSavingContributionsTableOrderingComposer
+    extends Composer<_$BeeDatabase, $CloudSavingContributionsTable> {
+  $$CloudSavingContributionsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get syncId => $composableBuilder(
+      column: $table.syncId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get planId => $composableBuilder(
+      column: $table.planId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get amount => $composableBuilder(
+      column: $table.amount, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get happenedAt => $composableBuilder(
+      column: $table.happenedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get note => $composableBuilder(
+      column: $table.note, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get txSyncId => $composableBuilder(
+      column: $table.txSyncId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get accountId => $composableBuilder(
+      column: $table.accountId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get accountName => $composableBuilder(
+      column: $table.accountName, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get receiveAccountId => $composableBuilder(
+      column: $table.receiveAccountId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get receiveAccountName => $composableBuilder(
+      column: $table.receiveAccountName,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$CloudSavingContributionsTableAnnotationComposer
+    extends Composer<_$BeeDatabase, $CloudSavingContributionsTable> {
+  $$CloudSavingContributionsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get syncId =>
+      $composableBuilder(column: $table.syncId, builder: (column) => column);
+
+  GeneratedColumn<String> get planId =>
+      $composableBuilder(column: $table.planId, builder: (column) => column);
+
+  GeneratedColumn<double> get amount =>
+      $composableBuilder(column: $table.amount, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get happenedAt => $composableBuilder(
+      column: $table.happenedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get note =>
+      $composableBuilder(column: $table.note, builder: (column) => column);
+
+  GeneratedColumn<String> get txSyncId =>
+      $composableBuilder(column: $table.txSyncId, builder: (column) => column);
+
+  GeneratedColumn<String> get accountId =>
+      $composableBuilder(column: $table.accountId, builder: (column) => column);
+
+  GeneratedColumn<String> get accountName => $composableBuilder(
+      column: $table.accountName, builder: (column) => column);
+
+  GeneratedColumn<String> get receiveAccountId => $composableBuilder(
+      column: $table.receiveAccountId, builder: (column) => column);
+
+  GeneratedColumn<String> get receiveAccountName => $composableBuilder(
+      column: $table.receiveAccountName, builder: (column) => column);
+}
+
+class $$CloudSavingContributionsTableTableManager extends RootTableManager<
+    _$BeeDatabase,
+    $CloudSavingContributionsTable,
+    CloudSavingContribution,
+    $$CloudSavingContributionsTableFilterComposer,
+    $$CloudSavingContributionsTableOrderingComposer,
+    $$CloudSavingContributionsTableAnnotationComposer,
+    $$CloudSavingContributionsTableCreateCompanionBuilder,
+    $$CloudSavingContributionsTableUpdateCompanionBuilder,
+    (
+      CloudSavingContribution,
+      BaseReferences<_$BeeDatabase, $CloudSavingContributionsTable,
+          CloudSavingContribution>
+    ),
+    CloudSavingContribution,
+    PrefetchHooks Function()> {
+  $$CloudSavingContributionsTableTableManager(
+      _$BeeDatabase db, $CloudSavingContributionsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CloudSavingContributionsTableFilterComposer(
+                  $db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CloudSavingContributionsTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CloudSavingContributionsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> syncId = const Value.absent(),
+            Value<String> planId = const Value.absent(),
+            Value<double> amount = const Value.absent(),
+            Value<DateTime?> happenedAt = const Value.absent(),
+            Value<String?> note = const Value.absent(),
+            Value<String?> txSyncId = const Value.absent(),
+            Value<String?> accountId = const Value.absent(),
+            Value<String?> accountName = const Value.absent(),
+            Value<String?> receiveAccountId = const Value.absent(),
+            Value<String?> receiveAccountName = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              CloudSavingContributionsCompanion(
+            syncId: syncId,
+            planId: planId,
+            amount: amount,
+            happenedAt: happenedAt,
+            note: note,
+            txSyncId: txSyncId,
+            accountId: accountId,
+            accountName: accountName,
+            receiveAccountId: receiveAccountId,
+            receiveAccountName: receiveAccountName,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String syncId,
+            required String planId,
+            required double amount,
+            Value<DateTime?> happenedAt = const Value.absent(),
+            Value<String?> note = const Value.absent(),
+            Value<String?> txSyncId = const Value.absent(),
+            Value<String?> accountId = const Value.absent(),
+            Value<String?> accountName = const Value.absent(),
+            Value<String?> receiveAccountId = const Value.absent(),
+            Value<String?> receiveAccountName = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              CloudSavingContributionsCompanion.insert(
+            syncId: syncId,
+            planId: planId,
+            amount: amount,
+            happenedAt: happenedAt,
+            note: note,
+            txSyncId: txSyncId,
+            accountId: accountId,
+            accountName: accountName,
+            receiveAccountId: receiveAccountId,
+            receiveAccountName: receiveAccountName,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$CloudSavingContributionsTableProcessedTableManager
+    = ProcessedTableManager<
+        _$BeeDatabase,
+        $CloudSavingContributionsTable,
+        CloudSavingContribution,
+        $$CloudSavingContributionsTableFilterComposer,
+        $$CloudSavingContributionsTableOrderingComposer,
+        $$CloudSavingContributionsTableAnnotationComposer,
+        $$CloudSavingContributionsTableCreateCompanionBuilder,
+        $$CloudSavingContributionsTableUpdateCompanionBuilder,
+        (
+          CloudSavingContribution,
+          BaseReferences<_$BeeDatabase, $CloudSavingContributionsTable,
+              CloudSavingContribution>
+        ),
+        CloudSavingContribution,
+        PrefetchHooks Function()>;
+typedef $$CloudReimbursementsTableCreateCompanionBuilder
+    = CloudReimbursementsCompanion Function({
+  required String syncId,
+  required double amount,
+  Value<DateTime?> happenedAt,
+  Value<String?> note,
+  Value<String?> icon,
+  Value<String?> receiveAccountId,
+  Value<String?> receiveAccountName,
+  Value<String?> companyId,
+  Value<String?> companyName,
+  Value<String?> txSyncId,
+  Value<int> rowid,
+});
+typedef $$CloudReimbursementsTableUpdateCompanionBuilder
+    = CloudReimbursementsCompanion Function({
+  Value<String> syncId,
+  Value<double> amount,
+  Value<DateTime?> happenedAt,
+  Value<String?> note,
+  Value<String?> icon,
+  Value<String?> receiveAccountId,
+  Value<String?> receiveAccountName,
+  Value<String?> companyId,
+  Value<String?> companyName,
+  Value<String?> txSyncId,
+  Value<int> rowid,
+});
+
+class $$CloudReimbursementsTableFilterComposer
+    extends Composer<_$BeeDatabase, $CloudReimbursementsTable> {
+  $$CloudReimbursementsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get syncId => $composableBuilder(
+      column: $table.syncId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get amount => $composableBuilder(
+      column: $table.amount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get happenedAt => $composableBuilder(
+      column: $table.happenedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get note => $composableBuilder(
+      column: $table.note, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get icon => $composableBuilder(
+      column: $table.icon, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get receiveAccountId => $composableBuilder(
+      column: $table.receiveAccountId,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get receiveAccountName => $composableBuilder(
+      column: $table.receiveAccountName,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get companyId => $composableBuilder(
+      column: $table.companyId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get companyName => $composableBuilder(
+      column: $table.companyName, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get txSyncId => $composableBuilder(
+      column: $table.txSyncId, builder: (column) => ColumnFilters(column));
+}
+
+class $$CloudReimbursementsTableOrderingComposer
+    extends Composer<_$BeeDatabase, $CloudReimbursementsTable> {
+  $$CloudReimbursementsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get syncId => $composableBuilder(
+      column: $table.syncId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get amount => $composableBuilder(
+      column: $table.amount, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get happenedAt => $composableBuilder(
+      column: $table.happenedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get note => $composableBuilder(
+      column: $table.note, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get icon => $composableBuilder(
+      column: $table.icon, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get receiveAccountId => $composableBuilder(
+      column: $table.receiveAccountId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get receiveAccountName => $composableBuilder(
+      column: $table.receiveAccountName,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get companyId => $composableBuilder(
+      column: $table.companyId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get companyName => $composableBuilder(
+      column: $table.companyName, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get txSyncId => $composableBuilder(
+      column: $table.txSyncId, builder: (column) => ColumnOrderings(column));
+}
+
+class $$CloudReimbursementsTableAnnotationComposer
+    extends Composer<_$BeeDatabase, $CloudReimbursementsTable> {
+  $$CloudReimbursementsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get syncId =>
+      $composableBuilder(column: $table.syncId, builder: (column) => column);
+
+  GeneratedColumn<double> get amount =>
+      $composableBuilder(column: $table.amount, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get happenedAt => $composableBuilder(
+      column: $table.happenedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get note =>
+      $composableBuilder(column: $table.note, builder: (column) => column);
+
+  GeneratedColumn<String> get icon =>
+      $composableBuilder(column: $table.icon, builder: (column) => column);
+
+  GeneratedColumn<String> get receiveAccountId => $composableBuilder(
+      column: $table.receiveAccountId, builder: (column) => column);
+
+  GeneratedColumn<String> get receiveAccountName => $composableBuilder(
+      column: $table.receiveAccountName, builder: (column) => column);
+
+  GeneratedColumn<String> get companyId =>
+      $composableBuilder(column: $table.companyId, builder: (column) => column);
+
+  GeneratedColumn<String> get companyName => $composableBuilder(
+      column: $table.companyName, builder: (column) => column);
+
+  GeneratedColumn<String> get txSyncId =>
+      $composableBuilder(column: $table.txSyncId, builder: (column) => column);
+}
+
+class $$CloudReimbursementsTableTableManager extends RootTableManager<
+    _$BeeDatabase,
+    $CloudReimbursementsTable,
+    CloudReimbursement,
+    $$CloudReimbursementsTableFilterComposer,
+    $$CloudReimbursementsTableOrderingComposer,
+    $$CloudReimbursementsTableAnnotationComposer,
+    $$CloudReimbursementsTableCreateCompanionBuilder,
+    $$CloudReimbursementsTableUpdateCompanionBuilder,
+    (
+      CloudReimbursement,
+      BaseReferences<_$BeeDatabase, $CloudReimbursementsTable,
+          CloudReimbursement>
+    ),
+    CloudReimbursement,
+    PrefetchHooks Function()> {
+  $$CloudReimbursementsTableTableManager(
+      _$BeeDatabase db, $CloudReimbursementsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CloudReimbursementsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CloudReimbursementsTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CloudReimbursementsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> syncId = const Value.absent(),
+            Value<double> amount = const Value.absent(),
+            Value<DateTime?> happenedAt = const Value.absent(),
+            Value<String?> note = const Value.absent(),
+            Value<String?> icon = const Value.absent(),
+            Value<String?> receiveAccountId = const Value.absent(),
+            Value<String?> receiveAccountName = const Value.absent(),
+            Value<String?> companyId = const Value.absent(),
+            Value<String?> companyName = const Value.absent(),
+            Value<String?> txSyncId = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              CloudReimbursementsCompanion(
+            syncId: syncId,
+            amount: amount,
+            happenedAt: happenedAt,
+            note: note,
+            icon: icon,
+            receiveAccountId: receiveAccountId,
+            receiveAccountName: receiveAccountName,
+            companyId: companyId,
+            companyName: companyName,
+            txSyncId: txSyncId,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String syncId,
+            required double amount,
+            Value<DateTime?> happenedAt = const Value.absent(),
+            Value<String?> note = const Value.absent(),
+            Value<String?> icon = const Value.absent(),
+            Value<String?> receiveAccountId = const Value.absent(),
+            Value<String?> receiveAccountName = const Value.absent(),
+            Value<String?> companyId = const Value.absent(),
+            Value<String?> companyName = const Value.absent(),
+            Value<String?> txSyncId = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              CloudReimbursementsCompanion.insert(
+            syncId: syncId,
+            amount: amount,
+            happenedAt: happenedAt,
+            note: note,
+            icon: icon,
+            receiveAccountId: receiveAccountId,
+            receiveAccountName: receiveAccountName,
+            companyId: companyId,
+            companyName: companyName,
+            txSyncId: txSyncId,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$CloudReimbursementsTableProcessedTableManager = ProcessedTableManager<
+    _$BeeDatabase,
+    $CloudReimbursementsTable,
+    CloudReimbursement,
+    $$CloudReimbursementsTableFilterComposer,
+    $$CloudReimbursementsTableOrderingComposer,
+    $$CloudReimbursementsTableAnnotationComposer,
+    $$CloudReimbursementsTableCreateCompanionBuilder,
+    $$CloudReimbursementsTableUpdateCompanionBuilder,
+    (
+      CloudReimbursement,
+      BaseReferences<_$BeeDatabase, $CloudReimbursementsTable,
+          CloudReimbursement>
+    ),
+    CloudReimbursement,
+    PrefetchHooks Function()>;
+typedef $$CloudReimbursementItemsTableCreateCompanionBuilder
+    = CloudReimbursementItemsCompanion Function({
+  required String syncId,
+  Value<String?> txSyncId,
+  required double amount,
+  Value<DateTime?> happenedAt,
+  Value<String?> note,
+  Value<String?> categoryName,
+  Value<String?> accountId,
+  Value<String?> accountName,
+  Value<String?> companyId,
+  Value<String?> companyName,
+  Value<String?> status,
+  Value<String?> reimbursementId,
+  Value<int> rowid,
+});
+typedef $$CloudReimbursementItemsTableUpdateCompanionBuilder
+    = CloudReimbursementItemsCompanion Function({
+  Value<String> syncId,
+  Value<String?> txSyncId,
+  Value<double> amount,
+  Value<DateTime?> happenedAt,
+  Value<String?> note,
+  Value<String?> categoryName,
+  Value<String?> accountId,
+  Value<String?> accountName,
+  Value<String?> companyId,
+  Value<String?> companyName,
+  Value<String?> status,
+  Value<String?> reimbursementId,
+  Value<int> rowid,
+});
+
+class $$CloudReimbursementItemsTableFilterComposer
+    extends Composer<_$BeeDatabase, $CloudReimbursementItemsTable> {
+  $$CloudReimbursementItemsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get syncId => $composableBuilder(
+      column: $table.syncId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get txSyncId => $composableBuilder(
+      column: $table.txSyncId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get amount => $composableBuilder(
+      column: $table.amount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get happenedAt => $composableBuilder(
+      column: $table.happenedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get note => $composableBuilder(
+      column: $table.note, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get categoryName => $composableBuilder(
+      column: $table.categoryName, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get accountId => $composableBuilder(
+      column: $table.accountId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get accountName => $composableBuilder(
+      column: $table.accountName, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get companyId => $composableBuilder(
+      column: $table.companyId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get companyName => $composableBuilder(
+      column: $table.companyName, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get reimbursementId => $composableBuilder(
+      column: $table.reimbursementId,
+      builder: (column) => ColumnFilters(column));
+}
+
+class $$CloudReimbursementItemsTableOrderingComposer
+    extends Composer<_$BeeDatabase, $CloudReimbursementItemsTable> {
+  $$CloudReimbursementItemsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get syncId => $composableBuilder(
+      column: $table.syncId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get txSyncId => $composableBuilder(
+      column: $table.txSyncId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get amount => $composableBuilder(
+      column: $table.amount, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get happenedAt => $composableBuilder(
+      column: $table.happenedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get note => $composableBuilder(
+      column: $table.note, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get categoryName => $composableBuilder(
+      column: $table.categoryName,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get accountId => $composableBuilder(
+      column: $table.accountId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get accountName => $composableBuilder(
+      column: $table.accountName, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get companyId => $composableBuilder(
+      column: $table.companyId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get companyName => $composableBuilder(
+      column: $table.companyName, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get reimbursementId => $composableBuilder(
+      column: $table.reimbursementId,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$CloudReimbursementItemsTableAnnotationComposer
+    extends Composer<_$BeeDatabase, $CloudReimbursementItemsTable> {
+  $$CloudReimbursementItemsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get syncId =>
+      $composableBuilder(column: $table.syncId, builder: (column) => column);
+
+  GeneratedColumn<String> get txSyncId =>
+      $composableBuilder(column: $table.txSyncId, builder: (column) => column);
+
+  GeneratedColumn<double> get amount =>
+      $composableBuilder(column: $table.amount, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get happenedAt => $composableBuilder(
+      column: $table.happenedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get note =>
+      $composableBuilder(column: $table.note, builder: (column) => column);
+
+  GeneratedColumn<String> get categoryName => $composableBuilder(
+      column: $table.categoryName, builder: (column) => column);
+
+  GeneratedColumn<String> get accountId =>
+      $composableBuilder(column: $table.accountId, builder: (column) => column);
+
+  GeneratedColumn<String> get accountName => $composableBuilder(
+      column: $table.accountName, builder: (column) => column);
+
+  GeneratedColumn<String> get companyId =>
+      $composableBuilder(column: $table.companyId, builder: (column) => column);
+
+  GeneratedColumn<String> get companyName => $composableBuilder(
+      column: $table.companyName, builder: (column) => column);
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<String> get reimbursementId => $composableBuilder(
+      column: $table.reimbursementId, builder: (column) => column);
+}
+
+class $$CloudReimbursementItemsTableTableManager extends RootTableManager<
+    _$BeeDatabase,
+    $CloudReimbursementItemsTable,
+    CloudReimbursementItem,
+    $$CloudReimbursementItemsTableFilterComposer,
+    $$CloudReimbursementItemsTableOrderingComposer,
+    $$CloudReimbursementItemsTableAnnotationComposer,
+    $$CloudReimbursementItemsTableCreateCompanionBuilder,
+    $$CloudReimbursementItemsTableUpdateCompanionBuilder,
+    (
+      CloudReimbursementItem,
+      BaseReferences<_$BeeDatabase, $CloudReimbursementItemsTable,
+          CloudReimbursementItem>
+    ),
+    CloudReimbursementItem,
+    PrefetchHooks Function()> {
+  $$CloudReimbursementItemsTableTableManager(
+      _$BeeDatabase db, $CloudReimbursementItemsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CloudReimbursementItemsTableFilterComposer(
+                  $db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CloudReimbursementItemsTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CloudReimbursementItemsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> syncId = const Value.absent(),
+            Value<String?> txSyncId = const Value.absent(),
+            Value<double> amount = const Value.absent(),
+            Value<DateTime?> happenedAt = const Value.absent(),
+            Value<String?> note = const Value.absent(),
+            Value<String?> categoryName = const Value.absent(),
+            Value<String?> accountId = const Value.absent(),
+            Value<String?> accountName = const Value.absent(),
+            Value<String?> companyId = const Value.absent(),
+            Value<String?> companyName = const Value.absent(),
+            Value<String?> status = const Value.absent(),
+            Value<String?> reimbursementId = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              CloudReimbursementItemsCompanion(
+            syncId: syncId,
+            txSyncId: txSyncId,
+            amount: amount,
+            happenedAt: happenedAt,
+            note: note,
+            categoryName: categoryName,
+            accountId: accountId,
+            accountName: accountName,
+            companyId: companyId,
+            companyName: companyName,
+            status: status,
+            reimbursementId: reimbursementId,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String syncId,
+            Value<String?> txSyncId = const Value.absent(),
+            required double amount,
+            Value<DateTime?> happenedAt = const Value.absent(),
+            Value<String?> note = const Value.absent(),
+            Value<String?> categoryName = const Value.absent(),
+            Value<String?> accountId = const Value.absent(),
+            Value<String?> accountName = const Value.absent(),
+            Value<String?> companyId = const Value.absent(),
+            Value<String?> companyName = const Value.absent(),
+            Value<String?> status = const Value.absent(),
+            Value<String?> reimbursementId = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              CloudReimbursementItemsCompanion.insert(
+            syncId: syncId,
+            txSyncId: txSyncId,
+            amount: amount,
+            happenedAt: happenedAt,
+            note: note,
+            categoryName: categoryName,
+            accountId: accountId,
+            accountName: accountName,
+            companyId: companyId,
+            companyName: companyName,
+            status: status,
+            reimbursementId: reimbursementId,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$CloudReimbursementItemsTableProcessedTableManager
+    = ProcessedTableManager<
+        _$BeeDatabase,
+        $CloudReimbursementItemsTable,
+        CloudReimbursementItem,
+        $$CloudReimbursementItemsTableFilterComposer,
+        $$CloudReimbursementItemsTableOrderingComposer,
+        $$CloudReimbursementItemsTableAnnotationComposer,
+        $$CloudReimbursementItemsTableCreateCompanionBuilder,
+        $$CloudReimbursementItemsTableUpdateCompanionBuilder,
+        (
+          CloudReimbursementItem,
+          BaseReferences<_$BeeDatabase, $CloudReimbursementItemsTable,
+              CloudReimbursementItem>
+        ),
+        CloudReimbursementItem,
+        PrefetchHooks Function()>;
+typedef $$CloudCompaniesTableCreateCompanionBuilder = CloudCompaniesCompanion
+    Function({
+  required String syncId,
+  required String name,
+  Value<String?> note,
+  Value<int> rowid,
+});
+typedef $$CloudCompaniesTableUpdateCompanionBuilder = CloudCompaniesCompanion
+    Function({
+  Value<String> syncId,
+  Value<String> name,
+  Value<String?> note,
+  Value<int> rowid,
+});
+
+class $$CloudCompaniesTableFilterComposer
+    extends Composer<_$BeeDatabase, $CloudCompaniesTable> {
+  $$CloudCompaniesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get syncId => $composableBuilder(
+      column: $table.syncId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get note => $composableBuilder(
+      column: $table.note, builder: (column) => ColumnFilters(column));
+}
+
+class $$CloudCompaniesTableOrderingComposer
+    extends Composer<_$BeeDatabase, $CloudCompaniesTable> {
+  $$CloudCompaniesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get syncId => $composableBuilder(
+      column: $table.syncId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get note => $composableBuilder(
+      column: $table.note, builder: (column) => ColumnOrderings(column));
+}
+
+class $$CloudCompaniesTableAnnotationComposer
+    extends Composer<_$BeeDatabase, $CloudCompaniesTable> {
+  $$CloudCompaniesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get syncId =>
+      $composableBuilder(column: $table.syncId, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get note =>
+      $composableBuilder(column: $table.note, builder: (column) => column);
+}
+
+class $$CloudCompaniesTableTableManager extends RootTableManager<
+    _$BeeDatabase,
+    $CloudCompaniesTable,
+    CloudCompany,
+    $$CloudCompaniesTableFilterComposer,
+    $$CloudCompaniesTableOrderingComposer,
+    $$CloudCompaniesTableAnnotationComposer,
+    $$CloudCompaniesTableCreateCompanionBuilder,
+    $$CloudCompaniesTableUpdateCompanionBuilder,
+    (
+      CloudCompany,
+      BaseReferences<_$BeeDatabase, $CloudCompaniesTable, CloudCompany>
+    ),
+    CloudCompany,
+    PrefetchHooks Function()> {
+  $$CloudCompaniesTableTableManager(
+      _$BeeDatabase db, $CloudCompaniesTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CloudCompaniesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CloudCompaniesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CloudCompaniesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> syncId = const Value.absent(),
+            Value<String> name = const Value.absent(),
+            Value<String?> note = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              CloudCompaniesCompanion(
+            syncId: syncId,
+            name: name,
+            note: note,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String syncId,
+            required String name,
+            Value<String?> note = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              CloudCompaniesCompanion.insert(
+            syncId: syncId,
+            name: name,
+            note: note,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$CloudCompaniesTableProcessedTableManager = ProcessedTableManager<
+    _$BeeDatabase,
+    $CloudCompaniesTable,
+    CloudCompany,
+    $$CloudCompaniesTableFilterComposer,
+    $$CloudCompaniesTableOrderingComposer,
+    $$CloudCompaniesTableAnnotationComposer,
+    $$CloudCompaniesTableCreateCompanionBuilder,
+    $$CloudCompaniesTableUpdateCompanionBuilder,
+    (
+      CloudCompany,
+      BaseReferences<_$BeeDatabase, $CloudCompaniesTable, CloudCompany>
+    ),
+    CloudCompany,
+    PrefetchHooks Function()>;
+typedef $$CloudItemsTableCreateCompanionBuilder = CloudItemsCompanion Function({
+  required String syncId,
+  required String name,
+  Value<double?> price,
+  Value<DateTime?> purchasedAt,
+  Value<String?> purchaseChannel,
+  Value<String?> categoryName,
+  Value<String?> location,
+  Value<String?> linkMode,
+  Value<String?> txSyncIdsJson,
+  Value<String?> accountId,
+  Value<String?> averageMode,
+  Value<String?> note,
+  Value<int> rowid,
+});
+typedef $$CloudItemsTableUpdateCompanionBuilder = CloudItemsCompanion Function({
+  Value<String> syncId,
+  Value<String> name,
+  Value<double?> price,
+  Value<DateTime?> purchasedAt,
+  Value<String?> purchaseChannel,
+  Value<String?> categoryName,
+  Value<String?> location,
+  Value<String?> linkMode,
+  Value<String?> txSyncIdsJson,
+  Value<String?> accountId,
+  Value<String?> averageMode,
+  Value<String?> note,
+  Value<int> rowid,
+});
+
+class $$CloudItemsTableFilterComposer
+    extends Composer<_$BeeDatabase, $CloudItemsTable> {
+  $$CloudItemsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get syncId => $composableBuilder(
+      column: $table.syncId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get price => $composableBuilder(
+      column: $table.price, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get purchasedAt => $composableBuilder(
+      column: $table.purchasedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get purchaseChannel => $composableBuilder(
+      column: $table.purchaseChannel,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get categoryName => $composableBuilder(
+      column: $table.categoryName, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get location => $composableBuilder(
+      column: $table.location, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get linkMode => $composableBuilder(
+      column: $table.linkMode, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get txSyncIdsJson => $composableBuilder(
+      column: $table.txSyncIdsJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get accountId => $composableBuilder(
+      column: $table.accountId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get averageMode => $composableBuilder(
+      column: $table.averageMode, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get note => $composableBuilder(
+      column: $table.note, builder: (column) => ColumnFilters(column));
+}
+
+class $$CloudItemsTableOrderingComposer
+    extends Composer<_$BeeDatabase, $CloudItemsTable> {
+  $$CloudItemsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get syncId => $composableBuilder(
+      column: $table.syncId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get price => $composableBuilder(
+      column: $table.price, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get purchasedAt => $composableBuilder(
+      column: $table.purchasedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get purchaseChannel => $composableBuilder(
+      column: $table.purchaseChannel,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get categoryName => $composableBuilder(
+      column: $table.categoryName,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get location => $composableBuilder(
+      column: $table.location, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get linkMode => $composableBuilder(
+      column: $table.linkMode, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get txSyncIdsJson => $composableBuilder(
+      column: $table.txSyncIdsJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get accountId => $composableBuilder(
+      column: $table.accountId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get averageMode => $composableBuilder(
+      column: $table.averageMode, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get note => $composableBuilder(
+      column: $table.note, builder: (column) => ColumnOrderings(column));
+}
+
+class $$CloudItemsTableAnnotationComposer
+    extends Composer<_$BeeDatabase, $CloudItemsTable> {
+  $$CloudItemsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get syncId =>
+      $composableBuilder(column: $table.syncId, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<double> get price =>
+      $composableBuilder(column: $table.price, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get purchasedAt => $composableBuilder(
+      column: $table.purchasedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get purchaseChannel => $composableBuilder(
+      column: $table.purchaseChannel, builder: (column) => column);
+
+  GeneratedColumn<String> get categoryName => $composableBuilder(
+      column: $table.categoryName, builder: (column) => column);
+
+  GeneratedColumn<String> get location =>
+      $composableBuilder(column: $table.location, builder: (column) => column);
+
+  GeneratedColumn<String> get linkMode =>
+      $composableBuilder(column: $table.linkMode, builder: (column) => column);
+
+  GeneratedColumn<String> get txSyncIdsJson => $composableBuilder(
+      column: $table.txSyncIdsJson, builder: (column) => column);
+
+  GeneratedColumn<String> get accountId =>
+      $composableBuilder(column: $table.accountId, builder: (column) => column);
+
+  GeneratedColumn<String> get averageMode => $composableBuilder(
+      column: $table.averageMode, builder: (column) => column);
+
+  GeneratedColumn<String> get note =>
+      $composableBuilder(column: $table.note, builder: (column) => column);
+}
+
+class $$CloudItemsTableTableManager extends RootTableManager<
+    _$BeeDatabase,
+    $CloudItemsTable,
+    CloudItem,
+    $$CloudItemsTableFilterComposer,
+    $$CloudItemsTableOrderingComposer,
+    $$CloudItemsTableAnnotationComposer,
+    $$CloudItemsTableCreateCompanionBuilder,
+    $$CloudItemsTableUpdateCompanionBuilder,
+    (CloudItem, BaseReferences<_$BeeDatabase, $CloudItemsTable, CloudItem>),
+    CloudItem,
+    PrefetchHooks Function()> {
+  $$CloudItemsTableTableManager(_$BeeDatabase db, $CloudItemsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CloudItemsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CloudItemsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CloudItemsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> syncId = const Value.absent(),
+            Value<String> name = const Value.absent(),
+            Value<double?> price = const Value.absent(),
+            Value<DateTime?> purchasedAt = const Value.absent(),
+            Value<String?> purchaseChannel = const Value.absent(),
+            Value<String?> categoryName = const Value.absent(),
+            Value<String?> location = const Value.absent(),
+            Value<String?> linkMode = const Value.absent(),
+            Value<String?> txSyncIdsJson = const Value.absent(),
+            Value<String?> accountId = const Value.absent(),
+            Value<String?> averageMode = const Value.absent(),
+            Value<String?> note = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              CloudItemsCompanion(
+            syncId: syncId,
+            name: name,
+            price: price,
+            purchasedAt: purchasedAt,
+            purchaseChannel: purchaseChannel,
+            categoryName: categoryName,
+            location: location,
+            linkMode: linkMode,
+            txSyncIdsJson: txSyncIdsJson,
+            accountId: accountId,
+            averageMode: averageMode,
+            note: note,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String syncId,
+            required String name,
+            Value<double?> price = const Value.absent(),
+            Value<DateTime?> purchasedAt = const Value.absent(),
+            Value<String?> purchaseChannel = const Value.absent(),
+            Value<String?> categoryName = const Value.absent(),
+            Value<String?> location = const Value.absent(),
+            Value<String?> linkMode = const Value.absent(),
+            Value<String?> txSyncIdsJson = const Value.absent(),
+            Value<String?> accountId = const Value.absent(),
+            Value<String?> averageMode = const Value.absent(),
+            Value<String?> note = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              CloudItemsCompanion.insert(
+            syncId: syncId,
+            name: name,
+            price: price,
+            purchasedAt: purchasedAt,
+            purchaseChannel: purchaseChannel,
+            categoryName: categoryName,
+            location: location,
+            linkMode: linkMode,
+            txSyncIdsJson: txSyncIdsJson,
+            accountId: accountId,
+            averageMode: averageMode,
+            note: note,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$CloudItemsTableProcessedTableManager = ProcessedTableManager<
+    _$BeeDatabase,
+    $CloudItemsTable,
+    CloudItem,
+    $$CloudItemsTableFilterComposer,
+    $$CloudItemsTableOrderingComposer,
+    $$CloudItemsTableAnnotationComposer,
+    $$CloudItemsTableCreateCompanionBuilder,
+    $$CloudItemsTableUpdateCompanionBuilder,
+    (CloudItem, BaseReferences<_$BeeDatabase, $CloudItemsTable, CloudItem>),
+    CloudItem,
+    PrefetchHooks Function()>;
+typedef $$CloudItemFlowsTableCreateCompanionBuilder = CloudItemFlowsCompanion
+    Function({
+  required String syncId,
+  required String itemId,
+  required String flowType,
+  required double amount,
+  Value<DateTime?> happenedAt,
+  Value<String?> categoryName,
+  Value<String?> note,
+  Value<String?> txSyncIdsJson,
+  Value<int> rowid,
+});
+typedef $$CloudItemFlowsTableUpdateCompanionBuilder = CloudItemFlowsCompanion
+    Function({
+  Value<String> syncId,
+  Value<String> itemId,
+  Value<String> flowType,
+  Value<double> amount,
+  Value<DateTime?> happenedAt,
+  Value<String?> categoryName,
+  Value<String?> note,
+  Value<String?> txSyncIdsJson,
+  Value<int> rowid,
+});
+
+class $$CloudItemFlowsTableFilterComposer
+    extends Composer<_$BeeDatabase, $CloudItemFlowsTable> {
+  $$CloudItemFlowsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get syncId => $composableBuilder(
+      column: $table.syncId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get itemId => $composableBuilder(
+      column: $table.itemId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get flowType => $composableBuilder(
+      column: $table.flowType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get amount => $composableBuilder(
+      column: $table.amount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get happenedAt => $composableBuilder(
+      column: $table.happenedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get categoryName => $composableBuilder(
+      column: $table.categoryName, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get note => $composableBuilder(
+      column: $table.note, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get txSyncIdsJson => $composableBuilder(
+      column: $table.txSyncIdsJson, builder: (column) => ColumnFilters(column));
+}
+
+class $$CloudItemFlowsTableOrderingComposer
+    extends Composer<_$BeeDatabase, $CloudItemFlowsTable> {
+  $$CloudItemFlowsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get syncId => $composableBuilder(
+      column: $table.syncId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get itemId => $composableBuilder(
+      column: $table.itemId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get flowType => $composableBuilder(
+      column: $table.flowType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get amount => $composableBuilder(
+      column: $table.amount, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get happenedAt => $composableBuilder(
+      column: $table.happenedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get categoryName => $composableBuilder(
+      column: $table.categoryName,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get note => $composableBuilder(
+      column: $table.note, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get txSyncIdsJson => $composableBuilder(
+      column: $table.txSyncIdsJson,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$CloudItemFlowsTableAnnotationComposer
+    extends Composer<_$BeeDatabase, $CloudItemFlowsTable> {
+  $$CloudItemFlowsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get syncId =>
+      $composableBuilder(column: $table.syncId, builder: (column) => column);
+
+  GeneratedColumn<String> get itemId =>
+      $composableBuilder(column: $table.itemId, builder: (column) => column);
+
+  GeneratedColumn<String> get flowType =>
+      $composableBuilder(column: $table.flowType, builder: (column) => column);
+
+  GeneratedColumn<double> get amount =>
+      $composableBuilder(column: $table.amount, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get happenedAt => $composableBuilder(
+      column: $table.happenedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get categoryName => $composableBuilder(
+      column: $table.categoryName, builder: (column) => column);
+
+  GeneratedColumn<String> get note =>
+      $composableBuilder(column: $table.note, builder: (column) => column);
+
+  GeneratedColumn<String> get txSyncIdsJson => $composableBuilder(
+      column: $table.txSyncIdsJson, builder: (column) => column);
+}
+
+class $$CloudItemFlowsTableTableManager extends RootTableManager<
+    _$BeeDatabase,
+    $CloudItemFlowsTable,
+    CloudItemFlow,
+    $$CloudItemFlowsTableFilterComposer,
+    $$CloudItemFlowsTableOrderingComposer,
+    $$CloudItemFlowsTableAnnotationComposer,
+    $$CloudItemFlowsTableCreateCompanionBuilder,
+    $$CloudItemFlowsTableUpdateCompanionBuilder,
+    (
+      CloudItemFlow,
+      BaseReferences<_$BeeDatabase, $CloudItemFlowsTable, CloudItemFlow>
+    ),
+    CloudItemFlow,
+    PrefetchHooks Function()> {
+  $$CloudItemFlowsTableTableManager(
+      _$BeeDatabase db, $CloudItemFlowsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CloudItemFlowsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CloudItemFlowsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CloudItemFlowsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> syncId = const Value.absent(),
+            Value<String> itemId = const Value.absent(),
+            Value<String> flowType = const Value.absent(),
+            Value<double> amount = const Value.absent(),
+            Value<DateTime?> happenedAt = const Value.absent(),
+            Value<String?> categoryName = const Value.absent(),
+            Value<String?> note = const Value.absent(),
+            Value<String?> txSyncIdsJson = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              CloudItemFlowsCompanion(
+            syncId: syncId,
+            itemId: itemId,
+            flowType: flowType,
+            amount: amount,
+            happenedAt: happenedAt,
+            categoryName: categoryName,
+            note: note,
+            txSyncIdsJson: txSyncIdsJson,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String syncId,
+            required String itemId,
+            required String flowType,
+            required double amount,
+            Value<DateTime?> happenedAt = const Value.absent(),
+            Value<String?> categoryName = const Value.absent(),
+            Value<String?> note = const Value.absent(),
+            Value<String?> txSyncIdsJson = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              CloudItemFlowsCompanion.insert(
+            syncId: syncId,
+            itemId: itemId,
+            flowType: flowType,
+            amount: amount,
+            happenedAt: happenedAt,
+            categoryName: categoryName,
+            note: note,
+            txSyncIdsJson: txSyncIdsJson,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$CloudItemFlowsTableProcessedTableManager = ProcessedTableManager<
+    _$BeeDatabase,
+    $CloudItemFlowsTable,
+    CloudItemFlow,
+    $$CloudItemFlowsTableFilterComposer,
+    $$CloudItemFlowsTableOrderingComposer,
+    $$CloudItemFlowsTableAnnotationComposer,
+    $$CloudItemFlowsTableCreateCompanionBuilder,
+    $$CloudItemFlowsTableUpdateCompanionBuilder,
+    (
+      CloudItemFlow,
+      BaseReferences<_$BeeDatabase, $CloudItemFlowsTable, CloudItemFlow>
+    ),
+    CloudItemFlow,
+    PrefetchHooks Function()>;
+typedef $$CloudDepositsTableCreateCompanionBuilder = CloudDepositsCompanion
+    Function({
+  required String syncId,
+  required String name,
+  Value<String?> depositType,
+  required double principal,
+  Value<String?> currencyCode,
+  Value<DateTime?> startedAt,
+  Value<int?> termMonths,
+  Value<double?> annualRate,
+  Value<String?> maturityAt,
+  Value<String?> onMaturity,
+  Value<String?> status,
+  Value<String?> accountId,
+  Value<String?> flowTxSyncId,
+  Value<int> rowid,
+});
+typedef $$CloudDepositsTableUpdateCompanionBuilder = CloudDepositsCompanion
+    Function({
+  Value<String> syncId,
+  Value<String> name,
+  Value<String?> depositType,
+  Value<double> principal,
+  Value<String?> currencyCode,
+  Value<DateTime?> startedAt,
+  Value<int?> termMonths,
+  Value<double?> annualRate,
+  Value<String?> maturityAt,
+  Value<String?> onMaturity,
+  Value<String?> status,
+  Value<String?> accountId,
+  Value<String?> flowTxSyncId,
+  Value<int> rowid,
+});
+
+class $$CloudDepositsTableFilterComposer
+    extends Composer<_$BeeDatabase, $CloudDepositsTable> {
+  $$CloudDepositsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get syncId => $composableBuilder(
+      column: $table.syncId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get depositType => $composableBuilder(
+      column: $table.depositType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get principal => $composableBuilder(
+      column: $table.principal, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get currencyCode => $composableBuilder(
+      column: $table.currencyCode, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get startedAt => $composableBuilder(
+      column: $table.startedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get termMonths => $composableBuilder(
+      column: $table.termMonths, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get annualRate => $composableBuilder(
+      column: $table.annualRate, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get maturityAt => $composableBuilder(
+      column: $table.maturityAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get onMaturity => $composableBuilder(
+      column: $table.onMaturity, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get accountId => $composableBuilder(
+      column: $table.accountId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get flowTxSyncId => $composableBuilder(
+      column: $table.flowTxSyncId, builder: (column) => ColumnFilters(column));
+}
+
+class $$CloudDepositsTableOrderingComposer
+    extends Composer<_$BeeDatabase, $CloudDepositsTable> {
+  $$CloudDepositsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get syncId => $composableBuilder(
+      column: $table.syncId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get depositType => $composableBuilder(
+      column: $table.depositType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get principal => $composableBuilder(
+      column: $table.principal, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get currencyCode => $composableBuilder(
+      column: $table.currencyCode,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get startedAt => $composableBuilder(
+      column: $table.startedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get termMonths => $composableBuilder(
+      column: $table.termMonths, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get annualRate => $composableBuilder(
+      column: $table.annualRate, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get maturityAt => $composableBuilder(
+      column: $table.maturityAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get onMaturity => $composableBuilder(
+      column: $table.onMaturity, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get accountId => $composableBuilder(
+      column: $table.accountId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get flowTxSyncId => $composableBuilder(
+      column: $table.flowTxSyncId,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$CloudDepositsTableAnnotationComposer
+    extends Composer<_$BeeDatabase, $CloudDepositsTable> {
+  $$CloudDepositsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get syncId =>
+      $composableBuilder(column: $table.syncId, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get depositType => $composableBuilder(
+      column: $table.depositType, builder: (column) => column);
+
+  GeneratedColumn<double> get principal =>
+      $composableBuilder(column: $table.principal, builder: (column) => column);
+
+  GeneratedColumn<String> get currencyCode => $composableBuilder(
+      column: $table.currencyCode, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get startedAt =>
+      $composableBuilder(column: $table.startedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get termMonths => $composableBuilder(
+      column: $table.termMonths, builder: (column) => column);
+
+  GeneratedColumn<double> get annualRate => $composableBuilder(
+      column: $table.annualRate, builder: (column) => column);
+
+  GeneratedColumn<String> get maturityAt => $composableBuilder(
+      column: $table.maturityAt, builder: (column) => column);
+
+  GeneratedColumn<String> get onMaturity => $composableBuilder(
+      column: $table.onMaturity, builder: (column) => column);
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<String> get accountId =>
+      $composableBuilder(column: $table.accountId, builder: (column) => column);
+
+  GeneratedColumn<String> get flowTxSyncId => $composableBuilder(
+      column: $table.flowTxSyncId, builder: (column) => column);
+}
+
+class $$CloudDepositsTableTableManager extends RootTableManager<
+    _$BeeDatabase,
+    $CloudDepositsTable,
+    CloudDeposit,
+    $$CloudDepositsTableFilterComposer,
+    $$CloudDepositsTableOrderingComposer,
+    $$CloudDepositsTableAnnotationComposer,
+    $$CloudDepositsTableCreateCompanionBuilder,
+    $$CloudDepositsTableUpdateCompanionBuilder,
+    (
+      CloudDeposit,
+      BaseReferences<_$BeeDatabase, $CloudDepositsTable, CloudDeposit>
+    ),
+    CloudDeposit,
+    PrefetchHooks Function()> {
+  $$CloudDepositsTableTableManager(_$BeeDatabase db, $CloudDepositsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CloudDepositsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CloudDepositsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CloudDepositsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> syncId = const Value.absent(),
+            Value<String> name = const Value.absent(),
+            Value<String?> depositType = const Value.absent(),
+            Value<double> principal = const Value.absent(),
+            Value<String?> currencyCode = const Value.absent(),
+            Value<DateTime?> startedAt = const Value.absent(),
+            Value<int?> termMonths = const Value.absent(),
+            Value<double?> annualRate = const Value.absent(),
+            Value<String?> maturityAt = const Value.absent(),
+            Value<String?> onMaturity = const Value.absent(),
+            Value<String?> status = const Value.absent(),
+            Value<String?> accountId = const Value.absent(),
+            Value<String?> flowTxSyncId = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              CloudDepositsCompanion(
+            syncId: syncId,
+            name: name,
+            depositType: depositType,
+            principal: principal,
+            currencyCode: currencyCode,
+            startedAt: startedAt,
+            termMonths: termMonths,
+            annualRate: annualRate,
+            maturityAt: maturityAt,
+            onMaturity: onMaturity,
+            status: status,
+            accountId: accountId,
+            flowTxSyncId: flowTxSyncId,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String syncId,
+            required String name,
+            Value<String?> depositType = const Value.absent(),
+            required double principal,
+            Value<String?> currencyCode = const Value.absent(),
+            Value<DateTime?> startedAt = const Value.absent(),
+            Value<int?> termMonths = const Value.absent(),
+            Value<double?> annualRate = const Value.absent(),
+            Value<String?> maturityAt = const Value.absent(),
+            Value<String?> onMaturity = const Value.absent(),
+            Value<String?> status = const Value.absent(),
+            Value<String?> accountId = const Value.absent(),
+            Value<String?> flowTxSyncId = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              CloudDepositsCompanion.insert(
+            syncId: syncId,
+            name: name,
+            depositType: depositType,
+            principal: principal,
+            currencyCode: currencyCode,
+            startedAt: startedAt,
+            termMonths: termMonths,
+            annualRate: annualRate,
+            maturityAt: maturityAt,
+            onMaturity: onMaturity,
+            status: status,
+            accountId: accountId,
+            flowTxSyncId: flowTxSyncId,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$CloudDepositsTableProcessedTableManager = ProcessedTableManager<
+    _$BeeDatabase,
+    $CloudDepositsTable,
+    CloudDeposit,
+    $$CloudDepositsTableFilterComposer,
+    $$CloudDepositsTableOrderingComposer,
+    $$CloudDepositsTableAnnotationComposer,
+    $$CloudDepositsTableCreateCompanionBuilder,
+    $$CloudDepositsTableUpdateCompanionBuilder,
+    (
+      CloudDeposit,
+      BaseReferences<_$BeeDatabase, $CloudDepositsTable, CloudDeposit>
+    ),
+    CloudDeposit,
+    PrefetchHooks Function()>;
+typedef $$CloudMembersTableCreateCompanionBuilder = CloudMembersCompanion
+    Function({
+  required String syncId,
+  required String name,
+  Value<String?> note,
+  Value<String?> contactId,
+  Value<int> rowid,
+});
+typedef $$CloudMembersTableUpdateCompanionBuilder = CloudMembersCompanion
+    Function({
+  Value<String> syncId,
+  Value<String> name,
+  Value<String?> note,
+  Value<String?> contactId,
+  Value<int> rowid,
+});
+
+class $$CloudMembersTableFilterComposer
+    extends Composer<_$BeeDatabase, $CloudMembersTable> {
+  $$CloudMembersTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get syncId => $composableBuilder(
+      column: $table.syncId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get note => $composableBuilder(
+      column: $table.note, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get contactId => $composableBuilder(
+      column: $table.contactId, builder: (column) => ColumnFilters(column));
+}
+
+class $$CloudMembersTableOrderingComposer
+    extends Composer<_$BeeDatabase, $CloudMembersTable> {
+  $$CloudMembersTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get syncId => $composableBuilder(
+      column: $table.syncId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get note => $composableBuilder(
+      column: $table.note, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get contactId => $composableBuilder(
+      column: $table.contactId, builder: (column) => ColumnOrderings(column));
+}
+
+class $$CloudMembersTableAnnotationComposer
+    extends Composer<_$BeeDatabase, $CloudMembersTable> {
+  $$CloudMembersTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get syncId =>
+      $composableBuilder(column: $table.syncId, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get note =>
+      $composableBuilder(column: $table.note, builder: (column) => column);
+
+  GeneratedColumn<String> get contactId =>
+      $composableBuilder(column: $table.contactId, builder: (column) => column);
+}
+
+class $$CloudMembersTableTableManager extends RootTableManager<
+    _$BeeDatabase,
+    $CloudMembersTable,
+    CloudMember,
+    $$CloudMembersTableFilterComposer,
+    $$CloudMembersTableOrderingComposer,
+    $$CloudMembersTableAnnotationComposer,
+    $$CloudMembersTableCreateCompanionBuilder,
+    $$CloudMembersTableUpdateCompanionBuilder,
+    (
+      CloudMember,
+      BaseReferences<_$BeeDatabase, $CloudMembersTable, CloudMember>
+    ),
+    CloudMember,
+    PrefetchHooks Function()> {
+  $$CloudMembersTableTableManager(_$BeeDatabase db, $CloudMembersTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CloudMembersTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CloudMembersTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CloudMembersTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> syncId = const Value.absent(),
+            Value<String> name = const Value.absent(),
+            Value<String?> note = const Value.absent(),
+            Value<String?> contactId = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              CloudMembersCompanion(
+            syncId: syncId,
+            name: name,
+            note: note,
+            contactId: contactId,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String syncId,
+            required String name,
+            Value<String?> note = const Value.absent(),
+            Value<String?> contactId = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              CloudMembersCompanion.insert(
+            syncId: syncId,
+            name: name,
+            note: note,
+            contactId: contactId,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$CloudMembersTableProcessedTableManager = ProcessedTableManager<
+    _$BeeDatabase,
+    $CloudMembersTable,
+    CloudMember,
+    $$CloudMembersTableFilterComposer,
+    $$CloudMembersTableOrderingComposer,
+    $$CloudMembersTableAnnotationComposer,
+    $$CloudMembersTableCreateCompanionBuilder,
+    $$CloudMembersTableUpdateCompanionBuilder,
+    (
+      CloudMember,
+      BaseReferences<_$BeeDatabase, $CloudMembersTable, CloudMember>
+    ),
+    CloudMember,
+    PrefetchHooks Function()>;
 
 class $BeeDatabaseManager {
   final _$BeeDatabase _db;
@@ -18590,4 +29216,30 @@ class $BeeDatabaseManager {
       $$ExchangeRatesTableTableManager(_db, _db.exchangeRates);
   $$ExchangeRateOverridesTableTableManager get exchangeRateOverrides =>
       $$ExchangeRateOverridesTableTableManager(_db, _db.exchangeRateOverrides);
+  $$CloudContactsTableTableManager get cloudContacts =>
+      $$CloudContactsTableTableManager(_db, _db.cloudContacts);
+  $$CloudLoansTableTableManager get cloudLoans =>
+      $$CloudLoansTableTableManager(_db, _db.cloudLoans);
+  $$CloudLoanRepaymentsTableTableManager get cloudLoanRepayments =>
+      $$CloudLoanRepaymentsTableTableManager(_db, _db.cloudLoanRepayments);
+  $$CloudSavingPlansTableTableManager get cloudSavingPlans =>
+      $$CloudSavingPlansTableTableManager(_db, _db.cloudSavingPlans);
+  $$CloudSavingContributionsTableTableManager get cloudSavingContributions =>
+      $$CloudSavingContributionsTableTableManager(
+          _db, _db.cloudSavingContributions);
+  $$CloudReimbursementsTableTableManager get cloudReimbursements =>
+      $$CloudReimbursementsTableTableManager(_db, _db.cloudReimbursements);
+  $$CloudReimbursementItemsTableTableManager get cloudReimbursementItems =>
+      $$CloudReimbursementItemsTableTableManager(
+          _db, _db.cloudReimbursementItems);
+  $$CloudCompaniesTableTableManager get cloudCompanies =>
+      $$CloudCompaniesTableTableManager(_db, _db.cloudCompanies);
+  $$CloudItemsTableTableManager get cloudItems =>
+      $$CloudItemsTableTableManager(_db, _db.cloudItems);
+  $$CloudItemFlowsTableTableManager get cloudItemFlows =>
+      $$CloudItemFlowsTableTableManager(_db, _db.cloudItemFlows);
+  $$CloudDepositsTableTableManager get cloudDeposits =>
+      $$CloudDepositsTableTableManager(_db, _db.cloudDeposits);
+  $$CloudMembersTableTableManager get cloudMembers =>
+      $$CloudMembersTableTableManager(_db, _db.cloudMembers);
 }

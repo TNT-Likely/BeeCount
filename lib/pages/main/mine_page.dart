@@ -17,6 +17,7 @@ import '../settings/data_management_page.dart';
 import '../settings/appearance_settings_page.dart';
 import '../settings/smart_billing_page.dart';
 import '../settings/automation_page.dart';
+import '../cloud_secondary/cloud_features_page.dart';
 import '../settings/about_page.dart';
 import '../report/annual_report_page.dart';
 import '../donation/donation_page.dart';
@@ -78,6 +79,8 @@ class MinePage extends ConsumerWidget {
                 const MineProfileBinding(),
                 group(l.v4MineCloudGroup, [const MineCloudBinding()]),
                 group(l.v4MineFeaturesGroup, [
+                  row(l.cloudFeaturesTitle, l.cloudFeatureContactsSub,
+                      'Blocks', () => open(const CloudFeaturesPage())),
                   row(l.smartBilling, l.smartBillingDesc, 'Sparkles',
                       () => open(const SmartBillingPage())),
                   row(l.dataManagement, l.dataManagementDesc, 'Database',

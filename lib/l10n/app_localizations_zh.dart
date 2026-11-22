@@ -9467,6 +9467,294 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get v4RecurringUsageSummary => '打开或回到 App 时，自动补记到期账单。点击卡片可编辑规则。';
+  @override
+  String get cloudFeaturesTitle => '云端扩展功能';
+  @override
+  String get cloudFeaturesRefresh => '刷新';
+  @override
+  String get cloudFeatureNeedCloud => '请启用蜜蜂云同步后使用这些功能';
+  @override
+  String get cloudFeatureComingSoon => '数据层与接口已就绪，界面将在后续版本提供。';
+  @override
+  String get cloudFeatureContacts => '联系人';
+  @override
+  String get cloudFeatureContactsSub => '管理联系人，支持归档与停用';
+  @override
+  String get cloudFeatureLoans => '借款';
+  @override
+  String get cloudFeatureLoansSub => '借入借出与还款记录';
+  @override
+  String get cloudFeatureSaving => '储蓄罐';
+  @override
+  String get cloudFeatureSavingSub => '目标存款，支持双账户转账存入';
+  @override
+  String get cloudFeatureReimburse => '报销';
+  @override
+  String get cloudFeatureReimburseSub => '按公司合并报销单据';
+  @override
+  String get cloudFeatureItems => '物品';
+  @override
+  String get cloudFeatureItemsSub => '物品档案与关联账单、成本跟踪';
+  @override
+  String get cloudFeatureDeposits => '定期存款';
+  @override
+  String get cloudFeatureDepositsSub => '存单与到期提醒';
+  @override
+  String get cloudContactNew => '新建联系人';
+  @override
+  String get cloudContactName => '姓名';
+  @override
+  String get cloudContactEmpty => '暂无联系人';
+  @override
+  String get cloudContactStateActive => '未归档';
+  @override
+  String get cloudContactStateAll => '全部';
+  @override
+  String get cloudContactStateArchived => '已归档';
+  @override
+  String get cloudContactStateDisabled => '已停用';
+  @override
+  String get cloudContactArchive => '归档';
+  @override
+  String get cloudContactUnarchive => '恢复';
+  @override
+  String get cloudContactDisable => '停用';
+  @override
+  String get cloudContactEnable => '启用';
+  @override
+  String get cloudRetry => '重试';
+  @override
+  String get cloudContactCreated => '联系人已创建';
+  @override
+  String get cloudContactDeleteConfirm => '删除该联系人？历史借款记录会保留。';
+  @override
+  String get cloudNoMore => '没有更多数据';
+  @override
+  String get cloudAmount => '金额';
+  @override
+  String get cloudName => '名称';
+  @override
+  String get cloudNote => '备注';
+  @override
+  String get cloudDate => '日期';
+  @override
+  String get cloudAccount => '账户';
+  @override
+  String get cloudCurrency => '币种';
+  @override
+  String get cloudSaveSuccess => '已保存';
+  @override
+  String get cloudNew => '新建';
+  @override
+  String get cloudEdit => '编辑';
+  @override
+  String get cloudDeleteConfirmSimple => '删除这条记录？';
+  @override
+  String get cloudTarget => '目标金额';
+  @override
+  String get cloudSaved => '已存';
+  @override
+  String get cloudRemaining => '还差';
+  @override
+  String get cloudProgress => '进度';
+  @override
+  String get cloudDeposit => '存入';
+  @override
+  String get cloudDepositTo => '存入储蓄罐';
+  @override
+  String get cloudReceiveAccount => '收款账户（可选）';
+  @override
+  String get cloudReceiveAccountHint => '设置后生成内部转账；留空仅记录存入';
+  @override
+  String get cloudTransferHint => '同时设置支出与收款账户时，生成一笔转账流水';
+  @override
+  String get cloudPlanStatus => '状态';
+  @override
+  String get cloudPlanActive => '进行中';
+  @override
+  String get cloudPlanCompleted => '已完成';
+  @override
+  String get cloudPlanAbandoned => '已放弃';
+  @override
+  String get cloudPlanComplete => '标记完成';
+  @override
+  String get cloudPlanAbandon => '放弃计划';
+  @override
+  String get cloudContributionEmpty => '暂无存入记录';
+  @override
+  String get cloudContributionEdit => '修改存入';
+  @override
+  String get cloudContributionNew => '新增存入';
+  @override
+  String get cloudLoanLend => '借出（对方欠我）';
+  @override
+  String get cloudLoanBorrow => '借入（我欠对方）';
+  @override
+  String get cloudLoanDirection => '方向';
+  @override
+  String get cloudLoanContact => '联系人';
+  @override
+  String get cloudLoanDueDate => '还款日期';
+  @override
+  String get cloudLoanStatus => '状态';
+  @override
+  String get cloudLoanUnpaid => '未还款';
+  @override
+  String get cloudLoanPartial => '部分还款';
+  @override
+  String get cloudLoanOverdue => '已逾期';
+  @override
+  String get cloudLoanSettled => '已结清';
+  @override
+  String get cloudLoanRepay => '还款';
+  @override
+  String get cloudLoanRepayments => '还款记录';
+  @override
+  String get cloudLoanVirtualAccounts => '应收/应付汇总';
+  @override
+  String get cloudLoanEmpty => '暂无借款';
+  @override
+  String get cloudRepaymentEmpty => '暂无还款记录';
+  @override
+  String get cloudRepaymentNew => '添加还款';
+  @override
+  String get cloudInterest => '利息';
+  @override
+  String get cloudInterestType => '利息类型';
+  @override
+  String get cloudInterestNone => '无';
+  @override
+  String get cloudInterestFixed => '固定金额';
+  @override
+  String get cloudInterestAnnual => '年化 %';
+  @override
+  String get cloudPrincipal => '本金';
+  @override
+  String get cloudTotalDue => '应还合计';
+  @override
+  String get cloudReimburseItems => '待报销';
+  @override
+  String get cloudReimburseByCompany => '报销单';
+  @override
+  String get cloudReimburseMark => '标记需报销';
+  @override
+  String get cloudReimburseNew => '生成报销单';
+  @override
+  String get cloudReimburseCompany => '公司';
+  @override
+  String get cloudReimburseEmpty => '暂无待报销记录';
+  @override
+  String get cloudReimburseItemsCount => '笔';
+  @override
+  String get cloudReimburseTotal => '合计';
+  @override
+  String get cloudCompanyNew => '新建公司';
+  @override
+  String get cloudCompanyManage => '公司管理';
+  @override
+  String get cloudCompanyEmpty => '暂无公司';
+  @override
+  String get cloudItemNew => '新建物品';
+  @override
+  String get cloudItemEmpty => '暂无物品';
+  @override
+  String get cloudItemPrice => '购入价格';
+  @override
+  String get cloudItemPurchasedAt => '购入日期';
+  @override
+  String get cloudItemLocation => '存放位置';
+  @override
+  String get cloudItemFlows => '物品流水';
+  @override
+  String get cloudItemFlowNew => '添加流水';
+  @override
+  String get cloudItemFlowExpense => '支出';
+  @override
+  String get cloudItemFlowIncome => '收益';
+  @override
+  String get cloudItemNetCost => '净成本';
+  @override
+  String get cloudItemAvgCost => '日均成本';
+  @override
+  String get cloudDepositNew => '新建存单';
+  @override
+  String get cloudDepositEmpty => '暂无存单';
+  @override
+  String get cloudDepositPrincipal => '本金';
+  @override
+  String get cloudDepositRate => '年利率 %';
+  @override
+  String get cloudDepositTerm => '期限（月）';
+  @override
+  String get cloudDepositMaturity => '到期日';
+  @override
+  String get cloudDepositWithdraw => '支取';
+  @override
+  String get cloudDepositRenew => '转存';
+  @override
+  String get cloudDepositSummary => '定期汇总';
+  @override
+  String get cloudDepositHolding => '持有中';
+  @override
+  String get cloudDepositMatured => '已到期';
+  @override
+  String get cloudDepositWithdrawn => '已支取';
+  @override
+  String get cloudDepositRenewed => '已转存';
+  @override
+  String get cloudMemberNew => '新建成员';
+  @override
+  String get cloudMemberEmpty => '暂无成员';
+  @override
+  String get cloudMemberStats => '成员统计';
+  @override
+  String get cloudMemberIncome => '收入';
+  @override
+  String get cloudMemberExpense => '支出';
+  @override
+  String get cloudMemberNet => '净额';
+  @override
+  String get cloudLockTitle => '锁账管理';
+  @override
+  String get cloudLockActive => '已锁定至 {date}：该日期前的交易与初始金额已冻结';
+  @override
+  String get cloudLockTxBlocked => '该交易在锁定期内，禁止操作';
+  @override
+  String get cloudLockAccountFrozen => '锁账期间禁止修改初始金额';
+  @override
+  String get cloudAccountIcon => '图标与背景';
+  @override
+  String get cloudTxDiscount => '优惠';
+  @override
+  String get cloudTxDiscountHint => '金额为实付，优惠仅作明细';
+  @override
+  String get cloudTxRefund => '退款';
+  @override
+  String get cloudTxMembers => '分摊成员';
+  @override
+  String get cloudTxIsReimbursement => '需报销';
+  @override
+  String get cloudPlanNew => '新建计划';
+  @override
+  String get cloudPlanEmpty => '暂无储蓄罐';
+  @override
+  String get cloudMemberTitle => '消费成员';
+  @override
+  String get cloudLockPickDateFirst => '请先选择销账日期';
+  @override
+  String get cloudLockEnabled => '锁账已生效';
+  @override
+  String get cloudLockDisabled => '已解锁';
+  @override
+  String get cloudLockOn => '已锁定';
+  @override
+  String get cloudLockOff => '未锁定';
+  @override
+  String get cloudLockDate => '销账日期';
+  @override
+  String get cloudLockNotSet => '未设置';
+  @override
+  String get cloudLockHint => '该日期及之前的交易与账户初始金额将被冻结；解锁后恢复操作，日期保留。';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -18813,4 +19101,292 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get v4RecurringUsageSummary => '開啟或回到 App 時，自動補記到期帳單。點擊卡片可編輯規則。';
+  @override
+  String get cloudFeaturesTitle => '云端扩展功能';
+  @override
+  String get cloudFeaturesRefresh => '刷新';
+  @override
+  String get cloudFeatureNeedCloud => '请启用蜜蜂云同步后使用这些功能';
+  @override
+  String get cloudFeatureComingSoon => '数据层与接口已就绪，界面将在后续版本提供。';
+  @override
+  String get cloudFeatureContacts => '联系人';
+  @override
+  String get cloudFeatureContactsSub => '管理联系人，支持归档与停用';
+  @override
+  String get cloudFeatureLoans => '借款';
+  @override
+  String get cloudFeatureLoansSub => '借入借出与还款记录';
+  @override
+  String get cloudFeatureSaving => '储蓄罐';
+  @override
+  String get cloudFeatureSavingSub => '目标存款，支持双账户转账存入';
+  @override
+  String get cloudFeatureReimburse => '报销';
+  @override
+  String get cloudFeatureReimburseSub => '按公司合并报销单据';
+  @override
+  String get cloudFeatureItems => '物品';
+  @override
+  String get cloudFeatureItemsSub => '物品档案与关联账单、成本跟踪';
+  @override
+  String get cloudFeatureDeposits => '定期存款';
+  @override
+  String get cloudFeatureDepositsSub => '存单与到期提醒';
+  @override
+  String get cloudContactNew => '新建联系人';
+  @override
+  String get cloudContactName => '姓名';
+  @override
+  String get cloudContactEmpty => '暂无联系人';
+  @override
+  String get cloudContactStateActive => '未归档';
+  @override
+  String get cloudContactStateAll => '全部';
+  @override
+  String get cloudContactStateArchived => '已归档';
+  @override
+  String get cloudContactStateDisabled => '已停用';
+  @override
+  String get cloudContactArchive => '归档';
+  @override
+  String get cloudContactUnarchive => '恢复';
+  @override
+  String get cloudContactDisable => '停用';
+  @override
+  String get cloudContactEnable => '启用';
+  @override
+  String get cloudRetry => '重试';
+  @override
+  String get cloudContactCreated => '联系人已创建';
+  @override
+  String get cloudContactDeleteConfirm => '删除该联系人？历史借款记录会保留。';
+  @override
+  String get cloudNoMore => '没有更多数据';
+  @override
+  String get cloudAmount => '金额';
+  @override
+  String get cloudName => '名称';
+  @override
+  String get cloudNote => '备注';
+  @override
+  String get cloudDate => '日期';
+  @override
+  String get cloudAccount => '账户';
+  @override
+  String get cloudCurrency => '币种';
+  @override
+  String get cloudSaveSuccess => '已保存';
+  @override
+  String get cloudNew => '新建';
+  @override
+  String get cloudEdit => '编辑';
+  @override
+  String get cloudDeleteConfirmSimple => '删除这条记录？';
+  @override
+  String get cloudTarget => '目标金额';
+  @override
+  String get cloudSaved => '已存';
+  @override
+  String get cloudRemaining => '还差';
+  @override
+  String get cloudProgress => '进度';
+  @override
+  String get cloudDeposit => '存入';
+  @override
+  String get cloudDepositTo => '存入储蓄罐';
+  @override
+  String get cloudReceiveAccount => '收款账户（可选）';
+  @override
+  String get cloudReceiveAccountHint => '设置后生成内部转账；留空仅记录存入';
+  @override
+  String get cloudTransferHint => '同时设置支出与收款账户时，生成一笔转账流水';
+  @override
+  String get cloudPlanStatus => '状态';
+  @override
+  String get cloudPlanActive => '进行中';
+  @override
+  String get cloudPlanCompleted => '已完成';
+  @override
+  String get cloudPlanAbandoned => '已放弃';
+  @override
+  String get cloudPlanComplete => '标记完成';
+  @override
+  String get cloudPlanAbandon => '放弃计划';
+  @override
+  String get cloudContributionEmpty => '暂无存入记录';
+  @override
+  String get cloudContributionEdit => '修改存入';
+  @override
+  String get cloudContributionNew => '新增存入';
+  @override
+  String get cloudLoanLend => '借出（对方欠我）';
+  @override
+  String get cloudLoanBorrow => '借入（我欠对方）';
+  @override
+  String get cloudLoanDirection => '方向';
+  @override
+  String get cloudLoanContact => '联系人';
+  @override
+  String get cloudLoanDueDate => '还款日期';
+  @override
+  String get cloudLoanStatus => '状态';
+  @override
+  String get cloudLoanUnpaid => '未还款';
+  @override
+  String get cloudLoanPartial => '部分还款';
+  @override
+  String get cloudLoanOverdue => '已逾期';
+  @override
+  String get cloudLoanSettled => '已结清';
+  @override
+  String get cloudLoanRepay => '还款';
+  @override
+  String get cloudLoanRepayments => '还款记录';
+  @override
+  String get cloudLoanVirtualAccounts => '应收/应付汇总';
+  @override
+  String get cloudLoanEmpty => '暂无借款';
+  @override
+  String get cloudRepaymentEmpty => '暂无还款记录';
+  @override
+  String get cloudRepaymentNew => '添加还款';
+  @override
+  String get cloudInterest => '利息';
+  @override
+  String get cloudInterestType => '利息类型';
+  @override
+  String get cloudInterestNone => '无';
+  @override
+  String get cloudInterestFixed => '固定金额';
+  @override
+  String get cloudInterestAnnual => '年化 %';
+  @override
+  String get cloudPrincipal => '本金';
+  @override
+  String get cloudTotalDue => '应还合计';
+  @override
+  String get cloudReimburseItems => '待报销';
+  @override
+  String get cloudReimburseByCompany => '报销单';
+  @override
+  String get cloudReimburseMark => '标记需报销';
+  @override
+  String get cloudReimburseNew => '生成报销单';
+  @override
+  String get cloudReimburseCompany => '公司';
+  @override
+  String get cloudReimburseEmpty => '暂无待报销记录';
+  @override
+  String get cloudReimburseItemsCount => '笔';
+  @override
+  String get cloudReimburseTotal => '合计';
+  @override
+  String get cloudCompanyNew => '新建公司';
+  @override
+  String get cloudCompanyManage => '公司管理';
+  @override
+  String get cloudCompanyEmpty => '暂无公司';
+  @override
+  String get cloudItemNew => '新建物品';
+  @override
+  String get cloudItemEmpty => '暂无物品';
+  @override
+  String get cloudItemPrice => '购入价格';
+  @override
+  String get cloudItemPurchasedAt => '购入日期';
+  @override
+  String get cloudItemLocation => '存放位置';
+  @override
+  String get cloudItemFlows => '物品流水';
+  @override
+  String get cloudItemFlowNew => '添加流水';
+  @override
+  String get cloudItemFlowExpense => '支出';
+  @override
+  String get cloudItemFlowIncome => '收益';
+  @override
+  String get cloudItemNetCost => '净成本';
+  @override
+  String get cloudItemAvgCost => '日均成本';
+  @override
+  String get cloudDepositNew => '新建存单';
+  @override
+  String get cloudDepositEmpty => '暂无存单';
+  @override
+  String get cloudDepositPrincipal => '本金';
+  @override
+  String get cloudDepositRate => '年利率 %';
+  @override
+  String get cloudDepositTerm => '期限（月）';
+  @override
+  String get cloudDepositMaturity => '到期日';
+  @override
+  String get cloudDepositWithdraw => '支取';
+  @override
+  String get cloudDepositRenew => '转存';
+  @override
+  String get cloudDepositSummary => '定期汇总';
+  @override
+  String get cloudDepositHolding => '持有中';
+  @override
+  String get cloudDepositMatured => '已到期';
+  @override
+  String get cloudDepositWithdrawn => '已支取';
+  @override
+  String get cloudDepositRenewed => '已转存';
+  @override
+  String get cloudMemberNew => '新建成员';
+  @override
+  String get cloudMemberEmpty => '暂无成员';
+  @override
+  String get cloudMemberStats => '成员统计';
+  @override
+  String get cloudMemberIncome => '收入';
+  @override
+  String get cloudMemberExpense => '支出';
+  @override
+  String get cloudMemberNet => '净额';
+  @override
+  String get cloudLockTitle => '锁账管理';
+  @override
+  String get cloudLockActive => '已锁定至 {date}：该日期前的交易与初始金额已冻结';
+  @override
+  String get cloudLockTxBlocked => '该交易在锁定期内，禁止操作';
+  @override
+  String get cloudLockAccountFrozen => '锁账期间禁止修改初始金额';
+  @override
+  String get cloudAccountIcon => '图标与背景';
+  @override
+  String get cloudTxDiscount => '优惠';
+  @override
+  String get cloudTxDiscountHint => '金额为实付，优惠仅作明细';
+  @override
+  String get cloudTxRefund => '退款';
+  @override
+  String get cloudTxMembers => '分摊成员';
+  @override
+  String get cloudTxIsReimbursement => '需报销';
+  @override
+  String get cloudPlanNew => '新建计划';
+  @override
+  String get cloudPlanEmpty => '暂无储蓄罐';
+  @override
+  String get cloudMemberTitle => '消费成员';
+  @override
+  String get cloudLockPickDateFirst => '请先选择销账日期';
+  @override
+  String get cloudLockEnabled => '锁账已生效';
+  @override
+  String get cloudLockDisabled => '已解锁';
+  @override
+  String get cloudLockOn => '已锁定';
+  @override
+  String get cloudLockOff => '未锁定';
+  @override
+  String get cloudLockDate => '销账日期';
+  @override
+  String get cloudLockNotSet => '未设置';
+  @override
+  String get cloudLockHint => '该日期及之前的交易与账户初始金额将被冻结；解锁后恢复操作，日期保留。';
 }

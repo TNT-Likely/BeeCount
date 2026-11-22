@@ -144,6 +144,9 @@ flutter:
     - assets/icons/social/
     - assets/images/
     - assets/header_skins/
+    # Cloud 二次开发对接:账户图标(与 Web 端 icons 库一致)
+    - assets/account_icons/banks/cn/
+    - assets/account_icons/banks/intl/
   # 字体已移动到可选依赖，使用系统字体以减少应用体积
   # fonts:
   #   - family: Inter

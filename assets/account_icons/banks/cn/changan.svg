@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <rect x="3" y="6" width="42" height="12" rx="2" fill="#007a33"/>
+  <path d="M24 22 H40 V44 H8 V22 H24 Z" fill="#007a33"/>
+  <rect x="8" y="22" width="32" height="4" fill="#005c26"/>
+  <circle cx="24" cy="15" r="4.5" fill="#ffffff" opacity="0.92"/>
+  <text x="24" y="38" font-family="'Microsoft YaHei', Arial, sans-serif" font-size="13" font-weight="bold" fill="#ffffff" text-anchor="middle">安</text>
+</svg>

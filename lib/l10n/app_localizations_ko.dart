@@ -9475,4 +9475,292 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get v4RecurringUsageSummary => '앱을 열거나 돌아오면 예정된 거래가 자동으로 기록됩니다. 규칙을 눌러 일정을 수정하세요.';
+  @override
+  String get cloudFeaturesTitle => 'Cloud Features';
+  @override
+  String get cloudFeaturesRefresh => 'Refresh';
+  @override
+  String get cloudFeatureNeedCloud => 'Enable BeeCount Cloud sync to use these features';
+  @override
+  String get cloudFeatureComingSoon => 'Data layer and API are ready; UI coming soon.';
+  @override
+  String get cloudFeatureContacts => 'Contacts';
+  @override
+  String get cloudFeatureContactsSub => 'Manage contacts, archive and disable';
+  @override
+  String get cloudFeatureLoans => 'Loans';
+  @override
+  String get cloudFeatureLoansSub => 'Lend / borrow and repayments';
+  @override
+  String get cloudFeatureSaving => 'Saving Plans';
+  @override
+  String get cloudFeatureSavingSub => 'Goals with two-account transfer deposits';
+  @override
+  String get cloudFeatureReimburse => 'Reimbursements';
+  @override
+  String get cloudFeatureReimburseSub => 'Expense claims by company';
+  @override
+  String get cloudFeatureItems => 'Items';
+  @override
+  String get cloudFeatureItemsSub => 'Items with linked bills and cost tracking';
+  @override
+  String get cloudFeatureDeposits => 'Deposits';
+  @override
+  String get cloudFeatureDepositsSub => 'Term deposits and maturity reminders';
+  @override
+  String get cloudContactNew => 'New contact';
+  @override
+  String get cloudContactName => 'Name';
+  @override
+  String get cloudContactEmpty => 'No contacts';
+  @override
+  String get cloudContactStateActive => 'Not archived';
+  @override
+  String get cloudContactStateAll => 'All';
+  @override
+  String get cloudContactStateArchived => 'Archived';
+  @override
+  String get cloudContactStateDisabled => 'Disabled';
+  @override
+  String get cloudContactArchive => 'Archive';
+  @override
+  String get cloudContactUnarchive => 'Restore';
+  @override
+  String get cloudContactDisable => 'Disable';
+  @override
+  String get cloudContactEnable => 'Enable';
+  @override
+  String get cloudRetry => 'Retry';
+  @override
+  String get cloudContactCreated => 'Contact created';
+  @override
+  String get cloudContactDeleteConfirm => 'Delete this contact? Historical loan records are kept.';
+  @override
+  String get cloudNoMore => 'No more data';
+  @override
+  String get cloudAmount => 'Amount';
+  @override
+  String get cloudName => 'Name';
+  @override
+  String get cloudNote => 'Note';
+  @override
+  String get cloudDate => 'Date';
+  @override
+  String get cloudAccount => 'Account';
+  @override
+  String get cloudCurrency => 'Currency';
+  @override
+  String get cloudSaveSuccess => 'Saved';
+  @override
+  String get cloudNew => 'New';
+  @override
+  String get cloudEdit => 'Edit';
+  @override
+  String get cloudDeleteConfirmSimple => 'Delete this record?';
+  @override
+  String get cloudTarget => 'Target';
+  @override
+  String get cloudSaved => 'Saved';
+  @override
+  String get cloudRemaining => 'Remaining';
+  @override
+  String get cloudProgress => 'Progress';
+  @override
+  String get cloudDeposit => 'Deposit';
+  @override
+  String get cloudDepositTo => 'Deposit into plan';
+  @override
+  String get cloudReceiveAccount => 'Receive account (optional)';
+  @override
+  String get cloudReceiveAccountHint => 'Set to make an internal transfer; leave empty to record only';
+  @override
+  String get cloudTransferHint => 'Both accounts set: one transfer record is created';
+  @override
+  String get cloudPlanStatus => 'Status';
+  @override
+  String get cloudPlanActive => 'Active';
+  @override
+  String get cloudPlanCompleted => 'Completed';
+  @override
+  String get cloudPlanAbandoned => 'Abandoned';
+  @override
+  String get cloudPlanComplete => 'Mark complete';
+  @override
+  String get cloudPlanAbandon => 'Abandon';
+  @override
+  String get cloudContributionEmpty => 'No deposits yet';
+  @override
+  String get cloudContributionEdit => 'Edit deposit';
+  @override
+  String get cloudContributionNew => 'New deposit';
+  @override
+  String get cloudLoanLend => 'Lend (they owe me)';
+  @override
+  String get cloudLoanBorrow => 'Borrow (I owe)';
+  @override
+  String get cloudLoanDirection => 'Direction';
+  @override
+  String get cloudLoanContact => 'Contact';
+  @override
+  String get cloudLoanDueDate => 'Due date';
+  @override
+  String get cloudLoanStatus => 'Status';
+  @override
+  String get cloudLoanUnpaid => 'Unpaid';
+  @override
+  String get cloudLoanPartial => 'Partial';
+  @override
+  String get cloudLoanOverdue => 'Overdue';
+  @override
+  String get cloudLoanSettled => 'Settled';
+  @override
+  String get cloudLoanRepay => 'Repay';
+  @override
+  String get cloudLoanRepayments => 'Repayment history';
+  @override
+  String get cloudLoanVirtualAccounts => 'Receivable / payable summary';
+  @override
+  String get cloudLoanEmpty => 'No loans';
+  @override
+  String get cloudRepaymentEmpty => 'No repayments';
+  @override
+  String get cloudRepaymentNew => 'Add repayment';
+  @override
+  String get cloudInterest => 'Interest';
+  @override
+  String get cloudInterestType => 'Interest type';
+  @override
+  String get cloudInterestNone => 'None';
+  @override
+  String get cloudInterestFixed => 'Fixed';
+  @override
+  String get cloudInterestAnnual => 'Annual %';
+  @override
+  String get cloudPrincipal => 'Principal';
+  @override
+  String get cloudTotalDue => 'Total due';
+  @override
+  String get cloudReimburseItems => 'Pending reimbursements';
+  @override
+  String get cloudReimburseByCompany => 'Reimbursements';
+  @override
+  String get cloudReimburseMark => 'Mark as reimbursable';
+  @override
+  String get cloudReimburseNew => 'Create reimbursement';
+  @override
+  String get cloudReimburseCompany => 'Company';
+  @override
+  String get cloudReimburseEmpty => 'Nothing to reimburse';
+  @override
+  String get cloudReimburseItemsCount => 'items';
+  @override
+  String get cloudReimburseTotal => 'Total';
+  @override
+  String get cloudCompanyNew => 'New company';
+  @override
+  String get cloudCompanyManage => 'Manage companies';
+  @override
+  String get cloudCompanyEmpty => 'No companies';
+  @override
+  String get cloudItemNew => 'New item';
+  @override
+  String get cloudItemEmpty => 'No items';
+  @override
+  String get cloudItemPrice => 'Purchase price';
+  @override
+  String get cloudItemPurchasedAt => 'Purchased at';
+  @override
+  String get cloudItemLocation => 'Location';
+  @override
+  String get cloudItemFlows => 'Item flows';
+  @override
+  String get cloudItemFlowNew => 'Add flow';
+  @override
+  String get cloudItemFlowExpense => 'Expense';
+  @override
+  String get cloudItemFlowIncome => 'Income';
+  @override
+  String get cloudItemNetCost => 'Net cost';
+  @override
+  String get cloudItemAvgCost => 'Avg / day';
+  @override
+  String get cloudDepositNew => 'New deposit';
+  @override
+  String get cloudDepositEmpty => 'No deposits';
+  @override
+  String get cloudDepositPrincipal => 'Principal';
+  @override
+  String get cloudDepositRate => 'Annual rate %';
+  @override
+  String get cloudDepositTerm => 'Term (months)';
+  @override
+  String get cloudDepositMaturity => 'Maturity date';
+  @override
+  String get cloudDepositWithdraw => 'Withdraw';
+  @override
+  String get cloudDepositRenew => 'Renew';
+  @override
+  String get cloudDepositSummary => 'Deposit summary';
+  @override
+  String get cloudDepositHolding => 'Holding';
+  @override
+  String get cloudDepositMatured => 'Matured';
+  @override
+  String get cloudDepositWithdrawn => 'Withdrawn';
+  @override
+  String get cloudDepositRenewed => 'Renewed';
+  @override
+  String get cloudMemberNew => 'New member';
+  @override
+  String get cloudMemberEmpty => 'No members';
+  @override
+  String get cloudMemberStats => 'Member statistics';
+  @override
+  String get cloudMemberIncome => 'Income';
+  @override
+  String get cloudMemberExpense => 'Expense';
+  @override
+  String get cloudMemberNet => 'Net';
+  @override
+  String get cloudLockTitle => 'Book locking';
+  @override
+  String get cloudLockActive => 'Locked until {date}: earlier transactions and opening balances are frozen';
+  @override
+  String get cloudLockTxBlocked => 'This transaction is in the locked period';
+  @override
+  String get cloudLockAccountFrozen => 'Opening balance is frozen while locked';
+  @override
+  String get cloudAccountIcon => 'Icon & background';
+  @override
+  String get cloudTxDiscount => 'Discount';
+  @override
+  String get cloudTxDiscountHint => 'Amount is the actual paid; discount is informational only';
+  @override
+  String get cloudTxRefund => 'Refund';
+  @override
+  String get cloudTxMembers => 'Split members';
+  @override
+  String get cloudTxIsReimbursement => 'Reimbursable';
+  @override
+  String get cloudPlanNew => 'New plan';
+  @override
+  String get cloudPlanEmpty => 'No saving plans';
+  @override
+  String get cloudMemberTitle => 'Members';
+  @override
+  String get cloudLockPickDateFirst => 'Please pick a cutoff date first';
+  @override
+  String get cloudLockEnabled => 'Book locked';
+  @override
+  String get cloudLockDisabled => 'Unlocked';
+  @override
+  String get cloudLockOn => 'Locked';
+  @override
+  String get cloudLockOff => 'Unlocked';
+  @override
+  String get cloudLockDate => 'Cutoff date';
+  @override
+  String get cloudLockNotSet => 'Not set';
+  @override
+  String get cloudLockHint => 'Transactions on or before the cutoff date and account opening balances are frozen. Unlock to resume; the date is kept.';
 }

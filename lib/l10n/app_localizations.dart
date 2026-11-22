@@ -17787,6 +17787,294 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Due bills are recorded when you open or return to the app. Tap a rule to edit its schedule.'**
   String get v4RecurringUsageSummary;
+  /// No description provided for @cloudFeaturesTitle.
+  String get cloudFeaturesTitle;
+  /// No description provided for @cloudRetry.
+  String get cloudRetry;
+  /// No description provided for @cloudContactCreated.
+  String get cloudContactCreated;
+  /// No description provided for @cloudContactDeleteConfirm.
+  String get cloudContactDeleteConfirm;
+  /// No description provided for @cloudNoMore.
+  String get cloudNoMore;
+  /// No description provided for @cloudAmount.
+  String get cloudAmount;
+  /// No description provided for @cloudName.
+  String get cloudName;
+  /// No description provided for @cloudNote.
+  String get cloudNote;
+  /// No description provided for @cloudDate.
+  String get cloudDate;
+  /// No description provided for @cloudAccount.
+  String get cloudAccount;
+  /// No description provided for @cloudCurrency.
+  String get cloudCurrency;
+  /// No description provided for @cloudSaveSuccess.
+  String get cloudSaveSuccess;
+  /// No description provided for @cloudNew.
+  String get cloudNew;
+  /// No description provided for @cloudEdit.
+  String get cloudEdit;
+  /// No description provided for @cloudDeleteConfirmSimple.
+  String get cloudDeleteConfirmSimple;
+  /// No description provided for @cloudTarget.
+  String get cloudTarget;
+  /// No description provided for @cloudSaved.
+  String get cloudSaved;
+  /// No description provided for @cloudRemaining.
+  String get cloudRemaining;
+  /// No description provided for @cloudProgress.
+  String get cloudProgress;
+  /// No description provided for @cloudDeposit.
+  String get cloudDeposit;
+  /// No description provided for @cloudDepositTo.
+  String get cloudDepositTo;
+  /// No description provided for @cloudReceiveAccount.
+  String get cloudReceiveAccount;
+  /// No description provided for @cloudReceiveAccountHint.
+  String get cloudReceiveAccountHint;
+  /// No description provided for @cloudTransferHint.
+  String get cloudTransferHint;
+  /// No description provided for @cloudPlanStatus.
+  String get cloudPlanStatus;
+  /// No description provided for @cloudPlanActive.
+  String get cloudPlanActive;
+  /// No description provided for @cloudPlanCompleted.
+  String get cloudPlanCompleted;
+  /// No description provided for @cloudPlanAbandoned.
+  String get cloudPlanAbandoned;
+  /// No description provided for @cloudPlanComplete.
+  String get cloudPlanComplete;
+  /// No description provided for @cloudPlanAbandon.
+  String get cloudPlanAbandon;
+  /// No description provided for @cloudContributionEmpty.
+  String get cloudContributionEmpty;
+  /// No description provided for @cloudContributionEdit.
+  String get cloudContributionEdit;
+  /// No description provided for @cloudContributionNew.
+  String get cloudContributionNew;
+  /// No description provided for @cloudLoanLend.
+  String get cloudLoanLend;
+  /// No description provided for @cloudLoanBorrow.
+  String get cloudLoanBorrow;
+  /// No description provided for @cloudLoanDirection.
+  String get cloudLoanDirection;
+  /// No description provided for @cloudLoanContact.
+  String get cloudLoanContact;
+  /// No description provided for @cloudLoanDueDate.
+  String get cloudLoanDueDate;
+  /// No description provided for @cloudLoanStatus.
+  String get cloudLoanStatus;
+  /// No description provided for @cloudLoanUnpaid.
+  String get cloudLoanUnpaid;
+  /// No description provided for @cloudLoanPartial.
+  String get cloudLoanPartial;
+  /// No description provided for @cloudLoanOverdue.
+  String get cloudLoanOverdue;
+  /// No description provided for @cloudLoanSettled.
+  String get cloudLoanSettled;
+  /// No description provided for @cloudLoanRepay.
+  String get cloudLoanRepay;
+  /// No description provided for @cloudLoanRepayments.
+  String get cloudLoanRepayments;
+  /// No description provided for @cloudLoanVirtualAccounts.
+  String get cloudLoanVirtualAccounts;
+  /// No description provided for @cloudLoanEmpty.
+  String get cloudLoanEmpty;
+  /// No description provided for @cloudRepaymentEmpty.
+  String get cloudRepaymentEmpty;
+  /// No description provided for @cloudRepaymentNew.
+  String get cloudRepaymentNew;
+  /// No description provided for @cloudInterest.
+  String get cloudInterest;
+  /// No description provided for @cloudInterestType.
+  String get cloudInterestType;
+  /// No description provided for @cloudInterestNone.
+  String get cloudInterestNone;
+  /// No description provided for @cloudInterestFixed.
+  String get cloudInterestFixed;
+  /// No description provided for @cloudInterestAnnual.
+  String get cloudInterestAnnual;
+  /// No description provided for @cloudPrincipal.
+  String get cloudPrincipal;
+  /// No description provided for @cloudTotalDue.
+  String get cloudTotalDue;
+  /// No description provided for @cloudReimburseItems.
+  String get cloudReimburseItems;
+  /// No description provided for @cloudReimburseByCompany.
+  String get cloudReimburseByCompany;
+  /// No description provided for @cloudReimburseMark.
+  String get cloudReimburseMark;
+  /// No description provided for @cloudReimburseNew.
+  String get cloudReimburseNew;
+  /// No description provided for @cloudReimburseCompany.
+  String get cloudReimburseCompany;
+  /// No description provided for @cloudReimburseEmpty.
+  String get cloudReimburseEmpty;
+  /// No description provided for @cloudReimburseItemsCount.
+  String get cloudReimburseItemsCount;
+  /// No description provided for @cloudReimburseTotal.
+  String get cloudReimburseTotal;
+  /// No description provided for @cloudCompanyNew.
+  String get cloudCompanyNew;
+  /// No description provided for @cloudCompanyManage.
+  String get cloudCompanyManage;
+  /// No description provided for @cloudCompanyEmpty.
+  String get cloudCompanyEmpty;
+  /// No description provided for @cloudItemNew.
+  String get cloudItemNew;
+  /// No description provided for @cloudItemEmpty.
+  String get cloudItemEmpty;
+  /// No description provided for @cloudItemPrice.
+  String get cloudItemPrice;
+  /// No description provided for @cloudItemPurchasedAt.
+  String get cloudItemPurchasedAt;
+  /// No description provided for @cloudItemLocation.
+  String get cloudItemLocation;
+  /// No description provided for @cloudItemFlows.
+  String get cloudItemFlows;
+  /// No description provided for @cloudItemFlowNew.
+  String get cloudItemFlowNew;
+  /// No description provided for @cloudItemFlowExpense.
+  String get cloudItemFlowExpense;
+  /// No description provided for @cloudItemFlowIncome.
+  String get cloudItemFlowIncome;
+  /// No description provided for @cloudItemNetCost.
+  String get cloudItemNetCost;
+  /// No description provided for @cloudItemAvgCost.
+  String get cloudItemAvgCost;
+  /// No description provided for @cloudDepositNew.
+  String get cloudDepositNew;
+  /// No description provided for @cloudDepositEmpty.
+  String get cloudDepositEmpty;
+  /// No description provided for @cloudDepositPrincipal.
+  String get cloudDepositPrincipal;
+  /// No description provided for @cloudDepositRate.
+  String get cloudDepositRate;
+  /// No description provided for @cloudDepositTerm.
+  String get cloudDepositTerm;
+  /// No description provided for @cloudDepositMaturity.
+  String get cloudDepositMaturity;
+  /// No description provided for @cloudDepositWithdraw.
+  String get cloudDepositWithdraw;
+  /// No description provided for @cloudDepositRenew.
+  String get cloudDepositRenew;
+  /// No description provided for @cloudDepositSummary.
+  String get cloudDepositSummary;
+  /// No description provided for @cloudDepositHolding.
+  String get cloudDepositHolding;
+  /// No description provided for @cloudDepositMatured.
+  String get cloudDepositMatured;
+  /// No description provided for @cloudDepositWithdrawn.
+  String get cloudDepositWithdrawn;
+  /// No description provided for @cloudDepositRenewed.
+  String get cloudDepositRenewed;
+  /// No description provided for @cloudMemberNew.
+  String get cloudMemberNew;
+  /// No description provided for @cloudMemberEmpty.
+  String get cloudMemberEmpty;
+  /// No description provided for @cloudMemberStats.
+  String get cloudMemberStats;
+  /// No description provided for @cloudMemberIncome.
+  String get cloudMemberIncome;
+  /// No description provided for @cloudMemberExpense.
+  String get cloudMemberExpense;
+  /// No description provided for @cloudMemberNet.
+  String get cloudMemberNet;
+  /// No description provided for @cloudLockTitle.
+  String get cloudLockTitle;
+  /// No description provided for @cloudLockActive.
+  String get cloudLockActive;
+  /// No description provided for @cloudLockTxBlocked.
+  String get cloudLockTxBlocked;
+  /// No description provided for @cloudLockAccountFrozen.
+  String get cloudLockAccountFrozen;
+  /// No description provided for @cloudAccountIcon.
+  String get cloudAccountIcon;
+  /// No description provided for @cloudTxDiscount.
+  String get cloudTxDiscount;
+  /// No description provided for @cloudTxDiscountHint.
+  String get cloudTxDiscountHint;
+  /// No description provided for @cloudTxRefund.
+  String get cloudTxRefund;
+  /// No description provided for @cloudTxMembers.
+  String get cloudTxMembers;
+  /// No description provided for @cloudTxIsReimbursement.
+  String get cloudTxIsReimbursement;
+  /// No description provided for @cloudLockPickDateFirst.
+  String get cloudLockPickDateFirst;
+  /// No description provided for @cloudLockEnabled.
+  String get cloudLockEnabled;
+  /// No description provided for @cloudLockDisabled.
+  String get cloudLockDisabled;
+  /// No description provided for @cloudLockOn.
+  String get cloudLockOn;
+  /// No description provided for @cloudLockOff.
+  String get cloudLockOff;
+  /// No description provided for @cloudLockDate.
+  String get cloudLockDate;
+  /// No description provided for @cloudLockNotSet.
+  String get cloudLockNotSet;
+  /// No description provided for @cloudLockHint.
+  String get cloudLockHint;
+  /// No description provided for @cloudPlanNew.
+  String get cloudPlanNew;
+  /// No description provided for @cloudPlanEmpty.
+  String get cloudPlanEmpty;
+  /// No description provided for @cloudMemberTitle.
+  String get cloudMemberTitle;
+  /// No description provided for @cloudFeaturesRefresh.
+  String get cloudFeaturesRefresh;
+  /// No description provided for @cloudFeatureNeedCloud.
+  String get cloudFeatureNeedCloud;
+  /// No description provided for @cloudFeatureComingSoon.
+  String get cloudFeatureComingSoon;
+  /// No description provided for @cloudFeatureContacts.
+  String get cloudFeatureContacts;
+  /// No description provided for @cloudFeatureContactsSub.
+  String get cloudFeatureContactsSub;
+  /// No description provided for @cloudFeatureLoans.
+  String get cloudFeatureLoans;
+  /// No description provided for @cloudFeatureLoansSub.
+  String get cloudFeatureLoansSub;
+  /// No description provided for @cloudFeatureSaving.
+  String get cloudFeatureSaving;
+  /// No description provided for @cloudFeatureSavingSub.
+  String get cloudFeatureSavingSub;
+  /// No description provided for @cloudFeatureReimburse.
+  String get cloudFeatureReimburse;
+  /// No description provided for @cloudFeatureReimburseSub.
+  String get cloudFeatureReimburseSub;
+  /// No description provided for @cloudFeatureItems.
+  String get cloudFeatureItems;
+  /// No description provided for @cloudFeatureItemsSub.
+  String get cloudFeatureItemsSub;
+  /// No description provided for @cloudFeatureDeposits.
+  String get cloudFeatureDeposits;
+  /// No description provided for @cloudFeatureDepositsSub.
+  String get cloudFeatureDepositsSub;
+  /// No description provided for @cloudContactNew.
+  String get cloudContactNew;
+  /// No description provided for @cloudContactName.
+  String get cloudContactName;
+  /// No description provided for @cloudContactEmpty.
+  String get cloudContactEmpty;
+  /// No description provided for @cloudContactStateActive.
+  String get cloudContactStateActive;
+  /// No description provided for @cloudContactStateAll.
+  String get cloudContactStateAll;
+  /// No description provided for @cloudContactStateArchived.
+  String get cloudContactStateArchived;
+  /// No description provided for @cloudContactStateDisabled.
+  String get cloudContactStateDisabled;
+  /// No description provided for @cloudContactArchive.
+  String get cloudContactArchive;
+  /// No description provided for @cloudContactUnarchive.
+  String get cloudContactUnarchive;
+  /// No description provided for @cloudContactDisable.
+  String get cloudContactDisable;
+  /// No description provided for @cloudContactEnable.
+  String get cloudContactEnable;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

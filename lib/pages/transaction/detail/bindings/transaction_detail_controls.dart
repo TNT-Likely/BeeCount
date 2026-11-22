@@ -15,6 +15,8 @@ import '../../../attachment/attachment_preview_page.dart';
 import '../../../tag/tag_detail_page.dart';
 import '../../category_detail_page.dart';
 import '../../../../providers.dart';
+import '../../../../providers/cloud_secondary_providers.dart';
+import '../../../cloud_secondary/lock_guard_helper.dart';
 import '../../../../utils/category_utils.dart';
 import '../../../../utils/transaction_edit_utils.dart';
 import '../../../../utils/format_money.dart';
@@ -77,6 +79,17 @@ class _TransactionDetailControlsState
       }
       if (action != 'receipt' && !data.canWrite) {
         throw StateError(l.commonFailed);
+      }
+      // 锁账体验层(0067):编辑/复制前检查该交易是否落在锁定期。
+      // 真正拦截在服务端(423),这里只给友好提示,避免用户白改一场。
+      if (action == 'edit' || action == 'copy') {
+        final locked = await LockGuardHelper.isTxLocked(ref, data.row.t.happenedAt);
+        if (locked) {
+          if (mounted) {
+            showBeeToast(context, l.cloudLockTxBlocked, tone: BeeTone.warning);
+          }
+          return;
+        }
       }
       switch (action) {
         case 'edit':
@@ -306,7 +319,16 @@ class _TransactionDetailControlsState
           transactionId: tx.id, initialIndex: index, allowDelete: false)),
       statusLabels: [
         if (tx.excludeFromStats) l.txFlagExcludeFromStats,
-        if (tx.excludeFromBudget) l.txFlagExcludeFromBudget
+        if (tx.excludeFromBudget) l.txFlagExcludeFromBudget,
+        // Cloud 二次开发字段标记(数据已通,此处展示给用户)
+        if (tx.isRefund == true) l.cloudTxRefund,
+        if (tx.discountAmount != null && tx.discountAmount! > 0)
+          '${l.cloudTxDiscount} ${tx.discountAmount}',
+        if (tx.isReimbursement == true) l.cloudTxIsReimbursement,
+        if (tx.memberSplitsJson != null &&
+            tx.memberSplitsJson!.isNotEmpty &&
+            tx.memberSplitsJson != '[]')
+          l.cloudTxMembers,
       ],
       copyLabel: l.transactionCopyAction,
       editLabel: l.commonEdit,

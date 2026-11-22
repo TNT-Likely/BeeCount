@@ -43,3 +43,6 @@ export 'smart_billing_providers.dart';
 export 'attachment_settings_providers.dart';
 
 export 'home_summary_providers.dart';
+
+// BeeCount-Cloud 二次开发对接
+export 'cloud_secondary_providers.dart';

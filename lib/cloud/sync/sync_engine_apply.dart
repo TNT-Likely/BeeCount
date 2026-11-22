@@ -213,6 +213,35 @@ extension SyncEngineApplyExt on SyncEngine {
     final payloadNative =
         hasNativeKey ? (payload['nativeAmount'] as num?)?.toDouble() : null;
 
+    // ===== Cloud 二次开发字段解析(0022-0035) =====
+    // 遵循「缺键保留」:update 用 Value.absent(),insert 落默认。
+    double? readDouble(String key) => payload.containsKey(key)
+        ? (payload[key] as num?)?.toDouble()
+        : null;
+    String? readStr(String key) =>
+        payload.containsKey(key) ? payload[key] as String? : null;
+    bool? readBool(String key) => payload.containsKey(key)
+        ? (payload[key] as bool? ?? false)
+        : null;
+    String? readJson(String key) {
+      if (!payload.containsKey(key) || payload[key] == null) return null;
+      final v = payload[key];
+      if (v is String) return v;
+      return jsonEncode(v); // server 传来 List/Map → 存为 JSON 字符串
+    }
+
+    final discountAmount = readDouble('discountAmount');
+    final transferFeeAmount = readDouble('transferFeeAmount');
+    final transferDiscountAmount = readDouble('transferDiscountAmount');
+    final transferFeeAccountId = readStr('transferFeeAccountId');
+    final transferFeeAccountName = readStr('transferFeeAccountName');
+    final isRefund = readBool('isRefund');
+    final refundOfSyncId = readStr('refundOfSyncId');
+    final paymentSplitsJson = readJson('paymentSplits');
+    final memberSplitsJson = readJson('memberSplits');
+    final memberNamesCsv = readStr('memberNames');
+    final isReimbursement = readBool('isReimbursement');
+
     if (existingId != null) {
       // 更新 — createdByUserId 走"本地为 null 就回填,否则保持"的策略。
       final shouldBackfillCreator =
@@ -258,6 +287,40 @@ extension SyncEngineApplyExt on SyncEngine {
             ? d.Value(payloadCurrency)
             : const d.Value.absent(), // 缺键保留本地币种
         nativeAmount: nativeValue,
+        // Cloud 二次开发字段(缺键保留)
+        discountAmount: discountAmount == null
+            ? const d.Value.absent()
+            : d.Value(discountAmount),
+        transferFeeAmount: transferFeeAmount == null
+            ? const d.Value.absent()
+            : d.Value(transferFeeAmount),
+        transferDiscountAmount: transferDiscountAmount == null
+            ? const d.Value.absent()
+            : d.Value(transferDiscountAmount),
+        transferFeeAccountId: transferFeeAccountId == null
+            ? const d.Value.absent()
+            : d.Value(transferFeeAccountId),
+        transferFeeAccountName: transferFeeAccountName == null
+            ? const d.Value.absent()
+            : d.Value(transferFeeAccountName),
+        isRefund: isRefund == null
+            ? const d.Value.absent()
+            : d.Value(isRefund),
+        refundOfSyncId: refundOfSyncId == null
+            ? const d.Value.absent()
+            : d.Value(refundOfSyncId),
+        paymentSplitsJson: paymentSplitsJson == null
+            ? const d.Value.absent()
+            : d.Value(paymentSplitsJson),
+        memberSplitsJson: memberSplitsJson == null
+            ? const d.Value.absent()
+            : d.Value(memberSplitsJson),
+        memberNamesCsv: memberNamesCsv == null
+            ? const d.Value.absent()
+            : d.Value(memberNamesCsv),
+        isReimbursement: isReimbursement == null
+            ? const d.Value.absent()
+            : d.Value(isReimbursement),
       ));
       // 更新标签和附件(existing 路径)
       await _syncTransactionTags(existingId, syncId, payload);
@@ -288,6 +351,18 @@ extension SyncEngineApplyExt on SyncEngine {
               // 留 NULL(检测端 LEFT JOIN 账户币种兜底)。
               currencyCode: d.Value(payloadCurrency),
               nativeAmount: d.Value(hasNativeKey ? payloadNative : amount),
+              // Cloud 二次开发字段(insert 落默认值)
+              discountAmount: d.Value(discountAmount),
+              transferFeeAmount: d.Value(transferFeeAmount),
+              transferDiscountAmount: d.Value(transferDiscountAmount),
+              transferFeeAccountId: d.Value(transferFeeAccountId),
+              transferFeeAccountName: d.Value(transferFeeAccountName),
+              isRefund: d.Value(isRefund ?? false),
+              refundOfSyncId: d.Value(refundOfSyncId),
+              paymentSplitsJson: d.Value(paymentSplitsJson),
+              memberSplitsJson: d.Value(memberSplitsJson),
+              memberNamesCsv: d.Value(memberNamesCsv),
+              isReimbursement: d.Value(isReimbursement ?? false),
             ),
           );
       // 写回 cache,后续同 syncId 的 update change 能命中
@@ -338,6 +413,25 @@ extension SyncEngineApplyExt on SyncEngine {
         ? (payload['hidden'] as bool? ?? false)
         : null;
 
+    // Cloud 账户图标/背景/账单字段(0041/0032) — 缺键保留范式同 hidden。
+    String? acctStr(String k) =>
+        payload.containsKey(k) ? payload[k] as String? : null;
+    double? acctDouble(String k) => payload.containsKey(k)
+        ? (payload[k] as num?)?.toDouble()
+        : null;
+    int? acctInt(String k) => payload.containsKey(k)
+        ? (payload[k] as num?)?.toInt()
+        : null;
+    final iconKey = acctStr('iconKey');
+    final iconType = acctStr('iconType');
+    final backgroundKey = acctStr('backgroundKey');
+    final billStatus = acctInt('billStatus');
+    final billAmountDue = acctDouble('billAmountDue');
+    final billMinimumAmount = acctDouble('billMinimumAmount');
+    final billPaidAmount = acctDouble('billPaidAmount');
+    final billRemainingAmount = acctDouble('billRemainingAmount');
+    final cardNumber = acctStr('cardNumber');
+
     var existing = await (db.select(db.accounts)
           ..where((a) => a.syncId.equals(syncId)))
         .getSingleOrNull();
@@ -376,6 +470,29 @@ extension SyncEngineApplyExt on SyncEngine {
         cardLastFour: d.Value(payload['cardLastFour'] as String?),
         note: d.Value(payload['note'] as String?),
         hidden: hidden == null ? const d.Value.absent() : d.Value(hidden),
+        // Cloud 账户二次开发字段(缺键保留)
+        iconKey: iconKey == null ? const d.Value.absent() : d.Value(iconKey),
+        iconType:
+            iconType == null ? const d.Value.absent() : d.Value(iconType),
+        backgroundKey: backgroundKey == null
+            ? const d.Value.absent()
+            : d.Value(backgroundKey),
+        billStatus:
+            billStatus == null ? const d.Value.absent() : d.Value(billStatus),
+        billAmountDue: billAmountDue == null
+            ? const d.Value.absent()
+            : d.Value(billAmountDue),
+        billMinimumAmount: billMinimumAmount == null
+            ? const d.Value.absent()
+            : d.Value(billMinimumAmount),
+        billPaidAmount: billPaidAmount == null
+            ? const d.Value.absent()
+            : d.Value(billPaidAmount),
+        billRemainingAmount: billRemainingAmount == null
+            ? const d.Value.absent()
+            : d.Value(billRemainingAmount),
+        cardNumber:
+            cardNumber == null ? const d.Value.absent() : d.Value(cardNumber),
       ));
       logger.debug('SyncEngine', 'pull: 更新账户 $syncId');
     } else {
@@ -397,6 +514,16 @@ extension SyncEngineApplyExt on SyncEngine {
               note: d.Value(payload['note'] as String?),
               syncId: d.Value(syncId),
               hidden: d.Value(hidden ?? false),
+              // Cloud 账户二次开发字段(insert 落值)
+              iconKey: d.Value(iconKey),
+              iconType: d.Value(iconType),
+              backgroundKey: d.Value(backgroundKey),
+              billStatus: d.Value(billStatus),
+              billAmountDue: d.Value(billAmountDue),
+              billMinimumAmount: d.Value(billMinimumAmount),
+              billPaidAmount: d.Value(billPaidAmount),
+              billRemainingAmount: d.Value(billRemainingAmount),
+              cardNumber: d.Value(cardNumber),
             ),
           );
       activePullCache?.putAccount(syncId, localId);

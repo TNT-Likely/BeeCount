@@ -62,6 +62,20 @@ class Accounts extends Table {
   /// 隐藏:true 时该账户不再出现在记账/转账/周期选择器,账户管理页移入「已隐藏」分区。
   /// 仍计入账户余额、净资产、资产构成、净值趋势(.docs/account-archive/01 §二 D1)。
   BoolColumn get hidden => boolean().withDefault(const Constant(false))();
+
+  // ===== BeeCount-Cloud 二次开发对接字段 (v34) =====
+  /// 账户图标/背景(Cloud 迁移 0041):icon_type = bank|card|custom。
+  TextColumn get iconKey => text().nullable()();
+  TextColumn get iconType => text().nullable()();
+  TextColumn get backgroundKey => text().nullable()();
+  /// 信用卡账单派生字段(Cloud 0022/0032):账单日在本表用 billingDay(日号)。
+  IntColumn get billStatus => integer().nullable()();
+  RealColumn get billAmountDue => real().nullable()();
+  RealColumn get billMinimumAmount => real().nullable()();
+  RealColumn get billPaidAmount => real().nullable()();
+  RealColumn get billRemainingAmount => real().nullable()();
+  /// Cloud 的完整卡号(最长 23),App 老字段 cardLastFour 保留兼容。
+  TextColumn get cardNumber => text().nullable()();
 }
 
 /// 自动汇率本地缓存。日期键 append-only;可随时整表重建 → **不进同步**(README D2)。
@@ -153,6 +167,25 @@ class Transactions extends Table {
   /// 单币种/未折算 == amount(隐含汇率 1.0)。账本维度统计读本列(?? amount),
   /// 账户维度(余额等)仍读 amount。
   RealColumn get nativeAmount => real().nullable()();
+
+  // ===== BeeCount-Cloud 二次开发对接字段 (v34) =====
+  /// 支出优惠(Cloud 0023):amount 为实付,优惠仅明细不冲减余额。
+  RealColumn get discountAmount => real().nullable()();
+  /// 转账手续费/优惠(Cloud 0022):金额为原币金额。
+  RealColumn get transferFeeAmount => real().nullable()();
+  RealColumn get transferDiscountAmount => real().nullable()();
+  TextColumn get transferFeeAccountId => text().nullable()();
+  TextColumn get transferFeeAccountName => text().nullable()();
+  /// 退款(Cloud 0025):isRefund 0/1, refundOfSyncId 指向原单。
+  BoolColumn get isRefund => boolean().nullable()();
+  TextColumn get refundOfSyncId => text().nullable()();
+  /// 组合付款(Cloud 0028):payment_splits JSON [{accountId, accountName, amount}]。
+  TextColumn get paymentSplitsJson => text().nullable()();
+  /// 消费成员(Cloud 0024):member splits JSON。
+  TextColumn get memberSplitsJson => text().nullable()();
+  TextColumn get memberNamesCsv => text().nullable()();
+  /// 报销标记(Cloud 0035):true 时强制 exclude_from_stats/budget。
+  BoolColumn get isReimbursement => boolean().nullable()();
 }
 
 class RecurringTransactions extends Table {
@@ -475,6 +508,207 @@ class SharedLedgerTags extends Table {
   Set<Column> get primaryKey => {ledgerSyncId, syncId};
 }
 
+// ============================================================================
+// BeeCount-Cloud 二次开发对接实体 (v34)
+// ----------------------------------------------------------------------------
+// 这些实体在 Cloud 端是「服务端直管表 + REST CRUD」，不进 mobile sync 链路，
+// 通过 txSyncId 与本地交易流水关联。App 端用本地表镜像 + REST 同步。
+// 字段命名遵循 App 的 camelCase 约定，映射 Cloud 的 snake_case。
+// ============================================================================
+
+/// 联系人 (Cloud 0026/0042/0066)：user-global。
+/// isArchived=归档(移出默认列表), isActive=停用(禁止新借款/新关联)。
+class CloudContacts extends Table {
+  TextColumn get syncId => text()();
+  TextColumn get name => text()();
+  TextColumn get note => text().nullable()();
+  TextColumn get avatarFileId => text().nullable()();
+  TextColumn get contactTag => text().nullable()(); // friend/family/colleague/merchant
+  TextColumn get phone => text().nullable()();
+  TextColumn get wechat => text().nullable()();
+  TextColumn get alipay => text().nullable()();
+  TextColumn get profileJson => text().nullable()();
+  BoolColumn get isArchived => boolean().withDefault(const Constant(false))();
+  BoolColumn get isActive => boolean().withDefault(const Constant(true))();
+  DateTimeColumn get updatedAt => dateTime().nullable()();
+  @override
+  Set<Column> get primaryKey => {syncId};
+}
+
+/// 借款 (Cloud 0026-0033/0039)：关联联系人，direction=lend/borrow。
+class CloudLoans extends Table {
+  TextColumn get syncId => text()();
+  TextColumn get contactId => text().nullable()();
+  TextColumn get direction => text()(); // lend 借出 / borrow 借入
+  RealColumn get amount => real()();
+  TextColumn get currencyCode => text().nullable()();
+  DateTimeColumn get happenedAt => dateTime().nullable()();
+  TextColumn get dueAt => text().nullable()(); // ISO 字符串
+  TextColumn get interestType => text().nullable()(); // none/fixed/annual
+  RealColumn get interestRate => real().nullable()();
+  RealColumn get interestAmount => real().nullable()();
+  TextColumn get note => text().nullable()();
+  TextColumn get status => text().nullable()(); // unpaid/partial/overdue/settled
+  TextColumn get accountId => text().nullable()();
+  TextColumn get accountName => text().nullable()();
+  TextColumn get txSyncId => text().nullable()();
+  DateTimeColumn get updatedAt => dateTime().nullable()();
+  @override
+  Set<Column> get primaryKey => {syncId};
+}
+
+/// 借款还款 (Cloud 0027/0033/0039)。
+class CloudLoanRepayments extends Table {
+  TextColumn get syncId => text()();
+  TextColumn get loanId => text()();
+  RealColumn get amount => real()();
+  DateTimeColumn get repaidAt => dateTime().nullable()();
+  TextColumn get note => text().nullable()();
+  TextColumn get accountId => text().nullable()();
+  TextColumn get txSyncId => text().nullable()();
+  RealColumn get interestAmount => real().nullable()();
+  TextColumn get groupId => text().nullable()();
+  @override
+  Set<Column> get primaryKey => {syncId};
+}
+
+/// 储蓄罐计划 (Cloud 0034/0036)。
+class CloudSavingPlans extends Table {
+  TextColumn get syncId => text()();
+  TextColumn get name => text()();
+  TextColumn get icon => text().nullable()();
+  RealColumn get targetAmount => real().nullable()();
+  TextColumn get currencyCode => text().nullable()();
+  TextColumn get deadline => text().nullable()();
+  TextColumn get accountId => text().nullable()();
+  TextColumn get planType => text().nullable()(); // free/fixed/wish
+  RealColumn get monthlyAmount => real().nullable()();
+  TextColumn get status => text().nullable()(); // active/completed/abandoned
+  TextColumn get note => text().nullable()();
+  @override
+  Set<Column> get primaryKey => {syncId};
+}
+
+/// 储蓄罐存入记录 (Cloud 0034/0036)：双账户时一笔 transfer。
+class CloudSavingContributions extends Table {
+  TextColumn get syncId => text()();
+  TextColumn get planId => text()();
+  RealColumn get amount => real()();
+  DateTimeColumn get happenedAt => dateTime().nullable()();
+  TextColumn get note => text().nullable()();
+  TextColumn get txSyncId => text().nullable()();
+  TextColumn get accountId => text().nullable()();
+  TextColumn get accountName => text().nullable()();
+  TextColumn get receiveAccountId => text().nullable()();
+  TextColumn get receiveAccountName => text().nullable()();
+  @override
+  Set<Column> get primaryKey => {syncId};
+}
+
+/// 报销单 (Cloud 0035/0037)。
+class CloudReimbursements extends Table {
+  TextColumn get syncId => text()();
+  RealColumn get amount => real()();
+  DateTimeColumn get happenedAt => dateTime().nullable()();
+  TextColumn get note => text().nullable()();
+  TextColumn get icon => text().nullable()();
+  TextColumn get receiveAccountId => text().nullable()();
+  TextColumn get receiveAccountName => text().nullable()();
+  TextColumn get companyId => text().nullable()();
+  TextColumn get companyName => text().nullable()();
+  TextColumn get txSyncId => text().nullable()();
+  @override
+  Set<Column> get primaryKey => {syncId};
+}
+
+/// 报销项 (Cloud 0035)。
+class CloudReimbursementItems extends Table {
+  TextColumn get syncId => text()();
+  TextColumn get txSyncId => text().nullable()();
+  RealColumn get amount => real()();
+  DateTimeColumn get happenedAt => dateTime().nullable()();
+  TextColumn get note => text().nullable()();
+  TextColumn get categoryName => text().nullable()();
+  TextColumn get accountId => text().nullable()();
+  TextColumn get accountName => text().nullable()();
+  TextColumn get companyId => text().nullable()();
+  TextColumn get companyName => text().nullable()();
+  TextColumn get status => text().nullable()(); // pending/reimbursed
+  TextColumn get reimbursementId => text().nullable()();
+  @override
+  Set<Column> get primaryKey => {syncId};
+}
+
+/// 公司档案 (Cloud 0037)：user-global，跨账本复用。
+class CloudCompanies extends Table {
+  TextColumn get syncId => text()();
+  TextColumn get name => text()();
+  TextColumn get note => text().nullable()();
+  @override
+  Set<Column> get primaryKey => {syncId};
+}
+
+/// 物品 (Cloud 0038/0040)。
+class CloudItems extends Table {
+  TextColumn get syncId => text()();
+  TextColumn get name => text()();
+  RealColumn get price => real().nullable()();
+  DateTimeColumn get purchasedAt => dateTime().nullable()();
+  TextColumn get purchaseChannel => text().nullable()();
+  TextColumn get categoryName => text().nullable()();
+  TextColumn get location => text().nullable()();
+  TextColumn get linkMode => text().nullable()(); // new/existing/none
+  TextColumn get txSyncIdsJson => text().nullable()();
+  TextColumn get accountId => text().nullable()();
+  TextColumn get averageMode => text().nullable()(); // none/daily_avg/per_day
+  TextColumn get note => text().nullable()();
+  @override
+  Set<Column> get primaryKey => {syncId};
+}
+
+/// 物品收支流水 (Cloud 0038/0040)。
+class CloudItemFlows extends Table {
+  TextColumn get syncId => text()();
+  TextColumn get itemId => text()();
+  TextColumn get flowType => text()(); // income/expense
+  RealColumn get amount => real()();
+  DateTimeColumn get happenedAt => dateTime().nullable()();
+  TextColumn get categoryName => text().nullable()();
+  TextColumn get note => text().nullable()();
+  TextColumn get txSyncIdsJson => text().nullable()();
+  @override
+  Set<Column> get primaryKey => {syncId};
+}
+
+/// 定期存款 (Cloud 0031)。
+class CloudDeposits extends Table {
+  TextColumn get syncId => text()();
+  TextColumn get name => text()();
+  TextColumn get depositType => text().nullable()(); // fixed/installment/cd/structured
+  RealColumn get principal => real()();
+  TextColumn get currencyCode => text().nullable()();
+  DateTimeColumn get startedAt => dateTime().nullable()();
+  IntColumn get termMonths => integer().nullable()();
+  RealColumn get annualRate => real().nullable()();
+  TextColumn get maturityAt => text().nullable()();
+  TextColumn get onMaturity => text().nullable()(); // withdraw/auto_renew
+  TextColumn get status => text().nullable()(); // holding/matured/withdrawn/renewed
+  TextColumn get accountId => text().nullable()();
+  TextColumn get flowTxSyncId => text().nullable()();
+  @override
+  Set<Column> get primaryKey => {syncId};
+}
+
+/// 消费成员 (Cloud 0024)：user-global，与 LedgerMembers(共享账本协作者)完全不同。
+class CloudMembers extends Table {
+  TextColumn get syncId => text()();
+  TextColumn get name => text()();
+  TextColumn get note => text().nullable()();
+  TextColumn get contactId => text().nullable()();
+  @override
+  Set<Column> get primaryKey => {syncId};
+}
+
 @DriftDatabase(tables: [
   Ledgers,
   Accounts,
@@ -501,6 +735,19 @@ class SharedLedgerTags extends Table {
   SyncPullErrors,
   ExchangeRates,
   ExchangeRateOverrides,
+  // Cloud 二次开发对接实体 (v34)
+  CloudContacts,
+  CloudLoans,
+  CloudLoanRepayments,
+  CloudSavingPlans,
+  CloudSavingContributions,
+  CloudReimbursements,
+  CloudReimbursementItems,
+  CloudCompanies,
+  CloudItems,
+  CloudItemFlows,
+  CloudDeposits,
+  CloudMembers,
 ])
 class BeeDatabase extends _$BeeDatabase {
   BeeDatabase() : super(_openConnection());
@@ -511,7 +758,7 @@ class BeeDatabase extends _$BeeDatabase {
   BeeDatabase.forTesting(QueryExecutor executor) : super(executor);
 
   @override
-  int get schemaVersion => 33; // v33: Agent 本地记忆、摘要与审计表
+  int get schemaVersion => 34; // v34: BeeCount-Cloud 二次开发对接字段与实体
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -1257,6 +1504,65 @@ class BeeDatabase extends _$BeeDatabase {
             );
             await _createAgentMemoryFtsTable();
             logger.info('DBMigration', 'v33 迁移完成');
+          }
+          if (from < 34) {
+            logger.info('DBMigration',
+                '开始迁移到 v34: BeeCount-Cloud 二次开发对接(账户图标/交易扩展/业务实体)');
+            // 账户:图标背景 + 信用卡账单字段 + 完整卡号
+            for (final col in [
+              'icon_key', 'icon_type', 'background_key', 'bill_status',
+              'bill_amount_due', 'bill_minimum_amount', 'bill_paid_amount',
+              'bill_remaining_amount', 'card_number',
+            ]) {
+              final type = col.startsWith('bill_') &&
+                      col != 'bill_status'
+                  ? 'REAL'
+                  : col == 'bill_status'
+                      ? 'INTEGER'
+                      : 'TEXT';
+              await _addColumnIfMissing('accounts', col,
+                  'ALTER TABLE accounts ADD COLUMN $col $type;');
+            }
+            // 交易:优惠/手续费(数值)
+            for (final col in [
+              'discount_amount', 'transfer_fee_amount',
+              'transfer_discount_amount',
+            ]) {
+              await _addColumnIfMissing('transactions', col,
+                  'ALTER TABLE transactions ADD COLUMN $col REAL;');
+            }
+            // 交易:手续费账户(文本)
+            for (final col in [
+              'transfer_fee_account_id', 'transfer_fee_account_name',
+              'refund_of_sync_id', 'payment_splits_json',
+              'member_splits_json', 'member_names_csv',
+            ]) {
+              await _addColumnIfMissing('transactions', col,
+                  'ALTER TABLE transactions ADD COLUMN $col TEXT;');
+            }
+            for (final col in ['is_refund', 'is_reimbursement']) {
+              await _addColumnIfMissing('transactions', col,
+                  'ALTER TABLE transactions ADD COLUMN $col INTEGER NOT NULL DEFAULT 0;');
+            }
+            // Cloud 业务实体镜像表
+            await _createTableIfMissing(migrator, 'cloud_contacts', cloudContacts);
+            await _createTableIfMissing(migrator, 'cloud_loans', cloudLoans);
+            await _createTableIfMissing(
+                migrator, 'cloud_loan_repayments', cloudLoanRepayments);
+            await _createTableIfMissing(
+                migrator, 'cloud_saving_plans', cloudSavingPlans);
+            await _createTableIfMissing(
+                migrator, 'cloud_saving_contributions', cloudSavingContributions);
+            await _createTableIfMissing(
+                migrator, 'cloud_reimbursements', cloudReimbursements);
+            await _createTableIfMissing(
+                migrator, 'cloud_reimbursement_items', cloudReimbursementItems);
+            await _createTableIfMissing(migrator, 'cloud_companies', cloudCompanies);
+            await _createTableIfMissing(migrator, 'cloud_items', cloudItems);
+            await _createTableIfMissing(migrator, 'cloud_item_flows', cloudItemFlows);
+            await _createTableIfMissing(migrator, 'cloud_deposits', cloudDeposits);
+            await _createTableIfMissing(migrator, 'cloud_members', cloudMembers);
+            logger.info('DBMigration', 'v34 迁移完成');
           }
         },
         onCreate: (m) async {
