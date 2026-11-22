@@ -168,7 +168,7 @@ Release禁用自动生成日志，`make_latest=false`，不替代正式Latest。
 gh workflow run release.yml --ref main -f release_scope=ios-app-store -f tag_name=4.0.1
 ```
 
-工作流使用限定 `main` 的 GitHub 环境 `ios-app-store`，分别以只读 SSH deploy key 检出画师库和商业库的 `main`。在该环境配置 `IOS_APP_STORE_SKINS_REPOSITORY`、`IOS_APP_STORE_SKINS_SSH_KEY`、`IOS_APP_STORE_COMMERCIAL_REPOSITORY`、`IOS_APP_STORE_COMMERCIAL_SSH_KEY` 和 `IOS_APP_STORE_METRICS_URL`。Apple Distribution、主 App 和 Widget 描述文件、App Store Connect API 与上传凭据沿用现有仓库配置。正式候选开启皮肤和付费能力，统计仍需用户同意及生产 StoreKit 验证。
+工作流使用限定 `main` 的 GitHub 环境 `ios-app-store`，分别以只读 SSH deploy key 检出画师库和商业库的 `main`。在该环境配置 `IOS_APP_STORE_SKINS_REPOSITORY`、`IOS_APP_STORE_SKINS_SSH_KEY`、`IOS_APP_STORE_COMMERCIAL_REPOSITORY`和 `IOS_APP_STORE_COMMERCIAL_SSH_KEY`。Apple Distribution、主 App 和 Widget 描述文件、App Store Connect API 与上传凭据沿用现有仓库配置。正式候选开启皮肤和付费能力。
 
 Runner 从已审阅的源码组装，检查 Flutter 和 CocoaPods 锁并查询 Apple 最新构建号。归档、签名、App Store 导出和上传在 `Release` 的 iOS 任务内完成。构建摘要记录三个源码提交和 IPA SHA-256。正式 IPA 只上传 Apple。标准发布模式保持原 Android 和 GitHub Release 产物。
 

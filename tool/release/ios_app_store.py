@@ -48,7 +48,7 @@ def locked_pods():
         stream.write(str(directory / 'tools') + '\n')
 
 
-def verify_configuration(config, version, build, metrics_url):
+def verify_configuration(config, version, build):
     settings = dict(line.split('=', 1) for line in config.splitlines()
                     if '=' in line and not line.startswith('//'))
     encoded = settings.get('DART_DEFINES', '').split(',')
@@ -59,10 +59,10 @@ def verify_configuration(config, version, build, metrics_url):
         'BEECOUNT_PAID_SKINS_ENABLED': 'true',
         'BEECOUNT_SKIN_SALES': 'true',
         'BEECOUNT_SKIN_PRODUCTION_SALES': 'true',
-        'BEECOUNT_SKIN_METRICS_URL': metrics_url,
     }
     gate.require(all(defines.get(key) == value for key, value in expected.items()) and
-                 not any(key.startswith('BEECOUNT_OFFICIAL_QA') for key in defines) and
+                 not any(key.startswith(('BEECOUNT_OFFICIAL_QA', 'BEECOUNT_SKIN_METRICS'))
+                         for key in defines) and
                  'BEECOUNT_SKIN_PRODUCT_ID' not in defines,
                  '正式构建开关与发布配置不一致')
     gate.require(settings.get('FLUTTER_BUILD_NAME') == version
@@ -94,20 +94,11 @@ def verify(version, build, ipa):
         gate.require(metadata.get('ITSAppUsesNonExemptEncryption') is False,
                      '归档缺少已核对的加密合规声明')
         privacy = plistlib.loads(archive.read(app_info.replace('Info.plist', 'PrivacyInfo.xcprivacy')))
-        collected = {item['NSPrivacyCollectedDataType']: item
-                     for item in privacy['NSPrivacyCollectedDataTypes']}
-        expected_privacy_types = {'NSPrivacyCollectedDataType' + data
-                                  for data in ('DeviceID', 'ProductInteraction', 'PurchaseHistory')}
-        gate.require(expected_privacy_types <= collected.keys()
-                     and privacy.get('NSPrivacyTracking') is False
-                     and all(collected[data].get('NSPrivacyCollectedDataTypeLinked') is True
-                             and collected[data].get('NSPrivacyCollectedDataTypeTracking') is False
-                             and collected[data].get('NSPrivacyCollectedDataTypePurposes') ==
-                             ['NSPrivacyCollectedDataTypePurposeAnalytics']
-                             for data in expected_privacy_types),
+        gate.require(privacy.get('NSPrivacyCollectedDataTypes') == []
+                     and privacy.get('NSPrivacyTracking') is False,
                      '归档内的 App 隐私清单和正式申报不一致')
     verify_configuration(Path('ios/Flutter/Generated.xcconfig').read_text(), version,
-                         build, os.environ['IOS_SKIN_METRICS_URL'])
+                         build)
     pods = subprocess.check_output(['git', '-C', workspace, 'show', 'HEAD:ios/Podfile.lock'])
     gate.require(Path('ios/Podfile.lock').read_bytes() == pods, '归档的 CocoaPods 依赖锁发生变化')
     with open('ios/ExportOptions.plist', 'rb') as stream:
