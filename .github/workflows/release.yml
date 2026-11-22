@@ -386,13 +386,17 @@ jobs:
           echo "✅ Successfully uploaded to Google Play Console (alpha track)!"
 
   ios:
-    name: iOS (app.zip + unsigned .ipa)
+    name: iOS (${{ matrix.variant }})
     runs-on: macos-latest
     needs: [check-branch]
     if: always() && !contains(github.ref_name, '-beta.') && !contains(github.event.inputs.tag_name, '-beta.') && needs.check-branch.result == 'success'
-    environment: ${{ inputs.official_skins && 'ios-app-store' || 'ios-standard-release' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        variant: ${{ fromJSON(inputs.official_skins && '["app-store", "public"]' || '["standard"]') }}
+    environment: ${{ matrix.variant == 'app-store' && 'ios-app-store' || 'ios-standard-release' }}
     env:
-      OFFICIAL_SKINS: ${{ inputs.official_skins == true }}
+      OFFICIAL_SKINS: ${{ matrix.variant == 'app-store' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -459,7 +463,7 @@ jobs:
             pub-${{ runner.os }}-${{ env.FLUTTER_VERSION }}-
 
       - name: Checkout official skin artwork
-        if: inputs.official_skins
+        if: matrix.variant == 'app-store'
         uses: actions/checkout@v4
         with:
           repository: ${{ secrets.IOS_APP_STORE_SKINS_REPOSITORY }}
@@ -469,7 +473,7 @@ jobs:
           persist-credentials: false
 
       - name: Checkout official purchase packages
-        if: inputs.official_skins
+        if: matrix.variant == 'app-store'
         uses: actions/checkout@v4
         with:
           repository: ${{ secrets.IOS_APP_STORE_COMMERCIAL_REPOSITORY }}
@@ -479,7 +483,7 @@ jobs:
           persist-credentials: false
 
       - name: Use official Flutter path packages
-        if: inputs.official_skins
+        if: matrix.variant == 'app-store'
         run: |
           ruby -ryaml - <<'RUBY'
           overrides = YAML.safe_load(File.read('pubspec.yaml')).fetch('dependency_overrides', {})
@@ -515,6 +519,7 @@ jobs:
           grep "^version:" pubspec.yaml
 
       - name: Setup iOS signing (optional)
+        if: matrix.variant != 'public'
         env:
           IOS_P12_BASE64: ${{ secrets.APPLE_CERTIFICATE_P12 }}
           IOS_P12_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
@@ -772,7 +777,7 @@ jobs:
           security delete-keychain $RUNNER_TEMP/app-signing.keychain-db || true
 
       - name: Build iOS (debug simulator, unsigned)
-        if: '!inputs.official_skins'
+        if: matrix.variant != 'app-store'
         run: |
           export CI_VERSION='${{ steps.meta.outputs.tag_name }}'
           export GIT_COMMIT='${{ github.sha }}'
@@ -783,7 +788,7 @@ jobs:
             --dart-define=BUILD_TIME="$BUILD_TIME"
 
       - name: Package iOS Runner.app (unsigned)
-        if: '!inputs.official_skins'
+        if: matrix.variant != 'app-store'
         run: |
           set -euo pipefail
           VERSION="${{ steps.meta.outputs.tag_name }}"
@@ -802,7 +807,7 @@ jobs:
           ls -la beecount-${VERSION}-*
 
       - name: Package iOS Simulator Runner.app (debug, unsigned)
-        if: '!inputs.official_skins'
+        if: matrix.variant != 'app-store'
         run: |
           set -euo pipefail
           VERSION="${{ steps.meta.outputs.tag_name }}"
@@ -850,14 +855,14 @@ jobs:
           echo "✅ Successfully uploaded to TestFlight!"
 
       - name: Upload iOS artifacts
-        if: '!inputs.official_skins'
+        if: matrix.variant != 'app-store'
         uses: actions/upload-artifact@v4
         with:
           name: ios
           path: |
             beecount-*-iphoneos.app.zip
             beecount-*-unsigned.ipa
-            beecount-*-signed.ipa
+            ${{ matrix.variant == 'standard' && 'beecount-*-signed.ipa' || '' }}
             beecount-*-iphonesimulator.app.zip
 
   release:
@@ -936,7 +941,6 @@ jobs:
           ls -R ./dist || true
 
       - name: Download iOS artifacts
-        if: '!inputs.official_skins'
         uses: actions/download-artifact@v4
         with:
           name: ios
