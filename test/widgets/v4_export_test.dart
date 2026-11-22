@@ -7,7 +7,7 @@ import 'package:beecount/data/repositories/local/local_repository.dart';
 import 'package:beecount/l10n/app_localizations.dart';
 import 'package:beecount/l10n/app_localizations_en.dart';
 import 'package:beecount/pages/data/export_page.dart';
-import 'package:beecount/pages/data/export/bindings/export_csv.dart';
+import 'package:beecount/services/export/transaction_csv_export.dart';
 import 'package:beecount/pages/data/export/bindings/export_platform.dart';
 import 'package:beecount/dev/component_gallery/bindings/export_preview.dart';
 import 'package:beecount/dev/component_gallery/export_sample.dart';

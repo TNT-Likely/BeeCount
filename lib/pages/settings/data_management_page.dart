@@ -8,6 +8,7 @@ import '../shared/scaffold/widgets/page_scaffold.dart';
 import 'attachments/bindings/attachment_transfer_actions.dart';
 import '../data/import_page.dart';
 import '../data/export_page.dart';
+import '../data/full_data_export_page.dart';
 import '../category/category_manage_page.dart';
 import '../category/category_migration_page.dart';
 import '../tag/tag_manage_page.dart';
@@ -79,6 +80,7 @@ class _DataManagementPageState extends ConsumerState<DataManagementPage>
                     height: 1.6,
                     color: Theme.of(context).hintColor)),
             section(l.v4DataBills, [
+              const FullDataExportEntry(),
               BeeFileTransferStatus(
                   title: importTitle,
                   subtitle: importSubtitle,

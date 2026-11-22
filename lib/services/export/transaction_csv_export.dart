@@ -1,9 +1,9 @@
 import 'package:csv/csv.dart';
 
-import '../../../../data/db.dart';
-import '../../../../data/repositories/base_repository.dart';
-import '../../../../l10n/app_localizations.dart';
-import '../../../../utils/category_utils.dart';
+import '../../data/db.dart';
+import '../../data/repositories/base_repository.dart';
+import '../../l10n/app_localizations.dart';
+import '../../utils/category_utils.dart';
 
 /// The original CSV contract, extracted from ExportPage without storage or UI.
 /// Reads the same current-ledger repository stream and never writes app data.
@@ -25,8 +25,16 @@ Future<String> buildTransactionExportCsv({
   final tagsMap = await repo.getTagsForTransactions(transactionIds);
 
   // 批量获取所有交易的附件
-  final attachmentsMap =
-      await repo.getAttachmentsForTransactions(transactionIds);
+  final attachmentsMap = <int, List<TransactionAttachment>>{};
+  const attachmentBatchSize = 500;
+  for (var start = 0;
+      start < transactionIds.length;
+      start += attachmentBatchSize) {
+    final end = (start + attachmentBatchSize).clamp(0, transactionIds.length);
+    attachmentsMap.addAll(await repo.getAttachmentsForTransactions(
+      transactionIds.sublist(start, end),
+    ));
+  }
 
   // 缓存所有账户信息，避免重复查询
   final allAccounts = await repo.getAllAccounts();

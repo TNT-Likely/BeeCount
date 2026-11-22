@@ -4402,5 +4402,20 @@
   "v4RecurringAmountTransfer": "每次转账",
   "v4RecurringAutomatic": "自动记账",
   "v4RecurringNextCaption": "下次记账 · {when}",
-  "v4RecurringUsageSummary": "打开或回到 App 时，自动补记到期账单。点击卡片可编辑规则。"
+  "v4RecurringUsageSummary": "打开或回到 App 时，自动补记到期账单。点击卡片可编辑规则。",
+  "fullDataExportTitle": "导出全部数据",
+  "fullDataExportSubtitle": "所有账本、图片附件和配置 · ZIP",
+  "fullDataExportDescription": "将此设备上的所有账本打包成一个 ZIP。解压后可按账本名称浏览账单 CSV 和图片附件。",
+  "fullDataExportLedgers": "所有账本与账单",
+  "fullDataExportAttachments": "图片附件",
+  "fullDataExportConfiguration": "账户、分类、标签与其他配置",
+  "fullDataExportPrivacy": "ZIP 包含个人记账数据，请妥善保管。",
+  "fullDataExportGenerate": "生成 ZIP",
+  "fullDataExportGenerating": "正在生成 ZIP…",
+  "fullDataExportReady": "ZIP 已生成 · {ledgers} 个账本 · {attachments} 个图片文件",
+  "fullDataExportMissing": "{count} 项文件未能加入。缺失项见 missing_files.csv。",
+  "fullDataExportShare": "保存或分享 ZIP",
+  "fullDataExportAgain": "重新生成",
+  "fullDataExportError": "生成 ZIP 失败。请检查可用存储空间后重试。",
+  "fullDataExportShareError": "无法打开系统分享，请重试。"
 }
