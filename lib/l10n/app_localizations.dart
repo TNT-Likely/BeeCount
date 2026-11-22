@@ -17787,6 +17787,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Due bills are recorded when you open or return to the app. Tap a rule to edit its schedule.'**
   String get v4RecurringUsageSummary;
+
+  /// No description provided for @fullDataExportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Export all data'**
+  String get fullDataExportTitle;
+
+  /// No description provided for @fullDataExportSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'All ledgers, image attachments, and settings · ZIP'**
+  String get fullDataExportSubtitle;
+
+  /// No description provided for @fullDataExportDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Package all ledgers on this device into one ZIP. Open it to browse records and image attachments by ledger name.'**
+  String get fullDataExportDescription;
+
+  /// No description provided for @fullDataExportLedgers.
+  ///
+  /// In en, this message translates to:
+  /// **'All ledgers and records'**
+  String get fullDataExportLedgers;
+
+  /// No description provided for @fullDataExportAttachments.
+  ///
+  /// In en, this message translates to:
+  /// **'Image attachments'**
+  String get fullDataExportAttachments;
+
+  /// No description provided for @fullDataExportConfiguration.
+  ///
+  /// In en, this message translates to:
+  /// **'Accounts, categories, tags, and other settings'**
+  String get fullDataExportConfiguration;
+
+  /// No description provided for @fullDataExportPrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'The ZIP contains personal bookkeeping data. Keep it somewhere safe.'**
+  String get fullDataExportPrivacy;
+
+  /// No description provided for @fullDataExportGenerate.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate ZIP'**
+  String get fullDataExportGenerate;
+
+  /// No description provided for @fullDataExportGenerating.
+  ///
+  /// In en, this message translates to:
+  /// **'Generating ZIP…'**
+  String get fullDataExportGenerating;
+
+  /// No description provided for @fullDataExportReady.
+  ///
+  /// In en, this message translates to:
+  /// **'ZIP ready · {ledgers, plural, one{1 ledger} other{{ledgers} ledgers}} · {attachments, plural, one{1 image file} other{{attachments} image files}}'**
+  String fullDataExportReady(int ledgers, int attachments);
+
+  /// No description provided for @fullDataExportMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{One file is unavailable.} other{{count} files are unavailable.}} See the archive manifest for details.'**
+  String fullDataExportMissing(int count);
+
+  /// No description provided for @fullDataExportShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Save or share ZIP'**
+  String get fullDataExportShare;
+
+  /// No description provided for @fullDataExportAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate again'**
+  String get fullDataExportAgain;
+
+  /// No description provided for @fullDataExportError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not generate the ZIP. Check available storage and try again.'**
+  String get fullDataExportError;
+
+  /// No description provided for @fullDataExportShareError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open the share sheet. Try again.'**
+  String get fullDataExportShareError;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

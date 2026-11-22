@@ -9467,6 +9467,55 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get v4RecurringUsageSummary => '打开或回到 App 时，自动补记到期账单。点击卡片可编辑规则。';
+
+  @override
+  String get fullDataExportTitle => '导出全部数据';
+
+  @override
+  String get fullDataExportSubtitle => '所有账本、图片附件和配置 · ZIP';
+
+  @override
+  String get fullDataExportDescription => '将此设备上的所有账本打包成一个 ZIP。解压后可按账本名称浏览账单和图片附件。';
+
+  @override
+  String get fullDataExportLedgers => '所有账本与账单';
+
+  @override
+  String get fullDataExportAttachments => '图片附件';
+
+  @override
+  String get fullDataExportConfiguration => '账户、分类、标签与其他配置';
+
+  @override
+  String get fullDataExportPrivacy => 'ZIP 包含个人记账数据，请妥善保管。';
+
+  @override
+  String get fullDataExportGenerate => '生成 ZIP';
+
+  @override
+  String get fullDataExportGenerating => '正在生成 ZIP…';
+
+  @override
+  String fullDataExportReady(int ledgers, int attachments) {
+    return 'ZIP 已生成 · $ledgers 个账本 · $attachments 个图片文件';
+  }
+
+  @override
+  String fullDataExportMissing(int count) {
+    return '$count 项文件未能加入。归档清单列出了缺失项。';
+  }
+
+  @override
+  String get fullDataExportShare => '保存或分享 ZIP';
+
+  @override
+  String get fullDataExportAgain => '重新生成';
+
+  @override
+  String get fullDataExportError => '生成 ZIP 失败。请检查可用存储空间后重试。';
+
+  @override
+  String get fullDataExportShareError => '无法打开系统分享，请重试。';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
