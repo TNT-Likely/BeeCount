@@ -430,13 +430,11 @@ jobs:
           SKINS_DEPLOY_KEY: ${{ secrets.IOS_APP_STORE_SKINS_SSH_KEY }}
           COMMERCIAL_REPOSITORY: ${{ secrets.IOS_APP_STORE_COMMERCIAL_REPOSITORY }}
           COMMERCIAL_DEPLOY_KEY: ${{ secrets.IOS_APP_STORE_COMMERCIAL_SSH_KEY }}
-          IOS_SKIN_METRICS_URL: ${{ secrets.IOS_APP_STORE_METRICS_URL }}
         run: |
           set -euo pipefail
           if [[ -z "$SKINS_REPOSITORY" || -z "$SKINS_DEPLOY_KEY" ||
-                -z "$COMMERCIAL_REPOSITORY" || -z "$COMMERCIAL_DEPLOY_KEY" ||
-                "$IOS_SKIN_METRICS_URL" != https://* ]]; then
-            echo "::error::受保护环境的私库只读凭据及 HTTPS 统计端点必须已配置"
+                -z "$COMMERCIAL_REPOSITORY" || -z "$COMMERCIAL_DEPLOY_KEY" ]]; then
+            echo "::error::受保护环境的私库只读凭据必须已配置"
             exit 1
           fi
 
@@ -736,8 +734,6 @@ jobs:
           fi
 
       - name: Build iOS (no codesign)
-        env:
-          IOS_SKIN_METRICS_URL: ${{ secrets.IOS_APP_STORE_METRICS_URL }}
         run: |
           set -euo pipefail
           export CI_VERSION='${{ steps.meta.outputs.tag_name }}'
@@ -753,7 +749,6 @@ jobs:
               --dart-define=BUILD_TIME="$BUILD_TIME" --dart-define=BEECOUNT_SKINS_ENABLED=true \
               --dart-define=BEECOUNT_PAID_SKINS_ENABLED=true --dart-define=BEECOUNT_SKIN_SALES=true \
               --dart-define=BEECOUNT_SKIN_PRODUCTION_SALES=true \
-              --dart-define="BEECOUNT_SKIN_METRICS_URL=$IOS_SKIN_METRICS_URL" \
               > "$RUNNER_TEMP/ios-config.log" 2>&1; then
               echo "::error::Flutter 正式归档配置或 CocoaPods 锁定安装失败"
               exit 1
@@ -872,7 +867,6 @@ jobs:
         env:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           IOS_P12_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
-          IOS_SKIN_METRICS_URL: ${{ secrets.IOS_APP_STORE_METRICS_URL }}
           RELEASE_VERSION_NAME: ${{ steps.meta.outputs.tag_name }}
         run: |
           set -euo pipefail

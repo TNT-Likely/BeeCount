@@ -29,13 +29,11 @@ class StoreReleaseTests(unittest.TestCase):
             release.apple_build_number(FakeApple('1.2'), '302')
 
     def test_signed_candidate_requires_production_configuration(self):
-        origin = 'https://metrics.example.com'
         settings = {
             'BEECOUNT_SKINS_ENABLED': 'true',
             'BEECOUNT_PAID_SKINS_ENABLED': 'true',
             'BEECOUNT_SKIN_SALES': 'true',
             'BEECOUNT_SKIN_PRODUCTION_SALES': 'true',
-            'BEECOUNT_SKIN_METRICS_URL': origin,
         }
 
         def configuration(values):
@@ -43,11 +41,11 @@ class StoreReleaseTests(unittest.TestCase):
                                for key, value in values.items())
             return f'FLUTTER_BUILD_NAME=4.0.1\nFLUTTER_BUILD_NUMBER=303\nDART_DEFINES={defines}\n'
 
-        release.verify_configuration(configuration(settings), '4.0.1', 303, origin)
+        release.verify_configuration(configuration(settings), '4.0.1', 303)
         for override in ({'BEECOUNT_SKIN_PRODUCTION_SALES': 'false'},
-                         {'BEECOUNT_SKIN_METRICS_URL': ''},
+                         {'BEECOUNT_SKIN_METRICS_URL': 'https://metrics.example.com'},
                          {'BEECOUNT_OFFICIAL_QA': 'true'},
                          {'BEECOUNT_SKIN_PRODUCT_ID': 'alternative'}):
             with self.subTest(override=override), self.assertRaises(gate.GateError):
                 release.verify_configuration(configuration({**settings, **override}),
-                                             '4.0.1', 303, origin)
+                                             '4.0.1', 303)
