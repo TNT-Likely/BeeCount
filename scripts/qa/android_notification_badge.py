@@ -13,6 +13,7 @@ import tempfile
 import time
 
 import isolated_app_cloud as qa
+from pr_lifecycle import add_round_arguments, register_prepared_run, run_lock
 
 APP_ID = 'com.tntlikely.beecount.qa.dev.debug'
 TEST_ID = APP_ID + '.test'
@@ -59,9 +60,18 @@ def environment(root):
 def prepare(args):
     root = Path(tempfile.mkdtemp(prefix='beecount-android-qa-')).resolve()
     root.chmod(0o700)
+    (root / '.qa-owner').write_text(root.name)
+    with run_lock(root):
+        qa.write_json(root / 'manifest.json', dict(
+            root=str(root), run_id=root.name, app_id=qa.APP_ID,
+            android_app_id=APP_ID))
+        register_prepared_run(args, root)
+        prepare_avd(root)
+
+
+def prepare_avd(root):
     for name in ('evidence', 'raw-logs', 'private-backups', 'android-user', 'avd-registry'):
         (root / name).mkdir(mode=0o700)
-    (root / '.qa-owner').write_text(root.name)
     _, identity = qa.read_skill_identity(argparse.Namespace(skill_dir=None, skill_repo=None))
     m = dict(root=str(root), run_id=root.name, mode='app-only', app_id=qa.APP_ID,
              android_app_id=APP_ID, avd_name='BeeCount-QA-' + root.name,
@@ -219,12 +229,15 @@ if __name__ == '__main__':
     parser.add_argument('action', choices=('prepare', 'build', 'run', 'review'))
     parser.add_argument('--run')
     parser.add_argument('--flutter', default=shutil.which('flutter'))
+    add_round_arguments(parser)
     args = parser.parse_args()
     if args.action == 'prepare':
         prepare(args)
     else:
         if not args.run: parser.error('--run is required')
-        root, manifest = load(args.run)
-        if args.action == 'build': build(root, manifest, args.flutter)
-        elif args.action == 'run': run(root, manifest)
-        else: review(root, manifest)
+        root, _ = load(args.run)
+        with run_lock(root):
+            root, manifest = load(args.run)
+            if args.action == 'build': build(root, manifest, args.flutter)
+            elif args.action == 'run': run(root, manifest)
+            else: review(root, manifest)

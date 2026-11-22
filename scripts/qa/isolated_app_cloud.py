@@ -20,6 +20,8 @@ import time
 import urllib.parse
 import urllib.request
 
+from pr_lifecycle import add_round_arguments, register_prepared_run, run_lock, write_json
+
 APP_ID = 'com.tntlikely.beecount.qa'
 GROUP_ID = 'group.com.tntlikely.beecount.qa'
 PROJECT = Path(__file__).resolve().parents[2]
@@ -36,11 +38,6 @@ SCENARIOS = {
 
 def command(args, **kwargs):
     return subprocess.check_output([str(a) for a in args], **kwargs).decode().strip()
-
-
-def write_json(path, data):
-    path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n')
-    path.chmod(0o600)
 
 
 def inside(root, path):
@@ -127,6 +124,24 @@ def prepare(args):
     root.chmod(0o700)
     run_id = root.name
     (root / '.qa-owner').write_text(run_id)
+    with run_lock(root):
+        seed = dict(root=str(root), run_id=run_id, app_id=APP_ID)
+        write_json(root / 'manifest.json', seed)
+        register_prepared_run(args, root)
+        if args.app_only:
+            devices = json.loads(command(['xcrun', 'simctl', 'list', 'devices', '-j']))['devices']
+            seed.update(mode='app-only', runtime=args.runtime, device_name=f'BeeCount-QA-{run_id}',
+                        protected_udids=[d['udid'] for group in devices.values() for d in group],
+                        **skill_identity)
+            for name in ('evidence', 'raw-logs', 'private-backups'):
+                (root / name).mkdir(mode=0o700)
+            write_json(root / 'manifest.json', seed)
+            create_simulator(root, seed)
+        else:
+            prepare_cloud(args, root, run_id, skill_source, skill_identity)
+
+
+def prepare_cloud(args, root, run_id, skill_source, skill_identity):
     for name in ('cloud-data', 'cloud-runtime', 'evidence', 'raw-logs', 'private-backups'):
         (root / name).mkdir(mode=0o700)
     shutil.copytree(skill_source, root / 'skill-source')
@@ -234,15 +249,21 @@ app.router.routes.sort(key=lambda route: 0 if getattr(route, 'path', '').startsw
             time.sleep(0.5)
     else:
         raise RuntimeError(f'QA Cloud startup timed out; resources preserved in {root}')
-    manifest['udid'] = command(['xcrun', 'simctl', 'create', manifest['device_name'],
-                                'com.apple.CoreSimulator.SimDeviceType.iPhone-17-Pro', args.runtime])
-    write_json(root / 'manifest.json', manifest)
-    device(manifest)
+    create_simulator(root, manifest)
     defines = dict(QA_RUN_ID=run_id, QA_ORIGIN=manifest['cloud_origin'], QA_EMAIL=credentials['email'],
                    QA_PASSWORD=credentials['password'], QA_APP_ID=APP_ID)
     write_json(root / 'defines.json', defines)
     print(f'QA environment ready: {root}', flush=True)
     print(f'New simulator: {manifest["udid"]}; local Cloud: {manifest["cloud_origin"]}', flush=True)
+
+
+
+def create_simulator(root, manifest):
+    manifest['udid'] = command(['xcrun', 'simctl', 'create', manifest['device_name'],
+                                'com.apple.CoreSimulator.SimDeviceType.iPhone-17-Pro',
+                                manifest['runtime']])
+    write_json(root / 'manifest.json', manifest)
+    device(manifest)
 
 
 def snapshot(root, manifest):
@@ -326,9 +347,11 @@ def verify_artifact(root, manifest):
 
 def build(root, manifest, flutter):
     source = snapshot(root, manifest)
-    commands = [[flutter, 'pub', 'get'], [flutter, 'build', 'ios', '--debug', '--simulator',
-                '--target', SCENARIOS[manifest.get('scenario', 'transaction-copy')],
-                f'--dart-define-from-file={root / "defines.json"}']]
+    build_args = [flutter, 'build', 'ios', '--debug', '--simulator']
+    if manifest.get('mode') != 'app-only':
+        build_args += ['--target', SCENARIOS[manifest.get('scenario', 'transaction-copy')],
+                       f'--dart-define-from-file={root / "defines.json"}']
+    commands = [[flutter, 'pub', 'get'], build_args]
     for index, args in enumerate(commands):
         print(f'QA build stage {index + 1}; logs stay in private run directory', flush=True)
         with (root / f'raw-logs/build-{index}.log').open('w') as log:
@@ -804,11 +827,34 @@ def restart_check(root, manifest, flutter):
     print('Normal QA App launch and persistent sandbox data verified', flush=True)
 
 
+
+def open_app_only(root, manifest, *, install):
+    current = device(manifest)
+    udid = manifest['udid']
+    if current['state'] == 'Shutdown':
+        command(['xcrun', 'simctl', 'boot', udid])
+    command(['xcrun', 'simctl', 'bootstatus', udid, '-b'])
+    if install:
+        app = verify_artifact(root, manifest)
+        backup_app(root, manifest)
+        command(['xcrun', 'simctl', 'install', udid, app])
+        manifest['normal_artifact_hash'] = manifest['artifact_hash']
+    else:
+        if not manifest.get('normal_artifact_hash'):
+            raise ValueError('Install the verified normal QA App first')
+        command(['xcrun', 'simctl', 'get_app_container', udid, APP_ID, 'app'])
+    command(['xcrun', 'simctl', 'launch', udid, APP_ID])
+    manifest.update(review_pending=True, stopped=False)
+    write_json(root / 'manifest.json', manifest)
+    print(f'Normal QA App is running on {manifest["device_name"]} ({udid})', flush=True)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('action', choices=('prepare', 'build', 'preflight', 'run', 'restart-check', 'review', 'stop'))
     parser.add_argument('--run')
     parser.add_argument('--cloud-repo')
+    parser.add_argument('--app-only', action='store_true', help='Prepare a disposable iOS App-only simulator')
     parser.add_argument('--cloud-python', help='Read-only Python runtime override; defaults to the Cloud checkout .venv')
     parser.add_argument('--cloud-ref', default='origin/main')
     parser.add_argument('--scenario', choices=tuple(SCENARIOS), default='transaction-copy')
@@ -816,31 +862,38 @@ def main():
     parser.add_argument('--skill-repo', help='Legacy skill repository lookup; prefer the project default or --skill-dir')
     parser.add_argument('--runtime', default='com.apple.CoreSimulator.SimRuntime.iOS-26-5')
     parser.add_argument('--flutter', default=shutil.which('flutter'))
+    add_round_arguments(parser)
     args = parser.parse_args()
     if args.action == 'prepare':
-        if not args.cloud_repo:
-            parser.error('prepare requires --cloud-repo')
+        if not args.cloud_repo and not args.app_only:
+            parser.error('prepare requires --app-only or --cloud-repo')
         if args.skill_dir and args.skill_repo:
             parser.error('choose --skill-dir or legacy --skill-repo, not both')
         prepare(args)
     else:
         if not args.run:
             parser.error('action requires --run')
-        root, manifest = load_run(args.run)
-        if args.action == 'build':
-            build(root, manifest, args.flutter)
-        elif args.action == 'preflight':
-            device(manifest)
-            verify_artifact(root, manifest)
-            print('QA preflight passed')
-        elif args.action == 'run':
-            run(root, manifest, args.flutter)
-        elif args.action == 'restart-check':
-            restart_check(root, manifest, args.flutter)
-        elif args.action == 'review':
-            review(root, manifest, args.cloud_repo)
-        else:
-            stop(root, manifest)
+        root, _ = load_run(args.run)
+        with run_lock(root):
+            root, manifest = load_run(args.run)
+            if args.action == 'build':
+                build(root, manifest, args.flutter)
+            elif args.action == 'preflight':
+                device(manifest)
+                verify_artifact(root, manifest)
+                print('QA preflight passed')
+            elif manifest.get('mode') == 'app-only' and args.action in ('run', 'review', 'restart-check'):
+                if args.action == 'restart-check':
+                    command(['xcrun', 'simctl', 'terminate', manifest['udid'], APP_ID])
+                open_app_only(root, manifest, install=args.action == 'run' and not manifest.get('review_pending'))
+            elif args.action == 'run':
+                run(root, manifest, args.flutter)
+            elif args.action == 'restart-check':
+                restart_check(root, manifest, args.flutter)
+            elif args.action == 'review':
+                review(root, manifest, args.cloud_repo)
+            else:
+                stop(root, manifest)
 
 
 if __name__ == '__main__':

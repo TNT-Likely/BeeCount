@@ -1,8 +1,8 @@
 ---
 name: isolated-app-cloud-qa
-description: "按改动范围执行 BeeCount 隔离验收。纯 App 使用独立设备与合成数据，Cloud 联调验证真实双向同步。自动向已授权 PR 发布验收证据，关联 PR 合并后清理本轮资源。"
+description: "按改动范围执行 BeeCount 隔离验收。纯 App 使用独立设备与合成数据，Cloud 联调验证真实双向同步。准备和复用隔离环境、实测、恢复人工验收并产出独立报告。"
 metadata:
-  version: "0.5.1"
+  version: "0.6.0"
 ---
 
 # BeeCount App 与 Cloud 隔离验收
@@ -25,7 +25,7 @@ metadata:
 
 - 读取 [references/beecount.md](references/beecount.md)，先按验收范围选择 App 独立入口或同仓联调 runner。skill 源码位于 `.agents/skills/isolated-app-cloud-qa`，Codex 与 Claude Code 项目入口读取同一目录。
 - Flutter iOS 与 Python/FastAPI：需要创建或排查适配时读取 [references/flutter-ios-fastapi.md](references/flutter-ios-fastapi.md)。
-- 需要开 PR、交付已有 PR 或接续合并时，按 [PR 验收交接](references/pr-lifecycle.md) 保存轮次记录、发布附件并回收环境。
+- 准备时自动登记轮次，验收结束后登记报告。对已授权的 PR 交付按 [PR 验收交接](references/pr-lifecycle.md) 保存轮次记录、发布附件并回收环境。
 - 相关 checkout 按本次实际路径定位并核对 remote；不假定用户主目录。项目级安装见 [安装说明](../../../docs/contributing/PROJECT_SKILLS_ZH.md)。不要将本项目 skill 安装到用户全局，也不在本次迁移中扩展其他项目适配。
 
 ## 运行前必须确定的身份
@@ -55,7 +55,7 @@ metadata:
 8. 切回正常应用入口并重启，确认仍在运行、页面可见、数据持久化。集成入口通过不能替代正常入口验证。
 9. 整理脱敏证据，切回正常 App，保持交接用的隔离设备运行并记录身份与版本，供人工验收。联调时同时保留实际使用的隔离服务。再次打开时复用同一环境和数据，不重装或重新准备 fixture。
    仅联调且 Cloud 有 web 前端时，交接同一源码版本的网页与实际 QA API；打开浏览器，用本次私有账号登录，选中与 App 一致的账本并展示被测对象。登录凭证不打印或进入公开包，保留页面供用户继续操作。
-10. 保存 run 外的已校验报告和 PR 交接记录。有已授权的目标 PR 时，在同一轮自动发布 ZIP 与代表截图并回下载核验。用户同时授权开 PR 时，创建后接着发布，无需再调用一次 skill。人工验收环境保留至所有关联 PR 合并，或用户提前结束验收。确认合并后立即按[完整清理](references/cleanup.md)回收，明确要求继续保留时遵从该要求。
+10. 保存 run 外的已校验报告和 PR 交接记录。有已授权的目标 PR 时，在同一轮自动发布 ZIP 与代表截图并回下载核验。用户同时授权开 PR 时，通过 beecount-pr 创建和绑定。人工验收环境按 beecount-qa-cleanup 接续回收。
 
 ## 失败与报告
 
