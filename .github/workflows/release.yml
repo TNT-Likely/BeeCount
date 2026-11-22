@@ -777,7 +777,7 @@ jobs:
               widgetProfile="BeeCount_Widget_AppStore", certificate="Apple Distribution",
               appVersion=os.environ["RELEASE_VERSION_NAME"], buildNumber=os.environ["OFFICIAL_IOS_BUILD_NUMBER"])))' > "$config"
             ruby "$GITHUB_WORKSPACE/tool/release/configure_ios_beta_signing.rb" \
-              "$PROJECT_FILE" "$config"
+              ios/Runner.xcodeproj "$config"
             exit
           fi
 
