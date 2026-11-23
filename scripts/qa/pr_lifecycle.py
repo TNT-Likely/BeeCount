@@ -212,10 +212,12 @@ def record_report(record, html, archive, shas):
 
 def record_delivery(record, url, phase, name, value):
     target = pr_key(url)
-    if target not in {pr_key(x) for x in record['pr_urls']} or not record.get('report'):
+    bound = {pr_key(pr_url) for pr_url in record['pr_urls']}
+    if target not in bound or not record.get('report'):
         raise ValueError('Bind the PR and register the checked report first')
     key = record['report']['zip_sha256']
-    delivery = record.setdefault('delivery', {}).setdefault(target, {}).setdefault(key, {})
+    receipts = record.setdefault('delivery', {})
+    delivery = receipts.setdefault(target, {}).setdefault(key, {})
     if phase == 'upload':
         if not name or not value or not value.startswith('https://'):
             raise ValueError('Provide the filename and actual HTTPS attachment URL')
@@ -229,6 +231,21 @@ def record_delivery(record, url, phase, name, value):
             raise ValueError('Pass the downloaded ZIP after verifying the published PR body')
         check_zip(value)
         delivery['verified'] = True
+        delivery.pop('reference_pr', None)
+    elif phase == 'reference':
+        source = pr_key(value)
+        primary = receipts.get(source, {}).get(key, {})
+        if (
+            source == target or source not in bound
+            or not primary.get('verified') or primary.get('reference_pr')
+        ):
+            raise ValueError('Reference another PR with a verified copy of this report')
+        if any(
+            entry.get(key, {}).get('reference_pr', '').lower() == target
+            for entry in receipts.values()
+        ):
+            raise ValueError('This report PR is already referenced by another PR')
+        delivery['reference_pr'] = value
 
 
 def main():
@@ -259,7 +276,7 @@ def main():
     attach = actions.add_parser('delivery')
     attach.add_argument('round')
     attach.add_argument('pr_url')
-    attach.add_argument('phase', choices=('upload', 'published', 'verified'))
+    attach.add_argument('phase', choices=('upload', 'published', 'verified', 'reference'))
     attach.add_argument('--name')
     attach.add_argument('--value')
     keep = actions.add_parser('keep')

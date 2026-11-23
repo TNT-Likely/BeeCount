@@ -15,6 +15,7 @@
 | `pending_pr_repos` | 本轮已知关联、尚未拿到 PR URL 的仓库，无则为空 |
 | `runs` | 本轮每个 run 的 ID、确切根目录和原始 manifest 路径，包含失败及重试。额外创建的资源也记录其所有权证据 |
 | `report` | run 外的 HTML、固定 ZIP、ZIP SHA256 和对应仓库的实测 SHA |
+| `delivery` | 按 PR 和 ZIP SHA256 保存主报告附件及校验状态，或指向主报告 PR 的 `reference_pr` |
 | `delivery_receipts`、`cleanup_receipt` | 按已授权发布的 PR URL 记录 run 外的交付回执路径，并另存本轮清理回执路径 |
 | `keep_after_merge` | 仅在用户明确要求继续保留环境时设为真 |
 
@@ -27,9 +28,9 @@ python3 <BeeCount 源 checkout>/scripts/qa/pr_lifecycle.py find <GitHub PR URL>
 
 ## 验收完成后发布
 
-1. 报告和 ZIP 保存到 run 外并校验。PR 已明确且交付已获授权时，直接使用 [PR 验收证据 skill](../../beecount-pr-qa-evidence/SKILL.md)。同时接受了验收和开 PR 委托时，创建 PR 后立即发布 ZIP 和代表截图，检查线上渲染并从 PR 回下载校验。
-2. 仅本地验收、尚无已授权目标 PR 或用户要求不上传时，保留本地证据。目标获得授权后接着交付原报告。跨仓联调按授权目标发布，注明各仓实测 SHA。
-3. 如果已发布同一份证据，复用现有链接并核验。附件确有阻碍时记录进度、具体阻碍和本地报告位置，供后续接续。保留同一环境供人工复核。
+1. 报告和 ZIP 保存到 run 外并校验。目标 PR 已明确且交付已获授权时，使用 [PR 验收证据 skill](../../beecount-pr-qa-evidence/SKILL.md) 在一条 PR 发布完整 Markdown、原版 HTML 和 ZIP，检查线上渲染及回下载结果。
+2. 跨仓联调注明各仓实测 SHA。其他关联 PR 保留本仓验证和主报告链接，核对线上正文后记入 `reference_pr`。该字段表示按同一 ZIP SHA256 到主报告 PR 核对证据，旧上传回执可供追溯。绑定与回收仍以全部关联 PR 为准。
+3. 仅本地验收、尚无已授权目标 PR 或用户要求不上传时，保留本地证据。重试复用现有报告与附件链接，补齐缺项。遇到阻碍时记录进度、原因及本地报告位置，并保留环境供人工复核。
 
 ## 合并后清理
 
@@ -45,4 +46,5 @@ python3 <BeeCount 源 checkout>/scripts/qa/pr_lifecycle.py find <GitHub PR URL>
 - QA runner 的 prepare 自动登记，多个尝试传 --round ROUND。自定义 runner 在准备时写私有 manifest.json 和 .qa-owner，再用 register-run ROUND ROOT 登记。用 --registry-repo 将 Cloud 或私仓尝试登记到主 checkout。
 - bind ROUND PR_URL 关联实际 PR；status ROUND 查看本轮状态，find PR_URL 用于跨会话查询。老记录仍可查询。
 - report ROUND --html HTML --zip ZIP --tested OWNER/REPO=SHA 登记不可变报告。交付时用 delivery ROUND PR_URL upload --name FILE --value URL 逐个保存上传结果；正文复核后用 published；用 verified --value DOWNLOADED_ZIP 校验回下载。
+- delivery ROUND PR_URL reference --value REPORT_PR_URL 登记已核对的引用。两条 PR 都须绑定本轮，主报告 PR 须已校验当前 ZIP。
 - cleanup PR_URL 默认核对清单，满足关联 PR 条件后用 --apply 回收。用户明确结束验收时用 --end-review。keep ROUND on 可保留人工验收。reconcile 检查有待回收记录的 PR，加 --apply 回收已满足条件的本机资源。

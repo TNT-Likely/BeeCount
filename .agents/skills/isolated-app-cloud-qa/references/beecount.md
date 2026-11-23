@@ -78,4 +78,4 @@ QA 主包 `com.tntlikely.beecount.qa`，扩展 `.qa.BeeCountWidgetExtension`，A
 
 完整验收结果在忽略目录或仓库外制作离线 HTML 与 ZIP，不提交到功能分支。用界面截图、操作流程和本地结果展示结论，联调时再附 App/Cloud 对照；仅 App 无需 Cloud projection 或 Web 交接。按场景分组列实际断言，技术元数据与 JSON 放折叠附录。包内加入打开说明、manifest 与 SHA256 校验表；不得复制包含私人路径的原始 run manifest。
 
-PR 保留简短结论、覆盖范围和跨仓依赖。已有授权目标 PR 时按 [PR 验收交接](pr-lifecycle.md) 自动发布报告 ZIP 与关键截图，保存此轮资源和 PR 的关联。
+已有授权目标 PR 时按 [PR 验收交接](pr-lifecycle.md) 发布完整报告和附件，登记各 PR 与本轮资源的关联。跨仓 PR 各自保留验收摘要、覆盖范围与依赖，并共用一份验收报告。

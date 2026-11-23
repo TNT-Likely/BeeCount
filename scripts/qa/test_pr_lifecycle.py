@@ -107,7 +107,7 @@ class LifecycleTests(unittest.TestCase):
                          'pending')
         self.assertTrue(self.root.exists())
 
-    def test_report_and_attachment_retry_survive_cleanup(self):
+    def test_report_and_reference_survive_cleanup(self):
         html = self.base / 'index.html'
         html.write_text('<title>QA</title>')
         archive = self.base / 'report.zip'
@@ -115,15 +115,23 @@ class LifecycleTests(unittest.TestCase):
             zip_file.write(html, html.name)
         with lifecycle.edit_round(self.registry, 'example') as record:
             lifecycle.bind(record, APP_PR)
+            lifecycle.bind(record, CLOUD_PR)
             lifecycle.record_report(record, html, archive, ['TNT-Likely/BeeCount=' + 'a' * 40])
             lifecycle.record_delivery(record, APP_PR, 'upload', archive.name,
                                       'https://github.com/user-attachments/files/1/report.zip')
         with lifecycle.edit_round(self.registry, 'example') as resumed:
             lifecycle.record_delivery(resumed, APP_PR, 'published', None, None)
+            with self.assertRaisesRegex(ValueError, 'verified copy'):
+                lifecycle.record_delivery(resumed, CLOUD_PR, 'reference', None, APP_PR)
             lifecycle.record_delivery(resumed, APP_PR, 'verified', None, archive)
+            lifecycle.record_delivery(resumed, CLOUD_PR, 'reference', None, APP_PR)
+            lifecycle.record_delivery(resumed, CLOUD_PR, 'reference', None, APP_PR)
+            with self.assertRaisesRegex(ValueError, 'verified copy'):
+                lifecycle.record_delivery(resumed, APP_PR, 'reference', None, CLOUD_PR)
         self.assertEqual(qa_cleanup.cleanup_round(self.registry, 'example', True, True)['state'],
                          'removed')
         result = self.read()
         digest = lifecycle.digest(archive)
         self.assertTrue(result['delivery'][APP_PR.lower()][digest]['verified'])
+        self.assertEqual(result['delivery'][CLOUD_PR.lower()][digest], {'reference_pr': APP_PR})
         self.assertTrue(html.is_file())
