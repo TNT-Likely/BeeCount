@@ -2,9 +2,9 @@
 
 ## Localization
 
-- For localization changes, do not proactively translate new or changed strings into Korean (`app_ko.arb`), Traditional Chinese (`app_zh_TW.arb`), or Russian (`app_ru.arb`). Update those locales only when the user explicitly asks.
-- Leave existing Korean, Traditional Chinese, and Russian translations unchanged unless the user asks to edit them.
-- This preference applies to agent work; follow the project's localization generator and fallback behavior for untranslated entries.
+- When adding or changing source strings, update the corresponding Traditional Chinese entries (`app_zh_TW.arb`) in the same change.
+- Add or change Korean (`app_ko.arb`) and Russian (`app_ru.arb`) translations only when the user explicitly asks.
+- These instructions apply to agent work. Follow the project's localization generator and fallback behavior for untranslated entries.
 
 ## Git Workflow
 

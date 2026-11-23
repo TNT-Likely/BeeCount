@@ -9451,7 +9451,7 @@ abstract class AppLocalizations {
   /// No description provided for @appearanceSettingsDesc.
   ///
   /// In en, this message translates to:
-  /// **'Theme, font, language, app lock, etc.'**
+  /// **'Theme, text size, language, app lock, etc.'**
   String get appearanceSettingsDesc;
 
   /// No description provided for @appearanceSettingsPageTitle.
