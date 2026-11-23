@@ -71,6 +71,7 @@ void main() {
     await prefs.setString('qa_run_id', runId);
     final ledgerSyncId = (await repo.getLedgerById(ledgerId))!.syncId!;
     final keepId = await repo.createCategory(name: 'QA保留分类', kind: 'expense');
+    await repo.createCategory(name: '转账', kind: 'transfer', icon: 'swap_horiz');
     final txId = await repo.addTransaction(
         ledgerId: ledgerId,
         type: 'expense',
