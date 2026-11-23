@@ -1,12 +1,13 @@
 {
   "source": "prototype/demo.html?page=flow-account-new; Chrome rendered values, frame border remains outside Flutter canvas",
+  "note": "分类调整后（资产估值仅保留 real_estate/vehicle，investment/insurance/social_fund 转入日常；loan 作为负债估值账户保持不变），typeCardHeight 与 gridHeight 由 Flutter widget 实测更新：日常组 6 项变 9 项，398 宽下 4 列 3 行、320/1.4 下 3 列 3 行；其余字段沿用浏览器冻结值",
   "sizes": [
     {
       "width": 398,
       "height": 844,
       "scale": 1,
-      "typeCardHeight": 250.5625,
-      "gridHeight": 154.5625,
+      "typeCardHeight": 332.2857,
+      "gridHeight": 236.2857,
       "nameHeight": 48,
       "noteHeight": 69,
       "currencyHeight": 53
@@ -15,8 +16,8 @@
       "width": 320,
       "height": 568,
       "scale": 1.4,
-      "typeCardHeight": 254.375,
-      "gridHeight": 158.375,
+      "typeCardHeight": 338.4762,
+      "gridHeight": 242.4762,
       "nameHeight": 51.296875,
       "noteHeight": 87,
       "currencyHeight": 53

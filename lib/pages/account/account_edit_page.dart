@@ -41,15 +41,16 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage>
     'alipay',
     'wechat',
     'other',
-  ];
-
-  // 估值账户类型（只记当前价值 / 欠款，不走流水）
-  static const List<String> valuationAccountTypes = [
-    'real_estate',
-    'vehicle',
     'investment',
     'insurance',
     'social_fund',
+  ];
+
+  // 估值账户类型（只记当前价值 / 欠款，不走流水）
+  // 资产类仅保留不动产与车辆；贷款属于负债估值账户，保持不变。
+  static const List<String> valuationAccountTypes = [
+    'real_estate',
+    'vehicle',
     'loan',
   ];
 

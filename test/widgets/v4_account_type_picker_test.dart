@@ -15,7 +15,7 @@ void main() {
           locale: const Locale('zh'),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
-          home: Scaffold(body: StatefulBuilder(builder: (context, setState) {
+          home: Scaffold(body: SingleChildScrollView(child: StatefulBuilder(builder: (context, setState) {
             return BeeAccountTypePicker(
                 groups: [
                   for (final id in ['daily', 'valuation'])
@@ -40,14 +40,16 @@ void main() {
                       value = next;
                       selections.add(next);
                     }));
-          }))));
+          })))));
       await tester.pumpAndSettle();
-      expect(find.byType(AccountTypeIcon), findsNWidgets(6));
+      // 日常账户现含 9 类（原 6 类 + investment/insurance/social_fund）
+      expect(find.byType(AccountTypeIcon), findsNWidgets(9));
       await tester.tap(find.text('估值账户'));
       await tester.pumpAndSettle();
       expect(value, 'cash');
       expect(selections, isEmpty);
-      expect(find.byType(AccountTypeIcon), findsNWidgets(6));
+      // 估值账户保留不动产、车辆与负债类贷款
+      expect(find.byType(AccountTypeIcon), findsNWidgets(3));
       final context = tester.element(find.byType(BeeAccountTypePicker));
       await tester.tap(find.text(getAccountTypeLabel(context, 'loan')));
       await tester.pumpAndSettle();

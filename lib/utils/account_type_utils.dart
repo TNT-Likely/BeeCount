@@ -31,11 +31,15 @@ bool isLiabilityType(String type) {
 }
 
 /// 估值账户类型（资产类）
+/// 仅保留不便按流水记账的实物资产；投资理财 / 保险 / 公积金社保
+/// 改按日常账户（走流水）管理，见 account_edit_page.dart 的 tradableAccountTypes。
 const valuationOnlyAssetTypes = [
-  'real_estate', 'vehicle', 'investment', 'insurance', 'social_fund',
+  'real_estate', 'vehicle',
 ];
 
 /// 估值账户类型（负债类）
+/// 本次诉求限定在"资产账户中的估值账户"，贷款属于负债估值账户，保持不变，
+/// 继续走估值弹窗更新欠款。
 const valuationOnlyLiabilityTypes = ['loan'];
 
 /// 所有估值账户类型
