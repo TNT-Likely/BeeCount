@@ -31,6 +31,7 @@ SCENARIOS = {
     'account-balance-trust': 'integration_test/account_balance_trust_live_test.dart',
     'transaction-copy': 'integration_test/transaction_copy_live_test.dart',
     'category-parent': 'integration_test/category_parent_live_test.dart',
+    'category-delete': 'integration_test/category_delete_live_test.dart',
     'web-transaction-images': 'integration_test/web_transaction_images_live_test.dart',
     'mcp-receipt-attachments': 'integration_test/mcp_receipt_attachments_live_test.dart',
     'recurring-consolidation': 'integration_test/recurring_consolidation_live_test.dart',
@@ -787,6 +788,12 @@ def restart_check(root, manifest, flutter):
                 if actual is None or any(actual[k] != expected[k] for k in ('name', 'type', 'currency', 'initial_balance')):
                     raise ValueError('Normal restart lost synchronized account identity or fields')
         rows = dict(transactions=rows, accounts=accounts)
+    elif manifest.get('scenario') == 'category-delete':
+        with sqlite3.connect(f'file:{app_db}?mode=ro', uri=True) as db:
+            category_ids = {r[0] for r in db.execute('SELECT sync_id FROM categories WHERE sync_id IS NOT NULL')}
+        if len(category_ids) != 53 or category_ids.intersection(report['deleted_category_sync_ids']):
+            raise ValueError('Normal App restart restored a deleted category or changed the expected count')
+        rows = dict(transactions=rows, category_count=len(category_ids))
     elif manifest.get('scenario') == 'category-parent':
         with sqlite3.connect(f'file:{app_db}?mode=ro', uri=True) as db:
             db.row_factory = sqlite3.Row

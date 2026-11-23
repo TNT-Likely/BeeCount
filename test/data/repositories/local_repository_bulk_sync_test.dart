@@ -43,6 +43,49 @@ void main() {
     await db.close();
   });
 
+  group('删除分类', () {
+    test('批量删除父子分类时，每个同步 ID 仅登记一次', () async {
+      final parent = await repo.createCategory(
+          name: '父分类', kind: 'expense', syncId: 'parent');
+      final child = await repo.createSubCategory(
+          parentId: parent, name: '子分类', kind: 'expense', syncId: 'child');
+      await db.into(db.categories).insert(CategoriesCompanion.insert(
+            name: '旧版子分类',
+            kind: 'expense',
+            level: const Value(2),
+            parentId: Value(parent),
+          ));
+      final keep = await repo.createCategory(name: '保留', kind: 'expense');
+
+      await repo.deleteCategoriesByIds([parent, child, parent]);
+      await repo.deleteCategoriesByIds([parent, child]);
+
+      expect((await repo.getAllCategories()).map((c) => c.id), [keep]);
+      final changes = await tracker.getUnpushedChangesForLedger(0);
+      expect(changes.where((c) => c.action == 'delete').map((c) => c.entitySyncId),
+          ['child', 'parent']);
+    });
+
+    test('删除分类失败时回滚父子分类的待同步事件', () async {
+      final parent = await repo.createCategory(name: '父分类', kind: 'expense');
+      final child = await repo.createSubCategory(
+          parentId: parent, name: '子分类', kind: 'expense');
+      await db.customStatement('''
+        CREATE TRIGGER fail_category_delete BEFORE DELETE ON categories
+        BEGIN
+          SELECT RAISE(ABORT, '模拟删除失败');
+        END
+      ''');
+
+      await expectLater(repo.deleteCategory(parent), throwsA(isA<Exception>()));
+
+      expect(await repo.getCategoryById(parent), isNotNull);
+      expect(await repo.getCategoryById(child), isNotNull);
+      final changes = await tracker.getUnpushedChangesForLedger(0);
+      expect(changes.map((c) => c.action), ['create', 'create']);
+    });
+  });
+
   group('insertTransactionsBatch', () {
     test('为每条插入的交易登记 transaction:create change', () async {
       // 先建账本,batch insert 才能挂在它下面

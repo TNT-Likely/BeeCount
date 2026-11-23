@@ -36,6 +36,8 @@ python3 scripts/qa/isolated_app_cloud.py prepare --cloud-repo ../BeeCount-Cloud
 
 默认场景为 `transaction-copy`；分类关联修复使用 `prepare --scenario category-parent`。分类场景在真实 App 分类管理页改名父分类，等待浏览器在同一 QA 账本将父分类改为「QA Web伙食」、子分类「QA早餐」改为「QA早饭」，再通过实际同步引擎拉回并核对父子身份。网页操作由浏览器实际执行，不能以直接写 API 替代这两项 Web UI 验收。
 
+分类删除使用 `prepare --scenario category-delete`。真实 App 编辑页删除无账单的父子分类，核对两条删除事件和 53/53 计数。隔离客户端再只发送父分类删除事件，复现 53/54。看到 `QA_STAGE_READY_CLOUD_CATEGORY_CLEANUP` 后，用这轮隔离管理员在数据清理页或真实管理 API 扫描并确认清理「QA旧版孤儿子分类」。App 核对收到子分类删除事件、计数恢复 53/53，以及保留交易和正常入口重启后的数据。
+
 交易小票使用 `prepare --scenario transaction-receipt`。真实首页长按生成小票，核对字段开关及默认隐藏账户/账本；实际保存到相册、打开系统分享并由隔离原生 UI runner 取消，反复进入后检查原交易和 Cloud snapshot 未改变。覆盖美元收入原币金额、日元精度、转账双账户及暗色模式；经真实编辑器修改备注上传，再用真实 Cloud web 写 API 修改金额/备注并拉回，重新生成小票并核对。正常入口重启保留四笔交易和最终同步字段。系统分享取消不代表向外部联系人发送过图片；Android、真机、iPad 与相册权限拒绝需另行验收。
 
 图片场景使用 `prepare --scenario web-transaction-images --cloud-ref <Cloud 功能提交 SHA>`。先通过 App 的实际附件服务保存合成图片并由真实引擎上传，再在同源 QA 网页完成新建、追加、单张移除后再追加、替换、删除全部和重新上传；每个阶段由 App 引擎拉回，核对附件身份、顺序和文件 SHA256，并打开生产预览页确认显示。App 预览页实际删除后，再核对 Web 附件为空。最终通过网页留下两张图片供人工验收，正常入口重启时再次核对元数据和文件内容。

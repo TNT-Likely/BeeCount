@@ -58,7 +58,7 @@ class LocalRepository extends BaseRepository {
   LocalRepository(this.db, {this.changeTracker}) {
     _ledgerRepo = LocalLedgerRepository(db);
     _transactionRepo = LocalTransactionRepository(db);
-    _categoryRepo = LocalCategoryRepository(db);
+    _categoryRepo = LocalCategoryRepository(db, trackerGetter: () => changeTracker);
     _accountRepo = LocalAccountRepository(db);
     _statisticsRepo = LocalStatisticsRepository(db);
     _recurringTransactionRepo = LocalRecurringTransactionRepository(db);
@@ -1423,57 +1423,11 @@ class LocalRepository extends BaseRepository {
   }
 
   @override
-  Future<void> deleteCategory(int id) async {
-    if (changeTracker != null) {
-      final cat = await _categoryRepo.getCategoryById(id);
-      if (cat?.syncId != null) {
-        await changeTracker!.recordUserGlobalChange(
-          entityType: 'category',
-          entityId: id,
-          entitySyncId: cat!.syncId!,
-          action: 'delete',
-        );
-      }
-    }
-    await _categoryRepo.deleteCategory(id);
-  }
+  Future<void> deleteCategory(int id) => _categoryRepo.deleteCategory(id);
 
   @override
-  Future<void> deleteCategoriesByIds(List<int> ids) async {
-    if (changeTracker == null || ids.isEmpty) {
-      logger.info('LocalRepository',
-          'deleteCategoriesByIds(${ids.length}): changeTracker=null=${changeTracker == null} → 不登记 change');
-      return _categoryRepo.deleteCategoriesByIds(ids);
-    }
-    // 子仓库会同时删 ids 自身和 parent_id 在 ids 里的子分类,所以这里也要把
-    // 子分类的 syncId 一并预查出来登记 delete change。
-    await db.transaction(() async {
-      final cats = await (db.select(db.categories)
-            ..where((c) => c.id.isIn(ids) | c.parentId.isIn(ids)))
-          .get();
-      await _categoryRepo.deleteCategoriesByIds(ids);
-      var recorded = 0;
-      var skippedNoSyncId = 0;
-      for (final c in cats) {
-        if (c.syncId == null) {
-          skippedNoSyncId++;
-          continue;
-        }
-        await changeTracker!.recordUserGlobalChange(
-          entityType: 'category',
-          entityId: c.id,
-          entitySyncId: c.syncId!,
-          action: 'delete',
-        );
-        recorded++;
-      }
-      logger.info(
-          'LocalRepository',
-          'deleteCategoriesByIds(${ids.length}): 预查到 ${cats.length} 行,'
-              '登记 $recorded 条 category:delete change'
-              '${skippedNoSyncId > 0 ? ", $skippedNoSyncId 条因 syncId=null 跳过(本地未同步过的种子分类)" : ""}');
-    });
-  }
+  Future<void> deleteCategoriesByIds(List<int> ids) =>
+      _categoryRepo.deleteCategoriesByIds(ids);
 
   @override
   Future<int> upsertCategory({
