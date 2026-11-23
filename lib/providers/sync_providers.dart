@@ -737,10 +737,11 @@ final syncServiceProvider = Provider<SyncService>((ref) {
       for (final ledger in await db.select(db.ledgers).get()) {
         final sid = ledger.syncId;
         if (sid == null || sid.isEmpty) continue;
-        // 用 count 而非 get()，避免把整个账本的交易加载进内存(大账本几千条)。
-        final txCount = await (db.select(db.transactions)
+        // 简单可靠：按 ledger 过滤后取行数。bootstrap 只对少量账本各跑一次。
+        final txCount = (await (db.select(db.transactions)
               ..where((t) => t.ledgerId.equals(ledger.id)))
-            .count();
+            .get())
+            .length;
         if (txCount == 0) emptyLedgerSyncIds.add(sid);
       }
       final toHydrate = <String>{...newSyncIds, ...emptyLedgerSyncIds};
