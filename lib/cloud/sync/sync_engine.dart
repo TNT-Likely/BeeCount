@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:crypto/crypto.dart';
 import 'package:drift/drift.dart' as d;
+import 'package:flutter/foundation.dart' show listEquals;
 import 'package:flutter_cloud_sync/flutter_cloud_sync.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
@@ -12,6 +13,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../data/db.dart';
 import '../../data/repositories/base_repository.dart';
+import '../../data/repositories/local/local_repository.dart';
 import '../../services/custom_icon_service.dart';
 import '../../services/system/logger_service.dart';
 import '../../services/ui/avatar_service.dart';
@@ -40,6 +42,7 @@ part 'sync_engine_profile.dart';
 part 'sync_engine_apply.dart';
 part 'sync_engine_serialization.dart';
 part 'sync_engine_pull.dart';
+part 'sync_engine_transaction_moves.dart';
 
 const _uuid = Uuid();
 
@@ -74,6 +77,7 @@ class SyncEngine implements app.SyncService {
   final BeeCountCloudProvider provider;
   final ChangeTracker changeTracker;
   final BaseRepository repo;
+  Future<void> _transactionMoveTail = Future.value();
 
   /// 状态缓存
   final Map<int, app.SyncStatus> _statusCache = {};
@@ -377,6 +381,7 @@ class SyncEngine implements app.SyncService {
   Future<SyncResult> sync({required String ledgerId}) async {
     logger.info('SyncEngine', '开始同步 ledger=$ledgerId');
     try {
+      await _recoverTransactionMoves();
       final ledgerIdInt = int.tryParse(ledgerId) ?? -1;
       int pushed = 0;
 
@@ -913,6 +918,7 @@ class SyncEngine implements app.SyncService {
   /// user-global change(account / category / tag)由 [pushUserGlobalEntities] 统一推
   /// (在 [_doPush] 开头调用),避免多账本场景下并行 push 重复推送 user-global。
   Future<int> push(String ledgerId) async {
+    await _recoverTransactionMoves();
     final inFlight = _pushInFlight[ledgerId];
     if (inFlight != null) {
       logger.info('SyncEngine', 'push(ledger=$ledgerId) 已在执行,复用 in-flight');
@@ -1071,6 +1077,7 @@ class SyncEngine implements app.SyncService {
   ///   轮)
   /// - replay(sinceOverride 非 null)语义独立,等 in-flight 完成后再自己跑
   Future<int> pull(String ledgerId, {int? sinceOverride}) async {
+    await _recoverTransactionMoves();
     // 1. in-flight 单飞
     final inFlight = _pullInFlight;
     if (inFlight != null) {
@@ -1181,6 +1188,7 @@ class SyncEngine implements app.SyncService {
       if (result.changes.isEmpty) break;
 
       final applyStart = DateTime.now();
+      await _recoverTransactionMoves();
       final outcome = await _applyPullPage(result.changes);
       final applyMs = DateTime.now().difference(applyStart).inMilliseconds;
       logger.info('SyncEngine',

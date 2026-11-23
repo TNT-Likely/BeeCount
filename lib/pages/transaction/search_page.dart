@@ -15,6 +15,8 @@ import '../../services/billing/post_processor.dart';
 import '../../utils/category_utils.dart';
 import '../shared/selectors/category_selector_dialog.dart';
 import '../tag/widgets/tag_selector.dart';
+import '../../data/repositories/local/local_repository.dart';
+import 'transaction_move.dart';
 
 export 'search/bindings/transaction_search.dart' show SearchTransaction;
 
@@ -177,6 +179,22 @@ class _SearchPageState extends ConsumerState<SearchPage> {
         (error) => '${l.commonError}: $error');
   }
 
+  Future<void> _move() async {
+    final c = _data!;
+    if (_writing || c.selected.isEmpty) return;
+    setState(() => _writing = true);
+    try {
+      final target = await showTransactionMove(context, ref,
+          sourceLedgerId: c.ledgerId, transactionIds: c.selected.toSet());
+      if (mounted && target != null && identical(_data, c)) {
+        c.afterWrite();
+        await c.refresh();
+      }
+    } finally {
+      if (mounted) setState(() => _writing = false);
+    }
+  }
+
   Future<void> _delete() async {
     final c = _data!,
         ids = _data!.selected.toList(),
@@ -256,6 +274,10 @@ class _SearchPageState extends ConsumerState<SearchPage> {
     ref.watch(hideAmountsProvider);
     _ensureData(ledgerId, l);
     final c = _data!;
+    final ledger = ref.watch(currentLedgerProvider).valueOrNull;
+    final canMove = ledger != null &&
+        isPrivateTransactionMoveLedger(ledger) &&
+        ref.watch(transactionMoveAvailableProvider).valueOrNull == true;
     return AnimatedBuilder(
         animation: c,
         builder: (context, _) => PopScope(
@@ -269,6 +291,8 @@ class _SearchPageState extends ConsumerState<SearchPage> {
                           (l.searchBatchSetNote, 'PencilLine', _note),
                           (l.searchBatchChangeCategory, 'Shapes', _category),
                           (l.v4SearchSetTags, 'Tag', _tags),
+                          if (canMove)
+                            (l.transactionMoveAction, 'BookOpen', _move),
                           (l.commonDelete, 'Trash2', _delete)
                         ])
                           BeeBatchAction(

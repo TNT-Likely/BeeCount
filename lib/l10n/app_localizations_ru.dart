@@ -9996,4 +9996,56 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get fullDataExportShareError => 'Could not open the share sheet. Try again.';
+
+  @override
+  String get transactionMoveAction => 'Move to ledger';
+
+  @override
+  String get transactionMoveChooseLedger => 'Choose a destination ledger';
+
+  @override
+  String get transactionMoveNoTarget => 'Choose another personal ledger with the same base currency.';
+
+  @override
+  String get transactionMoveConfirmTitle => 'Confirm move';
+
+  @override
+  String transactionMoveConfirmMessage(int count, String source, String target) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Move $count transactions from “$source” to “$target”.',
+      one: 'Move one transaction from “$source” to “$target”.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get transactionMoveCommit => 'Move';
+
+  @override
+  String get transactionMoveWorking => 'Moving transactions';
+
+  @override
+  String transactionMoveDone(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Moved $count transactions',
+      one: 'Moved one transaction',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get transactionMoveChanged => 'The ledger or selected transactions changed. Refresh and select again.';
+
+  @override
+  String get transactionMoveUnsynced => 'Sync both ledgers and their attachments before moving.';
+
+  @override
+  String get transactionMovePending => 'Waiting for cloud confirmation. The app will retry when it reconnects.';
+
+  @override
+  String get transactionMoveFailed => 'Could not move the transactions. Check your connection and try again.';
 }

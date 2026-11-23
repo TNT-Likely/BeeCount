@@ -324,6 +324,15 @@ class TransactionTagOverrides extends Table {
 // v26: sync pull 时 server 端下发的 change 在本地 apply 抛错的持久化记录。
 // 健康用户这张表是空的;只在出错时写入,供 UI 暴露 + 用户重试/跳过 + 开发者
 // 远程诊断。详见 .docs/full-pull-refactor/04-data-model.md。
+class PendingTransactionMoves extends Table {
+  TextColumn get operationId => text()();
+  TextColumn get scope => text()();
+  TextColumn get payload => text()();
+
+  @override
+  Set<Column> get primaryKey => {operationId};
+}
+
 class SyncPullErrors extends Table {
   IntColumn get id => integer().autoIncrement()();
   IntColumn get changeId => integer().unique()(); // server change_id,唯一
@@ -499,6 +508,7 @@ class SharedLedgerTags extends Table {
   SharedLedgerTags,
   TransactionTagOverrides,
   SyncPullErrors,
+  PendingTransactionMoves,
   ExchangeRates,
   ExchangeRateOverrides,
 ])
@@ -511,7 +521,7 @@ class BeeDatabase extends _$BeeDatabase {
   BeeDatabase.forTesting(QueryExecutor executor) : super(executor);
 
   @override
-  int get schemaVersion => 33; // v33: Agent 本地记忆、摘要与审计表
+  int get schemaVersion => 34; // v34: 跨账本移动待确认记录
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -1257,6 +1267,10 @@ class BeeDatabase extends _$BeeDatabase {
             );
             await _createAgentMemoryFtsTable();
             logger.info('DBMigration', 'v33 迁移完成');
+          }
+          if (from < 34) {
+            await _createTableIfMissing(
+                migrator, 'pending_transaction_moves', pendingTransactionMoves);
           }
         },
         onCreate: (m) async {

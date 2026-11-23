@@ -1,4 +1,4 @@
 interface:
   display_name: "BeeCount PR 验收证据"
-  short_description: "发布并核验 BeeCount 验收附件，在关联 PR 合并后清理隔离环境"
-  default_prompt: "使用 $beecount-pr-qa-evidence 将已核验的 BeeCount 报告和关键截图补充到目标 PR，并核对附件。"
+  short_description: "发布并核验 BeeCount PR 验收报告，跨仓 PR 引用同一份报告"
+  default_prompt: "使用 $beecount-pr-qa-evidence 发布并核验完整验收报告，让其他关联 PR 链接到报告所在的 PR。"

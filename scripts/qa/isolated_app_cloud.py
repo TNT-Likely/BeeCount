@@ -30,6 +30,7 @@ SCENARIOS = {
     'transaction-receipt': 'integration_test/transaction_receipt_live_test.dart',
     'account-balance-trust': 'integration_test/account_balance_trust_live_test.dart',
     'transaction-copy': 'integration_test/transaction_copy_live_test.dart',
+    'transaction-move': 'integration_test/transaction_ledger_move_live_test.dart',
     'category-parent': 'integration_test/category_parent_live_test.dart',
     'web-transaction-images': 'integration_test/web_transaction_images_live_test.dart',
     'mcp-receipt-attachments': 'integration_test/mcp_receipt_attachments_live_test.dart',
@@ -236,17 +237,22 @@ assert not s.backup_scheduler_enabled and s.rag_index_refresh_interval_seconds =
 from src.main import app
 from fastapi import Request
 from fastapi.responses import JSONResponse
-fault = {{'offline': False}}
+fault = {{'offline': False, 'drop_move_receipt': False}}
 @app.middleware('http')
 async def qa_fault(request: Request, call_next):
     if fault['offline'] and request.url.path.startswith('/api/'):
         return JSONResponse({{'detail': 'QA simulated Cloud outage'}}, status_code=503)
-    return await call_next(request)
+    response = await call_next(request)
+    if (fault['drop_move_receipt'] and request.method == 'POST'
+        and request.url.path.endswith('/transactions/batch/move') and response.status_code == 200):
+        return JSONResponse({{'detail': 'QA move response lost after commit'}}, status_code=503)
+    return response
 @app.post('/__qa__/fault')
 async def qa_set_fault(request: Request):
     body=await request.json()
     assert body.get('run_id') == {run_id!r}
     fault['offline']=bool(body['offline'])
+    fault['drop_move_receipt']=bool(body.get('drop_move_receipt', False))
     return {{'offline': fault['offline']}}
 @app.get('/__qa__/identity')
 def qa_identity():
@@ -774,6 +780,19 @@ def restart_check(root, manifest, flutter):
         copy = next(r for r in rows if r['sync_id'] == report['copy_sync_id'])
         if copy['note'] != 'QA Cloud 修改后' or copy['amount'] != 55.5:
             raise ValueError('Normal App restart did not retain the synchronized copy')
+    elif manifest.get('scenario') == 'transaction-move':
+        with sqlite3.connect(f'file:{app_db}?mode=ro', uri=True) as db:
+            db.row_factory = sqlite3.Row
+            moved = [dict(r) for r in db.execute(
+                'SELECT t.id, t.sync_id, l.sync_id AS ledger_sync_id, t.note, t.amount FROM transactions t '
+                'JOIN ledgers l ON l.id = t.ledger_id WHERE l.sync_id = ? ORDER BY t.id',
+                (report['target_ledger_sync_id'],))]
+            expected = report['final_transactions']
+            if moved != expected or db.execute(
+                'SELECT COUNT(*) FROM pending_transaction_moves'
+            ).fetchone()[0]:
+                raise ValueError('Normal App restart lost moved transaction identity or Cloud updates')
+        rows = moved
     elif manifest.get('scenario') == 'transaction-receipt':
         tx = next(r for r in rows if r['sync_id'] == report['receipt_transaction_sync_id'])
         if tx['note'] != 'QA Cloud 小票更新' or tx['amount'] != 55.5 or len(rows) != 4:

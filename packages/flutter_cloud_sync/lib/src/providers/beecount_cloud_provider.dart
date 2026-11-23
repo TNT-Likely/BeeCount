@@ -366,6 +366,64 @@ class BeeCountCloudProvider implements CloudProvider {
     return storage.pushEntityChanges(changes: changes);
   }
 
+  Future<List<Map<String, dynamic>>> prepareTransactionMove({
+    required String sourceLedger,
+    required String targetLedger,
+    required List<String> transactionIds,
+  }) async {
+    final result = await _transactionMoveRequest(
+      '/write/ledgers/${Uri.encodeComponent(sourceLedger)}/transactions/batch/move/prepare',
+      {'target_ledger_id': targetLedger, 'transaction_ids': transactionIds},
+    );
+    return (result as List).cast<Map<String, dynamic>>();
+  }
+
+  Future<Map<String, dynamic>> commitTransactionMove({
+    required String sourceLedger,
+    required String targetLedger,
+    required List<Map<String, dynamic>> items,
+    required String operationId,
+  }) async {
+    final result = await _transactionMoveRequest(
+      '/write/ledgers/${Uri.encodeComponent(sourceLedger)}/transactions/batch/move',
+      {'target_ledger_id': targetLedger, 'items': items},
+      operationId: operationId,
+    );
+    return result as Map<String, dynamic>;
+  }
+
+  Future<Object?> _transactionMoveRequest(
+    String path,
+    Map<String, dynamic> body, {
+    String? operationId,
+  }) async {
+    final storage = this.storage as BeeCountCloudStorageService;
+    final authentication = auth as BeeCountCloudAuthService;
+    await authentication.requireAccessToken();
+    final deviceId = authentication.currentDeviceId;
+    if (deviceId == null) {
+      throw CloudNotAuthenticatedException('Missing device ID');
+    }
+    final response = await storage
+        ._authedRequest(
+          method: 'POST',
+          path: path,
+          body: body,
+          headers: {
+            'X-Device-ID': deviceId,
+            if (operationId != null) 'Idempotency-Key': operationId,
+          },
+        )
+        .timeout(operationId == null
+            ? const Duration(seconds: 20)
+            : const Duration(seconds: 60));
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw BeeCountCloudTransactionMoveException(
+          response.statusCode, _extractErrorMessage(response));
+    }
+    return jsonDecode(response.body);
+  }
+
   Future<Map<String, BeeCountCloudAttachmentExistsItem>> attachmentBatchExists({
     required String ledgerId,
     required List<String> sha256List,
@@ -3683,17 +3741,30 @@ class BeeCountCloudServerVersion {
   const BeeCountCloudServerVersion({
     required this.name,
     required this.version,
+    this.capabilities = const {},
   });
 
   final String name;
   final String version;
+  final Set<String> capabilities;
 
   factory BeeCountCloudServerVersion.fromJson(Map<String, dynamic> json) {
     return BeeCountCloudServerVersion(
       name: (json['name'] as String?)?.trim() ?? 'BeeCount Cloud',
       version: (json['version'] as String?)?.trim() ?? '',
+      capabilities:
+          (json['capabilities'] as List?)?.whereType<String>().toSet() ?? {},
     );
   }
+}
+
+class BeeCountCloudTransactionMoveException extends CloudStorageException {
+  BeeCountCloudTransactionMoveException(this.statusCode, String message)
+      : super(message);
+
+  final int statusCode;
+
+  bool get isFinal => const {400, 403, 404, 409, 422}.contains(statusCode);
 }
 
 class BeeCountCloudLedgerStats {

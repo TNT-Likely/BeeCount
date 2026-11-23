@@ -3,10 +3,27 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../ai/core/bill_info.dart';
+import '../../../../data/repositories/local/local_repository.dart';
 import 'package:beecount_business_ui/beecount_business_ui.dart';
 import '../../../../providers.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../utils/format_utils.dart';
+import '../../../transaction/transaction_move.dart';
+
+final _billLedgerProvider =
+    StreamProvider.autoDispose.family<int?, int>((ref, id) {
+  final repo = ref.watch(repositoryProvider);
+  if (repo is! LocalRepository) {
+    return Stream.fromFuture(
+        repo.getTransactionById(id).then((row) => row?.ledgerId));
+  }
+  final tx = repo.db.transactions;
+  return (repo.db.selectOnly(tx)
+        ..addColumns([tx.ledgerId])
+        ..where(tx.id.equals(id)))
+      .watchSingleOrNull()
+      .map((row) => row?.read(tx.ledgerId));
+});
 
 /// 记账成功卡片组件
 class BillCardWidget extends ConsumerWidget {
@@ -30,8 +47,12 @@ class BillCardWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // 获取账本名称
-    final ledger = billInfo.ledgerId != null
-        ? ref.watch(ledgerByIdProvider(billInfo.ledgerId!)).asData?.value
+    final liveLedgerId = transactionId == null || isUndone
+        ? null
+        : ref.watch(_billLedgerProvider(transactionId!)).valueOrNull;
+    final ledgerId = liveLedgerId ?? billInfo.ledgerId;
+    final ledger = ledgerId != null
+        ? ref.watch(ledgerByIdProvider(ledgerId)).asData?.value
         : null;
     final ledgerName = ledger?.name != null
         ? translateLedgerName(context, ledger!.name)
@@ -51,7 +72,11 @@ class BillCardWidget extends ConsumerWidget {
         tags: _tags,
         onUndo: onUndo,
         onEdit: onEdit,
-        onChangeLedger: onChangeLedger,
+        onChangeLedger: ledger != null &&
+                isPrivateTransactionMoveLedger(ledger) &&
+                ref.watch(transactionMoveAvailableProvider).valueOrNull == true
+            ? onChangeLedger
+            : null,
         fields: [
           BeeAssistantBillField(l10n.billCardAmount,
               formatBalanceFull(billInfo.amount?.abs() ?? 0, currency)),

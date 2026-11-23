@@ -29,7 +29,7 @@ import 'package:beecount/pages/ai/ai_settings_page.dart';
 import 'package:beecount/pages/ai/ai_provider_manage_page.dart';
 import 'package:beecount/pages/ai/agent_assistant_settings_page.dart';
 import 'package:beecount/pages/ai/agent_message_visibility.dart';
-import 'package:beecount/pages/shared/selectors/ledger_selector_dialog.dart';
+import 'package:beecount/pages/transaction/transaction_move.dart';
 import 'package:beecount/pages/ai/bindings/agent_tool_authorization_dialog.dart';
 import 'package:beecount/pages/ai/chat/widgets/agent_chat_shell.dart';
 import 'package:beecount/pages/ai/chat/bindings/agent_execution_timeline.dart';
@@ -378,7 +378,7 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
                 ? () => _handleEdit(message.id, txId)
                 : null,
             onChangeLedger: txId != null && !isUndone
-                ? () => _handleChangeLedger(message.id, txId)
+                ? () => _handleChangeLedger(txId)
                 : null,
           ),
         );
@@ -1136,90 +1136,18 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
     }
   }
 
-  /// 修改账本
-  Future<void> _handleChangeLedger(int messageId, int transactionId) async {
-    try {
-      final repo = ref.read(repositoryProvider);
-
-      // 获取当前交易
-      final transaction = await repo.getTransactionById(transactionId);
-
-      if (transaction == null) {
-        if (mounted) {
-          showBeeToast(
-              context, AppLocalizations.of(context).aiChatTransactionNotFound,
-              tone: BeeTone.warning);
-        }
-        return;
-      }
-
-      if (!mounted) return;
-
-      // 显示账本选择对话框
-      final selectedLedgerId = await showLedgerSelector(
-        context,
-        currentLedgerId: transaction.ledgerId,
-      );
-
-      if (selectedLedgerId == null ||
-          selectedLedgerId == transaction.ledgerId) {
-        return; // 用户取消或选择了相同的账本
-      }
-
-      // 更新交易的账本
-      await repo.updateTransactionLedger(
-        id: transactionId,
-        ledgerId: selectedLedgerId,
-      );
-
-      // 更新消息的 metadata(多笔:仅更新匹配 txId 的那一笔)
-      final message = await repo.getMessageById(messageId);
-
-      if (message != null && message.metadata != null) {
-        final parsed = _parseBillMetadata(message);
-        final idx = parsed.txIds.indexOf(transactionId);
-        if (idx >= 0 && idx < parsed.bills.length) {
-          final newBills = List<BillInfo>.from(parsed.bills);
-          newBills[idx] =
-              parsed.bills[idx].copyWith(ledgerId: selectedLedgerId);
-          await repo.updateMessage(message.copyWith(
-            metadata: Value(_encodeBillMetadata(
-              newBills,
-              parsed.txIds,
-              parsed.undoneIds,
-              existingMetadata: message.metadata,
-            )),
-          ));
-        } else {
-          logger.warning('AIChat',
-              '_handleChangeLedger: 在 message $messageId 中找不到 txId=$transactionId');
-        }
-
-        // 刷新统计信息（修改账本后，需要刷新旧账本和新账本的统计）
-        ref.read(statsRefreshProvider.notifier).state++;
-
-        // 触发云同步（旧账本和新账本都需要同步）
-        await PostProcessor.sync(ref, ledgerId: transaction.ledgerId);
-        await PostProcessor.sync(ref, ledgerId: selectedLedgerId);
-
-        logger.info('AIChat',
-            '修改账本成功: ${transaction.ledgerId} -> $selectedLedgerId,已刷新统计信息和触发云同步');
-
-        if (mounted) {
-          setState(() {}); // 触发重建以显示新的账本名称
-        }
-      }
-
-      if (mounted) {
-        showBeeToast(context, AppLocalizations.of(context).commonSuccess,
-            tone: BeeTone.success);
-      }
-    } catch (e) {
-      if (mounted) {
-        showBeeToast(context, AppLocalizations.of(context).commonFailed,
-            tone: BeeTone.error);
-      }
+  Future<void> _handleChangeLedger(int transactionId) async {
+    final transaction =
+        await ref.read(repositoryProvider).getTransactionById(transactionId);
+    if (!mounted) return;
+    if (transaction == null) {
+      showBeeToast(
+          context, AppLocalizations.of(context).aiChatTransactionNotFound,
+          tone: BeeTone.warning);
+      return;
     }
+    await showTransactionMove(context, ref,
+        sourceLedgerId: transaction.ledgerId, transactionIds: {transactionId});
   }
 
   /// The page owns clipboard and deletion; the shared package owns the menu.
@@ -1383,7 +1311,7 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
                     ? () => _handleEdit(message.id, txId)
                     : null,
                 onChangeLedger: txId != null && !isUndone
-                    ? () => _handleChangeLedger(message.id, txId)
+                    ? () => _handleChangeLedger(txId)
                     : null,
               );
             }),

@@ -11,7 +11,8 @@ description: 创建、复用或合并 BeeCount 家族仓库的 PR，并在实际
 
 - 核对目标 remote、head 分支与提交、base。创建前查同一仓库、base 和 head 的现有 PR。请求超时时向 GitHub 查证后再重试。
 - 已有验收轮次时，拿到规范 PR URL 即执行 `python3 scripts/qa/pr_lifecycle.py bind <轮次> <URL>`。跨仓工作从 BeeCount 的共同登记位置调用。提前通过 `start <轮次> --expect-pr OWNER/REPO` 写入明确的待关联仓库。
-- 已授权交付证据时接续 beecount-pr-qa-evidence。有 PR 但无运行时验收的任务可按实际检查结果交付。
+- 跨仓 PR 相互链接，分别描述本仓改动、依赖和验证。
+- 已授权交付证据时，接续 [验收证据](../beecount-pr-qa-evidence/SKILL.md)。同一轮联调报告由一条 PR 发布、其余 PR 引用。无运行时验收的任务按实际检查结果交付。
 
 ## 合并
 

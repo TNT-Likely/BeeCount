@@ -9516,6 +9516,46 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get fullDataExportShareError => '无法打开系统分享，请重试。';
+
+  @override
+  String get transactionMoveAction => '移到账本';
+
+  @override
+  String get transactionMoveChooseLedger => '选择目标账本';
+
+  @override
+  String get transactionMoveNoTarget => '需要另一个本位币相同的个人账本。';
+
+  @override
+  String get transactionMoveConfirmTitle => '确认移动';
+
+  @override
+  String transactionMoveConfirmMessage(int count, String source, String target) {
+    return '将 $count 笔账单从「$source」移动到「$target」。';
+  }
+
+  @override
+  String get transactionMoveCommit => '移动';
+
+  @override
+  String get transactionMoveWorking => '正在移动账单';
+
+  @override
+  String transactionMoveDone(int count) {
+    return '已移动 $count 笔账单';
+  }
+
+  @override
+  String get transactionMoveChanged => '账本或所选账单已变更，请刷新后重新选择。';
+
+  @override
+  String get transactionMoveUnsynced => '请先同步两个账本及附件，再移动账单。';
+
+  @override
+  String get transactionMovePending => '等待云端确认。联网后将继续恢复。';
+
+  @override
+  String get transactionMoveFailed => '移动账单失败，请检查连接后重试。';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -18862,4 +18902,44 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get v4RecurringUsageSummary => '開啟或回到 App 時，自動補記到期帳單。點擊卡片可編輯規則。';
+
+  @override
+  String get transactionMoveAction => '移至帳本';
+
+  @override
+  String get transactionMoveChooseLedger => '選擇目標帳本';
+
+  @override
+  String get transactionMoveNoTarget => '需要另一本本位幣相同的個人帳本。';
+
+  @override
+  String get transactionMoveConfirmTitle => '確認移動';
+
+  @override
+  String transactionMoveConfirmMessage(int count, String source, String target) {
+    return '將 $count 筆帳單從「$source」移至「$target」。';
+  }
+
+  @override
+  String get transactionMoveCommit => '移動';
+
+  @override
+  String get transactionMoveWorking => '正在移動帳單';
+
+  @override
+  String transactionMoveDone(int count) {
+    return '已移動 $count 筆帳單';
+  }
+
+  @override
+  String get transactionMoveChanged => '帳本或所選帳單已變更，請重新整理後再選擇。';
+
+  @override
+  String get transactionMoveUnsynced => '請先同步兩本帳本及附件，再移動帳單。';
+
+  @override
+  String get transactionMovePending => '等待雲端確認。重新連線後會繼續恢復。';
+
+  @override
+  String get transactionMoveFailed => '無法移動帳單，請確認連線後再試一次。';
 }

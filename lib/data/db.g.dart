@@ -11770,6 +11770,244 @@ class SyncPullErrorsCompanion extends UpdateCompanion<SyncPullError> {
   }
 }
 
+class $PendingTransactionMovesTable extends PendingTransactionMoves
+    with TableInfo<$PendingTransactionMovesTable, PendingTransactionMove> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PendingTransactionMovesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _operationIdMeta =
+      const VerificationMeta('operationId');
+  @override
+  late final GeneratedColumn<String> operationId = GeneratedColumn<String>(
+      'operation_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _scopeMeta = const VerificationMeta('scope');
+  @override
+  late final GeneratedColumn<String> scope = GeneratedColumn<String>(
+      'scope', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _payloadMeta =
+      const VerificationMeta('payload');
+  @override
+  late final GeneratedColumn<String> payload = GeneratedColumn<String>(
+      'payload', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [operationId, scope, payload];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'pending_transaction_moves';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<PendingTransactionMove> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('operation_id')) {
+      context.handle(
+          _operationIdMeta,
+          operationId.isAcceptableOrUnknown(
+              data['operation_id']!, _operationIdMeta));
+    } else if (isInserting) {
+      context.missing(_operationIdMeta);
+    }
+    if (data.containsKey('scope')) {
+      context.handle(
+          _scopeMeta, scope.isAcceptableOrUnknown(data['scope']!, _scopeMeta));
+    } else if (isInserting) {
+      context.missing(_scopeMeta);
+    }
+    if (data.containsKey('payload')) {
+      context.handle(_payloadMeta,
+          payload.isAcceptableOrUnknown(data['payload']!, _payloadMeta));
+    } else if (isInserting) {
+      context.missing(_payloadMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {operationId};
+  @override
+  PendingTransactionMove map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return PendingTransactionMove(
+      operationId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}operation_id'])!,
+      scope: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}scope'])!,
+      payload: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}payload'])!,
+    );
+  }
+
+  @override
+  $PendingTransactionMovesTable createAlias(String alias) {
+    return $PendingTransactionMovesTable(attachedDatabase, alias);
+  }
+}
+
+class PendingTransactionMove extends DataClass
+    implements Insertable<PendingTransactionMove> {
+  final String operationId;
+  final String scope;
+  final String payload;
+  const PendingTransactionMove(
+      {required this.operationId, required this.scope, required this.payload});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['operation_id'] = Variable<String>(operationId);
+    map['scope'] = Variable<String>(scope);
+    map['payload'] = Variable<String>(payload);
+    return map;
+  }
+
+  PendingTransactionMovesCompanion toCompanion(bool nullToAbsent) {
+    return PendingTransactionMovesCompanion(
+      operationId: Value(operationId),
+      scope: Value(scope),
+      payload: Value(payload),
+    );
+  }
+
+  factory PendingTransactionMove.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return PendingTransactionMove(
+      operationId: serializer.fromJson<String>(json['operationId']),
+      scope: serializer.fromJson<String>(json['scope']),
+      payload: serializer.fromJson<String>(json['payload']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'operationId': serializer.toJson<String>(operationId),
+      'scope': serializer.toJson<String>(scope),
+      'payload': serializer.toJson<String>(payload),
+    };
+  }
+
+  PendingTransactionMove copyWith(
+          {String? operationId, String? scope, String? payload}) =>
+      PendingTransactionMove(
+        operationId: operationId ?? this.operationId,
+        scope: scope ?? this.scope,
+        payload: payload ?? this.payload,
+      );
+  PendingTransactionMove copyWithCompanion(
+      PendingTransactionMovesCompanion data) {
+    return PendingTransactionMove(
+      operationId:
+          data.operationId.present ? data.operationId.value : this.operationId,
+      scope: data.scope.present ? data.scope.value : this.scope,
+      payload: data.payload.present ? data.payload.value : this.payload,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PendingTransactionMove(')
+          ..write('operationId: $operationId, ')
+          ..write('scope: $scope, ')
+          ..write('payload: $payload')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(operationId, scope, payload);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is PendingTransactionMove &&
+          other.operationId == this.operationId &&
+          other.scope == this.scope &&
+          other.payload == this.payload);
+}
+
+class PendingTransactionMovesCompanion
+    extends UpdateCompanion<PendingTransactionMove> {
+  final Value<String> operationId;
+  final Value<String> scope;
+  final Value<String> payload;
+  final Value<int> rowid;
+  const PendingTransactionMovesCompanion({
+    this.operationId = const Value.absent(),
+    this.scope = const Value.absent(),
+    this.payload = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  PendingTransactionMovesCompanion.insert({
+    required String operationId,
+    required String scope,
+    required String payload,
+    this.rowid = const Value.absent(),
+  })  : operationId = Value(operationId),
+        scope = Value(scope),
+        payload = Value(payload);
+  static Insertable<PendingTransactionMove> custom({
+    Expression<String>? operationId,
+    Expression<String>? scope,
+    Expression<String>? payload,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (operationId != null) 'operation_id': operationId,
+      if (scope != null) 'scope': scope,
+      if (payload != null) 'payload': payload,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  PendingTransactionMovesCompanion copyWith(
+      {Value<String>? operationId,
+      Value<String>? scope,
+      Value<String>? payload,
+      Value<int>? rowid}) {
+    return PendingTransactionMovesCompanion(
+      operationId: operationId ?? this.operationId,
+      scope: scope ?? this.scope,
+      payload: payload ?? this.payload,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (operationId.present) {
+      map['operation_id'] = Variable<String>(operationId.value);
+    }
+    if (scope.present) {
+      map['scope'] = Variable<String>(scope.value);
+    }
+    if (payload.present) {
+      map['payload'] = Variable<String>(payload.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PendingTransactionMovesCompanion(')
+          ..write('operationId: $operationId, ')
+          ..write('scope: $scope, ')
+          ..write('payload: $payload, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $ExchangeRatesTable extends ExchangeRates
     with TableInfo<$ExchangeRatesTable, ExchangeRate> {
   @override
@@ -12507,6 +12745,8 @@ abstract class _$BeeDatabase extends GeneratedDatabase {
   late final $TransactionTagOverridesTable transactionTagOverrides =
       $TransactionTagOverridesTable(this);
   late final $SyncPullErrorsTable syncPullErrors = $SyncPullErrorsTable(this);
+  late final $PendingTransactionMovesTable pendingTransactionMoves =
+      $PendingTransactionMovesTable(this);
   late final $ExchangeRatesTable exchangeRates = $ExchangeRatesTable(this);
   late final $ExchangeRateOverridesTable exchangeRateOverrides =
       $ExchangeRateOverridesTable(this);
@@ -12538,6 +12778,7 @@ abstract class _$BeeDatabase extends GeneratedDatabase {
         sharedLedgerTags,
         transactionTagOverrides,
         syncPullErrors,
+        pendingTransactionMoves,
         exchangeRates,
         exchangeRateOverrides
       ];
@@ -18151,6 +18392,156 @@ typedef $$SyncPullErrorsTableProcessedTableManager = ProcessedTableManager<
     ),
     SyncPullError,
     PrefetchHooks Function()>;
+typedef $$PendingTransactionMovesTableCreateCompanionBuilder
+    = PendingTransactionMovesCompanion Function({
+  required String operationId,
+  required String scope,
+  required String payload,
+  Value<int> rowid,
+});
+typedef $$PendingTransactionMovesTableUpdateCompanionBuilder
+    = PendingTransactionMovesCompanion Function({
+  Value<String> operationId,
+  Value<String> scope,
+  Value<String> payload,
+  Value<int> rowid,
+});
+
+class $$PendingTransactionMovesTableFilterComposer
+    extends Composer<_$BeeDatabase, $PendingTransactionMovesTable> {
+  $$PendingTransactionMovesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get operationId => $composableBuilder(
+      column: $table.operationId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get scope => $composableBuilder(
+      column: $table.scope, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get payload => $composableBuilder(
+      column: $table.payload, builder: (column) => ColumnFilters(column));
+}
+
+class $$PendingTransactionMovesTableOrderingComposer
+    extends Composer<_$BeeDatabase, $PendingTransactionMovesTable> {
+  $$PendingTransactionMovesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get operationId => $composableBuilder(
+      column: $table.operationId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get scope => $composableBuilder(
+      column: $table.scope, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get payload => $composableBuilder(
+      column: $table.payload, builder: (column) => ColumnOrderings(column));
+}
+
+class $$PendingTransactionMovesTableAnnotationComposer
+    extends Composer<_$BeeDatabase, $PendingTransactionMovesTable> {
+  $$PendingTransactionMovesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get operationId => $composableBuilder(
+      column: $table.operationId, builder: (column) => column);
+
+  GeneratedColumn<String> get scope =>
+      $composableBuilder(column: $table.scope, builder: (column) => column);
+
+  GeneratedColumn<String> get payload =>
+      $composableBuilder(column: $table.payload, builder: (column) => column);
+}
+
+class $$PendingTransactionMovesTableTableManager extends RootTableManager<
+    _$BeeDatabase,
+    $PendingTransactionMovesTable,
+    PendingTransactionMove,
+    $$PendingTransactionMovesTableFilterComposer,
+    $$PendingTransactionMovesTableOrderingComposer,
+    $$PendingTransactionMovesTableAnnotationComposer,
+    $$PendingTransactionMovesTableCreateCompanionBuilder,
+    $$PendingTransactionMovesTableUpdateCompanionBuilder,
+    (
+      PendingTransactionMove,
+      BaseReferences<_$BeeDatabase, $PendingTransactionMovesTable,
+          PendingTransactionMove>
+    ),
+    PendingTransactionMove,
+    PrefetchHooks Function()> {
+  $$PendingTransactionMovesTableTableManager(
+      _$BeeDatabase db, $PendingTransactionMovesTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PendingTransactionMovesTableFilterComposer(
+                  $db: db, $table: table),
+          createOrderingComposer: () =>
+              $$PendingTransactionMovesTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$PendingTransactionMovesTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> operationId = const Value.absent(),
+            Value<String> scope = const Value.absent(),
+            Value<String> payload = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              PendingTransactionMovesCompanion(
+            operationId: operationId,
+            scope: scope,
+            payload: payload,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String operationId,
+            required String scope,
+            required String payload,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              PendingTransactionMovesCompanion.insert(
+            operationId: operationId,
+            scope: scope,
+            payload: payload,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$PendingTransactionMovesTableProcessedTableManager
+    = ProcessedTableManager<
+        _$BeeDatabase,
+        $PendingTransactionMovesTable,
+        PendingTransactionMove,
+        $$PendingTransactionMovesTableFilterComposer,
+        $$PendingTransactionMovesTableOrderingComposer,
+        $$PendingTransactionMovesTableAnnotationComposer,
+        $$PendingTransactionMovesTableCreateCompanionBuilder,
+        $$PendingTransactionMovesTableUpdateCompanionBuilder,
+        (
+          PendingTransactionMove,
+          BaseReferences<_$BeeDatabase, $PendingTransactionMovesTable,
+              PendingTransactionMove>
+        ),
+        PendingTransactionMove,
+        PrefetchHooks Function()>;
 typedef $$ExchangeRatesTableCreateCompanionBuilder = ExchangeRatesCompanion
     Function({
   required String baseCurrency,
@@ -18586,6 +18977,9 @@ class $BeeDatabaseManager {
           _db, _db.transactionTagOverrides);
   $$SyncPullErrorsTableTableManager get syncPullErrors =>
       $$SyncPullErrorsTableTableManager(_db, _db.syncPullErrors);
+  $$PendingTransactionMovesTableTableManager get pendingTransactionMoves =>
+      $$PendingTransactionMovesTableTableManager(
+          _db, _db.pendingTransactionMoves);
   $$ExchangeRatesTableTableManager get exchangeRates =>
       $$ExchangeRatesTableTableManager(_db, _db.exchangeRates);
   $$ExchangeRateOverridesTableTableManager get exchangeRateOverrides =>

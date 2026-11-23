@@ -345,12 +345,6 @@ abstract class TransactionRepository {
   /// 全局最早一笔交易的发生时间（不限账本，用于净值趋势「全部」范围的起点）。无交易返回 null。
   Future<DateTime?> getEarliestTransactionDate();
 
-  /// 更新交易的账本
-  Future<void> updateTransactionLedger({
-    required int id,
-    required int ledgerId,
-  });
-
   // ==================== 日历功能相关 ====================
 
   /// 获取指定月份的每日交易统计

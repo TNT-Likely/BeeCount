@@ -9,11 +9,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../data/db.dart';
+import '../../../../data/repositories/local/local_repository.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../account/account_detail_page.dart';
 import '../../../attachment/attachment_preview_page.dart';
 import '../../../tag/tag_detail_page.dart';
 import '../../category_detail_page.dart';
+import '../../transaction_move.dart';
 import '../../../../providers.dart';
 import '../../../../utils/category_utils.dart';
 import '../../../../utils/transaction_edit_utils.dart';
@@ -41,9 +43,11 @@ class TransactionDetailControls extends ConsumerStatefulWidget {
 class _TransactionDetailControlsState
     extends ConsumerState<TransactionDetailControls> {
   bool _busy = false;
+  int? _movedLedgerId;
   String? _actionError;
   TransactionDetailRequest get request =>
-      TransactionDetailRequest(widget.transactionId, ledgerId: widget.ledgerId);
+      TransactionDetailRequest(widget.transactionId,
+          ledgerId: _movedLedgerId ?? widget.ledgerId);
   void _refresh() => ref.invalidate(transactionDetailDataProvider(request));
 
   Future<void> _open(Widget page) async {
@@ -84,6 +88,11 @@ class _TransactionDetailControlsState
               context, ref, data.row.t, data.row.category);
         case 'copy':
           await TransactionEditUtils.copyTransaction(context, ref, data.row.t);
+        case 'move':
+          final target = await showTransactionMove(context, ref,
+              sourceLedgerId: data.row.t.ledgerId,
+              transactionIds: {data.row.t.id});
+          if (mounted && target != null) _movedLedgerId = target;
         case 'receipt':
           await TransactionReceiptDialog.open(context, ref, data.row.t);
       }
@@ -320,6 +329,13 @@ class _TransactionDetailControlsState
       onEdit:
           !widget.previewOnly && data.canWrite ? () => _action('edit') : null,
       onReceipt: widget.previewOnly ? null : () => _action('receipt'),
+      moveLabel: !widget.previewOnly &&
+              data.canWrite &&
+              isPrivateTransactionMoveLedger(data.ledger) &&
+              ref.watch(transactionMoveAvailableProvider).valueOrNull == true
+          ? l.transactionMoveAction
+          : null,
+      onMove: () => _action('move'),
     );
   }
 
