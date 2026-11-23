@@ -7,6 +7,7 @@ import 'package:path_provider/path_provider.dart';
 import '../../../utils/app_localizations_resolver.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../../cloud/sync/change_tracker.dart';
 import '../../db.dart';
 import '../../category_node.dart';
 import '../../../services/system/logger_service.dart';
@@ -19,8 +20,9 @@ import '../exceptions.dart';
 class LocalCategoryRepository implements CategoryRepository {
   static const _uuid = Uuid();
   final BeeDatabase db;
+  final ChangeTracker? Function()? trackerGetter;
 
-  LocalCategoryRepository(this.db);
+  LocalCategoryRepository(this.db, {this.trackerGetter});
 
   @override
   Future<int> createCategory({
@@ -113,60 +115,42 @@ class LocalCategoryRepository implements CategoryRepository {
   }
 
   @override
-  Future<void> deleteCategory(int id) async {
-    // 先收集要删的分类(自身 + 直接子分类)的自定义图标路径,删完后清理
-    // 本地磁盘文件 —— 以前 deleteCategory 只删 categories 行,
-    // customIconPath 指向的本地 PNG 留在 Application Documents/custom_icons/
-    // 里,长期使用会堆积孤立图标文件。云端 attachment_files 的清理由服务端
-    // sync push handler 兜底(见 src/projection.py gc_orphan_attachments)。
-    final iconPaths = await _collectIconPathsForIds([id], includeChildren: true);
-
-    await (db.delete(db.categories)..where((c) => c.parentId.equals(id))).go();
-    await (db.delete(db.categories)..where((c) => c.id.equals(id))).go();
-
-    if (iconPaths.isNotEmpty) {
-      await _deleteLocalIconFiles(iconPaths);
-    }
-  }
+  Future<void> deleteCategory(int id) => deleteCategoriesByIds([id]);
 
   @override
   Future<void> deleteCategoriesByIds(List<int> ids) async {
     if (ids.isEmpty) return;
-    final iconPaths = await _collectIconPathsForIds(ids, includeChildren: true);
+    final tracker = trackerGetter?.call();
+    final iconPaths = await db.transaction(() async {
+      final categories = await (db.select(db.categories)
+            ..where((c) => c.id.isIn(ids) | c.parentId.isIn(ids))
+            ..orderBy([(c) => d.OrderingTerm.desc(c.level)]))
+          .get();
 
-    await (db.delete(db.categories)..where((c) => c.parentId.isIn(ids))).go();
-    await (db.delete(db.categories)..where((c) => c.id.isIn(ids))).go();
+      // 分类及其直接子分类各有独立的云端身份。删除与事件一起提交，避免漏同步。
+      for (final category in categories) {
+        final syncId = category.syncId;
+        if (syncId == null) continue;
+        await tracker?.recordUserGlobalChange(
+          entityType: 'category',
+          entityId: category.id,
+          entitySyncId: syncId,
+          action: 'delete',
+        );
+      }
+      await (db.delete(db.categories)
+            ..where((c) => c.id.isIn(categories.map((row) => row.id))))
+          .go();
+      return categories
+          .map((c) => c.customIconPath)
+          .whereType<String>()
+          .where((path) => path.trim().isNotEmpty)
+          .toList();
+    });
 
     if (iconPaths.isNotEmpty) {
       await _deleteLocalIconFiles(iconPaths);
     }
-  }
-
-  /// 查给定分类(含其直接子分类)的 customIconPath 列表 —— 在行被 DELETE
-  /// **之前**调,删后就没法查了。
-  Future<List<String>> _collectIconPathsForIds(
-    List<int> ids, {
-    required bool includeChildren,
-  }) async {
-    if (ids.isEmpty) return const [];
-    final paths = <String>[];
-    final selfRows = await (db.select(db.categories)
-          ..where((c) => c.id.isIn(ids)))
-        .get();
-    for (final row in selfRows) {
-      final p = row.customIconPath;
-      if (p != null && p.trim().isNotEmpty) paths.add(p);
-    }
-    if (includeChildren) {
-      final childRows = await (db.select(db.categories)
-            ..where((c) => c.parentId.isIn(ids)))
-          .get();
-      for (final row in childRows) {
-        final p = row.customIconPath;
-        if (p != null && p.trim().isNotEmpty) paths.add(p);
-      }
-    }
-    return paths;
   }
 
   /// 清本地 custom_icons/ 目录下的图标文件。失败只 log —— 磁盘残留下次 GC

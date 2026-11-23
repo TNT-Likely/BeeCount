@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:convert';
+import 'package:beecount/cloud/sync/change_tracker.dart';
 import 'package:beecount/data/db.dart';
 import 'package:beecount/data/repositories/local/local_repository.dart';
 import 'package:beecount/l10n/app_localizations.dart';
@@ -302,19 +303,33 @@ void main() {
     await idle(tester);
     await tester.tap(find.byType(BackButton));
     await idle(tester);
+    final tracker = ChangeTracker(db);
+    repo.changeTracker = tracker;
     final emptyId = await repo.createCategory(name: '空分类', kind: 'expense');
+    final emptyChildId = await repo.createSubCategory(
+        parentId: emptyId, name: '空子分类', kind: 'expense');
+    final emptyParent = (await repo.getCategoryById(emptyId))!;
+    final emptyChild = (await repo.getCategoryById(emptyChildId))!;
+    await tracker.markPushed(
+        (await tracker.getUnpushedChanges()).map((c) => c.id).toList());
     await open(
         tester,
-        CategoryEditPage(
-            kind: 'expense', category: await repo.getCategoryById(emptyId)));
+        CategoryEditPage(kind: 'expense', category: emptyParent));
     await touch(tester, find.text(strings.categoryDeleteTitle));
     await tester.tap(find.text(strings.commonCancel));
     await idle(tester);
     expect(await repo.getCategoryById(emptyId), isNotNull);
+    expect(await tracker.getUnpushedChangesForLedger(0), isEmpty);
     await touch(tester, find.text(strings.categoryDeleteTitle));
     await tester.tap(find.widgetWithText(BeeButton, strings.commonDelete));
     await idle(tester);
     expect(await repo.getCategoryById(emptyId), isNull);
+    expect(await repo.getCategoryById(emptyChildId), isNull);
+    final changes = await tracker.getUnpushedChangesForLedger(0);
+    expect(changes.map((c) => c.action), ['delete', 'delete']);
+    expect(changes.map((c) => c.entityType), ['category', 'category']);
+    expect(changes.map((c) => c.entitySyncId),
+        unorderedEquals([emptyParent.syncId, emptyChild.syncId]));
     expect((await repo.getTransactionsByLedger(1)).length, 1);
     await close(tester);
   });
