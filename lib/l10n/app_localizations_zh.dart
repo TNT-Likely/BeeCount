@@ -4959,7 +4959,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get appearanceSettings => '个性化设置';
 
   @override
-  String get appearanceSettingsDesc => '主题、字体、语言、应用锁等';
+  String get appearanceSettingsDesc => '主题、字号、语言、应用锁等';
 
   @override
   String get appearanceSettingsPageTitle => '个性化设置';

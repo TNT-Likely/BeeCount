@@ -4959,7 +4959,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appearanceSettings => 'Personalization';
 
   @override
-  String get appearanceSettingsDesc => 'Theme, font, language, app lock, etc.';
+  String get appearanceSettingsDesc => 'Theme, text size, language, app lock, etc.';
 
   @override
   String get appearanceSettingsPageTitle => 'Personalization';
