@@ -14473,7 +14473,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get appearanceSettings => '個性化設定';
 
   @override
-  String get appearanceSettingsDesc => '主題、字體、語言、應用鎖等';
+  String get appearanceSettingsDesc => '主題、字號、語言、應用鎖等';
 
   @override
   String get appearanceSettingsPageTitle => '個性化設定';
