@@ -296,6 +296,7 @@ extension SyncEngineSerializationExt on SyncEngine {
   /// **in-flight 单飞**:同 ledger 的并发调用复用第一个 future,避免 sync_changes
   /// 表 2-3x 膨胀。详见 `.docs/concurrent-fullpush-bloat.md`。
   Future<void> fullPush({required int ledgerId}) async {
+    await _recoverTransactionMoves();
     final inFlight = _fullPushInFlight[ledgerId];
     if (inFlight != null) {
       logger.info('SyncEngine', 'fullPush(ledger=$ledgerId) 已在执行,复用 in-flight');

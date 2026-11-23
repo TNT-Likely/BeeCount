@@ -476,6 +476,7 @@ extension SyncEngineRealtime on SyncEngine {
   /// 调用方先 syncLedgersFromServer / shared-resources;目标有待推变更则拒绝。
   /// 不导入 owner 的 user-global 主表,不推进普通增量的全局 cursor。
   Future<int> hydrateLedgerFromServer(String ledgerExternalId) async {
+    await _recoverTransactionMoves();
     if (ledgerExternalId.isEmpty ||
         ledgerExternalId.trim() != ledgerExternalId) {
       throw const FormatException('Invalid hydration ledger scope');

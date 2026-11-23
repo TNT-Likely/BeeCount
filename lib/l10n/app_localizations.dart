@@ -17877,6 +17877,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not open the share sheet. Try again.'**
   String get fullDataExportShareError;
+
+  /// No description provided for @transactionMoveAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Move to ledger'**
+  String get transactionMoveAction;
+
+  /// No description provided for @transactionMoveChooseLedger.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a destination ledger'**
+  String get transactionMoveChooseLedger;
+
+  /// No description provided for @transactionMoveNoTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose another personal ledger with the same base currency.'**
+  String get transactionMoveNoTarget;
+
+  /// No description provided for @transactionMoveConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm move'**
+  String get transactionMoveConfirmTitle;
+
+  /// No description provided for @transactionMoveConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{Move one transaction from “{source}” to “{target}”.} other{Move {count} transactions from “{source}” to “{target}”.}}'**
+  String transactionMoveConfirmMessage(int count, String source, String target);
+
+  /// No description provided for @transactionMoveCommit.
+  ///
+  /// In en, this message translates to:
+  /// **'Move'**
+  String get transactionMoveCommit;
+
+  /// No description provided for @transactionMoveWorking.
+  ///
+  /// In en, this message translates to:
+  /// **'Moving transactions'**
+  String get transactionMoveWorking;
+
+  /// No description provided for @transactionMoveDone.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{Moved one transaction} other{Moved {count} transactions}}'**
+  String transactionMoveDone(int count);
+
+  /// No description provided for @transactionMoveChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'The ledger or selected transactions changed. Refresh and select again.'**
+  String get transactionMoveChanged;
+
+  /// No description provided for @transactionMoveUnsynced.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync both ledgers and their attachments before moving.'**
+  String get transactionMoveUnsynced;
+
+  /// No description provided for @transactionMovePending.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for cloud confirmation. The app will retry when it reconnects.'**
+  String get transactionMovePending;
+
+  /// No description provided for @transactionMoveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not move the transactions. Check your connection and try again.'**
+  String get transactionMoveFailed;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

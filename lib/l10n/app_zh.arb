@@ -4417,5 +4417,17 @@
   "fullDataExportShare": "保存或分享 ZIP",
   "fullDataExportAgain": "重新生成",
   "fullDataExportError": "生成 ZIP 失败。请检查可用存储空间后重试。",
-  "fullDataExportShareError": "无法打开系统分享，请重试。"
+  "fullDataExportShareError": "无法打开系统分享，请重试。",
+  "transactionMoveAction": "移到账本",
+  "transactionMoveChooseLedger": "选择目标账本",
+  "transactionMoveNoTarget": "需要另一个本位币相同的个人账本。",
+  "transactionMoveConfirmTitle": "确认移动",
+  "transactionMoveConfirmMessage": "将 {count} 笔账单从「{source}」移动到「{target}」。",
+  "transactionMoveCommit": "移动",
+  "transactionMoveWorking": "正在移动账单",
+  "transactionMoveDone": "已移动 {count} 笔账单",
+  "transactionMoveChanged": "账本或所选账单已变更，请刷新后重新选择。",
+  "transactionMoveUnsynced": "请先同步两个账本及附件，再移动账单。",
+  "transactionMovePending": "等待云端确认。联网后将继续恢复。",
+  "transactionMoveFailed": "移动账单失败，请检查连接后重试。"
 }

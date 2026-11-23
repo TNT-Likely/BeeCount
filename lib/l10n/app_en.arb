@@ -4952,5 +4952,37 @@
         "type": "int"
       }
     }
+  },
+  "transactionMoveAction": "Move to ledger",
+  "transactionMoveChooseLedger": "Choose a destination ledger",
+  "transactionMoveNoTarget": "Choose another personal ledger with the same base currency.",
+  "transactionMoveConfirmTitle": "Confirm move",
+  "transactionMoveConfirmMessage": "{count, plural, one{Move one transaction from “{source}” to “{target}”.} other{Move {count} transactions from “{source}” to “{target}”.}}",
+  "transactionMoveCommit": "Move",
+  "transactionMoveWorking": "Moving transactions",
+  "transactionMoveDone": "{count, plural, one{Moved one transaction} other{Moved {count} transactions}}",
+  "transactionMoveChanged": "The ledger or selected transactions changed. Refresh and select again.",
+  "transactionMoveUnsynced": "Sync both ledgers and their attachments before moving.",
+  "transactionMovePending": "Waiting for cloud confirmation. The app will retry when it reconnects.",
+  "transactionMoveFailed": "Could not move the transactions. Check your connection and try again.",
+  "@transactionMoveConfirmMessage": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "source": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "@transactionMoveDone": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }

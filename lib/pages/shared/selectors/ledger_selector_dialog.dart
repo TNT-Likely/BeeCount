@@ -8,14 +8,29 @@ import '../../../providers.dart';
 import '../../../l10n/app_localizations.dart';
 
 /// Keeps the original immediate-result dialog contract for chat and recurring bills.
-Future<int?> showLedgerSelector(BuildContext context, {int? currentLedgerId}) =>
+Future<int?> showLedgerSelector(
+  BuildContext context, {
+  int? currentLedgerId,
+  List<Ledger>? candidates,
+  String? title,
+}) =>
     showDialog<int>(
         context: context,
-        builder: (_) => LedgerSelectorDialog(currentLedgerId: currentLedgerId));
+        builder: (_) => LedgerSelectorDialog(
+            currentLedgerId: currentLedgerId,
+            candidates: candidates,
+            title: title));
 
 class LedgerSelectorDialog extends ConsumerStatefulWidget {
-  const LedgerSelectorDialog({super.key, this.currentLedgerId});
+  const LedgerSelectorDialog({
+    super.key,
+    this.currentLedgerId,
+    this.candidates,
+    this.title,
+  });
   final int? currentLedgerId;
+  final List<Ledger>? candidates;
+  final String? title;
   @override
   ConsumerState<LedgerSelectorDialog> createState() =>
       _LedgerSelectorDialogState();
@@ -26,14 +41,16 @@ class _LedgerSelectorDialogState extends ConsumerState<LedgerSelectorDialog> {
   @override
   void initState() {
     super.initState();
-    ledgers = ref.read(repositoryProvider).getAllLedgers();
+    ledgers = widget.candidates == null
+        ? ref.read(repositoryProvider).getAllLedgers()
+        : Future.value(widget.candidates!);
   }
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     return BeeDialog(
-        title: Text(l.ledgerSelectTitle),
+        title: Text(widget.title ?? l.ledgerSelectTitle),
         content: FutureBuilder<List<Ledger>>(
             future: ledgers,
             builder: (context, snapshot) {

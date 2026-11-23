@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import '../../../../data/db.dart';
+import '../../../../data/repositories/local/local_repository.dart';
 import '../../../../providers.dart';
 import '../../../../providers/budget_providers.dart';
 import '../../../../services/system/logger_service.dart';
@@ -18,6 +19,7 @@ import '../../../../utils/category_utils.dart';
 import '../../../shared/resources/category_icon_adapter.dart';
 import '../../../transaction/category_detail_page.dart';
 import '../../../transaction/transaction_detail_page.dart';
+import '../../../transaction/transaction_move.dart';
 import '../../../tag/tag_detail_page.dart';
 import '../../../attachment/attachment_preview_page.dart';
 import '../../../transaction/detail/bindings/transaction_receipt_dialog.dart';
@@ -157,7 +159,7 @@ class TransactionListState extends ConsumerState<TransactionList> {
     if (_showingTransactionActions) return;
     _showingTransactionActions = true;
     try {
-      final action = await _pickTransactionAction(rowContext);
+      final action = await _pickTransactionAction(transaction, rowContext);
       if (action == 'detail' && mounted) {
         switchToStreamMode();
         await Navigator.of(context).push(MaterialPageRoute<void>(
@@ -167,6 +169,11 @@ class TransactionListState extends ConsumerState<TransactionList> {
       } else if (action == 'copy' && mounted) {
         switchToStreamMode();
         await TransactionEditUtils.copyTransaction(context, ref, transaction);
+      } else if (action == 'move' && mounted) {
+        switchToStreamMode();
+        await showTransactionMove(context, ref,
+            sourceLedgerId: transaction.ledgerId,
+            transactionIds: {transaction.id});
       } else if (action == 'receipt' && mounted) {
         await TransactionReceiptDialog.open(context, ref, transaction);
       }
@@ -177,32 +184,46 @@ class TransactionListState extends ConsumerState<TransactionList> {
             context, AppLocalizations.of(context).transactionCopyUnavailable,
             tone: BeeTone.warning);
       }
-    }
-  }
-
-  Future<String?> _pickTransactionAction(BuildContext rowContext) async {
-    try {
-      final row = rowContext.findRenderObject() as RenderBox;
-      final l = AppLocalizations.of(context);
-      return await showBeeContextMenu<String>(context,
-          anchor: row.localToGlobal(Offset(row.size.width, row.size.height)),
-          items: [
-            BeeMenuAction(
-                value: 'detail',
-                label: l.v4TransactionDetailTitle,
-                icon: const BeeLineIcon('FileText', size: 18)),
-            BeeMenuAction(
-                value: 'copy',
-                label: l.transactionCopyAction,
-                icon: const BeeLineIcon('Copy', size: 18)),
-            BeeMenuAction(
-                value: 'receipt',
-                label: l.transactionReceiptAction,
-                icon: const BeeLineIcon('ReceiptText', size: 18)),
-          ]);
     } finally {
       _showingTransactionActions = false;
     }
+  }
+
+  Future<String?> _pickTransactionAction(
+      Transaction transaction, BuildContext rowContext) async {
+    final row = rowContext.findRenderObject() as RenderBox;
+    final anchor = row.localToGlobal(Offset(row.size.width, row.size.height));
+    var canMove = false;
+    if (ref.read(transactionMoveAvailableProvider).valueOrNull == true) {
+      final repo = ref.read(repositoryProvider);
+      final ledgers = await repo.getAllLedgers();
+      final source = ledgers
+          .where((ledger) => ledger.id == transaction.ledgerId)
+          .firstOrNull;
+      canMove = source != null &&
+          ledgers.any((ledger) => canMoveTransactionsBetween(source, ledger));
+    }
+    if (!mounted || !rowContext.mounted) return null;
+    final l = AppLocalizations.of(context);
+    return await showBeeContextMenu<String>(context, anchor: anchor, items: [
+      BeeMenuAction(
+          value: 'detail',
+          label: l.v4TransactionDetailTitle,
+          icon: const BeeLineIcon('FileText', size: 18)),
+      BeeMenuAction(
+          value: 'copy',
+          label: l.transactionCopyAction,
+          icon: const BeeLineIcon('Copy', size: 18)),
+      if (canMove)
+        BeeMenuAction(
+            value: 'move',
+            label: l.transactionMoveAction,
+            icon: const BeeLineIcon('BookOpen', size: 18)),
+      BeeMenuAction(
+          value: 'receipt',
+          label: l.transactionReceiptAction,
+          icon: const BeeLineIcon('ReceiptText', size: 18)),
+    ]);
   }
 
   @override
@@ -435,6 +456,7 @@ class TransactionListState extends ConsumerState<TransactionList> {
 
   @override
   Widget build(BuildContext context) {
+    ref.watch(transactionMoveAvailableProvider);
     // A relationship refresh is one snapshot, never two independent paints.
     final tagVersion = ref.watch(tagListRefreshProvider);
     final attachmentVersion = ref.watch(attachmentListRefreshProvider);

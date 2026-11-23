@@ -1146,16 +1146,6 @@ class LocalTransactionRepository implements TransactionRepository {
     return row?.happenedAt;
   }
 
-  @override
-  Future<void> updateTransactionLedger({
-    required int id,
-    required int ledgerId,
-  }) async {
-    await (db.update(db.transactions)..where((t) => t.id.equals(id))).write(
-      TransactionsCompanion(ledgerId: d.Value(ledgerId)),
-    );
-  }
-
   // ==================== 日历功能相关 ====================
 
   @override

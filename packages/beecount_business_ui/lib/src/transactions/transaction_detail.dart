@@ -44,6 +44,8 @@ class BeeTransactionDetail extends StatelessWidget {
     this.onCopy,
     this.onEdit,
     this.onReceipt,
+    this.onMove,
+    this.moveLabel,
   });
   final String title,
       kindLabel,
@@ -64,7 +66,8 @@ class BeeTransactionDetail extends StatelessWidget {
   final Set<String> readOnlyTagIds;
   final List<BeeAttachment> attachments;
   final List<String> statusLabels;
-  final VoidCallback? onCategory, onCopy, onEdit, onReceipt;
+  final VoidCallback? onCategory, onCopy, onEdit, onReceipt, onMove;
+  final String? moveLabel;
   final ValueChanged<BeeTagData>? onTag;
   final ValueChanged<int>? onAttachment;
 
@@ -219,6 +222,16 @@ class BeeTransactionDetail extends StatelessWidget {
                 Expanded(child: buttons[1])
               ]);
       }),
+      if (moveLabel != null) ...[
+        const SizedBox(height: 8),
+        BeeButton(
+          key: const ValueKey('transaction-detail-move'),
+          label: moveLabel!,
+          icon: const BeeLineIcon('BookOpen', size: 18),
+          kind: BeeButtonKind.secondary,
+          onPressed: busy ? null : onMove,
+        ),
+      ],
       const SizedBox(height: 8),
       BeeButton(
           key: const ValueKey('transaction-detail-receipt'),

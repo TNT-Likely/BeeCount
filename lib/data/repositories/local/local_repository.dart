@@ -28,6 +28,15 @@ import 'local_exchange_rate_repository.dart';
 
 const _balanceSettlementCategoryName = '平账';
 
+bool isPrivateTransactionMoveLedger(Ledger ledger) =>
+    !ledger.isShared && ledger.myRole == 'owner';
+
+bool canMoveTransactionsBetween(Ledger source, Ledger target) =>
+    source.id != target.id &&
+    isPrivateTransactionMoveLedger(source) &&
+    isPrivateTransactionMoveLedger(target) &&
+    source.currency.trim().toUpperCase() == target.currency.trim().toUpperCase();
+
 /// LocalRepository 本地数据库实现
 /// 基于 Drift 本地数据库实现所有 Repository 接口
 /// 使用委托模式，将具体实现委托给各个子 Repository
@@ -1090,46 +1099,34 @@ class LocalRepository extends BaseRepository {
   Future<DateTime?> getEarliestTransactionDate() =>
       _transactionRepo.getEarliestTransactionDate();
 
-  @override
-  Future<void> updateTransactionLedger(
-      {required int id, required int ledgerId}) async {
-    await _transactionRepo.updateTransactionLedger(id: id, ledgerId: ledgerId);
-    // v30:nativeAmount 是按【原账本】本位币折算的快照,跨账本移动后必须按
-    // 新账本本位币重算;缺汇率退化 =amount(L11 可捞),绝不保留旧口径错值
-    // (审查发现:已折算外币移动后 native≠amount,L11 永远检测不到)。
-    final tx = await _transactionRepo.getTransactionById(id);
-    if (tx == null) return;
-    final ledger = await getLedgerById(ledgerId);
-    final base =
-        ((ledger?.currency.isNotEmpty ?? false) ? ledger!.currency : 'CNY')
-            .toUpperCase();
-    final cc = (tx.currencyCode ?? base).toUpperCase();
-    double na;
-    if (cc == base) {
-      na = tx.amount;
-    } else {
-      final rates = await _effectiveRatesFor(base);
-      na = computeNativeAmount(
-              amount: tx.amount,
-              accountCurrency: cc,
-              ledgerBase: base,
-              rates: rates) ??
-          tx.amount;
-    }
-    if (na != tx.nativeAmount) {
-      await (db.update(db.transactions)..where((x) => x.id.equals(id)))
-          .write(TransactionsCompanion(nativeAmount: d.Value(na)));
-    }
-    if (changeTracker != null && tx.syncId != null) {
-      await changeTracker!.recordLedgerChange(
-        entityType: 'transaction',
-        entityId: id,
-        entitySyncId: tx.syncId!,
-        ledgerId: ledgerId,
-        action: 'update',
-      );
-    }
-  }
+  Future<int> moveTransactionsLocally({
+    required int sourceLedgerId,
+    required int targetLedgerId,
+    required Set<int> transactionIds,
+  }) =>
+      db.transaction(() async {
+        if (changeTracker != null) {
+          throw StateError('BeeCount Cloud must commit the move first');
+        }
+        final source = await getLedgerById(sourceLedgerId);
+        final target = await getLedgerById(targetLedgerId);
+        if (source == null ||
+            target == null ||
+            !canMoveTransactionsBetween(source, target)) {
+          throw StateError('Ineligible ledgers');
+        }
+        final ids = transactionIds.toList();
+        var moved = 0;
+        for (var start = 0; start < ids.length; start += 500) {
+          moved += await (db.update(db.transactions)
+                ..where((tx) =>
+                    tx.ledgerId.equals(sourceLedgerId) &
+                    tx.id.isIn(ids.skip(start).take(500))))
+              .write(TransactionsCompanion(ledgerId: d.Value(targetLedgerId)));
+        }
+        if (moved != ids.length) throw StateError('Transaction selection changed');
+        return moved;
+      });
 
   /// v30:该账本交易涉及的全部外币币种(≠本位币,含 NULL 列按账户币种兜底后
   /// 的判定)。补折算/改本位币重算前把它们并入汇率拉取(extraQuotes),否则
