@@ -144,6 +144,7 @@ void main() {
         if (finder.evaluate().isNotEmpty) return;
         await Future<void>.delayed(const Duration(milliseconds: 50));
       }
+      await binding.takeScreenshot('failure-category-delete-ui');
       fail('Production UI did not show $finder');
     }
 
@@ -168,9 +169,14 @@ void main() {
     container.read(appInitStateProvider.notifier).state = AppInitState.ready;
     await tester.pumpWidget(UncontrolledProviderScope(
         container: container, child: const MainApp()));
-    for (final text in ['我的', '数据管理', '分类管理', 'QA待删父分类', '编辑', '删除分类']) {
+    for (final text in ['我的', '数据管理', '分类管理', 'QA待删父分类']) {
       await tap(find.text(text));
     }
+    await waitFor(find.text('QA待删子分类'));
+    await tap(find.descendant(
+        of: find.byKey(ValueKey('${fixed.id}')),
+        matching: find.byType(IconButton)));
+    await tap(find.text('删除分类'));
     await waitFor(find.widgetWithText(BeeButton, '删除'));
     await binding.takeScreenshot('01-app-confirm-parent-delete');
     await tap(find.widgetWithText(BeeButton, '删除'));
@@ -238,7 +244,7 @@ void main() {
         legacy.parent,
         legacy.child
       ],
-      'normal_ui_markers': ['QA 分类删除保留交易', '32.1'],
+      'normal_ui_markers': ['QA保留分类', '32.1'],
     });
   }, timeout: const Timeout(Duration(minutes: 8)));
 }
