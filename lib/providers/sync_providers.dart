@@ -718,15 +718,40 @@ final syncServiceProvider = Provider<SyncService>((ref) {
 
     // 只水合本次发现的账本。全局历史重放会覆盖其他账本已确认的新状态，
     // 而 server 过滤掉本设备回声后，重放也无法补回本设备的最新写入。
+    //
+    // 【云端有数据但 App 看不到交易的修复】
+    // 旧逻辑只水合"本次新插入"的账本。但存在这样的真实故障：账本已经在本地
+    // 注册(例如上次登录拉过账本名)，但当时水合失败/被跳过，本地交易为 0。
+    // 之后每次 bootstrap 该账本都不再是"新账本"，于是永远不水合——用户只
+    // 看到账本名，点进去却是空的，即使云端该账本有完整快照。
+    // 修复：除了新账本，额外对"本地已注册但交易数为 0 的账本"补一次水合。
+    // 用"交易为空"作为条件可保证不覆盖用户已有的本地数据(幂等且安全)；
+    // hydrateLedgerFromServer 内部还有 checkPending 守卫，有未推送本地变更
+    // 时会拒绝水合，不会吞掉用户新记的账。
     Future<void> hydrateNewLedgers(Set<String> existingSyncIds) async {
-      final newSyncIds =
-          (await registeredLedgerSyncIds()).difference(existingSyncIds);
-      for (final syncId in newSyncIds) {
+      final allSyncIds = await registeredLedgerSyncIds();
+      final newSyncIds = allSyncIds.difference(existingSyncIds);
+
+      // 找出本地交易数为 0 的账本 syncId(含新账本 + 历史空账本)。
+      final emptyLedgerSyncIds = <String>{};
+      for (final ledger in await db.select(db.ledgers).get()) {
+        final sid = ledger.syncId;
+        if (sid == null || sid.isEmpty) continue;
+        // 用 count 而非 get()，避免把整个账本的交易加载进内存(大账本几千条)。
+        final txCount = await (db.select(db.transactions)
+              ..where((t) => t.ledgerId.equals(ledger.id)))
+            .count();
+        if (txCount == 0) emptyLedgerSyncIds.add(sid);
+      }
+      final toHydrate = <String>{...newSyncIds, ...emptyLedgerSyncIds};
+
+      for (final syncId in toHydrate) {
         try {
           final hydrated = await engine.hydrateLedgerFromServer(syncId);
-          logger.info('SyncProvider', '新账本 $syncId 水合 $hydrated 条交易/预算');
+          logger.info('SyncProvider', '账本 $syncId 水合 $hydrated 条交易/预算'
+              '${newSyncIds.contains(syncId) ? ' (新账本)' : ' (空账本补水合)'}');
         } catch (e, st) {
-          logger.warning('SyncProvider', '新账本 $syncId 水合失败: $e', st);
+          logger.warning('SyncProvider', '账本 $syncId 水合失败: $e', st);
         }
       }
     }
@@ -746,11 +771,16 @@ final syncServiceProvider = Provider<SyncService>((ref) {
           try {
             final existingSyncIds = await registeredLedgerSyncIds();
             final newLedgerCount = await engine.syncLedgersFromServer();
+            // 【云端数据修复】即使没有新账本，也要尝试水合"本地为空的账本"。
+            // 原来的 newLedgerCount > 0 条件会让"账本已在本地但交易为空"的
+            // 情况永远跳过水合，导致用户只看到账本名、看不到云端已有的交易。
+            // hydrateNewLedgers 内部已用"交易为空 + checkPending"做幂等守卫，
+            // 对有数据的账本会安全跳过，故此处无条件调用。
             if (newLedgerCount > 0) {
               ref.read(ledgerListRefreshProvider.notifier).state++;
               logger.info('SyncProvider', '从 server 拉回 $newLedgerCount 个新账本');
-              await hydrateNewLedgers(existingSyncIds);
             }
+            await hydrateNewLedgers(existingSyncIds);
           } catch (e, st) {
             logger.warning('SyncProvider', 'syncLedgersFromServer 失败: $e', st);
           }
@@ -796,8 +826,9 @@ final syncServiceProvider = Provider<SyncService>((ref) {
           if (inserted > 0) {
             ref.read(ledgerListRefreshProvider.notifier).state++;
             logger.info('SyncProvider', '从 server 拉回 $inserted 个新账本');
-            await hydrateNewLedgers(existingSyncIds);
           }
+          // 同主分支：即便没有新账本，也补全空账本的水合。
+          await hydrateNewLedgers(existingSyncIds);
         } catch (e, st) {
           logger.warning('SyncProvider', 'syncLedgersFromServer 失败: $e', st);
         }

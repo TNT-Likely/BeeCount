@@ -541,8 +541,18 @@ extension SyncEngineRealtime on SyncEngine {
             item['ledgerSyncId'] != ledgerExternalId) {
           invalid('items.scope');
         }
-        if (!['expense', 'income', 'transfer'].contains(item['type'])) {
+        // 【退款类型兼容修复】导入的历史账本里存在 tx_type='refund' 的交易。
+        // 老版本校验只接受 expense/income/transfer，只要快照里有 1 条 refund
+        // 就会整批抛错、导致该账本一条交易都水合不进来（表现为"看得到账本名，
+        // 点进去却是空的"）。refund 本质是钱退回(收入)，这里纳入接受范围并
+        // 归一化为 income，isRefund/refundOfSyncId 标记保持不变。
+        final rawType = item['type'];
+        if (!['expense', 'income', 'transfer', 'refund'].contains(rawType)) {
           invalid('items.type');
+        }
+        if (rawType == 'refund') {
+          item['type'] = 'income';
+          item.putIfAbsent('isRefund', () => true);
         }
         if (!finite(item['amount'])) invalid('items.amount');
         final time = item['happenedAt'];
@@ -582,11 +592,15 @@ extension SyncEngineRealtime on SyncEngine {
         if (item['tags'] != null && item['tags'] is! String) {
           invalid('items.tags');
         }
-        if (tagIds.isEmpty && (item['tags'] as String? ?? '').isNotEmpty) {
-          invalid('items.tagIds missing stable identity');
-        }
+        // 【历史标签兼容修复】导入账本里大量交易有 tags 名称但没有 tag_sync_ids
+        // (稳定 ID)。旧校验会因"缺 tagIds"直接 invalid，导致整批快照失败、
+        // 全部交易丢失。标签只是附加信息，不该否决整笔交易：无稳定 ID 时
+        // 丢弃标签名称即可，交易本身照常水合。有 tagIds 时行为不变。
         item['tagIds'] = tagIds.toList();
-        if (tagIds.isEmpty) item['tags'] = null;
+        if (tagIds.isEmpty) {
+          // 没有稳定 tagId → 不落标签，避免生成无法同步的孤儿标签。
+          item['tags'] = null;
+        }
         for (final field in ['categoryId', 'accountId', 'fromAccountId',
           'toAccountId', 'createdByUserId', 'updatedByUserId']) {
           if (item[field] != null) identity(item[field], 'items.$field');
