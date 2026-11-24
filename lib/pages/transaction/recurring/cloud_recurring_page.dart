@@ -13,7 +13,6 @@ import '../../../cloud/sync/sync_engine.dart';
 import '../../../data/db.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../providers.dart';
-import '../../../services/data/recurring_transaction_service.dart';
 import '../../shared/scaffold/widgets/page_scaffold.dart';
 import '../../shared/selectors/ledger_selector_dialog.dart';
 import 'cloud_rule_editor.dart';

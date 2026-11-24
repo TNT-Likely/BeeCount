@@ -101,7 +101,7 @@ class LocalRecurringTransactionRepository implements RecurringTransactionReposit
     bool updateLastGeneratedDate = false,
     String? currencyCode,
   }) async {
-    await (db.update(db.recurringTransactions)..where((t) => t.id.equals(id)))
+    await (db.update(db.recurringTransactions)..where((t) => t.id.equals(id) & t.cloudHandoffKey.isNull()))
         .write(
       RecurringTransactionsCompanion(
         ledgerId: d.Value(ledgerId),
@@ -132,13 +132,13 @@ class LocalRecurringTransactionRepository implements RecurringTransactionReposit
 
   @override
   Future<void> deleteRecurringTransaction(int id) async {
-    await (db.delete(db.recurringTransactions)..where((t) => t.id.equals(id)))
+    await (db.delete(db.recurringTransactions)..where((t) => t.id.equals(id) & t.cloudHandoffKey.isNull()))
         .go();
   }
 
   @override
   Future<void> toggleRecurringTransaction(int id, bool enabled) async {
-    await (db.update(db.recurringTransactions)..where((t) => t.id.equals(id)))
+    await (db.update(db.recurringTransactions)..where((t) => t.id.equals(id) & t.cloudHandoffKey.isNull()))
         .write(RecurringTransactionsCompanion(
       enabled: d.Value(enabled),
       updatedAt: d.Value(DateTime.now()),
@@ -147,7 +147,7 @@ class LocalRecurringTransactionRepository implements RecurringTransactionReposit
 
   @override
   Future<void> updateLastGeneratedDate(int id, DateTime date) async {
-    await (db.update(db.recurringTransactions)..where((t) => t.id.equals(id)))
+    await (db.update(db.recurringTransactions)..where((t) => t.id.equals(id) & t.cloudHandoffKey.isNull()))
         .write(RecurringTransactionsCompanion(
       lastGeneratedDate: d.Value(_dateOnly(date)),
       updatedAt: d.Value(DateTime.now()),

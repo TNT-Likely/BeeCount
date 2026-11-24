@@ -1,4 +1,8 @@
+import 'dart:convert';
 import 'package:beecount/data/repositories/local/local_repository.dart';
+import 'package:beecount/l10n/app_localizations_zh.dart';
+import 'package:beecount/pages/transaction/recurring/cloud_rule_editor.dart';
+import 'package:beecount_business_ui/recurring_editor.dart';
 import 'package:beecount/main.dart' show MainApp;
 import 'package:beecount/pages/main/home_page.dart';
 import 'package:beecount/pages/transaction/recurring/cloud_recurring_page.dart';
@@ -17,15 +21,23 @@ import 'support/recurring_cloud_case.dart';
 
 void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  binding.reportData = {};
   testWidgets(
       'Cloud rules are edited on both clients and executed once by Cloud',
       (tester) async {
     final package = await PackageInfo.fromPlatform();
     expect(package.packageName, 'com.tntlikely.beecount.qa');
-    await registerQa(email);
+    const resume = String.fromEnvironment('QA_RECURRING_RESULT');
+    if (resume.isEmpty) {
+      await registerQa(email);
+    } else {
+      expect((await qaRequest('GET', '/__qa__/identity'))['run_id'], runId);
+    }
+
     await HomeWidget.setAppGroupId('group.com.tntlikely.beecount.qa');
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('selected_language', 'zh');
+    await prefs.setString('noteDisplayMode', 'note');
     await prefs.setBool('welcome_shown', true);
     await CloudServiceStore().saveAndActivate(const CloudServiceConfig(
         type: CloudBackendType.beecountCloud,
@@ -37,12 +49,14 @@ void main() {
     final runtime = (await container.read(activeCloudRuntimeProvider.future))!;
     final cloud = runtime.provider as BeeCountCloudProvider;
     await cloud.auth.signInWithEmail(email: email, password: password);
-    final result = await recurringCloudRoundTrip(
-        cloud: cloud,
-        engine: runtime.syncEngine!,
-        repo: container.read(repositoryProvider) as LocalRepository,
-        db: container.read(databaseProvider),
-        address: email);
+    final result = resume.isNotEmpty
+        ? jsonDecode(resume) as Map<String, dynamic>
+        : await recurringCloudRoundTrip(
+            cloud: cloud,
+            engine: runtime.syncEngine!,
+            repo: container.read(repositoryProvider) as LocalRepository,
+            db: container.read(databaseProvider),
+            address: email);
     await prefs.setInt('current_ledger_id', result['ledger_id'] as int);
     container.read(currentLedgerIdProvider.notifier).state =
         result['ledger_id'] as int;
@@ -65,14 +79,52 @@ void main() {
     await waitFor(find.byType(CloudRecurringPage));
     await waitFor(find.text('QA 云端合账'));
     await binding.takeScreenshot('01-app-cloud-rules');
+    final l = AppLocalizationsZh();
+    await tester.tap(find.text('QA 云端合账'));
+    await waitFor(find.byType(CloudRuleEditor));
+    final form = tester
+        .widget<BeeRecurringEditorForm>(find.byType(BeeRecurringEditorForm));
+    final amount = find.byWidgetPredicate(
+        (w) => w is TextField && w.controller == form.amountController);
+    await tester.enterText(amount, '47');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pump(const Duration(milliseconds: 250));
+    await binding.takeScreenshot('02-app-rule-editor');
+    await tester.tap(find.text(l.commonSave).last);
+    await waitFor(find.text(l.v4RecurringPreviewTitle));
+    await tester.tap(find.text(l.commonSave).last);
+    await waitFor(find.text('QA 云端合账'));
+    final login = await qaRequest('POST', '/api/v1/auth/login', data: {
+      'email': email,
+      'password': password,
+      'client_type': 'web',
+      'device_name': 'QA Web readback'
+    });
+    final web = await qaRequest(
+        'GET', '/api/v1/ledgers/${result['ledger_sync_id']}/recurring-rules',
+        token: login['access_token'] as String);
+    expect(
+        (web['items'] as List).single['data']['rule']['transaction']['amount'],
+        47);
+    expect((web['items'] as List).single['status'], 'paused');
+    final local = await container
+        .read(databaseProvider)
+        .select(container.read(databaseProvider).transactions)
+        .get();
+    expect(local.where((tx) => tx.syncId == result['tx_sync_id']).single.amount,
+        43);
+    (result['cases'] as List).removeWhere((c) => c['id'] == 'native-edit');
+    (result['cases'] as List).add({
+      'id': 'native-edit',
+      'status': 'PASS',
+      'detail': 'App 表单将未来金额保存为 47，Web 登录读到 47，已入账流水仍为 43。'
+    });
+
     navigator.pop();
     await waitFor(find.byType(HomePage));
-    await binding.takeScreenshot('02-app-cloud-transaction');
-    binding.reportData = {
-      ...result,
-      'run_id': runId,
-      'scenario': 'recurring-cloud'
-    };
+    await binding.takeScreenshot('03-app-cloud-transaction');
+    binding.reportData!
+        .addAll({...result, 'run_id': runId, 'scenario': 'recurring-cloud'});
     await prefs.setString('qa_run_id', runId);
   }, timeout: const Timeout(Duration(minutes: 5)));
 }
