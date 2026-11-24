@@ -12,6 +12,7 @@ import 'package:uuid/uuid.dart';
 import '../../../cloud/recurring/cloud_recurring_rules.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../services/data/recurring_transaction_service.dart';
+import '../../../utils/category_utils.dart';
 import '../../shared/scaffold/widgets/page_scaffold.dart';
 import '../../shared/selectors/currency_picker_sheet.dart';
 import 'bindings/recurring_editor_controls.dart';
@@ -32,7 +33,7 @@ class _CloudRuleEditorState extends State<CloudRuleEditor> {
   RuleJson? base;
   CloudRule? concurrent;
   RuleJson get tx => rule['transaction'] as RuleJson;
-  late final TextEditingController name, amount, note, zone;
+  late final TextEditingController amount, note, zone;
   late final String clientId;
   String? recordId, error;
   int? revision;
@@ -49,7 +50,6 @@ class _CloudRuleEditorState extends State<CloudRuleEditor> {
     rule = source == null
         ? {
             'transaction': <String, dynamic>{'tx_type': 'expense', 'amount': 0},
-            'name': '',
             'time_zone': book.zone,
             'starts_at': ruleDate(DateTime.now()),
             'frequency': 'monthly',
@@ -60,6 +60,7 @@ class _CloudRuleEditorState extends State<CloudRuleEditor> {
             ...source,
             'transaction': RuleJson.from(source['transaction'] as Map)
           };
+    if (draft?['derive_name'] == true) rule.remove('name');
     if (draft == null && widget.row != null) {
       rule['enabled'] = widget.row!.status != 'paused';
     }
@@ -73,7 +74,6 @@ class _CloudRuleEditorState extends State<CloudRuleEditor> {
     recordId = draft?['record_id'] as String? ?? widget.row?.id;
     revision = draft?['expected_revision'] as int? ?? widget.row?.revision;
     clientId = draft?['client_id'] as String? ?? const Uuid().v4();
-    name = TextEditingController(text: rule['name'] as String?);
     amount = TextEditingController(
         text: source == null ? '' : tx['amount'].toString());
     note = TextEditingController(text: tx['note'] as String?);
@@ -82,7 +82,7 @@ class _CloudRuleEditorState extends State<CloudRuleEditor> {
 
   @override
   void dispose() {
-    for (final c in [name, amount, note, zone]) {
+    for (final c in [amount, note, zone]) {
       c.dispose();
     }
     super.dispose();
@@ -144,13 +144,33 @@ class _CloudRuleEditorState extends State<CloudRuleEditor> {
     }
   }
 
+  String derivedName() {
+    final type = tx['tx_type'] as String;
+    final memo = note.text.trim();
+    final category = (book
+                .options('categories')
+                .where((r) => r['id'] == tx['category_id'] && r['kind'] == type)
+                .firstOrNull?['name'] as String? ??
+            tx['category'] as String?)
+        ?.trim();
+    final label = switch (type) {
+      'transfer' => l.transferTitle,
+      _ when category != null && category.isNotEmpty =>
+        CategoryUtils.displayName(category, l, kind: type),
+      'income' => l.categoryIncome,
+      _ => l.categoryExpense,
+    };
+    // Cloud limits the title by Unicode code points. Keep the full memo in the transaction.
+    return String.fromCharCodes((memo.isEmpty ? label : memo).runes.take(255))
+        .trimRight();
+  }
+
   Future<void> save() async {
     if (busy) return;
     final value = double.tryParse(amount.text);
     if (value == null ||
         !value.isFinite ||
         value <= 0 ||
-        name.text.trim().isEmpty ||
         zone.text.trim().isEmpty) {
       setState(() => error = l.commonError);
       return;
@@ -163,8 +183,9 @@ class _CloudRuleEditorState extends State<CloudRuleEditor> {
     }
     tx['amount'] = value;
     tx['note'] = note.text;
-    rule['name'] = name.text.trim();
     rule['time_zone'] = zone.text.trim();
+    final savedName = rule['name'] as String?;
+    final deriveName = savedName == null || savedName.trim().isEmpty;
     final change = <String, dynamic>{
       'action': recordId == null ? 'create' : 'update',
       'client_id': clientId,
@@ -172,7 +193,7 @@ class _CloudRuleEditorState extends State<CloudRuleEditor> {
         'record_id': recordId,
         'expected_revision': revision
       },
-      'data': rule
+      'data': {...rule, 'name': deriveName ? derivedName() : savedName}
     };
     setState(() {
       busy = true;
@@ -180,7 +201,13 @@ class _CloudRuleEditorState extends State<CloudRuleEditor> {
     });
     try {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(draftKey, jsonEncode({...change, 'base': base}));
+      await prefs.setString(
+          draftKey,
+          jsonEncode({
+            ...change,
+            'base': base,
+            if (deriveName) 'derive_name': true,
+          }));
       if (book.offline) {
         if (mounted) Navigator.pop(context);
         return;
@@ -265,7 +292,6 @@ class _CloudRuleEditorState extends State<CloudRuleEditor> {
       revision = latest.revision;
       concurrent = null;
       error = null;
-      name.text = rule['name'] as String;
       amount.text = tx['amount'].toString();
       note.text = tx['note'] as String? ?? '';
       zone.text = rule['time_zone'] as String;
@@ -356,12 +382,6 @@ class _CloudRuleEditorState extends State<CloudRuleEditor> {
           ]),
       Expanded(
           child: BeePageBody(eager: true, children: [
-        TextField(
-            controller: name,
-            enabled: !busy,
-            maxLength: 255,
-            decoration: InputDecoration(
-                labelText: l.cloudRecurringName, counterText: '')),
         BeeRecurringEditorForm(
             amountController: amount,
             noteController: note,

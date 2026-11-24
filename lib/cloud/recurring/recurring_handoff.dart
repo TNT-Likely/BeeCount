@@ -25,6 +25,12 @@ class CloudRule {
   RuleJson get data => json['data'] as RuleJson;
   RuleJson get config => data['rule'] as RuleJson;
   RuleJson get tx => config['transaction'] as RuleJson;
+  String get name => config['name'] as String;
+  String? get displayNote {
+    final note = tx['note'] as String?;
+    return note?.trim() == name.trim() ? null : note;
+  }
+
   String? get next =>
       json['next_local'] as String? ?? json['next_due_at'] as String?;
 }

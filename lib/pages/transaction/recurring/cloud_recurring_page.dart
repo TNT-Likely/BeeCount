@@ -96,7 +96,7 @@ class _CloudRecurringPageState extends ConsumerState<CloudRecurringPage>
           Text(l.cloudRecurringLink),
           for (final row in book.rules.where((r) => r.canEdit))
             BeeMenuRow(
-                title: '${row.config['name']} · ${row.tx['amount']}',
+                title: '${row.name} · ${row.tx['amount']}',
                 onTap: () => Navigator.pop(context, row.id)),
           BeeMenuRow(
               title: l.cloudRecurringCreateSeparate,
@@ -282,7 +282,7 @@ class _CloudRecurringPageState extends ConsumerState<CloudRecurringPage>
                           Padding(
                               padding: const EdgeInsets.only(top: 12),
                               child: BeeRecurringBillCard(
-                                  title: row.config['name'] as String,
+                                  title: row.name,
                                   ledger: book.ledger.name,
                                   frequency: recurringEditorIntervalLabel(
                                       l,
@@ -292,7 +292,7 @@ class _CloudRecurringPageState extends ConsumerState<CloudRecurringPage>
                                   icon: const BeeLineIcon('Repeat2'),
                                   amount: Text(
                                       '${row.tx['amount']} ${row.tx['currency'] ?? book.ledger.currency}'),
-                                  note: row.tx['note'] as String?,
+                                  note: row.displayNote,
                                   enabled: row.status == 'active' ||
                                       row.status == 'executing',
                                   toggleLabel: l.recurringTransactionTitle,
