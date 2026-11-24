@@ -68,7 +68,7 @@ class LocalRepository extends BaseRepository {
   final Future<bool> Function() cloudExecutesRecurring;
 
   LocalRepository(this.db, {this.changeTracker, Future<bool> Function()? cloudExecutesRecurring})
-      : cloudExecutesRecurring = cloudExecutesRecurring ?? CloudServiceStore().usesBeeCountCloud {
+      : cloudExecutesRecurring = cloudExecutesRecurring ?? CloudServiceStore().usesCloudRecurringRules {
     _ledgerRepo = LocalLedgerRepository(db);
     _transactionRepo = LocalTransactionRepository(db);
     _categoryRepo = LocalCategoryRepository(db, trackerGetter: () => changeTracker);

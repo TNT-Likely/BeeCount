@@ -95,12 +95,16 @@ String ruleScope(BeeCountCloudProvider api, String user, String ledger) =>
 
 /// Lock locally before the request; a lost response reuses the same server creation key.
 Future<RecurringTransaction> freezeRecurring(
-        BeeDatabase db, int id, String scope) =>
+        BeeDatabase db, int id, String scope,
+        {RecurringTransaction? expected, String? clientId}) =>
     db.transaction(() async {
       final query = db.select(db.recurringTransactions)
         ..where((r) => r.id.equals(id));
       final current = await query.getSingle();
-      if (current.cloudHandoffScope != null &&
+      if (expected != null && current != expected) {
+        throw StateError('REVISION_CONFLICT');
+      }
+      if (current.cloudHandoffKey != null &&
           current.cloudHandoffScope != scope) {
         throw StateError('Rule belongs to another Cloud session');
       }
@@ -108,7 +112,7 @@ Future<RecurringTransaction> freezeRecurring(
       await (db.update(db.recurringTransactions)..where((r) => r.id.equals(id)))
           .write(RecurringTransactionsCompanion(
               cloudHandoffScope: Value(scope),
-              cloudHandoffKey: Value(const Uuid().v4())));
+              cloudHandoffKey: Value(clientId ?? const Uuid().v4())));
       return query.getSingle();
     });
 
@@ -294,16 +298,22 @@ class RecurringHandoff {
       CloudRuleBook book, RecurringTransaction local,
       {CloudRule? target, bool automatic = false}) async {
     await book.ensureActive();
-    final frozen = await freezeRecurring(db, local.id, book.scope);
-    final transactions = await localRuleTransactions(db, frozen);
-    final next = RecurringTransactionService(repo).calculateNextDate(frozen);
-    final consumed = frozen.lastGeneratedDate ??
+    final current = await (db.select(db.recurringTransactions)
+          ..where((r) => r.id.equals(local.id)))
+        .getSingle();
+    if (current.cloudHandoffKey != null &&
+        current.cloudHandoffScope != book.scope) {
+      throw StateError('Rule belongs to another Cloud session');
+    }
+    final transactions = await localRuleTransactions(db, current);
+    final next = RecurringTransactionService(repo).calculateNextDate(current);
+    final consumed = current.lastGeneratedDate ??
         (next == null ? null : DateTime(next.year, next.month, next.day - 1));
     final request = <String, dynamic>{
       'action': 'create',
       'migrate': true,
       'automatic': automatic,
-      'client_id': frozen.cloudHandoffKey,
+      'client_id': current.cloudHandoffKey ?? const Uuid().v4(),
       'consumed_through': consumed == null ? null : ruleDate(consumed),
       'local_transactions': [
         for (final tx in transactions)
@@ -322,7 +332,7 @@ class RecurringHandoff {
     if (target != null) {
       link(target);
     } else {
-      request['data'] = await legacyRuleConfig(repo, frozen, book.zone);
+      request['data'] = await legacyRuleConfig(repo, current, book.zone);
     }
     var preview = await book.change({...request, 'confirm': false});
     final matched = preview['matched_rule'];
@@ -330,10 +340,14 @@ class RecurringHandoff {
       link(CloudRule(matched));
       preview = await book.change({...request, 'confirm': false});
     }
-    return RecurringHandoff(book, frozen, transactions, request, preview);
+    return RecurringHandoff(book, current, transactions, request, preview);
   }
 
   Future<void> finish(BeeDatabase db, {bool distinct = false}) async {
+    await book.ensureActive();
+    // A preview cannot commit. Reserve its key only before sending confirmation.
+    final frozen = await freezeRecurring(db, local.id, book.scope,
+        expected: local, clientId: request['client_id'] as String);
     final result = preview['handoff_confirmed'] == true
         ? preview
         : await book.change({
@@ -349,6 +363,6 @@ class RecurringHandoff {
       throw StateError('HISTORY_CONFLICT');
     }
     await book.ensureActive();
-    await applyHandoffReceipt(db, local, result, 'HISTORY_CONFLICT');
+    await applyHandoffReceipt(db, frozen, result, 'HISTORY_CONFLICT');
   }
 }

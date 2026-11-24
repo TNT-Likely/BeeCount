@@ -564,6 +564,16 @@ class BeeCountCloudProvider implements CloudProvider {
     return storage.fetchServerVersion();
   }
 
+  /// The unauthenticated version probe is also available before sign-in.
+  static Future<BeeCountCloudServerVersion> fetchPublicServerVersion(
+    String baseUrl,
+    String apiPrefix,
+  ) {
+    final url = baseUrl.trim().replaceAll(RegExp(r'/+$'), '');
+    final prefix = _normalizeApiPrefix(apiPrefix.trim());
+    return _fetchCloudServerVersion(Uri.parse('$url$prefix/version'), http.get);
+  }
+
   // ===========================================================================
   // 共享账本(Sprint 2.4):invites + members + shared-resources
   // ===========================================================================
@@ -2627,14 +2637,10 @@ class BeeCountCloudStorageService implements CloudStorageService {
   /// 拉 server 公开 /version。绕开 auth token —— 登录页未登录状态下也该能
   /// 显示 server 版本,不需要 token。
   Future<BeeCountCloudServerVersion> fetchServerVersion() async {
-    final uri = Uri.parse('$baseUrl$apiPrefix/version');
-    final response = await _httpClient.get(uri);
-    if (response.statusCode < 200 || response.statusCode >= 300) {
-      throw CloudStorageException(
-          'Fetch version failed: ${_extractErrorMessage(response)}');
-    }
-    final payload = _decodeJsonObject(response.body);
-    return BeeCountCloudServerVersion.fromJson(payload);
+    return _fetchCloudServerVersion(
+      Uri.parse('$baseUrl$apiPrefix/version'),
+      _httpClient.get,
+    );
   }
 
   // ===========================================================================
@@ -3751,6 +3757,18 @@ class BeeCountCloudReadLedger {
       updatedAt: DateTime.tryParse(json['updated_at'] as String? ?? ''),
     );
   }
+}
+
+Future<BeeCountCloudServerVersion> _fetchCloudServerVersion(
+  Uri uri,
+  Future<http.Response> Function(Uri) get,
+) async {
+  final response = await get(uri);
+  if (response.statusCode < 200 || response.statusCode >= 300) {
+    throw CloudStorageException(
+        'Fetch version failed: ${_extractErrorMessage(response)}');
+  }
+  return BeeCountCloudServerVersion.fromJson(_decodeJsonObject(response.body));
 }
 
 class BeeCountCloudServerVersion {

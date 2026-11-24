@@ -14,9 +14,10 @@ import '../../providers.dart';
 import 'recurring_handoff.dart';
 export 'recurring_handoff.dart';
 
-final cloudRecurringModeProvider = FutureProvider<bool>((ref) async {
+final cloudRecurringModeProvider =
+    FutureProvider.autoDispose<bool>((ref) async {
   ref.watch(activeCloudConfigProvider);
-  return ref.watch(cloudServiceStoreProvider).usesBeeCountCloud();
+  return ref.watch(cloudServiceStoreProvider).usesCloudRecurringRules();
 });
 
 final cloudRuleBookProvider =

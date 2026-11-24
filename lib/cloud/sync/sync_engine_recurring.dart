@@ -6,6 +6,10 @@ extension RecurringHandoffSync on SyncEngine {
       "SELECT DISTINCT ledger_id FROM recurring_transactions WHERE cloud_rule_id IS NULL AND (cloud_handoff_issue IS NULL OR cloud_handoff_issue='invalid')",
       readsFrom: {db.recurringTransactions},
     ).get();
+    if (rows.isNotEmpty &&
+        !await CloudServiceStore().usesCloudRecurringRules()) {
+      return {};
+    }
     return rows.map((row) => row.read<int>('ledger_id')).toSet();
   }
 
@@ -32,7 +36,10 @@ extension RecurringHandoffSync on SyncEngine {
     final unresolved = await (db.select(db.recurringTransactions)
           ..where((r) => r.ledgerId.equals(ledger.id) & r.cloudRuleId.isNull()))
         .get();
-    if (unresolved.isEmpty) return {};
+    if (unresolved.isEmpty ||
+        !await CloudServiceStore().usesCloudRecurringRules()) {
+      return {};
+    }
     if (unresolved.any((r) =>
         r.cloudHandoffIssue == null || r.cloudHandoffIssue == 'invalid')) {
       final work = _recurringInFlight.putIfAbsent(
@@ -63,11 +70,11 @@ extension RecurringHandoffSync on SyncEngine {
   /// On an ordinary ledger, null retains the existing full snapshot behavior.
   Future<Set<int>?> _recurringBulkExclusions(
       Ledger ledger, Set<int> held, List<LocalChange> changes) async {
+    if (!await CloudServiceStore().usesCloudRecurringRules()) return null;
     final templates = await (db.select(db.recurringTransactions)
           ..where((r) => r.ledgerId.equals(ledger.id)))
         .get();
     if (templates.isEmpty) {
-      if (!await CloudServiceStore().usesBeeCountCloud()) return null;
       try {
         final rules = await provider.recurringRules(ledger.syncId!);
         if ((rules['items'] as List).isEmpty) return null;
@@ -111,7 +118,7 @@ extension RecurringHandoffSync on SyncEngine {
     final scope = ruleScope(provider, user.id, key);
     final pending = unresolved.where((r) =>
         (r.cloudHandoffIssue == null || r.cloudHandoffIssue == 'invalid') &&
-        (r.cloudHandoffScope == null || r.cloudHandoffScope == scope));
+        (r.cloudHandoffKey == null || r.cloudHandoffScope == scope));
     if (pending.isEmpty) return;
     final snapshot = await provider.recurringRules(key);
     final book = CloudRuleBook(provider, ledger, scope, snapshot, false);
@@ -157,6 +164,6 @@ extension RecurringHandoffSync on SyncEngine {
         ..where((r) =>
             r.id.equals(id) &
             r.cloudRuleId.isNull() &
-            r.cloudHandoffScope.equals(scope)))
+            (r.cloudHandoffKey.isNull() | r.cloudHandoffScope.equals(scope))))
       .write(RecurringTransactionsCompanion(cloudHandoffIssue: d.Value(issue)));
 }

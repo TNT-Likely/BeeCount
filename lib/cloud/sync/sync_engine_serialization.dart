@@ -393,7 +393,7 @@ extension SyncEngineSerializationExt on SyncEngine {
     }
 
     // 3. 推送所有实体的个体变更（用于 Web 端和增量同步）
-    await _pushAllEntities(ledger, bulkExclusions ?? const {});
+    await _pushAllEntities(ledger, bulkExclusions);
 
     // 标记本次 fullPush 已经覆盖的变更为已推送。
     //
@@ -425,7 +425,7 @@ extension SyncEngineSerializationExt on SyncEngine {
   /// 实体(account / category / tag)由调用方通过 [pushUserGlobalEntities] 统一
   /// 推送 — 本函数入口处会调它一次,跨 ledger 并发的 fullPush 共享同一份
   /// user-global push,避免重复(详见 .docs/concurrent-fullpush-bloat.md)。
-  Future<void> _pushAllEntities(Ledger ledger, Set<int> held) async {
+  Future<void> _pushAllEntities(Ledger ledger, Set<int>? recurringExclusions) async {
     // 1) 先推 user-global(单飞,多账本并行 fullPush 时共享同一次推送)
     await pushUserGlobalEntities();
 
@@ -505,7 +505,7 @@ extension SyncEngineSerializationExt on SyncEngine {
     }
 
     for (final tx in transactions) {
-      if (held.contains(tx.id)) continue;
+      if (recurringExclusions?.contains(tx.id) ?? false) continue;
       final syncId = tx.syncId ?? _uuid.v4();
       if (tx.syncId == null) {
         await (db.update(db.transactions)..where((t) => t.id.equals(tx.id)))
@@ -565,22 +565,25 @@ extension SyncEngineSerializationExt on SyncEngine {
         'entity_type': 'transaction',
         'entity_sync_id': syncId,
         'action': 'upsert',
-        'payload': EntitySerializer.serializeTransaction(
-          tx,
-          categoryName: cat?.name,
-          categoryKind: cat?.kind,
-          categorySyncId: cat?.syncId,
-          accountName: acc?.name,
-          accountSyncId: acc?.syncId,
-          fromAccountName: tx.type == 'transfer' ? acc?.name : null,
-          fromAccountSyncId: tx.type == 'transfer' ? acc?.syncId : null,
-          toAccountName: toAcc?.name,
-          toAccountSyncId: toAcc?.syncId,
-          ledgerSyncId: ledger.syncId,
-          tagNames: tagNames.isNotEmpty ? tagNames : null,
-          tagSyncIds: tagSyncIds.isNotEmpty ? tagSyncIds : null,
-          attachments: attMaps,
-        ),
+        'payload': {
+          ...EntitySerializer.serializeTransaction(
+            tx,
+            categoryName: cat?.name,
+            categoryKind: cat?.kind,
+            categorySyncId: cat?.syncId,
+            accountName: acc?.name,
+            accountSyncId: acc?.syncId,
+            fromAccountName: tx.type == 'transfer' ? acc?.name : null,
+            fromAccountSyncId: tx.type == 'transfer' ? acc?.syncId : null,
+            toAccountName: toAcc?.name,
+            toAccountSyncId: toAcc?.syncId,
+            ledgerSyncId: ledger.syncId,
+            tagNames: tagNames.isNotEmpty ? tagNames : null,
+            tagSyncIds: tagSyncIds.isNotEmpty ? tagSyncIds : null,
+            attachments: attMaps,
+          ),
+          if (recurringExclusions != null) 'restoredSnapshot': true,
+        },
         'updated_at': now,
       });
     }

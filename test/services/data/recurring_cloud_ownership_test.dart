@@ -5,10 +5,66 @@ import 'package:beecount/services/data/recurring_transaction_service.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_cloud_sync/flutter_cloud_sync.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  test(
+      'a confirmed older Cloud keeps local rules, while a capable Cloud owns them',
+      () async {
+    SharedPreferences.setMockInitialValues({});
+    final store = CloudServiceStore();
+    await store.saveAndActivate(const CloudServiceConfig(
+      type: CloudBackendType.beecountCloud,
+      name: 'Legacy',
+      beecountCloudBaseUrl: 'https://legacy-recurring.example/',
+      beecountCloudApiPrefix: '/custom/',
+    ));
+    await http.runWithClient(() async {
+      final db = BeeDatabase.forTesting(NativeDatabase.memory());
+      addTearDown(db.close);
+      final repo = LocalRepository(db);
+      final ledger = await repo.createLedger(name: 'QA', currency: 'CNY');
+      final today = DateTime.now();
+      await repo.addRecurringTransaction(
+          ledgerId: ledger,
+          type: 'expense',
+          amount: 10,
+          frequency: 'daily',
+          interval: 1,
+          startDate: today);
+      final service = RecurringTransactionService(repo);
+      expect(
+          await service.generatePendingTransactions(now: today), hasLength(1));
+      await store.saveAndActivate(const CloudServiceConfig(
+        type: CloudBackendType.beecountCloud,
+        name: 'Current',
+        beecountCloudBaseUrl: 'https://current-recurring.example',
+      ));
+      expect(
+          await service.generatePendingTransactions(
+              now: today.add(const Duration(days: 1))),
+          isEmpty);
+    },
+        () => MockClient((request) async {
+              final legacy = request.url.host == 'legacy-recurring.example';
+              expect(request.url.path,
+                  legacy ? '/custom/version' : '/api/v1/version');
+              return http.Response(
+                  legacy
+                      ? '{"version":"1.10.1"}'
+                      : '{"version":"1.10.1","capabilities":["recurring_rules_v1"]}',
+                  200);
+            }));
+    await http.runWithClient(
+      () async => expect(await store.usesCloudRecurringRules(), isTrue),
+      () =>
+          MockClient((_) async => throw StateError('unexpected version probe')),
+    );
+  });
 
   test('local executes alone; selecting Cloud is durable even while signed out',
       () async {

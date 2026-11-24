@@ -197,6 +197,14 @@ void main() {
         isEmpty); // No unconfirmed local occurrence leaked via the bootstrap snapshot.
 
     api.unavailable = false;
+    final originalRule = await rule(id);
+    final user = (await api.auth.currentUser)!;
+    final book = CloudRuleBook(api, (await repo.getLedgerById(ledger))!,
+        ruleScope(api, user.id, key), await api.recurringRules(key), false);
+    await RecurringHandoff.prepare(db, repo, book, originalRule);
+    // Closing a preview has made no commitment on either device or Cloud.
+    expect((await rule(id)).cloudHandoffKey, isNull);
+    expect(await remote(), isEmpty);
     api.loseReceipt = true;
     await engine.push(ledger.toString());
     expect(await remote(), hasLength(1));
@@ -352,12 +360,12 @@ void main() {
       expect(pulled.map((v) => v.amount), unorderedEquals([86, 12]));
     }
     final entries = await posted();
-    final originalRule = CloudRule((await remote()).single);
+    final adoptedRule = CloudRule((await remote()).single);
     final dueResult =
         await verifyConcurrentFirstPayment(installs, today, remote, posted);
     stdout.writeln('QA_RECURRING_AUTO_RESULT ${jsonEncode({
           'ledger_id': key,
-          'prior_rule_id': originalRule.id,
+          'prior_rule_id': adoptedRule.id,
           'rule_count_with_due_rule': (await remote()).length,
           ...dueResult,
           'prior_entry_count': entries.length,
@@ -366,7 +374,8 @@ void main() {
           'history_amount':
               entries.singleWhere((v) => v['syncId'] == local.syncId)['amount'],
           'independent_expense_amount': 12,
-          'future_rule_amount': originalRule.tx['amount'],
+          'future_rule_amount': adoptedRule.tx['amount'],
+          'cancelled_preview_kept_local_rule': true,
           'distinct_app_devices': deviceIds.length,
           'inactive_rule_status': paused['status'],
           'ambiguous_issue': (await rule(second)).cloudHandoffIssue,
