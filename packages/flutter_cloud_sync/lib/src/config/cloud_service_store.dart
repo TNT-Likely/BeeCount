@@ -11,6 +11,10 @@ class CloudServiceStore {
   static const _kWebdavCfg = 'cloud_webdav_cfg';
   static const _kS3Cfg = 'cloud_s3_cfg';
 
+  /// Billing ownership must survive disconnection and an unreadable Cloud configuration.
+  Future<bool> usesBeeCountCloud() async =>
+      (await SharedPreferences.getInstance()).getString(_kActiveType) == 'beecount_cloud';
+
   /// 加载当前激活的云服务配置
   Future<CloudServiceConfig> loadActive() async {
     final sp = await SharedPreferences.getInstance();

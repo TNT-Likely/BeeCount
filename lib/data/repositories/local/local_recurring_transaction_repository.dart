@@ -12,20 +12,20 @@ class LocalRecurringTransactionRepository implements RecurringTransactionReposit
 
   @override
   Future<List<RecurringTransaction>> getAllRecurringTransactions() async {
-    return await (db.select(db.recurringTransactions)).get();
+    return await (db.select(db.recurringTransactions)..where((t) => t.cloudHandoffKey.isNull())).get();
   }
 
   @override
   Future<List<RecurringTransaction>> getRecurringTransactionsByLedger(int ledgerId) async {
     return await (db.select(db.recurringTransactions)
-          ..where((t) => t.ledgerId.equals(ledgerId)))
+          ..where((t) => (t.ledgerId.equals(ledgerId) & t.cloudHandoffKey.isNull())))
         .get();
   }
 
   @override
   Future<List<RecurringTransaction>> getEnabledRecurringTransactions(int ledgerId) async {
     return await (db.select(db.recurringTransactions)
-          ..where((t) => t.ledgerId.equals(ledgerId) & t.enabled.equals(true)))
+          ..where((t) => (t.ledgerId.equals(ledgerId) & t.cloudHandoffKey.isNull()) & t.enabled.equals(true)))
         .get();
   }
 
@@ -166,13 +166,13 @@ class LocalRecurringTransactionRepository implements RecurringTransactionReposit
 
   @override
   Stream<List<RecurringTransaction>> watchAllRecurringTransactions() {
-    return (db.select(db.recurringTransactions)).watch();
+    return (db.select(db.recurringTransactions)..where((t) => t.cloudHandoffKey.isNull())).watch();
   }
 
   @override
   Stream<List<RecurringTransaction>> watchRecurringTransactionsByLedger(int ledgerId) {
     return (db.select(db.recurringTransactions)
-          ..where((t) => t.ledgerId.equals(ledgerId)))
+          ..where((t) => (t.ledgerId.equals(ledgerId) & t.cloudHandoffKey.isNull())))
         .watch();
   }
 

@@ -36,6 +36,7 @@ SCENARIOS = {
     'web-transaction-images': 'integration_test/web_transaction_images_live_test.dart',
     'mcp-receipt-attachments': 'integration_test/mcp_receipt_attachments_live_test.dart',
     'recurring-consolidation': 'integration_test/recurring_consolidation_live_test.dart',
+    'recurring-cloud': 'integration_test/recurring_cloud_live_test.dart',
 }
 
 
@@ -825,6 +826,14 @@ def restart_check(root, manifest, flutter):
                 if child is None or child['parent_id'] != parent['id'] or child['level'] != 2:
                     raise ValueError('Normal App restart lost a stable child category relationship')
         rows = dict(transactions=rows, parent_name=parent['name'], child_sync_ids=report['child_sync_ids'])
+    elif manifest.get('scenario') == 'recurring-cloud':
+        with sqlite3.connect(f'file:{app_db}?mode=ro', uri=True) as db:
+            db.row_factory = sqlite3.Row
+            rows = [dict(row) for row in db.execute(
+                'SELECT t.sync_id,t.amount,t.recurring_id FROM transactions t JOIN ledgers l ON l.id=t.ledger_id '
+                'WHERE l.sync_id=?', (report['ledger_sync_id'],))]
+        if rows != [dict(sync_id=report['tx_sync_id'], amount=report['amount'], recurring_id=None)]:
+            raise ValueError('Normal launch duplicated or changed the Cloud occurrence')
     elif manifest.get('scenario') == 'recurring-consolidation':
         with sqlite3.connect(f'file:{app_db}?mode=ro', uri=True) as db:
             db.row_factory = sqlite3.Row

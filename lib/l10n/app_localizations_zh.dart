@@ -9556,6 +9556,72 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get transactionMoveFailed => '移动账单失败，请检查连接后重试。';
+
+  @override
+  String get cloudRecurringOwner => '由 Cloud 按期入账';
+
+  @override
+  String get cloudRecurringPausedService => 'Cloud 自动记账已停用，请检查服务器设置。';
+
+  @override
+  String get cloudRecurringPending => '本机规则待交接';
+
+  @override
+  String get cloudRecurringAdopt => '交给 Cloud';
+
+  @override
+  String get cloudRecurringCreateSeparate => '创建独立的云规则';
+
+  @override
+  String get cloudRecurringLink => '选择同一笔已有规则，或创建独立的云规则。';
+
+  @override
+  String get cloudRecurringConflict => '规则已在其他设备更新或正在入账，请核对最新版本。';
+
+  @override
+  String get cloudRecurringUpgrade => '当前 Cloud 无法读取此账本的周期规则。请确认账本已同步，并将服务器升级到支持周期规则的版本。';
+
+  @override
+  String get cloudRecurringCached => '离线 · 显示上次同步的规则，Cloud 仍按已确认规则执行。';
+
+  @override
+  String get cloudRecurringDraft => '本机草稿，待提交';
+
+  @override
+  String get cloudRecurringSaveDraft => '保存草稿';
+
+  @override
+  String get cloudRecurringName => '规则名称';
+
+  @override
+  String get cloudRecurringZone => '规则时区';
+
+  @override
+  String get cloudRecurringConfirm => '确认这些记账日期后保存到 Cloud。';
+
+  @override
+  String get cloudRecurringDistinct => '确认这是另一笔独立的周期账单';
+
+  @override
+  String get cloudRecurringConflictDraft => '采用最新规则后重新编辑';
+
+  @override
+  String get cloudRecurringManualReview => '这笔本机流水有修改或附件，请先在明细中核对两笔记录，再处理重复项。';
+
+  @override
+  String get cloudRecurringKeepCloud => '以下期次已有流水。确认后保留已入账的一笔，移除本机尚未上传的重复副本。';
+
+  @override
+  String get cloudRecurringDraftChanges => '草稿中修改的字段';
+
+  @override
+  String get cloudRecurringWeekDay => '每周星期几';
+
+  @override
+  String get cloudRecurringYearMonth => '每年第几月';
+
+  @override
+  String get cloudRecurringSyncFirst => '请先完成账本同步再交接。';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -18942,4 +19008,70 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get transactionMoveFailed => '無法移動帳單，請確認連線後再試一次。';
+
+  @override
+  String get cloudRecurringOwner => '由 Cloud 按期入帳';
+
+  @override
+  String get cloudRecurringPausedService => 'Cloud 自動記帳已停用，請檢查伺服器設定。';
+
+  @override
+  String get cloudRecurringPending => '本機規則待交接';
+
+  @override
+  String get cloudRecurringAdopt => '交給 Cloud';
+
+  @override
+  String get cloudRecurringCreateSeparate => '建立獨立的雲端規則';
+
+  @override
+  String get cloudRecurringLink => '選擇同一筆既有規則，或建立獨立的雲端規則。';
+
+  @override
+  String get cloudRecurringConflict => '規則已在其他裝置更新或正在入帳，請核對最新版本。';
+
+  @override
+  String get cloudRecurringUpgrade => '目前 Cloud 無法讀取此帳本的週期規則。請確認帳本已同步，並將伺服器升級至支援週期規則的版本。';
+
+  @override
+  String get cloudRecurringCached => '離線 · 顯示上次同步的規則，Cloud 仍依已確認規則執行。';
+
+  @override
+  String get cloudRecurringDraft => '本機草稿，待提交';
+
+  @override
+  String get cloudRecurringSaveDraft => '儲存草稿';
+
+  @override
+  String get cloudRecurringName => '規則名稱';
+
+  @override
+  String get cloudRecurringZone => '規則時區';
+
+  @override
+  String get cloudRecurringConfirm => '確認這些記帳日期後儲存至 Cloud。';
+
+  @override
+  String get cloudRecurringDistinct => '確認這是另一筆獨立的週期帳單';
+
+  @override
+  String get cloudRecurringConflictDraft => '採用最新規則後重新編輯';
+
+  @override
+  String get cloudRecurringManualReview => '這筆本機流水有修改或附件，請先在明細中核對兩筆記錄，再處理重複項目。';
+
+  @override
+  String get cloudRecurringKeepCloud => '以下期次已有流水。確認後保留已入帳的一筆，移除本機尚未上傳的重複副本。';
+
+  @override
+  String get cloudRecurringDraftChanges => '草稿中修改的欄位';
+
+  @override
+  String get cloudRecurringWeekDay => '每週星期幾';
+
+  @override
+  String get cloudRecurringYearMonth => '每年第幾月';
+
+  @override
+  String get cloudRecurringSyncFirst => '請先完成帳本同步再交接。';
 }

@@ -10,6 +10,8 @@ enum BeeRecurringEditorField {
   frequency,
   interval,
   dayOfMonth,
+  dayOfWeek,
+  monthOfYear,
   startDate,
   endDate,
 }
@@ -146,6 +148,10 @@ class BeeRecurringEditorForm extends StatelessWidget {
         [
           BeeRecurringEditorField.frequency,
           if (showInterval) BeeRecurringEditorField.interval,
+          if (values.containsKey(BeeRecurringEditorField.dayOfWeek))
+            BeeRecurringEditorField.dayOfWeek,
+          if (values.containsKey(BeeRecurringEditorField.monthOfYear))
+            BeeRecurringEditorField.monthOfYear,
           if (showDayOfMonth) BeeRecurringEditorField.dayOfMonth,
           BeeRecurringEditorField.startDate,
           BeeRecurringEditorField.endDate,

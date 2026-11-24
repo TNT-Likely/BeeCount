@@ -34,7 +34,8 @@ final repositoryProvider = Provider<BaseRepository>((ref) {
       : null;
   logger.info('RepositoryProvider',
       '✅ LocalRepository (changeTracker=${tracker != null})');
-  return LocalRepository(db, changeTracker: tracker);
+  return LocalRepository(db, changeTracker: tracker,
+      cloudExecutesRecurring: ref.watch(cloudServiceStoreProvider).usesBeeCountCloud);
 });
 
 // 记住当前账本：启动时加载，切换时持久化

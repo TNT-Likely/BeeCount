@@ -156,6 +156,10 @@ class Transactions extends Table {
 }
 
 class RecurringTransactions extends Table {
+  /// A persisted handoff freezes this local template before the first network request.
+  TextColumn get cloudHandoffKey => text().nullable()();
+  TextColumn get cloudHandoffScope => text().nullable()();
+  TextColumn get cloudRuleId => text().nullable()();
   IntColumn get id => integer().autoIncrement()();
   IntColumn get ledgerId => integer()();
   TextColumn get type => text()(); // expense / income / transfer
@@ -521,7 +525,7 @@ class BeeDatabase extends _$BeeDatabase {
   BeeDatabase.forTesting(QueryExecutor executor) : super(executor);
 
   @override
-  int get schemaVersion => 34; // v34: 跨账本移动待确认记录
+  int get schemaVersion => 35; // v35: 周期规则交接记录
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -1271,6 +1275,16 @@ class BeeDatabase extends _$BeeDatabase {
           if (from < 34) {
             await _createTableIfMissing(
                 migrator, 'pending_transaction_moves', pendingTransactionMoves);
+          }
+          if (from < 35) {
+            for (final name in [
+              'cloud_handoff_key',
+              'cloud_handoff_scope',
+              'cloud_rule_id'
+            ]) {
+              await _addColumnIfMissing('recurring_transactions', name,
+                  'ALTER TABLE recurring_transactions ADD COLUMN $name TEXT;');
+            }
           }
         },
         onCreate: (m) async {
