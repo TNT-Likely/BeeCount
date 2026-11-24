@@ -1,59 +1,76 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:math' as math;
 
+import 'package:beecount_business_ui/beecount_business_ui.dart';
 import 'package:beecount_business_ui/recurring_editor.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_cloud_sync/flutter_cloud_sync.dart'
     show RecurringRuleException;
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:timezone/timezone.dart' as tz;
 import 'package:uuid/uuid.dart';
 
 import '../../../cloud/recurring/cloud_recurring_rules.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../providers.dart';
 import '../../../services/data/recurring_transaction_service.dart';
 import '../../../utils/category_utils.dart';
-import '../../shared/scaffold/widgets/page_scaffold.dart';
+import '../../../utils/currencies.dart';
+import '../../category/editor/bindings/category_line_icon_names.dart';
+import '../../shared/currency/currency_flag.dart';
 import '../../shared/selectors/currency_picker_sheet.dart';
+import '../../shared/selectors/ledger_selector_dialog.dart';
 import 'bindings/recurring_editor_controls.dart';
 import 'bindings/recurring_editor_pickers.dart';
+import 'bindings/recurring_editor_scaffold.dart';
 import 'cloud_recurring_page.dart' show cloudRuleError;
 
-class CloudRuleEditor extends StatefulWidget {
+class CloudRuleEditor extends ConsumerStatefulWidget {
   const CloudRuleEditor({super.key, required this.book, this.row, this.draft});
   final CloudRuleBook book;
   final CloudRule? row;
   final RuleJson? draft;
   @override
-  State<CloudRuleEditor> createState() => _CloudRuleEditorState();
+  ConsumerState<CloudRuleEditor> createState() => _CloudRuleEditorState();
 }
 
-class _CloudRuleEditorState extends State<CloudRuleEditor> {
+class _CloudRuleEditorState extends ConsumerState<CloudRuleEditor> {
   late RuleJson rule;
   RuleJson? base;
   CloudRule? concurrent;
   RuleJson get tx => rule['transaction'] as RuleJson;
-  late final TextEditingController amount, note, zone;
+  late final TextEditingController amount, note;
   late final String clientId;
   String? recordId, error;
   int? revision;
   bool busy = false;
+  bool storedDraft = false;
+  late CloudRuleBook book;
+  Timer? _previewDelay;
+  Object? _previewToken;
+  List<String>? _previewDates;
   AppLocalizations get l => AppLocalizations.of(context);
-  CloudRuleBook get book => widget.book;
   String get draftKey => '${book.draftKey}.${recordId ?? clientId}';
 
   @override
   void initState() {
     super.initState();
+    book = widget.book;
     final draft = widget.draft;
+    storedDraft = draft != null;
     final source = draft?['data'] as RuleJson? ?? widget.row?.config;
     rule = source == null
         ? {
             'transaction': <String, dynamic>{'tx_type': 'expense', 'amount': 0},
             'time_zone': book.zone,
-            'starts_at': ruleDate(DateTime.now()),
+            'starts_at': ruleDate(todayIn(book.zone)),
             'frequency': 'monthly',
             'interval': 1,
+            'day_of_month': todayIn(book.zone).day,
             'enabled': true,
           }
         : {
@@ -76,82 +93,281 @@ class _CloudRuleEditorState extends State<CloudRuleEditor> {
     clientId = draft?['client_id'] as String? ?? const Uuid().v4();
     amount = TextEditingController(
         text: source == null ? '' : tx['amount'].toString());
+    amount.addListener(amountChanged);
     note = TextEditingController(text: tx['note'] as String?);
-    zone = TextEditingController(text: rule['time_zone'] as String?);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) queuePreview();
+    });
   }
 
   @override
   void dispose() {
-    for (final c in [amount, note, zone]) {
-      c.dispose();
-    }
+    _previewDelay?.cancel();
+    amount.removeListener(amountChanged);
+    amount.dispose();
+    note.dispose();
     super.dispose();
   }
 
-  Future<void> pick(String title, List<({String id, String label})> options,
-      void Function(String) apply) async {
+  String get type => tx['tx_type'] as String;
+  RecurringFrequency get frequency =>
+      RecurringFrequency.fromString(rule['frequency'] as String);
+  int get interval => rule['interval'] as int;
+  DateTime get startDate => civilDate(rule['starts_at'] as String);
+  DateTime? get endDate =>
+      rule['ends_at'] == null ? null : civilDate(rule['ends_at'] as String);
+  String get sourceKey => type == 'transfer' ? 'from_account' : 'account';
+  int get monthlyDay => rule['day_of_month'] as int? ?? startDate.day;
+  String get currency => (tx['currency'] ??
+          resource(sourceKey, 'accounts')?['currency'] ??
+          book.ledger.currency)
+      .toString()
+      .toUpperCase();
+
+  DateTime civilDate(String value) => DateTime.parse(value.substring(0, 10));
+
+  DateTime todayIn(String zone) {
+    DateTime now;
+    try {
+      now = tz.TZDateTime.now(tz.getLocation(zone));
+    } on tz.LocationNotFoundException {
+      now = DateTime.now();
+    }
+    return RecurringTransactionService.dateOnly(now);
+  }
+
+  String? referenceId(String key) =>
+      tx['${key}_id'] as String? ??
+      (key == 'from_account' ? tx['account_id'] as String? : null);
+
+  String? referenceName(String key) =>
+      tx[key] as String? ??
+      (key == 'from_account' ? tx['account'] as String? : null);
+
+  RuleJson? resource(String key, String group) {
+    final id = referenceId(key);
+    final name = referenceName(key);
+    return book
+        .options(group)
+        .where((item) =>
+            (group != 'categories' || item['kind'] == type) &&
+            (id == null ? item['name'] == name : item['id'] == id))
+        .firstOrNull;
+  }
+
+  void setRef(String key, String? id) {
+    tx['${key}_id'] = id;
+    tx[key] = null;
+    if (key == 'from_account') {
+      tx['account_id'] = null;
+      tx['account'] = null;
+    }
+  }
+
+  void updateDraft(VoidCallback update) {
+    setState(update);
+    queuePreview();
+  }
+
+  void amountChanged() {
+    if (mounted && !busy) updateDraft(() {});
+  }
+
+  Future<void> selectCategory() async {
+    FocusManager.instance.primaryFocus?.unfocus();
+    final entries =
+        book.options('categories').where((r) => r['kind'] == type).toList();
+    final ids = entries.map((r) => r['id']).toSet();
+    BeeCategoryChoice choice(RuleJson entry, {bool includeChildren = false}) {
+      final children = includeChildren
+          ? entries
+              .where((r) => r['parent_id'] == entry['id'])
+              .map((r) => choice(r))
+              .toList()
+          : <BeeCategoryChoice>[];
+      return BeeCategoryChoice(
+        id: entry['id'] as String,
+        label:
+            CategoryUtils.displayName(entry['name'] as String, l, kind: type),
+        icon: BeeLineIcon(categoryLineIconNames[entry['icon']] ?? 'Shapes',
+            size: 18),
+        enabled: children.isEmpty,
+        children: children,
+      );
+    }
+
+    final selected = await showBeeDialog<String>(
+      context,
+      title: type == 'income' ? l.categoryIncome : l.categoryExpense,
+      child: SizedBox(
+        width: double.maxFinite,
+        height: math.min(
+            440,
+            (MediaQuery.sizeOf(context).height -
+                    MediaQuery.viewPaddingOf(context).vertical) *
+                .62),
+        child: BeeCategoryPicker(
+          items: entries
+              .where((r) => !ids.contains(r['parent_id']))
+              .map((r) => choice(r, includeChildren: true))
+              .toList(),
+          selected: resource('category', 'categories')?['id'] as String?,
+          immediate: true,
+          searchLabel: l.searchCategoryHint,
+          emptyLabel: l.categoryEmpty,
+          confirmLabel: l.commonConfirm,
+          cancelLabel: l.commonCancel,
+          onCancel: () => Navigator.pop(context),
+          onConfirm: (id) => Navigator.pop(context, id),
+        ),
+      ),
+    );
+    if (selected != null && mounted) {
+      updateDraft(() => setRef('category', selected));
+    }
+  }
+
+  Future<void> selectAccount(String key, String title) async {
+    final source = resource('from_account', 'accounts')?['id'];
+    final entries = book.options('accounts').where((r) =>
+        (r['currency'] ?? book.ledger.currency).toString().toUpperCase() ==
+            currency &&
+        (key != 'to_account' || r['id'] != source));
     final selected = await showBeeDialog<String>(context,
         title: title,
         child: SingleChildScrollView(
-            child: Column(mainAxisSize: MainAxisSize.min, children: [
-          for (final option in options)
-            BeeMenuRow(
-                title: option.label,
-                onTap: () => Navigator.pop(context, option.id))
-        ])));
-    if (selected != null && mounted) setState(() => apply(selected));
-  }
-
-  void pickRef(String key, String title, String resource) {
-    final opts = book
-        .options(resource)
-        .where((r) => resource != 'categories' || r['kind'] == tx['tx_type']);
-    pick(title, [
-      if (key != 'to_account' && key != 'from_account')
-        (id: '', label: l.accountNone),
-      for (final r in opts) (id: r['id'] as String, label: r['name'] as String)
-    ], (v) {
-      tx['${key}_id'] = v.isEmpty ? null : v;
-      tx[key] = null;
+            child: SizedBox(
+          width: double.maxFinite,
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            if (key != 'to_account')
+              BeeMenuRow(
+                  title: l.accountNone,
+                  onTap: () => Navigator.pop(context, '')),
+            for (final entry in entries)
+              BeeMenuRow(
+                  title: entry['name'] as String,
+                  selected: entry['id'] == resource(key, 'accounts')?['id'],
+                  onTap: () => Navigator.pop(context, entry['id'])),
+            if (entries.isEmpty && key == 'to_account') Text(l.commonEmpty),
+          ]),
+        )));
+    if (selected == null || !mounted) return;
+    updateDraft(() {
+      setRef(key, selected.isEmpty ? null : selected);
+      if (key == 'from_account' && selected == referenceId('to_account')) {
+        setRef('to_account', null);
+      }
     });
   }
 
-  String refName(String key, String resource) {
-    final id = tx['${key}_id'];
-    return (book
-                .options(resource)
-                .where((r) => r['id'] == id)
-                .firstOrNull?['name'] ??
-            tx[key] ??
-            id ??
-            l.accountNone)
-        .toString();
+  Future<void> selectLedger() async {
+    final active = book;
+    final candidates = (await ref.read(repositoryProvider).getAllLedgers())
+        .where((r) =>
+            r.syncId != null && const {'owner', 'editor'}.contains(r.myRole))
+        .toList();
+    if (!mounted || busy || storedDraft) return;
+    final selected = await showLedgerSelector(context,
+        currentLedgerId: active.ledger.id, candidates: candidates);
+    if (!mounted ||
+        busy ||
+        storedDraft ||
+        selected == null ||
+        selected == active.ledger.id) {
+      return;
+    }
+
+    setState(() {
+      busy = true;
+      error = null;
+    });
+    try {
+      final target = await ref.read(cloudRuleBookProvider(selected).future);
+      if (!target.canCreate) throw StateError(l.cloudRecurringSyncFirst);
+      if (mounted) {
+        updateDraft(() {
+          book = target;
+          rule['time_zone'] = target.zone;
+          for (final key in [
+            'category',
+            'account',
+            'from_account',
+            'to_account'
+          ]) {
+            setRef(key, null);
+          }
+          tx['native_amount'] = null;
+        });
+      }
+    } catch (e) {
+      if (mounted) setState(() => error = cloudRuleError(context, e));
+    } finally {
+      if (mounted) setState(() => busy = false);
+    }
   }
 
-  String weekdayName(int n) =>
-      DateFormat.EEEE(Localizations.localeOf(context).toString())
-          .format(DateTime(2024, 1, n));
+  Future<void> selectCurrency() async {
+    final selected = await showCurrencyPickerSheet(context,
+        selected: currency,
+        primaryColor: ref.read(primaryColorProvider),
+        title: l.txCurrencyPickerTitle,
+        rateBase: book.ledger.currency);
+    if (selected == null || !mounted || selected.toUpperCase() == currency) {
+      return;
+    }
+    updateDraft(() {
+      tx['currency'] =
+          selected.toUpperCase() == book.ledger.currency.toUpperCase()
+              ? null
+              : selected.toUpperCase();
+      tx['native_amount'] = null;
+      for (final key in ['account', 'from_account', 'to_account']) {
+        setRef(key, null);
+      }
+    });
+  }
+
+  Future<void> selectFrequency() async {
+    final selected = await showRecurringEditorWheel<RecurringFrequency>(context,
+        initial: frequency,
+        items: RecurringFrequency.values,
+        labelBuilder: (value) => recurringEditorFrequencyLabel(l, value),
+        title: l.recurringTransactionFrequency);
+    if (selected == null || !mounted || selected == frequency) return;
+    updateDraft(() {
+      rule['frequency'] = selected.value;
+      if (selected == RecurringFrequency.daily) rule['interval'] = 1;
+      rule['day_of_month'] =
+          selected == RecurringFrequency.monthly ? startDate.day : null;
+      rule['month_of_year'] = null;
+      rule['day_of_week'] = null;
+    });
+  }
 
   Future<void> pickDate(String key) async {
     final old = rule[key] as String?;
+    final today = todayIn(rule['time_zone'] as String);
+    final choosingStart = key == 'starts_at';
+    final minimum = choosingStart ? today : startDate;
     final date = await showRecurringEditorDatePicker(context,
-        initial: DateTime.tryParse(old ?? '') ?? DateTime.now(),
-        minDate: DateTime(1970),
-        maxDate: DateTime(2100, 12, 31));
-    if (date != null && mounted) {
-      setState(() => rule[key] = ruleDate(date) +
-          (old != null && old.length > 10 ? old.substring(10) : ''));
-    }
+        initial: old == null ? minimum : civilDate(old),
+        minDate: minimum,
+        maxDate: DateTime(2100));
+    if (date == null || !mounted) return;
+    updateDraft(() {
+      rule[key] = ruleDate(date) +
+          (old != null && old.length > 10 ? old.substring(10) : '');
+      if (choosingStart && endDate?.isBefore(date) == true) {
+        rule['ends_at'] = ruleDate(date);
+      }
+    });
   }
 
   String derivedName() {
     final type = tx['tx_type'] as String;
     final memo = note.text.trim();
-    final category = (book
-                .options('categories')
-                .where((r) => r['id'] == tx['category_id'] && r['kind'] == type)
-                .firstOrNull?['name'] as String? ??
-            tx['category'] as String?)
+    final category = (resource('category', 'categories')?['name'] as String? ??
+            referenceName('category'))
         ?.trim();
     final label = switch (type) {
       'transfer' => l.transferTitle,
@@ -165,36 +381,82 @@ class _CloudRuleEditorState extends State<CloudRuleEditor> {
         .trimRight();
   }
 
-  Future<void> save() async {
-    if (busy) return;
+  double? get validAmount {
     final value = double.tryParse(amount.text);
-    if (value == null ||
-        !value.isFinite ||
-        value <= 0 ||
-        zone.text.trim().isEmpty) {
-      setState(() => error = l.commonError);
-      return;
+    return value != null && value.isFinite && value > 0 ? value : null;
+  }
+
+  bool get canSave {
+    if (validAmount == null) return false;
+    if (type != 'transfer') {
+      // Cloud can already hold rules created without a category from Web or MCP.
+      return recordId != null || resource('category', 'categories') != null;
     }
+    final from = resource('from_account', 'accounts')?['id'];
+    final to = resource('to_account', 'accounts')?['id'];
+    return from != null && to != null && from != to;
+  }
+
+  String? get savedName {
+    final value = rule['name'] as String?;
+    return value == null || value.trim().isEmpty ? null : value;
+  }
+
+  RuleJson changePayload() {
+    final value = validAmount!;
+    final transaction = <String, dynamic>{
+      ...tx,
+      'amount': value,
+      'note': note.text.isEmpty ? null : note.text,
+    };
     if (tx['native_amount'] != null &&
         tx['amount'] != 0 &&
         value != tx['amount']) {
-      tx['native_amount'] =
+      transaction['native_amount'] =
           (tx['native_amount'] as num) * value / (tx['amount'] as num);
     }
-    tx['amount'] = value;
-    tx['note'] = note.text;
-    rule['time_zone'] = zone.text.trim();
-    final savedName = rule['name'] as String?;
-    final deriveName = savedName == null || savedName.trim().isEmpty;
-    final change = <String, dynamic>{
+    return {
       'action': recordId == null ? 'create' : 'update',
       'client_id': clientId,
       if (recordId != null) ...{
         'record_id': recordId,
         'expected_revision': revision
       },
-      'data': {...rule, 'name': deriveName ? derivedName() : savedName}
+      'data': {
+        ...rule,
+        'name': savedName ?? derivedName(),
+        'transaction': transaction
+      }
     };
+  }
+
+  void queuePreview() {
+    _previewDelay?.cancel();
+    final token = Object();
+    _previewToken = token;
+    _previewDates = null;
+    if (book.offline || !canSave || rule['enabled'] != true) return;
+    _previewDelay = Timer(const Duration(milliseconds: 350), () async {
+      if (!mounted || busy) return;
+      try {
+        final result =
+            await book.change({...changePayload(), 'confirm': false});
+        final dates = (result['next_occurrences'] as List).cast<String>();
+        if (mounted && _previewToken == token) {
+          setState(() => _previewDates = dates);
+        }
+      } catch (_) {
+        // The retained date preview still renders while a request is unavailable.
+      }
+    });
+  }
+
+  Future<void> save() async {
+    if (busy || !canSave) return;
+    final change = changePayload();
+    rule['transaction'] = (change['data'] as RuleJson)['transaction'];
+    _previewDelay?.cancel();
+    _previewToken = null;
     setState(() {
       busy = true;
       error = null;
@@ -206,28 +468,14 @@ class _CloudRuleEditorState extends State<CloudRuleEditor> {
           jsonEncode({
             ...change,
             'base': base,
-            if (deriveName) 'derive_name': true,
+            if (savedName == null) 'derive_name': true,
           }));
-      if (book.offline) {
-        if (mounted) Navigator.pop(context);
-        return;
+      storedDraft = true;
+      if (!book.offline) {
+        await book.change({...change, 'confirm': true});
+        await prefs.remove(draftKey);
       }
-      final preview = await book.change({...change, 'confirm': false});
-      if (!mounted) return;
-      final dates =
-          (preview['next_occurrences'] as List? ?? []).take(3).join('\n');
-      if (await showBeeConfirm(context,
-              title: l.v4RecurringPreviewTitle,
-              message:
-                  '${l.cloudRecurringConfirm}\n${dates.isEmpty ? l.v4RecurringStatusCompleted : dates}',
-              confirmLabel: l.commonSave,
-              cancelLabel: l.commonCancel) !=
-          true) {
-        return;
-      }
-      await book.change({...change, 'confirm': true});
-      await prefs.remove(draftKey);
-      if (mounted) Navigator.pop(context, true);
+      if (mounted) Navigator.pop(context, book.ledger.id);
     } catch (e) {
       if (e is RecurringRuleException && e.status == 409 && recordId != null) {
         try {
@@ -286,7 +534,7 @@ class _CloudRuleEditorState extends State<CloudRuleEditor> {
         confirmLabel: l.commonOk,
         cancelLabel: l.commonCancel);
     if (apply != true || !mounted) return;
-    setState(() {
+    updateDraft(() {
       rule = merged;
       base = current;
       revision = latest.revision;
@@ -294,7 +542,6 @@ class _CloudRuleEditorState extends State<CloudRuleEditor> {
       error = null;
       amount.text = tx['amount'].toString();
       note.text = tx['note'] as String? ?? '';
-      zone.text = rule['time_zone'] as String;
     });
   }
 
@@ -339,7 +586,7 @@ class _CloudRuleEditorState extends State<CloudRuleEditor> {
         'confirm': true
       });
       await (await SharedPreferences.getInstance()).remove(draftKey);
-      if (mounted) Navigator.pop(context, true);
+      if (mounted) Navigator.pop(context, book.ledger.id);
     } catch (e) {
       if (mounted) setState(() => error = cloudRuleError(context, e));
     } finally {
@@ -347,41 +594,105 @@ class _CloudRuleEditorState extends State<CloudRuleEditor> {
     }
   }
 
+  BeeRecurringSchedulePreviewData schedulePreview() {
+    if (rule['enabled'] != true) {
+      return BeeRecurringSchedulePreviewData(
+          title: l.v4RecurringPreviewTitle,
+          emptyMessage: l.v4RecurringPreviewPausedHint);
+    }
+    final today = todayIn(rule['time_zone'] as String);
+    final last = widget.row?.json['last_generated_local_date'] as String?;
+    final historical = last == null ? null : civilDate(last);
+    final dates = _previewDates;
+    final preview = dates == null
+        ? RecurringTransactionService.previewUpcomingOccurrences(
+            RecurringScheduleSpec(
+                frequency: frequency,
+                interval: interval,
+                startDate: startDate,
+                endDate: endDate,
+                lastGeneratedDate: historical,
+                dayOfMonth: rule['day_of_month'] as int?,
+                dayOfWeek: rule['day_of_week'] as int?,
+                monthOfYear: rule['month_of_year'] as int?),
+            now: today)
+        : [
+            for (final instant in dates.take(3))
+              RecurringOccurrencePreview(
+                date: civilDate(instant),
+                daysFromToday: RecurringTransactionService.calendarDaysBetween(
+                    civilDate(instant), today),
+                adjustedForMonthEnd: frequency == RecurringFrequency.monthly &&
+                    civilDate(instant).day < monthlyDay,
+              ),
+          ];
+    final localeName = Localizations.localeOf(context).toString();
+    final items = <BeeRecurringPreviewItem>[];
+    for (final occurrence in preview) {
+      final days = occurrence.daysFromToday;
+      final when = days <= 0
+          ? l.calendarToday
+          : days == 1
+              ? l.v4RecurringPreviewTomorrow
+              : l.v4RecurringPreviewInDays(days);
+      items.add(BeeRecurringPreviewItem(
+        index: items.length + 1,
+        dateText: DateFormat('yyyy/MM/dd').format(occurrence.date),
+        weekdayText: DateFormat.E(localeName).format(occurrence.date),
+        badgeText: occurrence.adjustedForMonthEnd
+            ? l.v4RecurringPreviewMonthEndTag(when)
+            : when,
+        badgeTone: occurrence.adjustedForMonthEnd
+            ? BeeRecurringPreviewBadgeTone.warning
+            : days <= 0
+                ? BeeRecurringPreviewBadgeTone.highlight
+                : BeeRecurringPreviewBadgeTone.neutral,
+      ));
+    }
+    return BeeRecurringSchedulePreviewData(
+      title: l.v4RecurringPreviewTitle,
+      items: items,
+      subtitle: items.isEmpty ? null : l.v4RecurringPreviewCount(items.length),
+      emptyMessage: items.isEmpty ? l.v4RecurringPreviewEmptyEnded : null,
+      footnote: historical != null && !startDate.isAfter(historical)
+          ? l.v4RecurringPreviewPreservedNote(
+              DateFormat('yyyy/MM/dd').format(historical))
+          : frequency == RecurringFrequency.monthly && monthlyDay >= 29
+              ? l.v4RecurringPreviewMonthEndNote(monthlyDay)
+              : null,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final type = tx['tx_type'] as String;
-    final frequency =
-        RecurringFrequency.fromString(rule['frequency'] as String);
-    final interval = rule['interval'] as int;
     BeeRecurringEditorValue field(String label, String value, String icon,
-            [VoidCallback? select, VoidCallback? clear]) =>
+            {VoidCallback? select, VoidCallback? clear, Widget? leading}) =>
         BeeRecurringEditorValue(
             label: label,
             value: value,
             icon: icon,
-            onSelect: busy ? null : select,
-            onClear: busy ? null : clear);
-    final source = type == 'transfer' ? 'from_account' : 'account';
-    final start = rule['starts_at'] as String;
-    final day =
-        rule['day_of_month'] as int? ?? int.parse(start.substring(8, 10));
-    final currency = (tx['currency'] ?? book.ledger.currency).toString();
-    return V4PageScaffold(
-        body: Column(children: [
-      BeePageHeader(
-          title: recordId == null
-              ? l.recurringTransactionAdd
-              : l.recurringTransactionEdit,
-          leading: const BackButton(),
-          actions: [
-            if (recordId != null)
-              BeeIconButton(
-                  label: l.commonDelete,
-                  icon: const BeeLineIcon('Trash2'),
-                  onPressed: busy || book.offline ? null : remove)
-          ]),
-      Expanded(
-          child: BeePageBody(eager: true, children: [
+            leading: leading,
+            onSelect: select,
+            onClear: clear);
+    final category = resource('category', 'categories');
+    final categoryTitle =
+        (category?['name'] as String?) ?? referenceName('category');
+    String accountValue(String key) =>
+        (resource(key, 'accounts')?['name'] as String?) ??
+        referenceName(key) ??
+        l.accountNone;
+    final sourceTitle =
+        type == 'transfer' ? l.transferFromAccount : l.accountSelectTitle;
+    final end = endDate;
+    final dateFormat = DateFormat.yMd();
+
+    return RecurringEditorScaffold(
+      editing: recordId != null,
+      saving: busy,
+      onSave: canSave ? save : null,
+      onDelete: book.offline ? null : remove,
+      saveLabel: book.offline ? l.cloudRecurringSaveDraft : null,
+      editor: BeePageBody(eager: true, children: [
         BeeRecurringEditorForm(
             amountController: amount,
             noteController: note,
@@ -392,164 +703,113 @@ class _CloudRuleEditorState extends State<CloudRuleEditor> {
               BeeSegment('transfer', l.transferTitle)
             ],
             values: {
-              BeeRecurringEditorField.ledger:
-                  field(l.ledgerSelectTitle, book.ledger.name, 'BookOpen'),
-              BeeRecurringEditorField.currency:
-                  field(l.txCurrencyLabel, currency, 'Coins', () async {
-                final v = await showCurrencyPickerSheet(context,
-                    selected: currency,
-                    primaryColor: Theme.of(context).colorScheme.primary,
-                    title: l.txCurrencyPickerTitle,
-                    rateBase: book.ledger.currency);
-                if (v != null && mounted) {
-                  setState(() {
-                    tx['currency'] = v;
-                    tx['native_amount'] = null;
-                  });
-                }
-              }),
+              BeeRecurringEditorField.ledger: field(
+                  l.ledgerSelectTitle, book.ledger.name, 'BookOpen',
+                  select: recordId == null && !book.offline && !storedDraft
+                      ? selectLedger
+                      : null),
+              BeeRecurringEditorField.currency: field(l.txCurrencyLabel,
+                  displayCurrency(currency, context), 'Coins',
+                  select: selectCurrency,
+                  leading: currencyFlag(context, currency,
+                      width: 22, height: 16, radius: 4)),
               BeeRecurringEditorField.category: field(
                   l.categoryTitle,
-                  refName('category', 'categories'),
+                  categoryTitle == null
+                      ? l.commonSearch
+                      : CategoryUtils.displayName(categoryTitle, l, kind: type),
                   'Shapes',
-                  () => pickRef('category', l.categoryTitle, 'categories')),
+                  select: selectCategory,
+                  leading: category == null
+                      ? null
+                      : BeeLineIcon(
+                          categoryLineIconNames[category['icon']] ?? 'Shapes',
+                          size: 22)),
               BeeRecurringEditorField.account: field(
-                  type == 'transfer'
-                      ? l.transferFromAccount
-                      : l.accountSelectTitle,
-                  refName(source, 'accounts'),
-                  'Wallet',
-                  () => pickRef(source, l.accountSelectTitle, 'accounts')),
-              BeeRecurringEditorField.toAccount: field(
-                  l.transferToAccount,
-                  refName('to_account', 'accounts'),
-                  'ArrowRightLeft',
-                  () => pickRef('to_account', l.transferToAccount, 'accounts')),
+                  sourceTitle, accountValue(sourceKey), 'Wallet',
+                  select: () => selectAccount(sourceKey, sourceTitle)),
+              BeeRecurringEditorField.toAccount: field(l.transferToAccount,
+                  accountValue('to_account'), 'ArrowRightLeft',
+                  select: () =>
+                      selectAccount('to_account', l.transferToAccount)),
               BeeRecurringEditorField.frequency: field(
                   l.recurringTransactionFrequency,
-                  recurringEditorFrequencyLabel(l, frequency),
+                  frequency == RecurringFrequency.daily && interval > 1
+                      ? recurringEditorIntervalLabel(l, frequency, interval)
+                      : recurringEditorFrequencyLabel(l, frequency),
                   'Repeat2',
-                  () => pick(l.recurringTransactionFrequency, [
-                        for (final f in RecurringFrequency.values)
-                          (
-                            id: f.value,
-                            label: recurringEditorFrequencyLabel(l, f)
-                          )
-                      ], (v) {
-                        rule['frequency'] = v;
-                        for (final k in [
-                          'day_of_month',
-                          'month_of_year',
-                          'day_of_week'
-                        ]) {
-                          rule[k] = null;
-                        }
-                      })),
+                  select: selectFrequency),
               BeeRecurringEditorField.interval: field(
-                  l.recurringTransactionInterval, interval.toString(), 'Clock',
-                  () async {
-                final v = await showRecurringEditorWheel<int>(context,
+                  l.recurringTransactionInterval,
+                  recurringEditorIntervalLabel(l, frequency, interval),
+                  'Clock', select: () async {
+                final selected = await showRecurringEditorWheel<int>(context,
                     initial: interval,
-                    items: List.generate(365, (i) => i + 1),
+                    items: List.generate(math.max(interval, 12), (i) => i + 1),
                     labelBuilder: (v) =>
                         recurringEditorIntervalLabel(l, frequency, v),
                     title: l.recurringTransactionInterval);
-                if (v != null && mounted) setState(() => rule['interval'] = v);
+                if (selected != null && mounted) {
+                  updateDraft(() => rule['interval'] = selected);
+                }
               }),
-              if (frequency == RecurringFrequency.weekly)
-                BeeRecurringEditorField.dayOfWeek: field(
-                    l.cloudRecurringWeekDay,
-                    weekdayName(rule['day_of_week'] as int? ??
-                        DateTime.parse(start).weekday),
-                    'Calendar',
-                    () => pick(
-                        l.cloudRecurringWeekDay,
-                        [
-                          for (var d = 1; d <= 7; d++)
-                            (id: d.toString(), label: weekdayName(d))
-                        ],
-                        (v) => rule['day_of_week'] = int.parse(v))),
-              if (frequency == RecurringFrequency.yearly)
-                BeeRecurringEditorField.monthOfYear: field(
-                    l.cloudRecurringYearMonth,
-                    (rule['month_of_year'] ?? int.parse(start.substring(5, 7)))
-                        .toString(),
-                    'Calendar',
-                    () => pick(
-                        l.cloudRecurringYearMonth,
-                        [
-                          for (var m = 1; m <= 12; m++)
-                            (id: m.toString(), label: m.toString())
-                        ],
-                        (v) => rule['month_of_year'] = int.parse(v))),
               BeeRecurringEditorField.dayOfMonth: field(
                   l.recurringTransactionDayOfMonth,
-                  day.toString(),
-                  'CalendarDays', () async {
-                final v = await showRecurringEditorWheel<int>(context,
-                    initial: day,
+                  monthlyDay.toString(),
+                  'CalendarDays', select: () async {
+                final selected = await showRecurringEditorWheel<int>(context,
+                    initial: monthlyDay,
                     items: List.generate(31, (i) => i + 1),
                     labelBuilder: (v) => v.toString(),
                     title: l.recurringTransactionDayOfMonth);
-                if (v != null && mounted) {
-                  setState(() => rule['day_of_month'] = v);
+                if (selected != null && mounted) {
+                  updateDraft(() => rule['day_of_month'] = selected);
                 }
               }),
               BeeRecurringEditorField.startDate: field(
                   l.recurringTransactionStartDate,
-                  start,
+                  dateFormat.format(startDate),
                   'Calendar',
-                  () => pickDate('starts_at')),
+                  select: () => pickDate('starts_at')),
               BeeRecurringEditorField.endDate: field(
                   l.recurringTransactionEndDate,
-                  rule['ends_at'] as String? ?? l.recurringTransactionNoEndDate,
+                  end == null
+                      ? l.recurringTransactionNoEndDate
+                      : dateFormat.format(end),
                   'CalendarCheck',
-                  () => pickDate('ends_at'),
-                  rule['ends_at'] == null
+                  select: () => pickDate('ends_at'),
+                  clear: end == null
                       ? null
-                      : () => setState(() => rule['ends_at'] = null)),
+                      : () => updateDraft(() => rule['ends_at'] = null)),
             },
             amountLabel: l.importFieldAmount,
             noteLabel: l.commonNoteHint,
             clearLabel: l.commonRemove,
-            schedulePreview: BeeRecurringSchedulePreviewData(
-                title: l.v4RecurringPreviewTitle,
-                emptyMessage: l.cloudRecurringConfirm),
-            showInterval: true,
-            showDayOfMonth: frequency == RecurringFrequency.monthly ||
-                frequency == RecurringFrequency.yearly,
+            schedulePreview: schedulePreview(),
+            showInterval: frequency != RecurringFrequency.daily,
+            showDayOfMonth: frequency == RecurringFrequency.monthly,
             enabled: !busy,
-            onType: (v) => setState(() {
-                  tx['tx_type'] = v;
-                  for (final k in [
-                    'category',
-                    'account',
-                    'to_account',
-                    'from_account'
-                  ]) {
-                    tx[k] = null;
-                    tx['${k}_id'] = null;
-                  }
-                })),
-        TextField(
-            controller: zone,
-            enabled: !busy,
-            decoration: InputDecoration(labelText: l.cloudRecurringZone)),
+            onType: (value) {
+              if (value == type) return;
+              updateDraft(() {
+                tx['tx_type'] = value;
+                for (final key in [
+                  'category',
+                  'account',
+                  'to_account',
+                  'from_account'
+                ]) {
+                  setRef(key, null);
+                }
+                tx['native_amount'] = null;
+              });
+            }),
         if (concurrent != null)
           BeeButton(
               label: l.cloudRecurringConflictDraft,
               onPressed: busy ? null : resolveConflict),
         if (error != null) BeeStatus(label: error!, tone: BeeTone.error),
-      ])),
-      SafeArea(
-          top: false,
-          child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: BeeButton(
-                  label:
-                      book.offline ? l.cloudRecurringSaveDraft : l.commonSave,
-                  loading: busy,
-                  onPressed: busy ? null : save)))
-    ]));
+      ]),
+    );
   }
 }

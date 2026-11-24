@@ -1,11 +1,9 @@
 import 'dart:convert';
 import 'package:beecount/data/repositories/local/local_repository.dart';
-import 'package:beecount/l10n/app_localizations_zh.dart';
 import 'package:beecount/pages/transaction/recurring/cloud_rule_editor.dart';
 import 'package:beecount_business_ui/recurring_editor.dart';
 import 'package:beecount_business_ui/beecount_business_ui.dart'
     show BeeRecurringBillCard;
-import 'package:beecount_ui/beecount_ui.dart' show BeeDialog;
 import 'package:beecount/main.dart' show MainApp;
 import 'package:beecount/pages/main/home_page.dart';
 import 'package:beecount/pages/transaction/recurring/cloud_recurring_page.dart';
@@ -93,7 +91,6 @@ void main() {
         of: find.byType(BeeRecurringBillCard), matching: find.text('QA 云端合账'));
     await waitFor(billName);
     await capture('01-app-cloud-rules');
-    final l = AppLocalizationsZh();
     await tester.tap(billName);
     await waitFor(find.byType(CloudRuleEditor));
     final form = tester
@@ -104,12 +101,7 @@ void main() {
     await tester.testTextInput.receiveAction(TextInputAction.done);
     await tester.pump(const Duration(milliseconds: 250));
     await capture('02-app-rule-editor');
-    await tester.tap(find.text(l.commonSave).last);
-    final dialog = find.byType(BeeDialog);
-    await waitFor(dialog);
-    await tester.pump(const Duration(milliseconds: 300));
-    await tester
-        .tap(find.descendant(of: dialog, matching: find.text(l.commonSave)));
+    await tester.tap(find.byKey(const ValueKey('recurring-editor-save')));
     for (var i = 0;
         i < 100 && find.byType(CloudRuleEditor).evaluate().isNotEmpty;
         i++) {

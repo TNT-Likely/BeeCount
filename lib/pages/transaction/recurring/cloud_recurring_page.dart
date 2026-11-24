@@ -59,14 +59,14 @@ class _CloudRecurringPageState extends ConsumerState<CloudRecurringPage>
 
   Future<void> edit(CloudRuleBook book,
       {CloudRule? row, RuleJson? draft}) async {
-    await Navigator.push(
+    final savedLedger = await Navigator.push<int>(
         context,
-        MaterialPageRoute(
+        MaterialPageRoute<int>(
             builder: (_) =>
                 CloudRuleEditor(book: book, row: row, draft: draft)));
     if (mounted) {
+      setState(() => selected = savedLedger ?? selected);
       refresh();
-      setState(() {});
     }
   }
 

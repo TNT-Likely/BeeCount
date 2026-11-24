@@ -38,7 +38,13 @@ final cloudRuleBookProvider =
     final refs = await api.fetchSharedResources(ledgerId: external);
     response['categories'] = [
       for (final c in refs.categories)
-        {'id': c.syncId, 'name': c.name, 'kind': c.kind}
+        {
+          'id': c.syncId,
+          'name': c.name,
+          'kind': c.kind,
+          'icon': c.icon,
+          'parent_id': c.parentSyncId,
+        }
     ];
     response['accounts'] = [
       for (final a in refs.accounts)

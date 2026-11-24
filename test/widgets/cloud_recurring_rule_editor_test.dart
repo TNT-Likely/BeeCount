@@ -17,7 +17,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class _RuleBook extends CloudRuleBook {
-  _RuleBook()
+  _RuleBook({bool offline = false})
       : super(
             BeeCountCloudProvider(),
             Ledger(
@@ -41,7 +41,7 @@ class _RuleBook extends CloudRuleBook {
                 {'id': 'rent', 'name': 'Rent', 'kind': 'expense'}
               ],
             },
-            false);
+            offline);
 
   final requests = <RuleJson>[];
 
@@ -95,6 +95,10 @@ void main() {
 
   Future<void> open(WidgetTester tester, _RuleBook book,
       {CloudRule? row, RuleJson? draft}) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(402, 874);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    addTearDown(tester.view.resetPhysicalSize);
     final navigator = GlobalKey<NavigatorState>();
     await tester.pumpWidget(ProviderScope(
         overrides: [
@@ -108,7 +112,7 @@ void main() {
             supportedLocales: AppLocalizations.supportedLocales,
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             home: const Scaffold())));
-    navigator.currentState!.push(MaterialPageRoute<bool>(
+    navigator.currentState!.push(MaterialPageRoute<int>(
         builder: (_) => CloudRuleEditor(book: book, row: row, draft: draft)));
     await tester.pumpAndSettle();
     expect(
@@ -116,6 +120,12 @@ void main() {
             widget is TextField &&
             widget.decoration?.labelText == l.cloudRecurringName),
         findsNothing);
+    expect(find.byKey(const ValueKey('recurring-editor-note')), findsOneWidget);
+    expect(
+        tester
+            .getSize(find.byKey(const ValueKey('recurring-editor-save')))
+            .width,
+        402 - 34);
   }
 
   Future<void> enter(WidgetTester tester, String text,
@@ -132,19 +142,17 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  Future<Finder> preview(WidgetTester tester) async {
-    await tester.tap(find.text(l.commonSave));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 350));
-    final dialog = find.byType(BeeDialog);
-    expect(dialog, findsOneWidget);
-    return dialog;
+  Future<void> pickCategory(WidgetTester tester) async {
+    final category = find.byKey(const ValueKey('recurring-editor-category'));
+    await tester.ensureVisible(category);
+    await tester.tap(category);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Rent'));
+    await tester.pumpAndSettle();
   }
 
   Future<void> save(WidgetTester tester) async {
-    final dialog = await preview(tester);
-    await tester
-        .tap(find.descendant(of: dialog, matching: find.text(l.commonSave)));
+    await tester.tap(find.byKey(const ValueKey('recurring-editor-save')));
     await tester.pumpAndSettle();
     expect(find.byType(CloudRuleEditor), findsNothing);
   }
@@ -154,35 +162,38 @@ void main() {
     final book = _RuleBook();
     await open(tester, book);
     await enter(tester, '25');
-    final category = find.byKey(const ValueKey('recurring-editor-category'));
-    await tester.ensureVisible(category);
-    await tester.tap(category);
+    expect(
+        tester
+            .widget<BeeButton>(
+                find.byKey(const ValueKey('recurring-editor-save')))
+            .onPressed,
+        isNull);
+    await pickCategory(tester);
+    await tester.pump(const Duration(milliseconds: 400));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Rent'));
-    await tester.pumpAndSettle();
+    expect(find.text('2030/01/01'), findsOneWidget);
     await save(tester);
 
-    expect(book.requests.map((request) => request['confirm']), [false, true]);
-    expect(book.requests.map((request) => request['data']['name']),
-        ['Rent', 'Rent']);
+    final submitted =
+        book.requests.where((request) => request['confirm'] == true);
+    expect(submitted.single['data']['name'], 'Rent');
   });
 
   testWidgets('reopened draft derives its latest title and keeps the full memo',
       (tester) async {
-    final book = _RuleBook();
-    await open(tester, book);
+    final offline = _RuleBook(offline: true);
+    await open(tester, offline);
     await enter(tester, '25');
-    final dialog = await preview(tester);
-    expect(book.requests.single['data']['name'], l.categoryExpense);
-    await tester
-        .tap(find.descendant(of: dialog, matching: find.text(l.commonCancel)));
-    await tester.pumpAndSettle();
+    await pickCategory(tester);
+    await save(tester);
+    expect(offline.requests, isEmpty);
 
     final prefs = await SharedPreferences.getInstance();
     final key =
-        prefs.getKeys().singleWhere((key) => key.startsWith(book.draftKey));
+        prefs.getKeys().singleWhere((key) => key.startsWith(offline.draftKey));
     final draft = jsonDecode(prefs.getString(key)!) as RuleJson;
     await tester.pumpWidget(const SizedBox.shrink());
+    final book = _RuleBook();
     await open(tester, book, draft: draft);
     final memo = List.filled(260, '🐝').join();
     await enter(tester, '  $memo  ', note: true);
@@ -208,10 +219,11 @@ void main() {
             'amount': 25,
             'note': 'Old memo'
           },
-          'time_zone': 'Asia/Shanghai',
-          'starts_at': '2030-01-01',
-          'frequency': 'monthly',
-          'interval': 1,
+          'time_zone': 'Europe/Paris',
+          'starts_at': '2030-01-01T09:30:00+01:00',
+          'frequency': 'weekly',
+          'day_of_week': 5,
+          'interval': 2,
           'enabled': true,
         }
       }
@@ -224,6 +236,9 @@ void main() {
     expect(request['action'], 'update');
     expect(request['expected_revision'], 4);
     expect(request['data']['name'], 'Custom Web title');
+    expect(request['data']['time_zone'], 'Europe/Paris');
+    expect(request['data']['starts_at'], '2030-01-01T09:30:00+01:00');
+    expect(request['data']['day_of_week'], 5);
     expect(request['data']['transaction']['note'], 'Updated memo');
   });
 }
