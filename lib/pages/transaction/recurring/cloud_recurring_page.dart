@@ -282,7 +282,11 @@ class _CloudRecurringPageState extends ConsumerState<CloudRecurringPage>
                         for (final local in old)
                           ListTile(
                               title: Text(local.note ??
-                                  '${local.amount} · ${local.type}'),
+                                  (local.type == 'transfer'
+                                      ? l.transferTitle
+                                      : local.type == 'income'
+                                          ? l.categoryIncome
+                                          : l.categoryExpense)),
                               subtitle: Text(
                                   '${local.amount} · ${ruleDate(local.startDate)}'),
                               trailing: TextButton(

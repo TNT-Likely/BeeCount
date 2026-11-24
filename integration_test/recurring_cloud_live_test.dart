@@ -3,6 +3,8 @@ import 'package:beecount/data/repositories/local/local_repository.dart';
 import 'package:beecount/l10n/app_localizations_zh.dart';
 import 'package:beecount/pages/transaction/recurring/cloud_rule_editor.dart';
 import 'package:beecount_business_ui/recurring_editor.dart';
+import 'package:beecount_business_ui/beecount_business_ui.dart'
+    show BeeRecurringBillCard;
 import 'package:beecount_ui/beecount_ui.dart' show BeeDialog;
 import 'package:beecount/main.dart' show MainApp;
 import 'package:beecount/pages/main/home_page.dart';
@@ -87,10 +89,12 @@ void main() {
     navigator.push(MaterialPageRoute<void>(
         builder: (_) => const RecurringTransactionPage()));
     await waitFor(find.byType(CloudRecurringPage));
-    await waitFor(find.text('QA 云端合账'));
+    final billName = find.descendant(
+        of: find.byType(BeeRecurringBillCard), matching: find.text('QA 云端合账'));
+    await waitFor(billName);
     await capture('01-app-cloud-rules');
     final l = AppLocalizationsZh();
-    await tester.tap(find.text('QA 云端合账'));
+    await tester.tap(billName);
     await waitFor(find.byType(CloudRuleEditor));
     final form = tester
         .widget<BeeRecurringEditorForm>(find.byType(BeeRecurringEditorForm));
@@ -113,7 +117,7 @@ void main() {
       await Future<void>.delayed(const Duration(milliseconds: 40));
     }
     expect(find.byType(CloudRuleEditor), findsNothing);
-    await waitFor(find.text('QA 云端合账'));
+    await waitFor(billName);
     final login = await qaRequest('POST', '/api/v1/auth/login', data: {
       'email': email,
       'password': password,
