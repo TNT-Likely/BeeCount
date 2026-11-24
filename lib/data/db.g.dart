@@ -2937,6 +2937,12 @@ class $RecurringTransactionsTable extends RecurringTransactions
   late final GeneratedColumn<String> cloudHandoffScope =
       GeneratedColumn<String>('cloud_handoff_scope', aliasedName, true,
           type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _cloudHandoffIssueMeta =
+      const VerificationMeta('cloudHandoffIssue');
+  @override
+  late final GeneratedColumn<String> cloudHandoffIssue =
+      GeneratedColumn<String>('cloud_handoff_issue', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _cloudRuleIdMeta =
       const VerificationMeta('cloudRuleId');
   @override
@@ -3077,6 +3083,7 @@ class $RecurringTransactionsTable extends RecurringTransactions
   List<GeneratedColumn> get $columns => [
         cloudHandoffKey,
         cloudHandoffScope,
+        cloudHandoffIssue,
         cloudRuleId,
         id,
         ledgerId,
@@ -3121,6 +3128,12 @@ class $RecurringTransactionsTable extends RecurringTransactions
           _cloudHandoffScopeMeta,
           cloudHandoffScope.isAcceptableOrUnknown(
               data['cloud_handoff_scope']!, _cloudHandoffScopeMeta));
+    }
+    if (data.containsKey('cloud_handoff_issue')) {
+      context.handle(
+          _cloudHandoffIssueMeta,
+          cloudHandoffIssue.isAcceptableOrUnknown(
+              data['cloud_handoff_issue']!, _cloudHandoffIssueMeta));
     }
     if (data.containsKey('cloud_rule_id')) {
       context.handle(
@@ -3244,6 +3257,8 @@ class $RecurringTransactionsTable extends RecurringTransactions
           DriftSqlType.string, data['${effectivePrefix}cloud_handoff_key']),
       cloudHandoffScope: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}cloud_handoff_scope']),
+      cloudHandoffIssue: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}cloud_handoff_issue']),
       cloudRuleId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}cloud_rule_id']),
       id: attachedDatabase.typeMapping
@@ -3300,6 +3315,7 @@ class RecurringTransaction extends DataClass
   /// A persisted handoff freezes this local template before the first network request.
   final String? cloudHandoffKey;
   final String? cloudHandoffScope;
+  final String? cloudHandoffIssue;
   final String? cloudRuleId;
   final int id;
   final int ledgerId;
@@ -3328,6 +3344,7 @@ class RecurringTransaction extends DataClass
   const RecurringTransaction(
       {this.cloudHandoffKey,
       this.cloudHandoffScope,
+      this.cloudHandoffIssue,
       this.cloudRuleId,
       required this.id,
       required this.ledgerId,
@@ -3357,6 +3374,9 @@ class RecurringTransaction extends DataClass
     }
     if (!nullToAbsent || cloudHandoffScope != null) {
       map['cloud_handoff_scope'] = Variable<String>(cloudHandoffScope);
+    }
+    if (!nullToAbsent || cloudHandoffIssue != null) {
+      map['cloud_handoff_issue'] = Variable<String>(cloudHandoffIssue);
     }
     if (!nullToAbsent || cloudRuleId != null) {
       map['cloud_rule_id'] = Variable<String>(cloudRuleId);
@@ -3412,6 +3432,9 @@ class RecurringTransaction extends DataClass
       cloudHandoffScope: cloudHandoffScope == null && nullToAbsent
           ? const Value.absent()
           : Value(cloudHandoffScope),
+      cloudHandoffIssue: cloudHandoffIssue == null && nullToAbsent
+          ? const Value.absent()
+          : Value(cloudHandoffIssue),
       cloudRuleId: cloudRuleId == null && nullToAbsent
           ? const Value.absent()
           : Value(cloudRuleId),
@@ -3463,6 +3486,8 @@ class RecurringTransaction extends DataClass
       cloudHandoffKey: serializer.fromJson<String?>(json['cloudHandoffKey']),
       cloudHandoffScope:
           serializer.fromJson<String?>(json['cloudHandoffScope']),
+      cloudHandoffIssue:
+          serializer.fromJson<String?>(json['cloudHandoffIssue']),
       cloudRuleId: serializer.fromJson<String?>(json['cloudRuleId']),
       id: serializer.fromJson<int>(json['id']),
       ledgerId: serializer.fromJson<int>(json['ledgerId']),
@@ -3493,6 +3518,7 @@ class RecurringTransaction extends DataClass
     return <String, dynamic>{
       'cloudHandoffKey': serializer.toJson<String?>(cloudHandoffKey),
       'cloudHandoffScope': serializer.toJson<String?>(cloudHandoffScope),
+      'cloudHandoffIssue': serializer.toJson<String?>(cloudHandoffIssue),
       'cloudRuleId': serializer.toJson<String?>(cloudRuleId),
       'id': serializer.toJson<int>(id),
       'ledgerId': serializer.toJson<int>(ledgerId),
@@ -3520,6 +3546,7 @@ class RecurringTransaction extends DataClass
   RecurringTransaction copyWith(
           {Value<String?> cloudHandoffKey = const Value.absent(),
           Value<String?> cloudHandoffScope = const Value.absent(),
+          Value<String?> cloudHandoffIssue = const Value.absent(),
           Value<String?> cloudRuleId = const Value.absent(),
           int? id,
           int? ledgerId,
@@ -3548,6 +3575,9 @@ class RecurringTransaction extends DataClass
         cloudHandoffScope: cloudHandoffScope.present
             ? cloudHandoffScope.value
             : this.cloudHandoffScope,
+        cloudHandoffIssue: cloudHandoffIssue.present
+            ? cloudHandoffIssue.value
+            : this.cloudHandoffIssue,
         cloudRuleId: cloudRuleId.present ? cloudRuleId.value : this.cloudRuleId,
         id: id ?? this.id,
         ledgerId: ledgerId ?? this.ledgerId,
@@ -3581,6 +3611,9 @@ class RecurringTransaction extends DataClass
       cloudHandoffScope: data.cloudHandoffScope.present
           ? data.cloudHandoffScope.value
           : this.cloudHandoffScope,
+      cloudHandoffIssue: data.cloudHandoffIssue.present
+          ? data.cloudHandoffIssue.value
+          : this.cloudHandoffIssue,
       cloudRuleId:
           data.cloudRuleId.present ? data.cloudRuleId.value : this.cloudRuleId,
       id: data.id.present ? data.id.value : this.id,
@@ -3619,6 +3652,7 @@ class RecurringTransaction extends DataClass
     return (StringBuffer('RecurringTransaction(')
           ..write('cloudHandoffKey: $cloudHandoffKey, ')
           ..write('cloudHandoffScope: $cloudHandoffScope, ')
+          ..write('cloudHandoffIssue: $cloudHandoffIssue, ')
           ..write('cloudRuleId: $cloudRuleId, ')
           ..write('id: $id, ')
           ..write('ledgerId: $ledgerId, ')
@@ -3648,6 +3682,7 @@ class RecurringTransaction extends DataClass
   int get hashCode => Object.hashAll([
         cloudHandoffKey,
         cloudHandoffScope,
+        cloudHandoffIssue,
         cloudRuleId,
         id,
         ledgerId,
@@ -3676,6 +3711,7 @@ class RecurringTransaction extends DataClass
       (other is RecurringTransaction &&
           other.cloudHandoffKey == this.cloudHandoffKey &&
           other.cloudHandoffScope == this.cloudHandoffScope &&
+          other.cloudHandoffIssue == this.cloudHandoffIssue &&
           other.cloudRuleId == this.cloudRuleId &&
           other.id == this.id &&
           other.ledgerId == this.ledgerId &&
@@ -3703,6 +3739,7 @@ class RecurringTransactionsCompanion
     extends UpdateCompanion<RecurringTransaction> {
   final Value<String?> cloudHandoffKey;
   final Value<String?> cloudHandoffScope;
+  final Value<String?> cloudHandoffIssue;
   final Value<String?> cloudRuleId;
   final Value<int> id;
   final Value<int> ledgerId;
@@ -3727,6 +3764,7 @@ class RecurringTransactionsCompanion
   const RecurringTransactionsCompanion({
     this.cloudHandoffKey = const Value.absent(),
     this.cloudHandoffScope = const Value.absent(),
+    this.cloudHandoffIssue = const Value.absent(),
     this.cloudRuleId = const Value.absent(),
     this.id = const Value.absent(),
     this.ledgerId = const Value.absent(),
@@ -3752,6 +3790,7 @@ class RecurringTransactionsCompanion
   RecurringTransactionsCompanion.insert({
     this.cloudHandoffKey = const Value.absent(),
     this.cloudHandoffScope = const Value.absent(),
+    this.cloudHandoffIssue = const Value.absent(),
     this.cloudRuleId = const Value.absent(),
     this.id = const Value.absent(),
     required int ledgerId,
@@ -3781,6 +3820,7 @@ class RecurringTransactionsCompanion
   static Insertable<RecurringTransaction> custom({
     Expression<String>? cloudHandoffKey,
     Expression<String>? cloudHandoffScope,
+    Expression<String>? cloudHandoffIssue,
     Expression<String>? cloudRuleId,
     Expression<int>? id,
     Expression<int>? ledgerId,
@@ -3806,6 +3846,7 @@ class RecurringTransactionsCompanion
     return RawValuesInsertable({
       if (cloudHandoffKey != null) 'cloud_handoff_key': cloudHandoffKey,
       if (cloudHandoffScope != null) 'cloud_handoff_scope': cloudHandoffScope,
+      if (cloudHandoffIssue != null) 'cloud_handoff_issue': cloudHandoffIssue,
       if (cloudRuleId != null) 'cloud_rule_id': cloudRuleId,
       if (id != null) 'id': id,
       if (ledgerId != null) 'ledger_id': ledgerId,
@@ -3833,6 +3874,7 @@ class RecurringTransactionsCompanion
   RecurringTransactionsCompanion copyWith(
       {Value<String?>? cloudHandoffKey,
       Value<String?>? cloudHandoffScope,
+      Value<String?>? cloudHandoffIssue,
       Value<String?>? cloudRuleId,
       Value<int>? id,
       Value<int>? ledgerId,
@@ -3857,6 +3899,7 @@ class RecurringTransactionsCompanion
     return RecurringTransactionsCompanion(
       cloudHandoffKey: cloudHandoffKey ?? this.cloudHandoffKey,
       cloudHandoffScope: cloudHandoffScope ?? this.cloudHandoffScope,
+      cloudHandoffIssue: cloudHandoffIssue ?? this.cloudHandoffIssue,
       cloudRuleId: cloudRuleId ?? this.cloudRuleId,
       id: id ?? this.id,
       ledgerId: ledgerId ?? this.ledgerId,
@@ -3889,6 +3932,9 @@ class RecurringTransactionsCompanion
     }
     if (cloudHandoffScope.present) {
       map['cloud_handoff_scope'] = Variable<String>(cloudHandoffScope.value);
+    }
+    if (cloudHandoffIssue.present) {
+      map['cloud_handoff_issue'] = Variable<String>(cloudHandoffIssue.value);
     }
     if (cloudRuleId.present) {
       map['cloud_rule_id'] = Variable<String>(cloudRuleId.value);
@@ -3961,6 +4007,7 @@ class RecurringTransactionsCompanion
     return (StringBuffer('RecurringTransactionsCompanion(')
           ..write('cloudHandoffKey: $cloudHandoffKey, ')
           ..write('cloudHandoffScope: $cloudHandoffScope, ')
+          ..write('cloudHandoffIssue: $cloudHandoffIssue, ')
           ..write('cloudRuleId: $cloudRuleId, ')
           ..write('id: $id, ')
           ..write('ledgerId: $ledgerId, ')
@@ -14197,6 +14244,7 @@ typedef $$RecurringTransactionsTableCreateCompanionBuilder
     = RecurringTransactionsCompanion Function({
   Value<String?> cloudHandoffKey,
   Value<String?> cloudHandoffScope,
+  Value<String?> cloudHandoffIssue,
   Value<String?> cloudRuleId,
   Value<int> id,
   required int ledgerId,
@@ -14223,6 +14271,7 @@ typedef $$RecurringTransactionsTableUpdateCompanionBuilder
     = RecurringTransactionsCompanion Function({
   Value<String?> cloudHandoffKey,
   Value<String?> cloudHandoffScope,
+  Value<String?> cloudHandoffIssue,
   Value<String?> cloudRuleId,
   Value<int> id,
   Value<int> ledgerId,
@@ -14261,6 +14310,10 @@ class $$RecurringTransactionsTableFilterComposer
 
   ColumnFilters<String> get cloudHandoffScope => $composableBuilder(
       column: $table.cloudHandoffScope,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get cloudHandoffIssue => $composableBuilder(
+      column: $table.cloudHandoffIssue,
       builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get cloudRuleId => $composableBuilder(
@@ -14345,6 +14398,10 @@ class $$RecurringTransactionsTableOrderingComposer
       column: $table.cloudHandoffScope,
       builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get cloudHandoffIssue => $composableBuilder(
+      column: $table.cloudHandoffIssue,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get cloudRuleId => $composableBuilder(
       column: $table.cloudRuleId, builder: (column) => ColumnOrderings(column));
 
@@ -14425,6 +14482,9 @@ class $$RecurringTransactionsTableAnnotationComposer
 
   GeneratedColumn<String> get cloudHandoffScope => $composableBuilder(
       column: $table.cloudHandoffScope, builder: (column) => column);
+
+  GeneratedColumn<String> get cloudHandoffIssue => $composableBuilder(
+      column: $table.cloudHandoffIssue, builder: (column) => column);
 
   GeneratedColumn<String> get cloudRuleId => $composableBuilder(
       column: $table.cloudRuleId, builder: (column) => column);
@@ -14523,6 +14583,7 @@ class $$RecurringTransactionsTableTableManager extends RootTableManager<
           updateCompanionCallback: ({
             Value<String?> cloudHandoffKey = const Value.absent(),
             Value<String?> cloudHandoffScope = const Value.absent(),
+            Value<String?> cloudHandoffIssue = const Value.absent(),
             Value<String?> cloudRuleId = const Value.absent(),
             Value<int> id = const Value.absent(),
             Value<int> ledgerId = const Value.absent(),
@@ -14548,6 +14609,7 @@ class $$RecurringTransactionsTableTableManager extends RootTableManager<
               RecurringTransactionsCompanion(
             cloudHandoffKey: cloudHandoffKey,
             cloudHandoffScope: cloudHandoffScope,
+            cloudHandoffIssue: cloudHandoffIssue,
             cloudRuleId: cloudRuleId,
             id: id,
             ledgerId: ledgerId,
@@ -14573,6 +14635,7 @@ class $$RecurringTransactionsTableTableManager extends RootTableManager<
           createCompanionCallback: ({
             Value<String?> cloudHandoffKey = const Value.absent(),
             Value<String?> cloudHandoffScope = const Value.absent(),
+            Value<String?> cloudHandoffIssue = const Value.absent(),
             Value<String?> cloudRuleId = const Value.absent(),
             Value<int> id = const Value.absent(),
             required int ledgerId,
@@ -14598,6 +14661,7 @@ class $$RecurringTransactionsTableTableManager extends RootTableManager<
               RecurringTransactionsCompanion.insert(
             cloudHandoffKey: cloudHandoffKey,
             cloudHandoffScope: cloudHandoffScope,
+            cloudHandoffIssue: cloudHandoffIssue,
             cloudRuleId: cloudRuleId,
             id: id,
             ledgerId: ledgerId,

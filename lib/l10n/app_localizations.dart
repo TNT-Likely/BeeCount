@@ -17965,8 +17965,32 @@ abstract class AppLocalizations {
   /// No description provided for @cloudRecurringPending.
   ///
   /// In en, this message translates to:
-  /// **'Local rules awaiting transfer'**
+  /// **'Local recurring bills'**
   String get cloudRecurringPending;
+
+  /// No description provided for @cloudRecurringWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for sync'**
+  String get cloudRecurringWaiting;
+
+  /// No description provided for @cloudRecurringReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Review'**
+  String get cloudRecurringReview;
+
+  /// No description provided for @cloudRecurringSimilar.
+  ///
+  /// In en, this message translates to:
+  /// **'A similar Cloud rule exists. Link it or keep both.'**
+  String get cloudRecurringSimilar;
+
+  /// No description provided for @cloudRecurringInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the linked category, account and schedule.'**
+  String get cloudRecurringInvalid;
 
   /// No description provided for @cloudRecurringAdopt.
   ///
@@ -18051,6 +18075,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This local copy has edits or attachments. Review both entries before removing the duplicate.'**
   String get cloudRecurringManualReview;
+
+  /// No description provided for @cloudRecurringDeletedHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'A cloud transaction was deleted in the following history. Confirm to remove its local copy as well.'**
+  String get cloudRecurringDeletedHistory;
 
   /// No description provided for @cloudRecurringKeepCloud.
   ///

@@ -18,6 +18,7 @@ import '../../services/custom_icon_service.dart';
 import '../../services/system/logger_service.dart';
 import '../../services/ui/avatar_service.dart';
 import '../sync_service.dart' as app;
+import '../recurring/recurring_handoff.dart';
 import '../transactions_json.dart';
 import 'change_tracker.dart';
 import 'entity_serializer.dart';
@@ -38,6 +39,7 @@ part 'sync_engine_attachments.dart';
 part 'sync_engine_resolvers.dart';
 part 'sync_engine_status.dart';
 part 'sync_engine_realtime.dart';
+part 'sync_engine_recurring.dart';
 part 'sync_engine_profile.dart';
 part 'sync_engine_apply.dart';
 part 'sync_engine_serialization.dart';
@@ -77,6 +79,7 @@ class SyncEngine implements app.SyncService {
   final BeeCountCloudProvider provider;
   final ChangeTracker changeTracker;
   final BaseRepository repo;
+  final _recurringInFlight = <int, Future<void>>{};
   Future<void> _transactionMoveTail = Future.value();
 
   /// 状态缓存
@@ -968,10 +971,13 @@ class SyncEngine implements app.SyncService {
     //
     // 所以策略改为:先按这个 ledgerIdInt 查未推送变更,有变更就继续推,没
     // 变更才安全 return。
+    final held = ledger == null ? <int>{} : await _adoptBeforeUpload(ledger);
     final ledgerChanges =
         await changeTracker.getUnpushedChangesForLedger(ledgerIdInt);
     // 仅这个 ledger 的 ledger-scope change。user-global 已在上面统一推走。
-    final changes = ledgerChanges;
+    final changes = ledgerChanges
+        .where((change) => !_holdRecurringChange(change, held))
+        .toList();
     if (changes.isEmpty) {
       if (ledger == null) {
         logger.warning('SyncEngine', 'push: 本地账本 $ledgerId 已删除且无待推送变更,跳过');
@@ -1478,8 +1484,9 @@ class SyncHealthReport {
   bool get needsBackfill {
     if (error != null || unpushedChanges > 0) return false;
     if (accounts.remote >= 0 && accounts.local > accounts.remote) return true;
-    if (categories.remote >= 0 && categories.local > categories.remote)
+    if (categories.remote >= 0 && categories.local > categories.remote) {
       return true;
+    }
     if (tags.remote >= 0 && tags.local > tags.remote) return true;
     return false;
   }

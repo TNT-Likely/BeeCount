@@ -308,6 +308,7 @@ class _BeeAppState extends ConsumerState<BeeApp>
               if (r.path is String) r.path as String,
         };
 
+        final pendingRecurring = await engine.pendingRecurringLedgers();
         final futures = ledgers.map((ledger) async {
           final tag = '${ledger.name}(${ledger.id})';
           try {
@@ -318,7 +319,9 @@ class _BeeAppState extends ConsumerState<BeeApp>
             final inRemote = hasSyncId && remoteSyncIds.contains(mySyncId);
 
             // fast skip:无待推送 + 已在远端 + 非共享 Editor 或 Owner
-            if (unpushed.isEmpty && inRemote) {
+            if (unpushed.isEmpty &&
+                inRemote &&
+                !pendingRecurring.contains(ledger.id)) {
               logger.info('AppStart', 'Phase2 skip $tag (无待推送 + 已绑定)');
               return _LedgerSyncResult.skip();
             }
@@ -740,6 +743,8 @@ class _BeeAppState extends ConsumerState<BeeApp>
       _checkAppLockOnResume();
       // 跨自然日切回前台时自动补扫到期周期账单（解决常驻后台不冷启动不触发问题）
       unawaited(_scanRecurringOnResumeIfNeeded());
+      final sync = ref.read(syncServiceProvider);
+      if (sync is SyncEngine) unawaited(sync.retryPendingRecurring());
       // 当app从后台恢复到前台时，更新小组件数据
       _updateWidget();
       // 前台稳定后认领待处理深链(冷启动/主题变更重建后,在最终页面树上打开)

@@ -90,7 +90,7 @@ class _CloudRecurringPageState extends ConsumerState<CloudRecurringPage>
   Future<void> adopt(CloudRuleBook book, RecurringTransaction local) async {
     final l = AppLocalizations.of(context);
     final choice = await showBeeDialog<String>(context,
-        title: l.cloudRecurringAdopt,
+        title: l.cloudRecurringReview,
         child: SingleChildScrollView(
             child: Column(mainAxisSize: MainAxisSize.min, children: [
           Text(l.cloudRecurringLink),
@@ -107,80 +107,33 @@ class _CloudRecurringPageState extends ConsumerState<CloudRecurringPage>
     final repo = ref.read(repositoryProvider);
     final sync = ref.read(syncServiceProvider);
     if (sync is! SyncEngine) throw StateError(l.cloudRecurringSyncFirst);
-    final frozen = await freezeRecurring(db, local.id, book.scope);
     await sync.pushUserGlobalEntities();
-    final transactions = await localRuleTransactions(db, frozen);
     final target = book.rules.where((r) => r.id == choice).firstOrNull;
-    final nextLocal =
-        RecurringTransactionService(repo).calculateNextDate(frozen);
-    final consumed = frozen.lastGeneratedDate ??
-        (nextLocal == null
-            ? null
-            : DateTime(nextLocal.year, nextLocal.month, nextLocal.day - 1));
-    final change = <String, dynamic>{
-      'action': target == null ? 'create' : 'update',
-      'client_id': frozen.cloudHandoffKey,
-      'local_transactions': [
-        for (final tx in transactions)
-          {'sync_id': tx.syncId, 'date': ruleDate(tx.happenedAt)}
-      ],
-      if (target != null) ...{
-        'record_id': target.id,
-        'expected_revision': target.revision
-      },
-      'data': target == null
-          ? await legacyRuleConfig(repo, frozen, book.zone)
-          : {...target.config, 'enabled': target.status != 'paused'},
-      'migrate': true,
-      'consumed_through': consumed == null ? null : ruleDate(consumed),
-    };
-    final preview = await book.change({...change, 'confirm': false});
-    if (preview['handoff_confirmed'] == true) {
-      await applyHandoffReceipt(
-          db, frozen, preview, l.cloudRecurringManualReview);
-      await sync.uploadCurrentLedger(ledgerId: local.ledgerId);
-      await sync.pull(local.ledgerId.toString());
-      return;
+    if (choice != 'create' && target == null) {
+      throw StateError(l.cloudRecurringConflict);
     }
-    change['reviewed_mapping'] = preview['reviewed_mapping'];
-    final mappings =
-        Map<String, dynamic>.from(preview['local_transactions'] as Map);
-    final overlaps =
-        transactions.where((tx) => mappings[tx.syncId] != tx.syncId);
+    final handoff =
+        await RecurringHandoff.prepare(db, repo, book, local, target: target);
+    final overlaps = handoff.overlaps.toList();
+    final deleted =
+        (handoff.preview['deleted_transactions'] as List? ?? const []).toSet();
     if (!mounted) return;
-    final dates =
-        (preview['next_occurrences'] as List? ?? []).take(3).join('\n');
-    if (await showBeeConfirm(context,
-            title: l.cloudRecurringAdopt,
-            message: [
-              l.cloudRecurringConfirm,
-              dates,
-              if (overlaps.isNotEmpty) l.cloudRecurringKeepCloud,
-              for (final tx in overlaps)
-                '${ruleDate(tx.happenedAt)} · ${tx.amount}'
-            ].join('\n'),
-            confirmLabel: l.commonOk,
-            cancelLabel: l.commonCancel) !=
-        true) {
+    if (overlaps.isNotEmpty &&
+        await showBeeConfirm(context,
+                title: l.cloudRecurringReview,
+                message: [
+                  if (deleted.isNotEmpty) l.cloudRecurringDeletedHistory,
+                  if (overlaps.any((tx) => !deleted.contains(tx.syncId)))
+                    l.cloudRecurringKeepCloud,
+                  for (final tx in overlaps)
+                    '${ruleDate(tx.happenedAt)} · ${tx.amount}'
+                ].join('\n'),
+                confirmLabel: l.commonOk,
+                cancelLabel: l.commonCancel) !=
+            true) {
       return;
     }
-    RuleJson result;
-    try {
-      result = await book.change({...change, 'confirm': true});
-    } on RecurringRuleException catch (e) {
-      if (!e.message.contains('SIMILAR_RULE') || !mounted) rethrow;
-      if (await showBeeConfirm(context,
-              title: l.cloudRecurringDistinct,
-              message: l.cloudRecurringLink,
-              confirmLabel: l.cloudRecurringCreateSeparate,
-              cancelLabel: l.commonCancel) !=
-          true) {
-        return;
-      }
-      result =
-          await book.change({...change, 'confirm': true, 'distinct': true});
-    }
-    await applyHandoffReceipt(db, frozen, result, l.cloudRecurringManualReview);
+    await handoff.finish(db, distinct: choice == 'create');
     await sync.uploadCurrentLedger(ledgerId: local.ledgerId);
     await sync.pull(local.ledgerId.toString());
   }
@@ -199,8 +152,18 @@ class _CloudRecurringPageState extends ConsumerState<CloudRecurringPage>
     final l = AppLocalizations.of(context);
     final int id = selected ?? ref.watch(currentLedgerIdProvider);
     final data = ref.watch(cloudRuleBookProvider(id));
-    final old = ref.watch(pendingRecurringProvider(id)).valueOrNull ?? [];
+    ref.listen(pendingRecurringProvider(id), (previous, next) {
+      if (previous?.hasValue == true &&
+          next.hasValue &&
+          previous!.requireValue.length > next.requireValue.length) {
+        ref.invalidate(cloudRuleBookProvider(id));
+      }
+    });
     final book = data.valueOrNull;
+    final old = (ref.watch(pendingRecurringProvider(id)).valueOrNull ?? [])
+        .where((r) =>
+            r.cloudHandoffScope == null || r.cloudHandoffScope == book?.scope)
+        .toList();
     return V4PageScaffold(
         body: Column(children: [
       BeePageHeader(
@@ -287,14 +250,26 @@ class _CloudRecurringPageState extends ConsumerState<CloudRecurringPage>
                                       : local.type == 'income'
                                           ? l.categoryIncome
                                           : l.categoryExpense)),
-                              subtitle: Text(
-                                  '${local.amount} · ${ruleDate(local.startDate)}'),
-                              trailing: TextButton(
-                                  onPressed:
-                                      busy || book.offline || !book.canCreate
+                              subtitle: Text([
+                                '${local.amount} · ${ruleDate(local.startDate)}',
+                                if (local.cloudHandoffIssue == 'similar')
+                                  l.cloudRecurringSimilar,
+                                if (local.cloudHandoffIssue == 'history')
+                                  l.cloudRecurringManualReview,
+                                if (local.cloudHandoffIssue == 'invalid')
+                                  l.cloudRecurringInvalid,
+                              ].join('\n')),
+                              trailing: local.cloudHandoffIssue == null
+                                  ? Text(l.cloudRecurringWaiting,
+                                      style:
+                                          Theme.of(context).textTheme.bodySmall)
+                                  : TextButton(
+                                      onPressed: busy ||
+                                              book.offline ||
+                                              !book.canCreate
                                           ? null
                                           : () => run(() => adopt(book, local)),
-                                  child: Text(l.cloudRecurringAdopt))),
+                                      child: Text(l.cloudRecurringReview))),
                         if (book.rules.isEmpty && old.isEmpty)
                           BeeEmptyState(
                               title: l.recurringTransactionEmpty,
@@ -349,7 +324,14 @@ class _CloudRecurringPageState extends ConsumerState<CloudRecurringPage>
 
 String cloudRuleError(BuildContext context, Object error) {
   final l = AppLocalizations.of(context);
+  if (error is StateError && error.message == 'HISTORY_CONFLICT') {
+    return l.cloudRecurringManualReview;
+  }
   if (error is RecurringRuleException) {
+    if (error.message.contains('HISTORY_CONFLICT') ||
+        error.message.contains('Already synchronized copies')) {
+      return l.cloudRecurringManualReview;
+    }
     if (error.status == 409) return l.cloudRecurringConflict;
     if (error.status == 404) return l.cloudRecurringUpgrade;
   }

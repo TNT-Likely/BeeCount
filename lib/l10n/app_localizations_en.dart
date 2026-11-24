@@ -9602,7 +9602,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cloudRecurringPausedService => 'Automatic posting is disabled on this server.';
 
   @override
-  String get cloudRecurringPending => 'Local rules awaiting transfer';
+  String get cloudRecurringPending => 'Local recurring bills';
+
+  @override
+  String get cloudRecurringWaiting => 'Waiting for sync';
+
+  @override
+  String get cloudRecurringReview => 'Review';
+
+  @override
+  String get cloudRecurringSimilar => 'A similar Cloud rule exists. Link it or keep both.';
+
+  @override
+  String get cloudRecurringInvalid => 'Check the linked category, account and schedule.';
 
   @override
   String get cloudRecurringAdopt => 'Transfer to Cloud';
@@ -9645,6 +9657,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cloudRecurringManualReview => 'This local copy has edits or attachments. Review both entries before removing the duplicate.';
+
+  @override
+  String get cloudRecurringDeletedHistory => 'A cloud transaction was deleted in the following history. Confirm to remove its local copy as well.';
 
   @override
   String get cloudRecurringKeepCloud => 'These periods already have a transaction. Keep the confirmed one and remove its unsubmitted local copy.';

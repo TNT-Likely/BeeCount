@@ -127,10 +127,10 @@ void main() {
     final web = await qaRequest(
         'GET', '/api/v1/ledgers/${result['ledger_sync_id']}/recurring-rules',
         token: login['access_token'] as String);
-    expect(
-        (web['items'] as List).single['data']['rule']['transaction']['amount'],
-        47);
-    expect((web['items'] as List).single['status'], 'paused');
+    final edited =
+        (web['items'] as List).singleWhere((r) => r['id'] == result['rule_id']);
+    expect(edited['data']['rule']['transaction']['amount'], 47);
+    expect(edited['status'], 'paused');
     final local = await container
         .read(databaseProvider)
         .select(container.read(databaseProvider).transactions)

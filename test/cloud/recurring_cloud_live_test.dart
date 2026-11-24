@@ -23,8 +23,9 @@ void main() {
     final cloud = BeeCountCloudProvider();
     await cloud.initialize({'baseUrl': origin});
     await cloud.auth.signInWithEmail(email: owner, password: password);
-    final row =
-        ((await cloud.recurringRules(existingLedger))['items'] as List).single;
+    final row = ((await cloud.recurringRules(existingLedger))['items'] as List)
+        .singleWhere(
+            (r) => r['id'] == const String.fromEnvironment('QA_EXPECTED_RULE'));
     expect(row['id'], const String.fromEnvironment('QA_EXPECTED_RULE'));
     expect(row['status'], 'paused');
     expect(row['data']['rule']['name'], 'QA Web 已复核');

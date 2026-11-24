@@ -160,6 +160,15 @@ Future<Map<String, dynamic>> recurringCloudRoundTrip({
     'confirm': true
   });
   expect((await cloud.recurringRules(key))['items'][0]['status'], 'paused');
+  await repo.toggleRecurringTransaction(localId, false);
+  await engine.push(ledgerId.toString());
+  final adopted = (await db.select(db.recurringTransactions).get())
+      .singleWhere((r) => r.id == localId);
+  expect(adopted.cloudRuleId, isNotNull);
+  final cloudRules = (await cloud.recurringRules(key))['items'] as List;
+  expect(
+      cloudRules.singleWhere((r) => r['id'] == adopted.cloudRuleId)['status'],
+      'paused');
   return {
     'ledger_id': ledgerId,
     'ledger_sync_id': key,
@@ -170,6 +179,7 @@ Future<Map<String, dynamic>> recurringCloudRoundTrip({
     'normal_ui_markers': ['QA 服务端入账', '43.00'],
     'cases': [
       for (final name in [
+        '无入口点击自动接管，保留暂停状态',
         'Web 新建与幂等重试',
         'App 编辑后网页可见',
         '陈旧版本收到冲突',

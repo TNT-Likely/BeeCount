@@ -9564,7 +9564,19 @@ class AppLocalizationsZh extends AppLocalizations {
   String get cloudRecurringPausedService => 'Cloud 自动记账已停用，请检查服务器设置。';
 
   @override
-  String get cloudRecurringPending => '本机规则待交接';
+  String get cloudRecurringPending => '本机周期账单';
+
+  @override
+  String get cloudRecurringWaiting => '等待同步';
+
+  @override
+  String get cloudRecurringReview => '核对';
+
+  @override
+  String get cloudRecurringSimilar => 'Cloud 有相似账单，请选择关联或分别保留。';
+
+  @override
+  String get cloudRecurringInvalid => '请核对关联的分类、账户和记账日期。';
 
   @override
   String get cloudRecurringAdopt => '交给 Cloud';
@@ -9607,6 +9619,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get cloudRecurringManualReview => '这笔本机流水有修改或附件，请先在明细中核对两笔记录，再处理重复项。';
+
+  @override
+  String get cloudRecurringDeletedHistory => '部分期次的云端流水已删除。确认后将移除这些流水的本机副本。';
 
   @override
   String get cloudRecurringKeepCloud => '以下期次已有流水。确认后保留已入账的一笔，移除本机尚未上传的重复副本。';
@@ -19016,7 +19031,19 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get cloudRecurringPausedService => 'Cloud 自動記帳已停用，請檢查伺服器設定。';
 
   @override
-  String get cloudRecurringPending => '本機規則待交接';
+  String get cloudRecurringPending => '本機週期帳單';
+
+  @override
+  String get cloudRecurringWaiting => '等待同步';
+
+  @override
+  String get cloudRecurringReview => '核對';
+
+  @override
+  String get cloudRecurringSimilar => 'Cloud 有相似帳單，請選擇關聯或分別保留。';
+
+  @override
+  String get cloudRecurringInvalid => '請核對關聯的分類、帳戶和記帳日期。';
 
   @override
   String get cloudRecurringAdopt => '交給 Cloud';
@@ -19059,6 +19086,9 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get cloudRecurringManualReview => '這筆本機流水有修改或附件，請先在明細中核對兩筆記錄，再處理重複項目。';
+
+  @override
+  String get cloudRecurringDeletedHistory => '部分期次的雲端流水已刪除。確認後將移除這些流水的本機副本。';
 
   @override
   String get cloudRecurringKeepCloud => '以下期次已有流水。確認後保留已入帳的一筆，移除本機尚未上傳的重複副本。';

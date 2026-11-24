@@ -159,6 +159,7 @@ class RecurringTransactions extends Table {
   /// A persisted handoff freezes this local template before the first network request.
   TextColumn get cloudHandoffKey => text().nullable()();
   TextColumn get cloudHandoffScope => text().nullable()();
+  TextColumn get cloudHandoffIssue => text().nullable()();
   TextColumn get cloudRuleId => text().nullable()();
   IntColumn get id => integer().autoIncrement()();
   IntColumn get ledgerId => integer()();
@@ -525,7 +526,7 @@ class BeeDatabase extends _$BeeDatabase {
   BeeDatabase.forTesting(QueryExecutor executor) : super(executor);
 
   @override
-  int get schemaVersion => 35; // v35: 周期规则交接记录
+  int get schemaVersion => 36; // 自动接管时保留需要人工核对的原因
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -1285,6 +1286,10 @@ class BeeDatabase extends _$BeeDatabase {
               await _addColumnIfMissing('recurring_transactions', name,
                   'ALTER TABLE recurring_transactions ADD COLUMN $name TEXT;');
             }
+          }
+          if (from < 36) {
+            await _addColumnIfMissing('recurring_transactions', 'cloud_handoff_issue',
+                'ALTER TABLE recurring_transactions ADD COLUMN cloud_handoff_issue TEXT;');
           }
         },
         onCreate: (m) async {
