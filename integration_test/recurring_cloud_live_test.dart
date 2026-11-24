@@ -3,6 +3,7 @@ import 'package:beecount/data/repositories/local/local_repository.dart';
 import 'package:beecount/l10n/app_localizations_zh.dart';
 import 'package:beecount/pages/transaction/recurring/cloud_rule_editor.dart';
 import 'package:beecount_business_ui/recurring_editor.dart';
+import 'package:beecount_ui/beecount_ui.dart' show BeeDialog;
 import 'package:beecount/main.dart' show MainApp;
 import 'package:beecount/pages/main/home_page.dart';
 import 'package:beecount/pages/transaction/recurring/cloud_recurring_page.dart';
@@ -21,6 +22,8 @@ import 'support/recurring_cloud_case.dart';
 
 void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  binding.shouldPropagateDevicePointerEvents = true;
+  binding.framePolicy = LiveTestWidgetsFlutterBindingFramePolicy.fullyLive;
   binding.reportData = {};
   testWidgets(
       'Cloud rules are edited on both clients and executed once by Cloud',
@@ -71,6 +74,13 @@ void main() {
       fail('Production UI did not show $item');
     }
 
+    Future<void> capture(String label) async {
+      await tester.pump(const Duration(milliseconds: 350));
+      await Future<void>.delayed(const Duration(milliseconds: 450));
+      await tester.pump();
+      await binding.takeScreenshot(label);
+    }
+
     await waitFor(find.byType(HomePage));
     final navigator = Navigator.of(tester.element(find.byType(HomePage)),
         rootNavigator: true);
@@ -78,7 +88,7 @@ void main() {
         builder: (_) => const RecurringTransactionPage()));
     await waitFor(find.byType(CloudRecurringPage));
     await waitFor(find.text('QA 云端合账'));
-    await binding.takeScreenshot('01-app-cloud-rules');
+    await capture('01-app-cloud-rules');
     final l = AppLocalizationsZh();
     await tester.tap(find.text('QA 云端合账'));
     await waitFor(find.byType(CloudRuleEditor));
@@ -89,10 +99,20 @@ void main() {
     await tester.enterText(amount, '47');
     await tester.testTextInput.receiveAction(TextInputAction.done);
     await tester.pump(const Duration(milliseconds: 250));
-    await binding.takeScreenshot('02-app-rule-editor');
+    await capture('02-app-rule-editor');
     await tester.tap(find.text(l.commonSave).last);
-    await waitFor(find.text(l.v4RecurringPreviewTitle));
-    await tester.tap(find.text(l.commonSave).last);
+    final dialog = find.byType(BeeDialog);
+    await waitFor(dialog);
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester
+        .tap(find.descendant(of: dialog, matching: find.text(l.commonSave)));
+    for (var i = 0;
+        i < 100 && find.byType(CloudRuleEditor).evaluate().isNotEmpty;
+        i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+      await Future<void>.delayed(const Duration(milliseconds: 40));
+    }
+    expect(find.byType(CloudRuleEditor), findsNothing);
     await waitFor(find.text('QA 云端合账'));
     final login = await qaRequest('POST', '/api/v1/auth/login', data: {
       'email': email,
@@ -122,7 +142,7 @@ void main() {
 
     navigator.pop();
     await waitFor(find.byType(HomePage));
-    await binding.takeScreenshot('03-app-cloud-transaction');
+    await capture('03-app-cloud-transaction');
     binding.reportData!
         .addAll({...result, 'run_id': runId, 'scenario': 'recurring-cloud'});
     await prefs.setString('qa_run_id', runId);
