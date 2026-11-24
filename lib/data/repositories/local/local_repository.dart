@@ -1,3 +1,4 @@
+import 'package:flutter_cloud_sync/flutter_cloud_sync.dart' show CloudServiceStore;
 import 'package:drift/drift.dart' as d;
 import 'package:uuid/uuid.dart';
 
@@ -64,7 +65,10 @@ class LocalRepository extends BaseRepository {
   late final LocalAttachmentRepository _attachmentRepo;
   late final LocalExchangeRateRepository _exchangeRateRepo;
 
-  LocalRepository(this.db, {this.changeTracker}) {
+  final Future<bool> Function() cloudExecutesRecurring;
+
+  LocalRepository(this.db, {this.changeTracker, Future<bool> Function()? cloudExecutesRecurring})
+      : cloudExecutesRecurring = cloudExecutesRecurring ?? CloudServiceStore().usesCloudRecurringRules {
     _ledgerRepo = LocalLedgerRepository(db);
     _transactionRepo = LocalTransactionRepository(db);
     _categoryRepo = LocalCategoryRepository(db, trackerGetter: () => changeTracker);
@@ -2504,7 +2508,9 @@ class LocalRepository extends BaseRepository {
       final current = await (db.select(db.recurringTransactions)
             ..where((r) => r.id.equals(recurringId)))
           .getSingleOrNull();
-      if (current == null || !current.enabled) return null;
+      if (current == null || !current.enabled || current.cloudHandoffKey != null) return null;
+      // Recheck inside the same transaction as the posting and cursor advance.
+      if (await cloudExecutesRecurring()) return null;
 
       if (current.lastGeneratedDate != null) {
         final lastDay = DateTime(

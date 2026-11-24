@@ -16,9 +16,9 @@ import '../../../shared/selectors/category_selector_dialog.dart';
 import '../../../shared/selectors/ledger_selector_dialog.dart';
 import '../../../shared/currency/currency_flag.dart';
 import '../../../shared/selectors/currency_picker_sheet.dart';
-import '../../../shared/scaffold/widgets/page_scaffold.dart';
 import '../../../shared/resources/bindings/recording_category_icon.dart';
 import 'recurring_editor_pickers.dart';
+import 'recurring_editor_scaffold.dart';
 
 part 'recurring_editor_actions.dart';
 
@@ -233,79 +233,52 @@ class _RecurringEditorControlsState
           onClear:
               _endDate == null ? null : () => setState(() => _endDate = null)),
     };
-    return V4PageScaffold(
-        body: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      BeePageHeader(
-          title: _isEditing
-              ? l.recurringTransactionEdit
-              : l.recurringTransactionAdd,
-          leading: const BackButton(),
-          actions: [
-            if (_isEditing)
-              BeeIconButton(
-                  label: l.commonDelete,
-                  icon: const BeeLineIcon('Trash2'),
-                  onPressed: _saving || _initializing
-                      ? null
-                      : _deleteRecurringTransaction),
-          ]),
-      Expanded(
-          child: _initializing
-              ? const Center(child: CircularProgressIndicator())
-              : _loadError != null
-                  ? BeeEmptyState(
-                      title: '${l.commonError}: $_loadError',
-                      action: BeeButton(
-                          label: l.v4RecordingRetry, onPressed: _initialize))
-                  : Form(
-                      key: _formKey,
-                      child: BeePageBody(eager: true, children: [
-                        BeeRecurringEditorForm(
-                            amountController: _amountController,
-                            noteController: _noteController,
-                            type: _type,
-                            types: [
-                              BeeSegment('expense', l.categoryExpense),
-                              BeeSegment('income', l.categoryIncome),
-                              BeeSegment('transfer', l.transferTitle)
-                            ],
-                            values: values,
-                            amountLabel: l.importFieldAmount,
-                            noteLabel: l.commonNoteHint,
-                            clearLabel: l.commonRemove,
-                            schedulePreview:
-                                _buildSchedulePreview(l, localeName),
-                            showInterval:
-                                _frequency != RecurringFrequency.daily,
-                            showDayOfMonth:
-                                _frequency == RecurringFrequency.monthly,
-                            enabled: !_saving,
-                            onType: _selectType,
-                            amountValidator: (value) => value == null ||
-                                    value.isEmpty ||
-                                    double.tryParse(value) == null
-                                ? l.commonError
-                                : null),
-                        if (_writeError != null)
-                          BeeStatus(
-                              label: '${l.commonError}: $_writeError',
-                              tone: BeeTone.error),
-                      ]))),
-      SafeArea(
-          top: false,
-          child: Padding(
-              padding: const EdgeInsets.fromLTRB(17, 8, 17, 12),
-              child: BeeButton(
-                  key: const ValueKey('recurring-editor-save'),
-                  label: l.commonSave,
-                  icon: const BeeLineIcon('Check', size: 18),
-                  loading: _saving,
-                  onPressed: _saving ||
-                          _initializing ||
-                          _loadError != null ||
-                          !_isFormValid()
-                      ? null
-                      : _saveRecurringTransaction))),
-    ]));
+    return RecurringEditorScaffold(
+      editing: _isEditing,
+      saving: _saving,
+      onDelete: _initializing ? null : _deleteRecurringTransaction,
+      onSave: _initializing || _loadError != null || !_isFormValid()
+          ? null
+          : _saveRecurringTransaction,
+      editor: _initializing
+          ? const Center(child: CircularProgressIndicator())
+          : _loadError != null
+              ? BeeEmptyState(
+                  title: '${l.commonError}: $_loadError',
+                  action: BeeButton(
+                      label: l.v4RecordingRetry, onPressed: _initialize))
+              : Form(
+                  key: _formKey,
+                  child: BeePageBody(eager: true, children: [
+                    BeeRecurringEditorForm(
+                        amountController: _amountController,
+                        noteController: _noteController,
+                        type: _type,
+                        types: [
+                          BeeSegment('expense', l.categoryExpense),
+                          BeeSegment('income', l.categoryIncome),
+                          BeeSegment('transfer', l.transferTitle)
+                        ],
+                        values: values,
+                        amountLabel: l.importFieldAmount,
+                        noteLabel: l.commonNoteHint,
+                        clearLabel: l.commonRemove,
+                        schedulePreview: _buildSchedulePreview(l, localeName),
+                        showInterval: _frequency != RecurringFrequency.daily,
+                        showDayOfMonth:
+                            _frequency == RecurringFrequency.monthly,
+                        enabled: !_saving,
+                        onType: _selectType,
+                        amountValidator: (value) => value == null ||
+                                value.isEmpty ||
+                                double.tryParse(value) == null
+                            ? l.commonError
+                            : null),
+                    if (_writeError != null)
+                      BeeStatus(
+                          label: '${l.commonError}: $_writeError',
+                          tone: BeeTone.error),
+                  ])),
+    );
   }
 }

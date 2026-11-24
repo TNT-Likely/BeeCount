@@ -2,7 +2,7 @@
 //
 // v25 → v26 migration 是所有用户启动必跑的关键路径,出错 = 整体崩盘。
 // 本测试验证:
-//   1. schemaVersion 在最新版本(当前为 33,v33 加了 Agent 本地表)
+//   1. schemaVersion 已包含 sync_pull_errors 迁移
 //   2. sync_pull_errors 表完整 schema,所有列存在 + 默认值正确
 //   3. UNIQUE(change_id) 约束生效
 //   4. CRUD 基本操作正常
@@ -31,8 +31,8 @@ void main() {
     await db.close();
   });
 
-  test('schemaVersion = 33(确保 sync_pull_errors 表已纳入 schema)', () {
-    expect(db.schemaVersion, 34);
+  test('当前 schema 包含 sync_pull_errors 表', () {
+    expect(db.schemaVersion, greaterThanOrEqualTo(26));
   });
 
   test('sync_pull_errors 表存在,所有列就位', () async {

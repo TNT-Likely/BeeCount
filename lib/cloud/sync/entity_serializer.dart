@@ -34,6 +34,7 @@ class EntitySerializer {
     // apply 时能先按 syncId 找到本地账本，再用 int id 兜底。
     return {
       'syncId': tx.syncId,
+      if (tx.recurringId != null) 'localRecurringOrigin': true,
       'type': tx.type,
       'amount': tx.amount,
       'happenedAt': tx.happenedAt.toUtc().toIso8601String(),

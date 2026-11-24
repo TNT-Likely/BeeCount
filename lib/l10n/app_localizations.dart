@@ -17949,6 +17949,168 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not move the transactions. Check your connection and try again.'**
   String get transactionMoveFailed;
+
+  /// No description provided for @cloudRecurringOwner.
+  ///
+  /// In en, this message translates to:
+  /// **'Posted by Cloud'**
+  String get cloudRecurringOwner;
+
+  /// No description provided for @cloudRecurringPausedService.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic posting is disabled on this server.'**
+  String get cloudRecurringPausedService;
+
+  /// No description provided for @cloudRecurringPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Local recurring bills'**
+  String get cloudRecurringPending;
+
+  /// No description provided for @cloudRecurringWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for sync'**
+  String get cloudRecurringWaiting;
+
+  /// No description provided for @cloudRecurringReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Review'**
+  String get cloudRecurringReview;
+
+  /// No description provided for @cloudRecurringSimilar.
+  ///
+  /// In en, this message translates to:
+  /// **'A similar Cloud rule exists. Link it or keep both.'**
+  String get cloudRecurringSimilar;
+
+  /// No description provided for @cloudRecurringInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the linked category, account and schedule.'**
+  String get cloudRecurringInvalid;
+
+  /// No description provided for @cloudRecurringAdopt.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer to Cloud'**
+  String get cloudRecurringAdopt;
+
+  /// No description provided for @cloudRecurringCreateSeparate.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a separate Cloud rule'**
+  String get cloudRecurringCreateSeparate;
+
+  /// No description provided for @cloudRecurringLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Select the matching Cloud rule, or create a separate one.'**
+  String get cloudRecurringLink;
+
+  /// No description provided for @cloudRecurringConflict.
+  ///
+  /// In en, this message translates to:
+  /// **'This rule has changed or is being posted. Review the latest version.'**
+  String get cloudRecurringConflict;
+
+  /// No description provided for @cloudRecurringUpgrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot load recurring rules for this ledger. Sync the ledger and check that the server supports recurring rules.'**
+  String get cloudRecurringUpgrade;
+
+  /// No description provided for @cloudRecurringCached.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline · Showing cached rules. Cloud continues using the last confirmed schedule.'**
+  String get cloudRecurringCached;
+
+  /// No description provided for @cloudRecurringDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'Local draft awaiting submission'**
+  String get cloudRecurringDraft;
+
+  /// No description provided for @cloudRecurringSaveDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'Save draft'**
+  String get cloudRecurringSaveDraft;
+
+  /// No description provided for @cloudRecurringName.
+  ///
+  /// In en, this message translates to:
+  /// **'Rule name'**
+  String get cloudRecurringName;
+
+  /// No description provided for @cloudRecurringZone.
+  ///
+  /// In en, this message translates to:
+  /// **'Rule time zone'**
+  String get cloudRecurringZone;
+
+  /// No description provided for @cloudRecurringConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm the posting dates to save this rule to Cloud.'**
+  String get cloudRecurringConfirm;
+
+  /// No description provided for @cloudRecurringDistinct.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm this is a separate recurring bill'**
+  String get cloudRecurringDistinct;
+
+  /// No description provided for @cloudRecurringConflictDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit the latest rule'**
+  String get cloudRecurringConflictDraft;
+
+  /// No description provided for @cloudRecurringManualReview.
+  ///
+  /// In en, this message translates to:
+  /// **'This local copy has edits or attachments. Review both entries before removing the duplicate.'**
+  String get cloudRecurringManualReview;
+
+  /// No description provided for @cloudRecurringDeletedHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'A cloud transaction was deleted in the following history. Confirm to remove its local copy as well.'**
+  String get cloudRecurringDeletedHistory;
+
+  /// No description provided for @cloudRecurringKeepCloud.
+  ///
+  /// In en, this message translates to:
+  /// **'These periods already have a transaction. Keep the confirmed one and remove its unsubmitted local copy.'**
+  String get cloudRecurringKeepCloud;
+
+  /// No description provided for @cloudRecurringDraftChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes in your draft'**
+  String get cloudRecurringDraftChanges;
+
+  /// No description provided for @cloudRecurringWeekDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Day of week'**
+  String get cloudRecurringWeekDay;
+
+  /// No description provided for @cloudRecurringYearMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Month'**
+  String get cloudRecurringYearMonth;
+
+  /// No description provided for @cloudRecurringSyncFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync this ledger before transferring its rules.'**
+  String get cloudRecurringSyncFirst;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -540,8 +540,21 @@ class BeeCountCloudProvider implements CloudProvider {
     return storage.readLedgerStats(ledgerId: ledgerId);
   }
 
-  /// 拉 server 版本号(公开端点,不需要 token)。用在设置页展示
-  /// "BeeCount Cloud vX.Y.Z"。失败抛,调用方自己 swallow。
+  /// Reads and edits the Cloud-owned schedule through the authenticated ledger API.
+  Future<Map<String, dynamic>> recurringRules(String ledgerId, {Map<String, dynamic>? change}) async {
+    final storage = this.storage as BeeCountCloudStorageService;
+    final response = await storage._authedRequest(
+      method: change == null ? 'GET' : 'POST',
+      path: '/ledgers/${Uri.encodeComponent(ledgerId)}/recurring-rules',
+      body: change,
+    ).timeout(const Duration(seconds: 20));
+    if (response.statusCode != 200) {
+      throw RecurringRuleException(response.statusCode, _extractErrorMessage(response));
+    }
+    return jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
+  }
+
+  /// Reads the public server version and capabilities.
   Future<BeeCountCloudServerVersion> fetchServerVersion() async {
     final storage = _storage;
     if (storage == null) {
@@ -549,6 +562,16 @@ class BeeCountCloudProvider implements CloudProvider {
           'BeeCount Cloud storage is not initialized.');
     }
     return storage.fetchServerVersion();
+  }
+
+  /// The unauthenticated version probe is also available before sign-in.
+  static Future<BeeCountCloudServerVersion> fetchPublicServerVersion(
+    String baseUrl,
+    String apiPrefix,
+  ) {
+    final url = baseUrl.trim().replaceAll(RegExp(r'/+$'), '');
+    final prefix = _normalizeApiPrefix(apiPrefix.trim());
+    return _fetchCloudServerVersion(Uri.parse('$url$prefix/version'), http.get);
   }
 
   // ===========================================================================
@@ -2614,14 +2637,10 @@ class BeeCountCloudStorageService implements CloudStorageService {
   /// 拉 server 公开 /version。绕开 auth token —— 登录页未登录状态下也该能
   /// 显示 server 版本,不需要 token。
   Future<BeeCountCloudServerVersion> fetchServerVersion() async {
-    final uri = Uri.parse('$baseUrl$apiPrefix/version');
-    final response = await _httpClient.get(uri);
-    if (response.statusCode < 200 || response.statusCode >= 300) {
-      throw CloudStorageException(
-          'Fetch version failed: ${_extractErrorMessage(response)}');
-    }
-    final payload = _decodeJsonObject(response.body);
-    return BeeCountCloudServerVersion.fromJson(payload);
+    return _fetchCloudServerVersion(
+      Uri.parse('$baseUrl$apiPrefix/version'),
+      _httpClient.get,
+    );
   }
 
   // ===========================================================================
@@ -3389,6 +3408,9 @@ class BeeCountCloudStorageService implements CloudStorageService {
     final request = http.Request(method, uri);
     request.headers['Authorization'] = 'Bearer $token';
     request.headers['Content-Type'] = 'application/json';
+    if (path == '/sync/push') {
+      request.headers['X-BeeCount-Recurring'] = 'cloud-v1';
+    }
     if (headers != null && headers.isNotEmpty) {
       request.headers.addAll(headers);
     }
@@ -3737,6 +3759,18 @@ class BeeCountCloudReadLedger {
   }
 }
 
+Future<BeeCountCloudServerVersion> _fetchCloudServerVersion(
+  Uri uri,
+  Future<http.Response> Function(Uri) get,
+) async {
+  final response = await get(uri);
+  if (response.statusCode < 200 || response.statusCode >= 300) {
+    throw CloudStorageException(
+        'Fetch version failed: ${_extractErrorMessage(response)}');
+  }
+  return BeeCountCloudServerVersion.fromJson(_decodeJsonObject(response.body));
+}
+
 class BeeCountCloudServerVersion {
   const BeeCountCloudServerVersion({
     required this.name,
@@ -3756,6 +3790,14 @@ class BeeCountCloudServerVersion {
           (json['capabilities'] as List?)?.whereType<String>().toSet() ?? {},
     );
   }
+}
+
+class RecurringRuleException implements Exception {
+  final int status;
+  final String message;
+  const RecurringRuleException(this.status, this.message);
+  @override
+  String toString() => message;
 }
 
 class BeeCountCloudTransactionMoveException extends CloudStorageException {

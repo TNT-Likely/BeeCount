@@ -9594,4 +9594,85 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get transactionMoveFailed => 'Could not move the transactions. Check your connection and try again.';
+
+  @override
+  String get cloudRecurringOwner => 'Posted by Cloud';
+
+  @override
+  String get cloudRecurringPausedService => 'Automatic posting is disabled on this server.';
+
+  @override
+  String get cloudRecurringPending => 'Local recurring bills';
+
+  @override
+  String get cloudRecurringWaiting => 'Waiting for sync';
+
+  @override
+  String get cloudRecurringReview => 'Review';
+
+  @override
+  String get cloudRecurringSimilar => 'A similar Cloud rule exists. Link it or keep both.';
+
+  @override
+  String get cloudRecurringInvalid => 'Check the linked category, account and schedule.';
+
+  @override
+  String get cloudRecurringAdopt => 'Transfer to Cloud';
+
+  @override
+  String get cloudRecurringCreateSeparate => 'Create a separate Cloud rule';
+
+  @override
+  String get cloudRecurringLink => 'Select the matching Cloud rule, or create a separate one.';
+
+  @override
+  String get cloudRecurringConflict => 'This rule has changed or is being posted. Review the latest version.';
+
+  @override
+  String get cloudRecurringUpgrade => 'Cannot load recurring rules for this ledger. Sync the ledger and check that the server supports recurring rules.';
+
+  @override
+  String get cloudRecurringCached => 'Offline · Showing cached rules. Cloud continues using the last confirmed schedule.';
+
+  @override
+  String get cloudRecurringDraft => 'Local draft awaiting submission';
+
+  @override
+  String get cloudRecurringSaveDraft => 'Save draft';
+
+  @override
+  String get cloudRecurringName => 'Rule name';
+
+  @override
+  String get cloudRecurringZone => 'Rule time zone';
+
+  @override
+  String get cloudRecurringConfirm => 'Confirm the posting dates to save this rule to Cloud.';
+
+  @override
+  String get cloudRecurringDistinct => 'Confirm this is a separate recurring bill';
+
+  @override
+  String get cloudRecurringConflictDraft => 'Edit the latest rule';
+
+  @override
+  String get cloudRecurringManualReview => 'This local copy has edits or attachments. Review both entries before removing the duplicate.';
+
+  @override
+  String get cloudRecurringDeletedHistory => 'A cloud transaction was deleted in the following history. Confirm to remove its local copy as well.';
+
+  @override
+  String get cloudRecurringKeepCloud => 'These periods already have a transaction. Keep the confirmed one and remove its unsubmitted local copy.';
+
+  @override
+  String get cloudRecurringDraftChanges => 'Changes in your draft';
+
+  @override
+  String get cloudRecurringWeekDay => 'Day of week';
+
+  @override
+  String get cloudRecurringYearMonth => 'Month';
+
+  @override
+  String get cloudRecurringSyncFirst => 'Sync this ledger before transferring its rules.';
 }

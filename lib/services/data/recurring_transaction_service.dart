@@ -1,5 +1,6 @@
 import '../../data/db.dart';
 import '../../data/repositories/base_repository.dart';
+import '../../data/repositories/local/local_repository.dart';
 import '../system/logger_service.dart';
 
 /// 重复交易频率枚举
@@ -418,6 +419,8 @@ class RecurringTransactionService {
   /// 生成所有待处理的到期交易记录（单规则异常隔离 + 单期事务原子落库）
   Future<List<Transaction>> generatePendingTransactions({DateTime? now}) async {
     final nowTs = now ?? DateTime.now();
+    final source = repository;
+    if (source is LocalRepository && await source.cloudExecutesRecurring()) return [];
     logger.info(_tag, '开始扫描周期交易 (now=$nowTs)');
 
     final ledgers = await repository.getAllLedgers();

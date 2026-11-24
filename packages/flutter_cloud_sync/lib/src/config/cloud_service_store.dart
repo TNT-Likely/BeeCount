@@ -1,4 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../providers/beecount_cloud_provider.dart';
 import 'cloud_service_config.dart';
 
 /// 云服务配置持久化存储
@@ -10,6 +12,60 @@ class CloudServiceStore {
   static const _kSupabaseCfg = 'cloud_supabase_cfg';
   static const _kWebdavCfg = 'cloud_webdav_cfg';
   static const _kS3Cfg = 'cloud_s3_cfg';
+
+  Future<bool> usesBeeCountCloud() async =>
+      (await SharedPreferences.getInstance()).getString(_kActiveType) == 'beecount_cloud';
+
+  static final _recurringProbes =
+      <String, ({DateTime expires, Future<bool> result})>{};
+
+  /// A confirmed legacy server keeps local execution. Once a server advertises
+  /// recurring rules, an outage or downgrade never gives execution back locally.
+  Future<bool> usesCloudRecurringRules() async {
+    if (!await usesBeeCountCloud()) return false;
+    final config = await loadBeeCountCloud();
+    final baseUrl = config?.beecountCloudBaseUrl?.trim()
+        .replaceAll(RegExp(r'/+$'), '');
+    if (baseUrl == null || baseUrl.isEmpty) return true;
+    final prefix = (config?.beecountCloudApiPrefix ?? '/api/v1')
+        .split('/')
+        .map((part) => part.trim())
+        .where((part) => part.isNotEmpty)
+        .join('/');
+    final key = 'cloud_recurring_supported.$baseUrl/$prefix';
+    final prefs = await SharedPreferences.getInstance();
+    if (prefs.getBool(key) == true) return true;
+    final now = DateTime.now();
+    final previous = _recurringProbes[key];
+    if (previous != null && previous.expires.isAfter(now)) {
+      return previous.result;
+    }
+    final result = _probeRecurringSupport(baseUrl, '/$prefix', prefs, key);
+    _recurringProbes[key] =
+        (expires: now.add(const Duration(seconds: 30)), result: result);
+    return result;
+  }
+
+  Future<bool> _probeRecurringSupport(
+    String baseUrl,
+    String prefix,
+    SharedPreferences prefs,
+    String key,
+  ) async {
+    try {
+      final server = await BeeCountCloudProvider.fetchPublicServerVersion(
+        baseUrl,
+        prefix,
+      ).timeout(const Duration(seconds: 3));
+      if (server.capabilities.contains('recurring_rules_v1')) {
+        await prefs.setBool(key, true);
+        return true;
+      }
+      return server.version.isEmpty;
+    } catch (_) {
+      return true;
+    }
+  }
 
   /// 加载当前激活的云服务配置
   Future<CloudServiceConfig> loadActive() async {

@@ -1,6 +1,7 @@
 // Run only in the verified QA bundle on a simulator owned by this run.
 import 'dart:convert';
 
+import 'package:beecount/cloud/recurring/cloud_recurring_rules.dart';
 import 'package:beecount/data/repositories/local/local_repository.dart';
 import 'package:beecount/l10n/app_localizations_zh.dart';
 import 'package:beecount/main.dart' show MainApp;
@@ -116,13 +117,14 @@ void main() {
     await prefs.setBool('welcome_shown', true);
     await prefs.setString('noteDisplayMode', 'note');
 
-    await CloudServiceStore().saveAndActivate(const CloudServiceConfig(
+    const cloudConfig = CloudServiceConfig(
       type: CloudBackendType.beecountCloud,
       name: 'Isolated QA Cloud',
       beecountCloudBaseUrl: origin,
       beecountCloudEmail: email,
       beecountCloudPassword: password,
-    ));
+    );
+    await CloudServiceStore().saveAndActivate(cloudConfig);
 
     final container = ProviderContainer();
     final runtime = (await container.read(activeCloudRuntimeProvider.future))!;
@@ -132,6 +134,10 @@ void main() {
     final engine = runtime.syncEngine!;
     final db = container.read(databaseProvider);
     final repo = container.read(repositoryProvider) as LocalRepository;
+
+    // These fixtures exercise the local executor. Keep its ownership explicit
+    // while retaining the independently authenticated QA sync client for later.
+    await CloudServiceStore().saveAndActivate(CloudServiceConfig.localStorage());
 
     final ledgerId = await repo.createLedger(name: 'QA 周期账单 $runId');
     container.read(currentLedgerIdProvider.notifier).state = ledgerId;
@@ -637,6 +643,8 @@ void main() {
           body: {'run_id': runId, 'offline': false});
     }
 
+    await CloudServiceStore().saveAndActivate(cloudConfig);
+    container.invalidate(cloudRecurringModeProvider);
     await sync();
     await sync();
     var snapAfterRecovery = await snapshot(ledgerSyncId);
@@ -647,7 +655,7 @@ void main() {
     );
     pass(
       'R06',
-      'QA Cloud 503 simulation: toggling a paused due-today rule ON immediately generated 1 local transaction and synchronized it exactly once after Cloud recovery',
+      'Local ownership during the outage generated one transaction. After explicit Cloud activation the existing transaction synchronized once.',
     );
 
     // -------------------------------------------------------------------------

@@ -121,6 +121,7 @@ extension SyncEngineRealtime on SyncEngine {
           }
         }
         final result = await sync(ledgerId: ledgerId);
+        await retryPendingRecurring(except: int.tryParse(ledgerId));
         if (result.hasError) {
           logger.warning('SyncEngine',
               'auto sync 失败 (reason=$reason): ${result.error}');

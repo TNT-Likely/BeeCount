@@ -321,10 +321,15 @@ extension SyncEngineSerializationExt on SyncEngine {
   Future<void> _doFullPush({required int ledgerId}) async {
     logger.info('SyncEngine', '开始全量推送 ledger=$ledgerId');
 
-    final ledger = await (db.select(db.ledgers)
+    Future<Ledger> readLedger() => (db.select(db.ledgers)
           ..where((l) => l.id.equals(ledgerId)))
         .getSingle();
-    final pathForSnapshot = ledger.syncId ?? ledger.id.toString();
+    var ledger = await readLedger();
+    if (ledger.syncId == null || ledger.syncId!.length < 3) {
+      await _ensureLedgerSyncId(ledger);
+      ledger = await readLedger();
+    }
+    final pathForSnapshot = ledger.syncId!;
 
     // 0. 先用专用的 writeCreateLedger API(POST /write/ledgers)显式带 currency
     //    创建 server 端账本。这是修复"app 选 JPY 创建账本,server 端却是 CNY"的
@@ -353,23 +358,30 @@ extension SyncEngineSerializationExt on SyncEngine {
           'writeCreateLedger 失败（已存在或其他原因,继续走 storage 上传）: $e', st);
     }
 
+    // A recurring ledger may already have server-only entries and later edits.
+    final held = await _adoptBeforeUpload(ledger);
+    // Only acknowledge changes present before this upload started.
+    final unpushed = await changeTracker.getUnpushedChangesForLedger(ledgerId);
+    final bulkExclusions = await _recurringBulkExclusions(ledger, held, unpushed);
     // 1. 上传 JSON 快照
     //    path 用 ledger.syncId，跟 _push/_pushAllEntities 的 ledger_id 一致，
     //    避免 server 出现两条 external_id 指向同一账本的分裂。
-    try {
-      final jsonData = await _exportLedgerJson(ledger);
-      await provider.storage.upload(
-        path: pathForSnapshot,
-        data: jsonData,
-        metadata: {
-          'ledger_name': ledger.name,
-          'currency': ledger.currency,
-          'type': 'full_push',
-        },
-      );
-      logger.info('SyncEngine', 'JSON 快照上传成功');
-    } catch (e, st) {
-      logger.error('SyncEngine', 'JSON 快照上传失败（继续推送个体变更）', e, st);
+    if (bulkExclusions == null) {
+      try {
+        final jsonData = await _exportLedgerJson(ledger);
+        await provider.storage.upload(
+          path: pathForSnapshot,
+          data: jsonData,
+          metadata: {
+            'ledger_name': ledger.name,
+            'currency': ledger.currency,
+            'type': 'full_push',
+          },
+        );
+        logger.info('SyncEngine', 'JSON 快照上传成功');
+      } catch (e, st) {
+        logger.error('SyncEngine', 'JSON 快照上传失败（继续推送个体变更）', e, st);
+      }
     }
 
     // 2. ledger 已就绪，这时再上传附件文件、回填 cloudFileId 到本地 DB。
@@ -381,7 +393,7 @@ extension SyncEngineSerializationExt on SyncEngine {
     }
 
     // 3. 推送所有实体的个体变更（用于 Web 端和增量同步）
-    await _pushAllEntities(ledger);
+    await _pushAllEntities(ledger, bulkExclusions);
 
     // 标记本次 fullPush 已经覆盖的变更为已推送。
     //
@@ -396,8 +408,9 @@ extension SyncEngineSerializationExt on SyncEngine {
     //
     // 修复:把 delete change 留作未推送,sync() 在 fullPush 之后会再调一次
     // _push 把它们推上去 + markPushed。
-    final unpushed = await changeTracker.getUnpushedChangesForLedger(ledgerId);
-    final nonDeletes = unpushed.where((c) => c.action != 'delete').toList();
+    final nonDeletes = unpushed
+        .where((c) => c.action != 'delete' && !_holdRecurringChange(c, held))
+        .toList();
     if (nonDeletes.isNotEmpty) {
       await changeTracker.markPushed(nonDeletes.map((c) => c.id).toList());
     }
@@ -412,7 +425,7 @@ extension SyncEngineSerializationExt on SyncEngine {
   /// 实体(account / category / tag)由调用方通过 [pushUserGlobalEntities] 统一
   /// 推送 — 本函数入口处会调它一次,跨 ledger 并发的 fullPush 共享同一份
   /// user-global push,避免重复(详见 .docs/concurrent-fullpush-bloat.md)。
-  Future<void> _pushAllEntities(Ledger ledger) async {
+  Future<void> _pushAllEntities(Ledger ledger, Set<int>? recurringExclusions) async {
     // 1) 先推 user-global(单飞,多账本并行 fullPush 时共享同一次推送)
     await pushUserGlobalEntities();
 
@@ -492,6 +505,7 @@ extension SyncEngineSerializationExt on SyncEngine {
     }
 
     for (final tx in transactions) {
+      if (recurringExclusions?.contains(tx.id) ?? false) continue;
       final syncId = tx.syncId ?? _uuid.v4();
       if (tx.syncId == null) {
         await (db.update(db.transactions)..where((t) => t.id.equals(tx.id)))
@@ -551,22 +565,25 @@ extension SyncEngineSerializationExt on SyncEngine {
         'entity_type': 'transaction',
         'entity_sync_id': syncId,
         'action': 'upsert',
-        'payload': EntitySerializer.serializeTransaction(
-          tx,
-          categoryName: cat?.name,
-          categoryKind: cat?.kind,
-          categorySyncId: cat?.syncId,
-          accountName: acc?.name,
-          accountSyncId: acc?.syncId,
-          fromAccountName: tx.type == 'transfer' ? acc?.name : null,
-          fromAccountSyncId: tx.type == 'transfer' ? acc?.syncId : null,
-          toAccountName: toAcc?.name,
-          toAccountSyncId: toAcc?.syncId,
-          ledgerSyncId: ledger.syncId,
-          tagNames: tagNames.isNotEmpty ? tagNames : null,
-          tagSyncIds: tagSyncIds.isNotEmpty ? tagSyncIds : null,
-          attachments: attMaps,
-        ),
+        'payload': {
+          ...EntitySerializer.serializeTransaction(
+            tx,
+            categoryName: cat?.name,
+            categoryKind: cat?.kind,
+            categorySyncId: cat?.syncId,
+            accountName: acc?.name,
+            accountSyncId: acc?.syncId,
+            fromAccountName: tx.type == 'transfer' ? acc?.name : null,
+            fromAccountSyncId: tx.type == 'transfer' ? acc?.syncId : null,
+            toAccountName: toAcc?.name,
+            toAccountSyncId: toAcc?.syncId,
+            ledgerSyncId: ledger.syncId,
+            tagNames: tagNames.isNotEmpty ? tagNames : null,
+            tagSyncIds: tagSyncIds.isNotEmpty ? tagSyncIds : null,
+            attachments: attMaps,
+          ),
+          if (recurringExclusions != null) 'restoredSnapshot': true,
+        },
         'updated_at': now,
       });
     }
