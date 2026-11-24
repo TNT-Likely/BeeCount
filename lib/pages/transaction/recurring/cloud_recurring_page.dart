@@ -196,128 +196,118 @@ class _CloudRecurringPageState extends ConsumerState<CloudRecurringPage>
                   title: cloudRuleError(context, e),
                   action:
                       BeeButton(label: l.v4RecordingRetry, onPressed: refresh)),
-              data: (book) => RefreshIndicator(
-                  onRefresh: () async {
-                    ref.invalidate(cloudRuleBookProvider(id));
-                    await ref.read(cloudRuleBookProvider(id).future);
-                  },
-                  child: ListView(
-                      padding: const EdgeInsets.all(17),
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      children: [
-                        BeeRecurringUsageNotice(
-                            title: book.ledger.name,
-                            description: book.offline
-                                ? l.cloudRecurringCached
-                                : book.schedulerEnabled
-                                    ? l.cloudRecurringOwner
-                                    : l.cloudRecurringPausedService),
-                        FutureBuilder<List<RuleJson>>(
-                            future: storedDrafts(book),
-                            builder: (_, s) => Column(children: [
-                                  for (final draft in s.data ?? <RuleJson>[])
-                                    ListTile(
-                                        title: Text(l.cloudRecurringDraft),
-                                        subtitle: Text(
-                                            draft['data']['name'].toString()),
-                                        trailing: IconButton(
-                                            icon: const Icon(Icons.close),
-                                            tooltip: l.commonRemove,
-                                            onPressed: () async {
-                                              final prefs =
-                                                  await SharedPreferences
-                                                      .getInstance();
-                                              await prefs.remove(
-                                                  '${book.draftKey}.${draft['record_id'] ?? draft['client_id']}');
-                                              if (mounted) setState(() {});
-                                            }),
-                                        onTap: () => edit(book,
-                                            draft: draft,
-                                            row: book.rules
-                                                .where((r) =>
-                                                    r.id == draft['record_id'])
-                                                .firstOrNull)),
-                                ])),
-                        if (old.isNotEmpty)
-                          Padding(
-                              padding: const EdgeInsets.only(top: 12),
-                              child: Text(l.cloudRecurringPending)),
-                        for (final local in old)
-                          ListTile(
-                              title: Text(local.note ??
-                                  (local.type == 'transfer'
-                                      ? l.transferTitle
-                                      : local.type == 'income'
-                                          ? l.categoryIncome
-                                          : l.categoryExpense)),
-                              subtitle: Text([
-                                '${local.amount} · ${ruleDate(local.startDate)}',
-                                if (local.cloudHandoffIssue == 'similar')
-                                  l.cloudRecurringSimilar,
-                                if (local.cloudHandoffIssue == 'history')
-                                  l.cloudRecurringManualReview,
-                                if (local.cloudHandoffIssue == 'invalid')
-                                  l.cloudRecurringInvalid,
-                              ].join('\n')),
-                              trailing: local.cloudHandoffIssue == null
-                                  ? Text(l.cloudRecurringWaiting,
-                                      style:
-                                          Theme.of(context).textTheme.bodySmall)
-                                  : TextButton(
-                                      onPressed: busy ||
-                                              book.offline ||
-                                              !book.canCreate
+              data: (book) =>
+                  ListView(padding: const EdgeInsets.all(17), children: [
+                    BeeRecurringUsageNotice(
+                        title: book.ledger.name,
+                        description: book.offline
+                            ? l.cloudRecurringCached
+                            : book.schedulerEnabled
+                                ? l.cloudRecurringOwner
+                                : l.cloudRecurringPausedService),
+                    FutureBuilder<List<RuleJson>>(
+                        future: storedDrafts(book),
+                        builder: (_, s) => Column(children: [
+                              for (final draft in s.data ?? <RuleJson>[])
+                                ListTile(
+                                    title: Text(l.cloudRecurringDraft),
+                                    subtitle:
+                                        Text(draft['data']['name'].toString()),
+                                    trailing: IconButton(
+                                        icon: const Icon(Icons.close),
+                                        tooltip: l.commonRemove,
+                                        onPressed: () async {
+                                          final prefs = await SharedPreferences
+                                              .getInstance();
+                                          await prefs.remove(
+                                              '${book.draftKey}.${draft['record_id'] ?? draft['client_id']}');
+                                          if (mounted) setState(() {});
+                                        }),
+                                    onTap: () => edit(book,
+                                        draft: draft,
+                                        row: book.rules
+                                            .where((r) =>
+                                                r.id == draft['record_id'])
+                                            .firstOrNull)),
+                            ])),
+                    if (old.isNotEmpty)
+                      Padding(
+                          padding: const EdgeInsets.only(top: 12),
+                          child: Text(l.cloudRecurringPending)),
+                    for (final local in old)
+                      ListTile(
+                          title: Text(local.note ??
+                              (local.type == 'transfer'
+                                  ? l.transferTitle
+                                  : local.type == 'income'
+                                      ? l.categoryIncome
+                                      : l.categoryExpense)),
+                          subtitle: Text([
+                            '${local.amount} · ${ruleDate(local.startDate)}',
+                            if (local.cloudHandoffIssue == 'similar')
+                              l.cloudRecurringSimilar,
+                            if (local.cloudHandoffIssue == 'history')
+                              l.cloudRecurringManualReview,
+                            if (local.cloudHandoffIssue == 'invalid')
+                              l.cloudRecurringInvalid,
+                          ].join('\n')),
+                          trailing: local.cloudHandoffIssue == null
+                              ? Text(l.cloudRecurringWaiting,
+                                  style: Theme.of(context).textTheme.bodySmall)
+                              : TextButton(
+                                  onPressed:
+                                      busy || book.offline || !book.canCreate
                                           ? null
                                           : () => run(() => adopt(book, local)),
-                                      child: Text(l.cloudRecurringReview))),
-                        if (book.rules.isEmpty && old.isEmpty)
-                          BeeEmptyState(
-                              title: l.recurringTransactionEmpty,
-                              action: book.canCreate
-                                  ? BeeButton(
-                                      label: l.recurringTransactionAdd,
-                                      onPressed: () => edit(book))
-                                  : null),
-                        for (final row in book.rules)
-                          Padding(
-                              padding: const EdgeInsets.only(top: 12),
-                              child: BeeRecurringBillCard(
-                                  title: row.name,
-                                  ledger: book.ledger.name,
-                                  frequency: recurringEditorIntervalLabel(
-                                      l,
-                                      RecurringFrequency.fromString(
-                                          row.config['frequency'] as String),
-                                      row.config['interval'] as int),
-                                  icon: const BeeLineIcon('Repeat2'),
-                                  amount: Text(
-                                      '${row.tx['amount']} ${row.tx['currency'] ?? book.ledger.currency}'),
-                                  note: row.displayNote,
-                                  enabled: row.status == 'active' ||
-                                      row.status == 'executing',
-                                  toggleLabel: l.recurringTransactionTitle,
-                                  busy: busy || !row.canEdit || book.offline,
-                                  nextRunCaption: l.cloudRecurringOwner,
-                                  nextRunLabel: row.status == 'paused'
-                                      ? l.v4RecurringStatusPaused
-                                      : row.next?.substring(0, 10) ??
-                                          l.v4RecurringStatusCompleted,
-                                  onOpen: row.canEdit
-                                      ? () => edit(book, row: row)
-                                      : null,
-                                  onToggle: !row.canEdit ||
-                                          book.offline ||
-                                          row.status == 'completed'
-                                      ? null
-                                      : (v) => run(() async {
-                                            await book.change({
-                                              'action': v ? 'resume' : 'pause',
-                                              'record_id': row.id,
-                                              'expected_revision': row.revision,
-                                              'confirm': true
-                                            });
-                                          }))),
-                      ]))))
+                                  child: Text(l.cloudRecurringReview))),
+                    if (book.rules.isEmpty && old.isEmpty)
+                      BeeEmptyState(
+                          title: l.recurringTransactionEmpty,
+                          action: book.canCreate
+                              ? BeeButton(
+                                  label: l.recurringTransactionAdd,
+                                  onPressed: () => edit(book))
+                              : null),
+                    for (final row in book.rules)
+                      Padding(
+                          padding: const EdgeInsets.only(top: 12),
+                          child: BeeRecurringBillCard(
+                              title: row.name,
+                              ledger: book.ledger.name,
+                              frequency: recurringEditorIntervalLabel(
+                                  l,
+                                  RecurringFrequency.fromString(
+                                      row.config['frequency'] as String),
+                                  row.config['interval'] as int),
+                              icon: const BeeLineIcon('Repeat2'),
+                              amount: Text(
+                                  '${row.tx['amount']} ${row.tx['currency'] ?? book.ledger.currency}'),
+                              note: row.displayNote,
+                              enabled: row.status == 'active' ||
+                                  row.status == 'executing',
+                              toggleLabel: l.recurringTransactionTitle,
+                              busy: busy || !row.canEdit || book.offline,
+                              nextRunCaption: l.cloudRecurringOwner,
+                              nextRunLabel: row.status == 'paused'
+                                  ? l.v4RecurringStatusPaused
+                                  : row.next?.substring(0, 10) ??
+                                      l.v4RecurringStatusCompleted,
+                              onOpen: row.canEdit
+                                  ? () => edit(book, row: row)
+                                  : null,
+                              onToggle: !row.canEdit ||
+                                      book.offline ||
+                                      row.status == 'completed'
+                                  ? null
+                                  : (v) => run(() async {
+                                        await book.change({
+                                          'action': v ? 'resume' : 'pause',
+                                          'record_id': row.id,
+                                          'expected_revision': row.revision,
+                                          'confirm': true
+                                        });
+                                      }))),
+                  ])))
     ]));
   }
 }

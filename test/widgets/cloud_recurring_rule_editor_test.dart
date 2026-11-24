@@ -1,9 +1,10 @@
 import 'dart:convert';
 
-import 'package:beecount/cloud/recurring/recurring_handoff.dart';
+import 'package:beecount/cloud/recurring/cloud_recurring_rules.dart';
 import 'package:beecount/data/db.dart';
 import 'package:beecount/l10n/app_localizations.dart';
 import 'package:beecount/l10n/app_localizations_en.dart';
+import 'package:beecount/pages/transaction/recurring/cloud_recurring_page.dart';
 import 'package:beecount/pages/transaction/recurring/cloud_rule_editor.dart';
 import 'package:beecount/providers/theme_providers.dart';
 import 'package:beecount/styles/header_skins.dart';
@@ -32,6 +33,9 @@ class _RuleBook extends CloudRuleBook {
             'test',
             {
               'time_zone': 'Asia/Shanghai',
+              'scheduler_enabled': true,
+              'can_create': true,
+              'items': <RuleJson>[],
               'accounts': <RuleJson>[],
               'categories': <RuleJson>[
                 {'id': 'rent', 'name': 'Rent', 'kind': 'expense'}
@@ -54,6 +58,40 @@ void main() {
   final l = AppLocalizationsEn();
 
   setUp(() => SharedPreferences.setMockInitialValues({}));
+
+  testWidgets('Cloud list updates on its own and when returning to the app',
+      (tester) async {
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    final book = _RuleBook();
+    var reads = 0;
+    await tester.pumpWidget(ProviderScope(
+        overrides: [
+          displayHeaderSkinProvider.overrideWithValue(kHeaderSkinNone),
+          headerSkinsEnabledProvider.overrideWithValue(false),
+          cloudRuleBookProvider(1).overrideWith((ref) async {
+            reads++;
+            return book;
+          }),
+          pendingRecurringProvider(1).overrideWith((ref) => Stream.value([])),
+        ],
+        child: MaterialApp(
+            theme: beeTheme(),
+            locale: const Locale('en'),
+            supportedLocales: AppLocalizations.supportedLocales,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            home: const CloudRecurringPage())));
+    await tester.pumpAndSettle();
+    expect(reads, 1);
+    expect(find.byType(RefreshIndicator), findsNothing);
+    await tester.pump(const Duration(seconds: 15));
+    await tester.pumpAndSettle();
+    expect(reads, 2);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    await tester.pumpAndSettle();
+    expect(reads, 3);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
 
   Future<void> open(WidgetTester tester, _RuleBook book,
       {CloudRule? row, RuleJson? draft}) async {
