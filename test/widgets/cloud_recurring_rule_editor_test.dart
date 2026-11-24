@@ -14,7 +14,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_cloud_sync/flutter_cloud_sync.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:timezone/data/latest.dart' as tz;
 
 class _RuleBook extends CloudRuleBook {
   _RuleBook({bool offline = false})
@@ -57,12 +59,37 @@ class _RuleBook extends CloudRuleBook {
 void main() {
   final l = AppLocalizationsEn();
 
+  setUpAll(tz.initializeTimeZones);
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
-  testWidgets('Cloud list updates on its own and when returning to the app',
+  testWidgets('Cloud list refreshes and cached rules open for draft edits',
       (tester) async {
     tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
-    final book = _RuleBook();
+    var book = _RuleBook();
+    book
+        .options('accounts')
+        .add({'id': 'usd', 'name': 'Dollars', 'currency': 'USD'});
+    final row = <String, dynamic>{
+      'id': 'account-rule',
+      'status': 'active',
+      'can_edit': false,
+      'revision': 1,
+      'data': {
+        'rule': {
+          'name': 'Account expense',
+          'time_zone': 'UTC',
+          'starts_at': '2030-01-01',
+          'frequency': 'monthly',
+          'interval': 1,
+          'transaction': {
+            'tx_type': 'expense',
+            'amount': 25,
+            'account_id': 'usd'
+          }
+        }
+      }
+    };
+    (book.snapshot['items'] as List).add(row);
     var reads = 0;
     await tester.pumpWidget(ProviderScope(
         overrides: [
@@ -82,14 +109,30 @@ void main() {
             home: const CloudRecurringPage())));
     await tester.pumpAndSettle();
     expect(reads, 1);
+    expect(find.text('25 USD'), findsOneWidget);
     expect(find.byType(RefreshIndicator), findsNothing);
+    expect(tester.widget<Switch>(find.byType(Switch)).onChanged, isNull);
+    expect(find.byType(CircularProgressIndicator), findsNothing);
     await tester.pump(const Duration(seconds: 15));
     await tester.pumpAndSettle();
     expect(reads, 2);
     tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+    row['can_edit'] = true;
+    final offline = _RuleBook(offline: true);
+    offline.snapshot.addAll(book.snapshot);
+    book = offline;
     tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
     await tester.pumpAndSettle();
     expect(reads, 3);
+    expect(tester.widget<Switch>(find.byType(Switch)).onChanged, isNull);
+    await tester.tap(find.text('Account expense'));
+    await tester.pumpAndSettle();
+    expect(find.byType(CloudRuleEditor), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('recurring-editor-save')));
+    await tester.pumpAndSettle();
+    expect(find.byType(CloudRuleEditor), findsNothing);
+    expect(find.text(l.cloudRecurringDraft), findsOneWidget);
+    expect(book.requests, isEmpty);
     await tester.pumpWidget(const SizedBox.shrink());
   });
 
@@ -156,6 +199,45 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(CloudRuleEditor), findsNothing);
   }
+
+  testWidgets('legacy transfer uses the source account currency in the editor',
+      (tester) async {
+    final book = _RuleBook();
+    book.options('accounts').addAll([
+      {'id': 'from', 'name': 'From', 'currency': 'USD'},
+      {'id': 'to', 'name': 'To', 'currency': 'USD'},
+    ]);
+    final item = CloudRule({
+      'id': 'legacy-transfer',
+      'revision': 2,
+      'status': 'active',
+      'data': {
+        'rule': {
+          'name': 'Transfer',
+          'transaction': {
+            'tx_type': 'transfer',
+            'amount': 25,
+            'account': 'From',
+            'to_account_id': 'to',
+            'currency': 'JPY',
+          },
+          'time_zone': 'UTC',
+          'starts_at': '2030-01-01',
+          'frequency': 'monthly',
+          'interval': 1,
+        }
+      }
+    });
+    await open(tester, book, row: item);
+    final form = tester
+        .widget<BeeRecurringEditorForm>(find.byType(BeeRecurringEditorForm));
+    expect(
+        form.values[BeeRecurringEditorField.currency]!.value, contains('USD'));
+    await enter(tester, '30');
+    await save(tester);
+    expect(book.requests.last['data']['transaction']['account'], 'From');
+    expect(book.requests.last['data']['transaction']['to_account_id'], 'to');
+  });
 
   testWidgets('create derives a name from the selected category',
       (tester) async {
@@ -240,5 +322,55 @@ void main() {
     expect(request['data']['starts_at'], '2030-01-01T09:30:00+01:00');
     expect(request['data']['day_of_week'], 5);
     expect(request['data']['transaction']['note'], 'Updated memo');
+  });
+
+  testWidgets(
+      'offset start shows the rule’s local day and saves its original instant',
+      (tester) async {
+    final book = _RuleBook();
+    final row = CloudRule({
+      'id': 'pacific',
+      'revision': 1,
+      'status': 'active',
+      'data': {
+        'rule': {
+          'name': 'Pacific',
+          'transaction': {'tx_type': 'expense', 'amount': 10},
+          'time_zone': 'America/Los_Angeles',
+          'starts_at': '2027-01-01T02:00:00Z',
+          'ends_at': '2027-01-02',
+          'frequency': 'daily',
+          'interval': 1,
+        }
+      }
+    });
+    await open(tester, book, row: row);
+    final form = tester
+        .widget<BeeRecurringEditorForm>(find.byType(BeeRecurringEditorForm));
+    expect(form.values[BeeRecurringEditorField.startDate]!.value,
+        DateFormat.yMd().format(DateTime(2026, 12, 31)));
+    expect(form.values[BeeRecurringEditorField.endDate]!.value,
+        DateFormat.yMd().format(DateTime(2027, 1, 2)));
+    await enter(tester, 'Updated', note: true);
+    await save(tester);
+    expect(book.requests.last['data']['starts_at'], '2027-01-01T02:00:00Z');
+    expect(book.requests.last['data']['ends_at'], '2027-01-02');
+
+    await open(tester, book, row: row);
+    final start = find.byKey(const ValueKey('recurring-editor-startDate'));
+    await tester.ensureVisible(start);
+    await tester.tap(start);
+    await tester.pumpAndSettle();
+    final year = DateTime.now().year + 5;
+    tester
+        .widget<BeeRecurringEditorDateWheels>(
+            find.byType(BeeRecurringEditorDateWheels))
+        .onChanged(DateTime(year, 7, 15));
+    await tester.tap(find.text(l.commonOk));
+    await tester.pumpAndSettle();
+    await save(tester);
+    // 18:00 on the newly selected Los Angeles summer day is 01:00 UTC the next day.
+    expect(DateTime.parse(book.requests.last['data']['starts_at'] as String),
+        DateTime.utc(year, 7, 16, 1));
   });
 }

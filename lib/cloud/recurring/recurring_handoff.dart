@@ -14,6 +14,20 @@ typedef RuleJson = Map<String, dynamic>;
 
 String ruleDate(DateTime date) => date.toIso8601String().substring(0, 10);
 
+/// Cloud measures the rule title in Unicode code points. Keep the memo intact.
+String recurringRuleTitle(String text) =>
+    String.fromCharCodes(text.trim().runes.take(255)).trimRight();
+
+String? recurringReference(RuleJson tx, String key) {
+  final value = tx[key] as String?;
+  if (value != null && value.isNotEmpty) return value;
+  return switch (key) {
+    'from_account_id' => tx['account_id'] as String?,
+    'from_account' => tx['account'] as String?,
+    _ => null,
+  };
+}
+
 /// Cloud rules are never inserted into the executable local template collection.
 class CloudRule {
   CloudRule(this.json);
@@ -50,6 +64,34 @@ class CloudRuleBook {
       (snapshot['items'] as List).cast<RuleJson>().map(CloudRule.new).toList();
   List<RuleJson> options(String key) =>
       (snapshot[key] as List).cast<RuleJson>();
+
+  RuleJson? resource(RuleJson tx, String key, String group) {
+    final id = recurringReference(tx, '${key}_id');
+    final name = recurringReference(tx, key);
+    if (id == null && name == null) return null;
+    return options(group)
+        .where((item) =>
+            (group != 'categories' || item['kind'] == tx['tx_type']) &&
+            (id == null ? item['name'] == name : item['id'] == id))
+        .firstOrNull;
+  }
+
+  String? currencyFor(RuleJson tx) {
+    final explicit = (tx['currency'] as String?)?.trim().toUpperCase();
+    final transfer = tx['tx_type'] == 'transfer';
+    if (!transfer && explicit != null && explicit.isNotEmpty) return explicit;
+    final key = transfer ? 'from_account' : 'account';
+    if (recurringReference(tx, '${key}_id') != null ||
+        recurringReference(tx, key) != null) {
+      final account = resource(tx, key, 'accounts');
+      if (account == null) return null;
+      return (account['currency'] as String? ?? ledger.currency).toUpperCase();
+    }
+    // A new transfer can select its currency before either account is chosen.
+    return explicit == null || explicit.isEmpty
+        ? ledger.currency.toUpperCase()
+        : explicit;
+  }
 
   String get draftKey => 'recurring-draft.$scope';
 
@@ -246,9 +288,9 @@ Future<RuleJson> legacyRuleConfig(
     throw StateError('Sync the linked categories and accounts first');
   }
   return {
-    'name': (rule.note?.trim().isNotEmpty ?? false)
-        ? rule.note
-        : category?.name ?? account?.name ?? rule.type,
+    'name': recurringRuleTitle((rule.note?.trim().isNotEmpty ?? false)
+        ? rule.note!
+        : category?.name ?? account?.name ?? rule.type),
     'frequency': rule.frequency,
     'interval': rule.interval,
     'starts_at': ruleDate(rule.startDate),
@@ -270,7 +312,7 @@ Future<RuleJson> legacyRuleConfig(
         'to_account_id': target?.syncId
       } else
         'account_id': account?.syncId,
-      'currency': rule.currencyCode,
+      'currency': account == null ? rule.currencyCode : null,
       'note': rule.note
     }
   };
@@ -315,6 +357,8 @@ class RecurringHandoff {
       'automatic': automatic,
       'client_id': current.cloudHandoffKey ?? const Uuid().v4(),
       'consumed_through': consumed == null ? null : ruleDate(consumed),
+      if (current.lastGeneratedDate != null)
+        'last_generated_date': ruleDate(current.lastGeneratedDate!),
       'local_transactions': [
         for (final tx in transactions)
           {'sync_id': tx.syncId, 'date': ruleDate(tx.happenedAt)}

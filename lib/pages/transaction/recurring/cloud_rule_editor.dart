@@ -118,13 +118,43 @@ class _CloudRuleEditorState extends ConsumerState<CloudRuleEditor> {
       rule['ends_at'] == null ? null : civilDate(rule['ends_at'] as String);
   String get sourceKey => type == 'transfer' ? 'from_account' : 'account';
   int get monthlyDay => rule['day_of_month'] as int? ?? startDate.day;
-  String get currency => (tx['currency'] ??
-          resource(sourceKey, 'accounts')?['currency'] ??
-          book.ledger.currency)
-      .toString()
-      .toUpperCase();
+  String? get currency => book.currencyFor(tx);
 
-  DateTime civilDate(String value) => DateTime.parse(value.substring(0, 10));
+  tz.TZDateTime? ruleInstant(String value) {
+    final instant = DateTime.parse(value);
+    if (!instant.isUtc) return null;
+    try {
+      return tz.TZDateTime.from(
+          instant, tz.getLocation(rule['time_zone'] as String));
+    } on tz.LocationNotFoundException {
+      return null;
+    }
+  }
+
+  DateTime civilDate(String value) {
+    final local = ruleInstant(value);
+    return local == null
+        ? DateTime.parse(value.substring(0, 10))
+        : RecurringTransactionService.dateOnly(local);
+  }
+
+  String withCivilDate(String? old, DateTime day) {
+    if (old == null || old.length == 10) return ruleDate(day);
+    if (DateUtils.isSameDay(civilDate(old), day)) return old;
+    final local = ruleInstant(old);
+    if (local == null) return ruleDate(day) + old.substring(10);
+    return tz.TZDateTime(
+            local.location,
+            day.year,
+            day.month,
+            day.day,
+            local.hour,
+            local.minute,
+            local.second,
+            local.millisecond,
+            local.microsecond)
+        .toIso8601String();
+  }
 
   DateTime todayIn(String zone) {
     DateTime now;
@@ -136,24 +166,7 @@ class _CloudRuleEditorState extends ConsumerState<CloudRuleEditor> {
     return RecurringTransactionService.dateOnly(now);
   }
 
-  String? referenceId(String key) =>
-      tx['${key}_id'] as String? ??
-      (key == 'from_account' ? tx['account_id'] as String? : null);
-
-  String? referenceName(String key) =>
-      tx[key] as String? ??
-      (key == 'from_account' ? tx['account'] as String? : null);
-
-  RuleJson? resource(String key, String group) {
-    final id = referenceId(key);
-    final name = referenceName(key);
-    return book
-        .options(group)
-        .where((item) =>
-            (group != 'categories' || item['kind'] == type) &&
-            (id == null ? item['name'] == name : item['id'] == id))
-        .firstOrNull;
-  }
+  RuleJson? resource(String key, String group) => book.resource(tx, key, group);
 
   void setRef(String key, String? id) {
     tx['${key}_id'] = id;
@@ -229,9 +242,11 @@ class _CloudRuleEditorState extends ConsumerState<CloudRuleEditor> {
 
   Future<void> selectAccount(String key, String title) async {
     final source = resource('from_account', 'accounts')?['id'];
+    final code = currency;
     final entries = book.options('accounts').where((r) =>
-        (r['currency'] ?? book.ledger.currency).toString().toUpperCase() ==
-            currency &&
+        (code == null ||
+            (r['currency'] ?? book.ledger.currency).toString().toUpperCase() ==
+                code) &&
         (key != 'to_account' || r['id'] != source));
     final selected = await showBeeDialog<String>(context,
         title: title,
@@ -254,7 +269,8 @@ class _CloudRuleEditorState extends ConsumerState<CloudRuleEditor> {
     if (selected == null || !mounted) return;
     updateDraft(() {
       setRef(key, selected.isEmpty ? null : selected);
-      if (key == 'from_account' && selected == referenceId('to_account')) {
+      if (key == 'from_account' &&
+          selected == resource('to_account', 'accounts')?['id']) {
         setRef('to_account', null);
       }
     });
@@ -308,7 +324,7 @@ class _CloudRuleEditorState extends ConsumerState<CloudRuleEditor> {
 
   Future<void> selectCurrency() async {
     final selected = await showCurrencyPickerSheet(context,
-        selected: currency,
+        selected: currency ?? book.ledger.currency,
         primaryColor: ref.read(primaryColorProvider),
         title: l.txCurrencyPickerTitle,
         rateBase: book.ledger.currency);
@@ -355,8 +371,7 @@ class _CloudRuleEditorState extends ConsumerState<CloudRuleEditor> {
         maxDate: DateTime(2100));
     if (date == null || !mounted) return;
     updateDraft(() {
-      rule[key] = ruleDate(date) +
-          (old != null && old.length > 10 ? old.substring(10) : '');
+      rule[key] = withCivilDate(old, date);
       if (choosingStart && endDate?.isBefore(date) == true) {
         rule['ends_at'] = ruleDate(date);
       }
@@ -367,7 +382,7 @@ class _CloudRuleEditorState extends ConsumerState<CloudRuleEditor> {
     final type = tx['tx_type'] as String;
     final memo = note.text.trim();
     final category = (resource('category', 'categories')?['name'] as String? ??
-            referenceName('category'))
+            recurringReference(tx, 'category'))
         ?.trim();
     final label = switch (type) {
       'transfer' => l.transferTitle,
@@ -376,9 +391,7 @@ class _CloudRuleEditorState extends ConsumerState<CloudRuleEditor> {
       'income' => l.categoryIncome,
       _ => l.categoryExpense,
     };
-    // Cloud limits the title by Unicode code points. Keep the full memo in the transaction.
-    return String.fromCharCodes((memo.isEmpty ? label : memo).runes.take(255))
-        .trimRight();
+    return recurringRuleTitle(memo.isEmpty ? label : memo);
   }
 
   double? get validAmount {
@@ -676,15 +689,16 @@ class _CloudRuleEditorState extends ConsumerState<CloudRuleEditor> {
             onClear: clear);
     final category = resource('category', 'categories');
     final categoryTitle =
-        (category?['name'] as String?) ?? referenceName('category');
+        (category?['name'] as String?) ?? recurringReference(tx, 'category');
     String accountValue(String key) =>
         (resource(key, 'accounts')?['name'] as String?) ??
-        referenceName(key) ??
+        recurringReference(tx, key) ??
         l.accountNone;
     final sourceTitle =
         type == 'transfer' ? l.transferFromAccount : l.accountSelectTitle;
     final end = endDate;
     final dateFormat = DateFormat.yMd();
+    final code = currency;
 
     return RecurringEditorScaffold(
       editing: recordId != null,
@@ -709,10 +723,12 @@ class _CloudRuleEditorState extends ConsumerState<CloudRuleEditor> {
                       ? selectLedger
                       : null),
               BeeRecurringEditorField.currency: field(l.txCurrencyLabel,
-                  displayCurrency(currency, context), 'Coins',
+                  code == null ? '—' : displayCurrency(code, context), 'Coins',
                   select: selectCurrency,
-                  leading: currencyFlag(context, currency,
-                      width: 22, height: 16, radius: 4)),
+                  leading: code == null
+                      ? null
+                      : currencyFlag(context, code,
+                          width: 22, height: 16, radius: 4)),
               BeeRecurringEditorField.category: field(
                   l.categoryTitle,
                   categoryTitle == null

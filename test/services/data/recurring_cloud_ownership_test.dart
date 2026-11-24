@@ -9,8 +9,80 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+class _PreviewBook extends CloudRuleBook {
+  _PreviewBook(Ledger ledger)
+      : super(BeeCountCloudProvider(), ledger, 'test', {'time_zone': 'UTC'},
+            false);
+
+  @override
+  Future<void> ensureActive() async {}
+
+  @override
+  Future<RuleJson> change(RuleJson payload) async => {};
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  setUp(() => SharedPreferences.setMockInitialValues({}));
+
+  test(
+      'handoff keeps a long memo and lets the linked account set the posting currency',
+      () async {
+    final db = BeeDatabase.forTesting(NativeDatabase.memory());
+    addTearDown(db.close);
+    final repo = LocalRepository(db);
+    final ledger = await repo.createLedger(name: 'QA', currency: 'CNY');
+    final account = await repo.createAccount(
+        ledgerId: ledger, name: 'USD account', currency: 'USD', syncId: 'usd');
+    final memo = '  ${List.filled(260, '🐝').join()}  ';
+    await repo.addRecurringTransaction(
+        ledgerId: ledger,
+        type: 'expense',
+        amount: 25,
+        accountId: account,
+        note: memo,
+        frequency: 'monthly',
+        interval: 1,
+        startDate: DateTime(2030),
+        currencyCode: 'JPY');
+    final rule = (await repo.getAllRecurringTransactions()).single;
+    final payload = await legacyRuleConfig(repo, rule, 'UTC');
+    expect(payload['name'], List.filled(255, '🐝').join());
+    expect(payload['transaction']['note'], memo);
+    expect(payload['transaction']['account_id'], 'usd');
+    expect(payload['transaction']['currency'], isNull);
+  });
+
+  test('a first occurrence cutoff is not a previous payment on handoff',
+      () async {
+    final db = BeeDatabase.forTesting(NativeDatabase.memory());
+    addTearDown(db.close);
+    final repo = LocalRepository(db);
+    final ledger = await repo.createLedger(name: 'QA', currency: 'CNY');
+    final book = _PreviewBook((await repo.getLedgerById(ledger))!);
+    final today = DateTime.now();
+    final yesterday = DateTime(today.year, today.month, today.day - 1);
+    final id = await repo.addRecurringTransaction(
+        ledgerId: ledger,
+        type: 'expense',
+        amount: 10,
+        frequency: 'daily',
+        interval: 1,
+        startDate: yesterday);
+    Future<RuleJson> preview() async {
+      final rule = (await repo.getAllRecurringTransactions()).single;
+      return (await RecurringHandoff.prepare(db, repo, book, rule)).request;
+    }
+
+    final before = await preview();
+    expect(before['consumed_through'], ruleDate(yesterday));
+    expect(before.containsKey('last_generated_date'), isFalse);
+    await repo.generateRecurringOccurrence(
+        recurringId: id, scheduledDate: today);
+    final after = await preview();
+    expect(after['last_generated_date'], ruleDate(today));
+    expect(after['consumed_through'], ruleDate(today));
+  });
 
   test(
       'a confirmed older Cloud keeps local rules, while a capable Cloud owns them',

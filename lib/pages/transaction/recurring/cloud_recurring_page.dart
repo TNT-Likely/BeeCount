@@ -280,13 +280,16 @@ class _CloudRecurringPageState extends ConsumerState<CloudRecurringPage>
                                       row.config['frequency'] as String),
                                   row.config['interval'] as int),
                               icon: const BeeLineIcon('Repeat2'),
-                              amount: Text(
-                                  '${row.tx['amount']} ${row.tx['currency'] ?? book.ledger.currency}'),
+                              amount: Text([
+                                row.tx['amount'],
+                                book.currencyFor(row.tx),
+                              ].where((value) => value != null).join(' ')),
                               note: row.displayNote,
                               enabled: row.status == 'active' ||
                                   row.status == 'executing',
                               toggleLabel: l.recurringTransactionTitle,
-                              busy: busy || !row.canEdit || book.offline,
+                              busy: busy ||
+                                  (!book.offline && row.status == 'executing'),
                               nextRunCaption: l.cloudRecurringOwner,
                               nextRunLabel: row.status == 'paused'
                                   ? l.v4RecurringStatusPaused
