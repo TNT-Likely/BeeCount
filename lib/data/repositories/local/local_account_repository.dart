@@ -403,71 +403,19 @@ class LocalAccountRepository implements AccountRepository {
   }
 
   @override
-  Future<double> getAccountExpense(int accountId) async {
-    double expense = 0.0;
-
-    // 获取作为主账户的支出和转出(排除共享账本;不计入收支的交易也排除)
-    final sharedIds = await _sharedLedgerIds();
-    final normalTxs = await (db.select(db.transactions)
-          ..where((t) =>
-              t.accountId.equals(accountId) &
-              t.ledgerId.isNotIn(sharedIds) &
-              t.excludeFromStats.equals(false)))
-        .get();
-
-    for (final t in normalTxs) {
-      if (t.type == 'expense') {
-        expense += t.amount;
-      } else if (t.type == 'transfer') {
-        // 作为转出账户
-        expense += t.amount;
-      }
-    }
-
-    return expense;
-  }
+  Future<double> getAccountExpense(int accountId) async =>
+      (await getAccountPeriodTotals(accountId)).expense;
 
   @override
-  Future<double> getAccountIncome(int accountId) async {
-    double income = 0.0;
-
-    // 获取作为主账户的收入(排除共享账本;不计入收支的交易也排除)
-    final sharedIds = await _sharedLedgerIds();
-    final normalTxs = await (db.select(db.transactions)
-          ..where((t) =>
-              t.accountId.equals(accountId) &
-              t.ledgerId.isNotIn(sharedIds) &
-              t.excludeFromStats.equals(false)))
-        .get();
-
-    for (final t in normalTxs) {
-      if (t.type == 'income') {
-        income += t.amount;
-      }
-    }
-
-    // 作为转入账户的转账(排除共享账本;不计入收支的交易也排除)
-    final transfersIn = await (db.select(db.transactions)
-          ..where((t) =>
-              t.toAccountId.equals(accountId) &
-              t.type.equals('transfer') &
-              t.ledgerId.isNotIn(sharedIds) &
-              t.excludeFromStats.equals(false)))
-        .get();
-
-    for (final t in transfersIn) {
-      income += t.amount;
-    }
-
-    return income;
-  }
+  Future<double> getAccountIncome(int accountId) async =>
+      (await getAccountPeriodTotals(accountId)).income;
 
   @override
-  Future<({double balance, double expense, double income})> getAccountStats(int accountId) async {
+  Future<({double balance, double expense, double income})> getAccountStats(
+      int accountId) async {
     final balance = await getAccountBalance(accountId);
-    final expense = await getAccountExpense(accountId);
-    final income = await getAccountIncome(accountId);
-    return (balance: balance, expense: expense, income: income);
+    final totals = await getAccountPeriodTotals(accountId);
+    return (balance: balance, expense: totals.expense, income: totals.income);
   }
 
   @override
@@ -690,11 +638,10 @@ class LocalAccountRepository implements AccountRepository {
           {DateTime? startDate, DateTime? endExclusive}) async {
     final row = await db.customSelect("""
       SELECT COUNT(*) AS entries, MIN(happened_at) AS first_at,
-        COALESCE(SUM(CASE WHEN exclude_from_stats = 0 AND
-          ((type = 'income' AND account_id = ?1) OR
-           (type = 'transfer' AND to_account_id = ?1)) THEN amount ELSE 0 END),0) AS incoming,
         COALESCE(SUM(CASE WHEN exclude_from_stats = 0 AND account_id = ?1 AND
-          type IN ('expense','transfer') THEN amount ELSE 0 END),0) AS outgoing
+          type = 'income' THEN amount ELSE 0 END), 0) AS income,
+        COALESCE(SUM(CASE WHEN exclude_from_stats = 0 AND account_id = ?1 AND
+          type = 'expense' THEN amount ELSE 0 END), 0) AS expense
       FROM transactions WHERE (account_id = ?1 OR to_account_id = ?1)
         AND $_kExcludeJoinedSharedLedgerSql
         AND (?2 IS NULL OR happened_at >= ?2)
@@ -710,8 +657,8 @@ class LocalAccountRepository implements AccountRepository {
     final first = row.data['first_at'] as int?;
     return (
       count: (row.data['entries'] as num).toInt(),
-      income: (row.data['incoming'] as num).toDouble(),
-      expense: (row.data['outgoing'] as num).toDouble(),
+      income: (row.data['income'] as num).toDouble(),
+      expense: (row.data['expense'] as num).toDouble(),
       firstDate: first == null
           ? null
           : DateTime.fromMillisecondsSinceEpoch(first * 1000)
@@ -817,6 +764,7 @@ class LocalAccountRepository implements AccountRepository {
       FROM transactions t
       LEFT JOIN categories c ON t.category_id = c.id
       WHERE t.account_id = ?1 AND t.type = ?2
+        AND t.exclude_from_stats = 0
         AND t.$_kExcludeJoinedSharedLedgerSql
         AND (?3 IS NULL OR t.happened_at >= ?3)
         AND (?4 IS NULL OR t.happened_at < ?4)
@@ -829,7 +777,7 @@ class LocalAccountRepository implements AccountRepository {
         d.Variable<DateTime>(startDate),
         d.Variable<DateTime>(endExclusive),
       ],
-      readsFrom: {db.transactions, db.categories},
+      readsFrom: {db.transactions, db.categories, db.ledgers},
     ).get();
 
     return results.map((row) {

@@ -222,6 +222,11 @@ void main() {
             .widget<BeeAccountSummaryCard>(find.byType(BeeAccountSummaryCard))
             .amount,
         '1,058.00');
+    final cashflow = tester
+        .widget<BeeAccountCashflowCard>(find.byType(BeeAccountCashflowCard));
+    expect(cashflow.income, '¥100.00');
+    expect(cashflow.expense, '¥32.00');
+    expect(cashflow.net, '¥68.00');
     for (var i = 0; i < 3; i++) {
       await tester.drag(find.byType(ListView).first, const Offset(0, -500));
       await tester.pumpAndSettle();

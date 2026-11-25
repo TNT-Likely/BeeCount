@@ -9227,10 +9227,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get v4AccountCashflow => '账户收支';
 
   @override
-  String get v4AccountNetFlow => '净流入';
+  String get v4AccountNetIncome => '收支差额';
 
   @override
-  String get v4AccountFlowRules => '含转入与转出 · 按收支计入规则汇总';
+  String get v4AccountStatsExcludeTransfers => '转账不计入收支';
 
   @override
   String get v4AccountBalanceRangeNote => '当前余额不随时间范围改变。';
@@ -18862,10 +18862,10 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get v4AccountCashflow => '帳戶收支';
 
   @override
-  String get v4AccountNetFlow => '淨流入';
+  String get v4AccountNetIncome => '收支差額';
 
   @override
-  String get v4AccountFlowRules => '含轉入與轉出 · 按收支計入規則彙總';
+  String get v4AccountStatsExcludeTransfers => '轉帳不計入收支';
 
   @override
   String get v4AccountBalanceRangeNote => '目前餘額不隨時間範圍改變。';
