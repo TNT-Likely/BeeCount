@@ -331,13 +331,16 @@ class AgentFinancialAnswer extends ConsumerWidget {
                   minimumSize: const Size(44, 44),
                   foregroundColor: Theme.of(context).colorScheme.onSurface),
               child: Row(children: [
-                const BeeLineIcon('ReceiptText', size: 16),
+                BeeLineIcon('ReceiptText',
+                    size: 16,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant),
                 const SizedBox(width: 7),
-                Flexible(child: Text(l.agentEvidenceBills)),
-                const Spacer(),
+                Expanded(child: Text(l.agentEvidenceBills)),
                 Text(l.agentEvidenceCount(data.count), style: style.labelSmall),
                 const SizedBox(width: 4),
-                const BeeLineIcon('ChevronRight', size: 14)
+                BeeLineIcon('ChevronRight',
+                    size: 14,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant)
               ])),
         ]));
   }

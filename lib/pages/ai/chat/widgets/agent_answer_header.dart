@@ -30,51 +30,54 @@ class AgentAnswerHeader extends StatelessWidget {
             ? l.aiChatCheckedCount(steps.length)
             : l.agentExecutionCompletedSummary(steps.length);
     return Row(children: [
-      const AgentBrandMark(size: 28),
-      const SizedBox(width: 7),
-      Flexible(
-          child: Text(l.aiChatAssistantName,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style:
-                  const TextStyle(fontSize: 13, fontWeight: FontWeight.w600))),
-      if (steps.isNotEmpty)
+      Expanded(
+          child: Row(children: [
+        const AgentBrandMark(size: 28),
+        const SizedBox(width: 7),
         Flexible(
-            flex: 3,
-            child: TextButton(
-              key: ValueKey('execution-$messageId'),
-              onPressed: () => showBeeSheet<void>(context,
-                  title: l.aiChatQueryProcess,
-                  child: SingleChildScrollView(
-                      child: Column(mainAxisSize: MainAxisSize.min, children: [
-                    for (final s in steps)
-                      BeeMenuRow(
-                        leading: BeeLineIcon(
-                            s.status == AgentActivityStatus.failed
-                                ? 'CircleAlert'
-                                : 'CircleCheck',
-                            size: 18),
-                        title: s.title,
-                        subtitle: !hideDetails && s.details.isNotEmpty
-                            ? s.details.join('\n')
-                            : null,
-                      )
-                  ]))),
-              style: TextButton.styleFrom(
-                  foregroundColor: muted,
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  minimumSize: const Size(44, 44)),
-              child: Row(mainAxisSize: MainAxisSize.min, children: [
-                Flexible(
-                    child: Text(summary,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontSize: 12))),
-                const SizedBox(width: 2),
-                const BeeLineIcon('ChevronDown', size: 14),
-              ]),
-            )),
-      const Spacer(),
+            child: Text(l.aiChatAssistantName,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                    fontSize: 13, fontWeight: FontWeight.w600))),
+        if (steps.isNotEmpty)
+          Flexible(
+              flex: 3,
+              child: TextButton(
+                key: ValueKey('execution-$messageId'),
+                onPressed: () => showBeeSheet<void>(context,
+                    title: l.aiChatQueryProcess,
+                    child: SingleChildScrollView(
+                        child:
+                            Column(mainAxisSize: MainAxisSize.min, children: [
+                      for (final s in steps)
+                        BeeMenuRow(
+                          leading: BeeLineIcon(
+                              s.status == AgentActivityStatus.failed
+                                  ? 'CircleAlert'
+                                  : 'CircleCheck',
+                              size: 18),
+                          title: s.title,
+                          subtitle: !hideDetails && s.details.isNotEmpty
+                              ? s.details.join('\n')
+                              : null,
+                        )
+                    ]))),
+                style: TextButton.styleFrom(
+                    foregroundColor: muted,
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    minimumSize: const Size(44, 44)),
+                child: Row(mainAxisSize: MainAxisSize.min, children: [
+                  Flexible(
+                      child: Text(summary,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontSize: 12))),
+                  const SizedBox(width: 2),
+                  const BeeLineIcon('ChevronDown', size: 14),
+                ]),
+              )),
+      ])),
       if (onMore != null)
         IconButton(
           key: ValueKey('agent-answer-more-$messageId'),

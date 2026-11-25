@@ -722,6 +722,8 @@ void main() {
     expect(tester.getSize(markdown).width, 390 - 17 * 2);
     final menu = find.byKey(ValueKey('agent-answer-more-$messageId'));
     expect(tester.getCenter(menu).dy, lessThan(tester.getTopLeft(markdown).dy));
+    expect(
+        tester.getTopRight(menu).dx, closeTo(tester.getTopRight(answer).dx, 1));
     await tester.tap(menu);
     await tester.pumpAndSettle();
     final copy = find.byKey(ValueKey('agent-answer-copy-$messageId'));

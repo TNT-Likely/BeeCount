@@ -240,6 +240,8 @@ class _AgentEmptyConversationState
                   style: theme.textTheme.titleSmall
                       ?.copyWith(fontWeight: FontWeight.w700))),
           TextButton.icon(
+              style: TextButton.styleFrom(
+                  foregroundColor: theme.colorScheme.onSurfaceVariant),
               onPressed: () => setState(() => _secondGroup = !_secondGroup),
               icon: const BeeLineIcon('RefreshCw', size: 14),
               label: Text(l.agentFollowUpRotate)),
