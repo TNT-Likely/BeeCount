@@ -9657,10 +9657,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get v4AccountCashflow => 'Движение средств по счёту';
 
   @override
-  String get v4AccountNetFlow => 'Чистый приток';
+  String get v4AccountNetIncome => 'Net income';
 
   @override
-  String get v4AccountFlowRules => 'Переводы учтены, транзакции вне статистики исключены';
+  String get v4AccountStatsExcludeTransfers => 'Transfers are excluded from income and expenses';
 
   @override
   String get v4AccountBalanceRangeNote => 'Текущий баланс не зависит от выбранного периода.';

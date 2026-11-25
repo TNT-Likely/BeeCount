@@ -182,8 +182,8 @@ abstract class AccountRepository {
       bool ascending = false,
       bool orderByAmount = false});
 
-  /// Read-only account totals in the selected range. Transfers follow their
-  /// direction, joined shared ledgers are excluded, statistics flags respected.
+  /// 指定期间的账户收支和流水概况。转账计入流水笔数及首笔日期。
+  /// 收支按交易类型汇总，并遵循不计入收支标记。排除加入的他人共享账本。
   Future<({int count, double income, double expense, DateTime? firstDate})>
       getAccountPeriodTotals(int accountId,
           {DateTime? startDate, DateTime? endExclusive});

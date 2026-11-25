@@ -32,11 +32,31 @@ void main() {
     await tx('expense',999,DateTime(2026,10,7),ledger:2);
     await tx('income',500,DateTime(2026,11,1));
     final before=await repo.getTransactionsByLedger(1);
-    final totals=await repo.getAccountPeriodTotals(account,startDate:start,endExclusive:end);
-    expect(totals.count,6);expect(totals.income,128);expect(totals.expense,23);
+    final totals = await repo.getAccountPeriodTotals(account,
+        startDate: start, endExclusive: end);
+    expect(totals.count, 6);
+    expect(totals.firstDate, start);
+    expect(totals.income, 100);
+    expect(totals.expense, 10);
+
+    final peerTotals = await repo.getAccountPeriodTotals(other,
+        startDate: start, endExclusive: end);
+    expect(peerTotals.count, 2);
+    expect(peerTotals.income, 0);
+    expect(peerTotals.expense, 0);
+    expect(await repo.getAccountExpense(account), 10);
+    expect(await repo.getAccountIncome(account), 650);
+
+    for (final type in ['income', 'expense']) {
+      final categories = await repo.getAccountCategoryStats(account,
+          type: type, startDate: start, endExclusive: end);
+      expect(categories.single.total,
+          type == 'income' ? totals.income : totals.expense);
+    }
     final history=await repo.getAccountDailyBalances(account,startDate:start,endDate:DateTime(2026,10,31));
     expect(history.length,31);expect(history.first.balance,1150);expect(history.last.balance,1148);
-    expect(await repo.getAccountBalance(account),1648);
+    expect(await repo.getAccountStats(account),
+        (balance: 1648.0, expense: 10.0, income: 650.0));
     expect(await repo.getTransactionsByLedger(1),before);
   });
   test('过滤先于分页，稳定同秒排序；搜索不把百分号当通配符',() async {

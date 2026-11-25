@@ -9235,10 +9235,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String get v4AccountCashflow => 'Account cash flow';
 
   @override
-  String get v4AccountNetFlow => 'Net inflow';
+  String get v4AccountNetIncome => 'Net income';
 
   @override
-  String get v4AccountFlowRules => 'Includes transfers; respects excluded statistics';
+  String get v4AccountStatsExcludeTransfers => 'Transfers are excluded from income and expenses';
 
   @override
   String get v4AccountBalanceRangeNote => 'Current balance is unaffected by the selected range.';

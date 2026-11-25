@@ -17368,17 +17368,17 @@ abstract class AppLocalizations {
   /// **'Account cash flow'**
   String get v4AccountCashflow;
 
-  /// No description provided for @v4AccountNetFlow.
+  /// No description provided for @v4AccountNetIncome.
   ///
   /// In en, this message translates to:
-  /// **'Net inflow'**
-  String get v4AccountNetFlow;
+  /// **'Net income'**
+  String get v4AccountNetIncome;
 
-  /// No description provided for @v4AccountFlowRules.
+  /// No description provided for @v4AccountStatsExcludeTransfers.
   ///
   /// In en, this message translates to:
-  /// **'Includes transfers; respects excluded statistics'**
-  String get v4AccountFlowRules;
+  /// **'Transfers are excluded from income and expenses'**
+  String get v4AccountStatsExcludeTransfers;
 
   /// No description provided for @v4AccountBalanceRangeNote.
   ///

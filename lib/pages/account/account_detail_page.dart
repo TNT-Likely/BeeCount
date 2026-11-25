@@ -208,13 +208,14 @@ class _AccountDetailPageState extends ConsumerState<AccountDetailPage>
                                                 expenseLabel: l.homeExpense,
                                                 expense:
                                                     money(c.totals.expense),
-                                                netLabel: l.v4AccountNetFlow,
+                                                netLabel: l.v4AccountNetIncome,
                                                 net: money(c.totals.income -
                                                     c.totals.expense),
                                                 detailLabel:
                                                     l.accountCategoryBreakdown,
                                                 onDetail: _distribution,
-                                                note: l.v4AccountFlowRules,
+                                                note: l
+                                                    .v4AccountStatsExcludeTransfers,
                                                 onNote: _info),
                                             const SizedBox(height: 12),
                                             BeeBalanceHistoryCard(
