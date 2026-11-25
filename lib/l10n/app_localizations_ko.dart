@@ -8710,6 +8710,18 @@ class AppLocalizationsKo extends AppLocalizations {
   String get v4RecordingMoreCategories => 'More categories';
 
   @override
+  String get v4RecordingCategoryColumns => 'Quick categories per row';
+
+  @override
+  String get v4RecordingCategoryColumnsFour => '4 (default)';
+
+  @override
+  String get v4RecordingCategoryColumnsFive => '5';
+
+  @override
+  String get v4RecordingCategoryColumnsScope => 'Applies to income and expense entry on this device';
+
+  @override
   String get v4RecordingCalculationHint => 'Calculate with + − × ÷';
 
   @override

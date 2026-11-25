@@ -80,12 +80,14 @@ class RecordingCategorySection extends ConsumerStatefulWidget {
       required this.kind,
       required this.selectedId,
       required this.onSelected,
+      this.preferredColumns = 4,
       this.moreInDetails,
       this.showAll = false});
   final int ledgerId;
   final String kind;
   final int? selectedId;
   final ValueChanged<Category> onSelected;
+  final int preferredColumns;
   final ValueNotifier<VoidCallback?>? moreInDetails;
   final bool showAll;
 
@@ -241,6 +243,7 @@ class _RecordingCategorySectionState
     List<Category> parents,
     bool narrow,
   ) {
+    const denseColumns = 5;
     const horizontalPadding = 13.0;
     const childPadding = 8.0;
     const childGap = 6.0;
@@ -274,16 +277,21 @@ class _RecordingCategorySectionState
         .toList();
     final verticalPadding = narrow ? 2.0 : 10.0;
     final width = math.max(0.0, box.maxWidth - 2 * horizontalPadding);
+    final useFiveColumns = widget.preferredColumns == denseColumns &&
+        width >= denseColumns * kMinInteractiveDimension;
+    final columns = useFiveColumns ? denseColumns : 4;
+    final cellWidth = width / columns;
+    final moreLabel =
+        useFiveColumns ? l10n.commonMore : l10n.v4RecordingMoreCategories;
     final bound = !widget.showAll && box.hasBoundedHeight;
     final height = box.maxHeight - 2 * verticalPadding;
-    var rowHeight = RecordingCategoryTile.heightFor(
-        context, l10n.v4RecordingMoreCategories,
-        width: width / 4, compact: narrow);
+    var rowHeight = RecordingCategoryTile.heightFor(context, moreLabel,
+        width: cellWidth, compact: narrow);
     for (final parent in parents) {
       rowHeight = math.max(
         rowHeight,
         RecordingCategoryTile.heightFor(context, label(parent),
-            width: width / 4,
+            width: cellWidth,
             compact: narrow,
             selected: parent.id == activeParent),
       );
@@ -322,7 +330,7 @@ class _RecordingCategorySectionState
                 .ceilToDouble(),
           );
     final capacity = bound
-        ? 4 *
+        ? columns *
                 math
                     .max(
                         1,
@@ -385,6 +393,7 @@ class _RecordingCategorySectionState
       );
       if (!widget.showAll) _revealChild(expandedParent!.id);
       return Container(
+        key: const ValueKey('recording-subcategory-group'),
         margin: const EdgeInsets.symmetric(vertical: childGap),
         padding: const EdgeInsets.all(childPadding),
         decoration: BoxDecoration(
@@ -409,23 +418,32 @@ class _RecordingCategorySectionState
       );
     }
 
-    final entries = [
-      ...visible.map(tile),
-      if (!widget.showAll)
-        RecordingCategoryTile(
-          compact: narrow,
-          key: const ValueKey('recording-more-categories'),
-          label: l10n.v4RecordingMoreCategories,
-          icon: const BeeLineIcon('Grid2x2', size: 18),
-          onTap: _more,
-        ),
-    ];
+    final entries = <Widget>[...visible.map(tile)];
+    if (!widget.showAll) {
+      final moreTile = RecordingCategoryTile(
+        compact: narrow,
+        key: const ValueKey('recording-more-categories'),
+        label: moreLabel,
+        icon: const BeeLineIcon('Grid2x2', size: 18),
+        onTap: _more,
+      );
+      entries.add(useFiveColumns
+          ? Semantics(
+              excludeSemantics: true,
+              button: true,
+              enabled: true,
+              label: l10n.v4RecordingMoreCategories,
+              onTap: _more,
+              child: moreTile,
+            )
+          : moreTile);
+    }
     final rows = <Widget>[];
-    for (var i = 0; i < entries.length; i += 4) {
+    for (var i = 0; i < entries.length; i += columns) {
       final row = Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: List.generate(
-          4,
+          columns,
           (offset) => Expanded(
               child: i + offset < entries.length
                   ? entries[i + offset]
@@ -434,7 +452,10 @@ class _RecordingCategorySectionState
       );
       rows.add(bound ? SizedBox(height: rowHeight, child: row) : row);
       if (showChildren &&
-          visible.skip(i).take(4).any((c) => c.id == expandedParent?.id)) {
+          visible
+              .skip(i)
+              .take(columns)
+              .any((c) => c.id == expandedParent?.id)) {
         rows.add(childGroup());
       }
     }

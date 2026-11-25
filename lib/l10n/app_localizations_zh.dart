@@ -8702,6 +8702,18 @@ class AppLocalizationsZh extends AppLocalizations {
   String get v4RecordingMoreCategories => '更多分类';
 
   @override
+  String get v4RecordingCategoryColumns => '快捷分类每行数量';
+
+  @override
+  String get v4RecordingCategoryColumnsFour => '4 个（默认）';
+
+  @override
+  String get v4RecordingCategoryColumnsFive => '5 个';
+
+  @override
+  String get v4RecordingCategoryColumnsScope => '在本机的收支记账页生效';
+
+  @override
   String get v4RecordingCalculationHint => '支持 + − × ÷ 四则运算';
 
   @override
@@ -18335,6 +18347,18 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get v4RecordingMoreCategories => '更多分類';
+
+  @override
+  String get v4RecordingCategoryColumns => '快捷分類每行數量';
+
+  @override
+  String get v4RecordingCategoryColumnsFour => '4 個（預設）';
+
+  @override
+  String get v4RecordingCategoryColumnsFive => '5 個';
+
+  @override
+  String get v4RecordingCategoryColumnsScope => '在此裝置的收支記帳頁生效';
 
   @override
   String get v4RecordingCalculationHint => '支援 + − × ÷ 四則運算';

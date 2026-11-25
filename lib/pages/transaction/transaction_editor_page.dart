@@ -168,6 +168,10 @@ class _TransactionEditorPageState extends ConsumerState<TransactionEditorPage> {
         : _selectedType == 2
             ? 'transfer'
             : 'expense';
+    final preferredColumns = kind == 'transfer'
+        ? 4
+        : ref.watch(recordingCategoryColumnsProvider
+            .select((preference) => preference.valueOrNull ?? 4));
     return Theme(
       data: theme.copyWith(
           textButtonTheme: TextButtonThemeData(
@@ -268,6 +272,7 @@ class _TransactionEditorPageState extends ConsumerState<TransactionEditorPage> {
                                 categorySection: RecordingCategorySection(
                                     ledgerId: _cardLedgerId,
                                     kind: kind,
+                                    preferredColumns: preferredColumns,
                                     selectedId: _cardCategory?.id,
                                     moreInDetails: _moreCategoriesFallback,
                                     onSelected: (category) => setState(() {

@@ -43,3 +43,4 @@ export 'smart_billing_providers.dart';
 export 'attachment_settings_providers.dart';
 
 export 'home_summary_providers.dart';
+export 'recording_category_columns_provider.dart';
