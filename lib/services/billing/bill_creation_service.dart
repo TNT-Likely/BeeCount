@@ -46,6 +46,9 @@ class BillCreationService {
   /// **保证 amount 非空且 abs > 0、time 非空**,内部无需再做兜底。
   ///
   /// 返回创建的交易 ID,失败(数据库异常)返回 null。
+  /// [sourceText] 可补充当前这一笔的原文线索。交互入口启用
+  /// [requestCategoryChoice] 时，已知父分类的歧义会在写入前抛出
+  /// [BillCategoryNeedsChoice]，让调用方展示候选。
   Future<int?> createFromBill({
     required BillInfo bill,
     required int ledgerId,
@@ -250,14 +253,19 @@ class BillCreationService {
       final parent = hierarchy.firstWhereOrNull(
           (c) => c.parentId == null && c.name.trim().toLowerCase() == name);
       if (parent != null) {
-        final children = categories.where((c) => c.parentId == parent.id).toList();
+        final children =
+            categories.where((c) => c.parentId == parent.id).toList();
         if (children.isNotEmpty) {
           final child = CategoryMatcher.matchChild(
-              parent: parent.name, children: children, note: note, sourceText: sourceText);
+              parent: parent.name,
+              children: children,
+              note: note,
+              sourceText: sourceText);
           if (child != null) return child.id;
           if (requestCategoryChoice) {
             throw BillCategoryNeedsChoice(
-                parent: parent.name, choices: children.map((c) => c.name).toList());
+                parent: parent.name,
+                choices: children.map((c) => c.name).toList());
           }
         }
       }

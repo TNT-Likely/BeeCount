@@ -81,77 +81,6 @@ void main() {
   // 类型推断
   // ============================================================
 
-  group('已知父分类下选择可记子类', () {
-    late int dining;
-    late int work;
-    late int account;
-
-    setUp(() async {
-      dining = await repo.createCategory(name: '餐饮', kind: 'expense');
-      work = await repo.createCategory(name: '工作', kind: 'expense', sortOrder: 44);
-      account = await repo.createAccount(ledgerId: ledgerId, name: '家庭生活卡');
-    });
-
-    Future<int> child(String name) => repo.createCategory(
-        name: name, kind: 'expense', parentId: dining, level: 2);
-
-    Future<Transaction?> record(String note,
-        {String category = '餐饮', String? source, bool interactive = true}) async {
-      final id = await service.createFromBill(
-          bill: BillInfo(amount: 28, type: BillType.expense, category: category,
-              account: '家庭生活卡', note: note),
-          ledgerId: ledgerId, sourceText: source, requestCategoryChoice: interactive);
-      return repo.getTransactionById(id!);
-    }
-
-    test('父类餐饮由午餐线索找到工作午餐，同时保留支付账户和备注', () async {
-      await child('巷口早餐');
-      final lunch = await child('工作午餐');
-      await child('家常晚餐');
-      final tx = await record('四季原生验收午餐');
-      expect((tx!.categoryId, tx.accountId, tx.note), (lunch, account, '四季原生验收午餐'));
-      expect((await record('午餐', interactive: false))!.categoryId, lunch);
-      expect((await record('工作午餐'))!.categoryId, lunch);
-      expect((await record('店铺收据', source: '记一笔午餐，金额 28 元，用家庭生活卡支付'))!.categoryId, lunch);
-      expect((await record('午餐', category: '工作'))!.categoryId, work);
-    });
-
-    test('只有一个子类时可以直接落入，即便没有线索', () async {
-      final only = await child('家庭正餐');
-      expect((await record('日常开销'))!.categoryId, only);
-    });
-
-    test('两个午餐叶同样符合时对话仅提示父类候选，全局其他不能代替选择', () async {
-      await child('工作午餐');
-      await child('周末午餐');
-      final other = await repo.createCategory(name: '其他', kind: 'expense');
-      final needsChoice = isA<BillCategoryNeedsChoice>()
-          .having((e) => e.parent, 'parent', '餐饮')
-          .having((e) => e.choices, 'choices', unorderedEquals(['工作午餐', '周末午餐']));
-      await expectLater(record('午餐'), throwsA(needsChoice));
-      await expectLater(record('完全没有提示'), throwsA(needsChoice));
-      expect(await db.select(db.transactions).get(), isEmpty);
-      expect((await record('完全没有提示', interactive: false))!.categoryId, other);
-    });
-
-    test('只使用当前父类下明确的其他子类', () async {
-      await child('工作午餐');
-      await child('周末午餐');
-      final neutral = await child('餐饮 · 其他');
-      await repo.createCategory(name: '其他', kind: 'expense');
-      expect((await record('没有说明'))!.categoryId, neutral);
-      expect((await record('午餐'))!.categoryId, neutral);
-    });
-
-    test('单个汉字与英文单词中的字符不能推断子分类', () async {
-      await child('工作午餐');
-      final tea = await child('Tea');
-      await expectLater(record('steak 套餐'), throwsA(isA<BillCategoryNeedsChoice>()));
-      expect(await db.select(db.transactions).get(), isEmpty);
-      expect((await record('one cup of TEA, please'))!.categoryId, tea);
-    });
-  });
-
   group('类型推断 _resolveType', () {
     setUp(() async {
       await repo.createCategory(name: '餐饮', kind: 'expense');
@@ -237,6 +166,101 @@ void main() {
   // ============================================================
   // 分类匹配
   // ============================================================
+
+  group('已知父分类下选择可记子类', () {
+    late int dining;
+    late int work;
+    late int account;
+
+    setUp(() async {
+      dining = await repo.createCategory(name: '餐饮', kind: 'expense');
+      work =
+          await repo.createCategory(name: '工作', kind: 'expense', sortOrder: 44);
+      account = await repo.createAccount(ledgerId: ledgerId, name: '家庭生活卡');
+    });
+
+    Future<int> child(String name) => repo.createCategory(
+        name: name, kind: 'expense', parentId: dining, level: 2);
+
+    Future<Transaction?> record(String note,
+        {String category = '餐饮',
+        String? source,
+        bool interactive = true}) async {
+      final id = await service.createFromBill(
+          bill: BillInfo(
+              amount: 28,
+              type: BillType.expense,
+              category: category,
+              account: '家庭生活卡',
+              note: note),
+          ledgerId: ledgerId,
+          sourceText: source,
+          requestCategoryChoice: interactive);
+      return repo.getTransactionById(id!);
+    }
+
+    test('父类餐饮由午餐线索找到工作午餐，同时保留支付账户和备注', () async {
+      await child('巷口早餐');
+      final lunch = await child('工作午餐');
+      await child('家常晚餐');
+      final tx = await record('四季原生验收午餐');
+      expect((tx!.categoryId, tx.accountId, tx.note),
+          (lunch, account, '四季原生验收午餐'));
+      expect((await record('午餐', interactive: false))!.categoryId, lunch);
+      expect((await record('工作午餐'))!.categoryId, lunch);
+      expect(
+          (await record('店铺收据', source: '记一笔午餐，金额 28 元，用家庭生活卡支付'))!.categoryId,
+          lunch);
+      expect((await record('午餐', category: '工作'))!.categoryId, work);
+    });
+
+    test('只有一个子类时可以直接落入，即便没有线索', () async {
+      final only = await child('家庭正餐');
+      expect((await record('日常开销'))!.categoryId, only);
+    });
+
+    test('两个午餐叶同样符合时对话仅提示父类候选，全局其他不能代替选择', () async {
+      await child('工作午餐');
+      await child('周末午餐');
+      final other = await repo.createCategory(name: '其他', kind: 'expense');
+      final needsChoice = isA<BillCategoryNeedsChoice>()
+          .having((e) => e.parent, 'parent', '餐饮')
+          .having(
+              (e) => e.choices, 'choices', unorderedEquals(['工作午餐', '周末午餐']));
+      await expectLater(record('午餐'), throwsA(needsChoice));
+      await expectLater(record('完全没有提示'), throwsA(needsChoice));
+      expect(await db.select(db.transactions).get(), isEmpty);
+      expect((await record('完全没有提示', interactive: false))!.categoryId, other);
+    });
+
+    test('只使用当前父类下明确的其他子类', () async {
+      await child('工作午餐');
+      await child('周末午餐');
+      final neutral = await child('餐饮 · 其他');
+      await repo.createCategory(name: '其他', kind: 'expense');
+      expect((await record('没有说明'))!.categoryId, neutral);
+      expect((await record('午餐'))!.categoryId, neutral);
+    });
+
+    test('完整子类名称优先，但单独提到两个兄弟分类仍需选择', () async {
+      final coffee = await child('咖啡');
+      final hand = await child('手冲咖啡');
+      expect((await record('买了手冲咖啡'))!.categoryId, hand);
+      expect((await record('咖啡'))!.categoryId, coffee);
+      await expectLater(
+          record('手冲咖啡和咖啡各一杯'), throwsA(isA<BillCategoryNeedsChoice>()));
+      expect((await db.select(db.transactions).get()).length, 2);
+    });
+
+    test('单个汉字与英文单词中的字符不能推断子分类', () async {
+      await child('工作午餐');
+      final tea = await child('Tea');
+      await expectLater(
+          record('steak 套餐'), throwsA(isA<BillCategoryNeedsChoice>()));
+      expect(await db.select(db.transactions).get(), isEmpty);
+      expect((await record('one cup of TEA, please'))!.categoryId, tea);
+    });
+  });
 
   group('分类匹配', () {
     test('AI 分类名完全相等 → 直接命中', () async {
