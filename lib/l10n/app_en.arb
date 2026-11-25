@@ -1,4 +1,7 @@
 {
+  "agentEvidenceScope": "Query scope",
+  "agentEvidenceNextPage": "Next page",
+  "agentEvidenceLedgerChanged": "The active ledger has changed",
   "agentEvidenceBills": "View related bills",
   "agentEvidenceCount": "{count} matching transactions",
   "agentEvidenceFirstPage": "Back to first page",

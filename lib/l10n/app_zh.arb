@@ -1,4 +1,7 @@
 {
+  "agentEvidenceScope": "查询范围",
+  "agentEvidenceNextPage": "下一页",
+  "agentEvidenceLedgerChanged": "当前账本已切换",
   "agentEvidenceBills": "查看相关账单",
   "agentEvidenceCount": "共 {count} 笔",
   "agentEvidenceFirstPage": "回到第一页",

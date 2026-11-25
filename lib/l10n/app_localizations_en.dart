@@ -9,6 +9,15 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get agentEvidenceScope => 'Query scope';
+
+  @override
+  String get agentEvidenceNextPage => 'Next page';
+
+  @override
+  String get agentEvidenceLedgerChanged => 'The active ledger has changed';
+
+  @override
   String get agentEvidenceBills => 'View related bills';
 
   @override

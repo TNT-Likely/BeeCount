@@ -1,4 +1,7 @@
 {
+  "agentEvidenceScope": "查詢範圍",
+  "agentEvidenceNextPage": "下一頁",
+  "agentEvidenceLedgerChanged": "目前帳本已切換",
   "agentEvidenceBills": "查看相關帳單",
   "agentEvidenceCount": "共 {count} 筆",
   "agentEvidenceFirstPage": "回到第一頁",

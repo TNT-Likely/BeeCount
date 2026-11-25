@@ -320,19 +320,13 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
                                     Align(
                                         alignment: Alignment.centerLeft,
                                         child: TextButton.icon(
-                                          icon: const Icon(
-                                              Icons.receipt_long_outlined,
+                                          icon: const BeeLineIcon('ReceiptText',
                                               size: 17),
                                           label: Text(l10n.agentEvidenceBills),
                                           onPressed: () =>
-                                              showModalBottomSheet<void>(
-                                                  context: context,
-                                                  isScrollControlled: true,
-                                                  showDragHandle: true,
-                                                  builder: (_) =>
-                                                      LedgerEvidenceSheet(
-                                                          ledgerId: ledgerId,
-                                                          queries: queries)),
+                                              LedgerEvidenceSheet.show(context,
+                                                  ledgerId: ledgerId,
+                                                  queries: queries),
                                         )),
                                   if (suggestions.questions.isNotEmpty ||
                                       suggestions.templates.isNotEmpty)

@@ -100,6 +100,24 @@ abstract class AppLocalizations {
     Locale('zh', 'TW')
   ];
 
+  /// No description provided for @agentEvidenceScope.
+  ///
+  /// In en, this message translates to:
+  /// **'Query scope'**
+  String get agentEvidenceScope;
+
+  /// No description provided for @agentEvidenceNextPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Next page'**
+  String get agentEvidenceNextPage;
+
+  /// No description provided for @agentEvidenceLedgerChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'The active ledger has changed'**
+  String get agentEvidenceLedgerChanged;
+
   /// No description provided for @agentEvidenceBills.
   ///
   /// In en, this message translates to:

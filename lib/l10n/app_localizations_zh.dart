@@ -9,6 +9,15 @@ class AppLocalizationsZh extends AppLocalizations {
   AppLocalizationsZh([String locale = 'zh']) : super(locale);
 
   @override
+  String get agentEvidenceScope => '查询范围';
+
+  @override
+  String get agentEvidenceNextPage => '下一页';
+
+  @override
+  String get agentEvidenceLedgerChanged => '当前账本已切换';
+
+  @override
   String get agentEvidenceBills => '查看相关账单';
 
   @override
@@ -9680,6 +9689,15 @@ class AppLocalizationsZh extends AppLocalizations {
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
 class AppLocalizationsZhTw extends AppLocalizationsZh {
   AppLocalizationsZhTw(): super('zh_TW');
+
+  @override
+  String get agentEvidenceScope => '查詢範圍';
+
+  @override
+  String get agentEvidenceNextPage => '下一頁';
+
+  @override
+  String get agentEvidenceLedgerChanged => '目前帳本已切換';
 
   @override
   String get agentEvidenceBills => '查看相關帳單';
