@@ -140,8 +140,9 @@ void main() {
         expect(Theme.of(tester.element(find.byType(AIChatPage))).brightness,
             brightness);
         expect(find.byType(ErrorWidget), findsNothing);
-        if (withSheet)
+        if (withSheet) {
           expect(find.text(l.agentEvidenceCount(1)), findsOneWidget);
+        }
       }
       if (withSheet) {
         await tester.tap(find.byType(CloseButton));
