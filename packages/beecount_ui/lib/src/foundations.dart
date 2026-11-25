@@ -607,6 +607,8 @@ class BeeSheet extends StatelessWidget {
 Future<T?> showBeeSheet<T>(BuildContext context,
     {required String title, required Widget child, Widget? footer}) {
   FocusManager.instance.primaryFocus?.unfocus();
+  const shape = RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(25)));
   return showModalBottomSheet<T>(
       context: context,
       isScrollControlled: true,
@@ -614,9 +616,13 @@ Future<T?> showBeeSheet<T>(BuildContext context,
       backgroundColor: BeeCardTheme.of(context).overlay,
       constraints:
           BoxConstraints(maxHeight: MediaQuery.sizeOf(context).height * .9),
-      shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(25))),
-      builder: (_) => BeeSheet(title: title, footer: footer, child: child));
+      shape: shape,
+      // The route keeps its opening color. Paint the current surface on its
+      // Material so an already visible sheet follows the theme of its contents.
+      builder: (sheetContext) => Ink(
+          decoration: ShapeDecoration(
+              shape: shape, color: BeeCardTheme.of(sheetContext).overlay),
+          child: BeeSheet(title: title, footer: footer, child: child)));
 }
 
 /// The host keeps the selected value; a sheet can hold a draft until Confirm.

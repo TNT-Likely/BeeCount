@@ -5,8 +5,20 @@ import 'package:agentcore/agentcore.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'support/assistant_eval.dart';
+import 'support/answer_bindings.dart';
 
 void main() {
+  test('category amounts stay paired with their labels in prose and tables',
+      () {
+    const expected = {'午餐': 70, '早餐': 50};
+    expect(matchesCategoryAmounts('午餐 70 元（58.33%），早餐 50 元（41.67%）。', expected),
+        isTrue);
+    expect(
+        matchesCategoryAmounts('| 午餐 | ¥70 |\n| 早餐 | ¥50 |', expected), isTrue);
+    expect(matchesCategoryAmounts('70元午餐，50元早餐。', expected), isTrue);
+    expect(matchesCategoryAmounts('午餐 50 元，早餐 70 元。', expected), isFalse);
+    expect(matchesCategoryAmounts('午餐 70%，早餐 50 笔。', expected), isFalse);
+  });
   final testCase = AgentEvalCase(id: 'assertions', input: {}, expected: {
     'turns': [
       {

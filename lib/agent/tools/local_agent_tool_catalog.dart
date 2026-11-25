@@ -8,21 +8,59 @@ import 'package:agentcore/agentcore.dart' as core;
 final class LocalAgentToolCatalog {
   const LocalAgentToolCatalog._();
 
+  static const _names = {
+    'type': 'array',
+    'items': {'type': 'string', 'minLength': 1},
+    'maxItems': 30
+  };
+  static const _ids = {
+    'type': 'array',
+    'items': {'type': 'integer'},
+    'maxItems': 30
+  };
+  static const _filters = <String, Object?>{
+    'baseQuery': {
+      'type': 'string',
+      'description': '可选。沿用当前账本上一组查询的 queryRef，只覆盖用户改动的条件。'
+    },
+    'excludeQuery': {
+      'type': 'string',
+      'description': '仅从本次计算排除该 queryRef 完整匹配的记录，不更改账单。'
+    },
+    'categoryNames': _names,
+    'accountNames': _names,
+    'tagNames': _names,
+    'categoryIds': _ids,
+    'accountIds': _ids,
+    'tagIds': _ids,
+    'minAmount': {'type': 'number', 'minimum': 0},
+    'maxAmount': {'type': 'number', 'minimum': 0},
+    'amountBasis': {
+      'type': 'string',
+      'enum': ['ledger', 'original'],
+      'description': '金额筛选默认为账本本位币。原币筛选应同时提供 currency。'
+    },
+    'currency': {'type': 'string', 'description': '筛选交易原币，ISO 4217。'},
+    'includeExcludedFromStats': {
+      'type': 'boolean',
+      'description': '统计默认排除不计收支项，原始明细默认包含。'
+    },
+  };
+
   static const _rangeParameters = <String, Object?>{
     'type': 'object',
     'properties': {
-      'start': {
+      ..._periodProperties,
+      ..._flowTypeProperties,
+      ..._filters,
+      'cursor': {
         'type': 'string',
-        'description': '查询开始时间，ISO 8601 格式（包含）。',
+        'description': '使用上一页的 nextCursor 与相同查询条件继续。'
       },
-      'end': {
-        'type': 'string',
-        'description': '查询结束时间，ISO 8601 格式（不包含）。',
-      },
+      'limit': {'type': 'integer', 'minimum': 1, 'maximum': 20}
     },
     'additionalProperties': false,
   };
-
   static const _periodProperties = <String, Object?>{
     'period': {
       'type': 'string',
@@ -52,17 +90,16 @@ final class LocalAgentToolCatalog {
 
   static const _periodOverviewParameters = <String, Object?>{
     'type': 'object',
-    'properties': _periodProperties,
+    'properties': {..._periodProperties, ..._filters, ..._flowTypeProperties},
     'additionalProperties': false,
   };
 
   static const _flowTypeProperties = <String, Object?>{
     'flowType': {
       'type': 'string',
-      'description':
-          '资金方向：expense 为支出（默认），income 为收入。用户询问收入分类'
-              '（如捐赠、募资、薪资、副业等分类下都是收入）的金额、趋势、占比或构成时，'
-              '必须传 income，否则查不到数据。',
+      'description': '资金方向：expense 为支出（默认），income 为收入。用户询问收入分类'
+          '（如捐赠、募资、薪资、副业等分类下都是收入）的金额、趋势、占比或构成时，'
+          '必须传 income，否则查不到数据。',
       'enum': ['expense', 'income'],
     },
   };
@@ -72,16 +109,11 @@ final class LocalAgentToolCatalog {
     'properties': {
       ..._periodProperties,
       ..._flowTypeProperties,
+      ..._filters,
       'interval': {
         'type': 'string',
         'description': '趋势粒度，默认 month。',
         'enum': ['day', 'week', 'month', 'year'],
-      },
-      'categoryNames': {
-        'type': 'array',
-        'description': '可选分类；选择一级分类时自动包含全部子分类。收入分类须搭配 flowType="income"。',
-        'items': {'type': 'string', 'minLength': 1},
-        'uniqueItems': true,
       },
       'comparison': {
         'type': 'string',
@@ -98,17 +130,12 @@ final class LocalAgentToolCatalog {
     'properties': {
       ..._periodProperties,
       ..._flowTypeProperties,
+      ..._filters,
       'categoryLevel': {
         'type': 'string',
         'description':
             '必须明确选择：leaf 为明细/子分类，top 为一级分类。用户要求某分类内部、下属分类或明细分类时使用 leaf。',
         'enum': ['leaf', 'top'],
-      },
-      'categoryNames': {
-        'type': 'array',
-        'description': '可选分类范围；一级分类会包含全部子分类。收入分类须搭配 flowType="income"。',
-        'items': {'type': 'string', 'minLength': 1},
-        'uniqueItems': true,
       },
       'limit': {
         'type': 'integer',
@@ -131,7 +158,7 @@ final class LocalAgentToolCatalog {
     core.AgentNativeToolDefinition(
       name: 'query_transactions',
       description:
-          '查询当前账本在时间范围内的交易明细，只读，不会修改数据。start 包含、end 不包含；缺少时间范围时使用最近 30 天。最多返回 20 条，适合用户明确要求查看明细或最近几笔交易，不适合计算总额或趋势。每条结果含交易原币金额、账本本位币金额、分类、转出/转入账户、标签、时间、备注及统计/预算排除状态。',
+          '查询当前账本在时间范围内的交易明细，只读，不会修改数据。start 包含、end 不包含；缺少时间范围时使用最近 30 天。每页最多返回 20 条，totalCount 是完整命中数，nextCursor 用于续页，queryRef 可供追问与临时排除。适合用户明确要求查看明细或最近几笔交易，不适合计算总额或趋势。每条结果含交易原币金额、账本本位币金额、分类、转出/转入账户、标签、时间、备注及统计/预算排除状态。',
       parameters: _rangeParameters,
     ),
     core.AgentNativeToolDefinition(
@@ -155,8 +182,14 @@ final class LocalAgentToolCatalog {
     core.AgentNativeToolDefinition(
       name: 'get_budget_status',
       description:
-          '读取当前账本的预算快照，只读，不会修改数据，不需要参数。结果含 currency、daysRemaining、dailyAvailable、total 预算使用情况及 categoryBudgets 分类预算使用情况；每项包含已用、预算、剩余、使用率和状态。',
-      parameters: _emptyParameters,
+          '读取当前账本的预算快照，只读，不会修改数据，可选 at 指定预算日期。结果含 currency、daysRemaining、dailyAvailable、total 预算使用情况及 categoryBudgets 分类预算使用情况；每项包含已用、预算、剩余、使用率和状态。',
+      parameters: {
+        'type': 'object',
+        'properties': {
+          'at': {'type': 'string', 'description': '预算所在账期内的 ISO 日期，默认今天。'}
+        },
+        'additionalProperties': false
+      },
     ),
     core.AgentNativeToolDefinition(
       name: 'get_recurring_transactions',
@@ -171,6 +204,29 @@ final class LocalAgentToolCatalog {
       parameters: {
         'type': 'object',
         'properties': {
+          'receiptOnly': {
+            'type': 'boolean',
+            'description': '仅要求记录时设为 true；用户还提问、试算或分析时为 false。'
+          },
+          'entry': {
+            'type': 'object',
+            'description':
+                '可选。原文清晰表达的一笔实际收支。多笔、转账、金额或对象不明确时只传 sourceText。不要把天数、预算或试算金额作为账单。',
+            'properties': {
+              'amount': {'type': 'number', 'exclusiveMinimum': 0},
+              'type': {
+                'type': 'string',
+                'enum': ['expense', 'income']
+              },
+              'category': {'type': 'string'},
+              'account': {'type': 'string'},
+              'note': {'type': 'string'},
+              'currency': {'type': 'string'},
+              'time': {'type': 'string', 'description': '用户明确指定时传 ISO 时间'}
+            },
+            'required': ['amount', 'type'],
+            'additionalProperties': false
+          },
           'sourceText': {
             'type': 'string',
             'description': '原始交易文本，必须逐字等于用户当前消息。',

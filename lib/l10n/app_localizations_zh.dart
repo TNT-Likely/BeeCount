@@ -9,6 +9,53 @@ class AppLocalizationsZh extends AppLocalizations {
   AppLocalizationsZh([String locale = 'zh']) : super(locale);
 
   @override
+  String get agentEvidenceScope => '查询范围';
+
+  @override
+  String get agentEvidenceNextPage => '下一页';
+
+  @override
+  String get agentEvidenceLedgerChanged => '当前账本已切换';
+
+  @override
+  String get agentEvidenceBills => '查看相关账单';
+
+  @override
+  String agentEvidenceCount(int count) {
+    return '共 $count 笔';
+  }
+
+  @override
+  String get agentEvidenceFirstPage => '回到第一页';
+
+  @override
+  String get agentEvidenceExcluded => '已按本次试算排除';
+
+  @override
+  String get agentDepthAuto => '自动';
+
+  @override
+  String get agentDepthAutoDescription => '随问题调整，综合复盘最多 8 轮';
+
+  @override
+  String get agentReceiptUnavailable => '原回执中有账单已撤销或已移出这个账本。';
+
+  @override
+  String get agentReceiptInterrupted => '账单已保存，后续答复中断了。';
+
+  @override
+  String get agentReceiptPartlySaved => '部分账单未能保存，下面是已记入的账单。';
+
+  @override
+  String get agentQueryPartial => '还有查询未完成，可以接着核对。';
+
+  @override
+  String get agentMonthlyReview => '复盘这个账期';
+
+  @override
+  String get agentMonthlyReviewPrompt => '复盘洞察页选中的账期，对比上一个可比期间的收支和分类，解释最大的变化。';
+
+  @override
   String get agentActivityPreparing => '正在处理你的问题…';
 
   @override
@@ -9654,6 +9701,53 @@ class AppLocalizationsZh extends AppLocalizations {
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
 class AppLocalizationsZhTw extends AppLocalizationsZh {
   AppLocalizationsZhTw(): super('zh_TW');
+
+  @override
+  String get agentEvidenceScope => '查詢範圍';
+
+  @override
+  String get agentEvidenceNextPage => '下一頁';
+
+  @override
+  String get agentEvidenceLedgerChanged => '目前帳本已切換';
+
+  @override
+  String get agentEvidenceBills => '查看相關帳單';
+
+  @override
+  String agentEvidenceCount(int count) {
+    return '共 $count 筆';
+  }
+
+  @override
+  String get agentEvidenceFirstPage => '回到第一頁';
+
+  @override
+  String get agentEvidenceExcluded => '已依本次試算排除';
+
+  @override
+  String get agentDepthAuto => '自動';
+
+  @override
+  String get agentDepthAutoDescription => '隨問題調整，綜合回顧最多 8 輪';
+
+  @override
+  String get agentReceiptUnavailable => '原收據中有帳單已撤銷或已移出這個帳本。';
+
+  @override
+  String get agentReceiptInterrupted => '帳單已儲存，後續答覆中斷了。';
+
+  @override
+  String get agentReceiptPartlySaved => '部分帳單未能儲存，以下是已記入的帳單。';
+
+  @override
+  String get agentQueryPartial => '仍有查詢尚未完成，可以接著核對。';
+
+  @override
+  String get agentMonthlyReview => '回顧這個帳期';
+
+  @override
+  String get agentMonthlyReviewPrompt => '回顧洞察頁選取的帳期，對比上一個可比期間的收支與分類，解釋最大的變化。';
 
   @override
   String get agentActivityPreparing => '正在處理你的問題…';

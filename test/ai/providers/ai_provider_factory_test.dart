@@ -226,7 +226,8 @@ void main() {
 
   test('SSE DONE ends the response without waiting for HTTP teardown',
       () async {
-    final stream = StreamController<Uint8List>();
+    final released = Completer<void>();
+    final stream = StreamController<Uint8List>(onCancel: released.complete);
     final adapter = _SseResponseAdapter(body: () => stream.stream);
     final client = Dio(BaseOptions(baseUrl: 'https://example.com/v1'))
       ..httpClientAdapter = adapter;
@@ -243,9 +244,50 @@ void main() {
       ).toList().timeout(const Duration(seconds: 1));
       expect(chunks, hasLength(1));
       expect(stream.isClosed, isFalse);
+      await released.future.timeout(const Duration(seconds: 1));
     } finally {
       client.close(force: true);
       await stream.close();
+    }
+  });
+
+  test('cancelling while waiting for SSE releases only that HTTP response',
+      () async {
+    final started = Completer<void>();
+    final released = Completer<void>();
+    final waiting = StreamController<Uint8List>(
+      onListen: started.complete,
+      onCancel: released.complete,
+    );
+    final secondStarted = Completer<void>();
+    final other = StreamController<Uint8List>(onListen: secondStarted.complete);
+    final bodies = [waiting.stream, other.stream].iterator;
+    final client = Dio(BaseOptions(baseUrl: 'https://example.com/v1'))
+      ..httpClientAdapter = _SseResponseAdapter(body: () {
+        bodies.moveNext();
+        return bodies.current;
+      });
+    Stream<Map<String, dynamic>> request() =>
+        AIProviderFactory.chatWithToolsStreamForConfig(
+            config: _toolConfig(), messages: const [], tools: const [], client: client);
+    const limit = Duration(seconds: 2);
+    try {
+      final first = request().listen((_) {});
+      await started.future.timeout(limit);
+      final second = request().toList();
+      await secondStarted.future.timeout(limit);
+      await first.cancel().timeout(limit);
+      await released.future.timeout(limit);
+      expect(other.hasListener, isTrue);
+      other.add(Uint8List.fromList(utf8.encode(
+        'data: {"choices":[{"delta":{"content":"still active"}}]}\n\n'
+        'data: [DONE]\n\n',
+      )));
+      expect(await second.timeout(limit), hasLength(1));
+    } finally {
+      client.close(force: true);
+      unawaited(waiting.close());
+      unawaited(other.close());
     }
   });
 

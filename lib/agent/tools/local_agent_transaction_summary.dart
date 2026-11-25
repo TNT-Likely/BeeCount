@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'package:crypto/crypto.dart';
 import 'package:drift/drift.dart' as d;
 
 import '../../data/db.dart';
@@ -27,6 +29,7 @@ final class LocalAgentTransactionSummaryDataSource {
     required List<String> accountNames,
     required bool includeExcludedFromStats,
     required int groupLimit,
+    Map<String, Object?> filters = const {},
   }) async {
     final effectiveTypes = [
       for (final type in _canonicalTypes)
@@ -35,43 +38,21 @@ final class LocalAgentTransactionSummaryDataSource {
     final ledger = await (_database.select(_database.ledgers)
           ..where((row) => row.id.equals(ledgerId)))
         .getSingleOrNull();
-    final categoryFilter = await _expandedCategoryFilter(
-      ids: categoryIds,
-      names: categoryNames,
-    );
-    final where = <String>[
-      't.ledger_id = ?',
-      't.happened_at >= ?',
-      't.happened_at < ?',
-      't.type IN (${List.filled(effectiveTypes.length, '?').join(', ')})',
-      if (!includeExcludedFromStats) 't.exclude_from_stats = 0',
-    ];
-    final variables = <d.Variable>[
-      d.Variable.withInt(ledgerId),
-      d.Variable.withDateTime(start),
-      d.Variable.withDateTime(end),
-      for (final type in effectiveTypes) d.Variable.withString(type),
-    ];
-    _appendReferenceFilter(
-      where,
-      variables,
-      column: 't.category_id',
-      ids: categoryFilter.$1,
-      names: categoryFilter.$2,
-      table: 'categories',
-      tableAlias: 'filter_category',
-    );
-    _appendReferenceFilter(
-      where,
-      variables,
-      column: 't.account_id',
-      ids: accountIds,
-      names: accountNames,
-      table: 'accounts',
-      tableAlias: 'filter_account',
-      additionalColumn: 't.to_account_id',
-    );
-    _appendTagFilter(where, variables, ids: tagIds, names: tagNames);
+    final predicate = await _predicate(
+        ledgerId: ledgerId,
+        start: start,
+        end: end,
+        types: effectiveTypes,
+        categoryIds: categoryIds,
+        categoryNames: categoryNames,
+        accountIds: accountIds,
+        accountNames: accountNames,
+        tagIds: tagIds,
+        tagNames: tagNames,
+        includeExcludedFromStats: includeExcludedFromStats,
+        filters: filters);
+    final where = predicate.where;
+    final variables = predicate.variables;
     final rows = await _database
         .customSelect(
           '''
@@ -106,6 +87,55 @@ final class LocalAgentTransactionSummaryDataSource {
       };
     }
 
+    if (groupBy == 'details') {
+      final count = totalsByType.values
+          .fold<int>(0, (n, row) => n + (row['count'] as int));
+      final sum = totalsByType.values
+          .fold<double>(0, (n, row) => n + (row['amount'] as num).toDouble());
+      final pageWhere = [...where];
+      final pageVariables = [...variables];
+      final fingerprint = sha256
+          .convert(utf8.encode(jsonEncode([
+            ...where,
+            for (final variable in variables) variable.value?.toString(),
+          ])))
+          .toString()
+          .substring(0, 16);
+      if (filters['cursor'] case final String cursor) {
+        final parts = cursor.split('/');
+        final seconds = parts.length == 3 ? int.tryParse(parts[1]) : null;
+        final lastId = int.tryParse(parts.last);
+        if (parts.first != fingerprint || seconds == null || lastId == null) {
+          return {'error': 'invalid_detail_cursor', 'retryable': true};
+        }
+        pageWhere
+            .add('(t.happened_at < ? OR (t.happened_at = ? AND t.id < ?))');
+        pageVariables.addAll([
+          d.Variable.withInt(seconds),
+          d.Variable.withInt(seconds),
+          d.Variable.withInt(lastId)
+        ]);
+      }
+      final page = await _database.customSelect(
+          'SELECT t.id, t.happened_at FROM transactions t WHERE ${pageWhere.join(' AND ')} '
+          'ORDER BY t.happened_at DESC, t.id DESC LIMIT ?',
+          variables: [...pageVariables, d.Variable.withInt(groupLimit + 1)],
+          readsFrom: {_database.transactions}).get();
+      final visible = page.take(groupLimit).toList();
+      return {
+        'currency': ledger?.currency ?? 'CNY',
+        'periodStart': start.toIso8601String(),
+        'periodEnd': end.toIso8601String(),
+        'pageIds': visible.map((r) => r.read<int>('id')).toList(),
+        'totalCount': count,
+        'totalLedgerAmount': sum,
+        'truncated': count > visible.length,
+        'nextCursor': page.length > groupLimit
+            ? "$fingerprint/${visible.last.read<int>('happened_at')}/${visible.last.read<int>('id')}"
+            : null,
+        ...predicate.match
+      };
+    }
     final groups = switch (groupBy) {
       'category' => await _categoryGroups(where, variables,
           categoryLevel: categoryLevel, groupLimit: groupLimit),
@@ -155,6 +185,7 @@ final class LocalAgentTransactionSummaryDataSource {
       'groups': groups,
       'groupsMayOverlap': groupBy == 'tag' || groupBy == 'account',
       'truncated': truncated,
+      ...predicate.match,
     };
   }
 
@@ -517,29 +548,210 @@ final class LocalAgentTransactionSummaryDataSource {
     ];
   }
 
-  Future<(List<int>, List<String>)> _expandedCategoryFilter({
+  Future<
+      ({
+        List<String> where,
+        List<d.Variable> variables,
+        Map<String, Object?> match
+      })> _predicate({
+    required int ledgerId,
+    required DateTime start,
+    required DateTime end,
+    required List<String> types,
+    required List<int> categoryIds,
+    required List<String> categoryNames,
+    required List<int> accountIds,
+    required List<String> accountNames,
+    required List<int> tagIds,
+    required List<String> tagNames,
+    required bool includeExcludedFromStats,
+    required Map<String, Object?> filters,
+  }) async {
+    final categoryFilter = await _expandedCategoryFilter(
+      types: types,
+      ids: categoryIds,
+      names: categoryNames,
+    );
+    final where = <String>[
+      't.ledger_id = ?',
+      't.happened_at >= ?',
+      't.happened_at < ?',
+      't.type IN (${List.filled(types.length, '?').join(', ')})',
+      if (!includeExcludedFromStats) 't.exclude_from_stats = 0',
+    ];
+    final variables = <d.Variable>[
+      d.Variable.withInt(ledgerId),
+      d.Variable.withDateTime(start),
+      d.Variable.withDateTime(end),
+      for (final type in types) d.Variable.withString(type),
+    ];
+    _appendReferenceFilter(
+      where,
+      variables,
+      column: 't.category_id',
+      ids: categoryFilter.ids,
+      names: const [],
+      table: 'categories',
+      tableAlias: 'filter_category',
+    );
+    _appendReferenceFilter(
+      where,
+      variables,
+      column: 't.account_id',
+      ids: accountIds,
+      names: accountNames,
+      table: 'accounts',
+      tableAlias: 'filter_account',
+      additionalColumn: 't.to_account_id',
+    );
+    _appendTagFilter(where, variables, ids: tagIds, names: tagNames);
+
+    var match = categoryFilter.match;
+    for (final entity in [
+      (table: 'accounts', ids: accountIds, names: accountNames),
+      (table: 'tags', ids: tagIds, names: tagNames)
+    ]) {
+      if (entity.ids.isEmpty && entity.names.isEmpty) continue;
+      final status = await _entityMatch(entity.table, entity.ids, entity.names);
+      if (status != null) {
+        match = status;
+        break;
+      }
+    }
+    if (match.isNotEmpty && match['matchStatus'] != 'matched') where.add('0');
+    final original = filters['amountBasis'] == 'original';
+    final amount =
+        original ? 'ABS(t.amount)' : 'ABS(COALESCE(t.native_amount,t.amount))';
+    for (final (key, op) in [('minAmount', '>='), ('maxAmount', '<=')]) {
+      if (filters[key] case final num limit) {
+        where.add('$amount $op ?');
+        variables.add(d.Variable.withReal(limit.toDouble()));
+      }
+    }
+    if (filters['currency'] case final String currency) {
+      where.add(
+          "upper(COALESCE(t.currency_code, (SELECT currency FROM ledgers WHERE id=t.ledger_id))) = ?");
+      variables.add(d.Variable.withString(currency.toUpperCase()));
+    }
+    if (filters['exclude'] case final Map excluded) {
+      final x = Map<String, Object?>.from(excluded);
+      final clause = await _predicate(
+          ledgerId: ledgerId,
+          start: DateTime.parse(x['start'] as String),
+          end: DateTime.parse(x['end'] as String),
+          types: x['flowType'] is String
+              ? [x['flowType'] as String]
+              : _canonicalTypes,
+          categoryIds: _ids(x, 'categoryIds'),
+          categoryNames: _names(x, 'categoryNames'),
+          accountIds: _ids(x, 'accountIds'),
+          accountNames: _names(x, 'accountNames'),
+          tagIds: _ids(x, 'tagIds'),
+          tagNames: _names(x, 'tagNames'),
+          includeExcludedFromStats: x['includeExcludedFromStats'] == true,
+          filters: x);
+      where.add(
+          "t.id NOT IN (SELECT t.id FROM transactions t WHERE ${clause.where.join(' AND ')})");
+      variables.addAll(clause.variables);
+      if (clause.match['matchStatus'] == 'unmatched' ||
+          clause.match['matchStatus'] == 'ambiguous') {
+        match = clause.match;
+        where.add('0');
+      }
+    }
+    return (where: where, variables: variables, match: match);
+  }
+
+  // Accounts and tags are user-level dictionaries. Transactions remain scoped to the ledger.
+  Future<Map<String, Object?>?> _entityMatch(
+      String table, List<int> ids, List<String> names) async {
+    final rows =
+        await _database.customSelect('SELECT id, name FROM $table').get();
+    for (final id in ids) {
+      if (!rows.any((row) => row.read<int>('id') == id)) {
+        return {'matchStatus': 'unmatched', 'requestedName': id.toString()};
+      }
+    }
+    for (final name in names) {
+      final options = rows
+          .where((row) =>
+              row.read<String>('name').toLowerCase() ==
+              name.trim().toLowerCase())
+          .toList();
+      if (options.length != 1) {
+        return {
+          'matchStatus': options.isEmpty ? 'unmatched' : 'ambiguous',
+          'requestedName': name,
+          'candidates': options.take(12).map((row) => row.data).toList()
+        };
+      }
+    }
+    return null;
+  }
+
+  static List<int> _ids(Map args, String key) =>
+      (args[key] as List?)?.whereType<int>().toList() ?? [];
+  static List<String> _names(Map args, String key) =>
+      (args[key] as List?)?.whereType<String>().toList() ?? [];
+
+  Future<({List<int> ids, Map<String, Object?> match})>
+      _expandedCategoryFilter({
+    required List<String> types,
     required List<int> ids,
     required List<String> names,
   }) async {
     if (ids.isEmpty && names.isEmpty) {
-      return (const <int>[], const <String>[]);
+      return (ids: <int>[], match: <String, Object?>{});
     }
     final categories = await _database.select(_database.categories).get();
-    final normalizedNames = names
-        .map((name) => name.trim().toLowerCase())
-        .where((name) => name.isNotEmpty)
-        .toSet();
-    final matched = <int>{...ids};
-    for (final category in categories) {
-      if (normalizedNames.contains(category.name.trim().toLowerCase())) {
-        matched.add(category.id);
+    final byId = {for (final c in categories) c.id: c};
+    final resolved = <Category>[];
+    const synonyms = {
+      '伙食': ['餐饮', '餐飲', '饮食', '飲食'],
+      '伙食费': ['餐饮', '餐飲', '饮食', '飲食'],
+      '吃饭': ['餐饮', '餐飲', '饮食', '飲食'],
+      '飯錢': ['餐饮', '餐飲', '饮食', '飲食'],
+      '饭钱': ['餐饮', '餐飲', '饮食', '飲食'],
+      '午饭': ['午餐'],
+      '午飯': ['午餐'],
+      '早饭': ['早餐'],
+      '早飯': ['早餐'],
+      '晚饭': ['晚餐'],
+      '晚飯': ['晚餐'],
+    };
+    for (final input in names) {
+      final name = input.trim().toLowerCase();
+      final allowed = categories.where((c) => types.contains(c.kind));
+      var options =
+          allowed.where((c) => c.name.trim().toLowerCase() == name).toList();
+      if (options.isEmpty) {
+        options = allowed
+            .where((c) => synonyms[name]?.contains(c.name) == true)
+            .toList();
       }
+      if (options.length != 1) {
+        return (
+          ids: <int>[],
+          match: {
+            'matchStatus': options.isEmpty ? 'unmatched' : 'ambiguous',
+            'requestedName': input,
+            'candidates': [
+              for (final c in options.take(12))
+                {'id': c.id, 'name': c.name, 'parent': byId[c.parentId]?.name}
+            ]
+          }
+        );
+      }
+      resolved.add(options.single);
     }
-    if (matched.isEmpty) {
-      // Preserve an unmatched name predicate so a typo cannot silently turn
-      // into an unfiltered all-category query.
-      return (const <int>[], normalizedNames.toList()..sort());
+    final matched = <int>{
+      ...ids.where((id) => types.contains(byId[id]?.kind)),
+      ...resolved.map((c) => c.id)
+    };
+    if (matched.isEmpty || ids.any((id) => !matched.contains(id))) {
+      return (ids: <int>[], match: {'matchStatus': 'unmatched'});
     }
+    final direct = [...matched];
     var changed = true;
     while (changed) {
       changed = false;
@@ -552,7 +764,15 @@ final class LocalAgentTransactionSummaryDataSource {
       }
     }
     final result = matched.toList()..sort();
-    return (result, const <String>[]);
+    return (
+      ids: result,
+      match: {
+        'matchStatus': 'matched',
+        'matchedCategories': [
+          for (final id in direct) {'id': id, 'name': byId[id]?.name}
+        ]
+      }
+    );
   }
 
   String _accountKey(Map<String, Object?> row) =>

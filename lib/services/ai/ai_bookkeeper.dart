@@ -47,17 +47,26 @@ class AiBookkeeper {
     String billGuard = '',
     AppLocalizations? l10n,
   }) async {
+    final bills = await extractTextBills(
+        text: text, ledgerId: ledgerId, billGuard: billGuard);
+    return persistBills(
+        bills: bills,
+        ledgerId: ledgerId,
+        billingTypes: billingTypes,
+        l10n: l10n);
+  }
+
+  Future<List<BillInfo>> extractTextBills(
+      {required String text,
+      required int ledgerId,
+      String billGuard = '',
+      BillInfo? entry}) async {
     final context = await AiExtractionContext.forLedger(
-      repository: _repo,
-      ledgerId: ledgerId,
-    );
-    final bills = await _engine.extractFromText(text, context, billGuard: billGuard);
-    return _persistAll(
-      bills: bills,
-      ledgerId: ledgerId,
-      billingTypes: billingTypes,
-      l10n: l10n,
-    );
+        repository: _repo, ledgerId: ledgerId);
+    if (entry != null && (context.customPromptTemplate?.trim().isEmpty ?? true)) {
+      return [entry];
+    }
+    return _engine.extractFromText(text, context, billGuard: billGuard);
   }
 
   /// 图片记账(相册 / 相机 / 自动截图)
@@ -80,8 +89,9 @@ class AiBookkeeper {
       repository: _repo,
       ledgerId: ledgerId,
     );
-    final bills = await _engine.extractFromImage(image, context, billGuard: billGuard);
-    return _persistAll(
+    final bills =
+        await _engine.extractFromImage(image, context, billGuard: billGuard);
+    return persistBills(
       bills: bills,
       ledgerId: ledgerId,
       billingTypes: billingTypes,
@@ -105,7 +115,7 @@ class AiBookkeeper {
       ledgerId: ledgerId,
     );
     final audioResult = await _engine.extractFromAudio(audio, context);
-    final result = await _persistAll(
+    final result = await persistBills(
       bills: audioResult.bills,
       ledgerId: ledgerId,
       billingTypes: billingTypes,
@@ -122,13 +132,14 @@ class AiBookkeeper {
   // 内部:落库 + 聚合结果
   // ============================================================
 
-  Future<BookkeepingResult> _persistAll({
+  Future<BookkeepingResult> persistBills({
     required List<BillInfo> bills,
     required int ledgerId,
     required List<String> billingTypes,
     AppLocalizations? l10n,
     Future<void> Function(int txId, int index)? onSaved,
     void Function()? onSaving,
+    Future<int?> Function(Future<int?> Function())? atomicBill,
   }) async {
     if (bills.isEmpty) {
       return BookkeepingResult.empty;
@@ -148,12 +159,13 @@ class AiBookkeeper {
     for (var i = 0; i < bills.length; i++) {
       final bill = bills[i].copyWith(ledgerId: ledgerId);
       try {
-        final txId = await _persister.createFromBill(
-          bill: bill,
-          ledgerId: ledgerId,
-          billingTypes: billingTypes,
-          l10n: l10n,
-        );
+        Future<int?> save() => _persister.createFromBill(
+              bill: bill,
+              ledgerId: ledgerId,
+              billingTypes: billingTypes,
+              l10n: l10n,
+            );
+        final txId = await (atomicBill == null ? save() : atomicBill(save));
         if (txId == null) {
           failed++;
           logger.warning(_tag, '第 ${i + 1} 笔创建失败: ${bill.toJson()}');
@@ -180,8 +192,8 @@ class AiBookkeeper {
         try {
           enriched = await _enrichWithActualNames(bill, txId);
         } catch (e, st) {
-          logger.error(_tag, 'enrichWithActualNames 异常,用 AI 原始 BillInfo',
-              e, st);
+          logger.error(
+              _tag, 'enrichWithActualNames 异常,用 AI 原始 BillInfo', e, st);
           enriched = bill;
         }
         saved.add(enriched);
@@ -207,14 +219,14 @@ class AiBookkeeper {
 
   /// 找出本批里「外币且未折算」的币种(A5)。判定条件与 L11 补折算横幅一致:
   /// `currencyCode != 账本本位币 && nativeAmount == amount`。
-  Future<List<String>> _collectUnconverted(List<int> txIds, int ledgerId) async {
+  Future<List<String>> _collectUnconverted(
+      List<int> txIds, int ledgerId) async {
     if (txIds.isEmpty) return const [];
     try {
       final ledger = await _repo.getLedgerById(ledgerId);
-      final base = ((ledger?.currency.isNotEmpty ?? false)
-              ? ledger!.currency
-              : 'CNY')
-          .toUpperCase();
+      final base =
+          ((ledger?.currency.isNotEmpty ?? false) ? ledger!.currency : 'CNY')
+              .toUpperCase();
       final codes = <String>{};
       for (final id in txIds) {
         final tx = await _repo.getTransactionById(id);

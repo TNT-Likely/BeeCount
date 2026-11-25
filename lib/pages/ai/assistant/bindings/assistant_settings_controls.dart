@@ -54,6 +54,10 @@ class _AssistantSettingsControlsState
   }
 
   List<BeeExecutionDepthOption> options(AppLocalizations l) => [
+        BeeExecutionDepthOption(
+            turns: AgentExecutionSettings.automaticChoice,
+            label: l.agentDepthAuto,
+            description: l.agentDepthAutoDescription),
         for (final item in [
           (2, l.agentExecutionDepthQuick),
           (AgentExecutionSettings.standardTurns, l.agentExecutionDepthStandard),
@@ -73,7 +77,9 @@ class _AssistantSettingsControlsState
         child: SingleChildScrollView(
             child: BeeExecutionDepthPicker(
                 options: options(l),
-                selected: settings!.maximumModelTurns,
+                selected: settings!.automatic
+                    ? AgentExecutionSettings.automaticChoice
+                    : settings!.maximumModelTurns,
                 onChanged: (v) => Navigator.pop(context, v))));
     if (selected == null || !mounted) return;
     setState(() => saving = true);
@@ -129,8 +135,10 @@ class _AssistantSettingsControlsState
                 title: l.agentExecutionDepthEntry,
                 subtitle: settings == null
                     ? l.agentExecutionDepthEntryDescription
-                    : l.agentExecutionDepthSelected(
-                        settings!.maximumModelTurns),
+                    : settings!.automatic
+                        ? l.agentDepthAutoDescription
+                        : l.agentExecutionDepthSelected(
+                            settings!.maximumModelTurns),
                 leading: const BeeLineIcon('SlidersHorizontal'),
                 trailing: loading || saving
                     ? const SizedBox(

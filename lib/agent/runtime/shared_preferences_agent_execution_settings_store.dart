@@ -15,13 +15,17 @@ final class SharedPreferencesAgentExecutionSettingsStore
   @override
   Future<AgentExecutionSettings> read() async {
     final value = (await _getPreferences()).getInt(key);
-    return AgentExecutionSettings(
-      maximumModelTurns: value ?? AgentExecutionSettings.standardTurns,
-    );
+    return AgentExecutionSettings(maximumModelTurns: value);
   }
 
   @override
   Future<void> setMaximumModelTurns(int value) async {
+    if (value == AgentExecutionSettings.automaticChoice) {
+      if (!await (await _getPreferences()).remove(key)) {
+        throw StateError('无法保存 AI 助手执行深度设置。');
+      }
+      return;
+    }
     final normalized =
         AgentExecutionSettings(maximumModelTurns: value).maximumModelTurns;
     final written = await (await _getPreferences()).setInt(key, normalized);

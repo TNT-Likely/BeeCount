@@ -26,7 +26,7 @@ final class P0AgentPolicy implements AgentPolicy {
     ).hasMatch(normalized);
   }
 
-  static const _readTools = {
+  static const readTools = {
     'query_transactions',
     'get_period_overview',
     'get_spending_trend',
@@ -40,7 +40,7 @@ final class P0AgentPolicy implements AgentPolicy {
     if (_isCrossLedger(request, call)) {
       return const AgentPolicyDecision.deny('工具不能跨账本访问数据。');
     }
-    if (_readTools.contains(call.name)) {
+    if (readTools.contains(call.name)) {
       return const AgentPolicyDecision.allow();
     }
     if (!request.scope.allowsMutations) {

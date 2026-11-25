@@ -28,6 +28,7 @@ class TransactionTileBinding extends ConsumerWidget {
       this.baseCurrency,
       this.transferDirection,
       this.onDelete,
+      this.openDetailsOnTap = false,
       this.allowCategoryNavigation = true,
       this.accountsEnabled = true,
       required this.onReturned});
@@ -38,6 +39,7 @@ class TransactionTileBinding extends ConsumerWidget {
       selected,
       accountsEnabled,
       fullDate,
+      openDetailsOnTap,
       allLedgers,
       allowCategoryNavigation;
   final String? ledgerName, baseCurrency;
@@ -56,6 +58,9 @@ class TransactionTileBinding extends ConsumerWidget {
           context, MaterialPageRoute<void>(builder: (_) => page));
       onReturned();
     }
+
+    Future<void> openDetails() => open(TransactionDetailPage(
+        transactionId: t.id, ledgerId: t.ledgerId, allLedgers: allLedgers));
 
     return TransactionListItem(
         horizontalInset: 0,
@@ -99,11 +104,13 @@ class TransactionTileBinding extends ConsumerWidget {
         onSelectionChanged: onSelect,
         onTap: batch
             ? null
-            : () async {
-                await TransactionEditUtils.editTransaction(
-                    context, ref, t, row.category);
-                onReturned();
-              },
+            : openDetailsOnTap
+                ? openDetails
+                : () async {
+                    await TransactionEditUtils.editTransaction(
+                        context, ref, t, row.category);
+                    onReturned();
+                  },
         onLongPressStart: batch
             ? null
             : (details) async {
@@ -116,10 +123,7 @@ class TransactionTileBinding extends ConsumerWidget {
                           icon: const BeeLineIcon('FileText', size: 18))
                     ]);
                 if (action == 'detail' && context.mounted) {
-                  await open(TransactionDetailPage(
-                      transactionId: t.id,
-                      ledgerId: t.ledgerId,
-                      allLedgers: allLedgers));
+                  await openDetails();
                 }
               },
         onCategoryTap: !allowCategoryNavigation ||

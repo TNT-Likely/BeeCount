@@ -19,6 +19,58 @@ void main() {
     );
   });
 
+  test('distinct successful reads unlock a bounded read-only extension',
+      () async {
+    final read = _NamedTool('read');
+    final write = _NamedTool('write');
+    for (final index in [0, 1, 2]) {
+      model.turns.add(AgentTurn.toolCalls([
+        AgentToolCall(name: 'read', arguments: {'index': index})
+      ]));
+    }
+    model.turns.add(AgentTurn.toolCalls([AgentToolCall(name: 'write')]));
+    model.turns.add(const AgentTurn.finalText('Partial result'));
+    final run = await AgentCore(
+            model: model,
+            tools: {'read': read, 'write': write},
+            policy: const _AllowAll(),
+            maximumModelTurns: 2,
+            maximumToolCalls: 2,
+            readExtension: (turns: 4, calls: 5, tools: {'read', 'unavailable'}))
+        .run(AgentRequest(
+            text: 'review',
+            scope: const AgentScope(id: 'review'),
+            availableToolNames: {'read', 'write'}));
+    expect(read.calls, 3);
+    expect(write.calls, 0);
+    expect(model.requests[2].availableToolNames, {'read'});
+    expect(run.deniedCalls.single.call.name, 'write');
+    expect(model.requests.last.allowToolCalls, isFalse);
+    expect(run.budgetLimit, isNotNull);
+  });
+
+  test('empty matches give no extension and always reserve a final reply',
+      () async {
+    final read = _NamedTool('read');
+    for (final index in [0, 1]) {
+      model.turns.add(AgentTurn.toolCalls([
+        AgentToolCall(name: 'read', arguments: {'index': index})
+      ]));
+    }
+    model.turns.add(const AgentTurn.finalText('No match'));
+    final run = await AgentCore(
+        model: model,
+        tools: {'read': read},
+        policy: const _AllowAll(),
+        maximumModelTurns: 2,
+        maximumToolCalls: 3,
+        readExtension: (turns: 8, calls: 10, tools: {'read'}),
+        countsAsReadProgress: (_) => false).run(_requestFor('query'));
+    expect(model.requests.last.allowToolCalls, isFalse);
+    expect(run.budgetLimit, AgentRunTerminationReason.modelTurnLimitReached);
+    expect(run.text, 'No match');
+  });
+
   test('returns final text without executing a tool', () async {
     model.turns = [const AgentTurn.finalText('你好，我能帮你查账或记账。')];
 
@@ -530,4 +582,23 @@ final class _FinalizablePendingModel implements AgentModel, AgentRunFinalizer {
 
   @override
   void disposeRun(String runId) => disposedRuns.add(runId);
+}
+
+final class _NamedTool implements AgentTool {
+  _NamedTool(this.name);
+  @override
+  final String name;
+  int calls = 0;
+  @override
+  Future<Map<String, Object?>> execute(AgentToolCall call) async {
+    calls++;
+    return {'ok': true};
+  }
+}
+
+final class _AllowAll implements AgentPolicy {
+  const _AllowAll();
+  @override
+  AgentPolicyDecision decide(AgentRequest request, AgentToolCall call) =>
+      const AgentPolicyDecision.allow();
 }

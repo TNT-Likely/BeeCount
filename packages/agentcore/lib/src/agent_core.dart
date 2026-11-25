@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math' as math;
 
 import 'contracts.dart';
 
@@ -9,6 +10,9 @@ final class AgentCore {
     required this.policy,
     this.maximumToolCalls = 4,
     this.maximumModelTurns = 4,
+    this.readExtension,
+    this.completesRequest,
+    this.countsAsReadProgress,
     this.singleUseToolNames = const {},
     this.singleUseToolDenialReason = _defaultSingleUseToolDenialReason,
     this.deduplicatedToolNames = const {},
@@ -22,6 +26,9 @@ final class AgentCore {
   final AgentPolicy policy;
   final int maximumToolCalls;
   final int maximumModelTurns;
+  final ({int turns, int calls, Set<String> tools})? readExtension;
+  final bool Function(AgentToolCall, Map<String, Object?>)? completesRequest;
+  final bool Function(Map<String, Object?>)? countsAsReadProgress;
   final Set<String> singleUseToolNames;
   final String Function(String toolName) singleUseToolDenialReason;
 
@@ -58,9 +65,31 @@ final class AgentCore {
     var finalizationPending = false;
     var toolCallLimitReached = false;
     var invalidBatches = 0;
+    var turnLimit = maximumModelTurns;
+    var callLimit = maximumToolCalls;
+    var extended = false;
+    final distinctReads = <String>{};
+    AgentRunTerminationReason? budgetLimit;
+    final extension = readExtension;
+    void extendReads() {
+      if (extended ||
+          extension == null ||
+          distinctReads.length < 2 ||
+          deniedCalls.isNotEmpty ||
+          rejectedCalls.isNotEmpty ||
+          executedCalls.any((call) => !extension.tools.contains(call.name)))
+        return;
+      extended = true;
+      turnLimit = math.max(extension.turns, turnLimit);
+      callLimit = math.max(extension.calls, callLimit);
+      final initialTools = request.availableToolNames;
+      nextRequest = nextRequest.withAvailableTools(initialTools == null
+          ? extension.tools
+          : extension.tools.intersection(initialTools));
+    }
 
     try {
-      while (modelTurns < maximumModelTurns || finalizationPending) {
+      while (modelTurns < turnLimit || finalizationPending) {
         if (_isCancelled) {
           return _cancelledResult(executedCalls, deniedCalls, rejectedCalls);
         }
@@ -83,19 +112,26 @@ final class AgentCore {
               deniedCalls: deniedCalls,
               rejectedCalls: rejectedCalls,
               terminationReason: AgentRunTerminationReason.completed,
+              budgetLimit: budgetLimit,
             );
           case AgentToolCallsTurn(:final calls):
             if (isFinalizationTurn) {
               // Defensive guard for custom AgentModel implementations. Native
               // transports receive an empty tool list during finalization.
+              final reason = toolCallLimitReached
+                  ? AgentRunTerminationReason.toolCallLimitReached
+                  : AgentRunTerminationReason.modelTurnLimitReached;
               return AgentRunResult(
                 text: '',
                 executedCalls: executedCalls,
-                deniedCalls: deniedCalls,
+                deniedCalls: [
+                  ...deniedCalls,
+                  for (final call in calls)
+                    AgentDeniedCall(call: call, reason: 'finalization_only'),
+                ],
                 rejectedCalls: rejectedCalls,
-                terminationReason: toolCallLimitReached
-                    ? AgentRunTerminationReason.toolCallLimitReached
-                    : AgentRunTerminationReason.modelTurnLimitReached,
+                terminationReason: reason,
+                budgetLimit: budgetLimit,
               );
             }
             final data = <Map<String, Object?>>[];
@@ -107,7 +143,12 @@ final class AgentCore {
                 return _cancelledResult(
                     executedCalls, deniedCalls, rejectedCalls);
               }
-              if (executedCalls.length >= maximumToolCalls) {
+              if (executedCalls.length >= callLimit &&
+                  extension?.tools.contains(call.name) == true) extendReads();
+              if (executedCalls.length >= callLimit ||
+                  (extended &&
+                      !(nextRequest.availableToolNames?.contains(call.name) ??
+                          false))) {
                 // Native providers require one tool result for every call in an
                 // assistant tool-call batch. Report the budget denial instead
                 // of omitting the call and leaving the session invalid.
@@ -185,7 +226,7 @@ final class AgentCore {
                       'message': issue.message,
                       'retryable':
                           invalidBatches < maximumToolValidationRetries &&
-                              modelTurns < maximumModelTurns,
+                              modelTurns < turnLimit,
                     },
                   });
                   continue;
@@ -204,6 +245,10 @@ final class AgentCore {
               }
               final result = await tool.execute(call);
               executedCalls.add(call);
+              if (extension?.tools.contains(call.name) == true &&
+                  !result.containsKey('error') &&
+                  (countsAsReadProgress?.call(result) ?? true))
+                distinctReads.add(_toolCallKey(call));
               executedNewTool = true;
               if (singleUseToolNames.contains(call.name)) {
                 executedSingleUseTools.add(call.name);
@@ -212,18 +257,33 @@ final class AgentCore {
                 cachedToolResults[duplicateKey] = Map.of(result);
               }
               data.add({'id': call.id, 'name': call.name, 'data': result});
+              if (calls.length == 1 &&
+                  deniedCalls.isEmpty &&
+                  rejectedCalls.isEmpty &&
+                  completesRequest?.call(call, result) == true) {
+                return AgentRunResult(text: '', executedCalls: executedCalls);
+              }
             }
             nextRequest = nextRequest.withToolData(data);
+            if (!rejectedBatch &&
+                executedNewTool &&
+                (executedCalls.length >= callLimit ||
+                    modelTurns >= turnLimit)) {
+              extendReads();
+            }
             if (rejectedBatch) {
               invalidBatches += 1;
               if (invalidBatches > maximumToolValidationRetries) {
                 finalizationPending = true;
               }
             }
-            if (executedCalls.length >= maximumToolCalls) {
+            if (executedCalls.length >= callLimit) {
               toolCallLimitReached = true;
             }
-            if (toolCallLimitReached || modelTurns >= maximumModelTurns) {
+            if (toolCallLimitReached || modelTurns >= turnLimit) {
+              budgetLimit = toolCallLimitReached
+                  ? AgentRunTerminationReason.toolCallLimitReached
+                  : AgentRunTerminationReason.modelTurnLimitReached;
               // Always reserve one model turn to turn the completed tool data
               // into a user-facing response. Tool calls are disabled for that
               // turn so a provider cannot consume another local action.

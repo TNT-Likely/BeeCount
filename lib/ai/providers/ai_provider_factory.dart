@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:agentcore/agentcore.dart';
@@ -108,19 +109,41 @@ class AIProviderFactory {
     required List<Map<String, dynamic>> tools,
     String? logTag,
     Dio? client,
-  }) async* {
-    final dio = client ?? _getDio(config);
-    final payload = _toolCompletionPayload(
-      config: config,
-      messages: messages,
-      tools: tools,
-      stream: true,
-    );
+  }) {
+    final cancelToken = CancelToken();
+    final output = StreamController<Map<String, dynamic>>(sync: true);
+    late StreamSubscription<Map<String, dynamic>> subscription;
+    output.onListen = () {
+      final payload = _toolCompletionPayload(
+        config: config, messages: messages, tools: tools, stream: true,
+      );
+      subscription = _readToolCompletion(
+          client ?? _getDio(config), payload, cancelToken, logTag)
+          .listen(output.add, onError: output.addError, onDone: output.close);
+    };
+    output.onPause = () => subscription.pause();
+    output.onResume = () => subscription.resume();
+    // Dio can keep its underlying HTTP body paused after the parsed SSE
+    // stream ends. Abort only this request, including while waiting for data.
+    output.onCancel = () {
+      cancelToken.cancel();
+      return subscription.cancel();
+    };
+    return output.stream;
+  }
+
+  static Stream<Map<String, dynamic>> _readToolCompletion(
+    Dio dio,
+    Map<String, Object?> payload,
+    CancelToken cancelToken,
+    String? logTag,
+  ) async* {
     try {
-      await for (final chunk in _streamToolCompletion(dio, payload)) {
+      await for (final chunk in _streamToolCompletion(dio, payload, cancelToken)) {
         yield chunk;
       }
     } on DioException catch (error) {
+      if (cancelToken.isCancelled) return;
       if (!_mayRejectStreaming(error)) {
         throw _toolRequestException(error);
       }
@@ -129,9 +152,11 @@ class AIProviderFactory {
         final response = await _postToolCompletion(
           dio,
           {...payload, 'stream': false},
+          cancelToken: cancelToken,
         );
         yield _normalizeCompletion(response);
       } on DioException catch (fallbackError) {
+        if (cancelToken.isCancelled) return;
         throw _toolRequestException(fallbackError);
       } on FormatException catch (_) {
         throw AIException(
@@ -172,7 +197,8 @@ class AIProviderFactory {
 
   static Stream<Map<String, dynamic>> _streamToolCompletion(
     Dio dio,
-    Map<String, Object?> payload, {
+    Map<String, Object?> payload,
+    CancelToken cancelToken, {
     int strippedParameterCount = 0,
   }) async* {
     final Response<ResponseBody> response;
@@ -180,6 +206,7 @@ class AIProviderFactory {
       response = await dio.post<ResponseBody>(
         '/chat/completions',
         data: payload,
+        cancelToken: cancelToken,
         options: Options(responseType: ResponseType.stream),
       );
     } on DioException catch (error) {
@@ -202,6 +229,7 @@ class AIProviderFactory {
         yield* _streamToolCompletion(
           dio,
           Map<String, Object?>.of(payload)..remove(rejected),
+          cancelToken,
           strippedParameterCount: strippedParameterCount + 1,
         );
         return;
@@ -247,11 +275,13 @@ class AIProviderFactory {
     Map<String, Object?> payload, {
     bool retryWithoutToolChoice = true,
     int strippedParameterCount = 0,
+    CancelToken? cancelToken,
   }) async {
     try {
       final response = await dio.post<dynamic>(
         '/chat/completions',
         data: payload,
+        cancelToken: cancelToken,
       );
       final data = response.data;
       if (data is! Map) throw const FormatException();
@@ -276,6 +306,7 @@ class AIProviderFactory {
           Map<String, Object?>.of(payload)..remove(rejected),
           retryWithoutToolChoice: retryWithoutToolChoice,
           strippedParameterCount: strippedParameterCount + 1,
+          cancelToken: cancelToken,
         );
       }
       rethrow;

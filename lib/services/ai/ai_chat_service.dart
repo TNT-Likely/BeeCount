@@ -58,13 +58,17 @@ class AIChatService {
     String? languageCode,
     AppLocalizations? l10n,
     bool readOnly = false,
+    int? sourceMessageId,
+    Map<String, Object?> view = const {},
+    bool review = false,
   }) async {
     try {
       final result = await _agentFacade.processMessage(
         message: userInput,
         ledgerId: ledgerId,
         conversationId: conversationId,
-        context: {'languageCode': languageCode},
+        context: await _context(
+            ledgerId, languageCode, sourceMessageId, view, review),
         l10n: l10n,
         readOnly: readOnly,
       );
@@ -84,16 +88,45 @@ class AIChatService {
     String? languageCode,
     AppLocalizations? l10n,
     bool readOnly = false,
-  }) =>
-      _agentFacade.processMessageEvents(
-        message: userInput,
-        ledgerId: ledgerId,
-        runId: runId,
-        conversationId: conversationId,
-        context: {'languageCode': languageCode},
-        l10n: l10n,
-        readOnly: readOnly,
-      );
+    int? sourceMessageId,
+    Map<String, Object?> view = const {},
+    bool review = false,
+  }) async* {
+    yield* _agentFacade.processMessageEvents(
+      message: userInput,
+      ledgerId: ledgerId,
+      runId: runId,
+      conversationId: conversationId,
+      context:
+          await _context(ledgerId, languageCode, sourceMessageId, view, review),
+      l10n: l10n,
+      readOnly: readOnly,
+    );
+  }
+
+  Future<Map<String, Object?>> _context(int ledgerId, String? languageCode,
+      int? sourceMessageId, Map<String, Object?> view, bool review) async {
+    final context = <String, Object?>{
+      'languageCode': languageCode,
+      if (sourceMessageId != null) 'sourceMessageId': sourceMessageId,
+      if (view['ledgerId'] == ledgerId) 'view': view,
+      if (review) 'review': true
+    };
+    try {
+      final ledger = await _repo.getLedgerById(ledgerId);
+      if (ledger != null) {
+        context['ledger'] = {
+          'id': ledger.id,
+          'name': ledger.name,
+          'currency': ledger.currency,
+          'monthStartDay': ledger.monthStartDay
+        };
+      }
+    } on Exception catch (_) {
+      // Database tool calls still enforce the host ledger if its description is unavailable.
+    }
+    return context;
+  }
 
   /// Explicit UI undo, never a model-initiated mutation.
   Future<bool> undoTransaction(int transactionId) async {
@@ -144,6 +177,9 @@ class AIResponse {
 
   /// Trusted run outcome, not inferred from the model's final prose.
   final bool allowPromptSuggestions;
+  final Map<String, Object?> queryContext;
+  final String? supplementalText;
+  final int? receiptMessageId;
 
   AIResponse({
     required this.type,
@@ -153,6 +189,9 @@ class AIResponse {
     this.action,
     this.followUpSuggestions = const [],
     this.allowPromptSuggestions = false,
+    this.queryContext = const {},
+    this.supplementalText,
+    this.receiptMessageId,
   });
 
   /// 首个 BillInfo(兼容写入 messages.transactionId 列)
@@ -170,10 +209,14 @@ class AIResponse {
           followUpSuggestions: List.unmodifiable(followUpSuggestions));
 
   AIResponse withFollowUpSuggestions(List<AgentPromptSuggestion> suggestions,
-          {bool allowPromptSuggestions = false}) =>
+          {bool allowPromptSuggestions = false,
+          Map<String, Object?>? queryContext}) =>
       AIResponse(
           type: type,
           text: text,
+          queryContext: queryContext ?? this.queryContext,
+          supplementalText: supplementalText,
+          receiptMessageId: receiptMessageId,
           bills: bills,
           transactionIds: transactionIds,
           action: action,
@@ -184,7 +227,7 @@ class AIResponse {
   ///
   /// [note] 附加在成功文案后的一行提示(目前用于多币种「缺汇率按 1:1 暂记」)。
   factory AIResponse.billCards(List<BillInfo> bills, List<int> txIds,
-      {String? note, AppLocalizations? l10n}) {
+      {String? note, AppLocalizations? l10n, int? receiptMessageId}) {
     assert(bills.length == txIds.length && bills.isNotEmpty,
         'bills/txIds 必须等长且非空');
     final n = bills.length;
@@ -194,6 +237,8 @@ class AIResponse {
         : l10nEff.aiChatRecordSuccessMany(n);
     return AIResponse(
       type: 'bill_card',
+      supplementalText: note,
+      receiptMessageId: receiptMessageId,
       text: (note == null || note.isEmpty) ? base : '$base\n$note',
       bills: List.unmodifiable(bills),
       transactionIds: List.unmodifiable(txIds),
