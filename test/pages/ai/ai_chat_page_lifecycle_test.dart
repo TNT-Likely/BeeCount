@@ -736,6 +736,131 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('历史月报的完整回答可展开、滚动、收起和重新展开', (tester) async {
+    tester.view.physicalSize = const Size(390, 740);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final ledger = await repository.createLedger(name: '四季生活');
+    final conversation = await repository.createConversation(
+        ConversationsCompanion.insert(ledgerId: Value(ledger)));
+    for (var i = 0; i < 20; i++) {
+      await repository.createMessage(MessagesCompanion.insert(
+          conversationId: conversation,
+          role: 'user',
+          content: '此前的对话 $i',
+          messageType: 'text'));
+    }
+    for (final (type, amount) in [
+      ('income', 22428.90),
+      ('expense', 2209.40),
+      ('expense', 7319.94)
+    ]) {
+      await repository.addTransaction(
+          ledgerId: ledger,
+          type: type,
+          amount: amount,
+          happenedAt: DateTime(2026, 10, 3));
+    }
+    final data = ProviderContainer(overrides: [
+      databaseProvider.overrideWithValue(database),
+      repositoryProvider.overrideWithValue(repository),
+    ]);
+    addTearDown(data.dispose);
+    Future<int> saveReport(int month, String answer) async {
+      final tools = LocalAgentTools(
+          scope: core.AgentScope(id: 'review-$month', ledgerId: ledger),
+          gateway: data.read(localAgentToolGatewayProvider));
+      const tool = 'get_period_overview';
+      await tools
+          .build()[tool]!
+          .execute(core.AgentToolCall(name: tool, arguments: {
+            'period': 'custom',
+            'start': '2026-${month.toString().padLeft(2, '0')}-01',
+            'end': '2026-${(month + 1).toString().padLeft(2, '0')}-01',
+          }));
+      return repository.createMessage(MessagesCompanion.insert(
+          conversationId: conversation,
+          role: 'assistant',
+          content: answer,
+          messageType: 'text',
+          metadata: Value(jsonEncode({
+            'contextLedgerId': ledger,
+            'queryContext': {
+              'queries': tools.evidence.current,
+              'displayRefs':
+                  tools.evidence.current.map((e) => e['ref']).toList(),
+              'snapshots': tools.evidence.snapshots
+            }
+          }))));
+    }
+
+    final november = await saveReport(11, '十一月的收支已核对。\n\n**收支构成**\n- 本月还没有账单。');
+    final october = await saveReport(10, '''十月结余 12,899.56 元。
+
+## 支出结构
+
+| 分类 | 金额 | 占比 | 笔数 |
+|---|---:|---:|---:|
+| 餐饮 | 2,209.40 | 23.2% | 1 |
+| 其他 | 7,319.94 | 76.8% | 1 |
+
+- **收入**共 22,428.90 元
+- **支出**共 9,529.34 元
+
+十月的收支已核对。''');
+    await tester.pumpWidget(host());
+    await tester.pumpAndSettle();
+    Finder detail(int id) => find.descendant(
+        of: find.byKey(ValueKey('agent-answer-$id')),
+        matching: find.text(AppLocalizationsZh().aiChatReplyDetails));
+    Future<void> toggle(int messageId) async {
+      final button = detail(messageId);
+      await tester.ensureVisible(button);
+      await tester.tap(button);
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+    }
+
+    final tableAmount = find.text('2,209.40', findRichText: true);
+    final lastParagraph = find.text('十月的收支已核对。', findRichText: true);
+    final messageList = find.byType(ListView).first;
+    Future<void> readLastParagraph() async {
+      await tester.ensureVisible(lastParagraph.first);
+      await tester.pumpAndSettle();
+      expect(
+          tester
+              .getRect(messageList)
+              .contains(tester.getCenter(lastParagraph.first)),
+          isTrue);
+    }
+
+    expect(lastParagraph, findsNothing);
+    await toggle(november);
+    await toggle(october);
+    expect(tableAmount, findsWidgets);
+    await readLastParagraph();
+    final thread = find
+        .descendant(of: messageList, matching: find.byType(Scrollable))
+        .first;
+    await tester.scrollUntilVisible(find.text('此前的对话 0'), -420,
+        scrollable: thread);
+    await tester.pumpAndSettle();
+    expect(detail(october), findsNothing);
+    await tester.scrollUntilVisible(detail(october), 420, scrollable: thread);
+    await tester.pumpAndSettle();
+    expect(tableAmount, findsWidgets);
+    await toggle(october);
+    expect(lastParagraph, findsNothing);
+    expect(find.text('本月还没有账单。', findRichText: true), findsWidgets);
+    await toggle(october);
+    expect(tableAmount, findsWidgets);
+    await readLastParagraph();
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump(const Duration(seconds: 3));
+    expect(tester.takeException(), isNull);
+  }, variant: TargetPlatformVariant.only(TargetPlatform.iOS));
+
   testWidgets('历史执行详情可重新展开，回到底部按钮居中悬浮且点击后消失', (tester) async {
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1;
