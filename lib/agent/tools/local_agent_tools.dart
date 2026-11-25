@@ -1040,6 +1040,8 @@ final class LocalAgentTools {
       'periodStart': summary['periodStart'],
       'periodEnd': summary['periodEnd'],
       'interval': interval,
+      'transactionCount': _summaryCount(
+          summary['totals'] as Map<String, Object?>? ?? const {}, flowType),
       'categoryNames': _stringListArgument(call, 'categoryNames'),
       'comparison': comparison,
       if (flowType == 'income')
@@ -1172,7 +1174,13 @@ final class LocalAgentTools {
     if (date == null) return {'error': 'invalid_date', 'retryable': true};
     return {
       ...(await gateway.getBudgetStatus(_ledgerId, at: date)).toToolData(),
-      'asOf': date.toIso8601String()
+      'asOf': date.toIso8601String(),
+      if (l10n case final labels?)
+        'settingsPath': [
+          labels.ledgersTitle,
+          labels.commonMore,
+          labels.budgetManagement
+        ],
     };
   }
 
@@ -1182,6 +1190,12 @@ final class LocalAgentTools {
     final rows = await gateway.getRecurringTransactions(_ledgerId);
     return {
       'totalCount': rows.length,
+      if (l10n case final labels?)
+        'settingsPath': [
+          labels.tabMine,
+          labels.automation,
+          labels.mineRecurringTransactions
+        ],
       'truncated': rows.length > _maximumRecurringTransactions,
       'items': rows
           .take(_maximumRecurringTransactions)

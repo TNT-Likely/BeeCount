@@ -364,6 +364,38 @@ void main() {
   });
 
   test(
+      'trend counts transactions across months and settings tools return the actual app entry labels',
+      () async {
+    final labels = AppLocalizationsZh();
+    final tools = LocalAgentTools(
+            scope: core.AgentScope(
+                id: 'accurate-help', ledgerId: f.ledgers['main']),
+            gateway: f.gateway,
+            now: () => f.now,
+            l10n: labels)
+        .build();
+    final trend = await tools['get_spending_trend']!
+        .execute(core.AgentToolCall(name: 'get_spending_trend', arguments: {
+      'period': 'custom',
+      'start': '2026-01-01',
+      'end': '2026-10-01',
+      'interval': 'month',
+      'categoryNames': ['餐饮']
+    }));
+    expect(trend['transactionCount'], 8);
+    expect(trend['totalExpense'], 1050);
+    expect(trend['points'], hasLength(9));
+    final recurring = await tools['get_recurring_transactions']!
+        .execute(core.AgentToolCall(name: 'get_recurring_transactions'));
+    expect(recurring['settingsPath'],
+        [labels.tabMine, labels.automation, labels.mineRecurringTransactions]);
+    final budget = await tools['get_budget_status']!
+        .execute(core.AgentToolCall(name: 'get_budget_status'));
+    expect(budget['settingsPath'],
+        [labels.ledgersTitle, labels.commonMore, labels.budgetManagement]);
+  });
+
+  test(
       'historical Insights filters reach detail and historical budget dates with explicit overrides',
       () async {
     final ledger = f.ledgers['main']!;
