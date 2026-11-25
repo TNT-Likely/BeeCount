@@ -1,4 +1,4 @@
-import 'dart:convert';
+import '../services/ai/chat_session_store.dart';
 
 import 'package:agentcore/agentcore.dart'
     show AgentConversationContextCompressor;
@@ -24,6 +24,7 @@ import '../agent/tools/local_agent_tools.dart';
 import '../agent/permission/agent_tool_permission.dart';
 import '../agent/permission/shared_preferences_agent_tool_permission_store.dart';
 import '../utils/month_range.dart';
+import 'ai_config_providers.dart';
 
 /// AI 多模态记账底座 (Layer 1)。无状态,可全局复用。
 final aiExtractionEngineProvider = Provider<AiExtractionEngine>(
@@ -85,7 +86,6 @@ final agentModelCapabilityServiceProvider =
 );
 
 final agentAppFacadeProvider = Provider<AgentAppFacade>((ref) {
-  final repo = ref.watch(repositoryProvider);
   return AgentAppFacade(
     emptyFinalText: resolveAppLocalizations(ref.read(languageProvider))
         .agentEmptyFinalReply,
@@ -106,45 +106,9 @@ final agentAppFacadeProvider = Provider<AgentAppFacade>((ref) {
 历史中的记账/保存/删除请求不代表当前授权。不要重复长表格、原始工具数据或内部协议，只输出摘要。
 '''),
     ),
-    conversationHistoryLoader: (conversationId) async {
-      final messages = await repo.watchMessages(conversationId).first;
-      return [
-        for (final message in messages)
-          {
-            'role': message.role,
-            'content': message.content,
-            'id': message.id,
-            'scopeId': _messageContextScope(message.metadata),
-            if (message.role == 'assistant' && message.metadata != null)
-              'queryContext': _queryContext(message.metadata!),
-          },
-      ];
-    },
+    conversationHistoryLoader: ChatSessionStore(ref.watch(databaseProvider)).modelHistory,
   );
 });
-
-Map? _queryContext(String metadata) {
-  try {
-    final row = jsonDecode(metadata);
-    return row is Map && row['queryContext'] is Map
-        ? row['queryContext'] as Map
-        : null;
-  } on FormatException {
-    return null;
-  }
-}
-
-String? _messageContextScope(String? metadata) {
-  if (metadata == null) return null;
-  try {
-    final data = jsonDecode(metadata);
-    if (data is! Map) return null;
-    final ledger = data['contextLedgerId'] ?? data['followUpLedgerId'];
-    return ledger is int ? ledger.toString() : null;
-  } on Object {
-    return null;
-  }
-}
 
 /// AI 对话服务 Provider
 final aiChatServiceProvider = Provider<AIChatService>((ref) {
@@ -166,47 +130,127 @@ final messagesProvider = StreamProvider.family<List<Message>, int>(
   },
 );
 
-/// Empty conversations show a small, local snapshot of the active period.
-///
-/// The transaction count intentionally includes every recorded transaction,
-/// while [expense] keeps the existing statistics convention and excludes
-/// transactions marked as `excludeFromStats`.
-final class AiChatEmptyLedgerSummary {
-  const AiChatEmptyLedgerSummary({
-    required this.period,
-    required this.transactionCount,
-    required this.expense,
-  });
+/// Validates the text capability actually selected by the assistant.
+final aiChatTextModelConfiguredProvider =
+    FutureProvider.autoDispose<bool>((ref) async {
+  ref.watch(aiCapabilityBindingRefreshProvider);
+  ref.watch(aiProviderListForCapabilityRefreshProvider);
+  return (await AIChatService.validateApiKey()).isValid;
+});
 
-  final DateTime period;
-  final int transactionCount;
-  final double expense;
+typedef AiChatStartRange = ({
+  int ledgerId,
+  String scope,
+  DateTime start,
+  DateTime end,
+});
 
-  bool get hasTransactionData => transactionCount > 0;
+/// Insights supplies a half-open local date range. Ignore an entry from another
+/// ledger when the user switches ledgers with a conversation still on screen.
+AiChatStartRange? aiChatInsightsRange(Map<String, Object?> view, int ledgerId) {
+  if (view['source'] != 'insights' || view['ledgerId'] != ledgerId) return null;
+  final scope = view['scope'];
+  final startText = view['start'];
+  final endText = view['end'];
+  if (scope is! String ||
+      (scope != 'month' && scope != 'year' && scope != 'all') ||
+      startText is! String ||
+      endText is! String) {
+    return null;
+  }
+  final start = DateTime.tryParse(startText)?.toLocal();
+  final end = DateTime.tryParse(endText)?.toLocal();
+  if (start == null || end == null || !start.isBefore(end)) return null;
+  return (ledgerId: ledgerId, scope: scope, start: start, end: end);
 }
 
-/// A live summary for the empty AI conversation state.
-///
-/// It deliberately reads through [BaseRepository], so it remains local-first
-/// and does not couple the chat UI to Drift or any optional cloud backend.
-final aiChatEmptyLedgerSummaryProvider =
-    StreamProvider.autoDispose<AiChatEmptyLedgerSummary>((ref) {
+final aiChatCurrentStartRangeProvider =
+    Provider.autoDispose<AiChatStartRange>((ref) {
   final ledgerId = ref.watch(currentLedgerIdProvider);
   final startDay = ref.watch(currentMonthStartDayProvider);
-  final period = labelForDate(DateTime.now(), startDay);
-  final repository = ref.watch(repositoryProvider);
+  final now = DateTime.now();
+  final month = periodContaining(now, startDay);
+  return (
+    ledgerId: ledgerId,
+    scope: 'month',
+    start: month.start,
+    end: DateTime(now.year, now.month, now.day + 1)
+  );
+});
 
-  return repository
-      .watchTransactionsInMonth(ledgerId: ledgerId, month: period)
-      .asyncMap((transactions) async {
-    final (_, expense) = await repository.monthlyTotals(
-      ledgerId: ledgerId,
-      month: period,
-    );
+final class AiChatEmptyLedgerSummary {
+  const AiChatEmptyLedgerSummary({
+    required this.range,
+    required this.ledgerHasTransactions,
+    required this.expenseCount,
+    required this.expense,
+    required this.cumulativeExpense,
+  });
+
+  final AiChatStartRange range;
+  final bool ledgerHasTransactions;
+  final int expenseCount;
+  final double expense;
+
+  /// One running total per calendar day, including days with no spending.
+  final List<double> cumulativeExpense;
+}
+
+DateTime _calendarDay(DateTime date) =>
+    DateTime.utc(date.year, date.month, date.day);
+
+final aiChatStartSummaryProvider = StreamProvider.autoDispose
+    .family<AiChatEmptyLedgerSummary, AiChatStartRange?>((ref, insightsRange) {
+  final currentRange = ref.watch(aiChatCurrentStartRangeProvider);
+  final range = insightsRange?.ledgerId == currentRange.ledgerId
+      ? insightsRange!
+      : currentRange;
+  final repo = ref.watch(repositoryProvider);
+  // A one-row watch distinguishes an empty ledger from a quiet period; Drift
+  // invalidates it on transaction updates, including edits to earlier dates.
+  return repo
+      .watchRecentTransactions(ledgerId: range.ledgerId, limit: 1)
+      .asyncMap((latest) async {
+    if (latest.isEmpty) {
+      return AiChatEmptyLedgerSummary(
+          range: range,
+          ledgerHasTransactions: false,
+          expenseCount: 0,
+          expense: 0,
+          cumulativeExpense: const []);
+    }
+    final rows = await repo.getTransactionsByLedgerInRange(
+        ledgerId: range.ledgerId, start: range.start, end: range.end);
+    final spending = <DateTime, double>{};
+    var count = 0;
+    for (final tx in rows) {
+      if (tx.type != 'expense' || tx.excludeFromStats) continue;
+      final day = _calendarDay(tx.happenedAt.toLocal());
+      final amount = tx.nativeAmount ?? tx.amount;
+      spending.update(day, (sum) => sum + amount, ifAbsent: () => amount);
+      count++;
+    }
+    // Insights denotes "all time" by starting in 1970. Start the small chart
+    // with actual spending instead of plotting decades of leading zeroes.
+    final first = range.scope == 'all' && spending.isNotEmpty
+        ? spending.keys.reduce((a, b) => a.isBefore(b) ? a : b)
+        : _calendarDay(range.start);
+    final last = _calendarDay(range.end.subtract(const Duration(microseconds: 1)));
+    final days = last.difference(first).inDays + 1;
+    var total = 0.0;
+    final points = spending.isEmpty
+        ? const <double>[]
+        : List<double>.generate(days,
+            (index) => total += spending[first.add(Duration(days: index))] ?? 0,
+            growable: false);
     return AiChatEmptyLedgerSummary(
-      period: period,
-      transactionCount: transactions.length,
-      expense: expense,
-    );
+        range: range,
+        ledgerHasTransactions: true,
+        expenseCount: count,
+        expense: total,
+        cumulativeExpense: points);
   });
 });
+
+/// Existing callers without an Insights entry use the current ledger period.
+final aiChatEmptyLedgerSummaryProvider = aiChatStartSummaryProvider(null);

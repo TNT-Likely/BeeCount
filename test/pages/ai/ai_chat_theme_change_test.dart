@@ -126,6 +126,9 @@ void main() {
         await tester.pumpAndSettle();
         await tester.tap(find.textContaining('≥ 60').last);
         await tester.pumpAndSettle();
+        expect(find.text(l.agentAnswerLegacyEvidence), findsOneWidget);
+        await tester.tap(find.text(l.agentAnswerLookupCurrent));
+        await tester.pumpAndSettle();
         expect(find.text(l.agentEvidenceCount(1)), findsOneWidget);
       }
 

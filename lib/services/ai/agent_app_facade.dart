@@ -1,3 +1,4 @@
+import '../../agent/model/ledger_query_replay.dart';
 import 'dart:async';
 import 'dart:convert';
 import '../../ai/providers/ai_provider_factory.dart';
@@ -300,10 +301,19 @@ final class AgentAppFacade {
         context: requestContext,
         cancellation: cancellationToken);
     if (unsupportedResponse != null) return unsupportedResponse;
-    final previous = (requestContext['previousQueries'] as List?)
-            ?.whereType<Map<String, Object?>>()
-            .toList() ??
-        [];
+    final repeat = readOnly
+        ? LedgerQueryReplay.definitions(
+            (requestContext['repeatQueries'] as List?)
+                    ?.whereType<Map<String, Object?>>() ??
+                const [],
+            ledgerId)
+        : const <Map<String, Object?>>[];
+    final previous = repeat.isNotEmpty
+        ? repeat
+        : (requestContext['previousQueries'] as List?)
+                ?.whereType<Map<String, Object?>>()
+                .toList() ??
+            [];
     final localTools = LocalAgentTools(
         scope: scope,
         gateway: _toolGateway,
@@ -394,7 +404,9 @@ final class AgentAppFacade {
         'maximumToolCalls': budget.calls,
       });
       final result = await AgentCore(
-        model: _model,
+        model: repeat.isEmpty
+            ? _model
+            : LedgerQueryReplay(_model, LedgerQueryReplay.callsFor(repeat)),
         tools: _observedTools(
           toolSelection.tools,
           emit,
@@ -415,7 +427,8 @@ final class AgentAppFacade {
         ),
         policy: authorization,
         maximumModelTurns: budget.turns,
-        maximumToolCalls: budget.calls,
+        maximumToolCalls:
+            repeat.length > budget.calls ? repeat.length : budget.calls,
         readExtension: executionSettings.automatic
             ? (turns: 8, calls: 10, tools: P0AgentPolicy.readTools)
             : null,
@@ -451,7 +464,7 @@ final class AgentAppFacade {
         await _memoryRepository.finishRun(runId: runId, status: 'cancelled');
         return AgentChatResponse(
           runId: runId,
-          response: AIResponse.text(
+          response: AIResponse.stopped(
             l10n?.agentRunCancelled ??
                 resolveAppLocalizations(null).agentRunCancelled,
           ),
@@ -509,6 +522,7 @@ final class AgentAppFacade {
                 .whereType<String>()
             : const [],
         enabled: canSuggest,
+        review: requestContext['review'] == true,
       );
       final blocked = result.deniedCalls
           .where((d) =>
@@ -519,15 +533,24 @@ final class AgentAppFacade {
           .toList();
       final queryContext = <String, Object?>{
         if (localTools.evidence.current.isNotEmpty)
+          'completeReplay': canSuggest &&
+              blocked.isEmpty &&
+              result.executedCalls.length ==
+                  localTools.evidence.current.length &&
+              localTools.evidence.current.length <= 12,
+        if (localTools.evidence.snapshots.isNotEmpty)
+          'snapshots': localTools.evidence.snapshots,
+        if (localTools.evidence.current.isNotEmpty)
           'displayRefs':
               localTools.evidence.current.map((query) => query['ref']).toList(),
         if (previous.isNotEmpty || localTools.evidence.current.isNotEmpty)
-          'queries': [...previous, ...localTools.evidence.current]
-              .reversed
-              .take(12)
-              .toList()
-              .reversed
-              .toList(),
+          'queries': [
+            ...previous.reversed
+                .take((12 - localTools.evidence.current.length).clamp(0, 12))
+                .toList()
+                .reversed,
+            ...localTools.evidence.current,
+          ],
         if (result.budgetLimit != null) 'limit': result.budgetLimit!.name,
         if (blocked.isNotEmpty)
           'pending': [
@@ -686,7 +709,7 @@ final class AgentAppFacade {
         await _memoryRepository.finishRun(runId: runId, status: 'cancelled');
         return AgentChatResponse(
             runId: runId,
-            response: AIResponse.text(
+            response: AIResponse.stopped(
                 (l10n ?? resolveAppLocalizations(null)).agentRunCancelled));
       }
       final decoded = jsonDecode(raw
@@ -732,7 +755,10 @@ final class AgentAppFacade {
       if (recentAssistant?['scopeId']?.toString() == ledgerId.toString() &&
           recentAssistant?['queryContext'] is Map) {
         final saved = recentAssistant!['queryContext'] as Map;
-        requestContext['previousQueries'] = saved['queries'];
+        if (saved['queries'] case final List definitions) {
+          requestContext['previousQueries'] =
+              definitions.reversed.take(12).toList().reversed.toList();
+        }
         requestContext['pendingQueries'] = saved['pending'];
       }
       final prepared = await contextCompressor.prepare(

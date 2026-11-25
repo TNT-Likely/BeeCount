@@ -199,7 +199,7 @@ class RecurringTransactions extends Table {
 // AI 对话表
 class Conversations extends Table {
   IntColumn get id => integer().autoIncrement()();
-  @Deprecated('对话已改为全局，不再与账本关联')
+  /// Older global conversations are adopted on first access.
   IntColumn get ledgerId => integer().nullable()();
   TextColumn get title => text().withDefault(const Constant('AI对话'))();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();

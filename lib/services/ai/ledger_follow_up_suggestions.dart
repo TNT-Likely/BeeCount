@@ -13,11 +13,60 @@ final class LedgerFollowUpSuggestions {
     required String currentPrompt,
     Iterable<String> recentPrompts = const [],
     bool enabled = true,
+    bool review = false,
   }) {
     final candidates = <AgentPromptSuggestion>[];
     // More specific successful queries take precedence over a broad overview.
     final ordered = evidence.toList().reversed.toList()
       ..sort((a, b) => _priority(b.toolName).compareTo(_priority(a.toolName)));
+    if (review) {
+      final overviews = evidence
+          .where((e) =>
+              e.toolName == 'get_period_overview' &&
+              e.result['filters'] is Map &&
+              e.result['error'] == null)
+          .toList()
+        ..sort((a, b) => (b.result['periodStart']?.toString() ?? '')
+            .compareTo(a.result['periodStart']?.toString() ?? ''));
+      if (overviews.isNotEmpty) {
+        final overview = overviews.first.result;
+        final start =
+            DateTime.tryParse(overview['periodStart']?.toString() ?? '');
+        final end = DateTime.tryParse(overview['periodEnd']?.toString() ?? '');
+        final filters = overview['filters'] as Map;
+        final unfiltered = ![
+          'categoryIds',
+          'categoryNames',
+          'accountIds',
+          'accountNames',
+          'tagIds',
+          'tagNames',
+          'minAmount',
+          'maxAmount',
+          'exclude',
+          'currency'
+        ].any(filters.containsKey);
+        if (unfiltered &&
+            start != null &&
+            end != null &&
+            end.isAfter(start) &&
+            end.difference(start).inDays <= 31) {
+          String day(DateTime d) => d.toIso8601String().split('T').first;
+          final lastDay = end.subtract(const Duration(microseconds: 1));
+          candidates.addAll([
+            AgentPromptSuggestion(
+                id: 'review-previous',
+                title: l10n.aiChatPreviousPeriod,
+                prompt: l10n.aiChatStartReviewPrompt(day(_previousMonth(start)),
+                    day(start.subtract(const Duration(microseconds: 1))))),
+            AgentPromptSuggestion(
+                id: 'review-dining',
+                title: l10n.aiChatDiningAccounts,
+                prompt: l10n.aiChatStartFoodPrompt(day(start), day(lastDay))),
+          ]);
+        }
+      }
+    }
     for (final item in ordered) {
       final data = item.result;
       // A confirmed saved bill can lead into analysis, but never into another

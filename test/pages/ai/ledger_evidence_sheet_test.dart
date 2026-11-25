@@ -85,6 +85,11 @@ void main() {
     await tester.ensureVisible(open);
     await tester.tap(open);
     await tester.pumpAndSettle();
+    expect(find.text(l.agentAnswerLegacyEvidence), findsOneWidget);
+    expect(find.byType(BeeTransactionRow), findsNothing);
+    await tester.tap(find.text(l.agentAnswerLookupCurrent));
+    await tester.pumpAndSettle();
+    expect(find.text(l.agentAnswerCurrentResults), findsOneWidget);
   }
 
   Finder sheetText(String part) => find.descendant(

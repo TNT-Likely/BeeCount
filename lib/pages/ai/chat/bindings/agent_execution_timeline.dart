@@ -65,10 +65,12 @@ final class AgentExecutionTimeline extends StatelessWidget {
     this.streamingText,
     this.displaySteps,
     this.modelPhase,
+    this.hideDetails = false,
   });
 
   final List<AgentExecutionStep> steps;
   final bool isStreaming;
+  final bool hideDetails;
   final String? streamingText;
   final List<AgentActivityStep>? displaySteps;
   final AgentNativeModelPhase? modelPhase;
@@ -156,7 +158,12 @@ final class AgentExecutionTimeline extends StatelessWidget {
             AgentActivityView(
                 summary: summary,
                 status: status,
-                steps: visibleSteps,
+                steps: hideDetails
+                    ? [
+                        for (final s in visibleSteps)
+                          AgentActivityStep(title: s.title, status: s.status)
+                      ]
+                    : visibleSteps,
                 expandWhileActive: isStreaming),
           if (text.isNotEmpty)
             Padding(

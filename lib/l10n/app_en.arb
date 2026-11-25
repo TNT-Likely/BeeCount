@@ -2560,7 +2560,7 @@
   "aiChatTitle": "AI Assistant",
   "aiChatClearHistory": "Clear History",
   "aiChatClearHistoryDialogTitle": "Clear Conversation History",
-  "aiChatClearHistoryDialogContent": "Are you sure you want to clear all conversation records? This action cannot be undone.",
+  "aiChatClearHistoryDialogContent": "Clear the messages in this conversation? Entries you have saved will stay in your ledger.",
   "aiChatInputHint": "e.g.: Bought a coffee for $35",
   "aiQuickCommandsTitle": "Try a task",
   "agentSuggestionOverviewTitle": "This month's totals",
@@ -5037,5 +5037,144 @@
   "cloudRecurringDraftChanges": "Changes in your draft",
   "cloudRecurringWeekDay": "Day of week",
   "cloudRecurringYearMonth": "Month",
-  "cloudRecurringSyncFirst": "Sync this ledger before transferring its rules."
+  "cloudRecurringSyncFirst": "Sync this ledger before transferring its rules.",
+  "aiChatNavigation": "Conversation options",
+  "aiChatNew": "New conversation",
+  "aiChatHistory": "Past conversations",
+  "aiChatNoHistory": "No earlier conversations in this ledger yet.",
+  "aiChatPermissionsDepth": "Permissions and execution depth",
+  "aiChatClearCurrent": "Clear this conversation",
+  "aiChatAnswerActions": "Answer options",
+  "aiChatCopyAnswer": "Copy answer",
+  "aiChatAskAgain": "Ask again",
+  "aiChatRepeatQuery": "Run with the same filters",
+  "aiChatCheckedCount": "Checked {count} ledger queries",
+  "@aiChatCheckedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "aiChatQueryProcess": "Execution details",
+  "aiChatWriteAccess": "Bookkeeping permission",
+  "aiChatWriteQuestion": "Save this entry to your ledger?",
+  "aiChatConfirmWrite": "Confirm entry",
+  "aiChatWriteCancelled": "Cancelled. No entry was saved.",
+  "aiChatInterrupted": "Answer interrupted",
+  "aiChatStopped": "Answer stopped",
+  "aiChatHiddenMessage": "Message hidden in privacy mode",
+  "aiChatReceiptView": "View this entry",
+  "aiChatReplyDetails": "Read the full answer",
+  "agentAnswerIncomeExpense": "Income and expenses",
+  "agentAnswerAccountBreakdown": "Spending by account",
+  "agentAnswerLowerExpense": "Spent less than the previous period",
+  "agentAnswerHigherExpense": "Spent more than the previous period",
+  "agentAnswerEqualExpense": "Spending matched the previous period",
+  "agentAnswerUnassignedAccount": "No account assigned",
+  "agentAnswerTransferNote": "{count} internal transfers excluded from income and expenses.",
+  "@agentAnswerTransferNote": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "agentAnswerFrozenBill": "Bill at the time of the answer",
+  "agentAnswerCurrentBill": "View current bill",
+  "agentAnswerBillChanged": "The bill has changed since this answer.",
+  "agentAnswerBillGone": "The original bill is no longer in this ledger. Its recorded values are shown here.",
+  "agentAnswerCurrentAmount": "Current amount",
+  "agentAnswerCurrentAccount": "Current account",
+  "agentAnswerLegacyEvidence": "This older answer saved its filters only. You can use them to look up the current bills.",
+  "agentAnswerLookupCurrent": "Look up current bills",
+  "agentAnswerCurrentResults": "Current bills matching the original filters",
+  "agentAnswerSnapshotUnavailable": "The saved evidence could not be read.",
+  "aiChatStartTitle": "What would you like to explore?",
+  "aiChatStartExpense": "Spending this period",
+  "aiChatStartExpenseCount": "{count, plural, =1{1 expense} other{{count} expenses}}",
+  "@aiChatStartExpenseCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "aiChatStartTrend": "Spending trend",
+  "aiChatStartReview": "Review this period",
+  "aiChatStartReviewPrompt": "Review the income and spending in this ledger from {start} through {end}.",
+  "@aiChatStartReviewPrompt": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "aiChatStartTopics": "You could also ask",
+  "aiChatStartFood": "Which accounts paid for dining?",
+  "aiChatStartFoodPrompt": "Which accounts paid for dining in this ledger from {start} through {end}, and how much did each spend?",
+  "@aiChatStartFoodPrompt": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "aiChatStartCompare": "How did spending change from the previous period?",
+  "aiChatStartComparePrompt": "Compare spending in this ledger from {start} through {end} with the corresponding dates in the previous period.",
+  "@aiChatStartComparePrompt": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "aiChatStartShopping": "How much went to shopping?",
+  "aiChatStartShoppingPrompt": "How much did this ledger spend on shopping from {start} through {end}?",
+  "@aiChatStartShoppingPrompt": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "aiChatStartRecord": "Record a lunch expense",
+  "aiChatStartRecordDraft": "Record a lunch expense of ",
+  "aiChatStartNoBills": "Start with your first transaction",
+  "aiChatStartNoBillsDetail": "This ledger has no transactions yet. Enter an amount and what it was for to record your first expense.",
+  "aiChatStartNoModel": "Select a text model first",
+  "aiChatStartNoModelDetail": "Connect a text service so the assistant can understand your questions and use ledger tools.",
+  "aiChatStartModelSettings": "Open AI service settings",
+  "aiChatStartLoadError": "The ledger overview could not load",
+  "aiChatStartLoading": "Loading your ledger…",
+  "aiChatStartQuickActions": "Quick actions",
+  "aiChatComposerHint": "Ask about your ledger…",
+  "aiChatRetryAnswer": "Retry",
+  "aiChatPreviousPeriod": "What about last month?",
+  "aiChatDiningAccounts": "Dining by account",
+  "agentAnswerSnapshotLimit": "Saved the latest {saved} of {total} matching bills at the time of the answer.",
+  "@agentAnswerSnapshotLimit": {
+    "placeholders": {
+      "saved": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "aiChatComposerUnconfigured": "Set up a text model to ask…",
+  "aiChatAssistantName": "AI Assistant"
 }

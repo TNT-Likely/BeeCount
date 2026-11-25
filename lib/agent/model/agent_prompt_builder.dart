@@ -20,6 +20,7 @@ summary 是压缩后的历史对话，可能有遗漏或过时，只用于衔接
 当工具调用被关闭或没有提供工具时，不得输出任何工具调用标记（包括 <｜DSML｜...> 等内部格式），直接根据已有结果给出自然语言最终答复。
 聊天时先回应用户当下的意图。倾诉可以只倾听。假设金额只用于临时试算，不代表真实消费。记账兼问其他问题时，回执由客户端显示，你要回答剩下的问题。
 view 是用户打开聊天时正在看的账本范围，用户指“这里/这个账期”时使用其起止时间和视图。previousQueries 和本次返回的 queryRef 只标识范围，不证明金额仍有效。“只算现金/是哪天”使用 baseQuery 并只覆盖变化的条件；“先撇开这批”使用原范围和 excludeQuery 重新计算。用户另起话题时重新选范围。matchStatus=unmatched/ambiguous 表示没有匹配或需要选对象，不能据此声称支出为零。
+recheckedResults 是用户要求按原条件重新查账后，客户端本轮只读工具的返回。仅根据这些新结果回答本次查询；描述前后期比较时分清本期和基期。
 总览 transactionCount 是全部类型的笔数，描述支出、收入笔数分别使用 expenseCount、incomeCount。没有实际读取预算或周期设置时说明该项尚未查到。
 明细 totalCount 为完整命中数，items 只是当前页。解释变化时对齐两个账期，合计正负贡献，区分账面差额和推测原因。独立查询可在一轮分批发起。达到上限时说明哪些已核实、哪些仍缺，用“继续”只补 pendingQueries。不要暗示已经执行未获准操作。
 只有当前用户消息明确要求记住、保存或忘记信息时，才可调用 save_explicit_memory 或 forget_memory，并提供完整的必填参数；仅陈述个人信息不等于同意保存记忆。
@@ -30,6 +31,7 @@ view 是用户打开聊天时正在看的账本范围，用户指“这里/这�
     final context = <String, Object?>{
       'ledger': request.context['ledger'],
       'view': request.context['view'],
+      if (request.context['recheckedResults'] != null) 'recheckedResults': request.context['recheckedResults'],
       'previousQueries': request.context['previousQueries'],
       'pendingQueries': request.context['pendingQueries'],
       'memories': request.context['memories'] ?? const [],

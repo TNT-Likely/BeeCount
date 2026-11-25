@@ -1,7 +1,7 @@
 import 'package:agentcore/agentcore.dart';
 
-/// Keeps query definitions, never a durable copy of the amounts. Every follow-up
-/// executes against the current database and the active ledger.
+/// Replayable filters and immutable on-device display evidence are kept apart.
+/// Only the former may be used as model context on a subsequent turn.
 final class LedgerQueryEvidence {
   LedgerQueryEvidence(this.scope,
       {this.previous = const [], this.view = const {}});
@@ -9,6 +9,13 @@ final class LedgerQueryEvidence {
   final List<Map<String, Object?>> previous;
   final Map<String, Object?> view;
   final current = <Map<String, Object?>>[];
+  final snapshots = <String, Map<String, Object?>>{};
+  final _pending = Map<AgentToolCall, Map<String, Object?>>.identity();
+
+  bool hasSnapshot(AgentToolCall call) => _pending.containsKey(call);
+  void capture(AgentToolCall call, Map<String, Object?> snapshot) =>
+      _pending.putIfAbsent(call, () => snapshot);
+
   static const filterKeys = {
     'start',
     'end',
@@ -144,8 +151,15 @@ final class LedgerQueryEvidence {
         };
       }
     }
-    final result = await run(
-        AgentToolCall(id: call.id, name: call.name, arguments: effective));
+    final effectiveCall =
+        AgentToolCall(id: call.id, name: call.name, arguments: effective);
+    late Map<String, Object?> result;
+    Map<String, Object?>? snapshot;
+    try {
+      result = await run(effectiveCall);
+    } finally {
+      snapshot = _pending.remove(effectiveCall);
+    }
     if (result.containsKey('error') ||
         result['matchStatus'] == 'ambiguous' ||
         result['matchStatus'] == 'unmatched') {
@@ -164,13 +178,30 @@ final class LedgerQueryEvidence {
           (call.name == 'query_transactions')
     };
     final reference = '${scope.id}/${current.length + 1}';
+    final limit = effective['limit'] is int ? effective['limit'] as int : 20;
     final evidence = <String, Object?>{
       'ref': reference,
       'ledgerId': scope.ledgerId,
       'tool': call.name,
-      'filters': filters
+      'filters': filters,
+      'options': switch (call.name) {
+        'query_transactions' => {
+            'limit': limit.clamp(1, 20),
+            if (effective['cursor'] is String) 'cursor': effective['cursor'],
+          },
+        'get_category_breakdown' => {
+            'limit': limit.clamp(1, 50),
+            'categoryLevel': result['categoryLevel'],
+          },
+        'get_spending_trend' => {
+            'interval': result['interval'],
+            'comparison': result['comparison'],
+          },
+        _ => <String, Object?>{},
+      },
     };
     current.add(evidence);
+    if (snapshot != null) snapshots[reference] = snapshot;
     return {...result, 'queryRef': reference, 'filters': filters};
   }
 }

@@ -12,12 +12,14 @@ final class AgentFollowUpQuestions extends StatelessWidget {
       required this.suggestions,
       required this.onSuggestionTap,
       this.templates = const [],
+      this.compact = false,
       this.enabled = true});
 
   final List<AgentPromptSuggestion> suggestions;
   final List<AgentPromptSuggestion> templates;
   final ValueChanged<AgentPromptSuggestion> onSuggestionTap;
   final bool enabled;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
@@ -37,6 +39,7 @@ final class AgentFollowUpQuestions extends StatelessWidget {
         separatorColor: BeeTokens.primary(context).withValues(alpha: 0.12),
       ),
       enabled: enabled,
+      compact: compact,
       onSelected: onSuggestionTap,
     );
   }

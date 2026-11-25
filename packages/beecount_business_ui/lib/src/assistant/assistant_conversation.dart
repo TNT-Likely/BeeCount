@@ -3,64 +3,8 @@ import 'package:flutter/material.dart';
 import '../resources/tags/tag.dart';
 import '../transactions/transaction_presentation.dart';
 
-/// Conversation controls are controlled by the App's existing chat lifecycle.
-class BeeConversationInput extends StatelessWidget {
-  const BeeConversationInput(
-      {super.key,
-      required this.controller,
-      required this.hint,
-      required this.sendLabel,
-      required this.stopLabel,
-      required this.busy,
-      required this.onSend,
-      required this.onStop});
-  final TextEditingController controller;
-  final String hint, sendLabel, stopLabel;
-  final bool busy;
-  final VoidCallback onSend, onStop;
-  @override
-  Widget build(BuildContext context) => SafeArea(
-      top: false,
-      child: Padding(
-          padding: const EdgeInsets.fromLTRB(17, 8, 17, 12),
-          child: BeeSurface(
-              padding: const EdgeInsets.all(8),
-              borderRadius: BorderRadius.circular(18),
-              child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
-                Expanded(
-                    child: BeeField(
-                        label: hint,
-                        showLabel: false,
-                        controller: controller,
-                        hint: hint,
-                        minLines: 1,
-                        maxLines: 4,
-                        enabled: !busy,
-                        textInputAction: TextInputAction.send,
-                        onSubmitted: (_) => onSend())),
-                const SizedBox(width: 7),
-                DecoratedBox(
-                    decoration: BoxDecoration(
-                        color: busy
-                            ? Theme.of(context).colorScheme.errorContainer
-                            : Theme.of(context).colorScheme.primary,
-                        borderRadius: BorderRadius.circular(13)),
-                    child: SizedBox.square(
-                        dimension: 44,
-                        child: BeeIconButton(
-                            key: const ValueKey('ai-chat-send'),
-                            label: busy ? stopLabel : sendLabel,
-                            icon: Icon(
-                                busy ? Icons.stop_circle_outlined : Icons.send,
-                                size: 20,
-                                color: busy
-                                    ? Theme.of(context)
-                                        .colorScheme
-                                        .onErrorContainer
-                                    : Theme.of(context).colorScheme.onPrimary),
-                            onPressed: busy ? onStop : onSend)))
-              ]))));
-}
+export 'conversation_input.dart';
+export 'conversation_overview_card.dart';
 
 class BeeConversationUserMessage extends StatelessWidget {
   const BeeConversationUserMessage(

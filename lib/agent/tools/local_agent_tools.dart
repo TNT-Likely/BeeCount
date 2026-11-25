@@ -3,6 +3,7 @@ import '../../services/ai/chat_receipt_store.dart';
 import '../../utils/app_localizations_resolver.dart';
 import '../../l10n/app_localizations.dart';
 import 'ledger_query_evidence.dart';
+import 'ledger_query_snapshot.dart';
 import 'package:agentcore/agentcore.dart'
     hide
         AgentMemoryDraft,
@@ -732,12 +733,17 @@ final class LocalAgentTools {
     required this.gateway,
     DateTime Function()? now,
     this.sourceMessageId,
+    this.captureEvidence = true,
+    LedgerSnapshotBudget? snapshotBudget,
     this.l10n,
     List<Map<String, Object?>> previous = const [],
     Map<String, Object?> view = const {},
-  })  : evidence = LedgerQueryEvidence(scope, previous: previous, view: view),
+  })  : _snapshotBudget = snapshotBudget ?? LedgerSnapshotBudget(),
+        evidence = LedgerQueryEvidence(scope, previous: previous, view: view),
         _now = now ?? DateTime.now;
   final LedgerQueryEvidence evidence;
+  final bool captureEvidence;
+  final LedgerSnapshotBudget _snapshotBudget;
   final int? sourceMessageId;
   final AppLocalizations? l10n;
   AgentRecordToolResult? savedRecord;
@@ -1136,10 +1142,10 @@ final class LocalAgentTools {
       required String groupBy,
       required String categoryLevel,
       required int groupLimit,
-      bool includeExcluded = false}) {
+      bool includeExcluded = false}) async {
     List<int> ids(String key) =>
         (call.arguments[key] as List?)?.whereType<int>().toSet().toList() ?? [];
-    return gateway.summarizeTransactions(
+    final result = await gateway.summarizeTransactions(
         ledgerId: _ledgerId,
         start: range.$1,
         end: range.$2,
@@ -1156,7 +1162,18 @@ final class LocalAgentTools {
         includeExcludedFromStats:
             call.arguments['includeExcludedFromStats'] as bool? ??
                 includeExcluded,
-        filters: call.arguments);
+        filters: {
+          for (final entry in call.arguments.entries)
+            if (entry.key != '_snapshotRequest') entry.key: entry.value,
+          if (captureEvidence && !evidence.hasSnapshot(call))
+            '_snapshotRequest':
+                LedgerSnapshotRequest(call.name, _snapshotBudget),
+        });
+    if (result['_snapshot'] case final Map<String, Object?> snapshot) {
+      evidence.capture(call, snapshot);
+      return Map.of(result)..remove('_snapshot');
+    }
+    return result;
   }
 
   Future<Map<String, Object?>> _budgetStatus(AgentToolCall call) async {

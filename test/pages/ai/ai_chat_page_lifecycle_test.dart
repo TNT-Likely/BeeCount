@@ -23,7 +23,6 @@ import 'package:beecount/services/ai/ai_bookkeeper.dart';
 import 'package:beecount/services/ai/ai_chat_service.dart';
 import 'package:beecount/services/ai/agent_app_facade.dart';
 import 'package:beecount/services/billing/bill_creation_service.dart';
-import 'package:beecount/pages/ai/chat/widgets/agent_brand_mark.dart';
 import 'package:beecount/pages/ai/chat/bindings/agent_execution_timeline.dart';
 import 'package:beecount/pages/ai/chat/widgets/agent_markdown_text.dart';
 import 'package:beecount/pages/ai/chat/widgets/bill_card_widget.dart';
@@ -48,7 +47,16 @@ void main() {
     SharedPreferences.setMockInitialValues({
       // This suite tests chat lifecycle, not legacy provider migration (which
       // schedules persistence/log timers independently of the disposed page).
-      'ai_capability_binding_v2': '{}',
+      'ai_capability_binding_v2': '{"textProviderId":"zhipu_glm"}',
+      'ai_providers_v2': jsonEncode([
+        {
+          'id': 'zhipu_glm',
+          'name': 'Offline lifecycle fixture',
+          'apiKey': 'offline-test-only',
+          'baseUrl': 'https://offline.invalid',
+          'textModel': 'offline-text',
+        },
+      ]),
     });
     database = BeeDatabase.forTesting(NativeDatabase.memory());
     repository = LocalRepository(database);
@@ -90,6 +98,8 @@ void main() {
         databaseProvider.overrideWithValue(database),
         repositoryProvider.overrideWithValue(repository),
         aiChatServiceProvider.overrideWithValue(chatService),
+        if (model != null)
+          aiChatTextModelConfiguredProvider.overrideWith((ref) async => true),
       ],
       child: MaterialApp(
         localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -159,6 +169,8 @@ void main() {
         .get();
     await tester.pumpWidget(host());
     await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('agent-chat-more')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('agent-chat-clear')));
     await tester.pumpAndSettle();
     expect(find.text(AppLocalizationsZh().aiChatClearHistoryDialogContent),
@@ -172,6 +184,8 @@ void main() {
             .map((r) => r.toJson())
             .toList(),
         before.map((r) => r.toJson()).toList());
+    await tester.tap(find.byKey(const ValueKey('agent-chat-more')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('agent-chat-clear')));
     await tester.pumpAndSettle();
     await tester.tap(find.text(AppLocalizationsZh().commonConfirm));
@@ -282,13 +296,13 @@ void main() {
     await tester.pumpAndSettle();
   });
 
-  testWidgets('当前周期没有交易时，空会话引导用户记下第一笔账', (tester) async {
+  testWidgets('账本没有流水时，空会话引导用户记下第一笔账', (tester) async {
     await tester.pumpWidget(host());
     await tester.pumpAndSettle();
 
     expect(find.text('暂无消息'), findsNothing);
-    expect(find.byType(AgentBrandMark), findsOneWidget);
-    expect(find.text('从今天的第一笔开始'), findsOneWidget);
+    expect(find.text('从第一笔开始'), findsOneWidget);
+    expect(find.text('记一笔午餐'), findsOneWidget);
     expect(
       find.byKey(const ValueKey('ai-prompt-suggestion-0')),
       findsNothing,
@@ -312,11 +326,10 @@ void main() {
     await tester.pumpWidget(host());
     await tester.pumpAndSettle();
 
-    expect(find.text('从一笔账，或一个问题开始'), findsOneWidget);
-    expect(find.text('本月支出'), findsOneWidget);
-    expect(find.text('已记录交易'), findsOneWidget);
+    expect(find.text('想从哪笔账聊起？'), findsOneWidget);
+    expect(find.text('本期累计支出'), findsOneWidget);
     expect(find.text('¥32'), findsOneWidget);
-    expect(find.text('1 笔'), findsOneWidget);
+    expect(find.text('1 笔支出'), findsOneWidget);
     expect(
       find.byKey(const ValueKey('ai-prompt-suggestion-0')),
       findsNothing,
@@ -391,7 +404,7 @@ void main() {
     container.read(currentLedgerIdProvider.notifier).state = 2;
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('agent-follow-up-questions')),
-        findsOneWidget); // Generic templates are safe under the current ledger.
+        findsNothing); // A different ledger opens its own empty conversation.
     expect(find.byKey(const ValueKey('agent-follow-up-followup-trend')),
         findsNothing);
     expect(find.byKey(const ValueKey('agent-follow-up-followup-compare')),
@@ -594,8 +607,7 @@ void main() {
         }
       ]
     });
-    await _pumpUntil(
-        tester, () => find.text('已完成 1 项操作').evaluate().isNotEmpty);
+    await _pumpUntil(tester, () => find.text('已查账 1 项').evaluate().isNotEmpty);
     await tester.pumpAndSettle();
     expect(find.text('模型正在思考…'), findsNothing);
     expect(find.text('收支概览'), findsNothing);
@@ -609,11 +621,12 @@ void main() {
     await tester.drag(find.byType(ListView).first, const Offset(0, 180));
     await tester.pumpAndSettle();
     await tester
-        .ensureVisible(find.byKey(const ValueKey('agent-activity-toggle')));
+        .ensureVisible(find.byKey(ValueKey('execution-${messages.single.id}')));
     await tester.pumpAndSettle();
-    expect(find.byKey(const ValueKey('agent-activity-toggle')).hitTestable(),
+    expect(
+        find.byKey(ValueKey('execution-${messages.single.id}')).hitTestable(),
         findsOneWidget);
-    await tester.tap(find.byKey(const ValueKey('agent-activity-toggle')));
+    await tester.tap(find.byKey(ValueKey('execution-${messages.single.id}')));
     await tester.pumpAndSettle();
     expect(find.text('收支概览'), findsOneWidget);
     await tester.pumpWidget(const SizedBox());
@@ -664,8 +677,9 @@ void main() {
         find.byWidgetPredicate((widget) =>
             widget is AgentMarkdownText && widget.data == '查询后的第一段文本'),
         findsNothing);
-    expect(find.byType(AgentExecutionTimeline), findsOneWidget);
-    expect(find.text('已完成 1 项操作'), findsOneWidget);
+    expect(
+        find.byKey(const ValueKey('agent-execution-timeline')), findsNothing);
+    expect(find.text('已查账 1 项'), findsOneWidget);
     expect(find.text('收支概览'), findsNothing);
     expect(
         find.byWidgetPredicate((widget) =>
@@ -677,7 +691,7 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('通栏回答使用可用宽度，复制和更多操作位于回答下方', (tester) async {
+  testWidgets('回答通栏阅读，在署名行打开操作面板复制原文', (tester) async {
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -704,29 +718,17 @@ void main() {
     final answer = find.byKey(ValueKey('agent-answer-$messageId'));
     final markdown =
         find.descendant(of: answer, matching: find.byType(AgentMarkdownText));
-    final card =
-        find.ancestor(of: answer, matching: find.byType(BeeSurface)).first;
-    expect(tester.getSize(card).width, 390 - 17 * 2);
-    expect(tester.getSize(markdown).width, 390 - 17 * 2 - 16 * 2);
-    final contract = jsonDecode(
-        File('tool/design/contracts/ai-conversation-geometry.json')
-            .readAsStringSync());
-    final expectedHorizontal =
-        (contract['messages']['paddingHorizontal'] as num).toDouble();
-    final answerPadding = (contract['answer']['padding'] as num).toDouble();
-    expect(tester.getSize(card).width, 390 - expectedHorizontal * 2);
-    expect(tester.getSize(markdown).width,
-        390 - expectedHorizontal * 2 - answerPadding * 2);
-    final copy = find.byKey(ValueKey('agent-answer-copy-$messageId'));
-    expect(tester.getTopLeft(copy).dy,
-        greaterThan(tester.getBottomLeft(markdown).dy));
-    await tester.tap(copy);
-    await tester.pump();
-    expect(copied, '可以通栏阅读的回答内容。');
-    await tester.tap(find.byKey(ValueKey('agent-answer-more-$messageId')));
+    expect(tester.getSize(answer).width, 390 - 17 * 2);
+    expect(tester.getSize(markdown).width, 390 - 17 * 2);
+    final menu = find.byKey(ValueKey('agent-answer-more-$messageId'));
+    expect(tester.getCenter(menu).dy, lessThan(tester.getTopLeft(markdown).dy));
+    await tester.tap(menu);
     await tester.pumpAndSettle();
-    expect(find.text('删除'), findsOneWidget);
-    await tester.tapAt(const Offset(5, 5));
+    final copy = find.byKey(ValueKey('agent-answer-copy-$messageId'));
+    expect(find.byType(BeeSheet), findsOneWidget);
+    await tester.tap(copy);
+    await tester.pumpAndSettle();
+    expect(copied, '可以通栏阅读的回答内容。');
     await tester.pumpWidget(const SizedBox());
     await tester.pump(const Duration(seconds: 3));
     expect(tester.takeException(), isNull);
@@ -761,11 +763,12 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('已完成 1 项操作'), findsOneWidget);
     expect(find.text('收支概览'), findsNothing);
-    await tester
-        .ensureVisible(find.byKey(const ValueKey('agent-activity-toggle')));
-    await tester.tap(find.byKey(const ValueKey('agent-activity-toggle')));
+    await tester.ensureVisible(find.text('已完成 1 项操作'));
+    await tester.tap(find.text('已完成 1 项操作'));
     await tester.pumpAndSettle();
-    expect(find.text('已返回 2 笔交易'), findsOneWidget);
+    expect(find.textContaining('已返回 2 笔交易'), findsOneWidget);
+    await tester.tap(find.byType(CloseButton));
+    await tester.pumpAndSettle();
     await tester.drag(find.byType(ListView).first, const Offset(0, 500));
     await tester.pumpAndSettle();
     final jump = find.byKey(const ValueKey('agent-scroll-to-latest'));
@@ -813,6 +816,10 @@ void main() {
         messageType: 'bill_card',
         metadata: Value(jsonEncode(metadata))));
     await tester.pumpWidget(host());
+    await tester.pumpAndSettle();
+    final receipt = find.text(AppLocalizationsZh().aiChatReceiptView);
+    await tester.ensureVisible(receipt);
+    await tester.tap(receipt);
     await tester.pumpAndSettle();
     await tester.ensureVisible(find.text('撤销'));
     await tester.tap(find.text('撤销'));
@@ -886,6 +893,176 @@ void main() {
     await tester.pump(const Duration(seconds: 3));
     expect(tester.takeException(), isNull);
   });
+  testWidgets('新对话保留原回答与各自草稿，历史能切回原线程', (tester) async {
+    await repository.createLedger(name: '四季生活');
+    final id =
+        await repository.createConversation(ConversationsCompanion.insert());
+    await repository.createMessage(MessagesCompanion.insert(
+        conversationId: id,
+        role: 'user',
+        content: '本月现金流',
+        messageType: 'text'));
+    await repository.createMessage(MessagesCompanion.insert(
+        conversationId: id,
+        role: 'assistant',
+        content: '保留的回答',
+        messageType: 'text'));
+    await tester.pumpWidget(host(model: _CapturingModel()));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField).first, '待发送的追问');
+    Future<void> open(String action) async {
+      await tester.tap(find.byKey(const ValueKey('agent-chat-more')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(ValueKey('agent-chat-$action')));
+      await tester.pumpAndSettle();
+    }
+
+    await open('new');
+    expect(find.text('保留的回答'), findsNothing);
+    expect(
+        tester.widget<TextField>(find.byType(TextField).first).controller!.text,
+        isEmpty);
+    await open('history');
+    await tester.tap(find.text('本月现金流'));
+    await tester.pumpAndSettle();
+    expect(
+        tester.widget<TextField>(find.byType(TextField).first).controller!.text,
+        '待发送的追问');
+    expect(
+        find.byWidgetPredicate(
+            (w) => w is AgentMarkdownText && w.data == '保留的回答'),
+        findsOneWidget);
+    expect(await database.select(database.agentRuns).get(), isEmpty);
+    await tester.pumpWidget(const SizedBox());
+    await tester.pumpAndSettle();
+  });
+
+  testWidgets('停止保留实际已到达的文本、草稿；生成期间旧回答仅可复制', (tester) async {
+    await repository.createLedger(name: '停止测试');
+    final id =
+        await repository.createConversation(ConversationsCompanion.insert());
+    await repository.createMessage(MessagesCompanion.insert(
+        conversationId: id,
+        role: 'user',
+        content: '之前的问题',
+        messageType: 'text'));
+    final before = await repository.createMessage(MessagesCompanion.insert(
+        conversationId: id,
+        role: 'assistant',
+        content: '之前的回答',
+        messageType: 'text'));
+    final model = _StreamingQueryModel();
+    addTearDown(() {
+      if (!model.answer.isCompleted) {
+        model.answer.complete(const core.AgentFinalTextTurn('晚到的片段'));
+      }
+    });
+    await tester.pumpWidget(host(model: model));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField).first, '查询现金支出');
+    await tester.testTextInput.receiveAction(TextInputAction.send);
+    await _pumpUntil(tester, () => model.answeringRequest != null);
+    await tester.enterText(find.byType(TextField).first, '留给下一轮的草稿');
+    final more = find.byKey(ValueKey('agent-answer-more-$before'));
+    await tester.ensureVisible(more);
+    await tester.tap(more);
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(find.byKey(ValueKey('agent-answer-copy-$before')), findsOneWidget);
+    expect(find.byKey(const ValueKey('agent-answer-repeat')), findsNothing);
+    final close = find.byType(CloseButton);
+    await _pumpUntil(tester, () => close.hitTestable().evaluate().isNotEmpty);
+    await tester.tap(close);
+    await tester.pump(const Duration(milliseconds: 400));
+    final stop = find.byTooltip(AppLocalizationsZh().agentRunStop);
+    await _pumpUntil(tester, () => stop.hitTestable().evaluate().isNotEmpty);
+    await tester.tap(stop);
+    await _pumpUntil(
+        tester,
+        () => find
+            .text(AppLocalizationsZh().aiChatStopped)
+            .evaluate()
+            .isNotEmpty);
+    expect(
+        tester.widget<TextField>(find.byType(TextField).first).controller!.text,
+        '留给下一轮的草稿');
+    final reply = (await (database.select(database.messages)
+              ..where((m) => m.conversationId.equals(id)))
+            .get())
+        .last;
+    final metadata = jsonDecode(reply.metadata!);
+    expect(metadata['partialText'], '查询后的第一段文本');
+    expect(metadata['replyStatus'], 'stopped');
+    expect(metadata['analysisTemplatesAllowed'], isFalse);
+    model.answer.complete(const core.AgentFinalTextTurn('晚到的片段'));
+    await tester.pumpAndSettle();
+    expect(
+        (await (database.select(database.messages)
+                  ..where((m) => m.conversationId.equals(id)))
+                .get())
+            .any((m) => m.content == '晚到的片段'),
+        isFalse);
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump(const Duration(seconds: 3));
+    await tester.pumpAndSettle();
+  });
+
+  testWidgets('记账先展示用户原话，取消后不写入，收起授权且不可重放', (tester) async {
+    await repository.createLedger(name: '一次授权');
+    final model = _BookingMessageModel();
+    await tester.pumpWidget(host(model: model));
+    await tester.pumpAndSettle();
+    const input = '午餐花了 28 元，现金付的';
+    await tester.enterText(find.byType(TextField).first, input);
+    await tester.testTextInput.receiveAction(TextInputAction.send);
+    final cancel = find.byKey(const ValueKey('agent-write-cancel'));
+    await _pumpUntil(tester, () => cancel.evaluate().isNotEmpty);
+    expect(find.text(input), findsNWidgets(2));
+    expect(await database.select(database.transactions).get(), isEmpty);
+    await tester.ensureVisible(cancel);
+    await tester.tap(cancel);
+    await _pumpUntil(
+        tester,
+        () => find
+            .byWidgetPredicate((w) =>
+                w is AgentMarkdownText &&
+                w.data == AppLocalizationsZh().aiChatWriteCancelled)
+            .evaluate()
+            .isNotEmpty);
+    await tester.pumpAndSettle();
+    expect(await database.select(database.transactions).get(), isEmpty);
+    final reply = (await database.select(database.messages).get()).last;
+    await tester.tap(find.byKey(ValueKey('agent-answer-more-${reply.id}')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('agent-answer-repeat')), findsNothing);
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump(const Duration(seconds: 3));
+    await tester.pumpAndSettle();
+  });
+  testWidgets('取消混合请求中的记账时保留已完成查询及回答', (tester) async {
+    await repository.createLedger(name: '混合请求');
+    await tester.pumpWidget(host(model: _BookingMessageModel(withQuery: true)));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+        find.byType(TextField).first, '这个月收支如何？顺便记一笔午餐 28 元');
+    await tester.testTextInput.receiveAction(TextInputAction.send);
+    final cancel = find.byKey(const ValueKey('agent-write-cancel'));
+    await _pumpUntil(tester, () => cancel.hitTestable().evaluate().isNotEmpty);
+    await tester.tap(cancel);
+    await _pumpUntil(
+        tester,
+        () =>
+            find.byKey(const ValueKey('agent-live-answer')).evaluate().isEmpty);
+    await tester.pumpAndSettle();
+    final stored = (await database.select(database.messages).get()).last;
+    expect(stored.content, contains(AppLocalizationsZh().aiChatWriteCancelled));
+    expect(stored.content, contains('已查询本期收支'));
+    expect(jsonDecode(stored.metadata!)['queryContext']['displayRefs'],
+        hasLength(1));
+    expect(await database.select(database.transactions).get(), isEmpty);
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump(const Duration(seconds: 3));
+    await tester.pumpAndSettle();
+  });
 }
 
 final class _StreamingQueryModel implements core.AgentModel {
@@ -946,4 +1123,24 @@ final class _CapturingModel implements core.AgentModel {
     request = value;
     return const core.AgentTurn.finalText('未执行查询');
   }
+}
+
+final class _BookingMessageModel implements core.AgentModel {
+  _BookingMessageModel({this.withQuery = false});
+  final bool withQuery;
+  @override
+  Future<core.AgentTurn> nextTurn(core.AgentRequest r) async =>
+      r.toolData.isEmpty
+          ? core.AgentTurn.toolCalls([
+              if (withQuery)
+                core.AgentToolCall(
+                    id: 'overview',
+                    name: 'get_period_overview',
+                    arguments: {'period': 'current_month'}),
+              core.AgentToolCall(
+                  id: 'write',
+                  name: 'record_transaction_from_text',
+                  arguments: {'sourceText': r.text, 'receiptOnly': true})
+            ])
+          : core.AgentFinalTextTurn(withQuery ? '已查询本期收支' : '操作已结束');
 }

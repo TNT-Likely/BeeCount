@@ -56,26 +56,29 @@ Future<void> persistRecordingDraft(
       ? await _resolveSyncIdByAccountId(ref, res.accountId!, ledgerId)
       : null;
   if (editingId != null) {
-    // 编辑模式：使用repository更新交易
-    await repo.updateTransaction(
-      id: editingId,
-      type: kind,
-      amount: res.amount,
-      categoryId: categoryIdForWrite,
-      note: res.note,
-      happenedAt: res.date,
-      accountId: accountIdForUpdate,
-      categorySyncIdOverride: categoryOverride,
-      accountSyncIdOverride: accountOverride,
-      excludeFromStats: res.excludeFromStats,
-      excludeFromBudget: res.excludeFromBudget,
-      currencyCode: res.currencyCode,
-      nativeAmount: res.nativeAmount,
-    );
     transactionId = editingId;
-    // 共享账本:本地 lastEditedByUserId 立即回填,UI 头像组直接展示
-    // 当前 user 为编辑人(否则要等 server 下次 pull 才回来)
-    await TxAuthorService.markEdited(ref, transactionId);
+    await _editExisting(ref, ledgerId, editingId, () async {
+      await repo.updateTransaction(
+        id: editingId,
+        type: kind,
+        amount: res.amount,
+        categoryId: categoryIdForWrite,
+        note: res.note,
+        happenedAt: res.date,
+        accountId: accountIdForUpdate,
+        categorySyncIdOverride: categoryOverride,
+        accountSyncIdOverride: accountOverride,
+        excludeFromStats: res.excludeFromStats,
+        excludeFromBudget: res.excludeFromBudget,
+        currencyCode: res.currencyCode,
+        nativeAmount: res.nativeAmount,
+      );
+      // 共享账本:本地 lastEditedByUserId 立即回填,UI 头像组直接展示
+      // 当前 user 为编辑人(否则要等 server 下次 pull 才回来)
+      await TxAuthorService.markEdited(ref, transactionId);
+      await _persistRecordingMetadata(ref,
+          transactionId: editingId, result: res, editing: true);
+    });
   } else {
     transactionId = await repo.addTransaction(
       ledgerId: ledgerId,
@@ -95,9 +98,9 @@ Future<void> persistRecordingDraft(
     onCreated(transactionId);
     // 共享账本:新建本地 tx 也回填创建人 + 编辑人(同一个 user)
     await TxAuthorService.markCreated(ref, transactionId);
+    await _persistRecordingMetadata(ref,
+        transactionId: transactionId, result: res, editing: false);
   }
-  await _persistRecordingMetadata(ref,
-      transactionId: transactionId, result: res, editing: editingId != null);
   // 统一处理：自动/手动同步与状态刷新（后台静默）
   PostProcessor.sync(ref, ledgerId: ledgerId);
   // 刷新：账本笔数与全局统计
@@ -161,35 +164,57 @@ Future<void> persistTransferDraft(
     );
     onCreated(transactionId);
     await TxAuthorService.markCreated(ref, transactionId);
+    await _persistRecordingMetadata(ref,
+        transactionId: transactionId, result: result, editing: false);
   } else {
     transactionId = editingId;
-    await repo.updateTransaction(
-      id: transactionId,
-      type: 'transfer',
-      amount: result.amount,
-      categoryId: category.id,
-      accountId: d.Value<int?>(fromId),
-      accountSyncIdOverride: fromOverride,
-      happenedAt: result.date,
-      note: result.note,
-      excludeFromStats: result.excludeFromStats,
-      excludeFromBudget: result.excludeFromBudget,
-      currencyCode: result.currencyCode,
-      nativeAmount: result.nativeAmount,
-    );
-    await repo.updateTransactionFields(
-      id: transactionId,
-      toAccountId: d.Value<int?>(toId),
-      toAccountSyncIdOverride: toOverride,
-      writeToAccountSyncIdOverride: true,
-    );
-    await TxAuthorService.markEdited(ref, transactionId);
+    await _editExisting(ref, ledgerId, transactionId, () async {
+      await repo.updateTransaction(
+        id: transactionId,
+        type: 'transfer',
+        amount: result.amount,
+        categoryId: category.id,
+        accountId: d.Value<int?>(fromId),
+        accountSyncIdOverride: fromOverride,
+        happenedAt: result.date,
+        note: result.note,
+        excludeFromStats: result.excludeFromStats,
+        excludeFromBudget: result.excludeFromBudget,
+        currencyCode: result.currencyCode,
+        nativeAmount: result.nativeAmount,
+      );
+      await repo.updateTransactionFields(
+        id: transactionId,
+        toAccountId: d.Value<int?>(toId),
+        toAccountSyncIdOverride: toOverride,
+        writeToAccountSyncIdOverride: true,
+      );
+      await TxAuthorService.markEdited(ref, transactionId);
+      await _persistRecordingMetadata(ref,
+          transactionId: transactionId, result: result, editing: true);
+    });
   }
-  await _persistRecordingMetadata(ref,
-      transactionId: transactionId, result: result, editing: editingId != null);
   await PostProcessor.sync(ref, ledgerId: ledgerId);
   ref.invalidate(countsForLedgerProvider(ledgerId));
   ref.read(statsRefreshProvider.notifier).state++;
+}
+
+/// A synced move can land while the editor is open. Keep the identity check,
+/// financial update and its tags/attachments within the same SQLite transaction.
+Future<void> _editExisting(
+    WidgetRef ref, int ledgerId, int id, Future<void> Function() update) {
+  final repo = ref.read(repositoryProvider);
+  Future<void> checkedUpdate() async {
+    final live = await repo.getTransactionById(id);
+    if (live == null || live.ledgerId != ledgerId) {
+      throw StateError('The entry is no longer in this ledger');
+    }
+    await update();
+  }
+
+  return repo is LocalRepository
+      ? repo.db.transaction(checkedUpdate)
+      : checkedUpdate();
 }
 
 Future<void> _persistRecordingMetadata(
