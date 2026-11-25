@@ -614,6 +614,145 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  recordingTest('记账页切换快捷分类列数并保留草稿与账单标记', (tester) async {
+    final home = (await repo.getAllCategories())
+        .singleWhere((category) => category.name == '居家');
+    final homeChild = await repo.createSubCategory(
+        parentId: home.id, name: '家居用品', kind: 'expense', icon: 'home');
+    await open(tester);
+    final l = AppLocalizations.of(tester.element(find.byType(RecordingHeader)));
+    final first = find.byKey(ValueKey('recording-category-$foodId'));
+    final fifth = find.byKey(ValueKey('recording-category-${home.id}'));
+    final sixth = find.widgetWithText(RecordingCategoryTile, '娱乐');
+    final more = find.byKey(const ValueKey('recording-more-categories'));
+    final dialog = find.byType(BeeDialog);
+    final amount = find.byKey(const ValueKey('recording-amount'));
+    final note = find.byKey(const ValueKey('recording-note'));
+
+    expect(
+        tester.getTopLeft(fifth).dy, greaterThan(tester.getTopLeft(first).dy));
+    expect(
+        find.descendant(
+            of: more, matching: find.text(l.v4RecordingMoreCategories)),
+        findsOneWidget);
+    await key(tester, '3');
+    await key(tester, '2');
+    await tester.enterText(note, '切换前的备注');
+    FocusManager.instance.primaryFocus?.unfocus();
+    await tester.pumpAndSettle();
+    await category(tester, foodId);
+    await category(tester, lunchId);
+    await category(tester, foodId);
+
+    await tester.tap(find.byTooltip(l.txFlagMoreOptions));
+    await tester.pumpAndSettle();
+    expect(
+        find.descendant(
+            of: dialog, matching: find.text(l.v4RecordingCategoryColumns)),
+        findsOneWidget);
+    expect(find.text(l.v4RecordingCategoryColumnsFour), findsOneWidget);
+    await tester
+        .tap(find.widgetWithText(SwitchListTile, l.txFlagExcludeFromBudget));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(l.v4RecordingCategoryColumnsFive));
+    await tester.pumpAndSettle();
+    expect(
+        (await SharedPreferences.getInstance())
+            .getInt('recording_category_columns'),
+        5);
+    await tester
+        .tap(find.descendant(of: dialog, matching: find.text(l.commonConfirm)));
+    await tester.pumpAndSettle();
+
+    expect(
+        tester.getTopLeft(fifth).dy, closeTo(tester.getTopLeft(first).dy, .01));
+    expect(
+        tester.getTopLeft(sixth).dy, greaterThan(tester.getTopLeft(fifth).dy));
+    expect(more.hitTestable(), findsOneWidget);
+    expect(find.descendant(of: more, matching: find.text(l.commonMore)),
+        findsOneWidget);
+    expect(tester.widget<Text>(amount).data, '32.00');
+    expect(tester.widget<TextField>(note).controller!.text, '切换前的备注');
+
+    await category(tester, home.id);
+    final children =
+        find.byKey(const ValueKey('recording-subcategories-scroll'));
+    final child = find.byKey(ValueKey('recording-category-$homeChild'));
+    expect(child.hitTestable(), findsOneWidget);
+    expect(tester.getTopLeft(children).dy,
+        greaterThanOrEqualTo(tester.getBottomLeft(fifth).dy));
+    expect(tester.getBottomLeft(children).dy,
+        lessThanOrEqualTo(tester.getTopLeft(sixth).dy));
+    await category(tester, home.id);
+
+    await press(tester, 'recording-save');
+    await tester.pumpAndSettle();
+    final saved = (await db.select(db.transactions).get()).single;
+    expect(saved.amount, 32);
+    expect(saved.note, '切换前的备注');
+    expect(saved.categoryId, lunchId);
+    expect(saved.excludeFromBudget, isTrue);
+    expect(tester.takeException(), isNull);
+  });
+
+  recordingTest('快捷分类在 320 宽大字号下用五列，更窄时回四列，收入共用偏好', (tester) async {
+    SharedPreferences.setMockInitialValues({
+      'auto_sync': false,
+      'recording_category_columns': 5,
+    });
+    for (var index = 1; index <= 5; index++) {
+      await repo.createCategory(
+          name: '收入分类$index', kind: 'income', sortOrder: index);
+    }
+    await open(tester, size: const Size(320, 568), textScale: 1.4);
+    final l = AppLocalizations.of(tester.element(find.byType(RecordingHeader)));
+    final grid = find.byType(RecordingCategorySection);
+    final tiles =
+        find.descendant(of: grid, matching: find.byType(RecordingCategoryTile));
+    final more = find.byKey(const ValueKey('recording-more-categories'));
+
+    void expectLayout(int columns, String moreLabel) {
+      final firstRowTop = tester.getTopLeft(tiles.first).dy;
+      final firstRowTiles = tiles.evaluate().where((element) {
+        final tile = find.byWidget(element.widget);
+        return (tester.getTopLeft(tile).dy - firstRowTop).abs() < .01;
+      });
+      expect(firstRowTiles, hasLength(columns));
+      expect(tester.getSize(tiles.first).width,
+          greaterThanOrEqualTo(kMinInteractiveDimension));
+      expect(more.hitTestable(), findsOneWidget);
+      expect(find.descendant(of: more, matching: find.text(moreLabel)),
+          findsOneWidget);
+    }
+
+    expectLayout(5, l.commonMore);
+    // 九个支出分类加「更多」能填满两行，短屏裁减时也应按整行减。
+    expect(tiles.evaluate().length, anyOf(5, 10));
+    final semantics = tester.ensureSemantics();
+    try {
+      await tester.pump();
+      expect(
+          find.bySemanticsLabel(l.v4RecordingMoreCategories), findsOneWidget);
+    } finally {
+      semantics.dispose();
+    }
+    tester.view.physicalSize = const Size(296, 568);
+    await tester.pumpAndSettle();
+    expectLayout(4, l.v4RecordingMoreCategories);
+
+    tester.view.physicalSize = const Size(320, 568);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(l.categoryIncome));
+    await tester.pumpAndSettle();
+    expect(
+        find.byKey(ValueKey('recording-category-$incomeId')), findsOneWidget);
+    expectLayout(5, l.commonMore);
+    await tester.tap(more);
+    await tester.pumpAndSettle();
+    expect(find.byType(BeeCategoryPicker), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   for (final size in [const Size(398, 844), const Size(320, 568)]) {
     recordingTest('更多分类选中末尾二级后完整露出，表单与键盘保持固定 $size', (tester) async {
       for (var i = 0; i < 6; i++) {

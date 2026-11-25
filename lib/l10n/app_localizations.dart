@@ -16378,6 +16378,30 @@ abstract class AppLocalizations {
   /// **'More categories'**
   String get v4RecordingMoreCategories;
 
+  /// No description provided for @v4RecordingCategoryColumns.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick categories per row'**
+  String get v4RecordingCategoryColumns;
+
+  /// No description provided for @v4RecordingCategoryColumnsFour.
+  ///
+  /// In en, this message translates to:
+  /// **'4 (default)'**
+  String get v4RecordingCategoryColumnsFour;
+
+  /// No description provided for @v4RecordingCategoryColumnsFive.
+  ///
+  /// In en, this message translates to:
+  /// **'5'**
+  String get v4RecordingCategoryColumnsFive;
+
+  /// No description provided for @v4RecordingCategoryColumnsScope.
+  ///
+  /// In en, this message translates to:
+  /// **'Applies to income and expense entry on this device'**
+  String get v4RecordingCategoryColumnsScope;
+
   /// No description provided for @v4RecordingCalculationHint.
   ///
   /// In en, this message translates to:

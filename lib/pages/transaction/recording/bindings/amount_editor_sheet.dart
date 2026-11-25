@@ -177,6 +177,74 @@ RecordingAuthor _author(
       image: absolute == null ? null : NetworkImage(absolute));
 }
 
+class _RecordingCategoryColumnsControl extends ConsumerStatefulWidget {
+  const _RecordingCategoryColumnsControl({required this.headingStyle});
+
+  final TextStyle headingStyle;
+
+  @override
+  ConsumerState<_RecordingCategoryColumnsControl> createState() =>
+      _RecordingCategoryColumnsControlState();
+}
+
+class _RecordingCategoryColumnsControlState
+    extends ConsumerState<_RecordingCategoryColumnsControl> {
+  bool _saving = false;
+  bool _saveFailed = false;
+
+  Future<void> _select(int columns) async {
+    if (_saving ||
+        ref.read(recordingCategoryColumnsProvider).valueOrNull == columns) {
+      return;
+    }
+    setState(() {
+      _saving = true;
+      _saveFailed = false;
+    });
+    var failed = false;
+    try {
+      await ref
+          .read(recordingCategoryColumnsProvider.notifier)
+          .setColumns(columns);
+    } catch (_) {
+      failed = true;
+    }
+    if (!mounted) return;
+    setState(() {
+      _saving = false;
+      _saveFailed = failed;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final preference = ref.watch(recordingCategoryColumnsProvider);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(l10n.v4RecordingCategoryColumns, style: widget.headingStyle),
+        const SizedBox(height: 8),
+        BeeSegmented<int>(
+          items: [
+            BeeSegment(4, l10n.v4RecordingCategoryColumnsFour),
+            BeeSegment(5, l10n.v4RecordingCategoryColumnsFive),
+          ],
+          value: preference.valueOrNull ?? 4,
+          onChanged: _saving || preference.isLoading ? null : _select,
+        ),
+        const SizedBox(height: 6),
+        Text(l10n.v4RecordingCategoryColumnsScope),
+        if (_saveFailed) ...[
+          const SizedBox(height: 8),
+          BeeStatus(label: l10n.v4RecordingSaveFailed, tone: BeeTone.error),
+        ],
+      ],
+    );
+  }
+}
+
 typedef AmountEditorResult = ({
   double amount,
   bool continueAdding,
@@ -1078,7 +1146,8 @@ class AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
         _op = null;
       });
 
-  Future<void> showRecordingOptions() => _showFlagsDialog();
+  Future<void> showRecordingOptions() =>
+      _showFlagsDialog(showCategoryColumns: true);
 
   Future<void> _pickCardAccount() async {
     FocusManager.instance.primaryFocus?.unfocus();
@@ -1387,18 +1456,12 @@ class AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
     return _buildRowContent(selectedTags, _pendingAttachments.length, []);
   }
 
-  /// 交易标记弹窗：两个标记开关。
-  /// 可见性(01 §三):不计入收支 对 income/expense 显示;不计入预算 仅 expense。
-  /// 转账两个开关都不显示 → 旗标图标本身不渲染,不会触发此弹窗。
-  Future<void> _showFlagsDialog() async {
+  Future<void> _showFlagsDialog({bool showCategoryColumns = false}) async {
     if (widget.transactionKind == 'transfer') return;
     final l10n = AppLocalizations.of(context);
-    final primary = ref.watch(displaySkinPrimaryColorProvider);
-    final kind = widget.transactionKind;
-    final showStats = kind != 'transfer';
-    final showBudget = kind == 'expense';
+    final primary = ref.read(displaySkinPrimaryColorProvider);
+    final showBudget = widget.transactionKind == 'expense';
 
-    // 弹窗内用临时变量 + StatefulBuilder 实现实时切换,关闭时写回 sheet 状态。
     bool stats = _excludeFromStats;
     bool budget = _excludeFromBudget;
 
@@ -1407,44 +1470,64 @@ class AmountEditorSheetState extends ConsumerState<AmountEditorSheet> {
       builder: (dialogContext) {
         return StatefulBuilder(
           builder: (dialogContext, setDialogState) {
+            final titleSize = 15.0.scaled(context, ref);
+            final headingStyle = TextStyle(
+              color: BeeTokens.textPrimary(context),
+              fontSize: titleSize,
+              fontWeight: FontWeight.w600,
+            );
+            final flags = RecordingFlagsForm(
+              titleSize: titleSize,
+              hintSize: 12.0.scaled(context, ref),
+              options: [
+                RecordingFlagOption(
+                  title: l10n.txFlagExcludeFromStats,
+                  hint: l10n.txFlagExcludeFromStatsHint,
+                  value: stats,
+                  onChanged: (value) {
+                    setDialogState(() => stats = value);
+                    setState(() => _excludeFromStats = value);
+                  },
+                ),
+                if (showBudget)
+                  RecordingFlagOption(
+                    title: l10n.txFlagExcludeFromBudget,
+                    hint: l10n.txFlagExcludeFromBudgetHint,
+                    value: budget,
+                    onChanged: (value) {
+                      setDialogState(() => budget = value);
+                      setState(() => _excludeFromBudget = value);
+                    },
+                  ),
+              ],
+            );
             return _editorDialog(
               backgroundColor: BeeTokens.surface(context),
               title: Text(
-                l10n.txFlagDialogTitle,
-                style: TextStyle(
-                  color: BeeTokens.textPrimary(context),
-                  fontSize: 17.0.scaled(context, ref),
-                  fontWeight: FontWeight.w600,
-                ),
+                showCategoryColumns
+                    ? l10n.txFlagMoreOptions
+                    : l10n.txFlagDialogTitle,
+                style:
+                    headingStyle.copyWith(fontSize: 17.0.scaled(context, ref)),
               ),
-              content: RecordingFlagsForm(
-                  titleSize: 15.0.scaled(context, ref),
-                  hintSize: 12.0.scaled(context, ref),
-                  options: [
-                    if (showStats)
-                      RecordingFlagOption(
-                          title: l10n.txFlagExcludeFromStats,
-                          hint: l10n.txFlagExcludeFromStatsHint,
-                          value: stats,
-                          onChanged: (v) {
-                            setDialogState(() => stats = v);
-                            setState(() => _excludeFromStats = v);
-                          }),
-                    if (showBudget)
-                      RecordingFlagOption(
-                          title: l10n.txFlagExcludeFromBudget,
-                          hint: l10n.txFlagExcludeFromBudgetHint,
-                          value: budget,
-                          onChanged: (v) {
-                            setDialogState(() => budget = v);
-                            setState(() => _excludeFromBudget = v);
-                          })
-                  ]),
+              content: showCategoryColumns
+                  ? Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _RecordingCategoryColumnsControl(
+                            headingStyle: headingStyle),
+                        const Divider(height: 24),
+                        Text(l10n.txFlagDialogTitle, style: headingStyle),
+                        flags,
+                      ],
+                    )
+                  : flags,
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(dialogContext).pop(),
                   child: Text(
-                    AppLocalizations.of(context).commonConfirm,
+                    l10n.commonConfirm,
                     style: TextStyle(color: primary),
                   ),
                 ),

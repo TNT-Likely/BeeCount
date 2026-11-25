@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../ai/providers/ai_provider_manager.dart';
 import 'database_providers.dart';
 import 'home_summary_providers.dart';
+import 'recording_category_columns_provider.dart';
 import 'theme_providers.dart';
 import 'feature_highlight_providers.dart';
 import 'currency_providers.dart';
@@ -205,6 +206,7 @@ final appSplashInitProvider = FutureProvider<void>((ref) async {
       ref.watch(hideAmountsInitProvider.future),
       ref.watch(compactAmountInitProvider.future),
       ref.watch(homeSummaryPreferenceInitProvider.future),
+      ref.read(recordingCategoryColumnsProvider.future),
       ref.watch(skinAnimationInitProvider.future),
       ref.watch(skinCardMaterialInitProvider.future),
       ref.watch(featureHighlightInitProvider.future),
