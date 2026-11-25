@@ -62,6 +62,10 @@ class Accounts extends Table {
   /// 隐藏:true 时该账户不再出现在记账/转账/周期选择器,账户管理页移入「已隐藏」分区。
   /// 仍计入账户余额、净资产、资产构成、净值趋势(.docs/account-archive/01 §二 D1)。
   BoolColumn get hidden => boolean().withDefault(const Constant(false))();
+  /// 不计入总资产:true 时该账户余额不进净资产、总资产/总负债、资产构成、
+  /// 净值趋势(#651)。账户本身照常可记账/转账、显示余额,与 [hidden] 相互独立。
+  BoolColumn get excludeFromTotal =>
+      boolean().withDefault(const Constant(false))();
 }
 
 /// 自动汇率本地缓存。日期键 append-only;可随时整表重建 → **不进同步**(README D2)。
@@ -526,7 +530,7 @@ class BeeDatabase extends _$BeeDatabase {
   BeeDatabase.forTesting(QueryExecutor executor) : super(executor);
 
   @override
-  int get schemaVersion => 36; // 自动接管时保留需要人工核对的原因
+  int get schemaVersion => 37; // 自动接管时保留需要人工核对的原因
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -1290,6 +1294,10 @@ class BeeDatabase extends _$BeeDatabase {
           if (from < 36) {
             await _addColumnIfMissing('recurring_transactions', 'cloud_handoff_issue',
                 'ALTER TABLE recurring_transactions ADD COLUMN cloud_handoff_issue TEXT;');
+          }
+          if (from < 37) {
+            await _addColumnIfMissing('accounts', 'exclude_from_total',
+                'ALTER TABLE accounts ADD COLUMN exclude_from_total INTEGER NOT NULL DEFAULT 0;');
           }
         },
         onCreate: (m) async {

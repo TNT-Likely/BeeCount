@@ -430,7 +430,11 @@ class AccountCardBinding extends ConsumerWidget {
                   onEdit();
                 }
               },
-              excludedLabel: account.hidden ? l10n.accountHiddenTag : null,
+              excludedLabel: account.hidden
+                  ? l10n.accountHiddenTag
+                  : account.excludeFromTotal
+                      ? l10n.accountExcludedTag
+                      : null,
               footer: stats == null
                   ? const SizedBox(
                       height: 18,
@@ -487,11 +491,13 @@ class AccountCardBinding extends ConsumerWidget {
             rates: rates);
     final expense = display.defaultExpense;
     final income = display.defaultIncome;
-    final badge = account.id == expense
-        ? l.v4AssetsDefaultExpense
-        : account.id == income
-            ? l.v4AssetsDefaultIncome
-            : null;
+    final badge = [
+      if (account.id == expense)
+        l.v4AssetsDefaultExpense
+      else if (account.id == income)
+        l.v4AssetsDefaultIncome,
+      if (account.excludeFromTotal) l.accountExcludedTag,
+    ].join(' · ');
     final credit = account.type == 'credit_card' && balance != null
         ? CreditCardAmounts(balance, limit: account.creditLimit)
         : null;
@@ -515,7 +521,7 @@ class AccountCardBinding extends ConsumerWidget {
         icon: AccountTypeIcon(type: account.type, size: 19),
         onTap: onTap,
         onEdit: onEdit,
-        badge: badge,
+        badge: badge.isEmpty ? null : badge,
         converted: foreign
             ? (converted == null
                 ? l.unconvertedBadge

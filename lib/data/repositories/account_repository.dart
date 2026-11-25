@@ -55,6 +55,7 @@ abstract class AccountRepository {
     String? cardLastFour,
     String? note,
     String? syncId,
+    bool excludeFromTotal = false,
   });
 
   /// 按 name 取账户(name 全局唯一,账户跨账本可用);不存在则建一条。
@@ -74,6 +75,7 @@ abstract class AccountRepository {
   ///
   /// [hidden] 为 null 表示不改动(见 [setAccountHidden] 便捷法)。true/false
   /// 显式传入才会写库,配合同步 apply 的「缺键保留」语义(账户隐藏 #240)。
+  /// [excludeFromTotal] 同理,null 不改(不计入总资产 #651)。
   Future<void> updateAccount(
     int id, {
     String? name,
@@ -89,6 +91,7 @@ abstract class AccountRepository {
     String? note,
     bool clearMetadataFields = false,
     bool? hidden,
+    bool? excludeFromTotal,
   });
 
   /// 隐藏 / 恢复账户(账户隐藏 #240)。内部走 [updateAccount] → 记
@@ -199,7 +202,8 @@ abstract class AccountRepository {
       getAccountCategoryStats(int accountId,
           {required String type, DateTime? startDate, DateTime? endExclusive});
 
-  /// 获取净资产分解（总资产、总负债、净资产）
+  /// 获取净资产分解（总资产、总负债、净资产）。以下净资产/资产构成/净值趋势
+  /// 系列均跳过 `excludeFromTotal` 账户(#651)。
   Future<({double totalAssets, double totalLiabilities, double netWorth})>
       getNetWorthBreakdown();
 

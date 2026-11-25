@@ -183,6 +183,15 @@ class _AccountEditPageState extends ConsumerState<AccountEditPage>
                                     onChanged: (v) =>
                                         setState(() => _creditOverpayment = v)),
                               ],
+                              const SizedBox(height: 8),
+                              BeeToggleRow(
+                                  key: const ValueKey(
+                                      'account-exclude-from-total'),
+                                  title: l.accountExcludeFromTotal,
+                                  subtitle: l.accountExcludeFromTotalDesc,
+                                  value: _excludeFromTotal,
+                                  onChanged: (v) =>
+                                      setState(() => _excludeFromTotal = v)),
                             ]),
                             if (credit)
                               section('credit', [

@@ -4407,6 +4407,15 @@ class AppLocalizationsRu extends AppLocalizations {
   String get accountHiddenTag => 'Скрыт';
 
   @override
+  String get accountExcludeFromTotal => 'Exclude from net worth';
+
+  @override
+  String get accountExcludeFromTotalDesc => 'This account\'s balance won\'t count toward net worth, total assets/liabilities, asset composition or the trend. Recording and transfers still work.';
+
+  @override
+  String get accountExcludedTag => 'Not counted';
+
+  @override
   String get accountHiddenSection => 'Скрытые счета';
 
   @override

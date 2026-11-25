@@ -4239,6 +4239,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get accountHiddenTag => '已隐藏';
 
   @override
+  String get accountExcludeFromTotal => '不计入总资产';
+
+  @override
+  String get accountExcludeFromTotalDesc => '开启后该账户余额不计入净资产、总资产/总负债、资产构成与净值趋势，仍可正常记账和转账';
+
+  @override
+  String get accountExcludedTag => '不计入';
+
+  @override
   String get accountHiddenSection => '已隐藏';
 
   @override
@@ -13872,6 +13881,15 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get accountHiddenTag => '已隱藏';
+
+  @override
+  String get accountExcludeFromTotal => '不計入總資產';
+
+  @override
+  String get accountExcludeFromTotalDesc => '開啟後該帳戶餘額不計入淨資產、總資產/總負債、資產構成與淨值趨勢，仍可正常記帳和轉帳';
+
+  @override
+  String get accountExcludedTag => '不計入';
 
   @override
   String get accountHiddenSection => '已隱藏';
