@@ -1,5 +1,24 @@
 {
+  "agentEvidenceBills": "View related bills",
+  "agentEvidenceCount": "{count} matching transactions",
+  "agentEvidenceFirstPage": "Back to first page",
+  "agentEvidenceExcluded": "What-if exclusions applied",
+  "@agentEvidenceCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "@@locale": "en",
+  "agentDepthAuto": "Automatic",
+  "agentDepthAutoDescription": "Adjusts to your question. Multi-step reviews can use up to 8 rounds.",
+  "agentReceiptUnavailable": "Some bills on this receipt have been removed from this ledger.",
+  "agentReceiptInterrupted": "Your bills were saved. The rest of the reply was interrupted.",
+  "agentReceiptPartlySaved": "Some entries could not be saved. Only the saved entries are shown.",
+  "agentQueryPartial": "Some requested checks are still pending. You can continue from here.",
+  "agentMonthlyReview": "Review this period",
+  "agentMonthlyReviewPrompt": "Review the period shown in Insights. Compare income, expenses and categories with the previous comparable period, and explain the largest changes.",
   "agentActivityPreparing": "Preparing your answer…",
   "agentActivityAwaitingModel": "Waiting for the model…",
   "agentActivityThinking": "Model is thinking…",

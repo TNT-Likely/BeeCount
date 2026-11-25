@@ -9,6 +9,44 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get agentEvidenceBills => 'View related bills';
+
+  @override
+  String agentEvidenceCount(int count) {
+    return '$count matching transactions';
+  }
+
+  @override
+  String get agentEvidenceFirstPage => 'Back to first page';
+
+  @override
+  String get agentEvidenceExcluded => 'What-if exclusions applied';
+
+  @override
+  String get agentDepthAuto => 'Automatic';
+
+  @override
+  String get agentDepthAutoDescription => 'Adjusts to your question. Multi-step reviews can use up to 8 rounds.';
+
+  @override
+  String get agentReceiptUnavailable => 'Some bills on this receipt have been removed from this ledger.';
+
+  @override
+  String get agentReceiptInterrupted => 'Your bills were saved. The rest of the reply was interrupted.';
+
+  @override
+  String get agentReceiptPartlySaved => 'Some entries could not be saved. Only the saved entries are shown.';
+
+  @override
+  String get agentQueryPartial => 'Some requested checks are still pending. You can continue from here.';
+
+  @override
+  String get agentMonthlyReview => 'Review this period';
+
+  @override
+  String get agentMonthlyReviewPrompt => 'Review the period shown in Insights. Compare income, expenses and categories with the previous comparable period, and explain the largest changes.';
+
+  @override
   String get agentActivityPreparing => 'Preparing your answer…';
 
   @override

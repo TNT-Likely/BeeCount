@@ -53,6 +53,7 @@ final class AgentNativeToolRequest {
     required this.userPrompt,
     Iterable<String>? availableToolNames,
     this.allowToolCalls = true,
+    this.onProgress,
   })  : toolResults = UnmodifiableListView(List.of(toolResults)),
         availableToolNames = availableToolNames == null
             ? null
@@ -65,6 +66,10 @@ final class AgentNativeToolRequest {
 
   /// When false, transports must omit the native tool catalog for this turn.
   final bool allowToolCalls;
+
+  /// A substantive provider delta arrived. This heartbeat contains no model
+  /// text and is independent of the (optionally buffered) UI event stream.
+  final void Function()? onProgress;
 }
 
 sealed class AgentNativeStreamEvent {

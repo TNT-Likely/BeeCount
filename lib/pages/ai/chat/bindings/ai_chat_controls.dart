@@ -1,3 +1,5 @@
+import '../widgets/ledger_evidence_sheet.dart';
+import 'package:beecount/services/ai/chat_receipt_store.dart';
 import 'package:beecount_business_ui/beecount_business_ui.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import '../../../shared/scaffold/widgets/page_scaffold.dart';
@@ -45,7 +47,8 @@ import 'package:beecount/agent/permission/agent_authorization_gate.dart';
 
 /// AI 对话页面
 class AIChatControls extends ConsumerStatefulWidget {
-  const AIChatControls({super.key});
+  const AIChatControls({super.key, this.view = const {}});
+  final Map<String, Object?> view;
 
   @override
   ConsumerState<AIChatControls> createState() => _AIChatControlsState();
@@ -276,6 +279,12 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
                                 return _buildLiveAgentBubble();
                               }
                               final message = displayMessages[index];
+                              final ledgerId =
+                                  ref.watch(currentLedgerIdProvider);
+                              final queries = message.role == 'assistant'
+                                  ? LedgerEvidenceSheet.forMessage(
+                                      message.metadata, ledgerId)
+                                  : const <Map<String, Object?>>[];
                               final suggestions = !_isLoading &&
                                       !_hasLiveAgentMessage &&
                                       index == displayMessages.length - 1 &&
@@ -307,6 +316,24 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
                                   _buildMessageBubble(message),
+                                  if (queries.isNotEmpty)
+                                    Align(
+                                        alignment: Alignment.centerLeft,
+                                        child: TextButton.icon(
+                                          icon: const Icon(
+                                              Icons.receipt_long_outlined,
+                                              size: 17),
+                                          label: Text(l10n.agentEvidenceBills),
+                                          onPressed: () =>
+                                              showModalBottomSheet<void>(
+                                                  context: context,
+                                                  isScrollControlled: true,
+                                                  showDragHandle: true,
+                                                  builder: (_) =>
+                                                      LedgerEvidenceSheet(
+                                                          ledgerId: ledgerId,
+                                                          queries: queries)),
+                                        )),
                                   if (suggestions.questions.isNotEmpty ||
                                       suggestions.templates.isNotEmpty)
                                     Padding(
@@ -349,6 +376,20 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
             ),
           ),
 
+          if (widget.view['ledgerId'] == ref.watch(currentLedgerIdProvider) &&
+              widget.view.isNotEmpty)
+            Align(
+                alignment: Alignment.centerLeft,
+                child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: ActionChip(
+                        label: Text(l10n.agentMonthlyReview),
+                        onPressed: _isLoading
+                            ? null
+                            : () => _sendMessageText(
+                                l10n.agentMonthlyReviewPrompt,
+                                readOnly: true,
+                                review: true)))),
           // 输入区域
           _buildInputArea(),
         ],
@@ -385,7 +426,15 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
       } else {
         cards = _buildMultiBillBubble(message, parsed);
       }
-      return _answerView(activity: _storedActivity(message), content: cards);
+      final note = (jsonDecode(message.metadata!) as Map)['supplementalText'];
+      return _answerView(
+          activity: _storedActivity(message),
+          content: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                cards,
+                if (note is String && note.isNotEmpty) _answerText(note)
+              ]));
     }
 
     if (message.role != 'user') {
@@ -519,6 +568,8 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
                     ? response.transactionIds[index]
                     : null,
               ),
+            if (response.supplementalText case final String note)
+              _answerText(note),
           ]));
     }
     return _answerView(
@@ -634,7 +685,8 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
   /// 发送消息文本
   ///
   /// [text] is both the visible user message and the Agent's current request.
-  Future<void> _sendMessageText(String text, {bool readOnly = false}) async {
+  Future<void> _sendMessageText(String text,
+      {bool readOnly = false, bool review = false}) async {
     if (!mounted || text.isEmpty || _isLoading) return;
 
     setState(() {
@@ -648,7 +700,7 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
       final ledgerId = ref.read(currentLedgerIdProvider);
 
       // Persist the actual request, including period and scope, for follow-ups.
-      await repo.createMessage(
+      final sourceId = await repo.createMessage(
         MessagesCompanion.insert(
           conversationId: _conversationId!,
           role: 'user',
@@ -688,6 +740,9 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
         ledgerId: ledgerId,
         runId: agentRunId,
         conversationId: _conversationId,
+        sourceMessageId: sourceId,
+        view: widget.view,
+        review: review,
         languageCode: currentLocale.languageCode,
         l10n: l10n,
         readOnly: readOnly,
@@ -770,23 +825,30 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
       response ??= AIResponse.error(l10n.agentRunFailed);
       setState(() {
         _liveAgentResponse = response;
+        _liveAssistantMessageId = response?.receiptMessageId;
       });
 
       // 保存 AI 回复。多笔 metadata 用新格式 {bills, txIds, undoneIds};
       // transactionId 列仍存第一笔 id(getMessageByTransactionId 兼容)。
-      final assistantMessageId = await repo.createMessage(
-        MessagesCompanion.insert(
-          conversationId: _conversationId!,
-          role: 'assistant',
-          content: response.text,
-          messageType: response.type,
-          metadata: _responseMetadata(response, ledgerId),
-          transactionId: response.transactionId != null
-              ? Value(response.transactionId)
-              : const Value.absent(),
-          createdAt: Value(DateTime.now()),
-        ),
+      final reply = MessagesCompanion.insert(
+        conversationId: _conversationId!,
+        role: 'assistant',
+        content: response.text,
+        messageType: response.type,
+        metadata: _responseMetadata(response, ledgerId),
+        transactionId: response.transactionId != null
+            ? Value(response.transactionId)
+            : const Value.absent(),
+        createdAt: Value(DateTime.now()),
       );
+      final int assistantMessageId;
+      if (response.receiptMessageId case final int id) {
+        await ChatReceiptStore(ref.read(databaseProvider))
+            .finish(id, sourceId, reply);
+        assistantMessageId = id;
+      } else {
+        assistantMessageId = await repo.createMessage(reply);
+      }
       if (!mounted) return;
       setState(() {
         _liveAssistantMessageId = assistantMessageId;
@@ -847,6 +909,10 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
     final metadata = <String, Object?>{
       'contextLedgerId': ledgerId,
       'analysisTemplatesAllowed': response.allowPromptSuggestions,
+      if (response.queryContext.isNotEmpty)
+        'queryContext': response.queryContext,
+      if (response.supplementalText != null)
+        'supplementalText': response.supplementalText,
     };
     metadata.addAll(AssistantExecutionMetadata.encode(
       AgentExecutionTimeline.projectSteps(

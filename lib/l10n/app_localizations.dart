@@ -100,6 +100,78 @@ abstract class AppLocalizations {
     Locale('zh', 'TW')
   ];
 
+  /// No description provided for @agentEvidenceBills.
+  ///
+  /// In en, this message translates to:
+  /// **'View related bills'**
+  String get agentEvidenceBills;
+
+  /// No description provided for @agentEvidenceCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} matching transactions'**
+  String agentEvidenceCount(int count);
+
+  /// No description provided for @agentEvidenceFirstPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to first page'**
+  String get agentEvidenceFirstPage;
+
+  /// No description provided for @agentEvidenceExcluded.
+  ///
+  /// In en, this message translates to:
+  /// **'What-if exclusions applied'**
+  String get agentEvidenceExcluded;
+
+  /// No description provided for @agentDepthAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic'**
+  String get agentDepthAuto;
+
+  /// No description provided for @agentDepthAutoDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjusts to your question. Multi-step reviews can use up to 8 rounds.'**
+  String get agentDepthAutoDescription;
+
+  /// No description provided for @agentReceiptUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Some bills on this receipt have been removed from this ledger.'**
+  String get agentReceiptUnavailable;
+
+  /// No description provided for @agentReceiptInterrupted.
+  ///
+  /// In en, this message translates to:
+  /// **'Your bills were saved. The rest of the reply was interrupted.'**
+  String get agentReceiptInterrupted;
+
+  /// No description provided for @agentReceiptPartlySaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Some entries could not be saved. Only the saved entries are shown.'**
+  String get agentReceiptPartlySaved;
+
+  /// No description provided for @agentQueryPartial.
+  ///
+  /// In en, this message translates to:
+  /// **'Some requested checks are still pending. You can continue from here.'**
+  String get agentQueryPartial;
+
+  /// No description provided for @agentMonthlyReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Review this period'**
+  String get agentMonthlyReview;
+
+  /// No description provided for @agentMonthlyReviewPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Review the period shown in Insights. Compare income, expenses and categories with the previous comparable period, and explain the largest changes.'**
+  String get agentMonthlyReviewPrompt;
+
   /// No description provided for @agentActivityPreparing.
   ///
   /// In en, this message translates to:

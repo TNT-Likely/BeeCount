@@ -96,6 +96,7 @@ final class OpenAiCompatibleNativeToolTransport
         emitTextDeltas: request.allowToolCalls,
         logTag: 'AgentNativeTools',
         onEvent: onEvent,
+        onProgress: request.onProgress,
       );
       if (!request.allowToolCalls &&
           response is AgentNativeFinalTextResponse &&
@@ -120,6 +121,7 @@ final class OpenAiCompatibleNativeToolTransport
           emitTextDeltas: false,
           logTag: 'AgentNativeTools',
           onEvent: onEvent,
+          onProgress: request.onProgress,
         );
         if (response is AgentNativeFinalTextResponse &&
             _containsToolMarkup(response.text)) {
@@ -137,7 +139,9 @@ final class OpenAiCompatibleNativeToolTransport
           'textLength': response.text.length,
           'text': response.text,
         });
-        _sessions.remove(request.runId);
+        if (identical(_sessions[request.runId], messages)) {
+          _sessions.remove(request.runId);
+        }
       } else if (response is AgentNativeToolCallsResponse) {
         logSink?.call('toolCalls', {
           'runId': request.runId,
@@ -159,7 +163,9 @@ final class OpenAiCompatibleNativeToolTransport
       });
       return response;
     } on Object catch (error) {
-      _sessions.remove(request.runId);
+      if (identical(_sessions[request.runId], messages)) {
+        _sessions.remove(request.runId);
+      }
       logSink?.call('turnFailed', {
         'runId': request.runId,
         'error': error.toString(),
@@ -190,6 +196,7 @@ final class OpenAiCompatibleNativeToolTransport
     required bool emitTextDeltas,
     required String logTag,
     AgentNativeEventSink? onEvent,
+    void Function()? onProgress,
   }) {
     final text = StringBuffer();
     final calls = <int, _StreamToolCall>{};
@@ -215,23 +222,35 @@ final class OpenAiCompatibleNativeToolTransport
       return AgentNativeModelResponse.finalText(text.toString());
     }
 
-    void finish() {
-      if (response.isCompleted) return;
-      _activeStreams.remove(runId);
+    void stopListening() {
+      if (identical(_activeStreams[runId]?.response, response)) {
+        _activeStreams.remove(runId);
+      }
       final activeSubscription = subscription;
       if (activeSubscription != null) {
         unawaited(activeSubscription.cancel());
       }
-      response.complete(buildResponse());
     }
 
     void fail(Object error, StackTrace stackTrace) {
       if (response.isCompleted) return;
-      _activeStreams.remove(runId);
+      stopListening();
       response.completeError(error, stackTrace);
     }
 
+    void finish() {
+      if (response.isCompleted) return;
+      try {
+        final value = buildResponse();
+        stopListening();
+        response.complete(value);
+      } on Object catch (error, stackTrace) {
+        fail(error, stackTrace);
+      }
+    }
+
     void consume(Map<String, dynamic> chunk) {
+      if (response.isCompleted) return;
       final choices = chunk['choices'];
       if (choices is! List || choices.isEmpty || choices.first is! Map) {
         return;
@@ -242,16 +261,17 @@ final class OpenAiCompatibleNativeToolTransport
         // Only report observed provider activity, never retain or forward its
         // private reasoning. Ordinary models remain in awaitingResponse until
         // answer content or a tool call actually arrives.
-        if (!reportedThinking &&
-            !reportedGenerating &&
-            [delta['reasoning_content'], delta['reasoning']]
-                .any((value) => value is String && value.trim().isNotEmpty)) {
+        final hasReasoning = [delta['reasoning_content'], delta['reasoning']]
+            .any((value) => value is String && value.trim().isNotEmpty);
+        var hasProgress = hasReasoning;
+        if (!reportedThinking && !reportedGenerating && hasReasoning) {
           reportedThinking = true;
           onEvent?.call(
               const AgentNativeModelActivity(AgentNativeModelPhase.thinking));
         }
         final content = delta['content'];
         if (content is String && content.isNotEmpty) {
+          hasProgress |= content.trim().isNotEmpty;
           if (!reportedGenerating) {
             reportedGenerating = true;
             onEvent?.call(const AgentNativeModelActivity(
@@ -267,20 +287,24 @@ final class OpenAiCompatibleNativeToolTransport
                 raw['index'] is num ? (raw['index'] as num).toInt() : 0;
             final call = calls.putIfAbsent(index, _StreamToolCall.new);
             if (raw['id'] case final String id when id.isNotEmpty) {
+              hasProgress |= call.id != id;
               call.id = id;
             }
             final function = raw['function'];
             if (function is Map) {
               if (function['name'] case final String name
                   when name.isNotEmpty) {
+                hasProgress |= call.name != name;
                 call.name = name;
               }
-              if (function['arguments'] is String) {
-                call.arguments.write(function['arguments'] as String);
+              if (function['arguments'] case final String arguments) {
+                hasProgress |= arguments.trim().isNotEmpty;
+                call.arguments.write(arguments);
               }
             }
           }
         }
+        if (hasProgress) onProgress?.call();
       }
       // Some OpenAI-compatible providers send a terminal choice but keep the
       // HTTP stream open (or omit [DONE]). The response is complete once the
@@ -292,6 +316,9 @@ final class OpenAiCompatibleNativeToolTransport
 
     onEvent?.call(
         const AgentNativeModelActivity(AgentNativeModelPhase.awaitingResponse));
+    if (!identical(_sessions[runId], messages)) {
+      throw const AgentNativeToolRunCancelledException();
+    }
     subscription = _toolStream(
       messages: messages,
       tools: tools,
@@ -311,10 +338,15 @@ final class OpenAiCompatibleNativeToolTransport
     if (response.isCompleted) {
       unawaited(subscription.cancel());
     } else {
-      _activeStreams[runId] = _ActiveNativeToolStream(
+      final active = _ActiveNativeToolStream(
         subscription: subscription,
         response: response,
       );
+      if (identical(_sessions[runId], messages)) {
+        _activeStreams[runId] = active;
+      } else {
+        active.cancel();
+      }
     }
     return response.future;
   }

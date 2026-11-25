@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import '../contracts.dart';
@@ -12,19 +13,25 @@ final class NativeToolAgentModel implements AgentModel, AgentRunFinalizer {
     required this.promptBuilder,
     this.ledgerScopedToolNames = const {},
     this.toolTurnTimeout = const Duration(seconds: 45),
+    this.maximumToolTurnDuration = const Duration(minutes: 2),
     this.emptyFinalText = '完成。',
   }) : _transport = transport;
 
   final AgentNativeToolTransport _transport;
   final String Function(AgentRequest request) promptBuilder;
   final Set<String> ledgerScopedToolNames;
+
+  /// Maximum time until the first substantive delta, or between such deltas.
   final Duration toolTurnTimeout;
+  final Duration maximumToolTurnDuration;
   final String emptyFinalText;
   final Set<String> _startedRuns = <String>{};
+  final Map<String, void Function()> _cancelPendingTurn = {};
 
   @override
   void disposeRun(String runId) {
     _startedRuns.remove(runId);
+    _cancelPendingTurn.remove(runId)?.call();
     if (_transport case AgentNativeToolRunFinalizer finalizer) {
       finalizer.disposeRun(runId);
     }
@@ -32,33 +39,55 @@ final class NativeToolAgentModel implements AgentModel, AgentRunFinalizer {
 
   @override
   Future<AgentTurn> nextTurn(AgentRequest request) async {
-    final isFirstTurn = _startedRuns.add(request.scope.id);
+    final runId = request.scope.id;
+    final isFirstTurn = _startedRuns.add(runId);
     final AgentNativeModelResponse response;
+    final interrupted = Completer<AgentNativeModelResponse>();
+    void interrupt(Exception error) {
+      if (!interrupted.isCompleted) {
+        interrupted.completeError(error);
+      }
+    }
+
+    final cancel =
+        () => interrupt(const AgentNativeToolRunCancelledException());
+    _cancelPendingTurn[runId] = cancel;
+    void timedOut() => interrupt(const AgentNativeToolTimeoutException());
+    var idleTimer = Timer(toolTurnTimeout, timedOut);
+    final deadline = Timer(maximumToolTurnDuration, timedOut);
+    void progress() {
+      if (interrupted.isCompleted ||
+          !identical(_cancelPendingTurn[runId], cancel)) {
+        return;
+      }
+      idleTimer.cancel();
+      idleTimer = Timer(toolTurnTimeout, timedOut);
+    }
+
     try {
-      response = await _transport
-          .complete(
+      final completion = Future.sync(() => _transport.complete(
             AgentNativeToolRequest(
-              runId: request.scope.id,
+              runId: runId,
               userPrompt: isFirstTurn ? promptBuilder(request) : request.text,
               toolResults: _toolResults(request.toolData),
               availableToolNames: request.availableToolNames,
               allowToolCalls: request.allowToolCalls,
+              onProgress: progress,
             ),
             onEvent: request.nativeStreamSink,
-          )
-          .timeout(
-            toolTurnTimeout,
-            onTimeout: () => throw const AgentNativeToolTimeoutException(),
-          );
-    } on AgentNativeToolUnsupportedException {
-      _startedRuns.remove(request.scope.id);
-      rethrow;
-    } on AgentNativeToolTimeoutException {
-      _startedRuns.remove(request.scope.id);
-      rethrow;
+          ));
+      response = await Future.any([completion, interrupted.future]);
     } on Object {
-      _startedRuns.remove(request.scope.id);
+      if (identical(_cancelPendingTurn[runId], cancel)) {
+        disposeRun(runId);
+      }
       rethrow;
+    } finally {
+      idleTimer.cancel();
+      deadline.cancel();
+      if (identical(_cancelPendingTurn[runId], cancel)) {
+        _cancelPendingTurn.remove(runId);
+      }
     }
     return switch (response) {
       AgentNativeFinalTextResponse(:final text) => _finish(

@@ -87,8 +87,8 @@ final agentModelCapabilityServiceProvider =
 final agentAppFacadeProvider = Provider<AgentAppFacade>((ref) {
   final repo = ref.watch(repositoryProvider);
   return AgentAppFacade(
-    emptyFinalText:
-        resolveAppLocalizations(ref.read(languageProvider)).agentEmptyFinalReply,
+    emptyFinalText: resolveAppLocalizations(ref.read(languageProvider))
+        .agentEmptyFinalReply,
     memoryRepository: ref.watch(agentMemoryRepositoryProvider),
     toolGateway: ref.watch(localAgentToolGatewayProvider),
     permissionStore: ref.watch(agentToolPermissionStoreProvider),
@@ -115,11 +115,24 @@ final agentAppFacadeProvider = Provider<AgentAppFacade>((ref) {
             'content': message.content,
             'id': message.id,
             'scopeId': _messageContextScope(message.metadata),
+            if (message.role == 'assistant' && message.metadata != null)
+              'queryContext': _queryContext(message.metadata!),
           },
       ];
     },
   );
 });
+
+Map? _queryContext(String metadata) {
+  try {
+    final row = jsonDecode(metadata);
+    return row is Map && row['queryContext'] is Map
+        ? row['queryContext'] as Map
+        : null;
+  } on FormatException {
+    return null;
+  }
+}
 
 String? _messageContextScope(String? metadata) {
   if (metadata == null) return null;

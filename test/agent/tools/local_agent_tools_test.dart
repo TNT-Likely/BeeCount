@@ -1,3 +1,5 @@
+import 'package:beecount/l10n/app_localizations.dart';
+import 'package:beecount/ai/core/bill_info.dart';
 import 'package:agentcore/agentcore.dart';
 import 'package:beecount/agent/tools/local_agent_tools.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -141,6 +143,16 @@ void main() {
       'balance': 720.0,
       'savingsRate': 0.6,
       'transactionCount': 7,
+      'incomeCount': 2,
+      'expenseCount': 4,
+      'transferCount': 1,
+      'queryRef': 'user-1/1',
+      'filters': {
+        'period': 'custom',
+        'start': '2026-08-01T00:00:00.000',
+        'end': '2026-08-31T23:59:59.999',
+        'includeExcludedFromStats': false,
+      },
     });
     final request = gateway.summaryRequests.single;
     expect(request.start, DateTime(2026, 8, 1));
@@ -303,8 +315,7 @@ void main() {
     ]);
   });
 
-  test('spending trend forwards income flow and reports totalIncome',
-      () async {
+  test('spending trend forwards income flow and reports totalIncome', () async {
     gateway.summaryResult = const {
       'currency': 'CNY',
       'periodStart': '2026-01-01T00:00:00.000',
@@ -354,11 +365,13 @@ void main() {
   test('budget tool returns a stable, currency-aware budget snapshot',
       () async {
     final result = await tools['get_budget_status']!.execute(
-      AgentToolCall(name: 'get_budget_status'),
+      AgentToolCall(
+          name: 'get_budget_status', arguments: const {'at': '2026-09-09'}),
     );
 
     expect(result, {
       'currency': 'CNY',
+      'asOf': '2026-09-09T00:00:00.000',
       'daysRemaining': 10,
       'dailyAvailable': 20.0,
       'total': null,
@@ -486,7 +499,8 @@ final class _FakeGateway implements LocalAgentToolGateway {
   }
 
   @override
-  Future<AgentBudgetSummary> getBudgetStatus(int ledgerId) async =>
+  Future<AgentBudgetSummary> getBudgetStatus(int ledgerId,
+          {DateTime? at}) async =>
       const AgentBudgetSummary(daysRemaining: 10, dailyAvailable: 20);
 
   @override
@@ -529,7 +543,22 @@ final class _FakeGateway implements LocalAgentToolGateway {
     required List<String> accountNames,
     required bool includeExcludedFromStats,
     required int groupLimit,
+    Map<String, Object?> filters = const {},
   }) async {
+    if (groupBy == 'details') {
+      final rows =
+          await queryTransactions(ledgerId: ledgerId, start: start, end: end);
+      final matches = rows.where((row) => row.ledgerId == ledgerId).toList();
+      return {
+        'currency': ledgerCurrency,
+        'items':
+            matches.take(groupLimit).map((row) => row.toToolData()).toList(),
+        'totalCount': matches.length,
+        'truncated': matches.length > groupLimit,
+        'periodStart': start.toIso8601String(),
+        'periodEnd': end.toIso8601String(),
+      };
+    }
     summaryRequests.add((
       ledgerId: ledgerId,
       start: start,
@@ -553,6 +582,9 @@ final class _FakeGateway implements LocalAgentToolGateway {
   Future<AgentRecordToolResult> recordTransaction({
     required int ledgerId,
     required String text,
+    int? sourceMessageId,
+    BillInfo? entry,
+    AppLocalizations? l10n,
   }) async {
     recordedTexts.add(text);
     return const AgentRecordToolResult(success: true, transactionIds: [42]);

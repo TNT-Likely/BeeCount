@@ -1,3 +1,8 @@
+import '../../ai/core/bill_info.dart';
+import '../../services/ai/chat_receipt_store.dart';
+import '../../utils/app_localizations_resolver.dart';
+import '../../l10n/app_localizations.dart';
+import 'ledger_query_evidence.dart';
 import 'package:agentcore/agentcore.dart'
     hide
         AgentMemoryDraft,
@@ -247,8 +252,14 @@ final class AgentRecordToolResult {
     this.bills = const [],
     this.transactions = const [],
     this.unconvertedCurrencies = const [],
+    this.receiptMessageId,
+    this.unavailableIds = const [],
+    this.failedCount = 0,
   });
 
+  final int? receiptMessageId;
+  final List<int> unavailableIds;
+  final int failedCount;
   final bool success;
   final List<int> transactionIds;
 
@@ -260,6 +271,8 @@ final class AgentRecordToolResult {
 
   Map<String, Object?> toToolData() => {
         'success': success,
+        if (failedCount > 0) 'failedCount': failedCount,
+        if (unavailableIds.isNotEmpty) 'noLongerInLedger': unavailableIds,
         'transactionIds': transactionIds,
         'transactions': transactions
             .map((transaction) => transaction.toToolData())
@@ -291,8 +304,9 @@ abstract interface class LocalAgentToolGateway {
     required List<String> accountNames,
     required bool includeExcludedFromStats,
     required int groupLimit,
+    Map<String, Object?> filters = const {},
   });
-  Future<AgentBudgetSummary> getBudgetStatus(int ledgerId);
+  Future<AgentBudgetSummary> getBudgetStatus(int ledgerId, {DateTime? at});
   Future<String> getLedgerCurrency(int ledgerId);
   Future<int> getLedgerMonthStartDay(int ledgerId);
   Future<List<AgentRecurringTransactionSummary>> getRecurringTransactions(
@@ -301,6 +315,9 @@ abstract interface class LocalAgentToolGateway {
   Future<AgentRecordToolResult> recordTransaction({
     required int ledgerId,
     required String text,
+    int? sourceMessageId,
+    BillInfo? entry,
+    AppLocalizations? l10n,
   });
   Future<int> saveExplicitMemory({
     required int? ledgerId,
@@ -321,10 +338,12 @@ final class BeeCountLocalAgentToolGateway implements LocalAgentToolGateway {
     required AiBookkeeper bookkeeper,
     required AgentMemoryRepository memoryRepository,
   })  : _repository = repository,
+        _database = database,
         _summaryDataSource = LocalAgentTransactionSummaryDataSource(database),
         _bookkeeper = bookkeeper,
         _memoryRepository = memoryRepository;
 
+  final BeeDatabase _database;
   final BaseRepository _repository;
   final LocalAgentTransactionSummaryDataSource _summaryDataSource;
   final AiBookkeeper _bookkeeper;
@@ -361,8 +380,10 @@ final class BeeCountLocalAgentToolGateway implements LocalAgentToolGateway {
     required List<String> accountNames,
     required bool includeExcludedFromStats,
     required int groupLimit,
-  }) =>
-      _summaryDataSource.summarizeTransactions(
+    Map<String, Object?> filters = const {},
+  }) {
+    Future<Map<String, Object?>> read() async {
+      final result = await _summaryDataSource.summarizeTransactions(
         ledgerId: ledgerId,
         start: start,
         end: end,
@@ -377,12 +398,24 @@ final class BeeCountLocalAgentToolGateway implements LocalAgentToolGateway {
         accountNames: accountNames,
         includeExcludedFromStats: includeExcludedFromStats,
         groupLimit: groupLimit,
+        filters: filters,
       );
+      if (groupBy == 'details' && !result.containsKey('error')) {
+        final ids = (result.remove('pageIds') as List).cast<int>();
+        final rows = await _summarizeTransactionsByIds(ledgerId, ids);
+        result['items'] = rows.map((row) => row.toToolData()).toList();
+      }
+      return result;
+    }
+
+    return _database.transaction(read);
+  }
 
   @override
-  Future<AgentBudgetSummary> getBudgetStatus(int ledgerId) async {
+  Future<AgentBudgetSummary> getBudgetStatus(int ledgerId,
+      {DateTime? at}) async {
     final overview =
-        await _repository.getBudgetOverview(ledgerId, DateTime.now());
+        await _repository.getBudgetOverview(ledgerId, at ?? DateTime.now());
     final ledger = await _repository.getLedgerById(ledgerId);
     final total = overview.totalBudget;
     return AgentBudgetSummary(
@@ -474,24 +507,70 @@ final class BeeCountLocalAgentToolGateway implements LocalAgentToolGateway {
   Future<AgentRecordToolResult> recordTransaction({
     required int ledgerId,
     required String text,
+    int? sourceMessageId,
+    BillInfo? entry,
+    AppLocalizations? l10n,
   }) async {
-    final result = await _bookkeeper.fromText(
-      text: text,
-      ledgerId: ledgerId,
-      billingTypes: [TagSeedService.billingTypeAi],
-    );
-    final transactions = result.success
-        ? await _summarizeTransactionsByIds(ledgerId, result.transactionIds)
-        : const <AgentTransactionSummary>[];
-    return AgentRecordToolResult(
-      success: result.success,
-      transactionIds: result.transactionIds,
-      bills: result.savedBills
-          .map((bill) => Map<String, Object?>.from(bill.toJson()))
-          .toList(),
-      transactions: transactions,
-      unconvertedCurrencies: result.unconvertedCurrencies,
-    );
+    final store = ChatReceiptStore(_database);
+    Future<AgentRecordToolResult> restore(Map receipt) async {
+      final ids = (receipt['txIds'] as List).cast<int>();
+      final transactions = await _summarizeTransactionsByIds(ledgerId, ids);
+      final present = transactions.map((row) => row.id).toSet();
+      return AgentRecordToolResult(
+          success: ids.isNotEmpty,
+          transactionIds: ids,
+          unavailableIds: ids.where((id) => !present.contains(id)).toList(),
+          bills: [
+            for (final b in receipt['bills'] as List)
+              Map<String, Object?>.from(b as Map)
+          ],
+          transactions: transactions,
+          receiptMessageId: receipt['replyId'] as int?,
+          failedCount: receipt['failedCount'] as int? ?? 0,
+          unconvertedCurrencies:
+              (receipt['unconvertedCurrencies'] as List?)?.cast<String>() ??
+                  []);
+    }
+
+    if (sourceMessageId != null) {
+      final original = await store.source(sourceMessageId, ledgerId, text);
+      if (original.metadata['agentReceipt'] case final Map receipt) {
+        return restore(receipt);
+      }
+    }
+    final bills = await _bookkeeper.extractTextBills(
+        text: text, ledgerId: ledgerId, entry: entry);
+    return _database.transaction(() async {
+      // Acquire the SQLite writer before rechecking the operation across connections.
+      if (sourceMessageId != null) {
+        await _database.customStatement(
+            'UPDATE messages SET id=id WHERE id=?', [sourceMessageId]);
+      }
+      final original = sourceMessageId == null
+          ? null
+          : await store.source(sourceMessageId, ledgerId, text);
+      if (original?.metadata['agentReceipt'] case final Map receipt) {
+        return restore(receipt);
+      }
+      final result = await _bookkeeper.persistBills(
+          bills: bills,
+          ledgerId: ledgerId,
+          billingTypes: [TagSeedService.billingTypeAi],
+          l10n: l10n,
+          atomicBill: (save) => _database.transaction(save));
+      if (original != null && result.success) {
+        return restore(await store.save(original.source, original.metadata,
+            result, ledgerId, l10n ?? resolveAppLocalizations(null)));
+      }
+      return AgentRecordToolResult(
+          success: result.success,
+          transactionIds: result.transactionIds,
+          bills: result.savedBills.map((b) => b.toJson()).toList(),
+          transactions: await _summarizeTransactionsByIds(
+              ledgerId, result.transactionIds),
+          failedCount: result.failedCount,
+          unconvertedCurrencies: result.unconvertedCurrencies);
+    });
   }
 
   Future<List<AgentTransactionSummary>> _summarizeTransactionsByIds(
@@ -652,7 +731,16 @@ final class LocalAgentTools {
     required this.scope,
     required this.gateway,
     DateTime Function()? now,
-  }) : _now = now ?? DateTime.now;
+    this.sourceMessageId,
+    this.l10n,
+    List<Map<String, Object?>> previous = const [],
+    Map<String, Object?> view = const {},
+  })  : evidence = LedgerQueryEvidence(scope, previous: previous, view: view),
+        _now = now ?? DateTime.now;
+  final LedgerQueryEvidence evidence;
+  final int? sourceMessageId;
+  final AppLocalizations? l10n;
+  AgentRecordToolResult? savedRecord;
 
   static const _maximumRows = 20;
   static const _maximumRecurringTransactions = 20;
@@ -669,19 +757,19 @@ final class LocalAgentTools {
     final tools = <String, AgentTool>{
       'query_transactions': _CallbackTool(
         'query_transactions',
-        _queryTransactions,
+        (call) => evidence.execute(call, _queryTransactions),
       ),
       'get_period_overview': _CallbackTool(
         'get_period_overview',
-        _periodOverview,
+        (call) => evidence.execute(call, _periodOverview),
       ),
       'get_spending_trend': _CallbackTool(
         'get_spending_trend',
-        _spendingTrend,
+        (call) => evidence.execute(call, _spendingTrend),
       ),
       'get_category_breakdown': _CallbackTool(
         'get_category_breakdown',
-        _categoryBreakdown,
+        (call) => evidence.execute(call, _categoryBreakdown),
       ),
       'get_budget_status': _CallbackTool('get_budget_status', _budgetStatus),
       'get_recurring_transactions': _CallbackTool(
@@ -822,39 +910,32 @@ final class LocalAgentTools {
   }
 
   Future<Map<String, Object?>> _queryTransactions(AgentToolCall call) async {
-    final range = _rangeFor(call);
-    final transactions = await gateway.queryTransactions(
-      ledgerId: _ledgerId,
-      start: range.$1,
-      end: range.$2,
-    );
-    final items = transactions
-        .where((transaction) => transaction.ledgerId == _ledgerId)
-        .take(_maximumRows)
-        .map((transaction) => transaction.toToolData())
-        .toList();
-    return {'items': items};
+    final range = call.arguments.containsKey('period')
+        ? await _financialRangeFor(call, defaultPeriod: 'current_month')
+        : _rangeFor(call);
+    final rawFlow = call.arguments['flowType'];
+    return _summary(call,
+        range: range,
+        types:
+            rawFlow is String ? {rawFlow} : {'expense', 'income', 'transfer'},
+        groupBy: 'details',
+        categoryLevel: 'leaf',
+        groupLimit: _boundedIntArgument(call, 'limit', fallback: _maximumRows)
+            .clamp(1, _maximumRows),
+        includeExcluded: true);
   }
 
   Future<Map<String, Object?>> _periodOverview(AgentToolCall call) async {
     final range =
         await _financialRangeFor(call, defaultPeriod: 'current_month');
-    final summary = await gateway.summarizeTransactions(
-      ledgerId: _ledgerId,
-      start: range.$1,
-      end: range.$2,
-      types: const {'income', 'expense', 'transfer'},
-      groupBy: 'none',
-      categoryLevel: 'leaf',
-      categoryIds: const [],
-      categoryNames: const [],
-      tagIds: const [],
-      tagNames: const [],
-      accountIds: const [],
-      accountNames: const [],
-      includeExcludedFromStats: false,
-      groupLimit: 1,
-    );
+    final rawFlow = call.arguments['flowType'];
+    final summary = await _summary(call,
+        range: range,
+        types:
+            rawFlow is String ? {rawFlow} : {'income', 'expense', 'transfer'},
+        groupBy: 'none',
+        categoryLevel: 'leaf',
+        groupLimit: 1);
     final totals = summary['totals'] as Map<String, Object?>? ?? const {};
     final income = _summaryAmount(totals, 'income');
     final expense = _summaryAmount(totals, 'expense');
@@ -863,6 +944,13 @@ final class LocalAgentTools {
     final balance = income - expense;
     return {
       'currency': summary['currency'],
+      for (final k in [
+        'matchStatus',
+        'matchedCategories',
+        'requestedName',
+        'candidates'
+      ])
+        if (summary.containsKey(k)) k: summary[k],
       'period': call.arguments['period'] ?? 'current_month',
       'periodStart': summary['periodStart'],
       'periodEnd': summary['periodEnd'],
@@ -871,19 +959,21 @@ final class LocalAgentTools {
       'balance': balance,
       'savingsRate': income == 0 ? null : balance / income,
       'transactionCount': transactionCount,
+      'incomeCount': _summaryCount(totals, 'income'),
+      'expenseCount': _summaryCount(totals, 'expense'),
+      'transferCount': _summaryCount(totals, 'transfer'),
     };
   }
 
   Future<Map<String, Object?>> _spendingTrend(AgentToolCall call) async {
     final range = await _financialRangeFor(call, defaultPeriod: 'current_year');
     final interval = _trendIntervalFor(call);
-    final categoryNames = _stringListArgument(call, 'categoryNames');
     final flowType = _flowTypeFor(call);
     final summary = await _flowSummary(
+      call,
       range: range,
       groupBy: interval,
       flowType: flowType,
-      categoryNames: categoryNames,
       groupLimit: 50,
     );
     final comparison = switch (call.arguments['comparison']) {
@@ -894,10 +984,10 @@ final class LocalAgentTools {
     Map<String, Map<String, Object?>> previousYearGroups = const {};
     if (comparison == 'previous_year') {
       final previous = await _flowSummary(
+        call,
         range: (_shiftYear(range.$1, -1), _shiftYear(range.$2, -1)),
         groupBy: interval,
         flowType: flowType,
-        categoryNames: categoryNames,
         groupLimit: 50,
       );
       previousYearGroups = _groupsByPeriod(previous);
@@ -938,12 +1028,19 @@ final class LocalAgentTools {
     }
     return {
       'currency': summary['currency'],
+      for (final k in [
+        'matchStatus',
+        'matchedCategories',
+        'requestedName',
+        'candidates'
+      ])
+        if (summary.containsKey(k)) k: summary[k],
       'flowType': flowType,
       'period': call.arguments['period'] ?? 'current_year',
       'periodStart': summary['periodStart'],
       'periodEnd': summary['periodEnd'],
       'interval': interval,
-      'categoryNames': categoryNames,
+      'categoryNames': _stringListArgument(call, 'categoryNames'),
       'comparison': comparison,
       if (flowType == 'income')
         'totalIncome': _summaryAmount(
@@ -965,13 +1062,12 @@ final class LocalAgentTools {
   ) async {
     final range =
         await _financialRangeFor(call, defaultPeriod: 'current_month');
-    final categoryNames = _stringListArgument(call, 'categoryNames');
     final flowType = _flowTypeFor(call);
     final summary = await _flowSummary(
+      call,
       range: range,
       groupBy: 'category',
       flowType: flowType,
-      categoryNames: categoryNames,
       categoryLevel: call.arguments['categoryLevel'] == 'leaf' ? 'leaf' : 'top',
       groupLimit: _boundedIntArgument(call, 'limit', fallback: 20),
     );
@@ -993,13 +1089,20 @@ final class LocalAgentTools {
     }
     return {
       'currency': summary['currency'],
+      for (final k in [
+        'matchStatus',
+        'matchedCategories',
+        'requestedName',
+        'candidates'
+      ])
+        if (summary.containsKey(k)) k: summary[k],
       'flowType': flowType,
       'period': call.arguments['period'] ?? 'current_month',
       'periodStart': summary['periodStart'],
       'periodEnd': summary['periodEnd'],
       'categoryLevel':
           call.arguments['categoryLevel'] == 'leaf' ? 'leaf' : 'top',
-      'categoryNames': categoryNames,
+      'categoryNames': _stringListArgument(call, 'categoryNames'),
       if (flowType == 'income') 'totalIncome': total else 'totalExpense': total,
       'items': items,
       'truncated': summary['truncated'] == true,
@@ -1010,41 +1113,76 @@ final class LocalAgentTools {
   String _flowTypeFor(AgentToolCall call) =>
       call.arguments['flowType'] == 'income' ? 'income' : 'expense';
 
-  Future<Map<String, Object?>> _flowSummary({
+  Future<Map<String, Object?>> _flowSummary(
+    AgentToolCall call, {
     required (DateTime, DateTime) range,
     required String groupBy,
     required String flowType,
-    required List<String> categoryNames,
     String categoryLevel = 'leaf',
     required int groupLimit,
   }) =>
-      gateway.summarizeTransactions(
+      _summary(call,
+          range: range,
+          types: {flowType},
+          groupBy: groupBy,
+          categoryLevel: categoryLevel,
+          groupLimit: groupLimit);
+
+  Future<Map<String, Object?>> _summary(AgentToolCall call,
+      {required (DateTime, DateTime) range,
+      required Set<String> types,
+      required String groupBy,
+      required String categoryLevel,
+      required int groupLimit,
+      bool includeExcluded = false}) {
+    List<int> ids(String key) =>
+        (call.arguments[key] as List?)?.whereType<int>().toSet().toList() ?? [];
+    return gateway.summarizeTransactions(
         ledgerId: _ledgerId,
         start: range.$1,
         end: range.$2,
-        types: {flowType},
+        types: types,
         groupBy: groupBy,
         categoryLevel: categoryLevel,
-        categoryIds: const [],
-        categoryNames: categoryNames,
-        tagIds: const [],
-        tagNames: const [],
-        accountIds: const [],
-        accountNames: const [],
-        includeExcludedFromStats: false,
         groupLimit: groupLimit,
-      );
+        categoryNames: _stringListArgument(call, 'categoryNames'),
+        categoryIds: ids('categoryIds'),
+        accountNames: _stringListArgument(call, 'accountNames'),
+        accountIds: ids('accountIds'),
+        tagNames: _stringListArgument(call, 'tagNames'),
+        tagIds: ids('tagIds'),
+        includeExcludedFromStats:
+            call.arguments['includeExcludedFromStats'] as bool? ??
+                includeExcluded,
+        filters: call.arguments);
+  }
 
-  Future<Map<String, Object?>> _budgetStatus(AgentToolCall call) async =>
-      gateway
-          .getBudgetStatus(_ledgerId)
-          .then((summary) => summary.toToolData());
+  Future<Map<String, Object?>> _budgetStatus(AgentToolCall call) async {
+    final today = _now();
+    final view = evidence.view;
+    final viewEnd = view['ledgerId'] == _ledgerId
+        ? DateTime.tryParse(view['end']?.toString() ?? '')
+        : null;
+    final defaultDate = viewEnd != null && !viewEnd.isAfter(today)
+        ? viewEnd.subtract(const Duration(microseconds: 1))
+        : today;
+    final date = call.arguments['at'] == null
+        ? defaultDate
+        : DateTime.tryParse(call.arguments['at'].toString());
+    if (date == null) return {'error': 'invalid_date', 'retryable': true};
+    return {
+      ...(await gateway.getBudgetStatus(_ledgerId, at: date)).toToolData(),
+      'asOf': date.toIso8601String()
+    };
+  }
 
   Future<Map<String, Object?>> _recurringTransactions(
     AgentToolCall call,
   ) async {
     final rows = await gateway.getRecurringTransactions(_ledgerId);
     return {
+      'totalCount': rows.length,
+      'truncated': rows.length > _maximumRecurringTransactions,
       'items': rows
           .take(_maximumRecurringTransactions)
           .map((row) => row.toToolData())
@@ -1057,8 +1195,30 @@ final class LocalAgentTools {
     if (text is! String || text.isEmpty || scope.ledgerId == null) {
       return const {'success': false};
     }
-    final result =
-        await gateway.recordTransaction(ledgerId: _ledgerId, text: text);
+    BillInfo? entry;
+    if (call.arguments['entry'] case final Map draft) {
+      final bill = BillInfo.fromJson(Map<String, dynamic>.from(draft));
+      final amount = bill.amount?.abs();
+      final numbers = RegExp(r'(?<![\d.])\d+(?:\.\d+)?(?![\d.])')
+          .allMatches(text.replaceAll(',', ''))
+          .map((match) => double.parse(match.group(0)!))
+          .toList();
+      if (amount != null &&
+          amount.isFinite &&
+          amount > 0 &&
+          numbers.length == 1 &&
+          numbers.single == amount &&
+          (bill.type == BillType.expense || bill.type == BillType.income)) {
+        entry = bill;
+      }
+    }
+    final result = await gateway.recordTransaction(
+        ledgerId: _ledgerId,
+        text: text,
+        sourceMessageId: sourceMessageId,
+        entry: entry,
+        l10n: l10n);
+    if (result.success) savedRecord = result;
     if (call.id.isNotEmpty) _recordResults[call.id] = result;
     return result.toToolData();
   }

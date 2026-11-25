@@ -1,3 +1,5 @@
+import 'package:beecount/l10n/app_localizations.dart';
+import 'package:beecount/ai/core/bill_info.dart';
 import 'dart:ui' show Locale;
 import 'dart:async';
 
@@ -137,7 +139,8 @@ void main() {
     );
 
     expect(response.type, 'text');
-    expect(response.text, 'Created 1 transaction.');
+    expect(response.text, startsWith('Created 1 transaction.'));
+    expect(response.text, endsWith('已完成'));
   });
 
   test('uses the locally selected model-turn limit and still finalizes',
@@ -1491,7 +1494,8 @@ final class _FakeGateway implements LocalAgentToolGateway {
       false;
 
   @override
-  Future<AgentBudgetSummary> getBudgetStatus(int ledgerId) async =>
+  Future<AgentBudgetSummary> getBudgetStatus(int ledgerId,
+          {DateTime? at}) async =>
       const AgentBudgetSummary(daysRemaining: 10, dailyAvailable: 20);
 
   @override
@@ -1526,27 +1530,41 @@ final class _FakeGateway implements LocalAgentToolGateway {
     required List<String> accountNames,
     required bool includeExcludedFromStats,
     required int groupLimit,
-  }) async =>
-      {
+    Map<String, Object?> filters = const {},
+  }) async {
+    if (groupBy == 'details') {
+      final rows =
+          await queryTransactions(ledgerId: ledgerId, start: start, end: end);
+      return {
         'currency': 'CNY',
-        'periodStart': start.toIso8601String(),
-        'periodEnd': end.toIso8601String(),
-        'types': types.toList(),
-        'totals': const {
-          'income': {'amount': 0.0, 'count': 0},
-          'expense': {'amount': 0.0, 'count': 0},
-          'transfer': {'amount': 0.0, 'count': 0},
-        },
-        'groupBy': groupBy,
-        'groups': const [],
-        'groupsMayOverlap': false,
-        'truncated': false,
+        'items': rows.map((row) => row.toToolData()).toList(),
+        'totalCount': rows.length
       };
+    }
+    return {
+      'currency': 'CNY',
+      'periodStart': start.toIso8601String(),
+      'periodEnd': end.toIso8601String(),
+      'types': types.toList(),
+      'totals': const {
+        'income': {'amount': 0.0, 'count': 0},
+        'expense': {'amount': 0.0, 'count': 0},
+        'transfer': {'amount': 0.0, 'count': 0},
+      },
+      'groupBy': groupBy,
+      'groups': const [],
+      'groupsMayOverlap': false,
+      'truncated': false,
+    };
+  }
 
   @override
   Future<AgentRecordToolResult> recordTransaction({
     required int ledgerId,
     required String text,
+    int? sourceMessageId,
+    BillInfo? entry,
+    AppLocalizations? l10n,
   }) async {
     recordedTexts.add(text);
     return recordResult;

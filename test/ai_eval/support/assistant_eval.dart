@@ -1,15 +1,20 @@
 import 'package:agentcore/agentcore.dart' as core;
 import 'package:beecount/agent/policy/p0_agent_policy.dart';
+import 'package:beecount/agent/runtime/agent_execution_settings.dart';
 import 'package:beecount/services/ai/agent_app_facade.dart';
 import 'package:beecount/l10n/app_localizations_en.dart';
 import 'package:beecount/l10n/app_localizations_zh.dart';
 
 import 'ledger_fixture.dart';
+import 'answer_bindings.dart';
 
 /// Exercises the same facade, selection, authorization, tools and SQLite used
 /// by the assistant. Oracle calls are available only to the offline model.
 final class AssistantEvalExecutor {
-  const AssistantEvalExecutor({required this.live, this.createLiveModel});
+  const AssistantEvalExecutor(
+      {required this.live, this.createLiveModel, this.executionSettingsStore});
+
+  final AgentExecutionSettingsStore? executionSettingsStore;
 
   final bool live;
   final core.AgentModel Function()? createLiveModel;
@@ -46,6 +51,8 @@ final class AssistantEvalExecutor {
         );
         final facade = AgentAppFacade(
           memoryRepository: fixture.memory,
+          executionSettingsStore: executionSettingsStore,
+          conversationHistoryLoader: (_) async => history,
           toolGateway: fixture.gateway,
           permissionStore: _ReadPermissionStore(),
           policy: const _ReadOnlyPolicy(),
@@ -56,6 +63,7 @@ final class AssistantEvalExecutor {
         final calls = <Map<String, Object?>>[];
         final events = facade.processMessageEvents(
           message: prompt,
+          conversationId: 1,
           readOnly: true,
           l10n: testCase.tags.contains('en')
               ? AppLocalizationsEn()
@@ -100,7 +108,12 @@ final class AssistantEvalExecutor {
             };
             history.addAll([
               {'role': 'user', 'content': prompt},
-              {'role': 'assistant', 'content': event.result.text},
+              {
+                'role': 'assistant',
+                'scopeId': ledgerId,
+                'content': event.result.text,
+                'queryContext': event.result.response.queryContext
+              },
             ]);
           }
         }
@@ -217,6 +230,13 @@ final class AssistantEvalExecutor {
                     text.trim().isNotEmpty,
             detail:
                 'Checks expected numeric mentions; not a full semantic assessment.'));
+        final bindings = expectedCategoryAmounts(expected['tools'] as List);
+        if (bindings.isNotEmpty) {
+          checks.add(core.AgentEvalCheck(
+              name: 'answer_bindings',
+              passed: matchesCategoryAmounts(text, bindings),
+              detail: testCase.id));
+        }
         checks.add(core.AgentEvalCheck(
             name: 'clean_answer',
             passed: !RegExp(

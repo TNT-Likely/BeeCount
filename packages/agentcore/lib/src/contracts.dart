@@ -67,6 +67,15 @@ final class AgentRequest {
         availableToolNames: availableToolNames,
         allowToolCalls: false,
       );
+
+  AgentRequest withAvailableTools(Set<String> names) => AgentRequest(
+        text: text,
+        scope: scope,
+        toolData: toolData,
+        context: context,
+        availableToolNames: availableToolNames?.intersection(names) ?? names,
+        allowToolCalls: allowToolCalls,
+      );
 }
 
 final class AgentToolCall {
@@ -204,6 +213,7 @@ final class AgentRunResult {
     List<AgentDeniedCall> deniedCalls = const [],
     List<AgentRejectedCall> rejectedCalls = const [],
     this.terminationReason = AgentRunTerminationReason.completed,
+    this.budgetLimit,
     this.wasCancelled = false,
   })  : executedCalls = UnmodifiableListView(List.of(executedCalls)),
         deniedCalls = UnmodifiableListView(List.of(deniedCalls)),
@@ -214,5 +224,8 @@ final class AgentRunResult {
   final List<AgentDeniedCall> deniedCalls;
   final List<AgentRejectedCall> rejectedCalls;
   final AgentRunTerminationReason terminationReason;
+
+  /// A text answer can be delivered even after further evidence was cut off.
+  final AgentRunTerminationReason? budgetLimit;
   final bool wasCancelled;
 }

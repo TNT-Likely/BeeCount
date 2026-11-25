@@ -50,10 +50,32 @@ class _AnalyticsPageState extends ConsumerState<AnalyticsPage>
             TextButton.icon(
                 label: const Text('AI', style: TextStyle(fontSize: 13)),
                 icon: const BeeLineIcon('Sparkles', size: 17),
-                onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute<void>(
-                        builder: (_) => const AIChatPage()))),
+                onPressed: () async {
+                  final type = _type, scope = _scope;
+                  final views = await _query!
+                      .onError((_, __) => <String, AnalyticsResult>{});
+                  if (!context.mounted ||
+                      id != ref.read(currentLedgerIdProvider) ||
+                      type != _type ||
+                      scope != _scope ||
+                      month != ref.read(selectedMonthProvider)) {
+                    return;
+                  }
+                  final data = views[type];
+                  await Navigator.push(
+                      context,
+                      MaterialPageRoute<void>(
+                          builder: (_) => AIChatPage(view: {
+                                if (data != null) ...{
+                                  'source': 'insights',
+                                  'ledgerId': id,
+                                  'scope': scope,
+                                  'flow': type,
+                                  'start': data.start.toIso8601String(),
+                                  'end': data.end.toIso8601String(),
+                                }
+                              })));
+                }),
             BeeIconButton(
                 label: l.sharePosterShare,
                 icon: const BeeLineIcon('Share2'),
