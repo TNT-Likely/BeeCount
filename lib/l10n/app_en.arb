@@ -5067,6 +5067,12 @@
   "aiChatReceiptView": "View this entry",
   "aiChatReplyDetails": "Read the full answer",
   "agentAnswerIncomeExpense": "Income and expenses",
+  "agentAnswerMonthBalance": "{month} balance",
+  "@agentAnswerMonthBalance": {
+    "placeholders": {
+      "month": { "type": "String" }
+    }
+  },
   "agentAnswerAccountBreakdown": "Spending by account",
   "agentAnswerLowerExpense": "Spent less than the previous period",
   "agentAnswerHigherExpense": "Spent more than the previous period",

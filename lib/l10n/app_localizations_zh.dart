@@ -9766,6 +9766,11 @@ class AppLocalizationsZh extends AppLocalizations {
   String get agentAnswerIncomeExpense => '收支结余';
 
   @override
+  String agentAnswerMonthBalance(String month) {
+    return '$month结余';
+  }
+
+  @override
   String get agentAnswerAccountBreakdown => '分账户支出';
 
   @override
@@ -19510,6 +19515,11 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get agentAnswerIncomeExpense => '收支結餘';
+
+  @override
+  String agentAnswerMonthBalance(String month) {
+    return '$month結餘';
+  }
 
   @override
   String get agentAnswerAccountBreakdown => '分帳戶支出';

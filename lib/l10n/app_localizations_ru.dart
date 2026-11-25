@@ -10258,6 +10258,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String get agentAnswerIncomeExpense => 'Income and expenses';
 
   @override
+  String agentAnswerMonthBalance(String month) {
+    return '$month balance';
+  }
+
+  @override
   String get agentAnswerAccountBreakdown => 'Spending by account';
 
   @override

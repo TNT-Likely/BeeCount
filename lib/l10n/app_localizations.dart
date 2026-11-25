@@ -18358,6 +18358,12 @@ abstract class AppLocalizations {
   /// **'Income and expenses'**
   String get agentAnswerIncomeExpense;
 
+  /// No description provided for @agentAnswerMonthBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'{month} balance'**
+  String agentAnswerMonthBalance(String month);
+
   /// No description provided for @agentAnswerAccountBreakdown.
   ///
   /// In en, this message translates to:

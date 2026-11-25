@@ -3,6 +3,7 @@ import 'package:beecount_ui/beecount_ui.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../agent/tools/ledger_query_snapshot.dart';
 import '../../../../l10n/app_localizations.dart';
@@ -146,7 +147,11 @@ class AgentFinancialAnswer extends ConsumerWidget {
     String? note;
     switch (kind) {
       case _CardKind.overview:
-        title = '${scope.dates(context)} · ${l.homeBalance}';
+        final nextMonth = DateTime(scope.start.year, scope.start.month + 1);
+        title = scope.start.day == 1 && !scope.end.isAfter(nextMonth)
+            ? l.agentAnswerMonthBalance(
+                DateFormat.MMM(l.localeName).format(scope.start))
+            : l.homeBalance;
         value = income - expense;
         rows.addAll([
           (

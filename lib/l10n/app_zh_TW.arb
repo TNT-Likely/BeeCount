@@ -3816,6 +3816,7 @@
   "aiChatReceiptView": "查看這筆帳單",
   "aiChatReplyDetails": "展開完整回答",
   "agentAnswerIncomeExpense": "收支結餘",
+  "agentAnswerMonthBalance": "{month}結餘",
   "agentAnswerAccountBreakdown": "分帳戶支出",
   "agentAnswerLowerExpense": "比上期少支出",
   "agentAnswerHigherExpense": "比上期多支出",

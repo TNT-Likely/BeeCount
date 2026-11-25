@@ -132,7 +132,8 @@ void main() {
     await bill(50, type: 'transfer');
     await bill(999, excluded: true);
     await bill(777, ledgerId: fixture.ledgers['other']);
-    final result = await run('get_period_overview', january);
+    final result =
+        await run('get_period_overview', {...january, 'end': '2027-01-20'});
     expect(result['expense'], 28);
     expect(result.containsKey('_snapshot'), isFalse);
     expect(jsonEncode(owner.evidence.current), isNot(contains('午饭冻结行')));
@@ -147,6 +148,7 @@ void main() {
         .write(const TransactionsCompanion(
             amount: Value(32), nativeAmount: Value(32)));
     await render(tester, saved);
+    expect(find.text(l.agentAnswerMonthBalance('1月')), findsOneWidget);
     expect(find.byKey(const ValueKey('financial-answer-overview')),
         findsOneWidget);
     expect(tester.widget<BeeMoney>(find.byType(BeeMoney)).amount, '72.00');
