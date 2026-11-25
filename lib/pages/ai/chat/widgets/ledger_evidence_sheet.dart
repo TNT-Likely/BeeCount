@@ -28,7 +28,9 @@ class LedgerEvidenceSheet extends ConsumerStatefulWidget {
     required List<Map<String, Object?>> queries,
   }) async {
     if (queries.isEmpty) return;
-    await showBeeSheet<void>(context,
+    // The page wraps its cards in a local Theme. Present this opaque sheet
+    // from the navigator so its rows keep following the live app theme.
+    await showBeeSheet<void>(Navigator.of(context).context,
         title: AppLocalizations.of(context).agentEvidenceBills,
         child: LedgerEvidenceSheet(ledgerId: ledgerId, queries: queries));
   }

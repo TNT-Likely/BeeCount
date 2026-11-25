@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ui' as ui;
 
 import 'package:beecount/data/db.dart';
 import 'package:beecount/l10n/app_localizations.dart';
@@ -10,6 +11,7 @@ import 'package:beecount_business_ui/beecount_business_ui.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -19,6 +21,7 @@ import '../../ai_eval/support/ledger_fixture.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   final l = AppLocalizationsZh();
+  const paintKey = ValueKey('related-bills-viewport');
   late LedgerEvalFixture fixture;
 
   setUp(() async {
@@ -30,6 +33,8 @@ void main() {
   Future<void> openFromChat(
       WidgetTester tester, List<Map<String, Object?>> filters,
       {Brightness brightness = Brightness.light}) async {
+    tester.platformDispatcher.platformBrightnessTestValue = brightness;
+    addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
     final ledgerId = fixture.ledgers['main']!;
     final queries = [
       for (final (index, filter) in filters.indexed)
@@ -67,7 +72,10 @@ void main() {
           currentLedgerIdProvider.overrideWith((ref) => ledgerId),
         ],
         child: MaterialApp(
-            theme: beeTheme(brightness: brightness),
+            theme: beeTheme(),
+            darkTheme: beeTheme(brightness: Brightness.dark),
+            builder: (context, child) =>
+                RepaintBoundary(key: paintKey, child: child!),
             locale: const Locale('zh'),
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
@@ -81,6 +89,61 @@ void main() {
 
   Finder sheetText(String part) => find.descendant(
       of: find.byType(BeeSheet).last, matching: find.textContaining(part));
+
+  testWidgets('弹窗打开时来回切换系统深浅色，面板和账单文字同步更新', (tester) async {
+    await openFromChat(tester, [
+      {
+        'categoryNames': ['午餐'],
+      },
+    ]);
+    final sheet = find.byType(BeeSheet);
+    final initialSheet = tester.element(sheet);
+    for (final brightness in [
+      Brightness.light,
+      Brightness.dark,
+      Brightness.light
+    ]) {
+      tester.platformDispatcher.platformBrightnessTestValue = brightness;
+      await tester.pumpAndSettle();
+      expect(tester.element(sheet), same(initialSheet));
+
+      final rowTitle = find.byKey(const ValueKey('transaction-title'));
+      final expected = beeTheme(brightness: brightness);
+      expect(Theme.of(tester.element(find.byType(AIChatPage))).brightness,
+          brightness);
+
+      // Sample the blank space beside the handle, inside the opaque sheet.
+      // Its Theme can already be dark while its route still paints white.
+      final capture =
+          tester.renderObject<RenderRepaintBoundary>(find.byKey(paintKey));
+      final point = capture
+          .globalToLocal(tester.getTopLeft(sheet) + const Offset(40, 11));
+      final painted = await tester.runAsync(() async {
+        final image = await capture.toImage(pixelRatio: 1);
+        try {
+          final bytes =
+              (await image.toByteData(format: ui.ImageByteFormat.rawRgba))!;
+          final i = (point.dy.floor() * image.width + point.dx.floor()) * 4;
+          return Color.fromARGB(bytes.getUint8(i + 3), bytes.getUint8(i),
+              bytes.getUint8(i + 1), bytes.getUint8(i + 2));
+        } finally {
+          image.dispose();
+        }
+      });
+      expect({
+        '面板像素': painted,
+        '账单文字': tester.widget<Text>(rowTitle).style!.color,
+        '行主题': Theme.of(tester.element(rowTitle)).brightness,
+      }, {
+        '面板像素': BeeCardTheme.ofTheme(expected).overlay,
+        '账单文字': expected.colorScheme.onSurface,
+        '行主题': brightness,
+      }, reason: '弹窗保持打开时应同步到 $brightness');
+    }
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+  });
 
   testWidgets('从聊天打开单个查询，紧凑深色弹层复用账单行并随隐私开关隐藏金额', (tester) async {
     tester.view.physicalSize = const Size(320, 568);
