@@ -88,10 +88,16 @@ jobs:
         run: |
           flutter pub get
           flutter test --no-pub
+      - name: AI 对话、账本查询和评分回归
+        run: >-
+          flutter test --no-pub
+          test/agent test/ai/providers test/services/ai test/widgets/ai test/pages/ai
+          test/ai_eval/assertions_test.dart
+          test/ai_eval/conversation_matrix_scoring_test.dart
+          test/ai_eval/ledger_conversation_test.dart
+          test/ai_eval/ledger_conversation_edges_test.dart
       - name: 固定账本离线回归（不调用外部模型）
-        run: |
-          flutter test --no-pub test/agent test/ai/providers test/services/ai test/widgets/ai test/pages/ai test/ai_eval/assertions_test.dart
-          dart run tool/ai_eval.dart
+        run: dart run tool/ai_eval.dart
       - name: 保存评测报告
         if: always()
         uses: actions/upload-artifact@v4
