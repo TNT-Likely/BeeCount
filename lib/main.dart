@@ -536,7 +536,6 @@ class MainApp extends ConsumerWidget {
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: primary,
-          textStyle: baseTextTheme.labelLarge,
         ),
       ),
       filledButtonTheme: FilledButtonThemeData(
