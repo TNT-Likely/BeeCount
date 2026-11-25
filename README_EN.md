@@ -421,6 +421,7 @@ Address: `TKBV69B2AoU67p3vDhnJUbMJtZ1DxuUF5C`
   <table align="left"><tr><td align="center"><a href="https://github.com/542474846"><img src="https://github.com/542474846.png" width="44" height="44" alt="542474846" /></a><br/>¥66</td></tr></table>
   <table align="left"><tr><td align="center"><img src="assets/avatars/wen.svg" width="44" height="44" alt="*Wen" /><br/>¥50</td></tr></table>
   <table align="left"><tr><td align="center"><a href="https://github.com/JOHN-2025"><img src="https://github.com/JOHN-2025.png" width="44" height="44" alt="JOHN-2025" /></a><br/>¥30</td></tr></table>
+  <table align="left"><tr><td align="center"><a href="https://github.com/idedele"><img src="https://github.com/idedele.png" width="44" height="44" alt="LiuYuan" /></a><br/>¥28.88</td></tr></table>
   <table align="left"><tr><td align="center"><img src="assets/avatars/shao.svg" width="44" height="44" alt="*Shao" /><br/>¥15</td></tr></table>
   <table align="left"><tr><td align="center"><img src="assets/avatars/te.svg" width="44" height="44" alt="*Te" /><br/>¥15</td></tr></table>
   <table align="left"><tr><td align="center"><img src="assets/avatars/qiao.svg" width="44" height="44" alt="*Qiao" /><br/>¥12</td></tr></table>

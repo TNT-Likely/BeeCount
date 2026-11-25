@@ -421,6 +421,7 @@ BeeCount 和 BeeCount Cloud 由同一作者维护。如果这些项目对你有�
   <table align="left"><tr><td align="center"><a href="https://github.com/542474846"><img src="https://github.com/542474846.png" width="44" height="44" alt="542474846" /></a><br/>¥66</td></tr></table>
   <table align="left"><tr><td align="center"><img src="assets/avatars/wen.svg" width="44" height="44" alt="*文" /><br/>¥50</td></tr></table>
   <table align="left"><tr><td align="center"><a href="https://github.com/JOHN-2025"><img src="https://github.com/JOHN-2025.png" width="44" height="44" alt="JOHN-2025" /></a><br/>¥30</td></tr></table>
+  <table align="left"><tr><td align="center"><a href="https://github.com/idedele"><img src="https://github.com/idedele.png" width="44" height="44" alt="刘源" /></a><br/>¥28.88</td></tr></table>
   <table align="left"><tr><td align="center"><img src="assets/avatars/shao.svg" width="44" height="44" alt="*邵" /><br/>¥15</td></tr></table>
   <table align="left"><tr><td align="center"><img src="assets/avatars/te.svg" width="44" height="44" alt="*特" /><br/>¥15</td></tr></table>
   <table align="left"><tr><td align="center"><img src="assets/avatars/qiao.svg" width="44" height="44" alt="*桥" /><br/>¥12</td></tr></table>
