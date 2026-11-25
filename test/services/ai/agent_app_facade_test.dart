@@ -48,6 +48,7 @@ import 'package:beecount/data/db.dart' hide AgentToolCall;
 import 'package:beecount/l10n/app_localizations_en.dart';
 import 'package:beecount/services/ai/agent_app_facade.dart';
 import 'package:beecount/services/ai/ai_chat_service.dart';
+import 'package:beecount/services/billing/bill_creation_service.dart';
 import 'package:beecount/services/system/logger_service.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -109,6 +110,35 @@ void main() {
       ),
       isTrue,
     );
+  });
+
+  test('an ambiguous category asks for its children without a receipt',
+      () async {
+    final choice = BillCategoryNeedsChoice(parent: '餐饮', choices: ['午餐', '晚餐']);
+    gateway.recordResult =
+        AgentRecordToolResult(success: false, categoryChoice: choice);
+    const source = '记一笔餐饮 28 元';
+    final facade = AgentAppFacade(
+      memoryRepository: LocalAgentMemoryRepository(db),
+      toolGateway: gateway,
+      permissionStore: _MemoryPermissionStore(),
+      model: _FakeModel([
+        AgentTurn.toolCalls([
+          AgentToolCall(
+              id: 'ambiguous-category',
+              name: 'record_transaction_from_text',
+              arguments: const {'sourceText': source, 'receiptOnly': true}),
+        ]),
+      ]),
+    );
+    final l = AppLocalizationsEn();
+    final response =
+        await facade.processMessage(message: source, ledgerId: 1, l10n: l);
+    expect(response.type, 'text');
+    expect(response.text, l.agentRecordChooseSubcategory('餐饮', '午餐 / 晚餐'));
+    expect(response.transactionIds, isEmpty);
+    expect(response.response.allowPromptSuggestions, isFalse);
+    expect(gateway.recordedTexts, [source]);
   });
 
   test('record result without cards uses the active locale', () async {

@@ -2609,6 +2609,13 @@
   "agentNativeToolsUnsupported": "This model can chat normally, but it does not support the native tool calls required to read or change ledger data. Open Settings > AI Settings > Provider Management to test or switch models.",
   "agentTurnTimedOut": "The AI response timed out. Please try again shortly.",
   "agentRecordIncomplete": "The transaction details are incomplete. Please include an amount and purpose, then try again.",
+  "agentRecordChooseSubcategory": "No entries were saved. Please add one of these {parent} categories to your original request and send it again: {choices}.",
+  "@agentRecordChooseSubcategory": {
+    "placeholders": {
+      "parent": { "type": "String" },
+      "choices": { "type": "String" }
+    }
+  },
   "agentRecordCreated": "Created {count, plural, =1{1 transaction} other{{count} transactions}}.",
   "@agentRecordCreated": {
     "placeholders": {

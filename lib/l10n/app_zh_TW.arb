@@ -3332,6 +3332,7 @@
     "agentQueryValidationFailed": "查詢參數未能修正，目前無法給出可靠結果。請重試。",
     "agentRecordCreated": "已建立 {count} 筆帳單。",
     "agentRecordIncomplete": "未識別到完整的記帳資訊，請補充金額和用途後重試。",
+    "agentRecordChooseSubcategory": "這次還沒記帳。請在原記帳內容裡加上「{parent}」下的一個子分類，再傳給我。可選分類有 {choices}。",
     "agentRunCancelled": "本次操作已停止。",
     "agentRunFailed": "AI 服務暫時無法使用，請稍後重試。",
     "agentRunStop": "停止",

@@ -16,6 +16,8 @@ import '../../data/db.dart'
 import '../../data/repositories/base_repository.dart';
 import '../../data/repositories/budget_repository.dart';
 import '../../services/ai/ai_bookkeeper.dart';
+import '../../services/billing/bill_creation_service.dart'
+    show BillCategoryNeedsChoice;
 import '../../services/data/tag_seed_service.dart';
 import '../../utils/month_range.dart';
 import '../memory/agent_memory_repository.dart';
@@ -256,11 +258,13 @@ final class AgentRecordToolResult {
     this.receiptMessageId,
     this.unavailableIds = const [],
     this.failedCount = 0,
+    this.categoryChoice,
   });
 
   final int? receiptMessageId;
   final List<int> unavailableIds;
   final int failedCount;
+  final BillCategoryNeedsChoice? categoryChoice;
   final bool success;
   final List<int> transactionIds;
 
@@ -272,6 +276,12 @@ final class AgentRecordToolResult {
 
   Map<String, Object?> toToolData() => {
         'success': success,
+        if (categoryChoice case final choice?) ...{
+          'error': 'category_choice_required',
+          'retryable': false,
+          'parentCategory': choice.parent,
+          'categoryChoices': choice.choices,
+        },
         if (failedCount > 0) 'failedCount': failedCount,
         if (unavailableIds.isNotEmpty) 'noLongerInLedger': unavailableIds,
         'transactionIds': transactionIds,
@@ -558,6 +568,8 @@ final class BeeCountLocalAgentToolGateway implements LocalAgentToolGateway {
           ledgerId: ledgerId,
           billingTypes: [TagSeedService.billingTypeAi],
           l10n: l10n,
+          requestCategoryChoice: true,
+          sourceText: text,
           atomicBill: (save) => _database.transaction(save));
       if (original != null && result.success) {
         return restore(await store.save(original.source, original.metadata,
@@ -758,6 +770,9 @@ final class LocalAgentTools {
 
   AgentRecordToolResult? recordResultFor(AgentToolCall call) =>
       _recordResults[call.id];
+
+  bool get needsCategoryChoice =>
+      _recordResults.values.any((record) => record.categoryChoice != null);
 
   Map<String, AgentTool> build() {
     final tools = <String, AgentTool>{
@@ -1243,12 +1258,17 @@ final class LocalAgentTools {
         entry = bill;
       }
     }
-    final result = await gateway.recordTransaction(
-        ledgerId: _ledgerId,
-        text: text,
-        sourceMessageId: sourceMessageId,
-        entry: entry,
-        l10n: l10n);
+    late AgentRecordToolResult result;
+    try {
+      result = await gateway.recordTransaction(
+          ledgerId: _ledgerId,
+          text: text,
+          sourceMessageId: sourceMessageId,
+          entry: entry,
+          l10n: l10n);
+    } on BillCategoryNeedsChoice catch (choice) {
+      result = AgentRecordToolResult(success: false, categoryChoice: choice);
+    }
     if (result.success) savedRecord = result;
     if (call.id.isNotEmpty) _recordResults[call.id] = result;
     return result.toToolData();

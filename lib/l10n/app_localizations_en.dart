@@ -5662,6 +5662,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get agentRecordIncomplete => 'The transaction details are incomplete. Please include an amount and purpose, then try again.';
 
   @override
+  String agentRecordChooseSubcategory(String parent, String choices) {
+    return 'No entries were saved. Please add one of these $parent categories to your original request and send it again: $choices.';
+  }
+
+  @override
   String agentRecordCreated(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

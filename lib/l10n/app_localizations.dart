@@ -10786,6 +10786,12 @@ abstract class AppLocalizations {
   /// **'The transaction details are incomplete. Please include an amount and purpose, then try again.'**
   String get agentRecordIncomplete;
 
+  /// No description provided for @agentRecordChooseSubcategory.
+  ///
+  /// In en, this message translates to:
+  /// **'No entries were saved. Please add one of these {parent} categories to your original request and send it again: {choices}.'**
+  String agentRecordChooseSubcategory(String parent, String choices);
+
   /// No description provided for @agentRecordCreated.
   ///
   /// In en, this message translates to:

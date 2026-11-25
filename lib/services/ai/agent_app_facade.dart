@@ -440,12 +440,13 @@ final class AgentAppFacade {
             !{'ambiguous', 'unmatched'}.contains(data['matchStatus']),
         completesRequest: (call, data) =>
             call.name == 'record_transaction_from_text' &&
-            call.arguments['receiptOnly'] == true &&
-            data['success'] == true &&
-            RegExp(r'\d+(?:\.\d+)?').allMatches(message).length == 1 &&
-            !RegExp(r'[？?，,；;\n×*]|顺便|順便|另外|算|分析|对比|對比|how much|also|compare|calculate',
-                    caseSensitive: false)
-                .hasMatch(message),
+            (data['error'] == 'category_choice_required' ||
+                (call.arguments['receiptOnly'] == true &&
+                    data['success'] == true &&
+                    RegExp(r'\d+(?:\.\d+)?').allMatches(message).length == 1 &&
+                    !RegExp(r'[？?，,；;\n×*]|顺便|順便|另外|算|分析|对比|對比|how much|also|compare|calculate',
+                            caseSensitive: false)
+                        .hasMatch(message))),
         validateToolCall: (request, call) {
           final issue = LedgerQueryCallValidator.validate(request, call);
           if (issue != null) bufferQueryText = true;
@@ -503,6 +504,7 @@ final class AgentAppFacade {
       final baseResponse = _responseFor(result, localTools, l10n);
       final canSuggest =
           (baseResponse.type == 'text' || baseResponse.type == 'bill_card') &&
+              !localTools.needsCategoryChoice &&
               result.terminationReason == AgentRunTerminationReason.completed &&
               result.deniedCalls.isEmpty &&
               failedToolAudits.isEmpty;
@@ -575,10 +577,11 @@ final class AgentAppFacade {
       });
       await _memoryRepository.finishRun(
           runId: runId,
-          status:
-              blocked.isEmpty && (localTools.savedRecord?.failedCount ?? 0) == 0
-                  ? 'completed'
-                  : 'partial');
+          status: blocked.isEmpty &&
+                  !localTools.needsCategoryChoice &&
+                  (localTools.savedRecord?.failedCount ?? 0) == 0
+              ? 'completed'
+              : 'partial');
       return AgentChatResponse(runId: runId, response: response);
     } on AgentNativeToolUnsupportedException {
       final receipt = await interruptedReceipt();
@@ -948,6 +951,11 @@ final class AgentAppFacade {
     for (final call in result.executedCalls) {
       if (call.name != 'record_transaction_from_text') continue;
       final recorded = tools.recordResultFor(call);
+      if (recorded?.categoryChoice case final choice?) {
+        final l = l10n ?? resolveAppLocalizations(null);
+        return AIResponse.text(l.agentRecordChooseSubcategory(
+            choice.parent, choice.choices.join(' / ')));
+      }
       if (recorded == null || !recorded.success) {
         return AIResponse.text(
           l10n?.agentRecordIncomplete ??

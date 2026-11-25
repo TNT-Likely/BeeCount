@@ -2479,6 +2479,7 @@
   "agentNativeToolsUnsupported": "当前模型可以进行普通对话，但不支持读取或操作账本所需的原生工具调用。请前往“设置 > AI 设置 > 服务商管理”切换模型或运行文本模型测试。",
   "agentTurnTimedOut": "AI 响应超时，请稍后重试。",
   "agentRecordIncomplete": "未识别到完整的记账信息，请补充金额和用途后重试。",
+  "agentRecordChooseSubcategory": "这次还没记账。请在原记账内容里加上「{parent}」下的一个子分类，再发给我。可选分类有 {choices}。",
   "agentRecordCreated": "已创建 {count} 笔账单。",
   "@agentRecordCreated": {
     "placeholders": {

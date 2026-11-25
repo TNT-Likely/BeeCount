@@ -5662,6 +5662,11 @@ class AppLocalizationsZh extends AppLocalizations {
   String get agentRecordIncomplete => '未识别到完整的记账信息，请补充金额和用途后重试。';
 
   @override
+  String agentRecordChooseSubcategory(String parent, String choices) {
+    return '这次还没记账。请在原记账内容里加上「$parent」下的一个子分类，再发给我。可选分类有 $choices。';
+  }
+
+  @override
   String agentRecordCreated(int count) {
     return '已创建 $count 笔账单。';
   }
@@ -15579,6 +15584,11 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get agentRecordIncomplete => '未識別到完整的記帳資訊，請補充金額和用途後重試。';
+
+  @override
+  String agentRecordChooseSubcategory(String parent, String choices) {
+    return '這次還沒記帳。請在原記帳內容裡加上「$parent」下的一個子分類，再傳給我。可選分類有 $choices。';
+  }
 
   @override
   String agentRecordCreated(int count) {
