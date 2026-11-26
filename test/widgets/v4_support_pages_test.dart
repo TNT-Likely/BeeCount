@@ -23,6 +23,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:in_app_purchase_platform_interface/in_app_purchase_platform_interface.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 // ignore: depend_on_referenced_packages
 import 'package:webview_flutter_platform_interface/webview_flutter_platform_interface.dart'
@@ -48,7 +49,18 @@ class _Platform extends SupportPlatform {
   @override
   Future<Uri> feedbackUri(FeedbackKind kind, Locale locale) {
     feedbackRequests.add((kind, locale));
-    return feedbackGate?.future ?? super.feedbackUri(kind, locale);
+    return feedbackGate?.future ??
+        githubFeedbackUri(
+          kind: kind,
+          locale: locale,
+          ciVersion: '4.0.1',
+          readPackage: () async => PackageInfo(
+              appName: 'QA',
+              packageName: 'qa.app',
+              version: '0.0.1',
+              buildNumber: '412'),
+          readDevice: () async => (osVersion: 'Android 15', model: 'QA model'),
+        );
   }
 
   @override
@@ -422,7 +434,14 @@ void main() {
       expect(platform.feedbackRequests.last, (entry.key, locale));
       final launchedUri = Uri.parse(launched.last);
       expect(launchedUri.path, '/TNT-Likely/BeeCount/issues/new');
-      expect(launchedUri.queryParameters['template'], entry.value);
+      expect(launchedUri.queryParameters, {
+        'template': entry.value,
+        if (entry.key != FeedbackKind.feature) 'app_version': '4.0.1 (412)',
+        if (entry.key == FeedbackKind.bug) ...{
+          'os_version': 'Android 15',
+          'device': 'QA model',
+        },
+      });
     }
     expect(launched, hasLength(3));
   });
