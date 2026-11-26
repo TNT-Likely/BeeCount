@@ -95,6 +95,8 @@ class EntitySerializer {
       // 账户隐藏(#240)。非空 bool + 默认 false,同账单标记的
       // excludeFromStats/excludeFromBudget 无条件发送(不用 if-null 省略)。
       'hidden': account.hidden,
+      // 不计入总资产(#651),同 hidden 无条件发送。
+      'excludeFromTotal': account.excludeFromTotal,
     };
   }
 

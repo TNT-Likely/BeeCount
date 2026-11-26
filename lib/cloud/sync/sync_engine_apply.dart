@@ -337,6 +337,10 @@ extension SyncEngineApplyExt on SyncEngine {
     final hidden = payload.containsKey('hidden')
         ? (payload['hidden'] as bool? ?? false)
         : null;
+    // 不计入总资产(#651):同 hidden 的缺键保留语义。
+    final excludeFromTotal = payload.containsKey('excludeFromTotal')
+        ? (payload['excludeFromTotal'] as bool? ?? false)
+        : null;
 
     var existing = await (db.select(db.accounts)
           ..where((a) => a.syncId.equals(syncId)))
@@ -376,6 +380,9 @@ extension SyncEngineApplyExt on SyncEngine {
         cardLastFour: d.Value(payload['cardLastFour'] as String?),
         note: d.Value(payload['note'] as String?),
         hidden: hidden == null ? const d.Value.absent() : d.Value(hidden),
+        excludeFromTotal: excludeFromTotal == null
+            ? const d.Value.absent()
+            : d.Value(excludeFromTotal),
       ));
       logger.debug('SyncEngine', 'pull: 更新账户 $syncId');
     } else {
@@ -397,6 +404,7 @@ extension SyncEngineApplyExt on SyncEngine {
               note: d.Value(payload['note'] as String?),
               syncId: d.Value(syncId),
               hidden: d.Value(hidden ?? false),
+              excludeFromTotal: d.Value(excludeFromTotal ?? false),
             ),
           );
       activePullCache?.putAccount(syncId, localId);

@@ -272,7 +272,7 @@ void main() {
     await tester.tap(find.text(l.accountTypeCreditCard));
     await tester.pumpAndSettle();
     await tester.enterText(find.byKey(const ValueKey('account-name')), '提醒待配置');
-    final toggle = find.byType(BeeToggleRow);
+    final toggle = find.widgetWithText(BeeToggleRow, l.creditCardReminderTitle);
     await tester.ensureVisible(toggle);
     await tester.tap(toggle);
     await tester.pumpAndSettle();
@@ -280,6 +280,17 @@ void main() {
     expect(await repo.getAllAccounts(), isEmpty);
     expect(find.text(l.creditCardReminderDueRequired), findsOneWidget);
     expect(tester.takeException(), isNull);
+    await close(tester);
+  });
+  testWidgets('开启不计入总资产后保存账户带该标记', (tester) async {
+    await open(tester);
+    await tester.enterText(find.byKey(const ValueKey('account-name')), '个税');
+    final toggle = find.byKey(const ValueKey('account-exclude-from-total'));
+    await tester.ensureVisible(toggle);
+    await tester.tap(toggle);
+    await tester.pumpAndSettle();
+    await save(tester);
+    expect((await repo.getAllAccounts()).single.excludeFromTotal, isTrue);
     await close(tester);
   });
   testWidgets('无流水账户可以选择美元并实际保存币种', (tester) async {

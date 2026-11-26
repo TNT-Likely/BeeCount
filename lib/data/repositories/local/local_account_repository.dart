@@ -96,6 +96,7 @@ class LocalAccountRepository implements AccountRepository {
     String? cardLastFour,
     String? note,
     String? syncId,
+    bool excludeFromTotal = false,
   }) async {
     // 撞同名抛 DuplicateNameException(name 全局唯一)。静默路径(import /
     // app-link 等)请改用 [upsertAccount]。
@@ -132,6 +133,7 @@ class LocalAccountRepository implements AccountRepository {
         cardLastFour: d.Value(cardLastFour),
         note: d.Value(note),
         syncId: d.Value(syncId ?? _uuid.v4()),
+        excludeFromTotal: d.Value(excludeFromTotal),
       );
 
       final id = await db.into(db.accounts).insert(companion);
@@ -183,6 +185,7 @@ class LocalAccountRepository implements AccountRepository {
     String? note,
     bool clearMetadataFields = false,
     bool? hidden,
+    bool? excludeFromTotal,
   }) async {
     await (db.update(db.accounts)..where((a) => a.id.equals(id))).write(
       AccountsCompanion(
@@ -197,6 +200,9 @@ class LocalAccountRepository implements AccountRepository {
         cardLastFour: clearMetadataFields ? const d.Value(null) : (cardLastFour != null ? d.Value(cardLastFour) : const d.Value.absent()),
         note: clearMetadataFields ? const d.Value(null) : (note != null ? d.Value(note) : const d.Value.absent()),
         hidden: hidden == null ? const d.Value.absent() : d.Value(hidden),
+        excludeFromTotal: excludeFromTotal == null
+            ? const d.Value.absent()
+            : d.Value(excludeFromTotal),
       ),
     );
   }
@@ -791,9 +797,13 @@ class LocalAccountRepository implements AccountRepository {
     }).toList();
   }
 
+  /// 净资产/资产构成/净值趋势的统计口径:排除「不计入总资产」账户(#651)。
+  Future<List<Account>> _accountsCountedInTotal() async =>
+      (await getAllAccounts()).where((a) => !a.excludeFromTotal).toList();
+
   @override
   Future<({double totalAssets, double totalLiabilities, double netWorth})> getNetWorthBreakdown() async {
-    final accounts = await getAllAccounts();
+    final accounts = await _accountsCountedInTotal();
     double totalAssets = 0.0;
     double totalLiabilities = 0.0;
 
@@ -815,7 +825,7 @@ class LocalAccountRepository implements AccountRepository {
 
   @override
   Future<Map<String, ({double totalAssets, double totalLiabilities, double netWorth})>> getNetWorthBreakdownByCurrency() async {
-    final accounts = await getAllAccounts();
+    final accounts = await _accountsCountedInTotal();
     final Map<String, ({double totalAssets, double totalLiabilities, double netWorth})> result = {};
 
     for (final account in accounts) {
@@ -846,7 +856,7 @@ class LocalAccountRepository implements AccountRepository {
     required DateTime startDate,
     required DateTime endDate,
   }) async {
-    final accounts = await getAllAccounts();
+    final accounts = await _accountsCountedInTotal();
     if (accounts.isEmpty) return [];
 
     // 获取每个账户的每日余额
@@ -888,7 +898,7 @@ class LocalAccountRepository implements AccountRepository {
     required DateTime endDate,
     required Map<String, double> ratesToBase,
   }) async {
-    final accounts = await getAllAccounts();
+    final accounts = await _accountsCountedInTotal();
     if (accounts.isEmpty) return [];
 
     final allBalances = <int, List<({DateTime date, double balance})>>{};
@@ -926,7 +936,7 @@ class LocalAccountRepository implements AccountRepository {
 
   @override
   Future<List<({String type, double totalBalance})>> getAssetCompositionByType() async {
-    final accounts = await getAllAccounts();
+    final accounts = await _accountsCountedInTotal();
     final Map<String, double> typeBalances = {};
 
     for (final account in accounts) {
@@ -945,7 +955,7 @@ class LocalAccountRepository implements AccountRepository {
   @override
   Future<List<({String type, String currency, double totalBalance})>>
       getAssetCompositionByTypeAndCurrency() async {
-    final accounts = await getAllAccounts();
+    final accounts = await _accountsCountedInTotal();
     // (type, currency 大写) -> 余额累加
     final Map<({String type, String currency}), double> balances = {};
 

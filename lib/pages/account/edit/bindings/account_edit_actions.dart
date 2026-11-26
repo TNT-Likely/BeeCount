@@ -19,6 +19,7 @@ mixin _AccountEditActions on ConsumerState<AccountEditPage> {
   bool _balanceLoaded = true;
   bool _balanceLoadFailed = false;
   bool _creditOverpayment = false;
+  bool _excludeFromTotal = false;
   double? _loadedCurrentBalance;
   bool _isNameDuplicate = false;
   String? _nameErrorText;
@@ -53,6 +54,7 @@ mixin _AccountEditActions on ConsumerState<AccountEditPage> {
     _selectedCurrency = widget.account?.currency ?? 'CNY';
     _billingDay = widget.account?.billingDay;
     _paymentDueDay = widget.account?.paymentDueDay;
+    _excludeFromTotal = widget.account?.excludeFromTotal ?? false;
     _typeTab = isValuationOnlyType(_selectedType) ? 1 : 0;
     if (hasEditableCurrentBalance) _loadEditableCurrentBalance();
     _loadReminderSettings();
@@ -398,6 +400,7 @@ mixin _AccountEditActions on ConsumerState<AccountEditPage> {
             bankName: bankName ?? '',
             cardLastFour: cardLastFour ?? '',
             note: noteText,
+            excludeFromTotal: _excludeFromTotal,
           );
 
           if (balanceNeedsUpdate) {
@@ -450,6 +453,7 @@ mixin _AccountEditActions on ConsumerState<AccountEditPage> {
               ? cardLastFourText
               : null,
           note: noteText.isNotEmpty ? noteText : null,
+          excludeFromTotal: _excludeFromTotal,
         );
 
         // 保存还款提醒设置

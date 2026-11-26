@@ -654,6 +654,16 @@ class $AccountsTable extends Accounts with TableInfo<$AccountsTable, Account> {
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('CHECK ("hidden" IN (0, 1))'),
       defaultValue: const Constant(false));
+  static const VerificationMeta _excludeFromTotalMeta =
+      const VerificationMeta('excludeFromTotal');
+  @override
+  late final GeneratedColumn<bool> excludeFromTotal = GeneratedColumn<bool>(
+      'exclude_from_total', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("exclude_from_total" IN (0, 1))'),
+      defaultValue: const Constant(false));
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -672,7 +682,8 @@ class $AccountsTable extends Accounts with TableInfo<$AccountsTable, Account> {
         cardLastFour,
         note,
         syncId,
-        hidden
+        hidden,
+        excludeFromTotal
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -765,6 +776,12 @@ class $AccountsTable extends Accounts with TableInfo<$AccountsTable, Account> {
       context.handle(_hiddenMeta,
           hidden.isAcceptableOrUnknown(data['hidden']!, _hiddenMeta));
     }
+    if (data.containsKey('exclude_from_total')) {
+      context.handle(
+          _excludeFromTotalMeta,
+          excludeFromTotal.isAcceptableOrUnknown(
+              data['exclude_from_total']!, _excludeFromTotalMeta));
+    }
     return context;
   }
 
@@ -808,6 +825,8 @@ class $AccountsTable extends Accounts with TableInfo<$AccountsTable, Account> {
           .read(DriftSqlType.string, data['${effectivePrefix}sync_id']),
       hidden: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}hidden'])!,
+      excludeFromTotal: attachedDatabase.typeMapping.read(
+          DriftSqlType.bool, data['${effectivePrefix}exclude_from_total'])!,
     );
   }
 
@@ -838,6 +857,10 @@ class Account extends DataClass implements Insertable<Account> {
   /// 隐藏:true 时该账户不再出现在记账/转账/周期选择器,账户管理页移入「已隐藏」分区。
   /// 仍计入账户余额、净资产、资产构成、净值趋势(.docs/account-archive/01 §二 D1)。
   final bool hidden;
+
+  /// 不计入总资产:true 时该账户余额不进净资产、总资产/总负债、资产构成、
+  /// 净值趋势(#651)。账户本身照常可记账/转账、显示余额,与 [hidden] 相互独立。
+  final bool excludeFromTotal;
   const Account(
       {required this.id,
       required this.ledgerId,
@@ -855,7 +878,8 @@ class Account extends DataClass implements Insertable<Account> {
       this.cardLastFour,
       this.note,
       this.syncId,
-      required this.hidden});
+      required this.hidden,
+      required this.excludeFromTotal});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -894,6 +918,7 @@ class Account extends DataClass implements Insertable<Account> {
       map['sync_id'] = Variable<String>(syncId);
     }
     map['hidden'] = Variable<bool>(hidden);
+    map['exclude_from_total'] = Variable<bool>(excludeFromTotal);
     return map;
   }
 
@@ -931,6 +956,7 @@ class Account extends DataClass implements Insertable<Account> {
       syncId:
           syncId == null && nullToAbsent ? const Value.absent() : Value(syncId),
       hidden: Value(hidden),
+      excludeFromTotal: Value(excludeFromTotal),
     );
   }
 
@@ -955,6 +981,7 @@ class Account extends DataClass implements Insertable<Account> {
       note: serializer.fromJson<String?>(json['note']),
       syncId: serializer.fromJson<String?>(json['syncId']),
       hidden: serializer.fromJson<bool>(json['hidden']),
+      excludeFromTotal: serializer.fromJson<bool>(json['excludeFromTotal']),
     );
   }
   @override
@@ -978,6 +1005,7 @@ class Account extends DataClass implements Insertable<Account> {
       'note': serializer.toJson<String?>(note),
       'syncId': serializer.toJson<String?>(syncId),
       'hidden': serializer.toJson<bool>(hidden),
+      'excludeFromTotal': serializer.toJson<bool>(excludeFromTotal),
     };
   }
 
@@ -998,7 +1026,8 @@ class Account extends DataClass implements Insertable<Account> {
           Value<String?> cardLastFour = const Value.absent(),
           Value<String?> note = const Value.absent(),
           Value<String?> syncId = const Value.absent(),
-          bool? hidden}) =>
+          bool? hidden,
+          bool? excludeFromTotal}) =>
       Account(
         id: id ?? this.id,
         ledgerId: ledgerId ?? this.ledgerId,
@@ -1019,6 +1048,7 @@ class Account extends DataClass implements Insertable<Account> {
         note: note.present ? note.value : this.note,
         syncId: syncId.present ? syncId.value : this.syncId,
         hidden: hidden ?? this.hidden,
+        excludeFromTotal: excludeFromTotal ?? this.excludeFromTotal,
       );
   Account copyWithCompanion(AccountsCompanion data) {
     return Account(
@@ -1047,6 +1077,9 @@ class Account extends DataClass implements Insertable<Account> {
       note: data.note.present ? data.note.value : this.note,
       syncId: data.syncId.present ? data.syncId.value : this.syncId,
       hidden: data.hidden.present ? data.hidden.value : this.hidden,
+      excludeFromTotal: data.excludeFromTotal.present
+          ? data.excludeFromTotal.value
+          : this.excludeFromTotal,
     );
   }
 
@@ -1069,7 +1102,8 @@ class Account extends DataClass implements Insertable<Account> {
           ..write('cardLastFour: $cardLastFour, ')
           ..write('note: $note, ')
           ..write('syncId: $syncId, ')
-          ..write('hidden: $hidden')
+          ..write('hidden: $hidden, ')
+          ..write('excludeFromTotal: $excludeFromTotal')
           ..write(')'))
         .toString();
   }
@@ -1092,7 +1126,8 @@ class Account extends DataClass implements Insertable<Account> {
       cardLastFour,
       note,
       syncId,
-      hidden);
+      hidden,
+      excludeFromTotal);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1113,7 +1148,8 @@ class Account extends DataClass implements Insertable<Account> {
           other.cardLastFour == this.cardLastFour &&
           other.note == this.note &&
           other.syncId == this.syncId &&
-          other.hidden == this.hidden);
+          other.hidden == this.hidden &&
+          other.excludeFromTotal == this.excludeFromTotal);
 }
 
 class AccountsCompanion extends UpdateCompanion<Account> {
@@ -1134,6 +1170,7 @@ class AccountsCompanion extends UpdateCompanion<Account> {
   final Value<String?> note;
   final Value<String?> syncId;
   final Value<bool> hidden;
+  final Value<bool> excludeFromTotal;
   const AccountsCompanion({
     this.id = const Value.absent(),
     this.ledgerId = const Value.absent(),
@@ -1152,6 +1189,7 @@ class AccountsCompanion extends UpdateCompanion<Account> {
     this.note = const Value.absent(),
     this.syncId = const Value.absent(),
     this.hidden = const Value.absent(),
+    this.excludeFromTotal = const Value.absent(),
   });
   AccountsCompanion.insert({
     this.id = const Value.absent(),
@@ -1171,6 +1209,7 @@ class AccountsCompanion extends UpdateCompanion<Account> {
     this.note = const Value.absent(),
     this.syncId = const Value.absent(),
     this.hidden = const Value.absent(),
+    this.excludeFromTotal = const Value.absent(),
   })  : ledgerId = Value(ledgerId),
         name = Value(name);
   static Insertable<Account> custom({
@@ -1191,6 +1230,7 @@ class AccountsCompanion extends UpdateCompanion<Account> {
     Expression<String>? note,
     Expression<String>? syncId,
     Expression<bool>? hidden,
+    Expression<bool>? excludeFromTotal,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -1210,6 +1250,7 @@ class AccountsCompanion extends UpdateCompanion<Account> {
       if (note != null) 'note': note,
       if (syncId != null) 'sync_id': syncId,
       if (hidden != null) 'hidden': hidden,
+      if (excludeFromTotal != null) 'exclude_from_total': excludeFromTotal,
     });
   }
 
@@ -1230,7 +1271,8 @@ class AccountsCompanion extends UpdateCompanion<Account> {
       Value<String?>? cardLastFour,
       Value<String?>? note,
       Value<String?>? syncId,
-      Value<bool>? hidden}) {
+      Value<bool>? hidden,
+      Value<bool>? excludeFromTotal}) {
     return AccountsCompanion(
       id: id ?? this.id,
       ledgerId: ledgerId ?? this.ledgerId,
@@ -1249,6 +1291,7 @@ class AccountsCompanion extends UpdateCompanion<Account> {
       note: note ?? this.note,
       syncId: syncId ?? this.syncId,
       hidden: hidden ?? this.hidden,
+      excludeFromTotal: excludeFromTotal ?? this.excludeFromTotal,
     );
   }
 
@@ -1306,6 +1349,9 @@ class AccountsCompanion extends UpdateCompanion<Account> {
     if (hidden.present) {
       map['hidden'] = Variable<bool>(hidden.value);
     }
+    if (excludeFromTotal.present) {
+      map['exclude_from_total'] = Variable<bool>(excludeFromTotal.value);
+    }
     return map;
   }
 
@@ -1328,7 +1374,8 @@ class AccountsCompanion extends UpdateCompanion<Account> {
           ..write('cardLastFour: $cardLastFour, ')
           ..write('note: $note, ')
           ..write('syncId: $syncId, ')
-          ..write('hidden: $hidden')
+          ..write('hidden: $hidden, ')
+          ..write('excludeFromTotal: $excludeFromTotal')
           ..write(')'))
         .toString();
   }
@@ -13237,6 +13284,7 @@ typedef $$AccountsTableCreateCompanionBuilder = AccountsCompanion Function({
   Value<String?> note,
   Value<String?> syncId,
   Value<bool> hidden,
+  Value<bool> excludeFromTotal,
 });
 typedef $$AccountsTableUpdateCompanionBuilder = AccountsCompanion Function({
   Value<int> id,
@@ -13256,6 +13304,7 @@ typedef $$AccountsTableUpdateCompanionBuilder = AccountsCompanion Function({
   Value<String?> note,
   Value<String?> syncId,
   Value<bool> hidden,
+  Value<bool> excludeFromTotal,
 });
 
 class $$AccountsTableFilterComposer
@@ -13318,6 +13367,10 @@ class $$AccountsTableFilterComposer
 
   ColumnFilters<bool> get hidden => $composableBuilder(
       column: $table.hidden, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get excludeFromTotal => $composableBuilder(
+      column: $table.excludeFromTotal,
+      builder: (column) => ColumnFilters(column));
 }
 
 class $$AccountsTableOrderingComposer
@@ -13382,6 +13435,10 @@ class $$AccountsTableOrderingComposer
 
   ColumnOrderings<bool> get hidden => $composableBuilder(
       column: $table.hidden, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get excludeFromTotal => $composableBuilder(
+      column: $table.excludeFromTotal,
+      builder: (column) => ColumnOrderings(column));
 }
 
 class $$AccountsTableAnnotationComposer
@@ -13443,6 +13500,9 @@ class $$AccountsTableAnnotationComposer
 
   GeneratedColumn<bool> get hidden =>
       $composableBuilder(column: $table.hidden, builder: (column) => column);
+
+  GeneratedColumn<bool> get excludeFromTotal => $composableBuilder(
+      column: $table.excludeFromTotal, builder: (column) => column);
 }
 
 class $$AccountsTableTableManager extends RootTableManager<
@@ -13485,6 +13545,7 @@ class $$AccountsTableTableManager extends RootTableManager<
             Value<String?> note = const Value.absent(),
             Value<String?> syncId = const Value.absent(),
             Value<bool> hidden = const Value.absent(),
+            Value<bool> excludeFromTotal = const Value.absent(),
           }) =>
               AccountsCompanion(
             id: id,
@@ -13504,6 +13565,7 @@ class $$AccountsTableTableManager extends RootTableManager<
             note: note,
             syncId: syncId,
             hidden: hidden,
+            excludeFromTotal: excludeFromTotal,
           ),
           createCompanionCallback: ({
             Value<int> id = const Value.absent(),
@@ -13523,6 +13585,7 @@ class $$AccountsTableTableManager extends RootTableManager<
             Value<String?> note = const Value.absent(),
             Value<String?> syncId = const Value.absent(),
             Value<bool> hidden = const Value.absent(),
+            Value<bool> excludeFromTotal = const Value.absent(),
           }) =>
               AccountsCompanion.insert(
             id: id,
@@ -13542,6 +13605,7 @@ class $$AccountsTableTableManager extends RootTableManager<
             note: note,
             syncId: syncId,
             hidden: hidden,
+            excludeFromTotal: excludeFromTotal,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))

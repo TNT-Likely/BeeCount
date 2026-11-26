@@ -285,7 +285,8 @@ class WidgetDataService {
   /// 前 [limit] 个账户。已隐藏账户(`Account.hidden`)不进入这份展示列表——
   /// 隐藏账户仍计入净资产总额(见 [gatherNetWorthBreakdown]),但不是"我还在
   /// 用的账户"列表该展示的内容,与账户管理页(`accounts_page.dart`)的显示口径
-  /// 一致。缺有效汇率的账户仍返回(`convertedBalance` 为 null),按原币
+  /// 一致。不计入总资产的账户(`Account.excludeFromTotal`,#651)不是净资产
+  /// 的组成部分,同样不进入。缺有效汇率的账户仍返回(`convertedBalance` 为 null),按原币
   /// 余额兜底排序,由 UI 决定是否提示"未折算"。
   static Future<List<NetWorthAccountItem>> gatherNetWorthTopAccounts({
     required BaseRepository repository,
@@ -293,7 +294,9 @@ class WidgetDataService {
     int limit = 5,
   }) async {
     final accounts =
-        (await repository.getAllAccounts()).where((a) => !a.hidden).toList();
+        (await repository.getAllAccounts())
+            .where((a) => !a.hidden && !a.excludeFromTotal)
+            .toList();
     if (accounts.isEmpty) return const [];
 
     final stats = await repository.getAllAccountStats();

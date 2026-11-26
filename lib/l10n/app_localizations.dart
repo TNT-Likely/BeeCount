@@ -8296,6 +8296,24 @@ abstract class AppLocalizations {
   /// **'Hidden'**
   String get accountHiddenTag;
 
+  /// No description provided for @accountExcludeFromTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Exclude from net worth'**
+  String get accountExcludeFromTotal;
+
+  /// No description provided for @accountExcludeFromTotalDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'This account\'s balance won\'t count toward net worth, total assets/liabilities, asset composition or the trend. Recording and transfers still work.'**
+  String get accountExcludeFromTotalDesc;
+
+  /// No description provided for @accountExcludedTag.
+  ///
+  /// In en, this message translates to:
+  /// **'Not counted'**
+  String get accountExcludedTag;
+
   /// No description provided for @accountHiddenSection.
   ///
   /// In en, this message translates to:
