@@ -16,6 +16,7 @@ import 'dart:convert';
 import 'package:agentcore/agentcore.dart'
     show AgentNativeModelPhase, AgentPromptSuggestion;
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show RenderAbstractViewport;
 import 'package:flutter/services.dart';
 import 'package:flutter_agent_ui/flutter_agent_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -104,6 +105,8 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
   Map<String, Object?> _liveQueryContext = const {};
   int? _liveSourceId;
   int? _continuingMessageId;
+  int? _queryAnchorSource;
+  bool _liveCardPositioned = false;
   AIResponse? _liveAgentResponse;
   int? _liveAssistantMessageId;
   int? _pendingResponseMessageId;
@@ -164,6 +167,7 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
     _presentations.clear();
     setState(() {
       _conversationId = id;
+      _queryAnchorSource = null;
       _isFirstLoad = true;
       _followLatest = true;
       _showScrollToBottom = false;
@@ -329,7 +333,9 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
                     // 首次加载完成且有消息时，自动滚动到底部
                     if (_isFirstLoad && displayMessages.isNotEmpty) {
                       _isFirstLoad = false;
-                      _chatScrollCoordinator.requestInitialPositioning();
+                      if (_queryAnchorSource == null) {
+                        _chatScrollCoordinator.requestInitialPositioning();
+                      }
                     }
 
                     if (displayMessages.isEmpty && !_hasLiveAgentMessage) {
@@ -341,8 +347,13 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
                     }
 
                     return NotificationListener<ScrollMetricsNotification>(
-                      onNotification: (_) {
+                      onNotification: (notification) {
                         _chatScrollCoordinator.onScrollMetricsChanged();
+                        if (notification.depth == 0 && !_followLatest) {
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            if (mounted) _handleScroll();
+                          });
+                        }
                         return false;
                       },
                       child: NotificationListener<ScrollNotification>(
@@ -351,6 +362,7 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
                             if (notification is ScrollStartNotification &&
                                 notification.dragDetails != null) {
                               _isUserScrolling = true;
+                              _queryAnchorSource = null;
                               _followLatest = false;
                               _chatScrollCoordinator.onUserScroll();
                             }
@@ -549,7 +561,7 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
         activity: _answerHeader(message, source, queries),
         content:
             Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          if (retained) _financialCard(presentation!),
+          if (retained) _financialCard(presentation!, sourceId: source?.id),
           if (interrupted &&
               !retained &&
               !failedRead &&
@@ -597,6 +609,7 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
                 child: _answerText(message.content))
           else
             _financialContent(presentation, message.content,
+                sourceId: source?.id,
                 key: PageStorageKey('detail-${message.id}'),
                 keepLead: data['writeRequested'] == true ||
                     data['continuedExplanation'] == true ||
@@ -638,14 +651,48 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
       style: TextStyle(
           color: BeeTokens.textPrimary(context), fontSize: 14, height: 1.6));
 
-  Widget _financialCard(AgentFinancialPresentation presentation) =>
-      AgentFinancialAnswer(
-          presentation: presentation,
-          onEvidence: (scope) => LedgerEvidenceSheet.show(context,
-              ledgerId: ref.read(currentLedgerIdProvider), queries: scope));
+  Widget _financialCard(AgentFinancialPresentation presentation,
+          {required int? sourceId, bool live = false}) =>
+      Builder(builder: (anchor) {
+        if (sourceId != null &&
+            _queryAnchorSource == sourceId &&
+            (!live || !_liveCardPositioned)) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted ||
+                !anchor.mounted ||
+                !_scrollController.hasClients ||
+                _queryAnchorSource != sourceId) {
+              return;
+            }
+            final card = anchor.findRenderObject();
+            if (card == null || !card.attached) return;
+            final viewport = RenderAbstractViewport.maybeOf(card);
+            if (viewport == null) return;
+            final position = _scrollController.position;
+            final top = viewport.getOffsetToReveal(card, 0).offset;
+            final bottom = viewport.getOffsetToReveal(card, 1).offset;
+            if (position.pixels > top || position.pixels < bottom) {
+              position.jumpTo((top - 8)
+                  .clamp(position.minScrollExtent, position.maxScrollExtent));
+            }
+            if (live) {
+              _liveCardPositioned = true;
+            } else {
+              _queryAnchorSource = null;
+            }
+          });
+        }
+        return AgentFinancialAnswer(
+            presentation: presentation,
+            onEvidence: (scope) => LedgerEvidenceSheet.show(context,
+                ledgerId: ref.read(currentLedgerIdProvider), queries: scope));
+      });
 
   Widget _financialContent(AgentFinancialPresentation p, String text,
-      {required Key key, bool keepLead = false}) {
+      {required Key key,
+      required int? sourceId,
+      bool live = false,
+      bool keepLead = false}) {
     final paragraphs = text.trim().split(RegExp(r'\n\s*\n'));
     final showLead = paragraphs.first.isNotEmpty && (!p.isCompact || keepLead);
     final lead = Padding(
@@ -653,7 +700,7 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
         child: _answerText(paragraphs.first));
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       if (showLead && !p.hasDeclaredMetric) lead,
-      _financialCard(p),
+      _financialCard(p, sourceId: sourceId, live: live),
       if (showLead && p.hasDeclaredMetric) lead,
       if (paragraphs.length > 1 && !ref.watch(hideAmountsProvider))
         ExpansionTile(
@@ -859,7 +906,7 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
           hideDetails: ref.watch(hideAmountsProvider),
           modelPhase: _agentModelPhase,
         ),
-        if (hasMetric) _financialCard(p!),
+        if (hasMetric) _financialCard(p!, sourceId: _liveSourceId, live: true),
         if (hasMetric &&
             (!p!.isCompact || _continuingMessageId != null) &&
             _streamingAgentText.isNotEmpty)
@@ -904,10 +951,12 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
       content:
           Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         if (p?.hasDeclaredMetric == true && interrupted) ...[
-          _financialCard(p!),
+          _financialCard(p!, sourceId: _liveSourceId, live: true),
           Text(AppLocalizations.of(context).agentQueryRetained),
         ] else if (p != null && !interrupted)
           _financialContent(p, response.text,
+              sourceId: _liveSourceId,
+              live: true,
               key: ValueKey('live-detail-$_activeAgentRunId'),
               keepLead: _declinedWrite ||
                   _continuingMessageId != null ||
@@ -1046,6 +1095,8 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
 
     setState(() {
       _isLoading = true;
+      _queryAnchorSource = null;
+      _liveCardPositioned = false;
       _followLatest = continuation == null;
       _isUserScrolling = false;
     });
@@ -1316,9 +1367,36 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
   }
 
   void _setLiveEvidence(Map<String, Object?> queryContext, int ledgerId) {
+    final hadMetric = _livePresentation?.hasDeclaredMetric == true;
     _liveQueryContext = queryContext;
     _livePresentation = AgentFinancialPresentation.select(
         LedgerEvidenceSheet.fromQueryContext(queryContext, ledgerId));
+    final sourceId = _liveSourceId;
+    if (hadMetric ||
+        _livePresentation?.hasDeclaredMetric != true ||
+        sourceId == null ||
+        !_followLatest ||
+        _continuingMessageId != null) {
+      return;
+    }
+    // Keep the first verified figure in view while model text grows underneath.
+    // An explicit drag or jump immediately gives control back to the reader.
+    _followLatest = false;
+    _queryAnchorSource = sourceId;
+    _chatScrollCoordinator.onUserScroll();
+    if (_scrollController.hasClients &&
+        _scrollController.position.isScrollingNotifier.value) {
+      _scrollController.jumpTo(_scrollController.position.pixels);
+    }
+    WidgetsBinding.instance.endOfFrame.then((_) {
+      if (mounted &&
+          _queryAnchorSource == sourceId &&
+          !_liveCardPositioned &&
+          _scrollController.hasClients) {
+        // A long user message may still keep the lazy reply row out of the tree.
+        _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+      }
+    });
   }
 
   Value<String?> _responseMetadata(
@@ -1428,6 +1506,7 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
 
   /// 点击按钮时滚动到底部（立即执行）
   Future<void> _scrollToBottomWithAnimation() async {
+    _queryAnchorSource = null;
     _followLatest = true;
     _isUserScrolling = false;
     final id = _conversationId;

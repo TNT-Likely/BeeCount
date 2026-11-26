@@ -1177,6 +1177,68 @@ void main() {
     await tester.pump(const Duration(seconds: 3));
     await tester.pumpAndSettle();
   });
+  for (final drag in [false, true]) {
+    testWidgets('键盘打开时长复盘${drag ? '保留主动阅读的位置' : '保留结余卡在视口'}', (tester) async {
+      tester.view.devicePixelRatio = 1;
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.viewInsets = const FakeViewPadding(bottom: 310);
+      addTearDown(tester.view.reset);
+      await repository.createLedger(name: '复盘验收');
+      final model = _StreamingQueryModel(metric: 'overview');
+      await tester.pumpWidget(host(model: model));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField).first, '帮我复盘这个月的收支');
+      await tester.testTextInput.receiveAction(TextInputAction.send);
+      final card = find.byKey(const ValueKey('financial-answer-overview'));
+      await _pumpUntil(tester,
+          () => card.evaluate().isNotEmpty && model.answeringRequest != null);
+      final body = List.filled(45, '这段说明解释本期支出的变化和关注点。').join();
+      model.answeringRequest!.nativeStreamSink
+          ?.call(core.AgentNativeTextDelta(body));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
+      void expectCardHeaderInView() {
+        final viewport = tester.getRect(find.byType(ListView).first);
+        final top = tester.getTopLeft(card).dy;
+        expect(top, greaterThanOrEqualTo(viewport.top - 2));
+        expect(top + 65, lessThanOrEqualTo(viewport.bottom));
+      }
+
+      expectCardHeaderInView();
+      final list = find.byType(ListView).first;
+      final controller = tester.widget<ListView>(list).controller!;
+      double? readingOffset;
+      if (drag) {
+        await tester.timedDrag(list, const Offset(0, -260),
+            const Duration(milliseconds: 650));
+        await tester.pump(const Duration(milliseconds: 400));
+        expect(tester.getTopLeft(card).dy, lessThan(tester.getRect(list).top));
+        readingOffset = controller.offset;
+      }
+      model.answer.complete(core.AgentTurn.finalText(body));
+      await _pumpUntil(tester, () => find.text('查账依据').evaluate().isNotEmpty);
+      await tester.pumpAndSettle();
+      if (readingOffset == null) {
+        expectCardHeaderInView();
+      } else {
+        expect(controller.offset, closeTo(readingOffset, 2));
+      }
+      final jump = find.byKey(const ValueKey('agent-scroll-to-latest'));
+      expect(jump.hitTestable(), findsOneWidget);
+      await tester.tap(jump);
+      await tester.pumpAndSettle();
+      expect(
+          tester
+              .widget<ListView>(find.byType(ListView).first)
+              .controller!
+              .position
+              .extentAfter,
+          lessThan(2));
+      await tester.pumpWidget(const SizedBox());
+      await tester.pump(const Duration(seconds: 3));
+    });
+  }
+
   for (final stop in [false, true]) {
     testWidgets('核对后${stop ? '停止' : '超时'}可以原地继续，沿用旧金额和账单', (tester) async {
       final ledger = await repository.createLedger(name: '解读验收');
@@ -1189,7 +1251,7 @@ void main() {
               happenedAt: Value(DateTime.now()),
               note: const Value('不应发给模型的账单备注')));
       await add(36.5);
-      final model = _StreamingQueryModel(declareExpense: true);
+      final model = _StreamingQueryModel(metric: 'expense');
       await tester.pumpWidget(host(model: model));
       await tester.pumpAndSettle();
       await tester.enterText(find.byType(TextField).first, '这个月花了多少？');
@@ -1274,8 +1336,8 @@ void main() {
 }
 
 final class _StreamingQueryModel implements core.AgentModel {
-  _StreamingQueryModel({this.declareExpense = false});
-  final bool declareExpense;
+  _StreamingQueryModel({this.metric});
+  final String? metric;
   final answer = Completer<core.AgentTurn>();
   core.AgentRequest? answeringRequest;
   core.AgentRequest? continued;
@@ -1294,7 +1356,7 @@ final class _StreamingQueryModel implements core.AgentModel {
             name: 'get_period_overview',
             arguments: {
               'period': 'current_month',
-              if (declareExpense) 'answerMetric': 'expense'
+              if (metric != null) 'answerMetric': metric
             }),
       ]);
     }
