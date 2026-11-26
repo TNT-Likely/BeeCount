@@ -93,6 +93,7 @@ class AIChatService {
     Map<String, Object?> view = const {},
     bool review = false,
     List<Map<String, Object?>> repeatQueries = const [],
+    Map<String, Object?>? continueQueryContext,
     bool Function()? isCancelled,
   }) async* {
     final context =
@@ -106,6 +107,9 @@ class AIChatService {
     }
     if (readOnly && repeatQueries.isNotEmpty) {
       context['repeatQueries'] = repeatQueries;
+    }
+    if (readOnly && continueQueryContext != null) {
+      context['continueQueryContext'] = continueQueryContext;
     }
     yield* _agentFacade.processMessageEvents(
       message: userInput,

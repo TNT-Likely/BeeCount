@@ -1,4 +1,78 @@
 {
+  "agentQueryFlowCount": "{flow} · {count} transactions",
+  "@agentQueryFlowCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "flow": {
+        "type": "String"
+      }
+    }
+  },
+  "agentQueryOpenBills": "View {countLabel}",
+  "@agentQueryOpenBills": {
+    "placeholders": {
+      "countLabel": {
+        "type": "String"
+      }
+    }
+  },
+  "agentQueryIncomeAndExpense": "Income and expenses",
+  "agentQueryTotalByDate": "{flow} this month through {date}",
+  "@agentQueryTotalByDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "flow": {
+        "type": "String"
+      }
+    }
+  },
+  "agentQueryBasis": "Query details",
+  "agentQueryReading": "Checking {scope}…",
+  "@agentQueryReading": {
+    "placeholders": {
+      "scope": {
+        "type": "String"
+      }
+    }
+  },
+  "agentQueryThisMonthFlow": "this month’s {flow}",
+  "@agentQueryThisMonthFlow": {
+    "placeholders": {
+      "flow": {
+        "type": "String"
+      }
+    }
+  },
+  "agentQueryReady": "Checked {countLabel}. Preparing your answer…",
+  "@agentQueryReady": {
+    "placeholders": {
+      "countLabel": {
+        "type": "String"
+      }
+    }
+  },
+  "agentQueryReadyPrivate": "Results ready. Preparing your answer…",
+  "agentQueryBasisRange": "{start} – {end}",
+  "@agentQueryBasisRange": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "agentQueryStatsExcluded": "Excludes internal transfers and bills excluded from statistics",
+  "agentQueryStatsIncluded": "Includes bills marked as excluded from statistics. Internal transfers are excluded.",
+  "agentQueryRetained": "The explanation was interrupted. Your checked results are available.",
+  "agentQueryResume": "Continue explanation",
+  "agentQueryRetry": "Retry query",
+  "agentQueryReadFailed": "The ledger query did not finish",
   "agentEvidenceScope": "Query scope",
   "agentEvidenceNextPage": "Next page",
   "agentEvidenceLedgerChanged": "The active ledger has changed",

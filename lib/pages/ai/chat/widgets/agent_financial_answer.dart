@@ -12,8 +12,9 @@ import '../../../../styles/tokens.dart';
 import '../../../../utils/category_utils.dart';
 import '../../../../utils/currencies.dart';
 import '../../../../utils/format_money.dart';
+import 'ledger_evidence_label.dart';
 
-enum _CardKind { overview, accounts, comparison }
+enum _CardKind { total, overview, accounts, comparison }
 
 enum _MetricKind { income, expense, previous }
 
@@ -24,59 +25,158 @@ typedef _CardData = ({
   String range,
   double value,
   String currency,
-  int count,
   List<_Line> rows,
-  String? note,
-  List<Map<String, Object?>> evidence
+  String? note
 });
 
-/// Builds cards solely from the local tool attachment. Ordinary answers and
-/// old messages keep their narrative when the evidence cannot support a card.
-class AgentFinancialAnswer extends ConsumerWidget {
-  const AgentFinancialAnswer._(this._selection, this.onEvidence);
+/// A validated projection of one answer's immutable ledger snapshots. The
+/// live reply, saved reply and evidence sheet can reuse this same selection.
+final class AgentFinancialPresentation {
+  AgentFinancialPresentation._(this._selection);
   final _Selection _selection;
+  _Scope get _primary => _selection.scopes.first;
+  static const _metrics = {'expense', 'income', 'balance', 'overview'};
+
+  static AgentFinancialPresentation? select(
+      List<Map<String, Object?>> queries) {
+    final selected = AgentFinancialAnswer._select(queries);
+    return selected == null ? null : AgentFinancialPresentation._(selected);
+  }
+
+  bool get isCompact => _selection.kind == _CardKind.total;
+  String? get metric {
+    final value = _primary.query['answerMetric'];
+    return (_selection.kind == _CardKind.overview || isCompact) &&
+            value is String &&
+            _metrics.contains(value)
+        ? value
+        : null;
+  }
+
+  bool get hasDeclaredMetric => metric != null;
+  String? get flow => switch (metric) {
+        'income' => 'income',
+        'expense' => 'expense',
+        _
+            when _selection.kind == _CardKind.accounts ||
+                _selection.kind == _CardKind.comparison =>
+          'expense',
+        _ => null,
+      };
+  int get count =>
+      flow == null ? _primary.snapshot['count'] as int : _primary.count(flow!);
+  DateTime get start => _primary.start;
+  DateTime get end => _primary.end;
+  Map<String, Object?> get filters => _primary.filters;
+  String countLabel(AppLocalizations l) =>
+      l.agentQueryFlowCount(count, flowLabel(l));
+  String flowLabel(AppLocalizations l) => switch (flow) {
+        'expense' => l.homeExpense,
+        'income' => l.homeIncome,
+        _ => l.agentQueryIncomeAndExpense,
+      };
+  String rangeLabel(BuildContext context) => hasDeclaredMetric
+      ? ledgerEvidenceDateRange(context, start, end)
+      : _primary.range(context);
+
+  /// Display-only projections. Replaying a query still uses its unmodified
+  /// frozen filters, including the original exclusive end.
+  late final List<Map<String, Object?>> evidence = [
+    for (final s in _selection.scopes)
+      if (hasDeclaredMetric || _selection.kind == _CardKind.comparison)
+        {
+          ...s.query,
+          if (flow != null) 'displayFlow': flow,
+          if (hasDeclaredMetric) 'displayMetric': metric,
+        }
+      else
+        s.query
+  ];
+}
+
+/// Builds cards solely from the local tool attachment.
+class AgentFinancialAnswer extends ConsumerWidget {
+  const AgentFinancialAnswer(
+      {super.key, required this.presentation, required this.onEvidence});
+  final AgentFinancialPresentation presentation;
   final ValueChanged<List<Map<String, Object?>>> onEvidence;
 
   static Widget? fromQueries({
     required List<Map<String, Object?>> queries,
     required ValueChanged<List<Map<String, Object?>>> onEvidence,
   }) {
-    final selection = _select(queries);
-    return selection == null
+    final selected = AgentFinancialPresentation.select(queries);
+    return selected == null
         ? null
-        : AgentFinancialAnswer._(selection, onEvidence);
+        : AgentFinancialAnswer(presentation: selected, onEvidence: onEvidence);
   }
 
   static String? copyText(
       BuildContext context, List<Map<String, Object?>> queries,
       {bool accountsEnabled = true}) {
-    final selection = _select(queries);
-    if (selection == null) return null;
-    final data = _describe(context, selection, accountsEnabled);
+    final selected = AgentFinancialPresentation.select(queries);
+    if (selected == null) return null;
+    final data = _describe(context, selected, accountsEnabled);
     final l = AppLocalizations.of(context);
     final symbol = getDistinctCurrencySymbol(data.currency);
     String money(double amount) =>
         '$symbol${formatMoneyCompact(amount, trimZeros: false)}';
     return [
-      '${data.title} · ${data.range}',
+      selected.isCompact ? data.title : '${data.title} · ${data.range}',
       money(data.value),
       for (final row in data.rows)
         '${row.label} · ${money(row.amount)} · ${l.agentEvidenceCount(row.count)}',
-      l.agentEvidenceCount(data.count),
+      selected.hasDeclaredMetric
+          ? selected.countLabel(l)
+          : l.agentEvidenceCount(selected.count),
       if (data.note != null) data.note!,
     ].join('\n');
   }
 
   static _Selection? _select(List<Map<String, Object?>> queries) {
-    final scopes = queries.map(_Scope.read).whereType<_Scope>().toList();
-    if (scopes.isEmpty ||
-        scopes.length != queries.length ||
-        scopes.map((s) => s.query['ledgerId']).toSet().length != 1) {
+    if (queries.isEmpty ||
+        queries.any((q) => q['ledgerId'] != queries.first['ledgerId'])) {
       return null;
     }
+    final declared = queries
+        .where((q) =>
+            q['tool'] == 'get_period_overview' &&
+            AgentFinancialPresentation._metrics.contains(q['answerMetric']))
+        .toList();
+    if (declared.length == 1) {
+      final primary = _Scope.read(declared.single);
+      if (primary == null) return null;
+      final metric = primary.query['answerMetric'];
+      final isFlow = metric == 'expense' || metric == 'income';
+      if (isFlow && (primary.flow == null || primary.flow == metric)) {
+        return (kind: _CardKind.total, scopes: [primary]);
+      }
+      if (!isFlow &&
+          primary.flow == null &&
+          primary.snapshot['count'] ==
+              primary.count('income') + primary.count('expense')) {
+        return (
+          kind: metric == 'balance' ? _CardKind.total : _CardKind.overview,
+          scopes: [primary]
+        );
+      }
+      return null;
+    }
+    if (declared.length > 1 &&
+        !declared.every((q) => q['answerMetric'] == 'expense')) {
+      return null;
+    }
+    if (queries.length == 1 &&
+        queries.single['tool'] == 'get_period_overview' &&
+        queries.single.containsKey('answerMetric')) {
+      return null;
+    }
+    final scopes = queries.map(_Scope.read).whereType<_Scope>().toList();
+    if (scopes.length != queries.length) return null;
     final overviews = scopes
         .where((s) =>
             s.tool == 'get_period_overview' &&
+            !s.query.containsKey('answerMetric') &&
             s.flow == null &&
             !s.hasEntityFilters &&
             s.snapshot['count'] == s.count('income') + s.count('expense'))
@@ -84,7 +184,7 @@ class AgentFinancialAnswer extends ConsumerWidget {
     // A monthly review often also fetches a category chart, an annual trend,
     // budgets and recurring rules. Its single unrestricted overview owns the
     // net figure, even when the supporting chart looks back further.
-    if (overviews.length == 1) {
+    if (overviews.length == 1 && declared.isEmpty) {
       return (kind: _CardKind.overview, scopes: overviews);
     }
     final candidates = <_Scope>[];
@@ -134,24 +234,47 @@ class AgentFinancialAnswer extends ConsumerWidget {
     return null;
   }
 
-  static _CardData _describe(
-      BuildContext context, _Selection selection, bool accountsEnabled) {
-    final (kind: kind, scopes: scopes) = selection;
+  static _CardData _describe(BuildContext context,
+      AgentFinancialPresentation presentation, bool accountsEnabled,
+      {bool hidden = false}) {
+    final (kind: kind, scopes: scopes) = presentation._selection;
     final scope = scopes.first;
     final l = AppLocalizations.of(context);
     final income = scope.amount('income'), expense = scope.amount('expense');
     final rows = <_Line>[];
-    var evidence = scopes.map((s) => s.query).toList();
     late String title;
     late double value;
     String? note;
     switch (kind) {
+      case _CardKind.total:
+        final metric = presentation.metric;
+        final label =
+            metric == 'balance' ? l.homeBalance : presentation.flowLabel(l);
+        final qualifiers = ledgerEvidenceFilterLabels(context, scope.filters,
+            accountsEnabled: accountsEnabled,
+            hideAmounts: hidden,
+            flow: presentation.flow);
+        title = qualifiers.isEmpty
+            ? scope.totalTitle(context, label)
+            : [presentation.rangeLabel(context), ...qualifiers, label]
+                .join(' · ');
+        value = switch (metric) {
+          'income' => income,
+          'expense' => expense,
+          _ => income - expense,
+        };
       case _CardKind.overview:
         final nextMonth = DateTime(scope.start.year, scope.start.month + 1);
-        title = scope.start.day == 1 && !scope.end.isAfter(nextMonth)
+        final heading = scope.start.day == 1 && !scope.end.isAfter(nextMonth)
             ? l.agentAnswerMonthBalance(
                 DateFormat.MMM(l.localeName).format(scope.start))
             : l.homeBalance;
+        title = [
+          if (presentation.hasDeclaredMetric)
+            ...ledgerEvidenceFilterLabels(context, scope.filters,
+                accountsEnabled: accountsEnabled, hideAmounts: hidden),
+          heading
+        ].join(' · ');
         value = income - expense;
         rows.addAll([
           (
@@ -167,7 +290,7 @@ class AgentFinancialAnswer extends ConsumerWidget {
             kind: _MetricKind.expense
           )
         ]);
-        if (scope.count('transfer') > 0) {
+        if (scope.count('transfer') > 0 && !presentation.hasDeclaredMetric) {
           note = l.agentAnswerTransferNote(scope.count('transfer'));
         }
       case _CardKind.accounts:
@@ -219,36 +342,32 @@ class AgentFinancialAnswer extends ConsumerWidget {
             kind: s == scope ? _MetricKind.expense : _MetricKind.previous
           ));
         }
-        evidence = [
-          for (final s in scopes) {...s.query, 'displayFlow': 'expense'}
-        ];
     }
     return (
       title: title,
-      range: scope.range(context),
+      range: presentation.rangeLabel(context),
       value: value,
       currency: scope.currency,
       rows: rows,
       note: note,
-      evidence: evidence,
-      count: kind == _CardKind.comparison
-          ? scope.count('expense')
-          : scope.snapshot['count'] as int
     );
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     if (ref.watch(currentLedgerIdProvider) !=
-        _selection.scopes.first.query['ledgerId']) {
+        presentation._primary.query['ledgerId']) {
       return const SizedBox.shrink();
     }
     final l = AppLocalizations.of(context);
     final hidden = ref.watch(hideAmountsProvider);
     final accountsEnabled =
         ref.watch(accountFeatureEnabledProvider).valueOrNull ?? true;
-    final data = _describe(context, _selection, accountsEnabled);
-    final kind = _selection.kind, rows = data.rows, note = data.note;
+    final data =
+        _describe(context, presentation, accountsEnabled, hidden: hidden);
+    final kind = presentation._selection.kind,
+        rows = data.rows,
+        note = data.note;
     final style = Theme.of(context).textTheme;
     final surface = BeeCardTheme.of(context);
     final symbol = getDistinctCurrencySymbol(data.currency);
@@ -259,6 +378,52 @@ class AgentFinancialAnswer extends ConsumerWidget {
           _MetricKind.expense => BeeTokens.expenseColor(context, ref),
           _MetricKind.previous => Theme.of(context).hintColor,
         };
+    final amount = BeeMoney(
+        amount: formatMoneyCompact(data.value, trimZeros: false),
+        prefix: symbol,
+        size: presentation.isCompact ? 36 : 31,
+        hidden: hidden,
+        alignment: Alignment.centerLeft);
+    final bills = TextButton(
+        onPressed: () => onEvidence(presentation.evidence),
+        style: TextButton.styleFrom(
+            alignment: Alignment.centerLeft,
+            padding: const EdgeInsets.symmetric(horizontal: 2),
+            minimumSize: const Size(44, 44),
+            foregroundColor: Theme.of(context).colorScheme.onSurface),
+        child: Row(
+            mainAxisSize:
+                presentation.isCompact ? MainAxisSize.min : MainAxisSize.max,
+            children: [
+              BeeLineIcon('ReceiptText',
+                  size: 16,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant),
+              const SizedBox(width: 7),
+              Flexible(
+                  fit: presentation.isCompact ? FlexFit.loose : FlexFit.tight,
+                  child: Text(presentation.hasDeclaredMetric
+                      ? l.agentQueryOpenBills(presentation.countLabel(l))
+                      : l.agentEvidenceBills)),
+              if (!presentation.hasDeclaredMetric)
+                Text(l.agentEvidenceCount(presentation.count),
+                    style: style.labelSmall),
+              const SizedBox(width: 4),
+              BeeLineIcon('ChevronRight',
+                  size: 14,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant)
+            ]));
+    if (presentation.isCompact) {
+      return Column(
+          key: ValueKey('financial-answer-${presentation.metric}'),
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(data.title, style: style.bodyLarge),
+            const SizedBox(height: 5),
+            amount,
+            const SizedBox(height: 5),
+            bills
+          ]);
+    }
     return Container(
         key: ValueKey('financial-answer-${kind.name}'),
         width: double.infinity,
@@ -282,12 +447,7 @@ class AgentFinancialAnswer extends ConsumerWidget {
                         ?.copyWith(color: BeeTokens.textSecondary(context))),
               ]),
           const SizedBox(height: 4),
-          BeeMoney(
-              amount: formatMoneyCompact(data.value, trimZeros: false),
-              prefix: symbol,
-              size: 31,
-              hidden: hidden,
-              alignment: Alignment.centerLeft),
+          amount,
           if (kind == _CardKind.accounts)
             for (final row in rows)
               Padding(
@@ -317,6 +477,7 @@ class AgentFinancialAnswer extends ConsumerWidget {
                                 symbol: symbol,
                                 color: color(row.kind),
                                 divisor: divisor,
+                                showBar: !presentation.hasDeclaredMetric,
                                 hidden: hidden)),
                       ]
                     ])),
@@ -328,25 +489,7 @@ class AgentFinancialAnswer extends ConsumerWidget {
                         ?.copyWith(color: BeeTokens.textSecondary(context)))),
           const SizedBox(height: 4),
           const Divider(height: 1),
-          TextButton(
-              onPressed: () => onEvidence(data.evidence),
-              style: TextButton.styleFrom(
-                  alignment: Alignment.centerLeft,
-                  padding: const EdgeInsets.symmetric(horizontal: 2),
-                  minimumSize: const Size(44, 44),
-                  foregroundColor: Theme.of(context).colorScheme.onSurface),
-              child: Row(children: [
-                BeeLineIcon('ReceiptText',
-                    size: 16,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant),
-                const SizedBox(width: 7),
-                Expanded(child: Text(l.agentEvidenceBills)),
-                Text(l.agentEvidenceCount(data.count), style: style.labelSmall),
-                const SizedBox(width: 4),
-                BeeLineIcon('ChevronRight',
-                    size: 14,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant)
-              ])),
+          bills,
         ]));
   }
 }
@@ -360,12 +503,13 @@ class _Metric extends StatelessWidget {
       required this.symbol,
       required this.divisor,
       required this.hidden,
+      this.showBar = true,
       this.compact = false});
   final String label, symbol;
   final int count;
   final double amount, divisor;
   final Color color;
-  final bool hidden, compact;
+  final bool hidden, compact, showBar;
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).textTheme;
@@ -387,7 +531,7 @@ class _Metric extends StatelessWidget {
           price
         ])
       else ...[heading, const SizedBox(height: 2), price],
-      if (!hidden) ...[
+      if (!hidden && showBar) ...[
         const SizedBox(height: 4),
         ExcludeSemantics(
             child: ClipRRect(
@@ -405,17 +549,35 @@ class _Metric extends StatelessWidget {
 class _Scope {
   _Scope(this.query, this.snapshot, this.filters, this.start, this.end);
   final Map<String, Object?> query;
-  final Map snapshot, filters;
+  final Map snapshot;
+  final Map<String, Object?> filters;
   final DateTime start, end;
   static _Scope? read(Map<String, Object?> q) {
     final ledger = q['ledgerId'];
     final snap = q['snapshot'];
     if (ledger is! int ||
+        q['ref'] is! String ||
+        (q['ref'] as String).isEmpty ||
         !LedgerQuerySnapshot.valid(snap, ledger) ||
+        q['tool'] is! String ||
         q['filters'] is! Map) {
       return null;
     }
     final s = snap as Map, filters = q['filters'] as Map;
+    for (final total in (s['totals'] as Map).values) {
+      if (total is! Map ||
+          total['amount'] is! num ||
+          !(total['amount'] as num).isFinite ||
+          total['count'] is! int ||
+          (total['count'] as int) < 0) {
+        return null;
+      }
+    }
+    if (!filters.keys.every((key) => key is String) ||
+        !const {null, 'income', 'expense', 'transfer'}
+            .contains(filters['flowType'])) {
+      return null;
+    }
     final start = DateTime.tryParse(s['start']?.toString() ?? '')?.toLocal();
     final end = DateTime.tryParse(s['end']?.toString() ?? '')?.toLocal();
     if (start == null || end == null || !start.isBefore(end)) return null;
@@ -432,7 +594,7 @@ class _Scope {
         return null;
       }
     }
-    return _Scope(q, s, filters, start, end);
+    return _Scope(q, s, filters.cast<String, Object?>(), start, end);
   }
 
   String get currency => snapshot['currency'] as String;
@@ -440,8 +602,10 @@ class _Scope {
   String? get tool => query['tool'] as String?;
   Object? get categorySelector =>
       filters['categoryNames'] ?? filters['categoryIds'];
-  String? get categoryName =>
-      (filters['categoryNames'] as List?)?.whereType<String>().firstOrNull;
+  String? get categoryName => switch (filters['categoryNames']) {
+        final List names => names.whereType<String>().firstOrNull,
+        _ => null,
+      };
   bool get singleCategory =>
       categorySelector is List && (categorySelector as List).length == 1;
   bool get hasEntityFilters => filters.keys.any((k) => !const {
@@ -466,6 +630,22 @@ class _Scope {
   String range(BuildContext context) {
     final dates = MaterialLocalizations.of(context);
     return '${dates.formatCompactDate(start)}–${dates.formatCompactDate(end.subtract(const Duration(microseconds: 1)))}';
+  }
+
+  String totalTitle(BuildContext context, String label) {
+    final today = DateTime.now();
+    final asOf = DateTime.tryParse(query['asOf']?.toString() ?? '')?.toLocal();
+    if (query['answerPeriod'] == 'current_month' &&
+        asOf != null &&
+        start == DateTime(asOf.year, asOf.month) &&
+        end == DateTime(asOf.year, asOf.month, asOf.day + 1) &&
+        asOf.year == today.year &&
+        asOf.month == today.month) {
+      final l = AppLocalizations.of(context);
+      return l.agentQueryTotalByDate(
+          DateFormat.MMMd(l.localeName).format(asOf), label);
+    }
+    return '${ledgerEvidenceDateRange(context, start, end)} · $label';
   }
 
   bool sameFilters(_Scope other) {

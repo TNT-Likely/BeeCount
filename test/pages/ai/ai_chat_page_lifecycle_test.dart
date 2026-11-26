@@ -511,7 +511,7 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('原生模型的等待和思考可见，快速工具不会被下一回合状态隐藏', (tester) async {
+  testWidgets('原生模型查到账单就展示冻结金额，过程默认收起，正文不重复金额', (tester) async {
     await repository.createLedger(name: '当前账本');
     final initial = StreamController<Map<String, dynamic>>();
     final answer = StreamController<Map<String, dynamic>>();
@@ -539,8 +539,8 @@ void main() {
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField).first, '本月支出多少？');
     await tester.testTextInput.receiveAction(TextInputAction.send);
-    await _pumpUntil(
-        tester, () => find.text('正在等待模型响应…').evaluate().isNotEmpty);
+    await _pumpUntil(tester,
+        () => modelTurns == 1 && find.text('正在处理你的问题…').evaluate().isNotEmpty);
     expect(find.text('模型正在思考…'), findsNothing);
     initial.add({
       'choices': [
@@ -549,7 +549,8 @@ void main() {
         }
       ]
     });
-    await _pumpUntil(tester, () => find.text('模型正在思考…').evaluate().isNotEmpty);
+    await tester.pump();
+    expect(find.text('正在处理你的问题…'), findsOneWidget);
     expect(find.textContaining('private reasoning'), findsNothing);
     initial.add({
       'choices': [
@@ -561,7 +562,8 @@ void main() {
                 'id': 'fast-overview',
                 'function': {
                   'name': 'get_period_overview',
-                  'arguments': '{"period":"current_month"}'
+                  'arguments':
+                      '{"period":"current_month","answerMetric":"expense","rangeMode":"to_date"}'
                 }
               }
             ]
@@ -570,11 +572,12 @@ void main() {
         }
       ]
     });
-    await _pumpUntil(tester,
-        () => modelTurns == 2 && find.text('正在等待模型响应…').evaluate().isNotEmpty);
-    expect(find.text('收支概览'), findsOneWidget);
-    expect(
-        find.byKey(const ValueKey('agent-activity-details')), findsOneWidget);
+    await _pumpUntil(
+        tester,
+        () =>
+            modelTurns == 2 && find.text('已查 0 笔支出，整理中').evaluate().isNotEmpty);
+    expect(find.text('收支概览'), findsNothing);
+    expect(find.byKey(const ValueKey('agent-activity-details')), findsNothing);
     answer.add({
       'choices': [
         {
@@ -582,8 +585,9 @@ void main() {
         }
       ]
     });
-    await _pumpUntil(tester, () => find.text('模型正在思考…').evaluate().isNotEmpty);
-    expect(find.text('收支概览'), findsOneWidget);
+    await tester.pump();
+    expect(find.text('已查 0 笔支出，整理中'), findsOneWidget);
+    expect(find.text('收支概览'), findsNothing);
     answer.add({
       'choices': [
         {
@@ -591,11 +595,12 @@ void main() {
         }
       ]
     });
-    await _pumpUntil(tester, () => find.text('正在整理回答…').evaluate().isNotEmpty);
+    await tester.pump();
+    expect(find.text('已查 0 笔支出，整理中'), findsOneWidget);
     expect(
         find.byWidgetPredicate(
             (widget) => widget is AgentMarkdownText && widget.data == '本月支出'),
-        findsOneWidget);
+        findsNothing);
     await tester.tap(find.byKey(const ValueKey('agent-activity-toggle')));
     await tester.pump();
     expect(find.text('收支概览'), findsNothing);
@@ -607,7 +612,7 @@ void main() {
         }
       ]
     });
-    await _pumpUntil(tester, () => find.text('已查账 1 项').evaluate().isNotEmpty);
+    await _pumpUntil(tester, () => find.text('查账依据').evaluate().isNotEmpty);
     await tester.pumpAndSettle();
     expect(find.text('模型正在思考…'), findsNothing);
     expect(find.text('收支概览'), findsNothing);
@@ -628,7 +633,7 @@ void main() {
         findsOneWidget);
     await tester.tap(find.byKey(ValueKey('execution-${messages.single.id}')));
     await tester.pumpAndSettle();
-    expect(find.text('收支概览'), findsOneWidget);
+    expect(find.textContaining('排除内部转账'), findsNothing);
     await tester.pumpWidget(const SizedBox());
     await tester.pump(const Duration(seconds: 3));
     expect(tester.takeException(), isNull);
@@ -656,9 +661,8 @@ void main() {
             .evaluate()
             .isNotEmpty);
     expect(find.byType(AgentExecutionTimeline), findsOneWidget);
-    expect(find.text('收支概览'), findsOneWidget);
-    expect(
-        find.byKey(const ValueKey('agent-activity-details')), findsOneWidget);
+    expect(find.text('收支概览'), findsNothing);
+    expect(find.byKey(const ValueKey('agent-activity-details')), findsNothing);
     expect(
         find.byKey(const ValueKey('agent-follow-up-questions')), findsNothing);
     final before = await (database.select(database.messages)
@@ -679,7 +683,7 @@ void main() {
         findsNothing);
     expect(
         find.byKey(const ValueKey('agent-execution-timeline')), findsNothing);
-    expect(find.text('已查账 1 项'), findsOneWidget);
+    expect(find.text('查账依据'), findsOneWidget);
     expect(find.text('收支概览'), findsNothing);
     expect(
         find.byWidgetPredicate((widget) =>
@@ -776,6 +780,7 @@ void main() {
           .build()[tool]!
           .execute(core.AgentToolCall(name: tool, arguments: {
             'period': 'custom',
+            if (month == 11) 'answerMetric': 'overview',
             'start': '2026-${month.toString().padLeft(2, '0')}-01',
             'end': '2026-${(month + 1).toString().padLeft(2, '0')}-01',
           }));
@@ -787,7 +792,14 @@ void main() {
           metadata: Value(jsonEncode({
             'contextLedgerId': ledger,
             'queryContext': {
-              'queries': tools.evidence.current,
+              'queries': [
+                for (final query in tools.evidence.current)
+                  // October was stored before the primary metric was introduced.
+                  if (month == 10)
+                    (Map.of(query)..remove('answerMetric'))
+                  else
+                    query,
+              ],
               'displayRefs':
                   tools.evidence.current.map((e) => e['ref']).toList(),
               'snapshots': tools.evidence.snapshots
@@ -1165,6 +1177,75 @@ void main() {
     await tester.pump(const Duration(seconds: 3));
     await tester.pumpAndSettle();
   });
+  for (final stop in [false, true]) {
+    testWidgets('核对后${stop ? '停止' : '超时'}可以原地继续，沿用旧金额和账单', (tester) async {
+      final ledger = await repository.createLedger(name: '解读验收');
+      Future<int> add(double amount) => database
+          .into(database.transactions)
+          .insert(TransactionsCompanion.insert(
+              ledgerId: ledger,
+              type: 'expense',
+              amount: amount,
+              happenedAt: Value(DateTime.now()),
+              note: const Value('不应发给模型的账单备注')));
+      await add(36.5);
+      final model = _StreamingQueryModel(declareExpense: true);
+      await tester.pumpWidget(host(model: model));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField).first, '这个月花了多少？');
+      await tester.testTextInput.receiveAction(TextInputAction.send);
+      await _pumpUntil(
+          tester, () => find.text('查看 1 笔支出').evaluate().isNotEmpty);
+      expect(model.answer.isCompleted, isFalse);
+      expect(find.text('已查 1 笔支出，整理中'), findsOneWidget);
+      if (stop) {
+        final button = find.byTooltip(AppLocalizationsZh().agentRunStop);
+        await tester.ensureVisible(button);
+        await tester.tap(button);
+      } else {
+        model.answer
+            .completeError(const core.AgentNativeToolTimeoutException());
+      }
+      await _pumpUntil(tester, () => find.text('继续解读').evaluate().isNotEmpty);
+      final before = (await database.select(database.messages).get()).last;
+      expect(before.messageType, stop ? 'text' : 'error');
+      if (stop) model.answer.complete(const core.AgentTurn.finalText('迟到的输出'));
+      final originalContext = jsonDecode(before.metadata!)['queryContext'];
+      await add(90);
+      await tester.ensureVisible(find.text('继续解读'));
+      await tester.tap(find.text('继续解读'));
+      await _pumpUntil(
+          tester,
+          () =>
+              model.continued != null && find.text('继续解读').evaluate().isEmpty);
+      await tester.pumpAndSettle();
+      final request = model.continued!;
+      expect(request.allowToolCalls, isFalse);
+      expect(request.availableToolNames, isEmpty);
+      final facts = request.context['frozenQueryResults'] as List;
+      expect(facts.single['expense'], {'amount': 36.5, 'count': 1});
+      expect(facts.single['answerMetric'], 'expense');
+      expect(jsonEncode(facts), isNot(contains('不应发给模型的账单备注')));
+      expect(request.context.containsKey('continueQueryContext'), isFalse);
+      expect(model.overviews, 1);
+      final rows = await database.select(database.messages).get();
+      expect(rows, hasLength(2));
+      expect(rows.last.id, before.id);
+      expect(rows.last.messageType, 'text');
+      expect(rows.last.content, '这次解读沿用回答时核对的账单。');
+      expect(jsonDecode(rows.last.metadata!)['queryContext'], originalContext);
+      expect(
+          AssistantExecutionMetadata.decode(rows.last.metadata), hasLength(1));
+      expect(find.text('查看 1 笔支出'), findsOneWidget);
+      expect(
+          find.byWidgetPredicate(
+              (w) => w is AgentMarkdownText && w.data == rows.last.content),
+          findsOneWidget);
+      await tester.pumpWidget(const SizedBox());
+      await tester.pump(const Duration(seconds: 3));
+    });
+  }
+
   testWidgets('取消混合请求中的记账时保留已完成查询及回答', (tester) async {
     await repository.createLedger(name: '混合请求');
     await tester.pumpWidget(host(model: _BookingMessageModel(withQuery: true)));
@@ -1193,16 +1274,28 @@ void main() {
 }
 
 final class _StreamingQueryModel implements core.AgentModel {
+  _StreamingQueryModel({this.declareExpense = false});
+  final bool declareExpense;
   final answer = Completer<core.AgentTurn>();
   core.AgentRequest? answeringRequest;
+  core.AgentRequest? continued;
+  int overviews = 0;
   @override
   Future<core.AgentTurn> nextTurn(core.AgentRequest request) async {
+    if (request.context.containsKey('frozenQueryResults')) {
+      continued = request;
+      return const core.AgentTurn.finalText('这次解读沿用回答时核对的账单。');
+    }
     if (request.toolData.isEmpty) {
+      overviews++;
       return core.AgentTurn.toolCalls([
         core.AgentToolCall(
             id: 'overview',
             name: 'get_period_overview',
-            arguments: const {'period': 'current_month'}),
+            arguments: {
+              'period': 'current_month',
+              if (declareExpense) 'answerMetric': 'expense'
+            }),
       ]);
     }
     answeringRequest = request;

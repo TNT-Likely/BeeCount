@@ -1,8 +1,10 @@
 import '../widgets/ledger_evidence_sheet.dart';
+import '../widgets/ledger_evidence_label.dart';
 import '../widgets/agent_financial_answer.dart';
 import '../widgets/agent_answer_header.dart';
 import '../widgets/agent_write_confirmation.dart';
 import '../../../../agent/model/ledger_query_replay.dart';
+import '../../../../agent/policy/p0_agent_policy.dart';
 import '../../../../services/ai/chat_session_store.dart';
 import '../../../../utils/format_utils.dart';
 import 'package:beecount/services/ai/chat_receipt_store.dart';
@@ -98,6 +100,10 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
   String _streamingAgentText = '';
   AgentNativeModelPhase? _agentModelPhase;
   List<AgentExecutionStep> _agentExecutionSteps = const [];
+  AgentFinancialPresentation? _livePresentation;
+  Map<String, Object?> _liveQueryContext = const {};
+  int? _liveSourceId;
+  int? _continuingMessageId;
   AIResponse? _liveAgentResponse;
   int? _liveAssistantMessageId;
   int? _pendingResponseMessageId;
@@ -305,7 +311,9 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
                     final displayMessages =
                         AgentMessageVisibility.forLiveResponse(
                       messages,
-                      liveResponse: _liveAgentResponse,
+                      liveResponse: _continuingMessageId == null
+                          ? _liveAgentResponse
+                          : null,
                       persistedMessageId: _liveAssistantMessageId,
                     );
                     final pendingResponseId = _pendingResponseMessageId;
@@ -362,12 +370,19 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
                               vertical: 8,
                             ),
                             itemCount: displayMessages.length +
-                                (_hasLiveAgentMessage ? 1 : 0),
+                                (_hasLiveAgentMessage &&
+                                        _continuingMessageId == null
+                                    ? 1
+                                    : 0),
                             itemBuilder: (context, index) {
                               if (index == displayMessages.length) {
                                 return _buildLiveAgentBubble();
                               }
                               final message = displayMessages[index];
+                              if (_hasLiveAgentMessage &&
+                                  message.id == _continuingMessageId) {
+                                return _buildLiveAgentBubble();
+                              }
                               final queries = message.role == 'assistant'
                                   ? _saved(message).queries
                                   : const <Map<String, Object?>>[];
@@ -524,21 +539,21 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
           .where((v) => v.name == _saved(message).data['action'])
           .firstOrNull;
       final data = _saved(message).data;
-      final paragraphs = message.content.trim().split(RegExp(r'\n\s*\n'));
       final status = data['replyStatus'];
       final interrupted = message.messageType == 'error' || status == 'stopped';
-      final card = interrupted
-          ? null
-          : AgentFinancialAnswer.fromQueries(
-              queries: queries,
-              onEvidence: (scope) => LedgerEvidenceSheet.show(context,
-                  ledgerId: ledger, queries: scope));
+      final presentation = _saved(message).presentation;
+      final retained = interrupted && presentation?.hasDeclaredMetric == true;
+      final failedRead = data['queryReadFailed'] == true;
       return _answerView(
         key: ValueKey('agent-answer-${message.id}'),
         activity: _answerHeader(message, source, queries),
         content:
             Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          if (interrupted && data['partialText'] is String)
+          if (retained) _financialCard(presentation!),
+          if (interrupted &&
+              !retained &&
+              !failedRead &&
+              data['partialText'] is String)
             _answerText(data['partialText'] as String),
           if (interrupted)
             BeeSurface(
@@ -546,46 +561,47 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                   Text(
-                      status == 'stopped'
-                          ? l.aiChatStopped
-                          : l.aiChatInterrupted,
+                      retained
+                          ? l.agentQueryRetained
+                          : status == 'stopped'
+                              ? l.aiChatStopped
+                              : failedRead
+                                  ? l.agentQueryReadFailed
+                                  : l.aiChatInterrupted,
                       style: Theme.of(context).textTheme.titleSmall),
                   const SizedBox(height: 6),
-                  _answerText(message.content),
+                  if (!retained &&
+                      !(failedRead &&
+                          message.content == l.agentQueryReadFailed))
+                    _answerText(message.content),
                   if (source != null &&
                       !_isLoading &&
                       data['writeRequested'] != true)
                     TextButton.icon(
                         icon: const BeeLineIcon('RotateCcw', size: 16),
-                        label: Text(l.aiChatRetryAnswer),
-                        onPressed: () => _repeat(message, source, queries)),
+                        label: Text(retained
+                            ? l.agentQueryResume
+                            : failedRead
+                                ? l.agentQueryRetry
+                                : l.aiChatRetryAnswer),
+                        onPressed: () => retained
+                            ? _sendMessageText(source.content,
+                                readOnly: true,
+                                continuation: (reply: message, source: source))
+                            : _repeat(message, source, queries)),
                 ]))
-          else if (card == null)
+          else if (presentation == null)
             GestureDetector(
                 onLongPressStart: (details) => _showTextMessageMenu(
                     details.globalPosition, message, false),
                 child: _answerText(message.content))
-          else ...[
-            if (paragraphs.first.isNotEmpty)
-              Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
-                  child: _answerText(paragraphs.first)),
-            card,
-            if (paragraphs.length > 1 && !hidden)
-              ExpansionTile(
-                  key: PageStorageKey('detail-${message.id}'),
-                  title: Text(l.aiChatReplyDetails),
-                  dense: true,
-                  tilePadding: EdgeInsets.zero,
-                  shape: const Border(),
-                  collapsedShape: const Border(),
-                  children: [
-                    Align(
-                        alignment: AlignmentDirectional.centerStart,
-                        child: _answerText(paragraphs.skip(1).join('\n\n')))
-                  ]),
-          ],
-          if (card == null && !interrupted && queries.isNotEmpty)
+          else
+            _financialContent(presentation, message.content,
+                key: PageStorageKey('detail-${message.id}'),
+                keepLead: data['writeRequested'] == true ||
+                    data['continuedExplanation'] == true ||
+                    _saved(message).queryContext['limit'] != null),
+          if (presentation == null && !interrupted && queries.isNotEmpty)
             BeeMenuRow(
                 title: l.agentEvidenceBills,
                 leading: const BeeLineIcon('ReceiptText', size: 18),
@@ -622,10 +638,88 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
       style: TextStyle(
           color: BeeTokens.textPrimary(context), fontSize: 14, height: 1.6));
 
+  Widget _financialCard(AgentFinancialPresentation presentation) =>
+      AgentFinancialAnswer(
+          presentation: presentation,
+          onEvidence: (scope) => LedgerEvidenceSheet.show(context,
+              ledgerId: ref.read(currentLedgerIdProvider), queries: scope));
+
+  Widget _financialContent(AgentFinancialPresentation p, String text,
+      {required Key key, bool keepLead = false}) {
+    final paragraphs = text.trim().split(RegExp(r'\n\s*\n'));
+    final showLead = paragraphs.first.isNotEmpty && (!p.isCompact || keepLead);
+    final lead = Padding(
+        padding: const EdgeInsets.symmetric(vertical: 6),
+        child: _answerText(paragraphs.first));
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      if (showLead && !p.hasDeclaredMetric) lead,
+      _financialCard(p),
+      if (showLead && p.hasDeclaredMetric) lead,
+      if (paragraphs.length > 1 && !ref.watch(hideAmountsProvider))
+        ExpansionTile(
+            key: key,
+            title: Text(AppLocalizations.of(context).aiChatReplyDetails),
+            dense: true,
+            tilePadding: EdgeInsets.zero,
+            shape: const Border(),
+            collapsedShape: const Border(),
+            children: [
+              Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: _answerText(paragraphs.skip(1).join('\n\n')))
+            ]),
+    ]);
+  }
+
+  AgentActivityStep? _basis(AgentFinancialPresentation? p, Map queryContext) {
+    if (p == null || !p.hasDeclaredMetric) return null;
+    final l = AppLocalizations.of(context);
+    if (ref.watch(hideAmountsProvider)) {
+      return AgentActivityStep(
+          title: l.agentQueryBasis, status: AgentActivityStatus.completed);
+    }
+    final book = queryContext['ledgerName'] ??
+        ref.watch(currentLedgerProvider).valueOrNull?.name;
+    return AgentActivityStep(
+        title: p.countLabel(l),
+        status: AgentActivityStatus.completed,
+        details: [
+          if (book is String)
+            '${l.transactionReceiptLedger} · ${translateLedgerName(context, book)}',
+          '${l.importFieldDate} · ${p.rangeLabel(context)}',
+          [
+            p.flowLabel(l),
+            ...ledgerEvidenceFilterLabels(context, p.filters,
+                accountsEnabled:
+                    ref.watch(accountFeatureEnabledProvider).valueOrNull ??
+                        true)
+          ].join(' · '),
+          p.filters['includeExcludedFromStats'] == true
+              ? l.agentQueryStatsIncluded
+              : l.agentQueryStatsExcluded,
+        ]);
+  }
+
+  bool _basisExpanded(int? sourceId) =>
+      sourceId != null &&
+      PageStorage.maybeOf(context)
+              ?.readState(context, identifier: 'query-basis-$sourceId') ==
+          true;
+
+  void _saveExpansion(int? sourceId, bool value) {
+    if (sourceId != null) {
+      PageStorage.maybeOf(context)
+          ?.writeState(context, value, identifier: 'query-basis-$sourceId');
+    }
+  }
+
   Widget _answerHeader(
           Message m, Message? source, List<Map<String, Object?>> queries) =>
       AgentAnswerHeader(
           steps: _saved(m).steps,
+          basis: _basis(_saved(m).presentation, _saved(m).queryContext),
+          initiallyExpanded: _basisExpanded(source?.id),
+          onExpansionChanged: (value) => _saveExpansion(source?.id, value),
           readQuery: queries.isNotEmpty,
           messageId: m.id,
           hideDetails: ref.watch(hideAmountsProvider),
@@ -658,6 +752,12 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           _menuRow(
               'copy', l.aiChatCopyAnswer, 'Copy', 'agent-answer-copy-${m.id}'),
+          if (_saved(m).presentation?.isCompact == true &&
+              m.messageType == 'text' &&
+              !_saved(m).data.containsKey('replyStatus') &&
+              !ref.read(hideAmountsProvider))
+            _menuRow('text', l.aiChatReplyDetails, 'MessageSquare',
+                'agent-answer-full-text'),
           if (canRepeat)
             _menuRow(
                 'repeat',
@@ -668,6 +768,19 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
     if (!mounted) return;
     if (action == 'copy') {
       await _copyMessage(m);
+    } else if (action == 'text') {
+      await showBeeSheet<void>(context,
+          title: l.aiChatReplyDetails,
+          child: SingleChildScrollView(
+              child: Consumer(
+                  builder: (context, ref, _) => AgentMarkdownText(
+                      data: ref.watch(hideAmountsProvider)
+                          ? l.aiChatHiddenMessage
+                          : m.content,
+                      style: TextStyle(
+                          color: BeeTokens.textPrimary(context),
+                          fontSize: 14,
+                          height: 1.6)))));
     } else if (action == 'repeat' && canRepeat) {
       await _repeat(m, source, queries);
     }
@@ -725,29 +838,48 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
     }
     final response = _liveAgentResponse;
     if (response != null) return _buildLiveAgentResponse(response);
+    final p = _livePresentation;
+    final hasMetric = p?.hasDeclaredMetric == true;
     return _answerView(
       key: const ValueKey('agent-live-answer'),
-      content: AgentExecutionTimeline(
-        key: ValueKey('execution-live-$_activeAgentRunId'),
-        steps: _agentExecutionSteps,
-        isStreaming: _isLoading,
-        streamingText:
-            ref.watch(hideAmountsProvider) && _streamingAgentText.isNotEmpty
-                ? AppLocalizations.of(context).aiChatHiddenMessage
-                : _streamingAgentText,
-        hideDetails: ref.watch(hideAmountsProvider),
-        modelPhase: _agentModelPhase,
-      ),
+      content:
+          Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        AgentExecutionTimeline(
+          key: ValueKey('execution-live-$_activeAgentRunId'),
+          steps: _agentExecutionSteps,
+          isStreaming: _isLoading,
+          streamingText: hasMetric
+              ? null
+              : ref.watch(hideAmountsProvider) && _streamingAgentText.isNotEmpty
+                  ? AppLocalizations.of(context).aiChatHiddenMessage
+                  : _streamingAgentText,
+          basis: _basis(p, _liveQueryContext),
+          initiallyExpanded: _basisExpanded(_liveSourceId),
+          onExpansionChanged: (value) => _saveExpansion(_liveSourceId, value),
+          hideDetails: ref.watch(hideAmountsProvider),
+          modelPhase: _agentModelPhase,
+        ),
+        if (hasMetric) _financialCard(p!),
+        if (hasMetric &&
+            (!p!.isCompact || _continuingMessageId != null) &&
+            _streamingAgentText.isNotEmpty)
+          _answerText(_streamingAgentText),
+      ]),
     );
   }
 
   /// The completed answer retains the same full-width list slot while the
   /// database row and bill post-processing finish; no replayed typewriter.
   Widget _buildLiveAgentResponse(AIResponse response) {
+    final p = _livePresentation;
+    final interrupted = response.wasStopped || response.type == 'error';
     final activity = AgentAnswerHeader(
         steps: AgentExecutionTimeline.projectSteps(
             AppLocalizations.of(context), _agentExecutionSteps,
             finished: true),
+        basis: _basis(p, _liveQueryContext),
+        initiallyExpanded: _basisExpanded(_liveSourceId),
+        onExpansionChanged: (value) => _saveExpansion(_liveSourceId, value),
         hideDetails: ref.watch(hideAmountsProvider));
     if (response.type == 'bill_card' && response.bills.isNotEmpty) {
       return _answerView(
@@ -771,7 +903,17 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
       activity: activity,
       content:
           Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        _answerText(response.text),
+        if (p?.hasDeclaredMetric == true && interrupted) ...[
+          _financialCard(p!),
+          Text(AppLocalizations.of(context).agentQueryRetained),
+        ] else if (p != null && !interrupted)
+          _financialContent(p, response.text,
+              key: ValueKey('live-detail-$_activeAgentRunId'),
+              keepLead: _declinedWrite ||
+                  _continuingMessageId != null ||
+                  response.queryContext['limit'] != null)
+        else
+          _answerText(response.text),
         if (response.action != null) _buildResponseAction(response.action!),
       ]),
     );
@@ -871,6 +1013,7 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
       {bool readOnly = false,
       bool review = false,
       Map<String, Object?>? viewOverride,
+      ({Message reply, Message source})? continuation,
       List<Map<String, Object?>> repeatQueries = const []}) async {
     if (!mounted ||
         text.trim().isEmpty ||
@@ -886,6 +1029,13 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
     final conversationId = _conversationId!;
     final agentRunId = const Uuid().v4();
     final ledgerId = ref.read(currentLedgerIdProvider);
+    if (continuation != null &&
+        (continuation.reply.conversationId != conversationId ||
+            continuation.source.conversationId != conversationId ||
+            _saved(continuation.reply).data['contextLedgerId'] != ledgerId)) {
+      return;
+    }
+    final retained = continuation == null ? null : _saved(continuation.reply);
     final chosen = viewOverride ?? widget.view;
     final view =
         chosen['ledgerId'] == ledgerId ? chosen : const <String, Object?>{};
@@ -896,7 +1046,7 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
 
     setState(() {
       _isLoading = true;
-      _followLatest = true;
+      _followLatest = continuation == null;
       _isUserScrolling = false;
     });
 
@@ -904,23 +1054,24 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
       final repo = ref.read(repositoryProvider);
 
       // Persist the actual request, including period and scope, for follow-ups.
-      final sourceId = await repo.createMessage(
-        MessagesCompanion.insert(
-          conversationId: conversationId,
-          role: 'user',
-          content: text,
-          messageType: 'text',
-          metadata: Value(jsonEncode({
-            'contextLedgerId': ledgerId,
-            if (review) 'review': true,
-            if (view.isNotEmpty) 'view': view
-          })),
-          createdAt: Value(DateTime.now()),
-        ),
-      );
+      final sourceId = continuation?.source.id ??
+          await repo.createMessage(
+            MessagesCompanion.insert(
+              conversationId: conversationId,
+              role: 'user',
+              content: text,
+              messageType: 'text',
+              metadata: Value(jsonEncode({
+                'contextLedgerId': ledgerId,
+                if (review) 'review': true,
+                if (view.isNotEmpty) 'view': view
+              })),
+              createdAt: Value(DateTime.now()),
+            ),
+          );
       if (!mounted) return;
 
-      _scrollToBottom();
+      if (continuation == null) _scrollToBottom();
 
       // chat_service 内部走 BillExtractionService.forLedger,会自动查
       // 当前账本可用分类 + 同币种账户,page 层不再预查。
@@ -932,6 +1083,10 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
 
       setState(() {
         _hasLiveAgentMessage = true;
+        _continuingMessageId = continuation?.reply.id;
+        _liveSourceId = sourceId;
+        _liveQueryContext = retained?.queryContext ?? const {};
+        _livePresentation = retained?.presentation;
         _streamingAgentText = '';
         _agentModelPhase = null;
         _agentExecutionSteps = const [];
@@ -939,7 +1094,7 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
         _liveAssistantMessageId = null;
         _activeAgentRunId = agentRunId;
       });
-      _scrollToBottom();
+      if (continuation == null) _scrollToBottom();
 
       AIResponse? response;
       await for (final event in chatService.processMessageEvents(
@@ -951,6 +1106,7 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
         view: view,
         review: review,
         repeatQueries: repeatQueries,
+        continueQueryContext: retained?.queryContext,
         isCancelled: () => !mounted || _stopRequested,
         languageCode: currentLocale.languageCode,
         l10n: l10n,
@@ -1018,10 +1174,14 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
               :final callId,
               :final arguments,
               :final result,
+              :final queryContext,
               :final error,
               :final succeeded
             ):
             setState(() {
+              if (queryContext != null) {
+                _setLiveEvidence(queryContext, ledgerId);
+              }
               _agentExecutionSteps = _updateExecutionStep(
                 toolName: toolName,
                 callId: callId,
@@ -1057,7 +1217,8 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
       }
       setState(() {
         _liveAgentResponse = response;
-        _liveAssistantMessageId = response?.receiptMessageId;
+        _setLiveEvidence(response!.queryContext, ledgerId);
+        _liveAssistantMessageId = response.receiptMessageId;
       });
 
       // 保存 AI 回复。多笔 metadata 用新格式 {bills, txIds, undoneIds};
@@ -1067,14 +1228,27 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
         role: 'assistant',
         content: response.text,
         messageType: response.type,
-        metadata: _responseMetadata(response, ledgerId, sourceId),
+        metadata:
+            _responseMetadata(response, ledgerId, sourceId, retained: retained),
         transactionId: response.transactionId != null
             ? Value(response.transactionId)
             : const Value.absent(),
         createdAt: Value(DateTime.now()),
       );
       final int assistantMessageId;
-      if (response.receiptMessageId case final int id) {
+      if (continuation != null) {
+        final saved = await repo.getMessageById(continuation.reply.id);
+        if (saved == null ||
+            saved.metadata != continuation.reply.metadata ||
+            saved.content != continuation.reply.content) {
+          return;
+        }
+        await repo.updateMessage(saved.copyWith(
+            content: response.text,
+            messageType: response.type,
+            metadata: reply.metadata));
+        assistantMessageId = saved.id;
+      } else if (response.receiptMessageId case final int id) {
         await ChatReceiptStore(ref.read(databaseProvider))
             .finish(id, sourceId, reply);
         assistantMessageId = id;
@@ -1127,6 +1301,10 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
           _streamingAgentText = '';
           _agentModelPhase = null;
           _agentExecutionSteps = const [];
+          _liveQueryContext = const {};
+          _livePresentation = null;
+          _liveSourceId = null;
+          _continuingMessageId = null;
           _liveAgentResponse = null;
           _liveAssistantMessageId = null;
           _activeAgentRunId = null;
@@ -1137,16 +1315,28 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
     }
   }
 
+  void _setLiveEvidence(Map<String, Object?> queryContext, int ledgerId) {
+    _liveQueryContext = queryContext;
+    _livePresentation = AgentFinancialPresentation.select(
+        LedgerEvidenceSheet.fromQueryContext(queryContext, ledgerId));
+  }
+
   Value<String?> _responseMetadata(
-      AIResponse response, int ledgerId, int sourceId) {
+      AIResponse response, int ledgerId, int sourceId,
+      {_SavedTurn? retained}) {
     final metadata = <String, Object?>{
       'contextLedgerId': ledgerId,
       'analysisTemplatesAllowed': response.allowPromptSuggestions,
       'sourceMessageId': sourceId,
+      if (retained != null) 'continuedExplanation': true,
       if (_agentExecutionSteps
           .any((s) => s.toolName == 'record_transaction_from_text'))
         'writeRequested': true,
       if (response.wasStopped) 'replyStatus': 'stopped',
+      if (_agentExecutionSteps.any((s) =>
+          s.status == AgentExecutionStepStatus.failed &&
+          P0AgentPolicy.readTools.contains(s.toolName)))
+        'queryReadFailed': true,
       if ((response.wasStopped || response.type == 'error') &&
           _streamingAgentText.trim().isNotEmpty)
         'partialText': _streamingAgentText,
@@ -1156,9 +1346,10 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
         'supplementalText': response.supplementalText,
     };
     metadata.addAll(AssistantExecutionMetadata.encode(
-      AgentExecutionTimeline.projectSteps(
-          AppLocalizations.of(context), _agentExecutionSteps,
-          finished: true),
+      retained?.steps ??
+          AgentExecutionTimeline.projectSteps(
+              AppLocalizations.of(context), _agentExecutionSteps,
+              finished: true),
     ));
     if (response.bills.isNotEmpty) {
       metadata.addAll(Map<String, Object?>.from(jsonDecode(_encodeBillMetadata(
@@ -1633,7 +1824,13 @@ final class _SavedTurn {
   final String? metadata;
   final int ledgerId;
   late final Map data = _AIChatControlsState._readMetadata(metadata);
-  late final queries = LedgerEvidenceSheet.forMessage(metadata, ledgerId);
+  late final Map<String, Object?> queryContext =
+      data['contextLedgerId'] == ledgerId && data['queryContext'] is Map
+          ? Map<String, Object?>.from(data['queryContext'] as Map)
+          : const {};
+  late final queries =
+      LedgerEvidenceSheet.fromQueryContext(queryContext, ledgerId);
+  late final presentation = AgentFinancialPresentation.select(queries);
   late final steps = AssistantExecutionMetadata.decode(metadata);
   late final suggestions =
       AssistantFollowUpMetadata.decode(metadata, ledgerId: ledgerId);

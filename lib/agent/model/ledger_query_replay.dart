@@ -1,5 +1,7 @@
 import 'package:agentcore/agentcore.dart';
 
+import '../tools/local_agent_tool_catalog.dart';
+
 /// Reruns a saved financial answer through the normal permissioned tool loop.
 /// Only query definitions are accepted. The model receives fresh observations.
 final class LedgerQueryReplay implements AgentModel, AgentRunFinalizer {
@@ -23,9 +25,13 @@ final class LedgerQueryReplay implements AgentModel, AgentRunFinalizer {
       final tool = q['tool'];
       final options = q['options'];
       final filters = q['filters'];
+      final metric = q['answerMetric'];
       if (q['ledgerId'] != ledgerId ||
           q['ref'] is! String ||
           !_options.containsKey(tool) ||
+          (q.containsKey('answerMetric') &&
+              (tool != 'get_period_overview' ||
+                  !LocalAgentToolCatalog.answerMetrics.contains(metric))) ||
           options is! Map ||
           filters is! Map ||
           !options.keys.every(_options[tool]!.contains) ||
@@ -38,6 +44,9 @@ final class LedgerQueryReplay implements AgentModel, AgentRunFinalizer {
         'ledgerId': ledgerId,
         'ref': q['ref'],
         'tool': tool,
+        if (metric != null) 'answerMetric': metric,
+        if (q['answerPeriod'] is String) 'answerPeriod': q['answerPeriod'],
+        if (q['asOf'] is String) 'asOf': q['asOf'],
         'filters': Map<String, Object?>.from(filters),
         'options': Map<String, Object?>.from(options)
       });
@@ -53,6 +62,8 @@ final class LedgerQueryReplay implements AgentModel, AgentRunFinalizer {
               name: q['tool'] as String,
               arguments: {
                 'baseQuery': q['ref'],
+                if (q['answerMetric'] != null)
+                  'answerMetric': q['answerMetric'],
                 ...q['options'] as Map<String, Object?>
               }),
       ];

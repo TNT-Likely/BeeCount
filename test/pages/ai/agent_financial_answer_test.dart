@@ -16,6 +16,7 @@ import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../ai_eval/support/ledger_fixture.dart';
@@ -140,7 +141,10 @@ void main() {
     // The monthly review can fetch an unrelated supporting annual trend.
     await run('get_spending_trend',
         {...january, 'end': '2028-01-01', 'interval': 'month'});
-    final stored = metadata(), saved = queries();
+    final stored = metadata();
+    final saved = [
+      for (final query in queries()) Map.of(query)..remove('answerMetric')
+    ];
     expect(LedgerEvidenceSheet.forMessage(stored, fixture.ledgers['other']!),
         isEmpty);
     await (fixture.database.update(fixture.database.transactions)
@@ -202,6 +206,234 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text(l.agentAnswerBillGone), findsOneWidget);
     expect(find.text(l.agentAnswerCurrentBill), findsNothing);
+    await dispose(tester);
+  });
+
+  testWidgets(
+      'one overview supplies different verified money, counts and actual rows for each declared metric',
+      (tester) async {
+    await bill(28, day: 24, note: '现金午餐', account: wallet);
+    await bill(10,
+        day: 25, currency: 'USD', native: 72, note: '外币晚餐', account: card);
+    await bill(130, type: 'income', day: 26, note: '奖金');
+    await bill(50, type: 'transfer', note: '内部划转');
+    await bill(470, excluded: true, note: '报销代付');
+    await bill(800, day: 27, note: '截止日之后');
+    await run('get_period_overview',
+        {...january, 'end': '2027-01-27', 'answerMetric': 'expense'});
+    final source = queries().single;
+    expect(source['answerMetric'], 'expense');
+    final expected = [
+      (
+        metric: 'expense',
+        amount: '100.00',
+        count: 2,
+        flow: l.homeExpense,
+        ids: {'现金午餐', '外币晚餐'}
+      ),
+      (
+        metric: 'income',
+        amount: '130.00',
+        count: 1,
+        flow: l.homeIncome,
+        ids: {'奖金'}
+      ),
+      (
+        metric: 'balance',
+        amount: '30.00',
+        count: 3,
+        flow: l.agentQueryIncomeAndExpense,
+        ids: {'现金午餐', '外币晚餐', '奖金'}
+      ),
+      (
+        metric: 'overview',
+        amount: '30.00',
+        count: 3,
+        flow: l.agentQueryIncomeAndExpense,
+        ids: {'现金午餐', '外币晚餐', '奖金'}
+      ),
+    ];
+    for (final item in expected) {
+      final q = {...source, 'answerMetric': item.metric};
+      final projected = AgentFinancialPresentation.select([q])!;
+      expect(projected.isCompact, item.metric != 'overview');
+      expect(projected.count, item.count);
+      expect(projected.end, DateTime(2027, 1, 27));
+      expect(projected.evidence.single['filters'], source['filters']);
+      await render(tester, [q]);
+      expect(
+          tester.widget<BeeMoney>(find.byType(BeeMoney)).amount, item.amount);
+      final label = l.agentQueryFlowCount(item.count, item.flow);
+      await tester.tap(find.text(l.agentQueryOpenBills(label)));
+      await tester.pumpAndSettle();
+      expect(find.text(label), findsOneWidget);
+      final rows =
+          tester.widgetList<BeeTransactionRow>(find.byType(BeeTransactionRow));
+      expect(rows.map((r) => r.detailsNote).toSet(), item.ids);
+      if (item.metric == 'expense') {
+        final converted = rows.singleWhere((row) => row.detailsNote == '外币晚餐');
+        expect(converted.amount, contains(r'US$10.00'));
+        expect(converted.converted, contains('¥72.00'));
+        expect(find.text('${l.analyticsTotalAmount} ¥100.00'), findsOneWidget);
+        final scope =
+            ProviderScope.containerOf(tester.element(find.byType(BeeSheet)));
+        scope.read(hideAmountsProvider.notifier).state = true;
+        await tester.pumpAndSettle();
+        expect(find.textContaining('100.00'), findsNothing);
+        expect(find.text('${l.analyticsTotalAmount} ••••'), findsOneWidget);
+        scope.read(hideAmountsProvider.notifier).state = false;
+      }
+      await tester.tap(find.byType(CloseButton));
+      await tester.pumpAndSettle();
+    }
+    await dispose(tester);
+  });
+
+  testWidgets(
+      'zero and truncated scoped evidence stay truthful and a ledger change closes the scoped list',
+      (tester) async {
+    owner = tools(budget: LedgerSnapshotBudget(rowLimit: 2, byteLimit: 10000));
+    for (final day in [2, 3, 4]) {
+      await bill(8, day: day, note: '支出 $day');
+    }
+    await bill(100, day: 10, type: 'income');
+    await run('get_period_overview', january);
+    final expense = {...queries().single, 'answerMetric': 'expense'};
+    await render(tester, [expense]);
+    final label = l.agentQueryFlowCount(3, l.homeExpense);
+    await tester.tap(find.text(l.agentQueryOpenBills(label)));
+    await tester.pumpAndSettle();
+    expect(find.text(label), findsOneWidget);
+    expect(find.text(l.agentAnswerSnapshotLimit(1, 3)), findsOneWidget);
+    expect(
+        tester
+            .widget<BeeTransactionRow>(find.byType(BeeTransactionRow))
+            .detailsNote,
+        '支出 4');
+    final container =
+        ProviderScope.containerOf(tester.element(find.byType(BeeSheet)));
+    container.read(currentLedgerIdProvider.notifier).state =
+        fixture.ledgers['other']!;
+    await tester.pumpAndSettle();
+    expect(find.byType(BeeSheet), findsNothing);
+    expect(find.text(label), findsNothing);
+    expect(find.byType(BeeMoney), findsNothing);
+    container.read(currentLedgerIdProvider.notifier).state = ledger;
+    owner = tools();
+    await run('get_period_overview', february);
+    final empty = {...queries().single, 'answerMetric': 'expense'};
+    await render(tester, [empty]);
+    expect(tester.widget<BeeMoney>(find.byType(BeeMoney)).amount, '0.00');
+    await tester.tap(find
+        .text(l.agentQueryOpenBills(l.agentQueryFlowCount(0, l.homeExpense))));
+    await tester.pumpAndSettle();
+    expect(find.text(l.categoryDetailNoTransactions), findsOneWidget);
+    expect(find.byType(BeeTransactionRow), findsNothing);
+    await dispose(tester);
+  });
+
+  test(
+      'missing new intent, incompatible flow or dates and conflicting declared metrics have no primary card',
+      () async {
+    await run('get_period_overview', january);
+    final q = queries().single;
+    final filters = q['filters'] as Map;
+    for (final corrupt in [
+      {...q, 'answerMetric': 'unspecified'},
+      {
+        ...q,
+        'answerMetric': 'expense',
+        'filters': {...filters, 'flowType': 'income'}
+      },
+      {
+        ...q,
+        'answerMetric': 'expense',
+        'filters': {...filters, 'end': '2027-01-27'}
+      },
+      {
+        ...q,
+        'answerMetric': 'expense',
+        'filters': {...filters, 'flowType': 42}
+      },
+      {
+        ...q,
+        'answerMetric': 'balance',
+        'filters': {...filters, 'flowType': 'expense'}
+      },
+    ]) {
+      expect(AgentFinancialPresentation.select([corrupt]), isNull);
+    }
+    expect(
+        AgentFinancialPresentation.select([
+          {...q, 'answerMetric': 'expense'},
+          {...q, 'answerMetric': 'income'},
+        ]),
+        isNull);
+    expect(
+        AgentFinancialPresentation.select([Map.of(q)..remove('answerMetric')]),
+        isNotNull);
+  });
+
+  testWidgets(
+      'only an actual as-of snapshot for the current calendar month uses the short caption',
+      (tester) async {
+    final today = DateTime.now();
+    final start = DateTime(today.year, today.month);
+    final asOf = DateTime(today.year, today.month, 2);
+    final end = DateTime(today.year, today.month, 3);
+    await run('get_period_overview', {
+      'period': 'custom',
+      'start': start.toIso8601String(),
+      'end': end.toIso8601String(),
+    });
+    final source = queries().single;
+    final bounded = {
+      ...source,
+      'answerMetric': 'expense',
+      'answerPeriod': 'current_month',
+      'asOf': DateFormat('yyyy-MM-dd').format(asOf),
+    };
+    final title = l.agentQueryTotalByDate(
+        DateFormat.MMMd(l.localeName).format(asOf), l.homeExpense);
+    await render(tester, [bounded]);
+    expect(find.text(title), findsOneWidget);
+    await render(tester, [
+      {...bounded, 'asOf': DateFormat('yyyy-MM-dd').format(end)}
+    ]);
+    expect(find.text(title), findsNothing);
+    expect(find.byType(BeeMoney), findsOneWidget);
+    await render(tester, [
+      {...bounded, 'answerPeriod': 'custom'}
+    ]);
+    expect(find.text(title), findsNothing);
+    expect(find.byType(BeeMoney), findsOneWidget);
+    final auxiliary = <String, Object?>{
+      'tool': 'get_spending_trend',
+      'ref': 'support/1',
+      'ledgerId': ledger,
+      'filters': source['filters'],
+    };
+    expect(AgentFinancialPresentation.select([bounded, auxiliary])?.metric,
+        'expense');
+    expect(
+        AgentFinancialPresentation.select([
+          bounded,
+          {...auxiliary, 'ledgerId': ledger + 1}
+        ]),
+        isNull);
+    await dispose(tester);
+  });
+
+  testWidgets(
+      'a new answer with a missing snapshot reports unavailable instead of substituting live transactions',
+      (tester) async {
+    await run('get_period_overview', january);
+    final q = {...queries().single, 'answerMetric': 'expense'}
+      ..remove('snapshot');
+    expect(AgentFinancialPresentation.select([q]), isNull);
+    await render(tester, [q], openSheet: true);
+    expect(find.text(l.agentAnswerSnapshotUnavailable), findsOneWidget);
+    expect(find.text(l.agentAnswerLookupCurrent), findsNothing);
     await dispose(tester);
   });
 

@@ -73,6 +73,35 @@ void main() {
 
   tearDown(() => db.close());
 
+  test('an unsuccessful read never becomes a zero balance or a checked answer',
+      () async {
+    final facade = AgentAppFacade(
+        memoryRepository: LocalAgentMemoryRepository(db),
+        toolGateway: gateway,
+        permissionStore: _MemoryPermissionStore(),
+        model: _FakeModel([
+          AgentTurn.toolCalls([
+            AgentToolCall(
+                id: 'unknown',
+                name: 'get_period_overview',
+                arguments: {'baseQuery': 'missing', 'answerMetric': 'expense'})
+          ]),
+          const AgentTurn.finalText('本月没有支出。'),
+        ]));
+    final events = await facade
+        .processMessageEvents(message: '本月花了多少？', ledgerId: 1)
+        .toList();
+    final tool = events.whereType<AgentToolCompletedEvent>().single;
+    expect(tool.succeeded, isFalse);
+    expect(tool.queryContext, isNull);
+    final reply =
+        events.whereType<AgentRunCompletedEvent>().single.result.response;
+    expect(reply.type, 'error');
+    expect(reply.text, '账本查询未完成');
+    expect(reply.queryContext, isEmpty);
+    expect(reply.allowPromptSuggestions, isFalse);
+  });
+
   test('a successful record response preserves cards and transaction ids',
       () async {
     logger.clear();

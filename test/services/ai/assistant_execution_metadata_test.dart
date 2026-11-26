@@ -56,7 +56,8 @@ void main() {
       expect(json, isNot(contains(private)));
     }
     expect(json, contains('已返回 2 笔交易'));
-    expect(json, contains('不含结束时间'));
+    expect(json, contains('2026/9/1 至 2026/9/30'));
+    expect(json, isNot(contains('2026/10/1')));
     final restored = AssistantExecutionMetadata.decode(json);
     expect(restored, hasLength(3));
     expect(restored.first.title, '收支概览');

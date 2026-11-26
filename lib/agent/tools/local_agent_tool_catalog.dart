@@ -8,6 +8,13 @@ import 'package:agentcore/agentcore.dart' as core;
 final class LocalAgentToolCatalog {
   const LocalAgentToolCatalog._();
 
+  static const answerMetrics = [
+    'expense',
+    'income',
+    'balance',
+    'overview',
+    'unspecified'
+  ];
   static const _names = {
     'type': 'array',
     'items': {'type': 'string', 'minLength': 1},
@@ -62,6 +69,13 @@ final class LocalAgentToolCatalog {
     'additionalProperties': false,
   };
   static const _periodProperties = <String, Object?>{
+    'rangeMode': {
+      'type': 'string',
+      'enum': ['to_date', 'full_period'],
+      'description': 'to_date 将正在进行的账期截到本地今天（含今天）。'
+          '“这个月花了多少”、本月复盘及各项配套统计用 to_date。'
+          '用户指定完整账期或要包含未来日期的记录时用 full_period。',
+    },
     'period': {
       'type': 'string',
       'description': '常用时间范围。custom 使用 start/end；其他值由应用按当前时间和账本月起始日计算。',
@@ -90,7 +104,19 @@ final class LocalAgentToolCatalog {
 
   static const _periodOverviewParameters = <String, Object?>{
     'type': 'object',
-    'properties': {..._periodProperties, ..._filters, ..._flowTypeProperties},
+    'properties': {
+      ..._periodProperties,
+      ..._filters,
+      ..._flowTypeProperties,
+      'answerMetric': {
+        'type': 'string',
+        'enum': answerMetrics,
+        'description': '本次问题的主指标。花了多少选 expense，收入多少选 income，'
+            '只问结余选 balance，复盘收支选 overview。'
+            '仅作辅助、历史对照或没有单一主范围的查询选 unspecified。',
+      },
+    },
+    'required': ['answerMetric'],
     'additionalProperties': false,
   };
 

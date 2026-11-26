@@ -63,7 +63,8 @@ class AgentActivityView extends StatefulWidget {
       required this.status,
       required this.steps,
       this.initiallyExpanded = false,
-      this.expandWhileActive = false});
+      this.expandWhileActive = false,
+      this.onExpansionChanged});
 
   final String summary;
   final AgentActivityStatus status;
@@ -73,6 +74,7 @@ class AgentActivityView extends StatefulWidget {
   /// Automatically reveals execution details while active and collapses them
   /// on completion. Explicit user expansion/collapse always takes precedence.
   final bool expandWhileActive;
+  final ValueChanged<bool>? onExpansionChanged;
 
   @override
   State<AgentActivityView> createState() => _AgentActivityViewState();
@@ -109,7 +111,11 @@ class _AgentActivityViewState extends State<AgentActivityView> {
           child: InkWell(
             key: const ValueKey('agent-activity-toggle'),
             onTap: hasDetails
-                ? () => setState(() => _userExpanded = !_expanded)
+                ? () {
+                    final value = !_expanded;
+                    setState(() => _userExpanded = value);
+                    widget.onExpansionChanged?.call(value);
+                  }
                 : null,
             borderRadius: BorderRadius.circular(8),
             child: ConstrainedBox(

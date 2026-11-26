@@ -931,12 +931,12 @@ final class LocalAgentTools {
   }
 
   Future<Map<String, Object?>> _queryTransactions(AgentToolCall call) async {
-    final range = call.arguments.containsKey('period')
+    final period = call.arguments.containsKey('period')
         ? await _financialRangeFor(call, defaultPeriod: 'current_month')
-        : _rangeFor(call);
+        : null;
     final rawFlow = call.arguments['flowType'];
-    return _summary(call,
-        range: range,
+    final summary = await _summary(call,
+        range: period?.dates ?? _rangeFor(call),
         types:
             rawFlow is String ? {rawFlow} : {'expense', 'income', 'transfer'},
         groupBy: 'details',
@@ -944,6 +944,7 @@ final class LocalAgentTools {
         groupLimit: _boundedIntArgument(call, 'limit', fallback: _maximumRows)
             .clamp(1, _maximumRows),
         includeExcluded: true);
+    return {...summary, if (period?.asOf != null) 'asOf': period!.asOf};
   }
 
   Future<Map<String, Object?>> _periodOverview(AgentToolCall call) async {
@@ -951,7 +952,7 @@ final class LocalAgentTools {
         await _financialRangeFor(call, defaultPeriod: 'current_month');
     final rawFlow = call.arguments['flowType'];
     final summary = await _summary(call,
-        range: range,
+        range: range.dates,
         types:
             rawFlow is String ? {rawFlow} : {'income', 'expense', 'transfer'},
         groupBy: 'none',
@@ -973,6 +974,10 @@ final class LocalAgentTools {
       ])
         if (summary.containsKey(k)) k: summary[k],
       'period': call.arguments['period'] ?? 'current_month',
+      if (range.asOf != null) ...{
+        'asOf': range.asOf,
+        'answerPeriod': range.period
+      },
       'periodStart': summary['periodStart'],
       'periodEnd': summary['periodEnd'],
       'income': income,
@@ -992,7 +997,7 @@ final class LocalAgentTools {
     final flowType = _flowTypeFor(call);
     final summary = await _flowSummary(
       call,
-      range: range,
+      range: range.dates,
       groupBy: interval,
       flowType: flowType,
       groupLimit: 50,
@@ -1006,7 +1011,7 @@ final class LocalAgentTools {
     if (comparison == 'previous_year') {
       final previous = await _flowSummary(
         call,
-        range: (_shiftYear(range.$1, -1), _shiftYear(range.$2, -1)),
+        range: (_shiftYear(range.dates.$1, -1), _shiftYear(range.dates.$2, -1)),
         groupBy: interval,
         flowType: flowType,
         groupLimit: 50,
@@ -1058,6 +1063,7 @@ final class LocalAgentTools {
         if (summary.containsKey(k)) k: summary[k],
       'flowType': flowType,
       'period': call.arguments['period'] ?? 'current_year',
+      if (range.asOf != null) 'asOf': range.asOf,
       'periodStart': summary['periodStart'],
       'periodEnd': summary['periodEnd'],
       'interval': interval,
@@ -1088,7 +1094,7 @@ final class LocalAgentTools {
     final flowType = _flowTypeFor(call);
     final summary = await _flowSummary(
       call,
-      range: range,
+      range: range.dates,
       groupBy: 'category',
       flowType: flowType,
       categoryLevel: call.arguments['categoryLevel'] == 'leaf' ? 'leaf' : 'top',
@@ -1121,6 +1127,7 @@ final class LocalAgentTools {
         if (summary.containsKey(k)) k: summary[k],
       'flowType': flowType,
       'period': call.arguments['period'] ?? 'current_month',
+      if (range.asOf != null) 'asOf': range.asOf,
       'periodStart': summary['periodStart'],
       'periodEnd': summary['periodEnd'],
       'categoryLevel':
@@ -1316,23 +1323,22 @@ final class LocalAgentTools {
         .toList();
   }
 
-  Future<(DateTime, DateTime)> _financialRangeFor(
+  Future<({(DateTime, DateTime) dates, String period, String? asOf})>
+      _financialRangeFor(
     AgentToolCall call, {
     required String defaultPeriod,
   }) async {
-    final now = _now();
+    final now = _now().toLocal();
     final monthStartDay = await gateway.getLedgerMonthStartDay(_ledgerId);
     final rawPeriod = call.arguments['period'];
     final period = rawPeriod is String ? rawPeriod : defaultPeriod;
-    if (period == 'custom') {
-      final start = DateTime.tryParse(call.arguments['start'] as String? ?? '');
-      final end = DateTime.tryParse(call.arguments['end'] as String? ?? '');
-      if (start != null && end != null && end.isAfter(start)) {
-        return (start, end);
-      }
-    }
     final currentLabel = labelForDate(now, monthStartDay);
-    return switch (period) {
+    final dates = switch (period) {
+      // LedgerQueryEvidence has already validated both custom bounds.
+      'custom' => (
+          DateTime.parse(call.arguments['start'] as String),
+          DateTime.parse(call.arguments['end'] as String)
+        ),
       'previous_month' => _periodTuple(
           periodForLabel(
             currentLabel.year,
@@ -1369,6 +1375,28 @@ final class LocalAgentTools {
           ),
         ),
     };
+    final metric = call.arguments['answerMetric'];
+    final toDate = call.arguments['rangeMode'] == 'to_date' ||
+        (call.arguments['rangeMode'] == null &&
+            metric != null &&
+            metric != 'unspecified' &&
+            (period == 'current_month' || period == 'current_year'));
+    final tomorrow = DateTime(now.year, now.month, now.day + 1);
+    if (!toDate || dates.$1.isAfter(now) || dates.$2.isBefore(tomorrow)) {
+      return (dates: dates, period: period, asOf: null);
+    }
+    // A view may supply its dates explicitly instead of using the relative
+    // period enum. Mark it as a current month only when its bounds agree.
+    final monthly = periodContaining(now, monthStartDay);
+    final currentMonthView = period == 'custom' &&
+        dates.$1.isAtSameMomentAs(monthly.start) &&
+        (dates.$2.isAtSameMomentAs(monthly.end) ||
+            dates.$2.isAtSameMomentAs(tomorrow));
+    return (
+      dates: (dates.$1, tomorrow),
+      period: currentMonthView ? 'current_month' : period,
+      asOf: now.toIso8601String().split('T').first
+    );
   }
 
   String _trendIntervalFor(AgentToolCall call) {

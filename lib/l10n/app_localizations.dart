@@ -100,6 +100,102 @@ abstract class AppLocalizations {
     Locale('zh', 'TW')
   ];
 
+  /// No description provided for @agentQueryFlowCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{flow} · {count} transactions'**
+  String agentQueryFlowCount(int count, String flow);
+
+  /// No description provided for @agentQueryOpenBills.
+  ///
+  /// In en, this message translates to:
+  /// **'View {countLabel}'**
+  String agentQueryOpenBills(String countLabel);
+
+  /// No description provided for @agentQueryIncomeAndExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Income and expenses'**
+  String get agentQueryIncomeAndExpense;
+
+  /// No description provided for @agentQueryTotalByDate.
+  ///
+  /// In en, this message translates to:
+  /// **'{flow} this month through {date}'**
+  String agentQueryTotalByDate(String date, String flow);
+
+  /// No description provided for @agentQueryBasis.
+  ///
+  /// In en, this message translates to:
+  /// **'Query details'**
+  String get agentQueryBasis;
+
+  /// No description provided for @agentQueryReading.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking {scope}…'**
+  String agentQueryReading(String scope);
+
+  /// No description provided for @agentQueryThisMonthFlow.
+  ///
+  /// In en, this message translates to:
+  /// **'this month’s {flow}'**
+  String agentQueryThisMonthFlow(String flow);
+
+  /// No description provided for @agentQueryReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Checked {countLabel}. Preparing your answer…'**
+  String agentQueryReady(String countLabel);
+
+  /// No description provided for @agentQueryReadyPrivate.
+  ///
+  /// In en, this message translates to:
+  /// **'Results ready. Preparing your answer…'**
+  String get agentQueryReadyPrivate;
+
+  /// No description provided for @agentQueryBasisRange.
+  ///
+  /// In en, this message translates to:
+  /// **'{start} – {end}'**
+  String agentQueryBasisRange(String start, String end);
+
+  /// No description provided for @agentQueryStatsExcluded.
+  ///
+  /// In en, this message translates to:
+  /// **'Excludes internal transfers and bills excluded from statistics'**
+  String get agentQueryStatsExcluded;
+
+  /// No description provided for @agentQueryStatsIncluded.
+  ///
+  /// In en, this message translates to:
+  /// **'Includes bills marked as excluded from statistics. Internal transfers are excluded.'**
+  String get agentQueryStatsIncluded;
+
+  /// No description provided for @agentQueryRetained.
+  ///
+  /// In en, this message translates to:
+  /// **'The explanation was interrupted. Your checked results are available.'**
+  String get agentQueryRetained;
+
+  /// No description provided for @agentQueryResume.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue explanation'**
+  String get agentQueryResume;
+
+  /// No description provided for @agentQueryRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry query'**
+  String get agentQueryRetry;
+
+  /// No description provided for @agentQueryReadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The ledger query did not finish'**
+  String get agentQueryReadFailed;
+
   /// No description provided for @agentEvidenceScope.
   ///
   /// In en, this message translates to:

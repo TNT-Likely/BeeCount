@@ -66,6 +66,9 @@ final class AgentExecutionTimeline extends StatelessWidget {
     this.displaySteps,
     this.modelPhase,
     this.hideDetails = false,
+    this.basis,
+    this.initiallyExpanded = false,
+    this.onExpansionChanged,
   });
 
   final List<AgentExecutionStep> steps;
@@ -74,6 +77,9 @@ final class AgentExecutionTimeline extends StatelessWidget {
   final String? streamingText;
   final List<AgentActivityStep>? displaySteps;
   final AgentNativeModelPhase? modelPhase;
+  final AgentActivityStep? basis;
+  final bool initiallyExpanded;
+  final ValueChanged<bool>? onExpansionChanged;
 
   static List<AgentActivityStep> projectSteps(
           AppLocalizations l10n, List<AgentExecutionStep> steps,
@@ -139,12 +145,30 @@ final class AgentExecutionTimeline extends StatelessWidget {
             : failed
                 ? AgentActivityStatus.failed
                 : AgentActivityStatus.completed);
+    final activeTool = steps.reversed
+        .where((s) => s.status == AgentExecutionStepStatus.running)
+        .firstOrNull;
+    final scope = activeTool?.arguments;
+    final flow = switch (scope?['answerMetric']) {
+      'expense' => l10n.homeExpense,
+      'income' => l10n.homeIncome,
+      _ => l10n.agentQueryIncomeAndExpense,
+    };
     final summary = switch (status) {
+      _ when active == null && basis != null && isStreaming => hideDetails
+          ? l10n.agentQueryReadyPrivate
+          : l10n.agentQueryReady(basis!.title),
       AgentActivityStatus.preparing => l10n.agentActivityPreparing,
-      AgentActivityStatus.awaitingModel => l10n.agentActivityAwaitingModel,
-      AgentActivityStatus.thinking => l10n.agentActivityThinking,
+      AgentActivityStatus.awaitingModel ||
+      AgentActivityStatus.thinking =>
+        l10n.agentActivityPreparing,
       AgentActivityStatus.generating => l10n.agentActivityGenerating,
       AgentActivityStatus.waiting => l10n.agentPermissionWaiting,
+      AgentActivityStatus.running
+          when activeTool?.toolName == 'get_period_overview' =>
+        l10n.agentQueryReading(scope?['period'] == 'current_month'
+            ? l10n.agentQueryThisMonthFlow(flow)
+            : flow),
       AgentActivityStatus.running => l10n.agentExecutingTool(active!.title),
       AgentActivityStatus.failed => l10n.agentExecutionFailedSummary,
       AgentActivityStatus.completed =>
@@ -158,13 +182,17 @@ final class AgentExecutionTimeline extends StatelessWidget {
             AgentActivityView(
                 summary: summary,
                 status: status,
-                steps: hideDetails
-                    ? [
-                        for (final s in visibleSteps)
-                          AgentActivityStep(title: s.title, status: s.status)
-                      ]
-                    : visibleSteps,
-                expandWhileActive: isStreaming),
+                steps: basis != null && active == null
+                    ? [if (!hideDetails) basis!]
+                    : hideDetails
+                        ? [
+                            for (final s in visibleSteps)
+                              AgentActivityStep(
+                                  title: s.title, status: s.status)
+                          ]
+                        : visibleSteps,
+                initiallyExpanded: initiallyExpanded,
+                onExpansionChanged: onExpansionChanged),
           if (text.isNotEmpty)
             Padding(
                 padding: const EdgeInsets.only(top: 4),

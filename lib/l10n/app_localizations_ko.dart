@@ -9,6 +9,68 @@ class AppLocalizationsKo extends AppLocalizations {
   AppLocalizationsKo([String locale = 'ko']) : super(locale);
 
   @override
+  String agentQueryFlowCount(int count, String flow) {
+    return '$flow · $count transactions';
+  }
+
+  @override
+  String agentQueryOpenBills(String countLabel) {
+    return 'View $countLabel';
+  }
+
+  @override
+  String get agentQueryIncomeAndExpense => 'Income and expenses';
+
+  @override
+  String agentQueryTotalByDate(String date, String flow) {
+    return '$flow this month through $date';
+  }
+
+  @override
+  String get agentQueryBasis => 'Query details';
+
+  @override
+  String agentQueryReading(String scope) {
+    return 'Checking $scope…';
+  }
+
+  @override
+  String agentQueryThisMonthFlow(String flow) {
+    return 'this month’s $flow';
+  }
+
+  @override
+  String agentQueryReady(String countLabel) {
+    return 'Checked $countLabel. Preparing your answer…';
+  }
+
+  @override
+  String get agentQueryReadyPrivate => 'Results ready. Preparing your answer…';
+
+  @override
+  String agentQueryBasisRange(String start, String end) {
+    return '$start – $end';
+  }
+
+  @override
+  String get agentQueryStatsExcluded => 'Excludes internal transfers and bills excluded from statistics';
+
+  @override
+  String get agentQueryStatsIncluded => 'Includes bills marked as excluded from statistics. Internal transfers are excluded.';
+
+  @override
+  String get agentQueryRetained => 'The explanation was interrupted. Your checked results are available.';
+
+  @override
+  String get agentQueryResume => 'Continue explanation';
+
+  @override
+  String get agentQueryRetry => 'Retry query';
+
+  @override
+  String get agentQueryReadFailed => 'The ledger query did not finish';
+
+  @override
   String get agentEvidenceScope => 'Query scope';
 
   @override

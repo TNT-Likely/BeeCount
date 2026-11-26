@@ -21,6 +21,8 @@ import '../../../../utils/category_utils.dart';
 import '../../../shared/transactions/bindings/transaction_list_metadata.dart';
 import '../../../shared/transactions/bindings/transaction_tile.dart';
 import '../../../transaction/search/bindings/transaction_search.dart';
+import 'agent_financial_answer.dart';
+import 'ledger_evidence_label.dart';
 
 /// Shows the values observed by the tool. Older answers can explicitly look
 /// up today's bills using the saved filters.
@@ -35,11 +37,22 @@ class LedgerEvidenceSheet extends ConsumerStatefulWidget {
     required int ledgerId,
     required List<Map<String, Object?>> queries,
   }) async {
-    if (queries.isEmpty) return;
+    if (queries.isEmpty ||
+        ProviderScope.containerOf(context, listen: false)
+                .read(currentLedgerIdProvider) !=
+            ledgerId ||
+        queries.any((q) => q['ledgerId'] != ledgerId)) {
+      return;
+    }
+    final l = AppLocalizations.of(context);
+    final selected =
+        queries.length == 1 && queries.single.containsKey('displayMetric')
+            ? AgentFinancialPresentation.select(queries)
+            : null;
     // The page wraps its cards in a local Theme. Present this opaque sheet
     // from the navigator so its rows keep following the live app theme.
     await showBeeSheet<void>(Navigator.of(context).context,
-        title: AppLocalizations.of(context).agentEvidenceBills,
+        title: selected?.countLabel(l) ?? l.agentEvidenceBills,
         child: LedgerEvidenceSheet(ledgerId: ledgerId, queries: queries));
   }
 
@@ -51,28 +64,37 @@ class LedgerEvidenceSheet extends ConsumerStatefulWidget {
         return const [];
       }
       final context = decoded['queryContext'];
-      if (context is! Map ||
-          context['displayRefs'] is! List ||
-          context['queries'] is! List) {
-        return const [];
-      }
-      return (context['queries'] as List)
-          .whereType<Map>()
-          .where((query) =>
-              query['ledgerId'] == ledgerId &&
-              query['filters'] is Map &&
-              (context['displayRefs'] as List).contains(query['ref']))
-          .map((query) {
-        final snapshots = context['snapshots'];
-        return <String, Object?>{
-          ...(Map<String, Object?>.from(query)..remove('snapshot')),
-          if (snapshots is Map && snapshots.containsKey(query['ref']))
-            'snapshot': snapshots[query['ref']],
-        };
-      }).toList();
+      return context is Map ? fromQueryContext(context, ledgerId) : const [];
     } on FormatException {
       return const [];
     }
+  }
+
+  static List<Map<String, Object?>> fromQueryContext(
+      Map context, int ledgerId) {
+    final displayRefs = context['displayRefs'], queries = context['queries'];
+    if ((context['ledgerId'] != null && context['ledgerId'] != ledgerId) ||
+        displayRefs is! List ||
+        queries is! List) {
+      return const [];
+    }
+    final snapshots = context['snapshots'];
+    return [
+      for (final q in queries.whereType<Map>())
+        if (q['ledgerId'] == ledgerId &&
+            q['filters'] is Map &&
+            q['ref'] is String &&
+            displayRefs.contains(q['ref']))
+          {
+            for (final entry in q.entries)
+              if (entry.key is String &&
+                  !const {'snapshot', 'displayMetric', 'displayFlow'}
+                      .contains(entry.key))
+                entry.key as String: entry.value,
+            if (snapshots is Map && snapshots.containsKey(q['ref']))
+              'snapshot': snapshots[q['ref']],
+          }
+    ];
   }
 
   @override
@@ -150,7 +172,7 @@ class _LedgerEvidenceSheetState extends ConsumerState<LedgerEvidenceSheet> {
     });
   }
 
-  String _label(Map<String, Object?> query, bool hidden) {
+  String _label(Map<String, Object?> query, bool hidden, bool accountsEnabled) {
     final filters = query['filters'] as Map;
     final dates = MaterialLocalizations.of(context);
     final start =
@@ -158,32 +180,18 @@ class _LedgerEvidenceSheetState extends ConsumerState<LedgerEvidenceSheet> {
     final end = DateTime.tryParse(filters['end']?.toString() ?? '')?.toLocal();
     final l = AppLocalizations.of(context);
     final flow = query['displayFlow'] ?? filters['flowType'];
-    final categoryNames = filters['categoryNames'];
     final label = [
       if (start != null && end != null)
-        '${dates.formatCompactDate(start)} – ${dates.formatCompactDate(end.subtract(const Duration(microseconds: 1)))}',
+        query.containsKey('displayMetric')
+            ? ledgerEvidenceDateRange(context, start, end)
+            : '${dates.formatCompactDate(start)} – ${dates.formatCompactDate(end.subtract(const Duration(microseconds: 1)))}',
       if (flow == 'income') l.homeIncome,
       if (flow == 'expense') l.homeExpense,
       if (flow == 'transfer') l.billCardTransfer,
-      if (categoryNames is List)
-        for (final name in categoryNames.whereType<String>())
-          CategoryUtils.getDisplayName(name, context,
-              kind: flow == 'income' ? 'income' : 'expense'),
-      for (final key in ['accountNames', 'tagNames'])
-        if (filters[key] is List) ...(filters[key] as List).whereType<String>(),
-      for (final (key, title) in [
-        ('category', l.exportCsvHeaderCategory),
-        ('account', l.exportCsvHeaderAccount),
-        ('tag', l.exportCsvHeaderTags)
-      ])
-        if (filters['${key}Names'] == null && filters['${key}Ids'] is List)
-          for (final id in filters['${key}Ids'] as List) '$title #$id',
-      if (filters['minAmount'] != null)
-        '≥ ${hidden ? '••••' : filters['minAmount']}',
-      if (filters['maxAmount'] != null)
-        '≤ ${hidden ? '••••' : filters['maxAmount']}',
-      if (filters['currency'] case final String currency) currency,
-      if (filters['exclude'] != null) l.agentEvidenceExcluded,
+      ...ledgerEvidenceFilterLabels(context, filters,
+          accountsEnabled: accountsEnabled,
+          hideAmounts: hidden,
+          flow: flow is String ? flow : null),
     ].join(' · ');
     return label.isEmpty ? l.agentEvidenceScope : label;
   }
@@ -204,6 +212,24 @@ class _LedgerEvidenceSheetState extends ConsumerState<LedgerEvidenceSheet> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
+    // A scoped sheet title contains the previous ledger's bill count.
+    // Dismiss that route together with its contents on a ledger change.
+    ref.listen(currentLedgerIdProvider, (previous, next) {
+      final route = ModalRoute.of(context);
+      if (next == widget.ledgerId ||
+          widget.queries.isEmpty ||
+          !_query.containsKey('displayMetric') ||
+          route is! ModalBottomSheetRoute) {
+        return;
+      }
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted &&
+            route.isActive &&
+            ref.read(currentLedgerIdProvider) != widget.ledgerId) {
+          route.navigator?.removeRoute(route);
+        }
+      });
+    });
     if (widget.queries.isEmpty ||
         ref.watch(currentLedgerIdProvider) != widget.ledgerId ||
         _query['ledgerId'] != widget.ledgerId) {
@@ -233,7 +259,8 @@ class _LedgerEvidenceSheetState extends ConsumerState<LedgerEvidenceSheet> {
                   BeeLineIcon('CalendarDays', size: 15, color: theme.hintColor),
                   const SizedBox(width: 8),
                   Expanded(
-                      child: Text(_label(widget.queries.single, hidden),
+                      child: Text(
+                          _label(widget.queries.single, hidden, accounts),
                           style: theme.textTheme.bodySmall
                               ?.copyWith(color: theme.hintColor))),
                 ]),
@@ -243,7 +270,7 @@ class _LedgerEvidenceSheetState extends ConsumerState<LedgerEvidenceSheet> {
                 label: l.agentEvidenceScope,
                 items: [
                   for (final (index, query) in widget.queries.indexed)
-                    BeeSegment(index, _label(query, hidden))
+                    BeeSegment(index, _label(query, hidden, accounts))
                 ],
                 value: _selection,
                 onChanged: (index) {
@@ -251,7 +278,9 @@ class _LedgerEvidenceSheetState extends ConsumerState<LedgerEvidenceSheet> {
                 },
               ),
             if (_query.containsKey('snapshot'))
-              ..._frozenRows(context, accounts)
+              ..._frozenRows(context, accounts, hidden)
+            else if (_query.containsKey('answerMetric'))
+              BeeEmptyState(title: l.agentAnswerSnapshotUnavailable)
             else if (!_lookupCurrent) ...[
               Padding(
                   padding: const EdgeInsets.symmetric(vertical: 12),
@@ -326,14 +355,18 @@ class _LedgerEvidenceSheetState extends ConsumerState<LedgerEvidenceSheet> {
     );
   }
 
-  List<Widget> _frozenRows(BuildContext context, bool accounts) {
+  List<Widget> _frozenRows(BuildContext context, bool accounts, bool hidden) {
     final l = AppLocalizations.of(context);
     final snapshot = _query['snapshot'];
     if (!LedgerQuerySnapshot.valid(snapshot, widget.ledgerId)) {
       return [BeeEmptyState(title: l.agentAnswerSnapshotUnavailable)];
     }
     final saved = snapshot as Map;
-    final flow = _query['displayFlow'] as String?;
+    final displayFlow = _query['displayFlow'];
+    if (!const {null, 'income', 'expense', 'transfer'}.contains(displayFlow)) {
+      return [BeeEmptyState(title: l.agentAnswerSnapshotUnavailable)];
+    }
+    final flow = displayFlow as String?;
     final count = flow == null
         ? saved['count'] as int
         : ((saved['totals'] as Map)[flow] as Map)['count'] as int;
@@ -350,10 +383,18 @@ class _LedgerEvidenceSheetState extends ConsumerState<LedgerEvidenceSheet> {
     } catch (_) {
       return [BeeEmptyState(title: l.agentAnswerSnapshotUnavailable)];
     }
+    final scoped = _query.containsKey('displayMetric');
+    String amount(String type) => hidden
+        ? '••••'
+        : '${getDistinctCurrencySymbol(currency)}${formatMoneyCompact((saved['totals'][type]['amount'] as num).toDouble(), trimZeros: false)}';
     return [
       Padding(
           padding: const EdgeInsets.symmetric(vertical: 7),
-          child: BeeSectionLabel(l.agentEvidenceCount(count))),
+          child: BeeSectionLabel(!scoped
+              ? l.agentEvidenceCount(count)
+              : flow != null
+                  ? '${l.analyticsTotalAmount} ${amount(flow)}'
+                  : '${l.homeIncome} ${amount('income')} · ${l.homeExpense} ${amount('expense')}')),
       if (captured < count)
         Padding(
             padding: const EdgeInsets.symmetric(vertical: 6),

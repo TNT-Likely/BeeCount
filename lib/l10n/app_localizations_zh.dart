@@ -9,6 +9,68 @@ class AppLocalizationsZh extends AppLocalizations {
   AppLocalizationsZh([String locale = 'zh']) : super(locale);
 
   @override
+  String agentQueryFlowCount(int count, String flow) {
+    return '$count 笔$flow';
+  }
+
+  @override
+  String agentQueryOpenBills(String countLabel) {
+    return '查看 $countLabel';
+  }
+
+  @override
+  String get agentQueryIncomeAndExpense => '收支';
+
+  @override
+  String agentQueryTotalByDate(String date, String flow) {
+    return '截至$date，本月$flow';
+  }
+
+  @override
+  String get agentQueryBasis => '查账依据';
+
+  @override
+  String agentQueryReading(String scope) {
+    return '正在查$scope';
+  }
+
+  @override
+  String agentQueryThisMonthFlow(String flow) {
+    return '本月$flow';
+  }
+
+  @override
+  String agentQueryReady(String countLabel) {
+    return '已查 $countLabel，整理中';
+  }
+
+  @override
+  String get agentQueryReadyPrivate => '已查到结果，整理中';
+
+  @override
+  String agentQueryBasisRange(String start, String end) {
+    return '$start 至 $end';
+  }
+
+  @override
+  String get agentQueryStatsExcluded => '排除内部转账及不计收支的账单';
+
+  @override
+  String get agentQueryStatsIncluded => '含标为不计收支的账单，排除内部转账';
+
+  @override
+  String get agentQueryRetained => '文字解读已中断，查账结果已保留';
+
+  @override
+  String get agentQueryResume => '继续解读';
+
+  @override
+  String get agentQueryRetry => '重新查账';
+
+  @override
+  String get agentQueryReadFailed => '账本查询未完成';
+
+  @override
   String get agentEvidenceScope => '查询范围';
 
   @override
@@ -9931,6 +9993,68 @@ class AppLocalizationsZh extends AppLocalizations {
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
 class AppLocalizationsZhTw extends AppLocalizationsZh {
   AppLocalizationsZhTw(): super('zh_TW');
+
+  @override
+  String agentQueryFlowCount(int count, String flow) {
+    return '$count 筆$flow';
+  }
+
+  @override
+  String agentQueryOpenBills(String countLabel) {
+    return '查看 $countLabel';
+  }
+
+  @override
+  String get agentQueryIncomeAndExpense => '收支';
+
+  @override
+  String agentQueryTotalByDate(String date, String flow) {
+    return '截至$date，本月$flow';
+  }
+
+  @override
+  String get agentQueryBasis => '查帳依據';
+
+  @override
+  String agentQueryReading(String scope) {
+    return '正在查$scope';
+  }
+
+  @override
+  String agentQueryThisMonthFlow(String flow) {
+    return '本月$flow';
+  }
+
+  @override
+  String agentQueryReady(String countLabel) {
+    return '已查 $countLabel，整理中';
+  }
+
+  @override
+  String get agentQueryReadyPrivate => '已查到結果，整理中';
+
+  @override
+  String agentQueryBasisRange(String start, String end) {
+    return '$start 至 $end';
+  }
+
+  @override
+  String get agentQueryStatsExcluded => '排除內部轉帳及不計收支的帳單';
+
+  @override
+  String get agentQueryStatsIncluded => '含標為不計收支的帳單，排除內部轉帳';
+
+  @override
+  String get agentQueryRetained => '文字解讀已中斷，查帳結果已保留';
+
+  @override
+  String get agentQueryResume => '繼續解讀';
+
+  @override
+  String get agentQueryRetry => '重新查帳';
+
+  @override
+  String get agentQueryReadFailed => '帳本查詢未完成';
 
   @override
   String get agentEvidenceScope => '查詢範圍';
