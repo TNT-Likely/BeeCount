@@ -113,6 +113,17 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
   }
 
+  Future<void> revealSheetControl(WidgetTester tester, Finder control) async {
+    final sheetScroll = find
+        .descendant(
+            of: find.byType(BeeSheet), matching: find.byType(Scrollable))
+        .first;
+    await tester.scrollUntilVisible(control.hitTestable(), 100,
+        scrollable: sheetScroll);
+    await tester.pumpAndSettle();
+    expect(control.hitTestable(), findsOneWidget);
+  }
+
   testWidgets(
       'cold preview and original attachment share one snapshot until reopened',
       (tester) async {
@@ -128,6 +139,11 @@ void main() {
     expect(find.text(l.logShareScope(1)), findsOneWidget);
     expect(find.text(l.logShareOriginalHint), findsOneWidget);
     expect(find.byType(ChoiceChip), findsNothing);
+    expect(
+        find
+            .byKey(const ValueKey('log-share-preview-fullscreen'))
+            .hitTestable(),
+        findsOneWidget);
     final preview = find.byKey(const ValueKey('log-share-preview-lines'));
     final firstRecord = find.textContaining(privateNote);
     expect(
@@ -249,6 +265,7 @@ void main() {
               .overlaps(tester.getRect(find.textContaining(privateNote))),
           isTrue);
 
+      await revealSheetControl(tester, fullscreen);
       await tester.tap(fullscreen);
       await tester.pumpAndSettle();
       final reader = find.byKey(const ValueKey('log-share-fullscreen-page'));
@@ -259,15 +276,17 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text(l.logShareTitle), findsOneWidget);
       expect(lines, findsOneWidget);
+      await revealSheetControl(tester, header);
       await tester.tap(header);
       await tester.pumpAndSettle();
       expect(lines, findsNothing);
       expect(tester.getSemantics(header).hasFlag(ui.SemanticsFlag.isExpanded),
           isFalse);
+      await revealSheetControl(tester, header);
       await tester.tap(header);
       await tester.pumpAndSettle();
       expect(lines, findsOneWidget);
-      await tester.ensureVisible(send);
+      await revealSheetControl(tester, send);
       await tap(tester, 'log-share-send');
       expect(platform.shares.single.text, contains(privateNote));
       expect(tester.takeException(), isNull);
@@ -298,10 +317,14 @@ void main() {
     await prefs.setString('app_logs', jsonEncode([entry.toJson()]));
     await mount(tester, textScale: 1.6);
     await open(tester);
+    await revealSheetControl(
+        tester, find.byKey(const ValueKey('log-share-preview-toggle')));
     await tap(tester, 'log-share-preview-toggle');
     final compact = find.byKey(const ValueKey('log-share-preview-lines'));
     expect(compact, findsNothing);
     logger.info('App', beforeReading);
+    await revealSheetControl(
+        tester, find.byKey(const ValueKey('log-share-preview-fullscreen')));
     await tap(tester, 'log-share-preview-fullscreen');
     final reader = find.byKey(const ValueKey('log-share-fullscreen-page'));
     final lines = find.byKey(const ValueKey('log-share-fullscreen-lines'));
@@ -333,12 +356,7 @@ void main() {
     expect(find.text(l.logShareScope(1)), findsOneWidget);
     expect(compact, findsNothing);
     final send = find.byKey(const ValueKey('log-share-send'));
-    final sheetScroll = find.descendant(
-        of: find.byType(BeeSheet), matching: find.byType(Scrollable));
-    await tester.scrollUntilVisible(send.hitTestable(), 100,
-        scrollable: sheetScroll);
-    await tester.pumpAndSettle();
-    expect(send.hitTestable(), findsOneWidget);
+    await revealSheetControl(tester, send);
     await tap(tester, 'log-share-send');
     final attachment = platform.shares.single;
     final content = utf8.decode(attachment.bytes);
