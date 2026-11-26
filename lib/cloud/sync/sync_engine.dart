@@ -1089,22 +1089,27 @@ class SyncEngine implements app.SyncService {
   int? _pullInFlightSince;
 
   Future<int> _doPull(String ledgerId, int? sinceOverride) async {
-    int? nextSince = sinceOverride ?? await appCursor.read();
-    if (nextSince == 0 && sinceOverride == null) {
+    final restoreCursor = await appCursor._readRestoreCursor();
+    int nextSince = sinceOverride ?? restoreCursor ?? await appCursor.read();
+    if (nextSince == 0 && sinceOverride == null && restoreCursor == null) {
       await appCursor.migrateFromProviderCursor();
       nextSince = await appCursor.read();
     }
+    final restoring =
+        nextSince == 0 || (sinceOverride == null && restoreCursor != null);
+    // An explicit replay can start from an advanced normal cursor. Remember
+    // its starting point even if the very first request or transaction fails.
+    if (sinceOverride == 0) await appCursor._restartRestore();
 
     // **Lazy prime**:先 HTTP 一次试探有没有数据。99% 场景(无变更)直接
     // return,跳过 LookupCache 全表 SELECT(transactions 10k+ 行的 prime
     // 每次都要 200-500ms 主线程时间)。多账本场景这里是大头 — 启动时 5 个
     // ledger 各跑一次 sync,空跑也要 prime 5 次,白白卡 1-2s。
-    final probe = await provider.pullChanges(
-      since: nextSince,
-      limit: 500,
-      persistCursor: false,
-    );
+    final probe = await _readPullPage(nextSince, restoring: restoring);
     if (probe.changes.isEmpty) {
+      if (restoreCursor != null || sinceOverride == 0) {
+        await appCursor.commit(probe.serverCursor, restoring: true);
+      }
       logger.info(
           'SyncEngine', 'pull: since=$nextSince 无新变更,跳过 LookupCache prime');
       return 0;
@@ -1116,15 +1121,23 @@ class SyncEngine implements app.SyncService {
     activePullCache = cache;
 
     try {
-      return await _runPullLoop(ledgerId, nextSince, firstPage: probe);
+      return await _runPullLoop(ledgerId, nextSince,
+          restoring: restoring, firstPage: probe);
     } finally {
       activePullCache = null;
     }
   }
 
+  Future<BeeCountCloudPullResult> _readPullPage(int since,
+          {required bool restoring}) =>
+      restoring
+          ? provider.pullRestorePage(since: since, limit: 500)
+          : provider.pullChanges(since: since, limit: 500, persistCursor: false);
+
   Future<int> _runPullLoop(
     String ledgerId,
-    int? nextSince, {
+    int nextSince, {
+    required bool restoring,
     BeeCountCloudPullResult? firstPage,
   }) async {
     int totalApplied = 0;
@@ -1143,20 +1156,19 @@ class SyncEngine implements app.SyncService {
         logger.info('SyncEngine',
             'pull #$pageIndex: since=$nextSince got ${result.changes.length} hasMore=${result.hasMore} (reused probe)');
       } else {
-        result = await provider.pullChanges(
-          since: nextSince,
-          limit: 500,
-          persistCursor: false, // cursor 由 appCursor 接管
-        );
+        result = await _readPullPage(nextSince, restoring: restoring);
         final httpMs = DateTime.now().difference(pageStart).inMilliseconds;
         logger.info('SyncEngine',
             'pull #$pageIndex: since=$nextSince got ${result.changes.length} hasMore=${result.hasMore} (HTTP ${httpMs}ms)');
       }
-      if (result.changes.isEmpty) break;
+      if (result.changes.isEmpty) {
+        if (restoring) await appCursor.commit(result.serverCursor, restoring: true);
+        break;
+      }
 
       final applyStart = DateTime.now();
       await _recoverTransactionMoves();
-      final outcome = await _applyPullPage(result.changes);
+      final outcome = await _applyPullPage(result.changes, restoring: restoring);
       final applyMs = DateTime.now().difference(applyStart).inMilliseconds;
       logger.info('SyncEngine',
           'pull #$pageIndex: applied ${outcome.applied}/${result.changes.length} (apply ${applyMs}ms, page total ${DateTime.now().difference(pageStart).inMilliseconds}ms)');
@@ -1168,7 +1180,8 @@ class SyncEngine implements app.SyncService {
       }
 
       // 整页成功:推进 cursor,处理本页 enqueue 的自定义图标
-      await appCursor.commit(result.serverCursor);
+      await appCursor.commit(result.serverCursor,
+          restoring: restoring, hasMore: result.hasMore);
       nextSince = result.serverCursor;
 
       // 同 change_id 之前如果有未 resolved 错误(server 修了脏数据 + 推新
@@ -1197,7 +1210,7 @@ class SyncEngine implements app.SyncService {
   /// - 不可恢复异常 → rollback + 错误入 [pullErrors] + return blocked
   /// - SQLite busy/locked → 单条 retry 2 次
   Future<_PullPageOutcome> _applyPullPage(
-      List<BeeCountCloudSyncChange> changes) async {
+      List<BeeCountCloudSyncChange> changes, {required bool restoring}) async {
     int applied = 0;
     int skipped = 0;
     BeeCountCloudSyncChange? failingChange;
@@ -1206,7 +1219,8 @@ class SyncEngine implements app.SyncService {
       await _applyWithAttachmentCleanup((removedFiles) async {
         for (final ch in changes) {
           failingChange = ch;
-          final ok = await _applyOneWithBusyRetry(ch, removedFiles);
+          final ok = await _applyOneWithBusyRetry(ch, removedFiles,
+              restoring: restoring);
           if (ok) {
             applied++;
           } else {
@@ -1239,11 +1253,11 @@ class SyncEngine implements app.SyncService {
   /// 用 `e.toString()` 探测 SqliteException 类型,避免引入 sqlite3 包依赖
   /// (Drift 内部用,但这里直接 import 会触发 depend_on_referenced_packages)。
   Future<bool> _applyOneWithBusyRetry(
-      BeeCountCloudSyncChange ch, Set<String> removedFiles) async {
+      BeeCountCloudSyncChange ch, Set<String> removedFiles, {required bool restoring}) async {
     var attempts = 0;
     while (true) {
       try {
-        return await _applyRemoteChange(ch, removedFiles);
+        return await _applyRemoteChange(ch, removedFiles, restoring: restoring);
       } catch (e) {
         final msg = e.toString().toLowerCase();
         final transient =

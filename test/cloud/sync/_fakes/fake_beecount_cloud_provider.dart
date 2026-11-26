@@ -44,7 +44,7 @@ class FakeBeeCountCloudAuthService extends BeeCountCloudAuthService {
   // CloudAuthService 抽象接口实现 — fake 不真做认证
   @override
   Future<CloudUser?> get currentUser async =>
-      _userId == null ? null : CloudUser(id: _userId!);
+      _userId == null ? null : CloudUser(id: _userId!, metadata: {'deviceId': _deviceId});
 
   /// 测试入口:模拟用户登录 / 登出
   void setLoggedIn({String? userId = 'test-user-id', String? deviceId = 'test-device-id'}) {
@@ -171,6 +171,10 @@ class FakeBeeCountCloudProvider extends BeeCountCloudProvider {
   }
 
   // ====== 覆盖 SyncEngine 用到的方法 ======
+
+  @override
+  Future<BeeCountCloudPullResult> pullRestorePage({required int since, required int limit}) =>
+      pullChanges(since: since, limit: limit, persistCursor: false);
 
   @override
   Future<BeeCountCloudPullResult> pullChanges({

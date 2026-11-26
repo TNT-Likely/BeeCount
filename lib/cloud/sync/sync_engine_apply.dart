@@ -14,11 +14,12 @@ extension SyncEngineApplyExt on SyncEngine {
           _applyRemoteChange(change, files, authoritative: authoritative));
 
   Future<bool> _applyRemoteChange(
-      BeeCountCloudSyncChange change, Set<String> removedFiles, {bool authoritative = false}) async {
-    // 跳过本设备自己的变更
-    final deviceId = await _getDeviceId();
+      BeeCountCloudSyncChange change, Set<String> removedFiles,
+      {bool authoritative = false, bool restoring = false}) async {
     if (!authoritative) {
-      if (change.updatedByDeviceId == deviceId) return false;
+      if (!restoring && change.updatedByDeviceId == await _getDeviceId()) {
+        return false;
+      }
       if (await _deferOrSkipRemote(change)) return false;
     }
 
@@ -110,9 +111,8 @@ extension SyncEngineApplyExt on SyncEngine {
     final type = payload['type'] as String? ?? 'expense';
     final amount = (payload['amount'] as num?)?.toDouble() ?? 0.0;
     final happenedAtStr = payload['happenedAt'] as String?;
-    final happenedAt = happenedAtStr != null
-        ? DateTime.tryParse(happenedAtStr)?.toLocal() ?? DateTime.now()
-        : DateTime.now();
+    // Older SQLite servers can return a materialized UTC timestamp without its offset.
+    final happenedAt = _remoteTime(happenedAtStr)?.toLocal() ?? DateTime.now();
     final note = payload['note'] as String?;
     final categoryName = payload['categoryName'] as String?;
     final categoryKind = payload['categoryKind'] as String?;

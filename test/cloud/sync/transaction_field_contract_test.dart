@@ -86,6 +86,19 @@ void main() {
   }
 
   test(
+      'legacy Cloud UTC timestamps with and without an offset refer to the same instant',
+      () async {
+    bill('naive-time', {'happenedAt': '2026-10-28T12:00:00'});
+    bill('explicit-time', {'happenedAt': '2026-10-28T20:00:00+08:00'});
+    await sync.pull('1');
+    final rows = await db.select(db.transactions).get();
+    expect(rows, hasLength(2));
+    for (final row in rows) {
+      expect(row.happenedAt.toUtc(), DateTime.utc(2026, 10, 28, 12));
+    }
+  });
+
+  test(
       'partial updates preserve a note and tag links, including shared overrides',
       () async {
     bill('tx', {'note': 'keep', 'tags': 'Legacy'});

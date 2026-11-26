@@ -341,7 +341,17 @@ class BeeCountCloudProvider implements CloudProvider {
     int? since,
     int limit = 1000,
     bool persistCursor = true,
-  }) async {
+  }) => _readChanges(since, limit, persistCursor: persistCursor);
+
+  /// Rebuild a local database from all visible changes, including this device's.
+  /// The caller checkpoints each page only after its local transaction commits.
+  Future<BeeCountCloudPullResult> pullRestorePage({
+    required int since,
+    required int limit,
+  }) => _readChanges(since, limit, persistCursor: false, restoring: true);
+
+  Future<BeeCountCloudPullResult> _readChanges(int? since, int limit,
+      {required bool persistCursor, bool restoring = false}) async {
     final storage = _storage;
     if (storage == null) {
       throw CloudConfigurationException(
@@ -351,6 +361,7 @@ class BeeCountCloudProvider implements CloudProvider {
       since: since,
       limit: limit,
       persistCursor: persistCursor,
+      restoring: restoring,
     );
   }
 
@@ -2138,6 +2149,7 @@ class BeeCountCloudStorageService implements CloudStorageService {
     int? since,
     int limit = 1000,
     bool persistCursor = true,
+    bool restoring = false,
   }) async {
     final currentCursor = since ?? await _loadCursor();
     final query = <String, String>{
@@ -2146,7 +2158,9 @@ class BeeCountCloudStorageService implements CloudStorageService {
     };
     final deviceId = auth.currentDeviceId;
     if (deviceId != null && deviceId.isNotEmpty) {
-      query['device_id'] = deviceId;
+      // Older Cloud versions ignore the restore parameter and return the full
+      // authenticated stream. Newer versions can also track this device's cursor.
+      query[restoring ? 'restore_device_id' : 'device_id'] = deviceId;
     }
 
     final response = await _authedRequest(

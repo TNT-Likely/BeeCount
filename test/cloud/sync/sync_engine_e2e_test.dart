@@ -67,6 +67,39 @@ void main() {
   });
 
   group('apply 远端 change', () {
+    test('冷恢复包含本设备历史，后续增量仍跳过本设备回显', () async {
+      void ownTag(String id) => provider.pushFakeChange(
+        entityType: 'tag',
+        entitySyncId: id,
+        updatedByDeviceId: 'test-device-id',
+        payload: {'name': id},
+      );
+      ownTag('own-before-reinstall');
+      expect(await engine.pull(''), 1);
+      ownTag('own-after-reinstall');
+      expect(await engine.pull(''), 0);
+      expect((await db.select(db.tags).get()).map((row) => row.syncId),
+          ['own-before-reinstall']);
+    });
+
+    test('明确重建在首个请求中断后仍从零恢复，并遵守本设备删除', () async {
+      for (final action in ['upsert', 'delete']) {
+        provider.pushFakeChange(entityType: 'tag', entitySyncId: 'removed',
+            action: action, updatedByDeviceId: 'test-device-id',
+            payload: {'name': 'Removed'});
+      }
+      provider.pushFakeChange(entityType: 'tag', entitySyncId: 'keep',
+          updatedByDeviceId: 'test-device-id', payload: {'name': 'Keep'});
+      await engine.appCursor.commit(99);
+      provider.pullErrorInjector = (_) => Exception('interrupted');
+      await expectLater(engine.replayAllChanges(), throwsException);
+      provider.pullErrorInjector = null;
+      expect(await engine.pull(''), 3);
+      expect(provider.pullCalls.map((r) => r.since), [0, 0]);
+      expect((await db.select(db.tags).get()).map((row) => row.syncId), ['keep']);
+      expect(await engine.appCursor.read(), 3);
+    });
+
     test('server 推 transaction change → 本地 transactions 表 insert', () async {
       // 准备:本地建好 ledger 和 category(因为 transaction 引用它们)
       final ledgerId = await db.into(db.ledgers).insert(
