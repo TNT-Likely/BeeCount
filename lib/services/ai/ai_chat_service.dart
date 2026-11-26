@@ -10,6 +10,7 @@ import '../../data/repositories/local/local_repository.dart';
 import '../../l10n/app_localizations.dart';
 import '../system/logger_service.dart';
 import 'agent_app_facade.dart';
+import 'frozen_query_answer.dart';
 
 /// UI adapter for a single Agent conversation path. Recommended questions and
 /// manual input share permissions, tool validation, streaming and cancellation.
@@ -99,10 +100,17 @@ class AIChatService {
     final context =
         await _context(ledgerId, languageCode, sourceMessageId, view, review);
     if (isCancelled?.call() == true) {
+      final stopped = AIResponse.stopped(
+          (l10n ?? resolveAppLocalizations(null)).agentRunCancelled);
+      final canKeepAnswer = readOnly &&
+          continueQueryContext != null &&
+          FrozenQueryAnswer.facts(continueQueryContext, ledgerId).isNotEmpty;
       yield AgentRunCompletedEvent(AgentChatResponse(
           runId: runId ?? '',
-          response: AIResponse.stopped(
-              (l10n ?? resolveAppLocalizations(null)).agentRunCancelled)));
+          response: canKeepAnswer
+              ? stopped.withFollowUpSuggestions(const [],
+                  queryContext: continueQueryContext)
+              : stopped));
       return;
     }
     if (readOnly && repeatQueries.isNotEmpty) {
