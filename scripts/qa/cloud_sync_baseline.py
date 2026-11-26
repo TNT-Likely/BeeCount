@@ -85,7 +85,7 @@ def database(root, name, pg_bin, python, log):
 
 
 @contextmanager
-def cloud(root, source, python, sha, name, pg_bin, log):
+def cloud(root, source, python, sha, name, pg_bin, log, provisioning_source=None):
     root = root.resolve()
     with database(root, name, pg_bin, python, log) as url:
         env = {"PATH": os.environ["PATH"], "PYTHONPATH": str(source),
@@ -98,7 +98,12 @@ def cloud(root, source, python, sha, name, pg_bin, log):
                "BACKUP_SCHEDULER_ENABLED": "false", "MCP_RECURRING_ENABLED": "false",
                "RAG_INDEX_REFRESH_INTERVAL_SECONDS": "0", "EXCHANGE_RATE_PROXY_ENABLED": "false",
                **{key: str(root / rel) for key, rel in CLOUD_PATHS.items()}}
-        subprocess.run([python, SERVER, "migrate"], cwd=root, env=env,
+        migration = [python, SERVER, "migrate"]
+        migration_env = env
+        if provisioning_source:
+            migration.extend(["--target-schema-from", str(source)])
+            migration_env = {**env, "PYTHONPATH": str(provisioning_source)}
+        subprocess.run(migration, cwd=root, env=migration_env,
                        stdout=log, stderr=log, check=True)
         with socket.socket() as listener:
             listener.bind(("127.0.0.1", 0))
@@ -198,6 +203,11 @@ def run(cfg):
     with tempfile.TemporaryDirectory(prefix="bc-sync-source-") as tmp:
         src = Path(tmp) / "source"
         export_commit(repo, sha, src)
+        provisioning_source = None
+        if cfg.provisioning_ref:
+            result["provisioning_sha"] = git(repo, "rev-parse", "--verify", cfg.provisioning_ref + "^{commit}")
+            provisioning_source = Path(tmp) / "provisioning"
+            export_commit(repo, result["provisioning_sha"], provisioning_source)
         app_repo = APP
         if cfg.app_ref:
             app_repo = Path(tmp) / "app"
@@ -221,7 +231,7 @@ def run(cfg):
             result["databases"][name] = record
             try:
                 with (root / "cloud.log").open("w") as log, cloud(
-                    root, src, python, sha, name, pg_bin, log
+                    root, src, python, sha, name, pg_bin, log, provisioning_source
                 ) as (origin, identity):
                     record["identity"] = identity
                     for suite in cfg.case or CORE:
@@ -236,8 +246,13 @@ def run(cfg):
                         print(f"{name}: {suite} {item['status']} ({item['seconds']}s)", flush=True)
                         save(output / "summary.json", result)
             except Exception as exc:
-                record["error"] = type(exc).__name__ + ": " + str(exc)
-                print(f"{name}: {record['error']}", file=sys.stderr, flush=True)
+                # Exception text may include private installation paths or connection details.
+                record["error"] = type(exc).__name__
+                if isinstance(exc, subprocess.CalledProcessError):
+                    record["exit"] = exc.returncode
+                with (root / "cloud.log").open("a") as log:
+                    print(f"{type(exc).__name__}: {exc}", file=log)
+                print(f"{name}: {record['error']} (see private diagnostics)", file=sys.stderr, flush=True)
             completed = (not record.get("error") and len(record["suites"]) == len(result["selected"])
                          and all(x["status"] == "PASS" for x in record["suites"]))
             record["status"] = "PASS" if completed else "FAIL"
@@ -257,6 +272,8 @@ def main():
     parser.add_argument("--app-ref", help="compile the portable compatibility probe against this App revision")
     parser.add_argument("--cloud-repo", type=Path, required=True)
     parser.add_argument("--cloud-ref", default="HEAD", help="committed Cloud ref to export")
+    parser.add_argument("--provisioning-ref", help="prepare an existing-install compatibility database "
+                        "with this Cloud ref's migrations up to the running Cloud's schema revision")
     parser.add_argument("--cloud-python", type=Path)
     parser.add_argument("--postgres-bin", type=Path)
     parser.add_argument("--flutter", default="flutter")
@@ -276,8 +293,8 @@ def main():
         if cfg.case:
             parser.error("The compatibility suite selects its own cross-version probe")
         cfg.case = ["compatibility"]
-    elif cfg.app_ref:
-        parser.error("--app-ref is used with --suite compatibility")
+    elif cfg.app_ref or cfg.provisioning_ref:
+        parser.error("--app-ref and --provisioning-ref are used with --suite compatibility")
     if cfg.case and len(cfg.case) != len(set(cfg.case)):
         parser.error("Use each --case once")
     if not (APP / ".dart_tool/package_config.json").is_file():

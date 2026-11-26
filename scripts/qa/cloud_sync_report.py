@@ -21,6 +21,8 @@ def render(directory, summary):
         environment = name + " " + str(identity.get("version", ""))
         if identity.get("session_timezone"):
             environment += " / " + identity["session_timezone"]
+        if identity.get("schema_revision"):
+            environment += " / " + identity["schema_revision"]
         for suite in db["suites"]:
             for case in suite["expected"]:
                 path = directory / name / suite["suite"] / (case + ".json")
@@ -45,6 +47,8 @@ def render(directory, summary):
                 f"套件 {summary['suite']} · 配置样本 {summary['transactions']:,} 笔 · 种子 {summary['seed']}")
     if summary["app_dirty"]:
         identity += " · App 工作区含未提交变更"
+    if summary.get("provisioning_sha"):
+        identity += " · 已有安装模拟的迁移代码 " + summary["provisioning_sha"]
     body = "".join(rows)
     (directory / "index.html").write_text(f"""<!doctype html><html lang="zh-CN"><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>BeeCount 双向同步复测</title>

@@ -37,3 +37,5 @@ python3 scripts/qa/cloud_sync_baseline.py run --suite compatibility --cloud-ref 
 ```
 
 发版验收时另登记 iOS、Android 和网页实际操作过的入口、包和设备。宿主结果可与设备报告一起链接到 PR。
+
+旧版 Cloud 若在空库迁移失败，应保留失败报告。另起一轮，加 `--suite compatibility --cloud-ref 1.10.1 --provisioning-ref <已修复迁移的提交>`，可模拟已经安装的旧服务。脚本从旧版代码读取其最后一个 Alembic 版本，只建到该版本，然后启动指定的旧版服务。报告分别记录运行代码、建库代码和实际数据库版本，便于区分首次部署和已有实例的升级兼容性。

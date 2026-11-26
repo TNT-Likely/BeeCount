@@ -12,6 +12,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("mode", choices=("migrate", "serve"))
     parser.add_argument("--fd", type=int)
+    parser.add_argument("--target-schema-from", type=Path)
     args = parser.parse_args()
     root = Path.cwd().resolve()
     settings = get_settings()
@@ -28,11 +29,18 @@ def main():
     if args.mode == "migrate":
         from alembic import command
         from alembic.config import Config
+        from alembic.script import ScriptDirectory
 
         source = Path(os.environ["PYTHONPATH"])
         config = Config(str(source / "alembic.ini"))
         config.set_main_option("script_location", str(source / "alembic"))
-        command.upgrade(config, "head")
+        revision = "head"
+        if args.target_schema_from:
+            target_scripts = ScriptDirectory(str(args.target_schema_from / "alembic"))
+            revision = target_scripts.get_current_head()
+            if not revision:
+                raise ValueError("The running Cloud source has no schema revision")
+        command.upgrade(config, revision)
         return
 
     import uvicorn
@@ -43,6 +51,7 @@ def main():
 
     with engine.connect() as connection:
         dialect = engine.dialect.name
+        revision = connection.execute(text("SELECT version_num FROM alembic_version")).scalar_one()
         if dialect == "postgresql":
             database, timezone, version = connection.execute(text(
                 "SELECT current_database(), current_setting('TimeZone'), current_setting('server_version')"
@@ -57,7 +66,7 @@ def main():
             timezone = None
     metadata = {"run_id": os.environ["QA_RUN_ID"], "cloud_sha": os.environ["QA_CLOUD_SHA"],
                 "database_is_isolated": True, "database": dialect, "version": version,
-                "session_timezone": timezone}
+                "session_timezone": timezone, "schema_revision": revision}
 
     async def identity():
         return metadata
