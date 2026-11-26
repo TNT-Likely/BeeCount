@@ -271,6 +271,41 @@ void main() {
     expect(patches.last['attachments'], isEmpty);
   });
 
+  test(
+      'aggregate-only protocol carries a previous local edit into each subsequent complete row',
+      () async {
+    final id = await add('two-edits', 10);
+    provider.pushFakeChange(
+        entitySyncId: 'two-edits',
+        ledgerId: 'ledger-test',
+        payload: {
+          'type': 'expense',
+          'amount': 20,
+          'happenedAt': '2025-01-01T00:00:00Z',
+          'note': 'remote',
+        });
+    await edit(id, 30);
+    await repo.updateTransaction(
+        id: id, type: 'expense', amount: 30, excludeFromStats: true);
+    await engine.pull('$ledgerId');
+    provider.send = (changes) async {
+      expect(changes, hasLength(2));
+      for (final change in changes) {
+        expect(change['payload']['amount'], 30);
+        expect(change['payload']['note'], 'remote');
+      }
+      expect(changes.last['payload']['excludeFromStats'], isTrue);
+      return const BeeCountCloudPushResult([
+        BeeCountCloudPushItem('accepted'),
+        BeeCountCloudPushItem('accepted')
+      ]);
+    };
+    expect(await engine.push('$ledgerId'), 2);
+    final local = (await repo.getTransactionById(id))!;
+    expect([local.amount, local.note, local.excludeFromStats],
+        [30, 'remote', true]);
+  });
+
   test('truncated and contradictory receipts cannot clear the queue', () {
     for (final malformed in [
       {'accepted': 1, 'rejected': 1},

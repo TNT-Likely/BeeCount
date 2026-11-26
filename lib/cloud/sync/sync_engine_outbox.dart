@@ -65,17 +65,29 @@ extension _SyncEngineOutbox on SyncEngine {
 
   Future<void> _rememberRemote(
       LocalChange row, BeeCountCloudSyncChange remote) async {
-    if ((_deferred(row)?.changeId ?? -1) >= remote.changeId) return;
+    final previous = _deferred(row);
+    if (previous != null && !_isNewer(remote, previous)) return;
     await (db.update(db.localChanges)..where((c) => c.id.equals(row.id))).write(
         LocalChangesCompanion(
             deferredJson: d.Value(jsonEncode(
                 {'scope': _receiptScope, 'change': remote.toJson()}))));
   }
 
+  bool _isNewer(
+      BeeCountCloudSyncChange next, BeeCountCloudSyncChange previous) {
+    if (next.changeId != previous.changeId)
+      return next.changeId > previous.changeId;
+    // Aggregate-only acknowledgements have no new change_id. For that
+    // protocol the accepted operation time orders successive local results.
+    final time = _remoteTime(next.updatedAt);
+    final prior = _remoteTime(previous.updatedAt);
+    return time != null && (prior == null || time.isAfter(prior));
+  }
+
   /// Freeze wire values, identity and version before the request leaves this
   /// device. Retrying a lost acknowledgement must send the original operation.
-  Future<Map<String, dynamic>> _outgoing(
-      LocalChange row, String? ledger) async {
+  Future<Map<String, dynamic>> _outgoing(LocalChange row, String? ledger,
+      Map<String, dynamic>? remoteFields) async {
     if (row.wireJson != null) {
       final cached = jsonDecode(row.wireJson!) as Map<String, dynamic>;
       if (cached['scope'] == _receiptScope) {
@@ -94,7 +106,6 @@ extension _SyncEngineOutbox on SyncEngine {
     // Version pre-v37 edits in journal order within their original second.
     // This also distinguishes consecutive old edits on an unupgraded server.
     final micros = row.writeMicros ?? await _legacyWriteMicros(row);
-    final deferred = _deferred(row);
     final operation = row.operationId ?? _uuid.v4();
     final outgoing = <String, dynamic>{
       'operation_id': operation,
@@ -107,7 +118,7 @@ extension _SyncEngineOutbox on SyncEngine {
           ? payload
           : {
               ...payload,
-              if (deferred?.action == 'upsert') ...?deferred!.payload,
+              ...?remoteFields,
               ...patch,
             },
       if (patch != null) 'changed_fields': patch.keys.toList(),
@@ -149,19 +160,60 @@ extension _SyncEngineOutbox on SyncEngine {
       List<LocalChange> rows, String? ledger) async {
     var outcome = const _PushTally();
     final scope = _receiptScope;
+    // Older servers consume full rows and ignore changed_fields. Start each
+    // contested entity at its latest pulled version, then carry earlier local
+    // edits forward as the per-operation full rows are frozen in journal order.
+    final remotes = <(String, String), BeeCountCloudSyncChange>{};
+    for (final row in rows) {
+      final remote = _deferred(row);
+      if (remote == null) continue;
+      final key = (row.entityType, row.entitySyncId);
+      final prior = remotes[key];
+      if (prior == null || _isNewer(remote, prior)) remotes[key] = remote;
+    }
+    final fields = {
+      for (final entry in remotes.entries)
+        if (entry.value.action == 'upsert')
+          entry.key: {...?entry.value.payload},
+    };
     const size = 500;
     for (var start = 0; start < rows.length; start += size) {
       final batch =
           rows.sublist(start, (start + size).clamp(start, rows.length));
       final outgoing = <Map<String, dynamic>>[];
       for (final row in batch) {
-        outgoing.add(await _outgoing(row, ledger));
+        final key = (row.entityType, row.entitySyncId);
+        final base = fields[key];
+        final wire = await _outgoing(row, ledger, base);
+        outgoing.add(wire);
+        if (base == null) continue;
+        final remoteTime = _remoteTime(remotes[key]?.updatedAt);
+        if (remoteTime != null &&
+            DateTime.parse(wire['updated_at'] as String).isBefore(remoteTime)) {
+          continue;
+        }
+        final payload = wire['payload'] as Map<String, dynamic>;
+        final mask = wire['changed_fields'] as List?;
+        if (mask == null) {
+          base
+            ..clear()
+            ..addAll(payload);
+        } else {
+          for (final field in mask.cast<String>()) {
+            base[field] = payload[field];
+          }
+        }
       }
       _requireReceiptScope(scope);
       final response = await provider.pushChanges(changes: outgoing);
-      outcome += await _settleBatch(scope, outgoing, response, [
-        for (final row in batch) [row.id]
-      ]);
+      outcome += await _settleBatch(
+          scope,
+          outgoing,
+          response,
+          [
+            for (final row in batch) [row.id]
+          ],
+          remotes: remotes);
     }
     return outcome;
   }
@@ -176,7 +228,9 @@ extension _SyncEngineOutbox on SyncEngine {
       String scope,
       List<Map<String, dynamic>> outgoing,
       BeeCountCloudPushResult response,
-      List<List<int>> journalIds) async {
+      List<List<int>> journalIds,
+      {Map<(String, String), BeeCountCloudSyncChange> remotes =
+          const {}}) async {
     final applied = <String, Set<(String, String)>>{};
     final result = await _applyWithAttachmentCleanup((removedFiles) async {
       _requireReceiptScope(scope);
@@ -194,7 +248,12 @@ extension _SyncEngineOutbox on SyncEngine {
         }
         var changed = false;
         for (final id in journalIds[i]) {
-          if (await _settle(id, outgoing[i], item, removedFiles)) {
+          final sent = outgoing[i];
+          final remote = remotes[(
+            sent['entity_type'] as String,
+            sent['entity_sync_id'] as String
+          )];
+          if (await _settle(id, sent, item, removedFiles, remote)) {
             changed = true;
           }
         }
@@ -224,8 +283,12 @@ extension _SyncEngineOutbox on SyncEngine {
     return result;
   }
 
-  Future<bool> _settle(int id, Map<String, dynamic> sent,
-      BeeCountCloudPushItem receipt, Set<String> removedFiles) async {
+  Future<bool> _settle(
+      int id,
+      Map<String, dynamic> sent,
+      BeeCountCloudPushItem receipt,
+      Set<String> removedFiles,
+      BeeCountCloudSyncChange? capturedRemote) async {
     final row = await (db.select(db.localChanges)
           ..where((c) => c.id.equals(id)))
         .getSingleOrNull();
@@ -238,7 +301,11 @@ extension _SyncEngineOutbox on SyncEngine {
       throw CloudStorageException(
           'Sync acknowledgement identifies another entity');
     }
-    final deferred = _deferred(row);
+    var deferred = _deferred(row);
+    if (capturedRemote != null &&
+        (deferred == null || _isNewer(capturedRemote, deferred))) {
+      deferred = capturedRemote;
+    }
     final remoteId = winner?.changeId ?? receipt.changeId;
     if (deferred != null &&
         (remoteId != null
@@ -260,6 +327,7 @@ extension _SyncEngineOutbox on SyncEngine {
           entityType: row.entityType,
           entitySyncId: row.entitySyncId,
           action: 'upsert',
+          updatedAt: sent['updated_at'] as String,
           payload: sent['payload'] as Map<String, dynamic>);
     }
     await (db.update(db.localChanges)..where((c) => c.id.equals(row.id)))
