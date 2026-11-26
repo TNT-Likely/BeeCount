@@ -2165,6 +2165,27 @@ class AppLocalizationsRu extends AppLocalizations {
   String get mineFeedbackSubtitle => 'Сообщить о проблеме или предложить улучшение';
 
   @override
+  String get feedbackChooseType => 'Choose a feedback type';
+
+  @override
+  String get feedbackBug => 'Bug report';
+
+  @override
+  String get feedbackQuestion => 'Usage question';
+
+  @override
+  String get feedbackFeature => 'Feature request';
+
+  @override
+  String get feedbackBugHint => 'Report a crash, error, or unexpected result';
+
+  @override
+  String get feedbackQuestionHint => 'Ask how to use an existing feature';
+
+  @override
+  String get feedbackFeatureHint => 'Suggest a new feature or an improvement';
+
+  @override
   String get mineHelp => 'Справка';
 
   @override
@@ -5444,20 +5465,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String logShareScope(int count) {
-    return 'Includes all log levels ($count entries).';
+    return 'All $count log entries will be shared as recorded.';
   }
 
   @override
-  String get logShareOriginal => 'Original';
-
-  @override
-  String get logShareRedacted => 'Redacted';
-
-  @override
   String get logShareOriginalHint => 'Original logs may include email addresses, transaction details or server addresses.';
-
-  @override
-  String get logShareRedactedHint => 'Keeps timestamps, recognized modules and error types. Personal details and original messages are hidden.';
 
   @override
   String get logSharePreview => 'File preview';

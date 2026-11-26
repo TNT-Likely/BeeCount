@@ -33,8 +33,6 @@ class _LogShareContent extends StatefulWidget {
 class _LogShareContentState extends State<_LogShareContent> {
   late Future<LogExportSnapshot> _capture =
       LogExportSnapshot.capture(widget.logger);
-  bool _redacted = false;
-  bool _previewOpen = true;
   bool _busy = false;
   bool _shareFailed = false;
   bool _saveFailed = false;
@@ -119,7 +117,7 @@ class _LogShareContentState extends State<_LogShareContent> {
         if (snapshot == null) {
           return BeeStatus(label: l.logSharePreparing, tone: BeeTone.busy);
         }
-        final file = snapshot.file(redacted: _redacted);
+        final file = snapshot.file;
         final send = Builder(
           builder: (buttonContext) => BeeButton(
             key: const ValueKey('log-share-send'),
@@ -158,41 +156,18 @@ class _LogShareContentState extends State<_LogShareContent> {
                 ]),
           );
         }
+        final theme = Theme.of(context);
         return SingleChildScrollView(
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-            Text(l.logShareScope(snapshot.count)),
-            const SizedBox(height: 10),
-            Row(children: [
-              for (final redacted in [false, true]) ...[
-                if (redacted) const SizedBox(width: 8),
-                Expanded(
-                    child: ChoiceChip(
-                  key: ValueKey(
-                      redacted ? 'log-share-redacted' : 'log-share-original'),
-                  label:
-                      Text(redacted ? l.logShareRedacted : l.logShareOriginal),
-                  selected: redacted == _redacted,
-                  onSelected: _busy
-                      ? null
-                      : (_) => setState(() => _redacted = redacted),
-                )),
-              ],
-            ]),
-            const SizedBox(height: 5),
-            Text(_redacted ? l.logShareRedactedHint : l.logShareOriginalHint,
-                style: Theme.of(context).textTheme.bodySmall),
-            Align(
-              alignment: AlignmentDirectional.centerStart,
-              child: TextButton.icon(
-                onPressed: () => setState(() => _previewOpen = !_previewOpen),
-                icon: Icon(_previewOpen ? Icons.expand_less : Icons.expand_more,
-                    size: 18),
-                label: Text(l.logSharePreview),
-              ),
-            ),
-            if (_previewOpen)
-              _FilePreview(key: ObjectKey(file), text: file.text),
+            Text(l.logShareScope(snapshot.count),
+                style: theme.textTheme.bodyMedium),
+            const SizedBox(height: 4),
+            Text(l.logShareOriginalHint,
+                style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurface.withValues(alpha: .70))),
+            const SizedBox(height: 12),
+            _FilePreview(key: ObjectKey(file), text: file.text),
             const SizedBox(height: 12),
             send,
           ]),
@@ -213,6 +188,7 @@ class _FilePreview extends StatefulWidget {
 }
 
 class _FilePreviewState extends State<_FilePreview> {
+  bool _expanded = true;
   late final List<String> _rows = [
     for (final line in const LineSplitter().convert(widget.text))
       ..._wrapLongLine(line),
@@ -238,36 +214,86 @@ class _FilePreviewState extends State<_FilePreview> {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context)
-        .textTheme
-        .bodySmall
-        ?.copyWith(fontFamily: 'monospace', fontSize: 11, height: 1.55);
-    return Container(
-      height: 124,
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-      decoration: BoxDecoration(
-        color: BeeCardTheme.of(context).soft,
-        borderRadius: BorderRadius.circular(13),
-      ),
-      child: CustomScrollView(
-        key: const ValueKey('log-share-preview-lines'),
-        primary: false,
-        center: _bodyKey,
-        slivers: [
-          if (_bodyStart > 0)
-            SliverList.builder(
-              itemCount: _bodyStart,
-              itemBuilder: (_, index) =>
-                  Text(_rows[_bodyStart - 1 - index], style: style),
+    final theme = Theme.of(context);
+    final cards = BeeCardTheme.of(context);
+    final ink = theme.colorScheme.onSurface;
+    return Material(
+      key: const ValueKey('log-share-preview-card'),
+      color: cards.overlay,
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(BeeUiTokens.controlRadius),
+          side: BorderSide(color: cards.divider)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Semantics(
+            key: const ValueKey('log-share-preview-toggle'),
+            button: true,
+            expanded: _expanded,
+            child: InkWell(
+              onTap: () => setState(() => _expanded = !_expanded),
+              child: ConstrainedBox(
+                constraints:
+                    const BoxConstraints(minHeight: BeeUiTokens.touchTarget),
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  child: Row(children: [
+                    BeeLineIcon('FileText', size: 16, color: ink),
+                    const SizedBox(width: 8),
+                    Expanded(
+                        child: Text(
+                            AppLocalizations.of(context).logSharePreview,
+                            style: theme.textTheme.labelLarge?.copyWith(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: ink))),
+                    const SizedBox(width: 8),
+                    BeeLineIcon(_expanded ? 'ChevronUp' : 'ChevronDown',
+                        size: 16, color: ink.withValues(alpha: .70)),
+                  ]),
+                ),
+              ),
             ),
-          SliverList.builder(
-            key: _bodyKey,
-            itemCount: _rows.length - _bodyStart,
-            itemBuilder: (_, index) =>
-                Text(_rows[_bodyStart + index], style: style),
           ),
+          if (_expanded) ...[
+            Divider(height: 1, thickness: 1, color: cards.divider),
+            Container(
+              height: 124,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              color: cards.soft,
+              child: _buildLines(theme.textTheme.bodySmall?.copyWith(
+                  fontFamily: 'monospace',
+                  fontSize: 11,
+                  height: 1.55,
+                  color: ink)),
+            ),
+          ],
         ],
       ),
+    );
+  }
+
+  Widget _buildLines(TextStyle? style) {
+    return CustomScrollView(
+      key: const ValueKey('log-share-preview-lines'),
+      primary: false,
+      center: _bodyKey,
+      slivers: [
+        if (_bodyStart > 0)
+          SliverList.builder(
+            itemCount: _bodyStart,
+            itemBuilder: (_, index) =>
+                Text(_rows[_bodyStart - 1 - index], style: style),
+          ),
+        SliverList.builder(
+          key: _bodyKey,
+          itemCount: _rows.length - _bodyStart,
+          itemBuilder: (_, index) =>
+              Text(_rows[_bodyStart + index], style: style),
+        ),
+      ],
     );
   }
 }

@@ -690,22 +690,22 @@ void main() {
     await action(t, l.logCenterExport);
     expect(find.text(l.logShareTitle), findsOneWidget);
     expect(find.text(l.logShareScope(12)), findsOneWidget);
-    final original = find.byKey(const ValueKey('log-share-original'));
-    expect(t.widget<ChoiceChip>(original).selected, isTrue);
+    expect(find.text(l.logShareOriginalHint), findsOneWidget);
+    expect(find.byType(ChoiceChip), findsNothing);
   });
-  scenario('取消脱敏分享后可重新打开一次，恢复默认原文', (t) async {
+  scenario('收起文件预览并取消分享后，重新打开默认展开', (t) async {
     await show(t, const LogCenterPage());
     await action(t, l.logCenterExport);
-    final redacted = find.byKey(const ValueKey('log-share-redacted'));
-    await t.tap(redacted);
+    final preview = find.byKey(const ValueKey('log-share-preview-lines'));
+    await t.tap(find.text(l.logSharePreview));
     await t.pumpAndSettle();
-    expect(t.widget<ChoiceChip>(redacted).selected, isTrue);
+    expect(preview, findsNothing);
     await t.tap(find.byType(CloseButton));
     await t.pumpAndSettle();
     expect(find.byType(BeeSheet), findsNothing);
     await action(t, l.logCenterExport);
     expect(find.byType(BeeSheet), findsOneWidget);
-    expect(t.widget<ChoiceChip>(redacted).selected, isFalse);
+    expect(preview, findsOneWidget);
   });
   scenario('日志清空取消无写入，确认清全部并持久化', (t) async {
     await show(t, const LogCenterPage());

@@ -1044,6 +1044,13 @@
   "mineUpdateDownload": "Download Update",
   "mineFeedback": "Feedback",
   "mineFeedbackSubtitle": "Report issues or suggestions",
+  "feedbackChooseType": "Choose a feedback type",
+  "feedbackBug": "Bug report",
+  "feedbackQuestion": "Usage question",
+  "feedbackFeature": "Feature request",
+  "feedbackBugHint": "Report a crash, error, or unexpected result",
+  "feedbackQuestionHint": "Ask how to use an existing feature",
+  "feedbackFeatureHint": "Suggest a new feature or an improvement",
   "mineHelp": "Help",
   "helpCenterOpenInBrowser": "Open in browser",
   "helpCenterLoadFailed": "Failed to load. Please check your network.",
@@ -2452,7 +2459,7 @@
   },
   "logCenterResetFilters": "Reset filters and view all",
   "logShareTitle": "Share logs",
-  "logShareScope": "Includes all log levels ({count} entries).",
+  "logShareScope": "All {count} log entries will be shared as recorded.",
   "@logShareScope": {
     "placeholders": {
       "count": {
@@ -2460,10 +2467,7 @@
       }
     }
   },
-  "logShareOriginal": "Original",
-  "logShareRedacted": "Redacted",
   "logShareOriginalHint": "Original logs may include email addresses, transaction details or server addresses.",
-  "logShareRedactedHint": "Keeps timestamps, recognized modules and error types. Personal details and original messages are hidden.",
   "logSharePreview": "File preview",
   "logShareSend": "Share TXT file",
   "logSharePreparing": "Preparing file…",

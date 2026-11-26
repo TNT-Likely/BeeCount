@@ -21,7 +21,8 @@ class SupportPlatform {
   Future<String> version() async =>
       supportVersionLabel(await PackageInfo.fromPlatform());
 
-  Future<Uri> feedbackUri() => githubFeedbackUri();
+  Future<Uri> feedbackUri(FeedbackKind kind, Locale locale) =>
+      githubFeedbackUri(kind: kind, locale: locale);
 
   Future<bool> launchFeedback(Uri uri) =>
       launchUrl(uri, mode: LaunchMode.externalApplication);

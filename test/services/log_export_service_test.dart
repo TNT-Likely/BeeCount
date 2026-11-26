@@ -4,7 +4,6 @@ import 'dart:io';
 
 import 'package:beecount/services/system/log_export_service.dart';
 import 'package:beecount/services/system/logger_service.dart';
-import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -80,7 +79,7 @@ void main() {
   }
 
   test(
-      'cold capture joins the pending read, keeps newest 2000, skips corrupt entries and freezes both variants',
+      'cold capture joins the pending read, keeps the newest 2000 valid entries and freezes the file',
       () async {
     final now = DateTime.now();
     final previousDay = DateTime(now.year, now.month, now.day - 1, 12);
@@ -108,33 +107,29 @@ void main() {
 
     gate.complete(prefs);
     final snapshot = await capture;
-    final original = snapshot.file(redacted: false);
-    final redacted = snapshot.file(redacted: true);
+    final file = snapshot.file;
     expect(snapshot.count, 2000);
     expect(service.logs.first.message, 'record (1)');
     expect(service.logs.last.message, 'startup event');
-    expect(original.text, isNot(contains('record (0)')));
-    expect(original.text, isNot(contains('expired')));
+    expect(file.text, isNot(contains('record (0)')));
+    expect(file.text, isNot(contains('expired')));
     final date1 = previousDay.toIso8601String().split('T').first;
     final date2 =
         service.logs.last.timestamp.toIso8601String().split('T').first;
-    for (final file in [original, redacted]) {
-      final first = file.text.indexOf('--- $date1 ---');
-      final second = file.text.indexOf('--- $date2 ---');
-      expect(first, greaterThanOrEqualTo(0));
-      expect(second, greaterThan(first));
-      expect(utf8.decode(file.bytes), file.text);
-      expect(() => file.bytes[0] = 0, throwsUnsupportedError);
-    }
-    expect(original.fileName, endsWith('-original.txt'));
-    expect(redacted.fileName, endsWith('-redacted.txt'));
-    expect(original.fileName, isNot(contains(':')));
+    final first = file.text.indexOf('--- $date1 ---');
+    final second = file.text.indexOf('--- $date2 ---');
+    expect(first, greaterThanOrEqualTo(0));
+    expect(second, greaterThan(first));
+    expect(utf8.decode(file.bytes), file.text);
+    expect(() => file.bytes[0] = 0, throwsUnsupportedError);
+    expect(file.fileName, startsWith('BeeCount-logs-'));
+    expect(file.fileName, endsWith('.txt'));
+    expect(file.fileName, isNot(contains(':')));
     service.warning('App', 'after snapshot');
     expect(service.logs.length, 2000);
     expect(service.logs.first.message, 'record (2)');
-    expect(snapshot.file(redacted: false), same(original));
-    expect(snapshot.file(redacted: true), same(redacted));
-    expect(original.text, isNot(contains('after snapshot')));
+    expect(snapshot.file, same(file));
+    expect(file.text, isNot(contains('after snapshot')));
   });
 
   testWidgets(
@@ -157,78 +152,33 @@ void main() {
   });
 
   test(
-      'redaction projects known events, errors and verified symbols without free-form details',
+      'export preserves complete messages, custom tags, exception details and stack paths',
       () async {
-    const privateInfo =
-        'owned@example.invalid https://owned.invalid/q?k=TOKEN bill 12345.67';
-    const stack =
-        '#0      SyncEngine.sync (package:beecount/cloud/sync/sync_engine.dart:621:18)\n'
-        '#1      privateSymbol (package:beecount/cloud/sync/sync_engine.dart:10001:22)\n'
-        '#2      SyncEngine.push (package:beecount/private/path.dart:10002:22)\n'
-        '#3      SyncEngine.pull (file:///Users/owned/private.dart:10003:22)\n'
-        '#4      SyncEngine._doPush (package:beecount/cloud/sync/sync_engine.dart:1:2) TOKEN';
+    const message = '同步失败 账号 owned@example.invalid\n金额 12345.67 🐝';
+    const errorDetail = 'FormatException: https://owned.invalid/?q=账单';
+    const stack = '#0      customSymbol (file:///owned/测试.dart:12:8)\n'
+        '#1      SyncEngine.sync (package:beecount/cloud/sync/sync_engine.dart:621:18)';
     final time = DateTime.now().subtract(const Duration(minutes: 1));
-    await prefs.setString(
-        'app_logs',
-        jsonEncode([
-          _entry(time, '同步失败 $privateInfo',
-              tag: 'SyncEngine',
-              level: LogLevel.error,
-              error: 'FormatException: $privateInfo',
-              stack: stack),
-          _entry(time, privateInfo,
-              tag: 'privateTag',
-              platform: LogPlatform.ios,
-              error: privateInfo,
-              stack: privateInfo),
-          _entry(time, 'HTTP错误: 403, 响应: $privateInfo', tag: 'AIFactory'),
-          _entry(time, 'HTTP错误: 12345.67, 响应: $privateInfo', tag: 'AIFactory'),
-        ]));
+    final history = _entry(time, message,
+        tag: 'custom/module',
+        level: LogLevel.error,
+        platform: LogPlatform.ios,
+        error: errorDetail,
+        stack: stack);
+    await prefs.setString('app_logs', jsonEncode([history]));
     final service = logger();
-    final request = RequestOptions(path: 'https://owned.invalid/TOKEN');
-    service.error(
-        'DB',
-        privateInfo,
-        DioException(
-            requestOptions: request,
-            response: Response<dynamic>(
-                requestOptions: request, statusCode: 504, data: privateInfo),
-            type: DioExceptionType.badResponse));
+    final error = Exception('自由格式异常说明 ($message)');
+    const liveStack = 'Native stack: frame with spaces [附件.txt:7]';
+    service.error('App', '启动时的异常', error, StackTrace.fromString(liveStack));
     final snapshot = await LogExportSnapshot.capture(service);
-    final raw = snapshot.file(redacted: false).text;
-    final safe = snapshot.file(redacted: true).text;
-    expect(snapshot.count, 5);
-    expect(raw, contains(stack.replaceAll('\n', '\n  ')));
-    expect(raw, contains(privateInfo));
-    expect(raw, contains('[privateTag]'));
-    expect(raw, contains('FormatException: $privateInfo'));
-    expect(safe, contains('[SyncEngine] sync.failed'));
-    expect(safe, contains('[AIFactory] HTTP 403\n'));
-    expect(safe, contains('[iOS] [Other] [redacted]'));
-    expect(safe, contains('Error: FormatException\n'));
-    expect(safe, contains('Error: Error\n'));
-    expect(safe, contains('Error: DioException.badResponse (HTTP 504)'));
-    expect(safe, contains('  SyncEngine.sync\n'));
-    for (final secret in [
-      'owned',
-      'TOKEN',
-      '12345.67',
-      'privateTag',
-      'privateSymbol',
-      'SyncEngine.push',
-      'SyncEngine.pull',
-      'SyncEngine._doPush',
-      'package:',
-      'file:',
-      '621:18',
-      '10001',
-      '10002',
-      '10003'
-    ]) {
-      expect(safe, isNot(contains(secret)), reason: secret);
-    }
-    expect(service.logs.first.message, contains(privateInfo));
-    expect(prefs.getString('app_logs'), contains(privateInfo));
+    final text = utf8.decode(snapshot.file.bytes);
+    expect(snapshot.count, 2);
+    expect(text, contains('[ERROR] [iOS] [custom/module] $message\n'));
+    expect(text, contains('  Error: $errorDetail\n'));
+    expect(text, contains(stack.replaceAll('\n', '\n  ')));
+    expect(text, contains('  Error: $error\n'));
+    expect(text, contains('  $liveStack\n'));
+    expect(text, snapshot.file.text);
   });
 
   test(
@@ -238,9 +188,8 @@ void main() {
     final message = '合成测试🐝' * 80000;
     await prefs.setString('app_logs', jsonEncode([_entry(time, message)]));
     final snapshot = await LogExportSnapshot.capture(logger());
-    final raw = snapshot.file(redacted: false);
-    final safe = snapshot.file(redacted: true);
-    expect(raw.bytes.length, greaterThan(1024 * 1024));
+    final file = snapshot.file;
+    expect(file.bytes.length, greaterThan(1024 * 1024));
 
     final cache =
         await Directory.systemTemp.createTemp('beecount-export-test-');
@@ -257,7 +206,6 @@ void main() {
       'dev.fluttercommunity.plus/share/unavailable',
       'target'
     ];
-    var selected = raw;
     messenger.setMockMethodCallHandler(_shareChannel, (call) async {
       expect(call.method, 'share');
       final args = call.arguments as Map<Object?, Object?>;
@@ -269,9 +217,9 @@ void main() {
       expect(args.containsKey('text'), isFalse);
       expect(args['mimeTypes'], ['text/plain']);
       final path = (args['paths'] as List).single as String;
-      expect(p.basename(path), selected.fileName);
+      expect(p.basename(path), file.fileName);
       final bytes = await File(path).readAsBytes();
-      expect(listEquals(bytes, selected.bytes), isTrue);
+      expect(listEquals(bytes, file.bytes), isTrue);
       final outcome = outcomes[filesRead.length];
       filesRead.add(path);
       if (outcome == null) throw PlatformException(code: 'test_failure');
@@ -284,30 +232,29 @@ void main() {
       const Rect.fromLTWH(-1, 0, 8, 8),
       const Rect.fromLTWH(double.nan, 0, 8, 8)
     ]) {
-      await expectLater(platform.share(raw, origin: bad, subject: subject),
+      await expectLater(platform.share(file, origin: bad, subject: subject),
           throwsArgumentError);
     }
     expect(filesRead, isEmpty);
     Future<ShareResultStatus> share() =>
-        platform.share(selected, origin: anchor, subject: subject);
+        platform.share(file, origin: anchor, subject: subject);
     await expectLater(share(), throwsA(isA<PlatformException>()));
     expect(await share(), ShareResultStatus.dismissed);
     expect(await share(), ShareResultStatus.unavailable);
-    selected = safe;
     expect(await share(), ShareResultStatus.success);
     expect(filesRead.toSet(), hasLength(4));
     expect(await cache.list().toList(), isEmpty);
 
     final picker = _SavePicker();
     FilePicker.platform = picker;
-    expect(await platform.save(raw, dialogTitle: subject), isFalse);
-    expect(picker.name, raw.fileName);
-    expect(picker.data, same(raw.bytes));
+    expect(await platform.save(file, dialogTitle: subject), isFalse);
+    expect(picker.name, file.fileName);
+    expect(picker.data, same(file.bytes));
     picker.result = '/owned/saved.txt';
-    expect(await platform.save(safe, dialogTitle: subject), isTrue);
-    expect(picker.name, safe.fileName);
-    expect(picker.data, same(safe.bytes));
-    expect(utf8.decode(picker.data!), safe.text);
+    expect(await platform.save(file, dialogTitle: subject), isTrue);
+    expect(picker.name, file.fileName);
+    expect(picker.data, same(file.bytes));
+    expect(utf8.decode(picker.data!), file.text);
     expect(picker.title, subject);
     expect(picker.fileType, FileType.custom);
     expect(picker.extensions, ['txt']);

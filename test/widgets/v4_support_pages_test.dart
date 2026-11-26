@@ -8,6 +8,7 @@ import 'package:beecount/pages/settings/help_center_page.dart';
 import 'package:beecount/pages/settings/privacy_policy_page.dart';
 import 'package:beecount/pages/settings/shortcuts_guide_page.dart';
 import 'package:beecount/pages/donation/donation_page.dart';
+import 'package:beecount/pages/settings/support/bindings/feedback_link.dart';
 import 'package:beecount/pages/settings/support/bindings/support_platform.dart';
 import 'package:beecount/dev/component_gallery/support_sample.dart';
 import 'package:beecount/pages/donation/bindings/support_donation_controls.dart';
@@ -31,7 +32,7 @@ class _Platform extends SupportPlatform {
   bool ios = false, google = false;
   Completer<String>? versionGate;
   Completer<Uri>? feedbackGate;
-  int feedbackReads = 0;
+  final feedbackRequests = <(FeedbackKind, Locale)>[];
   final opened = <Uri>[];
   final copied = <String>[];
   final products = <ProductPromo>[];
@@ -45,9 +46,9 @@ class _Platform extends SupportPlatform {
   Future<String> version() async =>
       versionGate == null ? 'dev-9.0.0 (QA)' : await versionGate!.future;
   @override
-  Future<Uri> feedbackUri() async {
-    feedbackReads++;
-    return feedbackGate!.future;
+  Future<Uri> feedbackUri(FeedbackKind kind, Locale locale) {
+    feedbackRequests.add((kind, locale));
+    return feedbackGate?.future ?? super.feedbackUri(kind, locale);
   }
 
   @override
@@ -384,12 +385,55 @@ void main() {
     expect(platform.downloaded, isFalse);
     expect(find.byType(AboutPage), findsOneWidget);
   });
-  check('feedback launches the chooser once, and can retry a failed launch',
+  check('closing the feedback type picker reads no metadata and opens no link',
       (t) async {
-    final uri = Uri.https(
-        'github.com',
-        '/TNT-Likely/BeeCount/issues/new/choose',
-        {'app_version': '4.0.1 (412)', 'device': 'QA model'});
+    await host(t, const AboutPage());
+    await tap(t, const ValueKey('support-feedback'));
+    expect(find.text(l.feedbackChooseType), findsOneWidget);
+    for (final text in [
+      l.feedbackBug,
+      l.feedbackBugHint,
+      l.feedbackQuestion,
+      l.feedbackQuestionHint,
+      l.feedbackFeature,
+      l.feedbackFeatureHint,
+    ]) {
+      expect(find.text(text), findsOneWidget);
+    }
+    expect(platform.feedbackRequests, isEmpty);
+    await t.tap(find.byType(CloseButton));
+    await t.pumpAndSettle();
+    expect(find.text(l.feedbackChooseType), findsNothing);
+    expect(platform.feedbackRequests, isEmpty);
+    expect(launched, isEmpty);
+  });
+  check('each type opens its corresponding template in the app language',
+      (t) async {
+    const locale = Locale('zh', 'TW');
+    await host(t, const AboutPage(), locale: locale, scale: 1.6);
+    const templates = {
+      FeedbackKind.bug: '01-bug_report_zh.yml',
+      FeedbackKind.question: '03-question_zh.yml',
+      FeedbackKind.feature: '02-feature_request_zh.yml',
+    };
+    for (final entry in templates.entries) {
+      await tap(t, const ValueKey('support-feedback'));
+      await tap(t, ValueKey(entry.key));
+      expect(platform.feedbackRequests.last, (entry.key, locale));
+      final launchedUri = Uri.parse(launched.last);
+      expect(launchedUri.path, '/TNT-Likely/BeeCount/issues/new');
+      expect(launchedUri.queryParameters['template'], entry.value);
+    }
+    expect(launched, hasLength(3));
+  });
+  check(
+      'feedback opens the selected bug form once and can retry a failed launch',
+      (t) async {
+    final uri = Uri.https('github.com', '/TNT-Likely/BeeCount/issues/new', {
+      'template': '04-bug_report_en.yml',
+      'app_version': '4.0.1 (412)',
+      'device': 'QA model'
+    });
     platform.feedbackGate = Completer<Uri>();
     var succeeds = false;
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
@@ -402,8 +446,10 @@ void main() {
     await host(t, const AboutPage());
     const feedback = ValueKey('support-feedback');
     await tap(t, feedback);
+    expect(platform.feedbackRequests, isEmpty);
+    await tap(t, const ValueKey(FeedbackKind.bug));
     await tap(t, feedback);
-    expect(platform.feedbackReads, 1);
+    expect(platform.feedbackRequests, [(FeedbackKind.bug, const Locale('en'))]);
     expect(launched, isEmpty);
     platform.feedbackGate!.complete(uri);
     await t.pumpAndSettle();
@@ -411,6 +457,7 @@ void main() {
     expect(find.text(l.updateCannotOpenLink), findsOneWidget);
     succeeds = true;
     await tap(t, feedback);
+    await tap(t, const ValueKey(FeedbackKind.bug));
     expect(launched, [uri.toString(), uri.toString()]);
   });
   check('closing About during feedback metadata lookup skips the launch',
@@ -418,6 +465,7 @@ void main() {
     platform.feedbackGate = Completer<Uri>();
     await host(t, const AboutPage());
     await tap(t, const ValueKey('support-feedback'));
+    await tap(t, const ValueKey(FeedbackKind.question));
     await host(t, const SizedBox.shrink());
     platform.feedbackGate!.complete(Uri.https('github.com', '/'));
     await t.pumpAndSettle();

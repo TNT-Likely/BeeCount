@@ -3916,6 +3916,48 @@ abstract class AppLocalizations {
   /// **'Report issues or suggestions'**
   String get mineFeedbackSubtitle;
 
+  /// No description provided for @feedbackChooseType.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a feedback type'**
+  String get feedbackChooseType;
+
+  /// No description provided for @feedbackBug.
+  ///
+  /// In en, this message translates to:
+  /// **'Bug report'**
+  String get feedbackBug;
+
+  /// No description provided for @feedbackQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Usage question'**
+  String get feedbackQuestion;
+
+  /// No description provided for @feedbackFeature.
+  ///
+  /// In en, this message translates to:
+  /// **'Feature request'**
+  String get feedbackFeature;
+
+  /// No description provided for @feedbackBugHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Report a crash, error, or unexpected result'**
+  String get feedbackBugHint;
+
+  /// No description provided for @feedbackQuestionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask how to use an existing feature'**
+  String get feedbackQuestionHint;
+
+  /// No description provided for @feedbackFeatureHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggest a new feature or an improvement'**
+  String get feedbackFeatureHint;
+
   /// No description provided for @mineHelp.
   ///
   /// In en, this message translates to:
@@ -10003,32 +10045,14 @@ abstract class AppLocalizations {
   /// No description provided for @logShareScope.
   ///
   /// In en, this message translates to:
-  /// **'Includes all log levels ({count} entries).'**
+  /// **'All {count} log entries will be shared as recorded.'**
   String logShareScope(int count);
-
-  /// No description provided for @logShareOriginal.
-  ///
-  /// In en, this message translates to:
-  /// **'Original'**
-  String get logShareOriginal;
-
-  /// No description provided for @logShareRedacted.
-  ///
-  /// In en, this message translates to:
-  /// **'Redacted'**
-  String get logShareRedacted;
 
   /// No description provided for @logShareOriginalHint.
   ///
   /// In en, this message translates to:
   /// **'Original logs may include email addresses, transaction details or server addresses.'**
   String get logShareOriginalHint;
-
-  /// No description provided for @logShareRedactedHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Keeps timestamps, recognized modules and error types. Personal details and original messages are hidden.'**
-  String get logShareRedactedHint;
 
   /// No description provided for @logSharePreview.
   ///

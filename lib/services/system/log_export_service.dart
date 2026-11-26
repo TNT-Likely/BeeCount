@@ -8,39 +8,27 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
-import 'log_export_redaction.dart';
 import 'logger_service.dart';
 
-/// Both variants describe the same entries and capture time. Formatting here
-/// also freezes the text of live exception and stack objects before sharing.
+/// Capture the text of live exceptions and stacks once for preview and export.
 class LogExportSnapshot {
-  LogExportSnapshot._(this.count, this._original, this._redacted);
+  LogExportSnapshot._(this.count, this.file);
 
   final int count;
-  final LogExportFile _original;
-  final LogExportFile _redacted;
+  final LogExportFile file;
 
   static Future<LogExportSnapshot> capture(LoggerService logger) async {
     final entries = await logger.snapshotForExport();
     final capturedAt = DateTime.now();
     final stamp = capturedAt.toUtc().toIso8601String().replaceAll(':', '-');
-    final prefix = 'BeeCount-logs-$stamp';
     return LogExportSnapshot._(
       entries.length,
       LogExportFile._(
-        '$prefix-original.txt',
+        'BeeCount-logs-$stamp.txt',
         LoggerService.formatExport(entries, capturedAt, includeDates: true),
-      ),
-      LogExportFile._(
-        '$prefix-redacted.txt',
-        LoggerService.formatExport(entries.map(redactLogEntry), capturedAt,
-            includeDates: true),
       ),
     );
   }
-
-  LogExportFile file({required bool redacted}) =>
-      redacted ? _redacted : _original;
 }
 
 class LogExportFile {

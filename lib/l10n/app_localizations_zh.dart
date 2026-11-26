@@ -2077,6 +2077,27 @@ class AppLocalizationsZh extends AppLocalizations {
   String get mineFeedbackSubtitle => '提交问题或建议';
 
   @override
+  String get feedbackChooseType => '选择反馈类型';
+
+  @override
+  String get feedbackBug => 'Bug 报告';
+
+  @override
+  String get feedbackQuestion => '使用问题';
+
+  @override
+  String get feedbackFeature => '功能请求';
+
+  @override
+  String get feedbackBugHint => '报告崩溃、报错或异常结果';
+
+  @override
+  String get feedbackQuestionHint => '询问现有功能的使用方法';
+
+  @override
+  String get feedbackFeatureHint => '提出新功能或改进建议';
+
+  @override
   String get mineHelp => '使用帮助';
 
   @override
@@ -5260,20 +5281,11 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String logShareScope(int count) {
-    return '将分享全部 $count 条日志，包含各个级别的记录。';
+    return '将分享全部 $count 条日志原文。';
   }
 
   @override
-  String get logShareOriginal => '原文';
-
-  @override
-  String get logShareRedacted => '脱敏';
-
-  @override
   String get logShareOriginalHint => '原文可能包含邮箱、账单内容或服务地址。';
-
-  @override
-  String get logShareRedactedHint => '保留时间、可识别的模块和错误类型，隐藏个人信息与业务原文。';
 
   @override
   String get logSharePreview => '文件预览';
@@ -12132,6 +12144,27 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get mineFeedbackSubtitle => '提交問題或建議';
 
   @override
+  String get feedbackChooseType => '選擇回饋類型';
+
+  @override
+  String get feedbackBug => 'Bug 回報';
+
+  @override
+  String get feedbackQuestion => '使用問題';
+
+  @override
+  String get feedbackFeature => '功能建議';
+
+  @override
+  String get feedbackBugHint => '回報閃退、錯誤或異常結果';
+
+  @override
+  String get feedbackQuestionHint => '詢問現有功能的使用方式';
+
+  @override
+  String get feedbackFeatureHint => '提出新功能或改善建議';
+
+  @override
   String get mineHelp => '使用說明';
 
   @override
@@ -15315,20 +15348,11 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String logShareScope(int count) {
-    return '將分享全部 $count 筆日誌，包含各個層級的紀錄。';
+    return '將分享全部 $count 筆日誌原文。';
   }
 
   @override
-  String get logShareOriginal => '原文';
-
-  @override
-  String get logShareRedacted => '去識別化';
-
-  @override
   String get logShareOriginalHint => '原文可能包含電子郵件、帳務內容或服務位址。';
-
-  @override
-  String get logShareRedactedHint => '保留時間、可辨識的模組和錯誤類型，隱藏個人資訊與業務原文。';
 
   @override
   String get logSharePreview => '檔案預覽';
