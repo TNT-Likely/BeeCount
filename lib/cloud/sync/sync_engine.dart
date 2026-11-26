@@ -1305,17 +1305,36 @@ class SyncEngine implements app.SyncService {
       {required int ledgerId}) async {
     logger.info('SyncEngine', '开始全量拉取 ledger=$ledgerId');
 
-      final ledger = await repo.getLedgerById(ledgerId);
-      if (ledger == null) throw StateError('Download target ledger does not exist');
-      final watermark = await _hydrationWatermark();
-      await _checkHydrationEdits(ledger, watermark, includeOwnDictionaries: true);
+    final ledger = await repo.getLedgerById(ledgerId);
+    if (ledger == null) throw StateError('Download target ledger does not exist');
+    final watermark = await _hydrationWatermark();
+    await _checkHydrationEdits(ledger, watermark, includeOwnDictionaries: true);
+    final transactions = db.transactions;
+    final maxId = transactions.id.max();
+    final before = await (db.selectOnly(transactions)..addColumns([maxId]))
+        .getSingle();
+    final lastId = before.read(maxId) ?? 0;
     // New incremental changes may belong to other ledgers. They cannot repair
     // an older target change that a previous global cursor already skipped.
-      await pull(ledgerId.toString());
-      final applied = await hydrateLedgerFromServer(
-          ledger.syncId ?? ledgerId.toString(),
-          recoveryTarget: ledger,
-          journalWatermark: watermark);
+    await pull(ledgerId.toString());
+    await hydrateLedgerFromServer(ledger.syncId ?? ledgerId.toString(),
+        recoveryTarget: ledger, journalWatermark: watermark);
+    // Both the delta and the snapshot can add transactions. Their local IDs
+    // auto-increment, even when the same download also deletes older rows.
+    final changes = db.localChanges;
+    final localCreates = db.selectOnly(changes)
+      ..addColumns([changes.entityId])
+      ..where(changes.id.isBiggerThanValue(watermark) &
+          changes.ledgerId.equals(ledgerId) &
+          changes.entityType.equals('transaction') &
+          changes.action.equals('create'));
+    final count = transactions.id.count();
+    final downloaded = await (db.selectOnly(transactions)
+          ..addColumns([count])
+          ..where(transactions.ledgerId.equals(ledgerId) &
+              transactions.id.isBiggerThanValue(lastId) &
+              transactions.id.isNotInQuery(localCreates)))
+        .getSingle();
     // 下载附件
     try {
       await downloadAttachments(ledgerId: ledgerId);
@@ -1323,7 +1342,7 @@ class SyncEngine implements app.SyncService {
       logger.error('SyncEngine', '附件下载失败（不阻塞拉取）', e, st);
     }
 
-    return (inserted: applied, deletedDup: 0);
+    return (inserted: downloaded.read(count) ?? 0, deletedDup: 0);
   }
 
   // ==================== 附件云端同步 ====================

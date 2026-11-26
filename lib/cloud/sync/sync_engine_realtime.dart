@@ -588,7 +588,7 @@ extension SyncEngineRealtime on SyncEngine {
 
   /// 用正式 /full 当前快照水合一个已登记的账本,不重放其它账本的历史。
   /// 调用方先 syncLedgersFromServer / shared-resources;目标有待推变更则拒绝。
-  /// 不导入 owner 的 user-global 主表,不推进普通增量的全局 cursor。
+  /// 本人账本补齐缺少的字典；协作者继续使用共享字典。快照不推进增量游标。
   Future<int> hydrateLedgerFromServer(String ledgerExternalId,
       {Ledger? recoveryTarget, int? journalWatermark}) async {
     await _recoverTransactionMoves();
@@ -622,9 +622,9 @@ extension SyncEngineRealtime on SyncEngine {
 
       final ledger = await currentTarget();
       final watermark = journalWatermark ?? await _hydrationWatermark();
-      Future<void> checkPending() => _checkHydrationEdits(ledger, watermark,
-          includeOwnDictionaries: recoveryTarget != null);
-      await checkPending();
+      Future<void> checkPending(Ledger current) =>
+          _checkHydrationEdits(current, watermark, includeOwnDictionaries: true);
+      await checkPending(ledger);
       final content = await provider.storage.download(path: ledgerExternalId);
       if (content == null) {
         if (recoveryTarget == null)
@@ -640,8 +640,7 @@ extension SyncEngineRealtime on SyncEngine {
         // Legacy exports use local integer ledger IDs and names. Keep their
         // original import/dedup behavior; never reinterpret a scoped snapshot.
         final restored = await db.transaction(() async {
-          await currentTarget();
-          await checkPending();
+          await checkPending(await currentTarget());
           final items = (decoded['items'] as List).cast<Map<String, dynamic>>();
           final ids = items
               .map((item) => item['syncId'])
@@ -693,7 +692,7 @@ extension SyncEngineRealtime on SyncEngine {
       // Some personal snapshots predate stable relationship IDs. Resolve a
       // name only against a unique identity in this snapshot's own dictionary.
         final legacyIds = <(String, String, String?), Set<String>>{};
-        if (recoveryTarget != null && ledger.myRole == 'owner') {
+        if (ledger.myRole == 'owner') {
           for (final key in const ['accounts', 'categories', 'tags']) {
             final records = decoded[key];
             if (records == null) continue;
@@ -873,9 +872,9 @@ extension SyncEngineRealtime on SyncEngine {
       final applied = await _applyWithAttachmentCleanup((removedFiles) async {
         // HTTP 等待期间可能退出/删除/重新登记目标;写前确认仍是同一本。
         final current = await currentTarget();
-        if (current.id != ledger.id)
+        if (current.id != ledger.id || current.myRole != ledger.myRole)
           throw StateError('Hydration target ledger changed during download');
-        await checkPending();
+        await checkPending(current);
         if (recoveryTarget != null) {
           if (current.syncId == null) {
             await (db.update(db.ledgers)..where((row) => row.id.equals(ledger.id)))
@@ -903,9 +902,9 @@ extension SyncEngineRealtime on SyncEngine {
                 'currency': currency,
                 'monthStartDay': monthStartDay
               }));
-          if (current.myRole == 'owner') {
-            await _restoreMissingSnapshotDictionaries(ledgerExternalId, decoded);
-          }
+        }
+        if (current.myRole == 'owner') {
+          await _restoreMissingSnapshotDictionaries(ledgerExternalId, decoded);
         }
         final localCategories = (await db.select(db.categories).get())
             .map((r) => r.syncId).whereType<String>().toSet();

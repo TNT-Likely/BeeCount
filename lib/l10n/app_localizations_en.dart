@@ -1975,7 +1975,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String mineDownloadResult(Object inserted) {
-    return 'Imported: $inserted records';
+    return 'New transactions: $inserted';
   }
 
   @override
@@ -5406,7 +5406,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String ledgersConflictDownloadSuccess(int inserted) {
-    return 'Download successful, merged $inserted transactions';
+    return 'Download complete. New transactions: $inserted';
   }
 
   @override

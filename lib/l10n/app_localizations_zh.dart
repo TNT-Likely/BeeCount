@@ -1975,7 +1975,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String mineDownloadResult(Object inserted) {
-    return '导入：$inserted 条';
+    return '新增 $inserted 笔账单';
   }
 
   @override
@@ -5406,7 +5406,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String ledgersConflictDownloadSuccess(int inserted) {
-    return '下载成功，已合并 $inserted 笔账单';
+    return '下载完成，新增 $inserted 笔账单';
   }
 
   @override
@@ -11976,7 +11976,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String mineDownloadResult(Object inserted) {
-    return '匯入：$inserted 條';
+    return '新增 $inserted 筆帳單';
   }
 
   @override
@@ -15407,7 +15407,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String ledgersConflictDownloadSuccess(int inserted) {
-    return '下載成功，已合併 $inserted 筆帳單';
+    return '下載完成，新增 $inserted 筆帳單';
   }
 
   @override

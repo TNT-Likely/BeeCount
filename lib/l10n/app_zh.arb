@@ -846,7 +846,7 @@
   "mineDownloadTitle": "下载同步",
   "mineDownloadNeedCloudService": "仅限云服务模式可用",
   "mineDownloadComplete": "同步完成",
-  "mineDownloadResult": "导入：{inserted} 条",
+  "mineDownloadResult": "新增 {inserted} 笔账单",
   "mineLoginTitle": "登录",
   "mineLoginSubtitle": "仅在同步时需要",
   "cloudReloginTitle": "重新登录",
@@ -2338,7 +2338,7 @@
   "ledgersConflictUploading": "正在上传...",
   "ledgersConflictDownloading": "正在下载...",
   "ledgersConflictUploadSuccess": "上传成功",
-  "ledgersConflictDownloadSuccess": "下载成功，已合并 {inserted} 笔账单",
+  "ledgersConflictDownloadSuccess": "下载完成，新增 {inserted} 笔账单",
   "@ledgersConflictDownloadSuccess": {
     "placeholders": {
       "inserted": {

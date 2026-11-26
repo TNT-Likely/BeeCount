@@ -1011,7 +1011,7 @@
   "mineDownloadTitle": "Download & Sync",
   "mineDownloadNeedCloudService": "Available in cloud service mode only",
   "mineDownloadComplete": "Sync Complete",
-  "mineDownloadResult": "Imported: {inserted} records",
+  "mineDownloadResult": "New transactions: {inserted}",
   "mineLoginTitle": "Login",
   "mineLoginSubtitle": "Only needed for sync",
   "cloudReloginTitle": "Re-login",
@@ -2526,7 +2526,7 @@
   "ledgersConflictUploading": "Uploading...",
   "ledgersConflictDownloading": "Downloading...",
   "ledgersConflictUploadSuccess": "Upload successful",
-  "ledgersConflictDownloadSuccess": "Download successful, merged {inserted} transactions",
+  "ledgersConflictDownloadSuccess": "Download complete. New transactions: {inserted}",
   "@ledgersConflictDownloadSuccess": {
     "placeholders": {
       "inserted": {

@@ -152,6 +152,62 @@ void main() {
   });
 
   test(
+      'download counts new target transactions across deltas and snapshots only',
+      () async {
+    Map<String, dynamic> item(String id) => {
+          'syncId': id,
+          'type': 'expense',
+          'amount': 8,
+          'happenedAt': '2026-11-26T00:00:00Z',
+          'excludeFromStats': false,
+          'excludeFromBudget': false,
+        };
+    await db.into(db.transactions).insert(TransactionsCompanion.insert(
+        ledgerId: ledger,
+        type: 'expense',
+        amount: 5,
+        syncId: const Value('removed')));
+    cloud.pushFakeChange(
+        ledgerId: 'target', entitySyncId: 'removed', action: 'delete');
+    for (final (scope, id) in [
+      ('target', 'from-delta'),
+      ('other', 'other-new')
+    ]) {
+      cloud.pushFakeChange(
+          ledgerId: scope,
+          entitySyncId: id,
+          payload: {...item(id), 'ledgerSyncId': scope});
+    }
+    snapshot['items'] = [
+      ...(snapshot['items'] as List),
+      item('from-delta'),
+      item('from-snapshot'),
+    ];
+    snapshot['count'] = 3;
+    snapshot['budgets'] = [
+      {
+        'syncId': 'budget',
+        'ledgerSyncId': 'target',
+        'amount': 45,
+        'enabled': true
+      }
+    ];
+    await store(snapshot);
+
+    final first =
+        await engine.downloadAndRestoreToCurrentLedger(ledgerId: ledger);
+    expect(first.inserted, 2);
+    expect((await repo.getTransactionsByLedger(ledger)).map((r) => r.syncId),
+        unorderedEquals(['bill', 'from-delta', 'from-snapshot']));
+    expect((await repo.getAllBudgets(ledger)).single.amount, 45);
+    expect((await repo.getTransactionsByLedger(other)).length, 2);
+
+    final repeated =
+        await engine.downloadAndRestoreToCurrentLedger(ledgerId: ledger);
+    expect(repeated.inserted, 0);
+  });
+
+  test(
       'pending and newly acknowledged edits both prevent stale download overwrite',
       () async {
     await store(snapshot);

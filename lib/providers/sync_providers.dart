@@ -721,6 +721,16 @@ final syncServiceProvider = Provider<SyncService>((ref) {
     Future<void> hydrateNewLedgers(Set<String> existingSyncIds) async {
       final newSyncIds =
           (await registeredLedgerSyncIds()).difference(existingSyncIds);
+      if (existingSyncIds.isEmpty && newSyncIds.isNotEmpty) {
+        // With no previously registered ledger, consume the account's ordinary
+        // delta first. A subsequent scoped snapshot can supply history omitted
+        // by device filtering and is authoritative for its own ledger.
+        try {
+          await engine.pull('');
+        } catch (e, st) {
+          logger.warning('SyncProvider', '首次拉取增量失败，继续恢复账本快照: $e', st);
+        }
+      }
       for (final syncId in newSyncIds) {
         try {
           final hydrated = await engine.hydrateLedgerFromServer(syncId);

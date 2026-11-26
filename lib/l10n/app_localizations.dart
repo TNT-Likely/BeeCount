@@ -3721,7 +3721,7 @@ abstract class AppLocalizations {
   /// No description provided for @mineDownloadResult.
   ///
   /// In en, this message translates to:
-  /// **'Imported: {inserted} records'**
+  /// **'New transactions: {inserted}'**
   String mineDownloadResult(Object inserted);
 
   /// No description provided for @mineLoginTitle.
@@ -10279,7 +10279,7 @@ abstract class AppLocalizations {
   /// No description provided for @ledgersConflictDownloadSuccess.
   ///
   /// In en, this message translates to:
-  /// **'Download successful, merged {inserted} transactions'**
+  /// **'Download complete. New transactions: {inserted}'**
   String ledgersConflictDownloadSuccess(int inserted);
 
   /// No description provided for @storageManagementTitle.
