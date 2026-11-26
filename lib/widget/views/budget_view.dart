@@ -61,7 +61,7 @@ class BudgetView extends StatelessWidget {
       style: TextStyle(fontSize: fontSize, color: widgetTextSecondary(dark)));
 
   Widget _ring(BudgetUsage total, bool small) => SizedBox.square(
-        dimension: small ? 47 : 63,
+        dimension: small ? 47 : 60,
         child: CustomPaint(
           painter: _BudgetRingPainter(
               progress: total.rate,
@@ -83,59 +83,152 @@ class BudgetView extends StatelessWidget {
         ),
       );
 
-  Widget _details(String label, double amount, bool small) => FittedBox(
-        fit: BoxFit.scaleDown,
-        alignment: Alignment.centerLeft,
-        child: Row(mainAxisSize: MainAxisSize.min, children: [
-          _caption(label, fontSize: small ? 9 : 11),
+  Widget _amountRow(String label, double amount, {required bool small}) => Row(
+        crossAxisAlignment: CrossAxisAlignment.baseline,
+        textBaseline: TextBaseline.alphabetic,
+        children: [
+          Flexible(flex: 2, child: _caption(label, fontSize: small ? 9 : 10)),
           const SizedBox(width: 4),
-          WidgetCardMoney(
-              amount: _money(amount), dark: dark, fontSize: small ? 11 : 13),
-        ]),
+          Expanded(
+            flex: 3,
+            child: WidgetCardMoney(
+              amount: _money(amount),
+              dark: dark,
+              fontSize: small ? 11 : 12,
+              alignment: Alignment.centerRight,
+            ),
+          ),
+        ],
       );
+
+  Widget _summary(BudgetUsage usage, {required bool small}) => Row(children: [
+        _ring(usage, small),
+        SizedBox(width: small ? 6 : 14),
+        Expanded(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _caption(remainingLabel),
+              const SizedBox(height: 3),
+              WidgetCardMoney(
+                amount: _money(usage.remaining),
+                dark: dark,
+                fontSize: small ? 18 : 26,
+              ),
+              if (!small) ...[
+                const SizedBox(height: 5),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
+                  children: [
+                    Expanded(
+                        child: _amountRow(usedLabel, usage.used, small: false)),
+                    const SizedBox(width: 14),
+                    Expanded(
+                        child:
+                            _amountRow(totalLabel, usage.budget, small: false)),
+                  ],
+                ),
+              ],
+            ],
+          ),
+        ),
+      ]);
+
+  Color _rateColor(String status) =>
+      status == 'normal' ? widgetTextPrimary(dark) : _statusColor(status);
+
+  Widget _categoryRate(
+      String name, double fraction, Color textColor, Color fillColor) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.baseline,
+          textBaseline: TextBaseline.alphabetic,
+          children: [
+            Expanded(child: _caption(name)),
+            const SizedBox(width: 5),
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 50),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerRight,
+                child: Text('${(fraction * 100).round()}%',
+                    maxLines: 1,
+                    style: TextStyle(
+                        fontSize: 11,
+                        color: textColor,
+                        fontWeight: FontWeight.w600,
+                        fontFeatures: const [kWidgetTabularFeature])),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        SizedBox(
+          height: 3,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(2),
+            child: ColoredBox(
+              color: widgetCardSoft(dark),
+              child: FractionallySizedBox(
+                alignment: Alignment.centerLeft,
+                widthFactor: fraction.clamp(0.0, 1.0),
+                heightFactor: 1,
+                child: ColoredBox(color: fillColor),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 
   Widget _categories() {
     // Category budgets and spending shares use different denominators.
     final hasBudgets = overview.categoryBudgets.isNotEmpty;
     final entries = hasBudgets
         ? [
-            for (final item in overview.categoryBudgets.take(3))
+            for (final c in overview.categoryBudgets.take(3))
               (
-                name: item.categoryName,
-                fraction: item.usage.rate,
-                color: item.usage.status == 'normal'
-                    ? widgetTextPrimary(dark)
-                    : _statusColor(item.usage.status)
-              )
+                name: c.categoryName,
+                fraction: c.usage.rate,
+                textColor: _rateColor(c.usage.status),
+                fillColor: _statusColor(c.usage.status)
+              ),
           ]
         : [
-            for (final item in fallbackShares.take(3))
+            for (final share in fallbackShares.take(3))
               (
-                name: item.name,
-                fraction: item.share,
-                color: widgetTextPrimary(dark)
-              )
+                name: share.name,
+                fraction: share.share,
+                textColor: widgetTextPrimary(dark),
+                fillColor: themeColor
+              ),
           ];
-    final label = hasBudgets ? categoryUsageLabel : spendingShareLabel;
+    final title = hasBudgets
+        ? (categoryUsageLabel ?? '分类预算')
+        : (spendingShareLabel ?? '支出占比');
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      if (label != null && label.isNotEmpty) _caption(label),
+      Container(height: 1, color: widgetDivider(dark)),
+      const SizedBox(height: 6),
+      Text(title,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              color: widgetTextPrimary(dark))),
+      const SizedBox(height: 4),
       Row(children: [
-        for (final entry in entries)
+        for (final (index, entry) in entries.indexed) ...[
+          if (index > 0) const SizedBox(width: 12),
           Expanded(
-              child: Padding(
-            padding: const EdgeInsets.only(right: 6),
-            child: Row(children: [
-              Flexible(child: _caption(entry.name)),
-              const SizedBox(width: 3),
-              Text('${(entry.fraction * 100).round()}%',
-                  maxLines: 1,
-                  style: TextStyle(
-                      fontSize: 11,
-                      color: entry.color,
-                      fontWeight: FontWeight.w600,
-                      fontFeatures: const [kWidgetTabularFeature])),
-            ]),
-          )),
+              child: _categoryRate(entry.name, entry.fraction, entry.textColor,
+                  entry.fillColor)),
+        ],
       ]),
     ]);
   }
@@ -176,9 +269,7 @@ class BudgetView extends StatelessWidget {
                             style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
-                                color: entry.usage.status == 'normal'
-                                    ? widgetTextPrimary(dark)
-                                    : _statusColor(entry.usage.status))))),
+                                color: _rateColor(entry.usage.status))))),
               ]),
             ),
         ],
@@ -232,39 +323,14 @@ class BudgetView extends StatelessWidget {
                           fontWeight: FontWeight.w600))),
             ]),
           ],
-          Expanded(
-              child: Row(children: [
-            _ring(total, small),
-            SizedBox(width: small ? 6 : 12),
-            Expanded(
-                child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _caption(remainingLabel),
-                const SizedBox(height: 3),
-                WidgetCardMoney(
-                    amount: _money(total.remaining),
-                    dark: dark,
-                    fontSize: small ? 18 : 26),
-              ],
-            )),
-          ])),
-          Container(height: 1, color: widgetDivider(dark)),
-          const SizedBox(height: 5),
+          Expanded(child: _summary(total, small: small)),
           if (small) ...[
-            _details(usedLabel, total.used, true),
+            Container(height: 1, color: widgetDivider(dark)),
+            const SizedBox(height: 5),
+            _amountRow(usedLabel, total.used, small: true),
             const SizedBox(height: 2),
-            _details(totalLabel, total.budget, true),
-          ] else
-            Row(children: [
-              Expanded(child: _details(usedLabel, total.used, false)),
-              const SizedBox(width: 8),
-              Expanded(
-                  child: Align(
-                      alignment: Alignment.centerRight,
-                      child: _details(totalLabel, total.budget, false))),
-            ]),
+            _amountRow(totalLabel, total.budget, small: true),
+          ],
         ],
         if (hasCategories) ...[
           const SizedBox(height: 5),

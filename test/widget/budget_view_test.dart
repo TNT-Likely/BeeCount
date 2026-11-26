@@ -87,6 +87,10 @@ void main() {
     for (final value in ['剩', '已用', '总额', '¥1,158', '¥6,842', '¥8,000']) {
       expect(find.text(value), findsOneWidget);
     }
+    expect(tester.getRect(find.text('已用')).left,
+        closeTo(tester.getRect(find.text('总额')).left, .01));
+    expect(tester.getRect(find.text('¥6,842')).right,
+        closeTo(tester.getRect(find.text('¥8,000')).right, .01));
   });
 
   CategoryBudgetUsage category(String name, double used, double budget) {
@@ -96,6 +100,71 @@ void main() {
       categoryName: name,
       usage: BudgetUsage(used: used, budget: budget),
     );
+  }
+
+  for (final dark in [false, true]) {
+    for (final count in [1, 2, 3]) {
+      testWidgets('medium aligns $count category columns in dark=$dark',
+          (tester) async {
+        const canvas = Size(364, 169);
+        const title = '分類預算';
+        const cases = [('購物', 49.0), ('交通', 36.0), ('餐飲', 21.0)];
+        await tester.pumpWidget(wrap(
+          BudgetView(
+            size: HWSize.medium,
+            overview: BudgetOverview(
+              totalBudget: BudgetUsage(used: 152.2, budget: 600),
+              categoryBudgets: [
+                for (final (name, used) in cases.take(count))
+                  category(name, used, 100)
+              ],
+              daysRemaining: 8,
+              dailyAvailable: 33,
+            ),
+            currencyCode: 'CNY',
+            themeColor: Colors.amber,
+            redForIncome: false,
+            dark: dark,
+            usedLabel: '已用',
+            totalLabel: '總額',
+            remainingLabel: '剩餘',
+            categoryUsageLabel: title,
+            width: canvas.width,
+            height: canvas.height,
+          ),
+          canvas,
+        ));
+        expect(tester.takeException(), isNull);
+        Rect textRect(String label) => tester.getRect(find.text(label));
+        double baseline(String label) {
+          final box = tester.renderObject<RenderBox>(find.text(label));
+          return box
+              .localToGlobal(Offset(
+                  0,
+                  box.getDryBaseline(BoxConstraints.tight(box.size),
+                      TextBaseline.alphabetic)!))
+              .dy;
+        }
+
+        expect(find.text('¥447.8'), findsOneWidget);
+        expect(baseline('已用'), closeTo(baseline('總額'), .01));
+        expect(textRect(title).top, greaterThan(textRect('總額').bottom));
+        final columns = <double>[];
+        for (final (name, used) in cases.take(count)) {
+          final ratio = '${used.round()}%';
+          expect(baseline(name), closeTo(baseline(ratio), .01));
+          columns.add(textRect(ratio).right - textRect(name).left);
+        }
+        expect(columns, everyElement(closeTo(columns.first, .01)));
+        final card = tester.getRect(find.byType(BudgetView));
+        expect(textRect('${cases[count - 1].$2.round()}%').right,
+            closeTo(card.right - 17, .01));
+        final tracks = find.byType(FractionallySizedBox);
+        expect(tracks, findsNWidgets(count));
+        expect(tester.getTopLeft(tracks.first).dy,
+            closeTo(tester.getTopLeft(tracks.last).dy, .01));
+      });
+    }
   }
 
   for (final dark in [false, true]) {

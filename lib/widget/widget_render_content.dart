@@ -10,6 +10,7 @@ import 'widget_spec.dart';
 
 // Bump when the drawing changes without a corresponding ledger or build change.
 const _widgetLayoutRevision = 'cards-4.0';
+const _budgetLayoutRevision = 2;
 
 /// The data and drawing inputs for one size, shared across its appearances.
 /// Only their hash is persisted alongside the PNG paths.
@@ -122,6 +123,7 @@ Future<WidgetRenderContent> prepareWidgetContent({
               ? await batch.topSpendingShares()
               : const <({String name, double share})>[];
       return content([
+        _budgetLayoutRevision,
         currency,
         if (spec.size == HWSize.medium) today.month,
         overview.totalBudget?.budget,
