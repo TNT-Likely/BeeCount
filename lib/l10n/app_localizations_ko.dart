@@ -10032,4 +10032,74 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get aiChatAssistantName => 'AI Assistant';
+
+  @override
+  String skinCollectionCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count-skin collection',
+      one: '1-skin collection',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String skinOwnedCollectionCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count skins',
+      one: '1 skin',
+    );
+    return 'Owned · $_temp0';
+  }
+
+  @override
+  String skinUnlockPack(int count, String price) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count skins',
+      one: '1 skin',
+    );
+    return 'Unlock $_temp0 · $price';
+  }
+
+  @override
+  String skinRestoreOwned(String names) {
+    return 'Purchases restored for $names.';
+  }
+
+  @override
+  String skinRestoreMissingPack(String name) {
+    return 'No purchase was found for $name. Check with the Apple Account used to buy it.';
+  }
+
+  @override
+  String get skinRedeemDetails => 'Enter an offer code in the App Store sheet to unlock the collection it covers.';
+
+  @override
+  String get skinPreviewExpand => 'Full-screen preview';
+
+  @override
+  String get skinPreviewLedger => 'Sample ledger';
+
+  @override
+  String get skinPreviewLight => 'Light';
+
+  @override
+  String get skinPreviewDark => 'Dark';
+
+  @override
+  String get skinPreviewLunch => 'Lunch';
+
+  @override
+  String get skinPreviewMetro => 'Subway';
+
+  @override
+  String get skinPreviewCoffee => 'Coffee';
+
+  @override
+  String get skinPreviewIncome => 'Freelance income';
 }

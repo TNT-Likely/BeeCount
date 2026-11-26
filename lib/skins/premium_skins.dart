@@ -22,41 +22,76 @@ class PremiumSkin {
   const PremiumSkin({
     required this.id,
     required this.name,
+    required this.traditionalName,
     required this.englishName,
     required this.preview,
     required this.colors,
     required this.scene,
   });
 
-  final String id, name, englishName;
+  final String id, name, traditionalName, englishName;
   final WidgetBuilder preview;
   final ({Color accent, Color onAccent}) Function(Brightness brightness) colors;
   final Widget Function(BuildContext context, SkinAppearance appearance,
       Widget child, double topInset) scene;
 }
 
-enum SkinPurchaseResult { launched, pending, cancelled, unavailable }
+class PremiumSkinCollection {
+  const PremiumSkinCollection({
+    required this.id,
+    required this.name,
+    required this.traditionalName,
+    required this.englishName,
+    required this.skins,
+  });
 
-/// Optional skin services. The normal App starts with just the free selection.
-class PremiumSkins extends ChangeNotifier {
-  List<PremiumSkin> get skins => const [];
-  SkinAppearance get appearance => const SkinAppearance();
-  SkinAppearance appearanceFor(String id) => SkinAppearance(skinId: id);
+  final String id, name, traditionalName, englishName;
+  final List<PremiumSkin> skins;
 
   PremiumSkin? skin(String? id) =>
       skins.where((skin) => skin.id == id).firstOrNull;
 
-  PremiumSkin? get selectedSkin => owned ? skin(appearance.skinId) : null;
+  String nameOf(BuildContext context) =>
+      _localizedSkinName(context, name, traditionalName, englishName);
+}
+
+enum SkinPurchaseResult { launched, pending, cancelled, unavailable }
+
+/// Optional skin services. The normal App starts with just the free selection.
+class PremiumSkins extends ChangeNotifier {
+  List<PremiumSkinCollection> get collections => const [];
+  SkinAppearance get appearance => const SkinAppearance();
+  SkinAppearance appearanceFor(String id) => SkinAppearance(skinId: id);
+
+  PremiumSkinCollection? collectionForSkin(String? id) => id == null
+      ? null
+      : collections.where((pack) => pack.skin(id) != null).firstOrNull;
+
+  PremiumSkin? get selectedSkin {
+    final id = appearance.skinId;
+    final pack = collectionForSkin(id);
+    return pack != null && ownsPack(pack.id) ? pack.skin(id) : null;
+  }
+
   bool get active => selectedSkin != null;
-  bool get owned => false;
-  String? get price => null;
-  bool get salesEnabled => false;
+  bool ownsPack(String packId) => false;
+  String? priceForPack(String packId) => null;
+  bool salesEnabledForPack(String packId) => false;
   bool get canMakePayments => false;
   bool get busy => false;
 
+  bool canPurchasePack(PremiumSkinCollection pack) =>
+      pack.skins.isNotEmpty &&
+      !ownsPack(pack.id) &&
+      salesEnabledForPack(pack.id) &&
+      priceForPack(pack.id) != null &&
+      canMakePayments &&
+      !busy;
+
   Future<bool> select(String id, SkinAppearance value) async => false;
   Future<void> clearSelection() async {}
-  Future<SkinPurchaseResult> purchase() async => SkinPurchaseResult.unavailable;
+  Future<SkinPurchaseResult> purchasePack(String packId) async =>
+      SkinPurchaseResult.unavailable;
   Future<bool> restore() async => false;
   Future<bool> redeem() async => false;
   Future<void> refresh() async {}
@@ -65,6 +100,7 @@ class PremiumSkins extends ChangeNotifier {
   }
 
   Widget? navigationArtwork(BuildContext context) => null;
+  double navigationDecorationHeight(BuildContext context) => 0;
 }
 
 final premiumSkinsProvider =
@@ -74,4 +110,14 @@ String skinText(BuildContext context, String zh, String en) =>
     Localizations.localeOf(context).languageCode == 'zh' ? zh : en;
 
 String premiumSkinName(BuildContext context, PremiumSkin skin) =>
-    skinText(context, skin.name, skin.englishName);
+    _localizedSkinName(
+        context, skin.name, skin.traditionalName, skin.englishName);
+
+String _localizedSkinName(
+    BuildContext context, String zh, String hant, String en) {
+  final locale = Localizations.localeOf(context);
+  if (locale.languageCode != 'zh') return en;
+  final traditional = locale.scriptCode == 'Hant' ||
+      const {'TW', 'HK', 'MO'}.contains(locale.countryCode);
+  return traditional ? hant : zh;
+}

@@ -9988,6 +9988,58 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get aiChatAssistantName => 'AI 助手';
+
+  @override
+  String skinCollectionCount(int count) {
+    return '$count 款合集';
+  }
+
+  @override
+  String skinOwnedCollectionCount(int count) {
+    return '已购 · $count 款';
+  }
+
+  @override
+  String skinUnlockPack(int count, String price) {
+    return '解锁 $count 款 · $price';
+  }
+
+  @override
+  String skinRestoreOwned(String names) {
+    return '已恢复购买，可用合集为「$names」。';
+  }
+
+  @override
+  String skinRestoreMissingPack(String name) {
+    return '未找到「$name」的购买记录。请用购买时的 Apple 账户重新查询。';
+  }
+
+  @override
+  String get skinRedeemDetails => '在 App Store 的系统面板输入赠送码，可解锁该码对应的皮肤合集。';
+
+  @override
+  String get skinPreviewExpand => '全屏试穿';
+
+  @override
+  String get skinPreviewLedger => '示例账本';
+
+  @override
+  String get skinPreviewLight => '浅色';
+
+  @override
+  String get skinPreviewDark => '深色';
+
+  @override
+  String get skinPreviewLunch => '午餐';
+
+  @override
+  String get skinPreviewMetro => '地铁';
+
+  @override
+  String get skinPreviewCoffee => '咖啡';
+
+  @override
+  String get skinPreviewIncome => '兼职收入';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -19806,4 +19858,56 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get aiChatAssistantName => 'AI 助手';
+
+  @override
+  String skinCollectionCount(int count) {
+    return '$count 款合輯';
+  }
+
+  @override
+  String skinOwnedCollectionCount(int count) {
+    return '已購 · $count 款';
+  }
+
+  @override
+  String skinUnlockPack(int count, String price) {
+    return '解鎖 $count 款 · $price';
+  }
+
+  @override
+  String skinRestoreOwned(String names) {
+    return '已恢復購買，可用合輯為「$names」。';
+  }
+
+  @override
+  String skinRestoreMissingPack(String name) {
+    return '找不到「$name」的購買記錄。請使用購買時的 Apple 帳號重新查詢。';
+  }
+
+  @override
+  String get skinRedeemDetails => '在 App Store 的系統面板輸入贈送碼，即可解鎖該代碼對應的皮膚合輯。';
+
+  @override
+  String get skinPreviewExpand => '全螢幕試用';
+
+  @override
+  String get skinPreviewLedger => '範例帳本';
+
+  @override
+  String get skinPreviewLight => '淺色';
+
+  @override
+  String get skinPreviewDark => '深色';
+
+  @override
+  String get skinPreviewLunch => '午餐';
+
+  @override
+  String get skinPreviewMetro => '捷運';
+
+  @override
+  String get skinPreviewCoffee => '咖啡';
+
+  @override
+  String get skinPreviewIncome => '兼職收入';
 }

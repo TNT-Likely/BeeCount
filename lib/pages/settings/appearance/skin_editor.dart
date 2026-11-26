@@ -8,6 +8,7 @@ import '../../../skins/premium_skins.dart';
 import '../../../styles/header_skins.dart';
 import 'bindings/skin_choices.dart';
 import 'skin_store_actions.dart';
+import 'skin_trial_page.dart';
 
 String activeSkinId(String freeId, PremiumSkins runtime) =>
     runtime.selectedSkin?.id ?? headerSkinById(freeId)?.id ?? kHeaderSkinNone;
@@ -48,7 +49,9 @@ class SkinEditor extends ConsumerStatefulWidget {
 enum _SkinSection { material, artwork }
 
 class _SkinEditorState extends ConsumerState<SkinEditor> {
-  late final paid = ref.read(premiumSkinsProvider).skin(widget.skinId);
+  late final pack =
+      ref.read(premiumSkinsProvider).collectionForSkin(widget.skinId);
+  late final paid = pack?.skin(widget.skinId);
   late final free = headerSkinById(widget.skinId);
   late var _draft = paid != null
       ? ref.read(premiumSkinsProvider).appearanceFor(widget.skinId)
@@ -94,7 +97,7 @@ class _SkinEditorState extends ConsumerState<SkinEditor> {
 
   bool _canEdit(PremiumSkins runtime, String current) {
     if (widget.editingActive && current != widget.skinId) return false;
-    if (paid != null) return runtime.owned;
+    if (pack != null) return runtime.ownsPack(pack!.id);
     return widget.skinId == kHeaderSkinNone || free != null;
   }
 
@@ -145,9 +148,11 @@ class _SkinEditorState extends ConsumerState<SkinEditor> {
   }
 
   Future<void> _buy(PremiumSkins runtime) async {
-    if (_working ||
+    final collection = pack;
+    if (collection == null ||
+        _working ||
         !ref.read(headerSkinsEnabledProvider) ||
-        !canBuySkinPack(runtime)) {
+        !runtime.canPurchasePack(collection)) {
       return;
     }
     setState(() {
@@ -156,14 +161,15 @@ class _SkinEditorState extends ConsumerState<SkinEditor> {
     });
     var result = SkinPurchaseResult.unavailable;
     try {
-      result = await runtime.purchase();
+      result = await runtime.purchasePack(collection.id);
     } catch (_) {
       // Show the retry message and re-enable the controls.
     }
     if (!mounted) return;
     setState(() {
       _working = false;
-      _message = skinPurchaseFeedback(context, result, runtime.owned);
+      _message = skinPurchaseFeedback(
+          context, result, runtime.ownsPack(collection.id));
     });
   }
 
@@ -174,7 +180,8 @@ class _SkinEditorState extends ConsumerState<SkinEditor> {
     final freeId = ref.watch(headerSkinProvider);
     final enabled = ref.watch(headerSkinsEnabledProvider);
     final current = activeSkinId(freeId, runtime);
-    final locked = paid != null && !runtime.owned;
+    final collection = pack;
+    final locked = collection != null && !runtime.ownsPack(collection.id);
     final base = Theme.of(context);
     final skin = paid;
     final palette = skin?.colors(base.brightness);
@@ -188,6 +195,21 @@ class _SkinEditorState extends ConsumerState<SkinEditor> {
         ? base.colorScheme
         : base.colorScheme
             .copyWith(primary: palette.accent, onPrimary: palette.onAccent);
+
+    final scrollStoreLinks = MediaQuery.sizeOf(context).width < 360 ||
+        MediaQuery.textScalerOf(context).scale(14) > 18;
+    final storeLinks = locked
+        ? Wrap(
+            spacing: 8,
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              Text(skinText(context, '一次购买', 'One-time purchase'),
+                  style: base.textTheme.bodySmall),
+              SkinStoreActions(pack: collection, fromPreview: true),
+            ],
+          )
+        : null;
 
     return PopScope(
       canPop: !_working,
@@ -222,28 +244,21 @@ class _SkinEditorState extends ConsumerState<SkinEditor> {
                     onPressed: !enabled || _working
                         ? null
                         : locked
-                            ? canBuySkinPack(runtime)
+                            ? runtime.canPurchasePack(collection)
                                 ? () => _buy(runtime)
                                 : null
                             : _canEdit(runtime, current)
                                 ? () => _save(runtime)
                                 : null,
                     child: Text(locked
-                        ? skinPurchaseLabel(context, runtime)
+                        ? skinPurchaseLabel(context, runtime, collection)
                         : widget.editingActive
                             ? skinText(context, '保存设置', 'Save settings')
                             : skinText(context, '应用皮肤', 'Apply skin')),
                   ),
                 ),
               ]),
-              if (locked)
-                Row(children: [
-                  Expanded(
-                    child: Text(skinText(context, '一次购买', 'One-time purchase'),
-                        style: base.textTheme.bodySmall),
-                  ),
-                  const SkinStoreActions(fromPreview: true),
-                ]),
+              if (storeLinks != null && !scrollStoreLinks) storeLinks,
             ],
           ),
           child: SingleChildScrollView(
@@ -251,15 +266,44 @@ class _SkinEditorState extends ConsumerState<SkinEditor> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text(details, style: base.textTheme.bodySmall),
+                Wrap(
+                    spacing: 8,
+                    alignment: WrapAlignment.spaceBetween,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      Text(details, style: base.textTheme.bodySmall),
+                      if (skin != null)
+                        TextButton.icon(
+                          key: const ValueKey('skin-preview-expand'),
+                          onPressed: () => Navigator.of(context).push<void>(
+                            MaterialPageRoute(
+                              fullscreenDialog: true,
+                              builder: (_) => SkinTrialPage(
+                                skin: skin,
+                                appearance: _draft,
+                                initialTone: _tone ?? base.brightness,
+                                onToneChanged: (tone) {
+                                  if (mounted) setState(() => _tone = tone);
+                                },
+                              ),
+                            ),
+                          ),
+                          icon: const Icon(Icons.fullscreen, size: 20),
+                          label: Text(l.skinPreviewExpand),
+                        ),
+                    ]),
                 const SizedBox(height: 8),
                 SizedBox(
-                  height: (MediaQuery.sizeOf(context).height * .29)
-                      .clamp(145.0, 248.0),
+                  height: skin == null
+                      ? (MediaQuery.sizeOf(context).height * .29)
+                          .clamp(145.0, 248.0)
+                      : (MediaQuery.sizeOf(context).height * .40)
+                          .clamp(196.0, 345.0),
                   child: _sample(context, _tone ?? base.brightness, freeId),
                 ),
                 const SizedBox(height: 12),
                 _controls(context, l),
+                if (storeLinks != null && scrollStoreLinks) storeLinks,
               ],
             ),
           ),
@@ -285,7 +329,8 @@ class _SkinEditorState extends ConsumerState<SkinEditor> {
                 children: [
                   Row(children: [
                     Expanded(
-                      child: Text(skinText(context, '账本预览', 'Ledger preview'),
+                      child: Text(
+                          AppLocalizations.of(context).skinPreviewLedger,
                           style: text.titleSmall),
                     ),
                     SizedBox(
@@ -295,9 +340,9 @@ class _SkinEditorState extends ConsumerState<SkinEditor> {
                         value: brightness,
                         items: [
                           BeeSegment(Brightness.light,
-                              skinText(context, '浅色', 'Light')),
-                          BeeSegment(
-                              Brightness.dark, skinText(context, '深色', 'Dark')),
+                              AppLocalizations.of(context).skinPreviewLight),
+                          BeeSegment(Brightness.dark,
+                              AppLocalizations.of(context).skinPreviewDark),
                         ],
                         onChanged: (tone) => setState(() => _tone = tone),
                       ),
@@ -308,8 +353,8 @@ class _SkinEditorState extends ConsumerState<SkinEditor> {
                     _ledgerLine(skinText(context, '本月支出', 'Monthly spending'),
                         '¥ 1,286.50', text.titleLarge ?? const TextStyle()),
                     const SizedBox(height: 5),
-                    _ledgerLine(skinText(context, '午餐', 'Lunch'), '¥ 28.00',
-                        text.bodyMedium ?? const TextStyle()),
+                    _ledgerLine(AppLocalizations.of(context).skinPreviewLunch,
+                        '¥ 28.00', text.bodyMedium ?? const TextStyle()),
                   ]),
                 ],
               ),

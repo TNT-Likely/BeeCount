@@ -983,12 +983,14 @@ class _BeeBottomBar extends ConsumerWidget {
             .withValues(alpha: .96 + BeeCardTheme.of(context).surface.a * .04)
         : fallback;
     final artwork = active ? runtime.navigationArtwork(context) : null;
+    final decorationHeight =
+        artwork == null ? 0.0 : runtime.navigationDecorationHeight(context);
     final inactiveColor = isDark ? Colors.white70 : Colors.black54;
 
     const barHeight = 56.0;
 
     return SizedBox(
-      height: barHeight + bottomPadding + 12, // 12dp 浮动间距
+      height: barHeight + decorationHeight + bottomPadding + 12, // 12dp 浮动间距
       child: Padding(
         padding: EdgeInsets.only(
           left: 16,
@@ -1007,7 +1009,10 @@ class _BeeBottomBar extends ConsumerWidget {
                 child: Stack(
               children: [
                 if (artwork != null)
-                  Positioned.fill(child: IgnorePointer(child: artwork)),
+                  Positioned.fill(
+                    top: decorationHeight > 0 ? barHeight : 0,
+                    child: IgnorePointer(child: artwork),
+                  ),
                 // 皮肤的悬浮 tab 装饰层(垫在图标之下,不影响点按)
                 if (skin?.tabBarBuilder != null)
                   Positioned.fill(
@@ -1015,8 +1020,9 @@ class _BeeBottomBar extends ConsumerWidget {
                           child: SkinAnimationScope(
                               child:
                                   skin!.tabBarBuilder!(primaryColor, isDark)))),
-                Row(
-                  children: [
+                SizedBox(
+                  height: barHeight,
+                  child: Row(children: [
                     _buildTabItem(0, Icons.receipt_long_outlined,
                         Icons.receipt_long, l10n.tabHome, inactiveColor),
                     _buildTabItem(
@@ -1034,7 +1040,7 @@ class _BeeBottomBar extends ConsumerWidget {
                         l10n.tabAssets,
                         inactiveColor),
                     _buildAvatarTabItem(3, l10n.tabMine, inactiveColor),
-                  ],
+                  ]),
                 ),
               ],
             )),

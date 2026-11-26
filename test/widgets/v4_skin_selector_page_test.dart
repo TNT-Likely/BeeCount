@@ -20,53 +20,91 @@ import 'package:flutter/semantics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 
 class _TestPremiumSkins extends PremiumSkins {
-  static const id = 'test-premium';
+  static const id = 'test-premium', otherId = 'test-new-skin';
+  static const firstPack = 'legacy-pack', secondPack = 'second-pack';
   static const accent = Colors.deepPurple;
-  static final _catalog = [
-    PremiumSkin(
-      id: id,
-      name: '测试付费皮肤',
-      englishName: 'Test premium skin',
-      preview: (_) => const ColoredBox(color: accent),
-      colors: (_) => (accent: accent, onAccent: Colors.white),
-      scene: (_, __, child, ___) => ColoredBox(color: accent, child: child),
-    ),
+  static PremiumSkinCollection catalog(
+          String packId, String skinId, String cn, String tw) =>
+      PremiumSkinCollection(
+        id: packId,
+        name: cn,
+        traditionalName: tw,
+        englishName: packId,
+        skins: [
+          PremiumSkin(
+            id: skinId,
+            name: '$cn样本',
+            traditionalName: '$tw樣本',
+            englishName: skinId,
+            preview: (context) => ColoredBox(
+              key: ValueKey('thumbnail-$skinId-${TickerMode.of(context)}'),
+              color: accent,
+            ),
+            colors: (_) => (accent: accent, onAccent: Colors.white),
+            scene: (context, _, child, __) => ColoredBox(
+              key: ValueKey(
+                  'test-scene-$skinId-${Theme.of(context).brightness.name}'),
+              color: accent,
+              child: child,
+            ),
+          )
+        ],
+      );
+  @override
+  final collections = [
+    catalog(firstPack, id, '第一套', '第一套'),
+    catalog(secondPack, otherId, '冬季测试', '冬季測試'),
   ];
-
-  bool _owned = false;
+  final grants = <String>{};
+  final recoverable = {firstPack};
+  final prices = <String, String?>{firstPack: '¥12', secondPack: '¥18'};
+  String? lastPurchase;
   SkinAppearance _appearance = const SkinAppearance();
 
   @override
-  List<PremiumSkin> get skins => _catalog;
+  bool ownsPack(String packId) => grants.contains(packId);
   @override
-  bool get owned => _owned;
-  @override
-  String get price => '¥12';
+  String? priceForPack(String packId) => prices[packId];
   @override
   bool get canMakePayments => true;
   @override
-  bool get salesEnabled => true;
+  bool salesEnabledForPack(String packId) => true;
   @override
   SkinAppearance get appearance => _appearance;
 
   @override
-  Future<SkinPurchaseResult> purchase() async => SkinPurchaseResult.pending;
+  Future<SkinPurchaseResult> purchasePack(String packId) async {
+    lastPurchase = packId;
+    return SkinPurchaseResult.pending;
+  }
 
   @override
   Future<bool> restore() async {
-    _owned = true;
+    grants
+      ..clear()
+      ..addAll(recoverable);
     notifyListeners();
     return true;
   }
 
   @override
   Future<bool> select(String id, SkinAppearance value) async {
+    final pack = collectionForSkin(id);
+    if (pack == null || !ownsPack(pack.id)) return false;
     _appearance = value;
     notifyListeners();
     return true;
   }
+
+  @override
+  double navigationDecorationHeight(BuildContext context) => 32;
+
+  @override
+  Widget navigationArtwork(BuildContext context) =>
+      const ColoredBox(color: Colors.deepOrange);
 
   @override
   Future<void> clearSelection() async {
@@ -112,7 +150,10 @@ void main() {
     await db.close();
   });
   Future<void> mount(WidgetTester t,
-      {bool compact = false, Widget child = const HeaderSkinPage()}) async {
+      {bool compact = false,
+      bool reduceMotion = true,
+      Locale? locale,
+      Widget child = const HeaderSkinPage()}) async {
     t.view.devicePixelRatio = 1;
     t.view.physicalSize = compact ? const Size(320, 568) : const Size(398, 844);
     addTearDown(t.view.resetDevicePixelRatio);
@@ -124,13 +165,13 @@ void main() {
                 theme: beeTheme(
                     accent: ref.watch(displaySkinPrimaryColorProvider),
                     brightness: compact ? Brightness.dark : Brightness.light),
-                locale: Locale(compact ? 'en' : 'zh'),
+                locale: locale ?? Locale(compact ? 'en' : 'zh'),
                 supportedLocales: AppLocalizations.supportedLocales,
                 localizationsDelegates: AppLocalizations.localizationsDelegates,
                 builder: (c, w) => MediaQuery(
                     data: MediaQuery.of(c).copyWith(
                         textScaler: TextScaler.linear(compact ? 1.4 : 1),
-                        disableAnimations: true,
+                        disableAnimations: reduceMotion,
                         padding: const EdgeInsets.only(top: 24)),
                     child: PremiumSkinCanvas(child: w!)),
                 home: Scaffold(body: child)))));
@@ -293,17 +334,19 @@ void main() {
     expect(tile(_TestPremiumSkins.id), findsNothing);
     await tapVisible(t, find.text(loc.headerSkinTabAll));
     expect(
-        find.byKey(const ValueKey('autumn-collection-title')), findsOneWidget);
+        find.byKey(
+            const ValueKey('skin-collection-${_TestPremiumSkins.firstPack}')),
+        findsOneWidget);
     await tapVisible(t, tile(_TestPremiumSkins.id));
 
     expect(find.byKey(const ValueKey('official-apply')), findsNothing);
     await tapVisible(t, find.byKey(const ValueKey('official-buy-pack')));
-    expect(runtime.owned, isFalse);
+    expect(runtime.ownsPack(_TestPremiumSkins.firstPack), isFalse);
     expect(find.text('等待付款完成，稍后会自动更新'), findsOneWidget);
     expect(
         find.byKey(const ValueKey('official-redeem-preview')), findsOneWidget);
     await tapVisible(t, find.byKey(const ValueKey('official-restore-preview')));
-    expect(runtime.owned, isTrue);
+    expect(runtime.ownsPack(_TestPremiumSkins.firstPack), isTrue);
     final restoreMessage = find.byKey(const ValueKey('official-store-message'));
     expect(t.widget<Text>(restoreMessage).data, contains('已恢复购买'));
     final ok =
@@ -321,9 +364,99 @@ void main() {
     await tapVisible(t, tile('aurora'));
     await applyPreview(t, 'aurora');
     expect(runtime.active, isFalse);
-    expect(runtime.owned, isTrue);
+    expect(runtime.ownsPack(_TestPremiumSkins.firstPack), isTrue);
     expect(container.read(displaySkinPrimaryColorProvider), freeColor);
     expect(t.takeException(), isNull);
+  });
+
+  testWidgets('两个合集分别显示价格与权益，只恢复秋日时冬日仍可试穿', (t) async {
+    final runtime = _TestPremiumSkins();
+    await runtime.restore();
+    container.dispose();
+    container = await makeContainer(premium: runtime);
+    await mount(t);
+    expect(find.text('已购 · 1 款'), findsOneWidget);
+    expect(find.text('1 款合集 · ¥18'), findsOneWidget);
+    await tapVisible(t, tile(_TestPremiumSkins.otherId));
+    expect(find.text('解锁 1 款 · ¥18'), findsOneWidget);
+    await tapVisible(t, find.byKey(const ValueKey('skin-preview-expand')));
+    final full = find.byKey(const ValueKey('skin-preview-full'));
+    expect(full, findsOneWidget);
+    await tapVisible(t, find.byKey(const ValueKey('skin-preview-dark')));
+    expect(
+        find.descendant(
+            of: full,
+            matching: find.byKey(const ValueKey(
+                'test-scene-${_TestPremiumSkins.otherId}-dark'))),
+        findsOneWidget);
+    final dock = find.byKey(const ValueKey('skin-preview-dock'));
+    final band = find.byKey(const ValueKey('skin-preview-decoration'));
+    expect(t.getSize(band).height, 32);
+    for (final name in ['明细', '洞察', '记账', '资产', '我的']) {
+      final label = find.descendant(of: dock, matching: find.text(name));
+      expect(
+          t.getBottomLeft(label).dy, lessThanOrEqualTo(t.getTopLeft(band).dy));
+    }
+    await tapVisible(t, find.byKey(const ValueKey('skin-preview-close')));
+    await t.pumpAndSettle();
+    await tapVisible(t, find.byKey(const ValueKey('official-buy-pack')));
+    expect(runtime.lastPurchase, _TestPremiumSkins.secondPack);
+    expect(runtime.appearance.skinId, isNull);
+    await tapVisible(t, find.byKey(const ValueKey('official-restore-preview')));
+    final message = find.byKey(const ValueKey('official-store-message'));
+    expect(t.widget<Text>(message).data, contains('可用合集为「第一套」'));
+    expect(t.widget<Text>(message).data, contains('未找到「冬季测试」'));
+    await tapVisible(t,
+        find.text(MaterialLocalizations.of(t.element(message)).okButtonLabel));
+    expect(find.byKey(const ValueKey('official-apply')), findsNothing);
+    runtime.recoverable.add(_TestPremiumSkins.secondPack);
+    await tapVisible(t, find.byKey(const ValueKey('official-restore-preview')));
+    await tapVisible(t,
+        find.text(MaterialLocalizations.of(t.element(message)).okButtonLabel));
+    await tapVisible(t, find.byKey(const ValueKey('official-apply')));
+    expect(runtime.selectedSkin?.id, _TestPremiumSkins.otherId);
+    runtime.recoverable.remove(_TestPremiumSkins.secondPack);
+    await runtime.restore();
+    await t.pumpAndSettle();
+    expect(runtime.selectedSkin, isNull);
+    expect(runtime.ownsPack(_TestPremiumSkins.firstPack), isTrue);
+    expect(t.takeException(), isNull);
+  });
+
+  testWidgets('滚入屏幕才开预览时钟，打开试穿和系统减弱动态都暂停', (t) async {
+    final originalInterval =
+        VisibilityDetectorController.instance.updateInterval;
+    VisibilityDetectorController.instance.updateInterval = Duration.zero;
+    addTearDown(() => VisibilityDetectorController.instance.updateInterval =
+        originalInterval);
+    final runtime = _TestPremiumSkins();
+    container.dispose();
+    container = await makeContainer(premium: runtime);
+    await mount(t, compact: true, reduceMotion: false);
+    final id = _TestPremiumSkins.otherId;
+    Future<void> settleVisible() async {
+      await t.pump(const Duration(milliseconds: 350));
+      await t.pump(const Duration(milliseconds: 50));
+    }
+
+    await t.ensureVisible(tile(id));
+    await settleVisible();
+    expect(find.byKey(ValueKey('thumbnail-$id-true')), findsOneWidget);
+    await t.ensureVisible(tile('none'));
+    await settleVisible();
+    expect(find.byKey(ValueKey('thumbnail-$id-false')), findsOneWidget);
+    await t.ensureVisible(tile(id));
+    await settleVisible();
+    await t.tap(tile(id));
+    await settleVisible();
+    expect(find.byKey(ValueKey('thumbnail-$id-false')), findsOneWidget);
+    await t.tap(find.byType(CloseButton));
+    await settleVisible();
+    await mount(t, locale: const Locale('zh', 'TW'));
+    await t.ensureVisible(tile(id));
+    await t.pumpAndSettle();
+    expect(find.text('冬季測試樣本'), findsOneWidget);
+    expect(find.byKey(ValueKey('thumbnail-$id-false')), findsOneWidget);
   });
 
   testWidgets('原预览实际绑定色、暗底、移除状态栏留白，纯组件回调不写真实偏好', (t) async {
