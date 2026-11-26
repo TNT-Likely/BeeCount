@@ -144,10 +144,6 @@ class _AppStoreSkins extends PremiumSkins {
       const SkinNavigationArtwork();
 
   @override
-  double navigationDecorationHeight(BuildContext context) =>
-      SkinNavigationArtwork.decorationHeightOf(context);
-
-  @override
   void dispose() {
     _runtime.removeListener(notifyListeners);
     super.dispose();

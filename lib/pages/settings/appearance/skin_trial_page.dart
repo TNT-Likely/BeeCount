@@ -1,11 +1,11 @@
 import 'package:beecount_business_ui/beecount_business_ui.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../l10n/app_localizations.dart';
 import '../../../skins/premium_skins.dart';
 import '../../shared/branding/bee_artwork.dart';
+import '../../shared/navigation/ledger_tab_bar.dart';
 
 /// A sample ledger inside the same scene and navigation painters used by the App.
 class SkinTrialPage extends StatefulWidget {
@@ -27,6 +27,7 @@ class SkinTrialPage extends StatefulWidget {
 }
 
 class _SkinTrialPageState extends State<SkinTrialPage> {
+  static const _ledgerSize = Size(390, 844);
   late Brightness _tone = widget.initialTone;
 
   void _switchTone(Brightness value) {
@@ -68,18 +69,23 @@ class _SkinTrialPageState extends State<SkinTrialPage> {
           padding: const EdgeInsets.fromLTRB(6, 2, 6, 6),
           child: Center(
             child: AspectRatio(
-              aspectRatio: 390 / 844,
+              aspectRatio: _ledgerSize.aspectRatio,
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(19),
-                child: Theme(
-                  data: base,
-                  child: Builder(
-                      builder: (context) => widget.skin.scene(
-                            context,
-                            widget.appearance,
-                            const _TrialLedger(),
-                            0,
-                          )),
+                child: FittedBox(
+                  child: SizedBox.fromSize(
+                    size: _ledgerSize,
+                    child: Theme(
+                      data: base,
+                      child: Builder(
+                          builder: (context) => widget.skin.scene(
+                                context,
+                                widget.appearance,
+                                const _TrialLedger(),
+                                0,
+                              )),
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -103,15 +109,15 @@ class _TrialLedger extends StatelessWidget {
       (Icons.coffee_outlined, l.skinPreviewCoffee, '−18.50'),
       (Icons.work_outline, l.skinPreviewIncome, '+3,000.00'),
     ];
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 4, 12, 6),
-      child: Column(children: [
-        Expanded(
+    return Column(children: [
+      Expanded(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 4, 12, 0),
           child: CustomScrollView(
             slivers: [
               SliverToBoxAdapter(
-                  child: SizedBox(
-                height: 75,
+                  child: ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: 75),
                 child: Row(children: [
                   BeeIcon(size: 27, color: theme.colorScheme.primary),
                   const SizedBox(width: 8),
@@ -175,70 +181,17 @@ class _TrialLedger extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: 7),
-        const _TrialDock(),
-      ]),
-    );
-  }
-}
-
-class _TrialDock extends ConsumerWidget {
-  const _TrialDock();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l = AppLocalizations.of(context);
-    final runtime = ref.watch(premiumSkinsProvider);
-    final artwork = runtime.navigationArtwork(context);
-    final height = runtime.navigationDecorationHeight(context);
-    final colors = Theme.of(context).colorScheme;
-    final tabs = [
-      (Icons.receipt_long_outlined, l.tabHome),
-      (Icons.pie_chart_outline_rounded, l.tabInsights),
-      (Icons.add_circle_outline, l.tabRecord),
-      (Icons.account_balance_wallet_outlined, l.tabAssets),
-      (Icons.person_outline, l.tabMine),
-    ];
-    return ClipRRect(
-      key: const ValueKey('skin-preview-dock'),
-      borderRadius: BorderRadius.circular(20),
-      child: ColoredBox(
-        color: Color.alphaBlend(
-            colors.primary.withValues(alpha: .07), colors.surface),
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          SizedBox(
-            height: 50,
-            child: Stack(fit: StackFit.expand, children: [
-              if (height == 0 && artwork != null) IgnorePointer(child: artwork),
-              Row(children: [
-                for (final tab in tabs)
-                  Expanded(
-                      child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                        Icon(tab.$1,
-                            size: 18,
-                            color: tab == tabs.first
-                                ? colors.primary
-                                : colors.onSurfaceVariant),
-                        Text(tab.$2,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                                fontSize: 10, color: colors.onSurface)),
-                      ])),
-              ]),
-            ]),
-          ),
-          if (height > 0 && artwork != null)
-            SizedBox(
-              key: const ValueKey('skin-preview-decoration'),
-              height: height,
-              width: double.infinity,
-              child: IgnorePointer(child: artwork),
-            ),
-        ]),
       ),
-    );
+      const SizedBox(height: 7),
+      LedgerTabBar(
+        key: const ValueKey('skin-preview-dock'),
+        currentIndex: 0,
+        primaryColor: theme.colorScheme.primary,
+        isDark: theme.brightness == Brightness.dark,
+        bottomPadding: 0,
+        l10n: l,
+        previewPaidSkin: true,
+      ),
+    ]);
   }
 }

@@ -7,6 +7,7 @@ import 'package:beecount/pages/settings/appearance/skin_editor.dart';
 import 'package:beecount/pages/settings/appearance_settings_page.dart';
 import 'package:beecount/pages/settings/header_skin_page.dart';
 import 'package:beecount/pages/settings/appearance/bindings/skin_choices.dart';
+import 'package:beecount/pages/shared/navigation/ledger_tab_bar.dart';
 import 'package:beecount/dev/component_gallery/bindings/skin_preview.dart';
 import 'package:beecount/providers.dart';
 import 'package:beecount/skins/premium_skin_canvas.dart';
@@ -100,11 +101,8 @@ class _TestPremiumSkins extends PremiumSkins {
   }
 
   @override
-  double navigationDecorationHeight(BuildContext context) => 32;
-
-  @override
-  Widget navigationArtwork(BuildContext context) =>
-      const ColoredBox(color: Colors.deepOrange);
+  Widget navigationArtwork(BuildContext context) => const ColoredBox(
+      key: ValueKey('test-navigation-artwork'), color: Colors.deepOrange);
 
   @override
   Future<void> clearSelection() async {
@@ -177,6 +175,49 @@ void main() {
                 home: Scaffold(body: child)))));
     await t.pump(const Duration(milliseconds: 500));
     await t.pump(const Duration(milliseconds: 500));
+  }
+
+  List<Rect> checkTabGeometry(WidgetTester t, Finder dock) {
+    final bar = t.widget<LedgerTabBar>(dock);
+    final capsule = find.descendant(of: dock, matching: find.byType(ClipRRect));
+    final clip = t.renderObject<RenderBox>(capsule);
+    final root = t.renderObject<RenderBox>(dock);
+    final inset = root.globalToLocal(clip.localToGlobal(Offset.zero));
+    expect(inset.dx, closeTo(16, .001));
+    expect(inset.dy, closeTo(0, .001));
+    expect(clip.size.width, closeTo(root.size.width - 32, .001));
+    expect(clip.size.height, 56);
+    expect(root.size.height - inset.dy - clip.size.height,
+        closeTo(12 + bar.bottomPadding, .001));
+    expect(
+        t.widget<ClipRRect>(capsule).borderRadius, BorderRadius.circular(28));
+    final targets =
+        find.descendant(of: dock, matching: find.byType(GestureDetector));
+    expect(targets, findsNWidgets(5));
+    final regions = <Rect>[];
+    final labels = [
+      bar.l10n.tabHome,
+      bar.l10n.tabInsights,
+      bar.l10n.tabRecord,
+      bar.l10n.tabAssets,
+      bar.l10n.tabMine
+    ];
+    for (var i = 0; i < 5; i++) {
+      final target = t.renderObject<RenderBox>(targets.at(i));
+      final rect =
+          clip.globalToLocal(target.localToGlobal(Offset.zero)) & target.size;
+      regions.add(rect);
+      expect(rect.center.dx, closeTo(clip.size.width * (i + .5) / 5, .001));
+      expect(rect.center.dy, closeTo(28, .001));
+      expect(rect.height, 56);
+      expect(rect.width, closeTo(clip.size.width / 5, .001));
+      final label = t.widget<Text>(
+          find.descendant(of: targets.at(i), matching: find.text(labels[i])));
+      expect(label.style?.fontSize, 10);
+      expect(
+          label.style?.fontWeight, i == 0 ? FontWeight.w600 : FontWeight.w400);
+    }
+    return regions;
   }
 
   AppLocalizations l(WidgetTester t) =>
@@ -390,13 +431,12 @@ void main() {
                 'test-scene-${_TestPremiumSkins.otherId}-dark'))),
         findsOneWidget);
     final dock = find.byKey(const ValueKey('skin-preview-dock'));
-    final band = find.byKey(const ValueKey('skin-preview-decoration'));
-    expect(t.getSize(band).height, 32);
-    for (final name in ['明细', '洞察', '记账', '资产', '我的']) {
-      final label = find.descendant(of: dock, matching: find.text(name));
-      expect(
-          t.getBottomLeft(label).dy, lessThanOrEqualTo(t.getTopLeft(band).dy));
-    }
+    checkTabGeometry(t, dock);
+    expect(
+        find.descendant(
+            of: dock,
+            matching: find.byKey(const ValueKey('test-navigation-artwork'))),
+        findsOneWidget);
     await tapVisible(t, find.byKey(const ValueKey('skin-preview-close')));
     await t.pumpAndSettle();
     await tapVisible(t, find.byKey(const ValueKey('official-buy-pack')));
@@ -420,6 +460,66 @@ void main() {
     await t.pumpAndSettle();
     expect(runtime.selectedSkin, isNull);
     expect(runtime.ownsPack(_TestPremiumSkins.firstPack), isTrue);
+    expect(t.takeException(), isNull);
+  });
+
+  testWidgets('应用冬日皮肤前后保留原版胶囊尺寸、标签与五个点击区域', (t) async {
+    final runtime = _TestPremiumSkins();
+    container.dispose();
+    container = await makeContainer(premium: runtime);
+    final taps = <int>[];
+    await mount(t,
+        child: Align(
+          alignment: Alignment.bottomCenter,
+          child: Builder(
+              builder: (context) => LedgerTabBar(
+                    currentIndex: 0,
+                    primaryColor: Theme.of(context).colorScheme.primary,
+                    isDark: false,
+                    bottomPadding: 34,
+                    l10n: AppLocalizations.of(context),
+                    onTabTap: taps.add,
+                    onCenterTap: () => taps.add(-1),
+                  )),
+        ));
+    final dock = find.byType(LedgerTabBar);
+    final art = find.byKey(const ValueKey('test-navigation-artwork'));
+    final original = checkTabGeometry(t, dock);
+    expect(art, findsNothing);
+    runtime.grants.add(_TestPremiumSkins.secondPack);
+    await runtime.select(_TestPremiumSkins.otherId,
+        const SkinAppearance(skinId: _TestPremiumSkins.otherId));
+    await t.pumpAndSettle();
+    expect(checkTabGeometry(t, dock), original);
+    expect(art, findsOneWidget);
+    expect(t.getSize(art),
+        t.getSize(find.descendant(of: dock, matching: find.byType(ClipRRect))));
+    final targets =
+        find.descendant(of: dock, matching: find.byType(GestureDetector));
+    for (var i = 0; i < 5; i++) {
+      await t.tap(targets.at(i));
+    }
+    expect(taps, [0, 1, -1, 2, 3]);
+    expect(t.takeException(), isNull);
+  });
+
+  testWidgets('窄屏长预览等比缩放真实底栏，五个标签均保留', (t) async {
+    final runtime = _TestPremiumSkins();
+    container.dispose();
+    container = await makeContainer(premium: runtime);
+    await mount(t, compact: true, locale: const Locale('en'));
+    await tapVisible(t, tile(_TestPremiumSkins.otherId));
+    await tapVisible(t, find.byKey(const ValueKey('skin-preview-expand')));
+    final dock = find.byKey(const ValueKey('skin-preview-dock'));
+    checkTabGeometry(t, dock);
+    final capsule = find.descendant(of: dock, matching: find.byType(ClipRRect));
+    final projectedWidth = t.getTopRight(capsule).dx - t.getTopLeft(capsule).dx;
+    expect(projectedWidth, lessThan(t.getSize(capsule).width));
+    final stats = t.widget<LedgerTabBar>(dock).l10n.tabInsights;
+    expect(find.descendant(of: dock, matching: find.text(stats)).hitTestable(),
+        findsOneWidget);
+    await tapVisible(t, find.byKey(const ValueKey('skin-preview-close')));
+    expect(find.byType(SkinEditor), findsOneWidget);
     expect(t.takeException(), isNull);
   });
 

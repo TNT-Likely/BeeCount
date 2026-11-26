@@ -100,7 +100,6 @@ class PremiumSkins extends ChangeNotifier {
   }
 
   Widget? navigationArtwork(BuildContext context) => null;
-  double navigationDecorationHeight(BuildContext context) => 0;
 }
 
 final premiumSkinsProvider =
