@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/dashboard_actions"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <FrameLayout
+        android:id="@+id/widget_click"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="82" />
+    <FrameLayout
+        android:id="@+id/click_quick_add"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="18" />
+</LinearLayout>

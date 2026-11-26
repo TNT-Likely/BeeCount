@@ -1,40 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- A tall launcher cell letterboxes the card. Size the tap regions to the
-         artwork's measured height so the visible bottom button stays tappable. -->
-    <FrameLayout
-        android:id="@+id/dashboard_artwork_bounds"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true">
-        <ImageView
-            style="@style/WidgetArtworkImage"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:adjustViewBounds="true"
-            android:scaleType="fitCenter"
-            android:contentDescription="Widget content" />
-    </FrameLayout>
-
-    <LinearLayout
+    <ImageView
+        style="@style/WidgetArtworkImage"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_alignTop="@id/dashboard_artwork_bounds"
-        android:layout_alignBottom="@id/dashboard_artwork_bounds"
-        android:orientation="vertical">
-        <FrameLayout
-            android:id="@+id/widget_click"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="82" />
-        <FrameLayout
-            android:id="@+id/click_quick_add"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="18" />
-    </LinearLayout>
-</RelativeLayout>
+        android:scaleType="fitCenter"
+        android:contentDescription="Widget content" />
+
+    <FrameLayout
+        android:id="@+id/dashboard_action_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+</FrameLayout>

@@ -6,6 +6,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.net.Uri
+import android.os.Bundle
+import kotlin.math.roundToInt
 import android.util.Log
 import android.widget.RemoteViews
 import es.antonborri.home_widget.HomeWidgetProvider
@@ -47,14 +49,16 @@ class BeeCountDashboardWidgetProvider : HomeWidgetProvider() {
                             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                         )
                         setOnClickPendingIntent(R.id.widget_root, detailPending)
-                        setOnClickPendingIntent(R.id.widget_click, detailPending)
 
                         val expenseIntent = createLaunchIntentWithDeepLink(context, "beecount://new?type=expense")
                         val expensePending = PendingIntent.getActivity(
                             context, widgetId * 10 + 2, expenseIntent,
                             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                         )
-                        setOnClickPendingIntent(R.id.click_quick_add, expensePending)
+                        val options = appWidgetManager.getAppWidgetOptions(widgetId)
+                        removeAllViews(R.id.dashboard_action_container)
+                        addView(R.id.dashboard_action_container,
+                            dashboardActions(context, options, detailPending, expensePending))
                         Log.d(TAG, "Set click handlers (detail + quick add)")
                     } catch (e: Exception) {
                         Log.e(TAG, "Failed to set click", e)
@@ -69,6 +73,12 @@ class BeeCountDashboardWidgetProvider : HomeWidgetProvider() {
         }
     }
 
+    override fun onAppWidgetOptionsChanged(context: Context, manager: AppWidgetManager,
+                                           id: Int, newOptions: Bundle) {
+        super.onAppWidgetOptionsChanged(context, manager, id, newOptions)
+        onUpdate(context, manager, intArrayOf(id))
+    }
+
     private fun createLaunchIntentWithDeepLink(context: Context, url: String): Intent {
         // 使用 launch intent 确保能打开 App，同时携带 deep link 数据
         val intent = context.packageManager.getLaunchIntentForPackage(context.packageName)
@@ -79,4 +89,27 @@ class BeeCountDashboardWidgetProvider : HomeWidgetProvider() {
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
         return intent
     }
+}
+
+/** Keep the same 82/18 split as DashboardView, inside the fit-center image. */
+internal fun dashboardActions(context: Context, options: Bundle,
+                              detail: PendingIntent?, expense: PendingIntent?): RemoteViews {
+    val density = context.resources.displayMetrics.density
+    fun inset(width: Int, height: Int): Int {
+        if (width <= 0 || height <= 0) return 0
+        return ((height - width * 382f / 364f).coerceAtLeast(0f) * density / 2).roundToInt()
+    }
+    fun actions(padding: Int) = RemoteViews(context.packageName, R.layout.dashboard_widget_actions).apply {
+        setViewPadding(R.id.dashboard_actions, 0, padding, 0, padding)
+        setOnClickPendingIntent(R.id.widget_click, detail)
+        setOnClickPendingIntent(R.id.click_quick_add, expense)
+    }
+    // A host gives the minimum width and maximum height for portrait, the
+    // reverse for landscape. Unknown dimensions retain the full-cell split.
+    val portrait = inset(options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH),
+        options.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT))
+    val landscape = inset(options.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH),
+        options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT))
+    return if (portrait == landscape) actions(portrait)
+    else RemoteViews(actions(landscape), actions(portrait))
 }
