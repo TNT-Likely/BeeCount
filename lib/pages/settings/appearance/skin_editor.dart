@@ -271,7 +271,12 @@ class _SkinEditorState extends ConsumerState<SkinEditor> {
                     alignment: WrapAlignment.spaceBetween,
                     crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
-                      Text(details, style: base.textTheme.bodySmall),
+                      Wrap(spacing: 8, children: [
+                        if (collection != null)
+                          Text(collection.nameOf(context),
+                              style: base.textTheme.labelMedium),
+                        Text(details, style: base.textTheme.bodySmall),
+                      ]),
                       if (skin != null)
                         TextButton.icon(
                           key: const ValueKey('skin-preview-expand'),

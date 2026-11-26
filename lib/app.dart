@@ -846,73 +846,67 @@ class _BeeAppState extends ConsumerState<BeeApp>
           SystemNavigator.pop();
         }
       },
-      child: Stack(
-        children: [
-          Scaffold(
-            extendBody: true, // 让页面内容延伸到底部栏后面
-            // IndexedStack 靠 Offstage 藏起非当前页,而 **Offstage 不会停
-            // Ticker** —— 五个页面的 header 皮肤会同时满帧跑,在 ProMotion
-            // 机型上就是 5×120fps 的持续重绘,机器明显发烫。
-            //
-            // TickerMode 关掉后,非当前页的 AnimationController 被 mute(仍
-            // isAnimating,只是不再 tick),切回来自动恢复。动态皮肤是最先
-            // 暴露这个问题的,但收益覆盖所有页内动画。
-            body: IndexedStack(
-              index: idx,
-              children: [
-                for (var i = 0; i < _pages.length; i++)
-                  TickerMode(enabled: i == idx, child: _pages[i]),
-              ],
-            ),
-            bottomNavigationBar: _BeeBottomBar(
-              currentIndex: idx,
-              primaryColor: primaryColor,
-              isDark: isDark,
-              bottomPadding: bottomPadding,
-              l10n: l10n,
-              avatarPath: avatarPath,
-              skin: headerSkin,
-              centerButtonKey: _centerButtonKey,
-              onTabTap: (index) {
-                final now = DateTime.now();
-                if (_lastTappedIndex == index &&
-                    _lastTapTime != null &&
-                    now.difference(_lastTapTime!) <
-                        const Duration(milliseconds: 300)) {
-                  if (index == 0) {
-                    ref.read(homeScrollToTopProvider.notifier).state++;
-                  }
-                  _lastTapTime = null;
-                  _lastTappedIndex = null;
-                } else {
-                  _lastTapTime = now;
-                  _lastTappedIndex = index;
-                  ref.read(bottomTabIndexProvider.notifier).state = index;
-                }
-              },
-              onCenterTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const TransactionEditorPage(
-                      initialKind: 'expense',
-                      quickAdd: true,
-                    ),
-                  ),
-                );
-              },
-              onCenterLongPressStart: _onLongPressStart,
-              onCenterLongPressMoveUpdate: _onLongPressMoveUpdate,
-              onCenterLongPressEnd: _onLongPressEnd,
-            ),
-          ),
-          // 开发模式下的主题切换按钮
-          if (kDebugMode &&
-              !const bool.fromEnvironment('BEECOUNT_V4_RECORDING'))
-            Positioned(
-              right: 16,
-              bottom: 100,
-              child: FloatingActionButton.small(
+      child: Scaffold(
+        extendBody: true, // 让页面内容延伸到底部栏后面
+        // IndexedStack 靠 Offstage 藏起非当前页,而 **Offstage 不会停
+        // Ticker** —— 五个页面的 header 皮肤会同时满帧跑,在 ProMotion
+        // 机型上就是 5×120fps 的持续重绘,机器明显发烫。
+        //
+        // TickerMode 关掉后,非当前页的 AnimationController 被 mute(仍
+        // isAnimating,只是不再 tick),切回来自动恢复。动态皮肤是最先
+        // 暴露这个问题的,但收益覆盖所有页内动画。
+        body: IndexedStack(
+          index: idx,
+          children: [
+            for (var i = 0; i < _pages.length; i++)
+              TickerMode(enabled: i == idx, child: _pages[i]),
+          ],
+        ),
+        bottomNavigationBar: _BeeBottomBar(
+          currentIndex: idx,
+          primaryColor: primaryColor,
+          isDark: isDark,
+          bottomPadding: bottomPadding,
+          l10n: l10n,
+          avatarPath: avatarPath,
+          skin: headerSkin,
+          centerButtonKey: _centerButtonKey,
+          onTabTap: (index) {
+            final now = DateTime.now();
+            if (_lastTappedIndex == index &&
+                _lastTapTime != null &&
+                now.difference(_lastTapTime!) <
+                    const Duration(milliseconds: 300)) {
+              if (index == 0) {
+                ref.read(homeScrollToTopProvider.notifier).state++;
+              }
+              _lastTapTime = null;
+              _lastTappedIndex = null;
+            } else {
+              _lastTapTime = now;
+              _lastTappedIndex = index;
+              ref.read(bottomTabIndexProvider.notifier).state = index;
+            }
+          },
+          onCenterTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const TransactionEditorPage(
+                  initialKind: 'expense',
+                  quickAdd: true,
+                ),
+              ),
+            );
+          },
+          onCenterLongPressStart: _onLongPressStart,
+          onCenterLongPressMoveUpdate: _onLongPressMoveUpdate,
+          onCenterLongPressEnd: _onLongPressEnd,
+        ),
+        // Scaffold 随导航栏实际高度摆放按钮，避免遮挡「我的」。
+        floatingActionButton: kDebugMode &&
+                !const bool.fromEnvironment('BEECOUNT_V4_RECORDING')
+            ? FloatingActionButton.small(
                 heroTag: 'themeSwitcher',
                 backgroundColor: Theme.of(context).brightness == Brightness.dark
                     ? Colors.white
@@ -932,9 +926,8 @@ class _BeeAppState extends ConsumerState<BeeApp>
                       ? Colors.black
                       : Colors.white,
                 ),
-              ),
-            ),
-        ],
+              )
+            : null,
       ),
     );
   }
