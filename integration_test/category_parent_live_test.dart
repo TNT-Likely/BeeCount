@@ -173,6 +173,13 @@ void main() {
       await tester.pump(const Duration(milliseconds: 600));
     }
 
+    Future<void> openParentDialog(String parentName) async {
+      await waitUi(() => find.text(parentName).evaluate().isNotEmpty);
+      if (find.text('管理').evaluate().isEmpty) await tapText(parentName);
+      await tapText('管理');
+      await waitUi(() => find.byType(Dialog).evaluate().isNotEmpty);
+    }
+
     Future<void> capture(String name) async {
       await tester.pump(const Duration(milliseconds: 400));
       await Future<void>.delayed(const Duration(milliseconds: 300));
@@ -211,7 +218,7 @@ void main() {
     await tapText('数据管理');
     await tapText('分类管理');
     await waitUi(() => find.byType(CategoryManagePage).evaluate().isNotEmpty);
-    await tapText('QA餐饮');
+    await openParentDialog('QA餐饮');
     await waitUi(() =>
         find.text('QA早餐').evaluate().isNotEmpty &&
         find.text('QA午餐').evaluate().isNotEmpty);
@@ -246,7 +253,7 @@ void main() {
         (initial['categories'] as List).length);
     pass('C02',
         'Actual App category-management UI renamed the parent; real Cloud snapshot kept both children and the same stable parent ID');
-    await tapText('QA App伙食');
+    await openParentDialog('QA App伙食');
     await waitUi(() =>
         find.text('QA早餐').evaluate().isNotEmpty &&
         find.text('QA午餐').evaluate().isNotEmpty);
@@ -261,7 +268,7 @@ void main() {
     for (final id in [breakfast, lunch]) {
       expect((await repo.getCategoryById(id))!.parentId, parentId);
     }
-    await tapText('QA Web伙食');
+    await openParentDialog('QA Web伙食');
     await waitUi(() =>
         find.text('QA早餐').evaluate().isNotEmpty &&
         find.text('QA午餐').evaluate().isNotEmpty);
@@ -300,7 +307,7 @@ void main() {
     expect((await repo.getTransactionById(txId))!.categoryId, breakfast);
     pass('C06',
         'Existing transaction identity, amount, count and child-category association were preserved');
-    await tapText('QA Web伙食');
+    await openParentDialog('QA Web伙食');
     await waitUi(() => find.text('QA早饭').evaluate().isNotEmpty);
     await capture('04-app-after-web-child-edit');
     Navigator.of(tester.element(find.byType(Dialog).first))
