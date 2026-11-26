@@ -22,7 +22,6 @@ import '../../utils/format_utils.dart';
 import '../../services/billing/post_processor.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/budget_providers.dart';
-import '../../widget/widget_manager.dart';
 
 import 'package:beecount_business_ui/beecount_business_ui.dart';
 import '../shared/selectors/currency_picker_sheet.dart';

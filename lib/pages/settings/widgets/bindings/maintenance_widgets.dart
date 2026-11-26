@@ -41,7 +41,7 @@ import '../../data/bindings/maintenance_access.dart';
 ///
 /// 示例数据是纯本地常量(见文件末尾 `_sample*` 系列函数),不查询
 /// repository/数据库——这里只是"预览长什么样",不是"预览我的真实数据";真正
-/// 添加到桌面后的组件由 `WidgetManager.updateAllWidgets` 取真实数据渲染。
+/// 添加到桌面后的组件由 `WidgetManager.updateAllWidgetsLocalized` 取真实数据渲染。
 class MaintenanceWidgetsControls extends ConsumerWidget {
   const MaintenanceWidgetsControls({super.key});
 

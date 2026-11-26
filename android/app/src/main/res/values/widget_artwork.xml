@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item type="id" name="widget_image" />
+    <item type="id" name="widget_image_dark" />
+    <style name="WidgetArtworkImage">
+        <item name="android:id">@id/widget_image</item>
+    </style>
+</resources>

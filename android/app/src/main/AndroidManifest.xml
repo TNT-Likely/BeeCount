@@ -122,6 +122,12 @@
         </receiver>
 
         <!-- 桌面小组件 -->
+        <receiver android:name=".WidgetLocaleReceiver" android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.LOCALE_CHANGED" />
+            </intent-filter>
+        </receiver>
+
         <receiver android:name="com.tntlikely.beecount.BeeCountWidgetProvider"
             android:label="@string/widget_name"
             android:exported="true">

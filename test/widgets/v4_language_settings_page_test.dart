@@ -14,12 +14,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // Only the OS widget renderer is captured; the page, language notifier,
-// preference writes, localization resolution and updateAppWidget mapping are real.
+// preference writes and the root widget-settings subscription are real.
 class _WidgetRenderer implements WidgetManager {
   final List<Invocation> updates = [];
   @override
   dynamic noSuchMethod(Invocation invocation) {
-    if (invocation.memberName == #updateAllWidgets) {
+    if (invocation.memberName == #updateAllWidgetsLocalized) {
       updates.add(invocation);
       return Future<void>.value();
     }
@@ -74,6 +74,10 @@ void main() {
                   home: const LanguageSettingsPage(),
                 ))));
     await t.pumpAndSettle();
+    listenForAppWidgetUpdates(container);
+    container.read(appInitStateProvider.notifier).state = AppInitState.ready;
+    await t.pump();
+    renderer.updates.clear();
   }
 
   Future<void> choose(WidgetTester t, int index) async {
@@ -104,8 +108,7 @@ void main() {
       expect(prefs.getString('selected_language_country'), row.$2.countryCode);
       final translated = lookupAppLocalizations(row.$2);
       expect(resolveAppLocalizations(null).localeName, translated.localeName);
-      expect(renderer.updates.last.namedArguments[#glanceTitleLabel],
-          translated.widgetGalleryGlanceTitle);
+      expect(renderer.updates.last.namedArguments[#explicitLocale], row.$2);
       expect(
           t
               .widget<BeeOnboardingChoice>(
@@ -121,8 +124,26 @@ void main() {
     expect(await db.customSelect('SELECT * FROM ledgers').get(), hasLength(1));
     expect(await db.customSelect('SELECT * FROM transactions').get(), isEmpty);
     expect(renderer.updates, hasLength(6));
+    expect(renderer.updates.last.namedArguments[#explicitLocale], isNull);
     await t.pumpWidget(const SizedBox.shrink());
   });
+  testWidgets('退出设置页后，明暗和主题色变化仍通知桌面', (t) async {
+    await open(t);
+    await t.pumpWidget(UncontrolledProviderScope(
+        container: container, child: const SizedBox.shrink()));
+    container.read(themeModeProvider.notifier).state = ThemeMode.dark;
+    await t.pump();
+    expect(renderer.updates.last.namedArguments[#themeMode], ThemeMode.dark);
+    expect(renderer.updates.last.namedArguments[#warmUpAllSpecs], isTrue);
+    const accent = Color(0xFF397A73);
+    container.read(primaryColorProvider.notifier).state = accent;
+    await t.pump();
+    expect(renderer.updates.last.positionalArguments.last, accent);
+    expect(renderer.updates.last.namedArguments[#darkThemeColor], accent);
+    expect(renderer.updates.last.namedArguments[#explicitLocale],
+        const Locale('zh'));
+  });
+
   testWidgets('重新创建Provider从真实偏好恢复俄语选中态', (t) async {
     await open(t);
     await choose(t, 5);

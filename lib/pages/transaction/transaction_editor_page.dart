@@ -422,7 +422,7 @@ class _TransactionEditorPageState extends ConsumerState<TransactionEditorPage> {
         onCreated: (id) => _retryTransactionId = id);
     // 更新小组件数据（后台执行，不阻塞UI）
     if (mounted) {
-      updateAppWidget(ref, context);
+      updateAppWidget(ref);
     }
     _retryTransactionId = null;
     if (res.continueAdding && mounted) {

@@ -596,7 +596,7 @@ class WidgetDataService {
   }
 }
 
-/// 一次渲染批次(`WidgetManager.updateAllWidgets` 单次调用)内的取数缓存。
+/// 一次渲染批次(`WidgetManager.updateAllWidgetsLocalized` 单次调用)内的取数缓存。
 ///
 /// 同一类型多个尺寸的 spec、以及 dashboard 对 glance/趋势/最近交易/常用分类
 /// 的复用,原本各自独立调用 `WidgetDataService.gather*`——预热(warm-up)
@@ -605,7 +605,7 @@ class WidgetDataService {
 /// 耗时来源。本类把每种数据在一个批次内压到只查一次:memoize 的是 Future
 /// 本身——首个调用者触发查询,后续调用共享同一个 Future,天然并发安全。
 ///
-/// 生命周期 = 一个批次:每次 `updateAllWidgets` 新建一个,批次结束即丢弃,
+/// 生命周期 = 一个批次:每批新建一个,批次结束即丢弃,
 /// 不做跨批次缓存(数据新鲜度优先,批次间数据本来就可能已变化)。
 class WidgetGatherBatch {
   final BaseRepository repository;

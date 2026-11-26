@@ -170,20 +170,34 @@ class NetWorthView extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(label, style: TextStyle(fontSize: 11, color: widgetTextSecondary(dark))),
-              Text(
-                _money(value),
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: widgetTextPrimary(dark),
-                  fontFeatures: const [kWidgetTabularFeature],
+          LayoutBuilder(
+            builder: (context, constraints) => Row(
+              children: [
+                Expanded(
+                  child: Text(label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: 11, color: widgetTextSecondary(dark))),
                 ),
-              ),
-            ],
+                const SizedBox(width: 4),
+                ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: constraints.maxWidth * 0.6),
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      _money(value),
+                      maxLines: 1,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: widgetTextPrimary(dark),
+                        fontFeatures: const [kWidgetTabularFeature],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 4),
           ClipRRect(

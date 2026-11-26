@@ -50,8 +50,7 @@ class DashboardView extends StatelessWidget {
   final bool redForIncome;
   final bool dark;
 
-  /// 顶部本月支出/收入文案,复用 `WidgetManager.updateAllWidgets` 里
-  /// glance 视图已有的同名默认值(同一份数据的同一种称呼,不重新造词)。
+  /// 顶部本月收支沿用速览组件的本地化标签。
   final String monthExpenseLabel;
   final String monthIncomeLabel;
 

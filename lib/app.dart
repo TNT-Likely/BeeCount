@@ -16,7 +16,6 @@ import 'pages/main/mine_page.dart';
 import 'pages/transaction/transaction_editor_page.dart';
 import 'providers.dart';
 import 'l10n/app_localizations.dart';
-import 'widget/widget_manager.dart';
 import 'pages/shared/navigation/ledger_tab_bar.dart';
 import 'pages/shared/navigation/quick_add_actions.dart';
 import 'cloud/sync_service.dart';
@@ -770,18 +769,6 @@ class _BeeAppState extends ConsumerState<BeeApp>
     }
   }
 
-  @override
-  void didChangePlatformBrightness() {
-    super.didChangePlatformBrightness();
-    // 系统明暗切换时重渲小组件:图片渲染方案不会随系统主题自动重绘(原生壳
-    // 只是展示一张静态 PNG),渲染时机全靠 App 侧触发。小组件明暗跟随**系统**
-    // 而非 App 内主题设置(行业惯例,桌面是系统的地盘;widget_manager 渲染
-    // 批次内取 PlatformDispatcher.platformBrightness),这里监听的正是系统
-    // 明暗变化——App 在前台/存活时系统切换明暗,桌面组件立刻换肤,而不是
-    // 等下一次记账/前台恢复才刷新。
-    _updateWidget();
-  }
-
   Future<void> _checkAppLockOnResume() async {
     final shouldLock = await AppLockService.shouldLockOnResume();
     if (shouldLock && mounted) {
@@ -789,31 +776,7 @@ class _BeeAppState extends ConsumerState<BeeApp>
     }
   }
 
-  Future<void> _updateWidget() async {
-    try {
-      final repository = ref.read(repositoryProvider);
-      final ledgerId = ref.read(currentLedgerIdProvider);
-      final primaryColor = ref.read(primaryColorProvider);
-      final redForIncome = ref.read(incomeExpenseColorSchemeProvider);
-      final baseCurrency = ref.read(baseCurrencyProvider);
-
-      final widgetManager = WidgetManager();
-      // 前台恢复路径也走本地化封装,让小组件文案跟随 App 语言(与
-      // main.dart / theme_providers 等无 context 调用点一致,靠 languageProvider
-      // 还原 locale,不依赖 async 后可能失效的 BuildContext)。
-      await widgetManager.updateAllWidgetsLocalized(
-        repository,
-        ledgerId,
-        primaryColor,
-        explicitLocale: ref.read(languageProvider),
-        redForIncome: redForIncome,
-        baseCurrency: baseCurrency,
-      );
-      logger.info('App', 'App恢复前台，小组件数据已更新');
-    } catch (e) {
-      logger.warning('App', '更新小组件失败: $e');
-    }
-  }
+  Future<void> _updateWidget() => updateAppWidget(ref);
 
   @override
   Widget build(BuildContext context) {

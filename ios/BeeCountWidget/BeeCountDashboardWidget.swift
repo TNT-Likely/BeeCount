@@ -9,55 +9,14 @@ import WidgetKit
 import SwiftUI
 import UIKit
 
-struct BeeCountDashboardEntry: TimelineEntry {
-    let date: Date
-    let widgetImagePath: String
-}
-
-struct BeeCountDashboardProvider: TimelineProvider {
+struct BeeCountDashboardProvider: WidgetImageProviding {
     // 仅 systemLarge 一个尺寸（对应 `lib/widget/widget_spec.dart` 的
     // `dashboardLarge`），无需按 family 分支。
-    private let imageKey = "widget_dashboard_large"
-
-    func placeholder(in context: Context) -> BeeCountDashboardEntry {
-        BeeCountDashboardEntry(
-            date: Date(),
-            // 添加页预览:用 bundle 内静态资产(见 WidgetPreviewAssets 注释)。
-            widgetImagePath: WidgetPreviewAssets.path(forImageKey: imageKey)
-        )
-    }
-
-    func getSnapshot(in context: Context, completion: @escaping (BeeCountDashboardEntry) -> ()) {
-        // 添加页预览(isPreview):运行时图片在预览上下文读不到(App
-        // Group 访问受限,添加页只会显示占位色块),改用 bundle 内静态
-        // 预览资产,详见 WidgetPreviewAssets。
-        if context.isPreview {
-            completion(BeeCountDashboardEntry(
-                date: Date(),
-                widgetImagePath: WidgetPreviewAssets.path(forImageKey: imageKey)))
-            return
-        }
-        let userDefaults = UserDefaults(suiteName: "group.com.tntlikely.beecount")
-        let imagePath = userDefaults?.string(forKey: imageKey) ?? ""
-        let entry = BeeCountDashboardEntry(date: Date(), widgetImagePath: imagePath)
-        completion(entry)
-    }
-
-    func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
-        let userDefaults = UserDefaults(suiteName: "group.com.tntlikely.beecount")
-        let imagePath = userDefaults?.string(forKey: imageKey) ?? ""
-        let entry = BeeCountDashboardEntry(date: Date(), widgetImagePath: imagePath)
-
-        // 设置30分钟后刷新
-        let nextUpdate = Calendar.current.date(byAdding: .minute, value: 30, to: Date())!
-        let timeline = Timeline(entries: [entry], policy: .after(nextUpdate))
-        completion(timeline)
-    }
+    func imageKey(for family: WidgetFamily) -> String { "widget_dashboard_large" }
 }
 
 struct BeeCountDashboardWidgetEntryView : View {
-    var entry: BeeCountDashboardProvider.Entry
-    @Environment(\.widgetFamily) var widgetFamily
+    let image: UIImage?
 
     // 分区点击(2026-07 真机反馈:底部画着「记一笔」却整块跳明细,点记一笔
     // 进了洞察页):上部主体 → 明细,底部快捷记账行 → 记支出。
@@ -65,7 +24,7 @@ struct BeeCountDashboardWidgetEntryView : View {
     private let expenseURL = URL(string: "beecount://new?type=expense")!
 
     var body: some View {
-        if let uiImage = UIImage(contentsOfFile: entry.widgetImagePath) {
+        if let uiImage = image {
             GeometryReader { geometry in
                 ZStack {
                     Image(uiImage: uiImage)
@@ -112,13 +71,8 @@ struct BeeCountDashboardWidget: Widget {
 
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: BeeCountDashboardProvider()) { entry in
-            if #available(iOS 17.0, *) {
-                BeeCountDashboardWidgetEntryView(entry: entry)
-                    .containerBackground(for: .widget) {
-                        Color.clear
-                    }
-            } else {
-                BeeCountDashboardWidgetEntryView(entry: entry)
+            WidgetImageContent(entry: entry) { image in
+                BeeCountDashboardWidgetEntryView(image: image)
             }
         }
         .configurationDisplayName(BehaviorWidgetCopy.localized(

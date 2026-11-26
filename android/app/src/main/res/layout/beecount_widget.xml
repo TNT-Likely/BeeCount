@@ -14,7 +14,7 @@
         都不如 fitCenter 直观。
     -->
     <ImageView
-        android:id="@+id/widget_image"
+        style="@style/WidgetArtworkImage"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="fitCenter"

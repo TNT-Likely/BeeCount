@@ -6,13 +6,11 @@
 
 BeeCount 的桌面小组件采用统一图片方案：
 
-1. `WidgetDataService` 从当前账本读取数据。
-2. `WidgetManager` 用 Flutter View 离屏渲染 PNG。
-3. `home_widget` 将 PNG 路径写入共享存储。
-4. iOS WidgetKit / Android AppWidgetProvider 读取并展示 PNG。
-5. App 内发生记账、切账本、主题或语言变化时，重新生成图片并通知原生组件刷新。
-
-因此，原生层“成功显示图片”不代表 Flutter 内容正确；验收时必须同时检查生成的 PNG 和真实桌面组件。
+1. App 在启动完成、切换账本及外观偏好变化时预热全部 14 种规格。记账、恢复前台时优先更新已安装的组件。每批共用一份账本查询结果。
+2. `WidgetManager` 按 App 的语言和明暗偏好生成 PNG。跟随系统时支持英文、简中、繁中、韩语、俄语和两种明暗外观；指定语言或明暗时只补需要的组合。数据和配色相同的已有图片会复用。
+3. 每种规格在共享存储用 `<imageKey>.appearance.v1` 保存偏好、语言和明暗对应的文件路径，以及同一批数据的后备图。新数据写到另一组文件再发布清单，旧 `imageKey`（含 `widgetImage`）继续指向当前后备图。
+4. WidgetKit 根据 SwiftUI 的 `locale` 和 `colorScheme` 选图。Android 在系统语言广播后更新 RemoteViews，Android 12 起由桌面选用浅色或深色图，早期版本通过夜间布局资源在桌面重新加载布局时选图。系统切换无需启动 Flutter。添加页使用内置示例。
+5. 验收时同时检查生成的 PNG 和已放置的桌面组件。将 App 语言和主题设为跟随系统，准备真实数据后退出 App，分别切换系统语言与明暗，核对桌面文案、金额和图片哈希。固定 App 偏好后再重复切换，验证固定项优先。
 
 ## 2. 新增组件的必改清单
 

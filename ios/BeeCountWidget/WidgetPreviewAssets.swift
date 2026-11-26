@@ -37,10 +37,9 @@ enum WidgetPreviewAssets {
 
     /// 按系统语言(zh → 中文,其余 → 英文)返回 bundle 内预览 PNG 的路径;
     /// 找不到时返回空串(EntryView 会走占位分支,不崩)。
-    static func path(forImageKey imageKey: String) -> String {
+    static func path(forImageKey imageKey: String, locales: [Locale]) -> String {
         guard let base = assetByImageKey[imageKey] else { return "" }
-        let lang = Locale.preferredLanguages.first?.lowercased().hasPrefix("zh") == true
-            ? "zh" : "en"
+        let lang = WidgetImageManifest.language(for: locales).hasPrefix("zh") ? "zh" : "en"
         return Bundle.main.path(forResource: "\(base)_\(lang)", ofType: "png")
             ?? Bundle.main.path(forResource: "\(base)_zh", ofType: "png")
             ?? ""

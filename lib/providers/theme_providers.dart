@@ -9,7 +9,6 @@ import '../services/system/logger_service.dart';
 import '../styles/header_skins.dart';
 import '../skins/premium_skins.dart';
 import '../theme.dart';
-import '../widget/widget_manager.dart';
 import '../providers.dart';
 
 // 主题模式Provider（默认跟随系统）
@@ -67,7 +66,7 @@ final primaryColorInitProvider = FutureProvider<void>((ref) async {
   ref.listen<Color>(primaryColorProvider, (prev, next) async {
     // 同步捕获 —— 下面有 await,await 之后标志早被 finally 清掉了
     final fromServer = isApplyingFromServer;
-    // 窗口也必须**同步**开:下面的 prefs 写入和小组件重绘都要 await,
+    // 窗口也必须**同步**开:下面的 prefs 写入需要 await,
     // 等推送那一步才开就晚了,空窗期里 server 的旧色会被下行采信。
     final endPush = fromServer ? null : beginThemePush();
     try {
@@ -88,28 +87,6 @@ Future<void> _persistAndPushPrimary(
         (next.g * 255).toInt() << 8 |
         (next.b * 255).toInt();
     await prefs.setInt('primaryColor', colorValue);
-    // Update widget with new theme color
-    try {
-      final repository = ref.read(repositoryProvider);
-      final currentLedgerId = ref.read(currentLedgerIdProvider);
-      final redForIncome = ref.read(incomeExpenseColorSchemeProvider);
-      final baseCurrency = ref.read(baseCurrencyProvider);
-      // 没有 BuildContext,靠 languageProvider 还原当前 App 语言(见
-      // widget_manager.dart resolveWidgetLocalizations 文档)。
-      final locale = ref.read(languageProvider);
-      final widgetManager = WidgetManager();
-      await widgetManager.updateAllWidgetsLocalized(
-        repository,
-        currentLedgerId,
-        next,
-        explicitLocale: locale,
-        redForIncome: redForIncome,
-        baseCurrency: baseCurrency,
-      );
-    } catch (e) {
-      // Silently fail
-    }
-
     // 推送主题色到 server，让 web 端通过 WS profile_change 自动跟随。
     // 同步方向单向：mobile → server → web；web 本地改色不回推。
     //
@@ -683,27 +660,6 @@ final incomeExpenseColorSchemeInitProvider = FutureProvider<void>((ref) async {
   }
   ref.listen<bool>(incomeExpenseColorSchemeProvider, (prev, next) async {
     await prefs.setBool('incomeExpenseColorScheme', next);
-    try {
-      final repository = ref.read(repositoryProvider);
-      final currentLedgerId = ref.read(currentLedgerIdProvider);
-      final primaryColor = ref.read(primaryColorProvider);
-      final baseCurrency = ref.read(baseCurrencyProvider);
-      // 没有 BuildContext,靠 languageProvider 还原当前 App 语言(见
-      // widget_manager.dart resolveWidgetLocalizations 文档)。
-      final locale = ref.read(languageProvider);
-      final widgetManager = WidgetManager();
-      await widgetManager.updateAllWidgetsLocalized(
-        repository,
-        currentLedgerId,
-        primaryColor,
-        explicitLocale: locale,
-        redForIncome: next,
-        baseCurrency: baseCurrency,
-      );
-    } catch (e) {
-      // Silently fail
-    }
-
     // BeeCount Cloud 模式下把配色偏好推给 server；web 端会通过 WS
     // profile_change 事件实时刷新。非 Cloud 模式 provider 返回 null，跳过。
     unawaited(() async {

@@ -29,9 +29,7 @@ class GlanceView extends StatelessWidget {
   final Color themeColor;
   final bool redForIncome;
 
-  /// 系统明暗态,由 `WidgetManager` 用 `PlatformDispatcher` 在渲染时取一次
-  /// 传入(切换后靠 App 重渲染触发换色,App 存活时经
-  /// `didChangePlatformBrightness` 即时触发)。
+  /// 当前图片的明暗版本。
   final bool dark;
 
   /// medium 用:左上内容标签(「收支速览」,对应 arb `widgetGalleryGlanceTitle`;

@@ -5,12 +5,10 @@ import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Log
 import android.widget.RemoteViews
 import es.antonborri.home_widget.HomeWidgetProvider
-import java.io.File
 
 /**
  * 综合仪表盘小组件(仅大)。
@@ -37,25 +35,7 @@ class BeeCountDashboardWidgetProvider : HomeWidgetProvider() {
                 Log.d(TAG, "Updating widget $widgetId")
 
                 val views = RemoteViews(context.packageName, R.layout.dashboard_widget).apply {
-                    val imagePath = widgetData.getString(IMAGE_KEY, null)
-                    Log.d(TAG, "Image path from SharedPreferences: $imagePath")
-
-                    if (imagePath != null) {
-                        val file = File(imagePath)
-                        Log.d(TAG, "File exists: ${file.exists()}, size: ${if (file.exists()) file.length() else 0}")
-
-                        val bitmap = BitmapFactory.decodeFile(imagePath)
-                        if (bitmap != null) {
-                            Log.d(TAG, "Bitmap decoded successfully: ${bitmap.width}x${bitmap.height}")
-                            setImageViewBitmap(R.id.widget_image, bitmap)
-                        } else {
-                            Log.e(TAG, "Failed to decode bitmap from file")
-                            setImageViewResource(R.id.widget_image, R.mipmap.ic_launcher)
-                        }
-                    } else {
-                        Log.w(TAG, "No image path for key $IMAGE_KEY, showing placeholder")
-                        setImageViewResource(R.id.widget_image, R.mipmap.ic_launcher)
-                    }
+                    setWidgetArtwork(context, widgetData, IMAGE_KEY)
 
                     // 分区点击(2026-07 真机反馈:底部画着「记一笔」却整块跳
                     // 明细,点记一笔进了洞察页):上部主体 → 明细,底部快捷

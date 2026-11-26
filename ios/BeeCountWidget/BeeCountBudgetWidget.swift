@@ -9,15 +9,10 @@ import WidgetKit
 import SwiftUI
 import UIKit
 
-struct BeeCountBudgetEntry: TimelineEntry {
-    let date: Date
-    let widgetImagePath: String
-}
-
-struct BeeCountBudgetProvider: TimelineProvider {
+struct BeeCountBudgetProvider: WidgetImageProviding {
     /// 按 widget family 选渲染管线写入的图片 key（对应
     /// `lib/widget/widget_spec.dart` 的 `budgetSmall/Medium`）。
-    private func imageKey(for family: WidgetFamily) -> String {
+    func imageKey(for family: WidgetFamily) -> String {
         switch family {
         case .systemSmall:
             return "widget_budget_small"
@@ -25,53 +20,17 @@ struct BeeCountBudgetProvider: TimelineProvider {
             return "widget_budget_medium"
         }
     }
-
-    func placeholder(in context: Context) -> BeeCountBudgetEntry {
-        BeeCountBudgetEntry(
-            date: Date(),
-            // 添加页预览:用 bundle 内静态资产(见 WidgetPreviewAssets 注释)。
-            widgetImagePath: WidgetPreviewAssets.path(forImageKey: imageKey(for: context.family))
-        )
-    }
-
-    func getSnapshot(in context: Context, completion: @escaping (BeeCountBudgetEntry) -> ()) {
-        // 添加页预览(isPreview):运行时图片在预览上下文读不到(App
-        // Group 访问受限,添加页只会显示占位色块),改用 bundle 内静态
-        // 预览资产,详见 WidgetPreviewAssets。
-        if context.isPreview {
-            completion(BeeCountBudgetEntry(
-                date: Date(),
-                widgetImagePath: WidgetPreviewAssets.path(forImageKey: imageKey(for: context.family))))
-            return
-        }
-        let userDefaults = UserDefaults(suiteName: "group.com.tntlikely.beecount")
-        let imagePath = userDefaults?.string(forKey: imageKey(for: context.family)) ?? ""
-        let entry = BeeCountBudgetEntry(date: Date(), widgetImagePath: imagePath)
-        completion(entry)
-    }
-
-    func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
-        let userDefaults = UserDefaults(suiteName: "group.com.tntlikely.beecount")
-        let imagePath = userDefaults?.string(forKey: imageKey(for: context.family)) ?? ""
-        let entry = BeeCountBudgetEntry(date: Date(), widgetImagePath: imagePath)
-
-        // 设置30分钟后刷新
-        let nextUpdate = Calendar.current.date(byAdding: .minute, value: 30, to: Date())!
-        let timeline = Timeline(entries: [entry], policy: .after(nextUpdate))
-        completion(timeline)
-    }
 }
 
 struct BeeCountBudgetWidgetEntryView : View {
-    var entry: BeeCountBudgetProvider.Entry
-    @Environment(\.widgetFamily) var widgetFamily
+    let image: UIImage?
 
     // 预算卡片点击 → 预算页。第一版整块点击、不分区。
     // TODO: 中号有分类用量列表时，考虑按行分区深链到该分类的筛选明细。
     private let budgetURL = URL(string: "beecount://open?page=budget")!
 
     var body: some View {
-        if let uiImage = UIImage(contentsOfFile: entry.widgetImagePath) {
+        if let uiImage = image {
             Link(destination: budgetURL) {
                 Image(uiImage: uiImage)
                     .resizable()
@@ -104,13 +63,8 @@ struct BeeCountBudgetWidget: Widget {
 
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: BeeCountBudgetProvider()) { entry in
-            if #available(iOS 17.0, *) {
-                BeeCountBudgetWidgetEntryView(entry: entry)
-                    .containerBackground(for: .widget) {
-                        Color.clear
-                    }
-            } else {
-                BeeCountBudgetWidgetEntryView(entry: entry)
+            WidgetImageContent(entry: entry) { image in
+                BeeCountBudgetWidgetEntryView(image: image)
             }
         }
         .configurationDisplayName(BehaviorWidgetCopy.localized(
