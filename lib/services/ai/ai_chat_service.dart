@@ -6,9 +6,11 @@ import '../../ai/providers/ai_provider_config.dart';
 import '../../ai/providers/ai_provider_manager.dart';
 import '../../utils/app_localizations_resolver.dart';
 import '../../data/repositories/base_repository.dart';
+import '../../data/repositories/local/local_repository.dart';
 import '../../l10n/app_localizations.dart';
 import '../system/logger_service.dart';
 import 'agent_app_facade.dart';
+import 'frozen_query_answer.dart';
 
 /// UI adapter for a single Agent conversation path. Recommended questions and
 /// manual input share permissions, tool validation, streaming and cancellation.
@@ -91,14 +93,38 @@ class AIChatService {
     int? sourceMessageId,
     Map<String, Object?> view = const {},
     bool review = false,
+    List<Map<String, Object?>> repeatQueries = const [],
+    Map<String, Object?>? continueQueryContext,
+    bool Function()? isCancelled,
   }) async* {
+    final context =
+        await _context(ledgerId, languageCode, sourceMessageId, view, review);
+    if (isCancelled?.call() == true) {
+      final stopped = AIResponse.stopped(
+          (l10n ?? resolveAppLocalizations(null)).agentRunCancelled);
+      final canKeepAnswer = readOnly &&
+          continueQueryContext != null &&
+          FrozenQueryAnswer.facts(continueQueryContext, ledgerId).isNotEmpty;
+      yield AgentRunCompletedEvent(AgentChatResponse(
+          runId: runId ?? '',
+          response: canKeepAnswer
+              ? stopped.withFollowUpSuggestions(const [],
+                  queryContext: continueQueryContext)
+              : stopped));
+      return;
+    }
+    if (readOnly && repeatQueries.isNotEmpty) {
+      context['repeatQueries'] = repeatQueries;
+    }
+    if (readOnly && continueQueryContext != null) {
+      context['continueQueryContext'] = continueQueryContext;
+    }
     yield* _agentFacade.processMessageEvents(
       message: userInput,
       ledgerId: ledgerId,
       runId: runId,
       conversationId: conversationId,
-      context:
-          await _context(ledgerId, languageCode, sourceMessageId, view, review),
+      context: context,
       l10n: l10n,
       readOnly: readOnly,
     );
@@ -128,12 +154,28 @@ class AIChatService {
     return context;
   }
 
-  /// Explicit UI undo, never a model-initiated mutation.
-  Future<bool> undoTransaction(int transactionId) async {
+  /// A saved receipt may outlive a move to another ledger. Keep ownership
+  /// verification, sync tracking, and deletion in the same SQLite transaction.
+  Future<bool> undoTransaction(int transactionId,
+      {int? expectedLedgerId, String? expectedSyncId}) async {
     try {
-      await _repo.deleteTransaction(transactionId);
-      logger.info('AIChat', '撤销记账: id=$transactionId');
-      return true;
+      final repo = _repo;
+      if (expectedLedgerId == null && expectedSyncId == null) {
+        // Keep the unscoped API for existing callers. Chat supplies its ledger.
+        await repo.deleteTransaction(transactionId);
+        return true;
+      }
+      if (repo is! LocalRepository || expectedLedgerId == null) return false;
+      return await repo.db.transaction(() async {
+        final row = await repo.getTransactionById(transactionId);
+        if (row == null ||
+            row.ledgerId != expectedLedgerId ||
+            (expectedSyncId != null && row.syncId != expectedSyncId)) {
+          return false;
+        }
+        await repo.deleteTransaction(transactionId);
+        return true;
+      });
     } catch (error, stackTrace) {
       logger.error('AIChat', '撤销失败', error, stackTrace);
       return false;
@@ -166,6 +208,7 @@ enum AIResponseAction { openProviderSettings }
 class AIResponse {
   final String type; // 'text' | 'bill_card' | 'error'
   final String text;
+  final bool wasStopped;
 
   /// 所有识别到的账单(单笔/多笔都用 list)
   final List<BillInfo> bills;
@@ -184,6 +227,7 @@ class AIResponse {
   AIResponse({
     required this.type,
     required this.text,
+    this.wasStopped = false,
     this.bills = const [],
     this.transactionIds = const [],
     this.action,
@@ -208,12 +252,16 @@ class AIResponse {
           text: text,
           followUpSuggestions: List.unmodifiable(followUpSuggestions));
 
+  factory AIResponse.stopped(String text) =>
+      AIResponse(type: 'text', text: text, wasStopped: true);
+
   AIResponse withFollowUpSuggestions(List<AgentPromptSuggestion> suggestions,
           {bool allowPromptSuggestions = false,
           Map<String, Object?>? queryContext}) =>
       AIResponse(
           type: type,
           text: text,
+          wasStopped: wasStopped,
           queryContext: queryContext ?? this.queryContext,
           supplementalText: supplementalText,
           receiptMessageId: receiptMessageId,

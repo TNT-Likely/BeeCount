@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
@@ -29,28 +30,42 @@ final _billLedgerProvider =
 class BillCardWidget extends ConsumerWidget {
   final BillInfo billInfo;
   final int? transactionId;
+  final int? expectedLedgerId;
   final VoidCallback? onUndo;
   final VoidCallback? onEdit;
   final VoidCallback? onChangeLedger; // 修改账本回调
+  final bool compact;
   final bool isUndone; // 是否已撤销
 
   const BillCardWidget({
     super.key,
     required this.billInfo,
     this.transactionId,
+    this.expectedLedgerId,
     this.onUndo,
     this.onEdit,
     this.onChangeLedger,
     this.isUndone = false,
+    this.compact = false,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // 获取账本名称
-    final liveLedgerId = transactionId == null || isUndone
+    final ownership = transactionId == null || isUndone
         ? null
-        : ref.watch(_billLedgerProvider(transactionId!)).valueOrNull;
-    final ledgerId = liveLedgerId ?? billInfo.ledgerId;
+        : ref.watch(_billLedgerProvider(transactionId!));
+    final liveLedgerId = ownership?.asData?.value;
+    final scoped = expectedLedgerId != null;
+    final inChatLedger =
+        !scoped || ref.watch(currentLedgerIdProvider) == expectedLedgerId;
+    final canAct = !scoped ||
+        (inChatLedger &&
+            ownership?.isLoading == false &&
+            ownership?.hasError == false &&
+            liveLedgerId == expectedLedgerId);
+    final unavailable =
+        scoped && !canAct && (!inChatLedger || ownership?.isLoading != true);
+    final ledgerId = expectedLedgerId ?? liveLedgerId ?? billInfo.ledgerId;
     final ledger = ledgerId != null
         ? ref.watch(ledgerByIdProvider(ledgerId)).asData?.value
         : null;
@@ -61,7 +76,74 @@ class BillCardWidget extends ConsumerWidget {
         ? billInfo.currency!.trim().toUpperCase()
         : ledger?.currency ?? 'CNY';
     final l10n = AppLocalizations.of(context);
-
+    final hidden = ref.watch(hideAmountsProvider);
+    final amount = hidden
+        ? '****'
+        : formatBalanceFull(billInfo.amount?.abs() ?? 0, currency);
+    if (compact) {
+      final theme = Theme.of(context);
+      return BeeSurface(
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        Row(children: [
+          BeeLineIcon(isUndone ? 'Undo2' : 'CircleCheck', size: 18),
+          const SizedBox(width: 7),
+          Expanded(
+              child: Text(isUndone ? l10n.billCardUndone : l10n.billCardSuccess,
+                  style: theme.textTheme.titleSmall)),
+          if (billInfo.time != null)
+            Text(
+                MaterialLocalizations.of(context)
+                    .formatShortMonthDay(billInfo.time!),
+                style: theme.textTheme.labelMedium),
+        ]),
+        if (!isUndone) ...[
+          const SizedBox(height: 10),
+          Text(amount,
+              style: theme.textTheme.headlineMedium
+                  ?.copyWith(fontWeight: FontWeight.w600)),
+          Text([
+            if (billInfo.category != null) billInfo.category!,
+            if (_accountSummary != null) _accountSummary!
+          ].join(' · ')),
+          const Divider(),
+          if (unavailable)
+            Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Text(l10n.agentReceiptUnavailable))
+          else
+            BeeMenuRow(
+                title: l10n.aiChatReceiptView,
+                leading: const BeeLineIcon('ReceiptText', size: 18),
+                onTap: !canAct
+                    ? null
+                    : () => showBeeSheet<void>(Navigator.of(context).context,
+                            title: l10n.aiChatReceiptView,
+                            child: Builder(builder: (sheet) {
+                          VoidCallback? action(VoidCallback? callback) =>
+                              callback == null
+                                  ? null
+                                  : () {
+                                      Navigator.pop(sheet);
+                                      callback();
+                                    };
+                          return SingleChildScrollView(
+                              child: BillCardWidget(
+                                  billInfo: billInfo,
+                                  transactionId: transactionId,
+                                  expectedLedgerId: expectedLedgerId,
+                                  onEdit: action(onEdit),
+                                  onUndo: action(onUndo),
+                                  onChangeLedger: action(onChangeLedger)));
+                        }))),
+        ]
+      ]));
+    }
+    if (unavailable && !isUndone) {
+      return BeeEmptyState(
+          title: l10n.agentReceiptUnavailable,
+          icon: const BeeLineIcon('ReceiptText', size: 28));
+    }
     return BeeAssistantBillCard(
         title: isUndone ? l10n.billCardUndone : l10n.billCardSuccess,
         ledger: ledgerName,
@@ -69,17 +151,17 @@ class BillCardWidget extends ConsumerWidget {
         undoLabel: l10n.billCardUndo,
         editLabel: l10n.billCardEdit,
         tagsLabel: l10n.billCardTags,
-        tags: _tags,
-        onUndo: onUndo,
-        onEdit: onEdit,
-        onChangeLedger: ledger != null &&
+        tags: hidden ? const [] : _tags,
+        onUndo: canAct ? onUndo : null,
+        onEdit: canAct ? onEdit : null,
+        onChangeLedger: canAct &&
+                ledger != null &&
                 isPrivateTransactionMoveLedger(ledger) &&
                 ref.watch(transactionMoveAvailableProvider).valueOrNull == true
             ? onChangeLedger
             : null,
         fields: [
-          BeeAssistantBillField(l10n.billCardAmount,
-              formatBalanceFull(billInfo.amount?.abs() ?? 0, currency)),
+          BeeAssistantBillField(l10n.billCardAmount, amount),
           BeeAssistantBillField(
               l10n.billCardCategory, billInfo.category ?? l10n.commonOther),
           BeeAssistantBillField(
@@ -88,7 +170,7 @@ class BillCardWidget extends ConsumerWidget {
             BeeAssistantBillField(
                 l10n.billCardType, _formatType(l10n, billInfo.type!)),
           BeeAssistantBillField(l10n.billCardCurrency, currency),
-          if (billInfo.note != null && billInfo.note!.isNotEmpty)
+          if (!hidden && billInfo.note != null && billInfo.note!.isNotEmpty)
             BeeAssistantBillField(l10n.billCardNote, billInfo.note!),
           if (_accountSummary != null)
             BeeAssistantBillField(

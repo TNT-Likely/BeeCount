@@ -2,6 +2,142 @@ import '../../data/db.dart';
 
 /// 智能分类匹配服务 - 根据商家名称或文本内容匹配分类
 class CategoryMatcher {
+  static final _han = RegExp(r'\p{Script=Han}+', unicode: true);
+  static final _words =
+      RegExp(r'(?:(?!\p{Script=Han})[\p{L}\p{M}\p{N}])+', unicode: true);
+  static final _spaces = RegExp(r'\s+');
+  static final _separators = RegExp(r'[\s\p{P}]+', unicode: true);
+  static const _neutral = {
+    '其他',
+    '其它',
+    '杂项',
+    '雜項',
+    'other',
+    'others',
+    'misc',
+    'miscellaneous',
+    'その他',
+    '기타',
+    'другое',
+  };
+  static const _genericClues = {
+    '支出',
+    '收入',
+    '金额',
+    '金額',
+    '费用',
+    '費用',
+    '消费',
+    '消費',
+    '账单',
+    '帳單',
+    'the',
+    'and',
+    'for',
+    'bill',
+    'paid',
+    'payment',
+    'expense',
+    'income',
+    'cost',
+  };
+
+  /// A known parent is a hard boundary. A hint must identify one of its
+  /// children even when other branches contain more popular categories.
+  static Category? matchChild({
+    required String parent,
+    required List<Category> children,
+    required String note,
+    String? sourceText,
+  }) {
+    if (children.length == 1) return children.single;
+    final parentKey = parent.toLowerCase().replaceAll(_separators, '');
+    bool isNeutral(Category child) {
+      final key = child.name.toLowerCase().replaceAll(_separators, '');
+      return _neutral.any(
+          (n) => key == n || key == '$parentKey$n' || key == '$n$parentKey');
+    }
+
+    final neutral = children.where(isNeutral).toList();
+    final specific = children.where((c) => !isNeutral(c)).toList();
+    // Pad whole alphabetic words so "tea" cannot match "steak" or "teapot".
+    String phrase(String value) => value
+        .toLowerCase()
+        .replaceAllMapped(_words, (m) => ' ${m[0]} ')
+        .replaceAll(_spaces, ' ');
+    final text = [note, if (sourceText != null) sourceText]
+        .where((s) => s.trim().isNotEmpty)
+        .map((s) => phrase(s.trim()))
+        .toList();
+    bool named(Category c) {
+      final name = phrase(c.name.trim());
+      if (name.trim().runes.length < 2) {
+        return text.any((s) => s.trim() == name.trim());
+      }
+      return text.any((s) => s.contains(name));
+    }
+
+    final namedChildren = specific.where(named).toList();
+    if (namedChildren.length == 1) return namedChildren.single;
+    if (namedChildren.length > 1) {
+      // When one complete name contains another (e.g. 咖啡 / 手冲咖啡),
+      // prefer the explicitly named subtype. Distinct named siblings remain
+      // ambiguous, regardless of which name happens to be longer.
+      final mostSpecific = namedChildren.where((child) {
+        final label = phrase(child.name.trim());
+        return namedChildren.where((other) => other != child).every((other) {
+          final shorter = phrase(other.name.trim());
+          return label.contains(shorter) &&
+              text.every((s) => !s.replaceAll(label, ' ').contains(shorter));
+        });
+      }).toList();
+      if (mostSpecific.length == 1) return mostSpecific.single;
+    }
+    if (namedChildren.isEmpty) {
+      // A whole word or a compound's final Han characters can describe the
+      // purchase. Shared clues, e.g. 午餐 in two lunch categories, do not pick
+      // either sibling. A longer, distinguishing clue can resolve the tie.
+      final owners = <String, Set<Category>>{};
+      for (final child in specific) {
+        final name = child.name.toLowerCase();
+        void consider(String clue, String needle) {
+          if (parentKey.contains(clue) || _genericClues.contains(clue)) return;
+          if (text.any((s) => s.contains(needle))) {
+            (owners[clue] ??= {}).add(child);
+          }
+        }
+
+        for (final word in _words.allMatches(name)) {
+          final clue = word[0]!;
+          if (clue.runes.length >= 3) consider(clue, ' $clue ');
+        }
+        for (final clue in _categoryKeywords[parent] ?? const <String>[]) {
+          if (_han.hasMatch(clue) &&
+              clue.runes.length >= 2 &&
+              name.contains(clue)) {
+            consider(clue, clue);
+          }
+        }
+        for (final part in _han.allMatches(name)) {
+          final chars = part[0]!.runes.toList();
+          for (var length = 2;
+              length <= chars.length && length <= 8;
+              length++) {
+            final clue =
+                String.fromCharCodes(chars.skip(chars.length - length));
+            consider(clue, clue);
+          }
+        }
+      }
+      final candidates = {
+        for (final group in owners.values)
+          if (group.length == 1) group.single
+      };
+      if (candidates.length == 1) return candidates.single;
+    }
+    return neutral.length == 1 ? neutral.single : null;
+  }
+
   // 分类关键词映射
   static const Map<String, List<String>> _categoryKeywords = {
     // 餐饮

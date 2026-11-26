@@ -195,7 +195,7 @@ void main() {
   test(
       'a failed second bill leaves one durable receipt and replay cannot repeat the first bill',
       () async {
-    const text = '午餐 28 元，晚餐 45 元。';
+    const text = '午餐 28 元，早餐 45 元。';
     final ledgerId = f.ledgers['main']!;
     final source = await createSource(text);
     final before = await f.transactionCount();
@@ -206,7 +206,7 @@ void main() {
           type: BillType.expense,
           amount: -45,
           time: f.now,
-          category: '餐饮',
+          category: '早餐',
           note: '故障测试')
     ]);
     final gateway = _writeGateway(f, extractor);
@@ -294,6 +294,111 @@ void main() {
     expect(answer.approvals, 1);
     expect(model.received, hasLength(1));
     expect(extractor.calls, 0);
+  });
+
+  test('原生工具指定餐饮时，午餐写入餐饮下的工作午餐且回执与实际账单相同', () async {
+    const text = '记一笔午餐，金额是28元，使用家庭生活卡支付，备注四季原生验收午餐。';
+    const note = '四季原生验收午餐';
+    final repo = f.repository;
+    final ledgerId = f.ledgers['main']!;
+    final dining = (await repo.getTopLevelCategories('expense'))
+        .singleWhere((c) => c.name == '餐饮');
+    final lunch = (await repo.getSubCategories(dining.id))
+        .singleWhere((c) => c.name == '午餐');
+    await repo.updateCategory(lunch.id, name: '工作午餐');
+    // Users can reorder globally visible expense categories; work is the last choice.
+    await repo.createCategory(name: '工作', kind: 'expense', sortOrder: 1);
+    final account = await repo.createAccount(ledgerId: ledgerId, name: '家庭生活卡');
+    final before = await f.transactionCount();
+    final source = await createSource(text);
+
+    final model = _Model((_, turn) => turn > 1
+        ? const core.AgentTurn.finalText('已记录。')
+        : core.AgentTurn.toolCalls([
+            core.AgentToolCall(
+                id: 'record-lunch',
+                name: 'record_transaction_from_text',
+                arguments: {
+                  'sourceText': text,
+                  'receiptOnly': true,
+                  'entry': {
+                    'type': 'expense',
+                    'amount': 28,
+                    'category': '餐饮',
+                    'account': '家庭生活卡',
+                    'note': note
+                  },
+                }),
+          ]));
+    final reply =
+        await _send(f, model, text, sourceId: source, readOnly: false);
+    expect(reply.approvals, 1);
+    expect(reply.response.type, 'bill_card');
+    expect(await f.transactionCount(), before + 1);
+    final transactionId = reply.response.transactionIds.single;
+    final row = (await repo.getTransactionById(transactionId))!;
+    final persistedCategory = await repo.getCategoryById(row.categoryId!);
+    final receipt =
+        (await repo.getMessageById(reply.response.receiptMessageId!))!;
+    final saved = jsonDecode(receipt.metadata!) as Map;
+    final receiptBill = (saved['bills'] as List).single as Map;
+    expect((row.ledgerId, row.type, row.amount, row.accountId, row.note),
+        (ledgerId, 'expense', 28.0, account, note));
+    expect(receipt.transactionId, transactionId);
+    expect(saved['receiptSourceId'], source);
+    expect(receiptBill['account'], '家庭生活卡');
+    expect(receiptBill['note'], note);
+    expect([
+      persistedCategory?.name,
+      reply.response.bills.single.category,
+      receiptBill['category']
+    ], [
+      '工作午餐',
+      '工作午餐',
+      '工作午餐'
+    ]);
+    expect((persistedCategory?.id, persistedCategory?.parentId),
+        (lunch.id, dining.id));
+  });
+
+  test('多笔记账的第二笔只有一级分类时先澄清，前一笔不落库也不生成回执', () async {
+    const text = '午餐28元，另记一笔餐饮45元，没有更多说明。';
+    final ledger = f.ledgers['main']!;
+    final source = await createSource(text);
+    final before = await f.transactionCount();
+    final extractor = _TextExtractor(f.now, additional: [
+      BillInfo(
+          type: BillType.expense,
+          amount: -45,
+          time: f.now,
+          category: '餐饮',
+          note: '未注明用途'),
+    ]);
+    final tools = LocalAgentTools(
+      scope: core.AgentScope(
+          id: 'ambiguous-batch', ledgerId: ledger, allowsMutations: true),
+      gateway: _writeGateway(f, extractor),
+      now: () => f.now,
+      sourceMessageId: source,
+      l10n: AppLocalizationsZh(),
+    );
+    final result = await tools.build()['record_transaction_from_text']!.execute(
+          core.AgentToolCall(
+              id: 'two-expenses',
+              name: 'record_transaction_from_text',
+              arguments: const {'sourceText': text, 'receiptOnly': true}),
+        );
+    final sourceMessage = (await f.repository.getMessageById(source))!;
+    final thread =
+        await f.repository.watchMessages(sourceMessage.conversationId).first;
+    expect(await f.transactionCount(), before);
+    expect(thread.map((m) => m.id), [source]);
+    expect(jsonDecode(sourceMessage.metadata!) as Map,
+        isNot(contains('agentReceipt')));
+    expect(extractor.calls, 1);
+    expect(result['success'], false);
+    expect(result['error'], 'category_choice_required');
+    expect(result['categoryChoices'], unorderedEquals(['早餐', '午餐']));
   });
 
   test('a scoped result can be replayed, paged and excluded without a write',

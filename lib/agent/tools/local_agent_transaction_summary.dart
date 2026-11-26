@@ -4,6 +4,7 @@ import 'package:drift/drift.dart' as d;
 
 import '../../data/db.dart';
 import '../../utils/month_range.dart';
+import 'ledger_query_snapshot.dart';
 
 /// Executes bounded financial aggregates in SQLite so an Agent never has to
 /// infer totals from the detail-list tool's capped result set.
@@ -87,6 +88,32 @@ final class LocalAgentTransactionSummaryDataSource {
       };
     }
 
+    Future<Map<String, Object?>> snapshot() async {
+      final request = filters['_snapshotRequest'];
+      if (request is! LedgerSnapshotRequest ||
+          ledger == null ||
+          const {'ambiguous', 'unmatched'}
+              .contains(predicate.match['matchStatus'])) {
+        return const {};
+      }
+      return {
+        '_snapshot': await request.budget.capture((rows, bytes) =>
+            LedgerQuerySnapshot.capture(_database,
+                maxRows: rows,
+                maxBytes: bytes,
+                ledgerId: ledgerId,
+                currency: _currencyOr(ledger.currency),
+                start: start,
+                end: end,
+                where: where,
+                variables: variables,
+                totals: totalsByType,
+                omitTransfers: request.tool == 'get_period_overview' &&
+                    effectiveTypes.contains('income') &&
+                    effectiveTypes.contains('expense')))
+      };
+    }
+
     if (groupBy == 'details') {
       final count = totalsByType.values
           .fold<int>(0, (n, row) => n + (row['count'] as int));
@@ -133,7 +160,8 @@ final class LocalAgentTransactionSummaryDataSource {
         'nextCursor': page.length > groupLimit
             ? "$fingerprint/${visible.last.read<int>('happened_at')}/${visible.last.read<int>('id')}"
             : null,
-        ...predicate.match
+        ...predicate.match,
+        ...await snapshot(),
       };
     }
     final groups = switch (groupBy) {
@@ -186,6 +214,7 @@ final class LocalAgentTransactionSummaryDataSource {
       'groupsMayOverlap': groupBy == 'tag' || groupBy == 'account',
       'truncated': truncated,
       ...predicate.match,
+      ...await snapshot(),
     };
   }
 

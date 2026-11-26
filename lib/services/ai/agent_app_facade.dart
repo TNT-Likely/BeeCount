@@ -1,3 +1,4 @@
+import '../../agent/model/ledger_query_replay.dart';
 import 'dart:async';
 import 'dart:convert';
 import '../../ai/providers/ai_provider_factory.dart';
@@ -53,6 +54,7 @@ import '../../l10n/app_localizations_zh.dart';
 import '../../l10n/app_localizations_en.dart';
 import '../system/logger_service.dart';
 import 'ai_chat_service.dart';
+import 'frozen_query_answer.dart';
 import 'ledger_follow_up_suggestions.dart';
 
 typedef AgentConversationHistoryLoader = Future<List<Map<String, Object?>>>
@@ -284,26 +286,52 @@ final class AgentAppFacade {
           P0AgentPolicy.hasExplicitMemoryIntent(message),
     );
     final requestContext = Map<String, Object?>.of(context);
+    // The large, on-device snapshot is never part of the model request.
+    final savedContext = requestContext.remove('continueQueryContext');
+    final frozen =
+        readOnly && savedContext is Map<String, Object?> ? savedContext : null;
     requestContext['currentTime'] = _now().toIso8601String();
-    await _loadConversationHistory(
-      conversationId: conversationId,
-      requestContext: requestContext,
-      runId: runId,
-      ledgerId: ledgerId,
-      currentMessage: message,
-      cancellation: cancellationToken,
-    );
-    final unsupportedResponse = await _unsupportedCapabilityResponse(
+    if (frozen != null) {
+      requestContext.remove('view');
+      final facts = FrozenQueryAnswer.facts(frozen, ledgerId);
+      if (facts.isEmpty) {
+        await _memoryRepository.finishRun(runId: runId, status: 'failed');
+        return AgentChatResponse(
+            runId: runId,
+            response: AIResponse.error((l10n ?? resolveAppLocalizations(null))
+                .agentAnswerSnapshotUnavailable));
+      }
+      requestContext['frozenQueryResults'] = facts;
+    } else {
+      await _loadConversationHistory(
+        conversationId: conversationId,
+        requestContext: requestContext,
         runId: runId,
-        l10n: l10n,
-        message: message,
-        context: requestContext,
-        cancellation: cancellationToken);
-    if (unsupportedResponse != null) return unsupportedResponse;
-    final previous = (requestContext['previousQueries'] as List?)
-            ?.whereType<Map<String, Object?>>()
-            .toList() ??
-        [];
+        ledgerId: ledgerId,
+        currentMessage: message,
+        cancellation: cancellationToken,
+      );
+      final unsupportedResponse = await _unsupportedCapabilityResponse(
+          runId: runId,
+          l10n: l10n,
+          message: message,
+          context: requestContext,
+          cancellation: cancellationToken);
+      if (unsupportedResponse != null) return unsupportedResponse;
+    }
+    final repeat = readOnly && frozen == null
+        ? LedgerQueryReplay.definitions(
+            (requestContext['repeatQueries'] as List?)
+                    ?.whereType<Map<String, Object?>>() ??
+                const [],
+            ledgerId)
+        : const <Map<String, Object?>>[];
+    final previous = repeat.isNotEmpty
+        ? repeat
+        : (requestContext['previousQueries'] as List?)
+                ?.whereType<Map<String, Object?>>()
+                .toList() ??
+            [];
     final localTools = LocalAgentTools(
         scope: scope,
         gateway: _toolGateway,
@@ -314,10 +342,12 @@ final class AgentAppFacade {
         view: requestContext['view'] as Map<String, Object?>? ?? const {});
     final toolRegistry = localTools.buildRegistry();
     try {
-      final memories = await _loadMemories(
-        ledgerId: ledgerId,
-        query: message,
-      );
+      final memories = frozen != null
+          ? const <AgentMemoryRecord>[]
+          : await _loadMemories(
+              ledgerId: ledgerId,
+              query: message,
+            );
       requestContext['memories'] =
           memories.map((item) => item.content).toList();
       logger.debug('AgentCore', '本地记忆已加载', {
@@ -332,6 +362,7 @@ final class AgentAppFacade {
     }
     final toolSelection =
         AgentToolSelection(toolRegistry.descriptors.where((tool) {
+      if (frozen != null) return false;
       final name = tool.definition.name;
       if (P0AgentPolicy.readTools.contains(name)) return true;
       if (!scope.allowsMutations) return false;
@@ -348,6 +379,7 @@ final class AgentAppFacade {
       scope: scope,
       context: requestContext,
       availableToolNames: toolSelection.names,
+      allowToolCalls: frozen == null,
     );
     if (emit != null) {
       request = request.withStreamingTextDeltas((event) {
@@ -366,6 +398,35 @@ final class AgentAppFacade {
     }
     final failedToolAudits = <AgentToolCallAudit>[];
     final suggestionEvidence = <AgentSuggestionEvidence>[];
+
+    Map<String, Object?> displayContext({bool completeReplay = false}) {
+      if (frozen != null) return frozen;
+      final current = localTools.evidence.current;
+      return {
+        if (current.isNotEmpty) ...{
+          'completeReplay': completeReplay,
+          'displayRefs': [for (final query in current) query['ref']],
+          if (requestContext['ledger'] case {'name': final String name})
+            'ledgerName': name,
+        },
+        if (localTools.evidence.snapshots.isNotEmpty)
+          'snapshots': Map.of(localTools.evidence.snapshots),
+        if (previous.isNotEmpty || current.isNotEmpty)
+          'queries': [
+            ...previous.skip((previous.length + current.length - 12)
+                .clamp(0, previous.length)),
+            ...current,
+          ],
+      };
+    }
+
+    AIResponse retainEvidence(AIResponse response) {
+      if (frozen == null && localTools.evidence.snapshots.isEmpty) {
+        return response;
+      }
+      return response
+          .withFollowUpSuggestions(const [], queryContext: displayContext());
+    }
 
     Future<AgentChatResponse?> interruptedReceipt() async {
       final recorded = localTools.savedRecord;
@@ -394,12 +455,29 @@ final class AgentAppFacade {
         'maximumToolCalls': budget.calls,
       });
       final result = await AgentCore(
-        model: _model,
+        model: repeat.isEmpty
+            ? _model
+            : LedgerQueryReplay(_model, LedgerQueryReplay.callsFor(repeat)),
         tools: _observedTools(
           toolSelection.tools,
           emit,
           runId,
-          onEvidence: suggestionEvidence.add,
+          onResult: (call, result) {
+            if (result.containsKey('error')) {
+              if (P0AgentPolicy.readTools.contains(call.name)) {
+                bufferQueryText = true;
+              }
+            } else {
+              suggestionEvidence.add(AgentSuggestionEvidence(
+                  toolName: call.name,
+                  arguments: call.arguments,
+                  result: result));
+            }
+          },
+          queryContextFor: (result) =>
+              localTools.evidence.snapshots.containsKey(result['queryRef'])
+                  ? displayContext()
+                  : null,
           onToolFailed: (call, error) {
             bufferQueryText = true;
             failedToolAudits.add(
@@ -415,7 +493,8 @@ final class AgentAppFacade {
         ),
         policy: authorization,
         maximumModelTurns: budget.turns,
-        maximumToolCalls: budget.calls,
+        maximumToolCalls:
+            repeat.length > budget.calls ? repeat.length : budget.calls,
         readExtension: executionSettings.automatic
             ? (turns: 8, calls: 10, tools: P0AgentPolicy.readTools)
             : null,
@@ -427,12 +506,13 @@ final class AgentAppFacade {
             !{'ambiguous', 'unmatched'}.contains(data['matchStatus']),
         completesRequest: (call, data) =>
             call.name == 'record_transaction_from_text' &&
-            call.arguments['receiptOnly'] == true &&
-            data['success'] == true &&
-            RegExp(r'\d+(?:\.\d+)?').allMatches(message).length == 1 &&
-            !RegExp(r'[？?，,；;\n×*]|顺便|順便|另外|算|分析|对比|對比|how much|also|compare|calculate',
-                    caseSensitive: false)
-                .hasMatch(message),
+            (data['error'] == 'category_choice_required' ||
+                (call.arguments['receiptOnly'] == true &&
+                    data['success'] == true &&
+                    RegExp(r'\d+(?:\.\d+)?').allMatches(message).length == 1 &&
+                    !RegExp(r'[？?，,；;\n×*]|顺便|順便|另外|算|分析|对比|對比|how much|also|compare|calculate',
+                            caseSensitive: false)
+                        .hasMatch(message))),
         validateToolCall: (request, call) {
           final issue = LedgerQueryCallValidator.validate(request, call);
           if (issue != null) bufferQueryText = true;
@@ -451,10 +531,10 @@ final class AgentAppFacade {
         await _memoryRepository.finishRun(runId: runId, status: 'cancelled');
         return AgentChatResponse(
           runId: runId,
-          response: AIResponse.text(
+          response: retainEvidence(AIResponse.stopped(
             l10n?.agentRunCancelled ??
                 resolveAppLocalizations(null).agentRunCancelled,
-          ),
+          )),
         );
       }
       if (LedgerQueryCallValidator.hasUnresolvedIssue(result)) {
@@ -488,8 +568,22 @@ final class AgentAppFacade {
       });
 
       final baseResponse = _responseFor(result, localTools, l10n);
+      if (suggestionEvidence.isEmpty &&
+          result.executedCalls.isNotEmpty &&
+          result.executedCalls
+              .every((call) => P0AgentPolicy.readTools.contains(call.name))) {
+        await _memoryRepository.finishRun(
+            runId: runId,
+            status: 'failed',
+            errorMessage: 'ledger_query_failed');
+        return AgentChatResponse(
+            runId: runId,
+            response: AIResponse.error(
+                (l10n ?? resolveAppLocalizations(null)).agentQueryReadFailed));
+      }
       final canSuggest =
           (baseResponse.type == 'text' || baseResponse.type == 'bill_card') &&
+              !localTools.needsCategoryChoice &&
               result.terminationReason == AgentRunTerminationReason.completed &&
               result.deniedCalls.isEmpty &&
               failedToolAudits.isEmpty;
@@ -509,6 +603,7 @@ final class AgentAppFacade {
                 .whereType<String>()
             : const [],
         enabled: canSuggest,
+        review: requestContext['review'] == true,
       );
       final blocked = result.deniedCalls
           .where((d) =>
@@ -518,16 +613,12 @@ final class AgentAppFacade {
               P0AgentPolicy.readTools.contains(d.call.name))
           .toList();
       final queryContext = <String, Object?>{
-        if (localTools.evidence.current.isNotEmpty)
-          'displayRefs':
-              localTools.evidence.current.map((query) => query['ref']).toList(),
-        if (previous.isNotEmpty || localTools.evidence.current.isNotEmpty)
-          'queries': [...previous, ...localTools.evidence.current]
-              .reversed
-              .take(12)
-              .toList()
-              .reversed
-              .toList(),
+        ...displayContext(
+            completeReplay: canSuggest &&
+                blocked.isEmpty &&
+                result.executedCalls.length ==
+                    localTools.evidence.current.length &&
+                localTools.evidence.current.length <= 12),
         if (result.budgetLimit != null) 'limit': result.budgetLimit!.name,
         if (blocked.isNotEmpty)
           'pending': [
@@ -552,17 +643,20 @@ final class AgentAppFacade {
       });
       await _memoryRepository.finishRun(
           runId: runId,
-          status:
-              blocked.isEmpty && (localTools.savedRecord?.failedCount ?? 0) == 0
-                  ? 'completed'
-                  : 'partial');
+          status: blocked.isEmpty &&
+                  !localTools.needsCategoryChoice &&
+                  (localTools.savedRecord?.failedCount ?? 0) == 0
+              ? 'completed'
+              : 'partial');
       return AgentChatResponse(runId: runId, response: response);
     } on AgentNativeToolUnsupportedException {
       final receipt = await interruptedReceipt();
       if (receipt != null) return receipt;
       await _recordFailedToolAudits(failedToolAudits);
-      final plain = await _textOnlyReply(
-          runId, message, requestContext, cancellationToken, l10n);
+      final plain = frozen != null || localTools.evidence.snapshots.isNotEmpty
+          ? null
+          : await _textOnlyReply(
+              runId, message, requestContext, cancellationToken, l10n);
       if (plain != null) return plain;
       logger.warning('AgentCore', '模型不支持原生 Agent 能力', {'runId': runId});
       await _memoryRepository.finishRun(
@@ -572,11 +666,11 @@ final class AgentAppFacade {
       );
       return AgentChatResponse(
         runId: runId,
-        response: AIResponse.error(
+        response: retainEvidence(AIResponse.error(
           l10n?.agentNativeToolsUnsupported ??
               resolveAppLocalizations(null).agentNativeToolsUnsupported,
           action: AIResponseAction.openProviderSettings,
-        ),
+        )),
       );
     } on AgentNativeToolTimeoutException {
       final receipt = await interruptedReceipt();
@@ -590,10 +684,10 @@ final class AgentAppFacade {
       );
       return AgentChatResponse(
         runId: runId,
-        response: AIResponse.error(
+        response: retainEvidence(AIResponse.error(
           l10n?.agentTurnTimedOut ??
               resolveAppLocalizations(null).agentTurnTimedOut,
-        ),
+        )),
       );
     } catch (error, stackTrace) {
       final receipt = await interruptedReceipt();
@@ -607,8 +701,8 @@ final class AgentAppFacade {
       );
       return AgentChatResponse(
         runId: runId,
-        response: AIResponse.error(l10n?.agentRunFailed ??
-            resolveAppLocalizations(null).agentRunFailed),
+        response: retainEvidence(AIResponse.error(l10n?.agentRunFailed ??
+            resolveAppLocalizations(null).agentRunFailed)),
       );
     }
   }
@@ -686,7 +780,7 @@ final class AgentAppFacade {
         await _memoryRepository.finishRun(runId: runId, status: 'cancelled');
         return AgentChatResponse(
             runId: runId,
-            response: AIResponse.text(
+            response: AIResponse.stopped(
                 (l10n ?? resolveAppLocalizations(null)).agentRunCancelled));
       }
       final decoded = jsonDecode(raw
@@ -732,7 +826,10 @@ final class AgentAppFacade {
       if (recentAssistant?['scopeId']?.toString() == ledgerId.toString() &&
           recentAssistant?['queryContext'] is Map) {
         final saved = recentAssistant!['queryContext'] as Map;
-        requestContext['previousQueries'] = saved['queries'];
+        if (saved['queries'] case final List definitions) {
+          requestContext['previousQueries'] =
+              definitions.reversed.take(12).toList().reversed.toList();
+        }
         requestContext['pendingQueries'] = saved['pending'];
       }
       final prepared = await contextCompressor.prepare(
@@ -799,7 +896,9 @@ final class AgentAppFacade {
     Map<String, AgentTool> tools,
     void Function(AgentRunEvent event)? emit,
     String runId, {
-    required void Function(AgentSuggestionEvidence) onEvidence,
+    required void Function(AgentToolCall, Map<String, Object?>) onResult,
+    required Map<String, Object?>? Function(Map<String, Object?>)
+        queryContextFor,
     void Function(AgentToolCall call, Object error)? onToolFailed,
   }) {
     return {
@@ -822,14 +921,7 @@ final class AgentAppFacade {
             );
           },
           onFinished: (call, result, error) {
-            if (error == null &&
-                result != null &&
-                !result.containsKey('error')) {
-              onEvidence(AgentSuggestionEvidence(
-                  toolName: call.name,
-                  arguments: call.arguments,
-                  result: result));
-            }
+            if (error == null && result != null) onResult(call, result);
             final data = {
               'runId': runId,
               'callId': call.id,
@@ -850,7 +942,8 @@ final class AgentAppFacade {
                 arguments: call.arguments,
                 result: result,
                 error: error?.toString(),
-                succeeded: error == null,
+                succeeded: error == null && result?['error'] == null,
+                queryContext: result == null ? null : queryContextFor(result),
               ),
             );
             if (error != null) onToolFailed?.call(call, error);
@@ -922,6 +1015,11 @@ final class AgentAppFacade {
     for (final call in result.executedCalls) {
       if (call.name != 'record_transaction_from_text') continue;
       final recorded = tools.recordResultFor(call);
+      if (recorded?.categoryChoice case final choice?) {
+        final l = l10n ?? resolveAppLocalizations(null);
+        return AIResponse.text(l.agentRecordChooseSubcategory(
+            choice.parent, choice.choices.join(' / ')));
+      }
       if (recorded == null || !recorded.success) {
         return AIResponse.text(
           l10n?.agentRecordIncomplete ??
@@ -1023,6 +1121,7 @@ final class AgentToolCompletedEvent extends AgentRunEvent {
     Map<String, Object?> arguments = const {},
     Map<String, Object?>? result,
     this.error,
+    this.queryContext,
   })  : arguments = Map.unmodifiable(arguments),
         result = result == null ? null : Map.unmodifiable(result);
 
@@ -1032,6 +1131,9 @@ final class AgentToolCompletedEvent extends AgentRunEvent {
   final Map<String, Object?> arguments;
   final Map<String, Object?>? result;
   final String? error;
+
+  /// Frozen display evidence for local UI only, available before model text.
+  final Map<String, Object?>? queryContext;
 }
 
 final class AgentRunCompletedEvent extends AgentRunEvent {

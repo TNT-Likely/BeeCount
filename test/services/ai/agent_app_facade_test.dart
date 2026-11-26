@@ -48,6 +48,7 @@ import 'package:beecount/data/db.dart' hide AgentToolCall;
 import 'package:beecount/l10n/app_localizations_en.dart';
 import 'package:beecount/services/ai/agent_app_facade.dart';
 import 'package:beecount/services/ai/ai_chat_service.dart';
+import 'package:beecount/services/billing/bill_creation_service.dart';
 import 'package:beecount/services/system/logger_service.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -71,6 +72,35 @@ void main() {
   });
 
   tearDown(() => db.close());
+
+  test('an unsuccessful read never becomes a zero balance or a checked answer',
+      () async {
+    final facade = AgentAppFacade(
+        memoryRepository: LocalAgentMemoryRepository(db),
+        toolGateway: gateway,
+        permissionStore: _MemoryPermissionStore(),
+        model: _FakeModel([
+          AgentTurn.toolCalls([
+            AgentToolCall(
+                id: 'unknown',
+                name: 'get_period_overview',
+                arguments: {'baseQuery': 'missing', 'answerMetric': 'expense'})
+          ]),
+          const AgentTurn.finalText('本月没有支出。'),
+        ]));
+    final events = await facade
+        .processMessageEvents(message: '本月花了多少？', ledgerId: 1)
+        .toList();
+    final tool = events.whereType<AgentToolCompletedEvent>().single;
+    expect(tool.succeeded, isFalse);
+    expect(tool.queryContext, isNull);
+    final reply =
+        events.whereType<AgentRunCompletedEvent>().single.result.response;
+    expect(reply.type, 'error');
+    expect(reply.text, '账本查询未完成');
+    expect(reply.queryContext, isEmpty);
+    expect(reply.allowPromptSuggestions, isFalse);
+  });
 
   test('a successful record response preserves cards and transaction ids',
       () async {
@@ -109,6 +139,35 @@ void main() {
       ),
       isTrue,
     );
+  });
+
+  test('an ambiguous category asks for its children without a receipt',
+      () async {
+    final choice = BillCategoryNeedsChoice(parent: '餐饮', choices: ['午餐', '晚餐']);
+    gateway.recordResult =
+        AgentRecordToolResult(success: false, categoryChoice: choice);
+    const source = '记一笔餐饮 28 元';
+    final facade = AgentAppFacade(
+      memoryRepository: LocalAgentMemoryRepository(db),
+      toolGateway: gateway,
+      permissionStore: _MemoryPermissionStore(),
+      model: _FakeModel([
+        AgentTurn.toolCalls([
+          AgentToolCall(
+              id: 'ambiguous-category',
+              name: 'record_transaction_from_text',
+              arguments: const {'sourceText': source, 'receiptOnly': true}),
+        ]),
+      ]),
+    );
+    final l = AppLocalizationsEn();
+    final response =
+        await facade.processMessage(message: source, ledgerId: 1, l10n: l);
+    expect(response.type, 'text');
+    expect(response.text, l.agentRecordChooseSubcategory('餐饮', '午餐 / 晚餐'));
+    expect(response.transactionIds, isEmpty);
+    expect(response.response.allowPromptSuggestions, isFalse);
+    expect(gateway.recordedTexts, [source]);
   });
 
   test('record result without cards uses the active locale', () async {

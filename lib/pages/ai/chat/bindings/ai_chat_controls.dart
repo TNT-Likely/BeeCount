@@ -1,14 +1,22 @@
 import '../widgets/ledger_evidence_sheet.dart';
+import '../widgets/ledger_evidence_label.dart';
+import '../widgets/agent_financial_answer.dart';
+import '../widgets/agent_answer_header.dart';
+import '../widgets/agent_write_confirmation.dart';
+import '../../../../agent/model/ledger_query_replay.dart';
+import '../../../../agent/policy/p0_agent_policy.dart';
+import '../../../../services/ai/chat_session_store.dart';
+import '../../../../utils/format_utils.dart';
 import 'package:beecount/services/ai/chat_receipt_store.dart';
 import 'package:beecount_business_ui/beecount_business_ui.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import '../../../shared/scaffold/widgets/page_scaffold.dart';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:agentcore/agentcore.dart'
     show AgentNativeModelPhase, AgentPromptSuggestion;
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show RenderAbstractViewport;
 import 'package:flutter/services.dart';
 import 'package:flutter_agent_ui/flutter_agent_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -26,7 +34,7 @@ import 'package:beecount/services/billing/post_processor.dart';
 import 'package:beecount/providers.dart';
 import 'package:beecount/providers/ai_chat_providers.dart';
 import 'package:beecount/ai/core/bill_info.dart';
-import 'package:beecount/pages/transaction/transaction_editor_page.dart';
+import 'package:beecount/utils/transaction_edit_utils.dart';
 import 'package:beecount/pages/ai/ai_settings_page.dart';
 import 'package:beecount/pages/ai/ai_provider_manage_page.dart';
 import 'package:beecount/pages/ai/agent_assistant_settings_page.dart';
@@ -38,7 +46,6 @@ import 'package:beecount/pages/ai/chat/bindings/agent_execution_timeline.dart';
 import 'package:beecount/pages/ai/chat/widgets/agent_empty_conversation.dart';
 import 'package:beecount/data/db.dart';
 import 'package:beecount/l10n/app_localizations.dart';
-import 'package:beecount/services/ui/avatar_service.dart';
 import 'package:beecount/services/system/logger_service.dart';
 import 'package:beecount/services/ai/ai_chat_service.dart';
 import 'package:beecount/services/ai/agent_app_facade.dart';
@@ -63,9 +70,29 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
       AgentConversationScrollCoordinator(_scrollController);
   int? _conversationId;
   bool _isLoading = false;
-  int? _animatingMessageId; // 正在播放动画的消息ID
-  String? _userAvatarPath; // 用户头像路径
-  AIConfigValidationResult? _apiValidation; // API配置验证结果
+  final FocusNode _inputFocus = FocusNode();
+  final _drafts = <int, TextEditingValue>{};
+  // A streaming delta rebuilds visible turns. Parse large frozen evidence only
+  // once per message revision, with a bounded cache for long conversations.
+  final _presentations = <int, _SavedTurn>{};
+  _SavedTurn _saved(Message message) {
+    final existing = _presentations[message.id];
+    if (existing != null && existing.metadata == message.metadata) {
+      return existing;
+    }
+    if (_presentations.length >= 32) {
+      _presentations.remove(_presentations.keys.first);
+    }
+    return _presentations[message.id] =
+        _SavedTurn(message.metadata, ref.read(currentLedgerIdProvider));
+  }
+
+  bool _switching = false;
+  late final ChatSessionStore _sessions;
+  AgentToolAuthorizationRequest? _pendingWrite;
+  bool _stopRequested = false;
+  bool _declinedWrite = false;
+  String _sourceText = '';
   bool _showScrollToBottom = false; // 是否显示"回到底部"按钮
   bool _followLatest = true;
   bool _isUserScrolling = false;
@@ -74,6 +101,12 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
   String _streamingAgentText = '';
   AgentNativeModelPhase? _agentModelPhase;
   List<AgentExecutionStep> _agentExecutionSteps = const [];
+  AgentFinancialPresentation? _livePresentation;
+  Map<String, Object?> _liveQueryContext = const {};
+  int? _liveSourceId;
+  int? _continuingMessageId;
+  int? _queryAnchorSource;
+  bool _liveCardPositioned = false;
   AIResponse? _liveAgentResponse;
   int? _liveAssistantMessageId;
   int? _pendingResponseMessageId;
@@ -87,12 +120,8 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
     // invalid because Riverpod may already have detached this element.
     _chatService = ref.read(aiChatServiceProvider);
     WidgetsBinding.instance.addObserver(this);
+    _sessions = ChatSessionStore(ref.read(databaseProvider));
     _initConversation();
-    _loadUserAvatar();
-    // 在下一帧后执行 API 验证，完全不阻塞页面渲染
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _validateApiConfig();
-    });
     _scrollController.addListener(_handleScroll);
   }
 
@@ -119,59 +148,132 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
     super.didChangeAppLifecycleState(state);
     // 当应用从后台恢复到前台时，重新验证API配置
     if (state == AppLifecycleState.resumed) {
-      _validateApiConfig();
-    }
-  }
-
-  /// 验证 API 配置（仅检查本地配置，不发网络请求）
-  Future<void> _validateApiConfig() async {
-    try {
-      final result = await AIChatService.validateApiKey();
-      if (!mounted) return;
-      setState(() => _apiValidation = result);
-    } catch (e, st) {
-      logger.error('AIChat', 'API 配置检查失败', e, st);
-      if (!mounted) return;
-      setState(() {
-        _apiValidation = AIConfigValidationResult.invalid('配置检查失败');
-      });
-    }
-  }
-
-  Future<void> _loadUserAvatar() async {
-    final path = await AvatarService.getAvatarPath();
-    if (mounted) {
-      setState(() {
-        _userAvatarPath = path;
-      });
+      ref.invalidate(aiChatTextModelConfiguredProvider);
     }
   }
 
   Future<void> _initConversation() async {
-    final repo = ref.read(repositoryProvider);
-
-    // 查找全局活跃对话（不限制账本）
-    final conv = await repo.getActiveConversation();
-    if (!mounted) return;
-
-    if (conv != null) {
-      setState(() => _conversationId = conv.id);
-    } else {
-      // 创建新对话（全局对话，不关联账本）
-      final id = await repo.createConversation(
-        ConversationsCompanion.insert(
-          title: const Value('AI对话'),
-          createdAt: Value(DateTime.now()),
-          updatedAt: Value(DateTime.now()),
-        ),
-      );
-      if (!mounted) return;
-      setState(() => _conversationId = id);
-    }
-
-    if (!mounted) return;
-    ref.read(currentConversationIdProvider.notifier).state = _conversationId;
+    final id = await _sessions.open(ref.read(currentLedgerIdProvider));
+    if (mounted) _displaySession(id);
   }
+
+  void _displaySession(int id) {
+    if (_conversationId == id) return;
+    if (_conversationId case final int old) {
+      _drafts[old] = _inputController.value;
+    }
+    _inputController.value = _drafts[id] ?? TextEditingValue.empty;
+    _chatScrollCoordinator.onUserScroll();
+    _presentations.clear();
+    setState(() {
+      _conversationId = id;
+      _queryAnchorSource = null;
+      _isFirstLoad = true;
+      _followLatest = true;
+      _showScrollToBottom = false;
+      _pendingResponseMessageId = null;
+    });
+    ref.read(currentConversationIdProvider.notifier).state = id;
+  }
+
+  Future<void> _configureModel() async {
+    await Navigator.of(context)
+        .push(MaterialPageRoute(builder: (_) => const AISettingsPage()));
+    if (!mounted) return;
+    ref.invalidate(aiChatTextModelConfiguredProvider);
+  }
+
+  void _draftEntry() {
+    if (_isLoading) return;
+    if (_inputController.text.trim().isEmpty) {
+      final text = AppLocalizations.of(context).aiChatStartRecordDraft;
+      _inputController.value = TextEditingValue(
+          text: text, selection: TextSelection.collapsed(offset: text.length));
+    }
+    _inputFocus.requestFocus();
+  }
+
+  Future<void> _conversationMenu() async {
+    final l = AppLocalizations.of(context);
+    final ledger = ref.read(currentLedgerIdProvider);
+    final busy = _isLoading || _switching;
+    final selected = await showBeeSheet<String>(context,
+        title: l.aiChatNavigation,
+        child: SingleChildScrollView(
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
+          if (!busy)
+            _menuRow('new', l.aiChatNew, 'MessageSquare', 'agent-chat-new'),
+          if (!busy)
+            _menuRow(
+                'history', l.aiChatHistory, 'History', 'agent-chat-history'),
+          _menuRow('permissions', l.aiChatPermissionsDepth, 'SlidersHorizontal',
+              'agent-chat-permissions'),
+          if (!busy)
+            _menuRow(
+                'clear', l.aiChatClearCurrent, 'Trash2', 'agent-chat-clear',
+                danger: true),
+        ])));
+    if (!mounted ||
+        selected == null ||
+        ledger != ref.read(currentLedgerIdProvider)) {
+      return;
+    }
+    if (selected == 'permissions') {
+      await Navigator.of(context).push(MaterialPageRoute(
+          builder: (_) => AgentAssistantSettingsPage(ledgerId: ledger)));
+      return;
+    }
+    if (_isLoading || _switching) return;
+    if (selected == 'clear') {
+      await _showClearHistoryDialog();
+      return;
+    }
+    setState(() => _switching = true);
+    try {
+      if (selected == 'new') {
+        final id = await _sessions.start(ledger, _conversationId!);
+        if (mounted) _displaySession(id);
+      } else if (selected == 'history') {
+        final rows = await _sessions.history(ledger);
+        if (!mounted) return;
+        final hidden = ref.read(hideAmountsProvider);
+        final id = await showBeeSheet<int>(context,
+            title: l.aiChatHistory,
+            child: rows.isEmpty
+                ? Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Text(l.aiChatNoHistory))
+                : ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: rows.length,
+                    itemBuilder: (context, i) {
+                      final row = rows[i];
+                      return BeeMenuRow(
+                          leading: const BeeLineIcon('MessageSquare', size: 19),
+                          title: hidden ? l.aiChatHiddenMessage : row.title,
+                          subtitle: MaterialLocalizations.of(context)
+                              .formatMediumDate(row.updated),
+                          selected: _conversationId == row.id,
+                          onTap: () => Navigator.pop(context, row.id));
+                    }));
+        if (!mounted || id == null) return;
+        final selected = await _sessions.select(ledger, id);
+        if (selected && mounted) _displaySession(id);
+      }
+    } finally {
+      if (mounted) setState(() => _switching = false);
+    }
+  }
+
+  Widget _menuRow(String value, String label, String icon, String key,
+          {bool danger = false}) =>
+      Builder(
+          builder: (ctx) => BeeMenuRow(
+              key: ValueKey(key),
+              title: label,
+              danger: danger,
+              leading: BeeLineIcon(icon, size: 19),
+              onTap: () => Navigator.pop(ctx, value)));
 
   @override
   Widget build(BuildContext context) {
@@ -182,35 +284,27 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
     }
 
     final messagesAsync = ref.watch(messagesProvider(_conversationId!));
+    final configured = ref.watch(aiChatTextModelConfiguredProvider).valueOrNull;
 
     final l10n = AppLocalizations.of(context);
 
+    final name = ref.watch(currentLedgerProvider).valueOrNull?.name;
     return AgentChatShell(
-      title: l10n.aiChatTitle,
+      title: l10n.aiChatAssistantName,
       backTooltip: l10n.commonBack,
-      permissionsTooltip: l10n.agentAssistantSettingsTitle,
-      clearTooltip: l10n.aiChatClearHistory,
+      ledgerName: name == null ? null : translateLedgerName(context, name),
+      moreLabel: l10n.aiChatNavigation,
       onBack: () => Navigator.of(context).maybePop(),
-      onOpenPermissions: () => Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) => AgentAssistantSettingsPage(
-            ledgerId: ref.read(currentLedgerIdProvider),
-          ),
-        ),
-      ),
-      onClearHistory: _showClearHistoryDialog,
+      onMore: _conversationMenu,
       child: Column(
         children: [
           // API配置警告横幅
-          if (_apiValidation != null && !_apiValidation!.isValid)
+          if (configured == false &&
+              messagesAsync.valueOrNull?.isNotEmpty == true)
             BeeConversationNotice(
                 label: l10n.aiChatConfigWarning,
                 actionLabel: l10n.aiChatGoToSettings,
-                onAction: () async {
-                  await Navigator.of(context).push(MaterialPageRoute(
-                      builder: (_) => const AISettingsPage()));
-                  if (mounted) await _validateApiConfig();
-                }),
+                onAction: _configureModel),
 
           // 消息列表
           Expanded(
@@ -221,7 +315,9 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
                     final displayMessages =
                         AgentMessageVisibility.forLiveResponse(
                       messages,
-                      liveResponse: _liveAgentResponse,
+                      liveResponse: _continuingMessageId == null
+                          ? _liveAgentResponse
+                          : null,
                       persistedMessageId: _liveAssistantMessageId,
                     );
                     final pendingResponseId = _pendingResponseMessageId;
@@ -237,16 +333,27 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
                     // 首次加载完成且有消息时，自动滚动到底部
                     if (_isFirstLoad && displayMessages.isNotEmpty) {
                       _isFirstLoad = false;
-                      _chatScrollCoordinator.requestInitialPositioning();
+                      if (_queryAnchorSource == null) {
+                        _chatScrollCoordinator.requestInitialPositioning();
+                      }
                     }
 
                     if (displayMessages.isEmpty && !_hasLiveAgentMessage) {
-                      return const AgentEmptyConversation();
+                      return AgentEmptyConversation(
+                          view: widget.view,
+                          onPrompt: _sendMessageText,
+                          onConfigureModel: _configureModel,
+                          onRecord: _draftEntry);
                     }
 
                     return NotificationListener<ScrollMetricsNotification>(
-                      onNotification: (_) {
+                      onNotification: (notification) {
                         _chatScrollCoordinator.onScrollMetricsChanged();
+                        if (notification.depth == 0 && !_followLatest) {
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            if (mounted) _handleScroll();
+                          });
+                        }
                         return false;
                       },
                       child: NotificationListener<ScrollNotification>(
@@ -255,6 +362,7 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
                             if (notification is ScrollStartNotification &&
                                 notification.dragDetails != null) {
                               _isUserScrolling = true;
+                              _queryAnchorSource = null;
                               _followLatest = false;
                               _chatScrollCoordinator.onUserScroll();
                             }
@@ -267,40 +375,39 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
                             return false;
                           },
                           child: ListView.builder(
+                            key: ValueKey('conversation-$_conversationId'),
                             controller: _scrollController,
                             padding: EdgeInsets.symmetric(
                               horizontal: 17,
                               vertical: 8,
                             ),
                             itemCount: displayMessages.length +
-                                (_hasLiveAgentMessage ? 1 : 0),
+                                (_hasLiveAgentMessage &&
+                                        _continuingMessageId == null
+                                    ? 1
+                                    : 0),
                             itemBuilder: (context, index) {
                               if (index == displayMessages.length) {
                                 return _buildLiveAgentBubble();
                               }
                               final message = displayMessages[index];
-                              final ledgerId =
-                                  ref.watch(currentLedgerIdProvider);
+                              if (_hasLiveAgentMessage &&
+                                  message.id == _continuingMessageId) {
+                                return _buildLiveAgentBubble();
+                              }
                               final queries = message.role == 'assistant'
-                                  ? LedgerEvidenceSheet.forMessage(
-                                      message.metadata, ledgerId)
+                                  ? _saved(message).queries
                                   : const <Map<String, Object?>>[];
                               final suggestions = !_isLoading &&
                                       !_hasLiveAgentMessage &&
                                       index == displayMessages.length - 1 &&
                                       message.role == 'assistant' &&
-                                      AssistantFollowUpMetadata
-                                          .allowsAnalysisTemplates(
-                                              message.metadata) &&
+                                      _saved(message).allowsSuggestions &&
                                       (message.messageType == 'text' ||
                                           message.messageType == 'bill_card')
                                   ? AssistantPromptSuggestions.sections(
                                       l10n,
-                                      contextual:
-                                          AssistantFollowUpMetadata.decode(
-                                              message.metadata,
-                                              ledgerId: ref.watch(
-                                                  currentLedgerIdProvider)),
+                                      contextual: _saved(message).suggestions,
                                       recentPrompts: displayMessages
                                           .where((row) => row.role == 'user')
                                           .map((row) => row.content)
@@ -315,19 +422,10 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
                               return Column(
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
-                                  _buildMessageBubble(message),
-                                  if (queries.isNotEmpty)
-                                    Align(
-                                        alignment: Alignment.centerLeft,
-                                        child: TextButton.icon(
-                                          icon: const BeeLineIcon('ReceiptText',
-                                              size: 17),
-                                          label: Text(l10n.agentEvidenceBills),
-                                          onPressed: () =>
-                                              LedgerEvidenceSheet.show(context,
-                                                  ledgerId: ledgerId,
-                                                  queries: queries),
-                                        )),
+                                  _buildMessageBubble(message,
+                                      queries: queries,
+                                      source: _originalRequest(
+                                          displayMessages, index)),
                                   if (suggestions.questions.isNotEmpty ||
                                       suggestions.templates.isNotEmpty)
                                     Padding(
@@ -335,6 +433,7 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
                                         child: AgentFollowUpQuestions(
                                           key: ValueKey(
                                               'follow-ups-${message.id}'),
+                                          compact: true,
                                           suggestions: suggestions.questions,
                                           templates: suggestions.templates,
                                           onSuggestionTap:
@@ -370,28 +469,42 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
             ),
           ),
 
-          if (widget.view['ledgerId'] == ref.watch(currentLedgerIdProvider) &&
-              widget.view.isNotEmpty)
-            Align(
-                alignment: Alignment.centerLeft,
-                child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: ActionChip(
-                        label: Text(l10n.agentMonthlyReview),
-                        onPressed: _isLoading
-                            ? null
-                            : () => _sendMessageText(
-                                l10n.agentMonthlyReviewPrompt,
-                                readOnly: true,
-                                review: true)))),
-          // 输入区域
           _buildInputArea(),
         ],
       ),
     );
   }
 
-  Widget _buildMessageBubble(Message message) {
+  Message? _originalRequest(List<Message> messages, int index) {
+    final reply = messages[index];
+    if (reply.role != 'assistant') return null;
+    final metadata = _saved(reply).data;
+    final id = metadata['sourceMessageId'] ?? metadata['receiptSourceId'];
+    for (var i = index - 1; i >= 0; i--) {
+      if (messages[i].role == 'user' && (id == null || id == messages[i].id)) {
+        return messages[i];
+      }
+    }
+    return null;
+  }
+
+  static Map _readMetadata(String? metadata) {
+    try {
+      final data = jsonDecode(metadata ?? '{}');
+      return data is Map ? data : const {};
+    } on FormatException {
+      return const {};
+    }
+  }
+
+  Widget _buildMessageBubble(
+    Message message, {
+    required List<Map<String, Object?>> queries,
+    required Message? source,
+  }) {
+    final l = AppLocalizations.of(context);
+    final ledger = ref.watch(currentLedgerIdProvider);
+    final hidden = ref.watch(hideAmountsProvider);
     if (message.messageType == 'bill_card' && message.metadata != null) {
       final parsed = _parseBillMetadata(message);
       Widget cards;
@@ -403,6 +516,8 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
           onLongPressStart: (details) =>
               _showBillCardMenu(details.globalPosition, message),
           child: BillCardWidget(
+            compact: true,
+            expectedLedgerId: ref.read(currentLedgerIdProvider),
             billInfo: bill,
             transactionId: txId,
             isUndone: isUndone,
@@ -422,7 +537,7 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
       }
       final note = (jsonDecode(message.metadata!) as Map)['supplementalText'];
       return _answerView(
-          activity: _storedActivity(message),
+          activity: _answerHeader(message, source, queries),
           content: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -432,124 +547,387 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
     }
 
     if (message.role != 'user') {
-      final responseAction = _responseActionFor(message);
+      final responseAction = AIResponseAction.values
+          .where((v) => v.name == _saved(message).data['action'])
+          .firstOrNull;
+      final data = _saved(message).data;
+      final status = data['replyStatus'];
+      final interrupted = message.messageType == 'error' || status == 'stopped';
+      final presentation = _saved(message).presentation;
+      final retained = interrupted && presentation?.hasDeclaredMetric == true;
+      final failedRead = data['queryReadFailed'] == true;
       return _answerView(
         key: ValueKey('agent-answer-${message.id}'),
-        activity: _storedActivity(message),
-        content: GestureDetector(
-          onLongPressStart: (details) =>
-              _showTextMessageMenu(details.globalPosition, message, false),
-          child:
-              Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-            _answerText(message.content),
-            if (responseAction != null) _buildResponseAction(responseAction),
-          ]),
-        ),
-        actions: _answerActions(message.content, message: message),
+        activity: _answerHeader(message, source, queries),
+        content:
+            Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          if (retained) _financialCard(presentation!, sourceId: source?.id),
+          if (interrupted &&
+              !retained &&
+              !failedRead &&
+              data['partialText'] is String)
+            _answerText(data['partialText'] as String),
+          if (interrupted)
+            BeeSurface(
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                  Text(
+                      retained
+                          ? l.agentQueryRetained
+                          : status == 'stopped'
+                              ? l.aiChatStopped
+                              : failedRead
+                                  ? l.agentQueryReadFailed
+                                  : l.aiChatInterrupted,
+                      style: Theme.of(context).textTheme.titleSmall),
+                  const SizedBox(height: 6),
+                  if (!retained &&
+                      !(failedRead &&
+                          message.content == l.agentQueryReadFailed))
+                    _answerText(message.content),
+                  if (source != null &&
+                      !_isLoading &&
+                      data['writeRequested'] != true)
+                    TextButton.icon(
+                        icon: const BeeLineIcon('RotateCcw', size: 16),
+                        label: Text(retained
+                            ? l.agentQueryResume
+                            : failedRead
+                                ? l.agentQueryRetry
+                                : l.aiChatRetryAnswer),
+                        onPressed: () => retained
+                            ? _sendMessageText(source.content,
+                                readOnly: true,
+                                continuation: (reply: message, source: source))
+                            : _repeat(message, source, queries)),
+                ]))
+          else if (presentation == null)
+            GestureDetector(
+                onLongPressStart: (details) => _showTextMessageMenu(
+                    details.globalPosition, message, false),
+                child: _answerText(message.content))
+          else
+            _financialContent(presentation, message.content,
+                sourceId: source?.id,
+                key: PageStorageKey('detail-${message.id}'),
+                keepLead: data['writeRequested'] == true ||
+                    data['continuedExplanation'] == true ||
+                    _saved(message).queryContext['limit'] != null),
+          if (presentation == null && !interrupted && queries.isNotEmpty)
+            BeeMenuRow(
+                title: l.agentEvidenceBills,
+                leading: const BeeLineIcon('ReceiptText', size: 18),
+                onTap: () => LedgerEvidenceSheet.show(context,
+                    ledgerId: ledger, queries: queries)),
+          if (responseAction != null) _buildResponseAction(responseAction),
+        ]),
       );
     }
 
     return BeeConversationUserMessage(
-        avatar: _userAvatarPath != null ? _buildUserAvatar() : null,
         child: GestureDetector(
             onLongPressStart: (details) =>
                 _showTextMessageMenu(details.globalPosition, message, true),
-            child: TypewriterText(
-                text: message.content,
-                animate: message.id == _animatingMessageId,
+            child: Text(hidden ? l.aiChatHiddenMessage : message.content,
                 style: TextStyle(
                     color: BeeTokens.textPrimary(context),
-                    fontSize: 13,
-                    height: 1.6))));
+                    fontSize: 14,
+                    height: 1.5))));
   }
 
-  Widget _answerView(
-          {Key? key,
-          required Widget content,
-          Widget? activity,
-          Widget? actions}) =>
+  Widget _answerView({Key? key, required Widget content, Widget? activity}) =>
       Padding(
-          padding: const EdgeInsets.symmetric(vertical: 6),
-          child: BeeSurface(
-              child: AgentAnswerView(
-                  key: key,
-                  content: content,
-                  activity: activity,
-                  actions: actions)));
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: AgentAnswerView(
+              key: key,
+              content: content,
+              activity: activity ?? const AgentAnswerHeader()));
 
   Widget _answerText(String text) => AgentMarkdownText(
-        data: text,
-        style: TextStyle(
-            color: BeeTokens.textPrimary(context), fontSize: 14, height: 1.6),
-      );
+      data: ref.watch(hideAmountsProvider)
+          ? AppLocalizations.of(context).aiChatHiddenMessage
+          : text,
+      style: TextStyle(
+          color: BeeTokens.textPrimary(context), fontSize: 14, height: 1.6));
 
-  Widget? _storedActivity(Message message) {
-    final steps = AssistantExecutionMetadata.decode(message.metadata);
-    if (steps.isEmpty) return null;
-    return AgentExecutionTimeline(
-      key: ValueKey('execution-${message.id}'),
-      steps: const [],
-      displaySteps: steps,
-      isStreaming: false,
-    );
-  }
+  Widget _financialCard(AgentFinancialPresentation presentation,
+          {required int? sourceId, bool live = false}) =>
+      Builder(builder: (anchor) {
+        if (sourceId != null &&
+            _queryAnchorSource == sourceId &&
+            (!live || !_liveCardPositioned)) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted ||
+                !anchor.mounted ||
+                !_scrollController.hasClients ||
+                _queryAnchorSource != sourceId) {
+              return;
+            }
+            final card = anchor.findRenderObject();
+            if (card == null || !card.attached) return;
+            final viewport = RenderAbstractViewport.maybeOf(card);
+            if (viewport == null) return;
+            final position = _scrollController.position;
+            final top = viewport.getOffsetToReveal(card, 0).offset;
+            final bottom = viewport.getOffsetToReveal(card, 1).offset;
+            if (position.pixels > top || position.pixels < bottom) {
+              position.jumpTo((top - 8)
+                  .clamp(position.minScrollExtent, position.maxScrollExtent));
+            }
+            if (live) {
+              _liveCardPositioned = true;
+            } else {
+              _queryAnchorSource = null;
+            }
+          });
+        }
+        return AgentFinancialAnswer(
+            presentation: presentation,
+            onEvidence: (scope) => LedgerEvidenceSheet.show(context,
+                ledgerId: ref.read(currentLedgerIdProvider), queries: scope));
+      });
 
-  Widget _answerActions(String text, {Message? message}) {
-    final l10n = AppLocalizations.of(context);
-    final color = BeeTokens.textTertiary(context);
-    return Row(children: [
-      IconButton(
-        key: message == null
-            ? null
-            : ValueKey('agent-answer-copy-${message.id}'),
-        tooltip: l10n.aiChatCopy,
-        icon: Icon(Icons.copy_rounded, size: 16, color: color),
-        onPressed: () {
-          Clipboard.setData(ClipboardData(text: text));
-          showBeeToast(context, l10n.aiChatCopied, tone: BeeTone.success);
-        },
-      ),
-      if (message != null)
-        Builder(
-            builder: (buttonContext) => IconButton(
-                  key: ValueKey('agent-answer-more-${message.id}'),
-                  tooltip: l10n.commonMore,
-                  icon: Icon(Icons.more_horiz_rounded, size: 18, color: color),
-                  onPressed: () {
-                    final box = buttonContext.findRenderObject() as RenderBox;
-                    _showTextMessageMenu(
-                        box.localToGlobal(Offset(box.size.width, 0)),
-                        message,
-                        false);
-                  },
-                )),
+  Widget _financialContent(AgentFinancialPresentation p, String text,
+      {required Key key,
+      required int? sourceId,
+      bool live = false,
+      bool keepLead = false}) {
+    final paragraphs = text.trim().split(RegExp(r'\n\s*\n'));
+    final showLead = paragraphs.first.isNotEmpty && (!p.isCompact || keepLead);
+    final lead = Padding(
+        padding: const EdgeInsets.symmetric(vertical: 6),
+        child: _answerText(paragraphs.first));
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      if (showLead && !p.hasDeclaredMetric) lead,
+      _financialCard(p, sourceId: sourceId, live: live),
+      if (showLead && p.hasDeclaredMetric) lead,
+      if (paragraphs.length > 1 && !ref.watch(hideAmountsProvider))
+        ExpansionTile(
+            key: key,
+            title: Text(AppLocalizations.of(context).aiChatReplyDetails),
+            dense: true,
+            tilePadding: EdgeInsets.zero,
+            shape: const Border(),
+            collapsedShape: const Border(),
+            children: [
+              Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: _answerText(paragraphs.skip(1).join('\n\n')))
+            ]),
     ]);
   }
 
+  AgentActivityStep? _basis(AgentFinancialPresentation? p, Map queryContext) {
+    if (p == null || !p.hasDeclaredMetric) return null;
+    final l = AppLocalizations.of(context);
+    if (ref.watch(hideAmountsProvider)) {
+      return AgentActivityStep(
+          title: l.agentQueryBasis, status: AgentActivityStatus.completed);
+    }
+    final book = queryContext['ledgerName'] ??
+        ref.watch(currentLedgerProvider).valueOrNull?.name;
+    return AgentActivityStep(
+        title: p.countLabel(l),
+        status: AgentActivityStatus.completed,
+        details: [
+          if (book is String)
+            '${l.transactionReceiptLedger} · ${translateLedgerName(context, book)}',
+          '${l.importFieldDate} · ${p.rangeLabel(context)}',
+          [
+            p.flowLabel(l),
+            ...ledgerEvidenceFilterLabels(context, p.filters,
+                accountsEnabled:
+                    ref.watch(accountFeatureEnabledProvider).valueOrNull ??
+                        true)
+          ].join(' · '),
+          p.filters['includeExcludedFromStats'] == true
+              ? l.agentQueryStatsIncluded
+              : l.agentQueryStatsExcluded,
+        ]);
+  }
+
+  bool _basisExpanded(int? sourceId) =>
+      sourceId != null &&
+      PageStorage.maybeOf(context)
+              ?.readState(context, identifier: 'query-basis-$sourceId') ==
+          true;
+
+  void _saveExpansion(int? sourceId, bool value) {
+    if (sourceId != null) {
+      PageStorage.maybeOf(context)
+          ?.writeState(context, value, identifier: 'query-basis-$sourceId');
+    }
+  }
+
+  Widget _answerHeader(
+          Message m, Message? source, List<Map<String, Object?>> queries) =>
+      AgentAnswerHeader(
+          steps: _saved(m).steps,
+          basis: _basis(_saved(m).presentation, _saved(m).queryContext),
+          initiallyExpanded: _basisExpanded(source?.id),
+          onExpansionChanged: (value) => _saveExpansion(source?.id, value),
+          readQuery: queries.isNotEmpty,
+          messageId: m.id,
+          hideDetails: ref.watch(hideAmountsProvider),
+          onMore: () => _answerMenu(m, source, queries));
+
+  List<Map<String, Object?>> _replayFor(
+      Message message, List<Map<String, Object?>> queries) {
+    final context = _saved(message).data['queryContext'];
+    if (context is! Map ||
+        context['completeReplay'] != true ||
+        context['displayRefs'] is! List ||
+        (context['displayRefs'] as List).length != queries.length) {
+      return const [];
+    }
+    return LedgerQueryReplay.definitions(
+        queries, ref.read(currentLedgerIdProvider));
+  }
+
+  Future<void> _answerMenu(
+      Message m, Message? source, List<Map<String, Object?>> queries) async {
+    final l = AppLocalizations.of(context);
+    final replay = _replayFor(m, queries);
+    final canRepeat = !_isLoading &&
+        !_switching &&
+        source != null &&
+        m.messageType != 'bill_card' &&
+        _saved(m).data['writeRequested'] != true;
+    final action = await showBeeSheet<String>(context,
+        title: l.aiChatAnswerActions,
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          _menuRow(
+              'copy', l.aiChatCopyAnswer, 'Copy', 'agent-answer-copy-${m.id}'),
+          if (_saved(m).presentation?.isCompact == true &&
+              m.messageType == 'text' &&
+              !_saved(m).data.containsKey('replyStatus') &&
+              !ref.read(hideAmountsProvider))
+            _menuRow('text', l.aiChatReplyDetails, 'MessageSquare',
+                'agent-answer-full-text'),
+          if (canRepeat)
+            _menuRow(
+                'repeat',
+                replay.isEmpty ? l.aiChatAskAgain : l.aiChatRepeatQuery,
+                'RefreshCw',
+                'agent-answer-repeat'),
+        ]));
+    if (!mounted) return;
+    if (action == 'copy') {
+      await _copyMessage(m);
+    } else if (action == 'text') {
+      await showBeeSheet<void>(context,
+          title: l.aiChatReplyDetails,
+          child: SingleChildScrollView(
+              child: Consumer(
+                  builder: (context, ref, _) => AgentMarkdownText(
+                      data: ref.watch(hideAmountsProvider)
+                          ? l.aiChatHiddenMessage
+                          : m.content,
+                      style: TextStyle(
+                          color: BeeTokens.textPrimary(context),
+                          fontSize: 14,
+                          height: 1.6)))));
+    } else if (action == 'repeat' && canRepeat) {
+      await _repeat(m, source, queries);
+    }
+  }
+
+  Future<void> _repeat(
+      Message m, Message source, List<Map<String, Object?>> queries) async {
+    if (_isLoading ||
+        _switching ||
+        m.conversationId != _conversationId ||
+        source.conversationId != _conversationId) {
+      return;
+    }
+    final data = _readMetadata(source.metadata);
+    final ledger = ref.read(currentLedgerIdProvider);
+    if (data['contextLedgerId'] != null && data['contextLedgerId'] != ledger) {
+      return;
+    }
+    await _sendMessageText(source.content,
+        readOnly: true,
+        review: data['review'] == true,
+        viewOverride: data['view'] is Map
+            ? Map<String, Object?>.from(data['view'] as Map)
+            : const {},
+        repeatQueries: _replayFor(m, queries));
+  }
+
+  Future<void> _copyMessage(Message m) async {
+    final l = AppLocalizations.of(context);
+    String text = l.aiChatHiddenMessage;
+    if (!ref.read(hideAmountsProvider)) {
+      final card = m.role == 'assistant'
+          ? AgentFinancialAnswer.copyText(context, _saved(m).queries,
+              accountsEnabled:
+                  ref.read(accountFeatureEnabledProvider).valueOrNull ?? true)
+          : null;
+      text = [m.content, if (card != null) card]
+          .where((v) => v.isNotEmpty)
+          .join('\n\n');
+    }
+    await Clipboard.setData(ClipboardData(text: text));
+    if (mounted) showBeeToast(context, l.aiChatCopied, tone: BeeTone.success);
+  }
+
   Widget _buildLiveAgentBubble() {
+    if (_pendingWrite != null) {
+      return _answerView(
+          key: const ValueKey('agent-live-answer'),
+          content: AgentWriteConfirmation(
+              quote: ref.watch(hideAmountsProvider)
+                  ? AppLocalizations.of(context).aiChatHiddenMessage
+                  : _sourceText,
+              onCancel: () => _resolveWrite(false),
+              onConfirm: () => _resolveWrite(true)));
+    }
     final response = _liveAgentResponse;
     if (response != null) return _buildLiveAgentResponse(response);
+    final p = _livePresentation;
+    final hasMetric = p?.hasDeclaredMetric == true;
     return _answerView(
       key: const ValueKey('agent-live-answer'),
-      content: AgentExecutionTimeline(
-        key: ValueKey('execution-live-$_activeAgentRunId'),
-        steps: _agentExecutionSteps,
-        isStreaming: _isLoading,
-        streamingText: _streamingAgentText,
-        modelPhase: _agentModelPhase,
-      ),
+      content:
+          Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        AgentExecutionTimeline(
+          key: ValueKey('execution-live-$_activeAgentRunId'),
+          steps: _agentExecutionSteps,
+          isStreaming: _isLoading,
+          streamingText: hasMetric
+              ? null
+              : ref.watch(hideAmountsProvider) && _streamingAgentText.isNotEmpty
+                  ? AppLocalizations.of(context).aiChatHiddenMessage
+                  : _streamingAgentText,
+          basis: _basis(p, _liveQueryContext),
+          initiallyExpanded: _basisExpanded(_liveSourceId),
+          onExpansionChanged: (value) => _saveExpansion(_liveSourceId, value),
+          hideDetails: ref.watch(hideAmountsProvider),
+          modelPhase: _agentModelPhase,
+        ),
+        if (hasMetric) _financialCard(p!, sourceId: _liveSourceId, live: true),
+        if (hasMetric &&
+            (!p!.isCompact || _continuingMessageId != null) &&
+            _streamingAgentText.isNotEmpty)
+          _answerText(_streamingAgentText),
+      ]),
     );
   }
 
   /// The completed answer retains the same full-width list slot while the
   /// database row and bill post-processing finish; no replayed typewriter.
   Widget _buildLiveAgentResponse(AIResponse response) {
-    final activity = _agentExecutionSteps.isEmpty
-        ? null
-        : AgentExecutionTimeline(
-            steps: _agentExecutionSteps,
-            isStreaming: false,
-          );
+    final p = _livePresentation;
+    final interrupted = response.wasStopped || response.type == 'error';
+    final activity = AgentAnswerHeader(
+        steps: AgentExecutionTimeline.projectSteps(
+            AppLocalizations.of(context), _agentExecutionSteps,
+            finished: true),
+        basis: _basis(p, _liveQueryContext),
+        initiallyExpanded: _basisExpanded(_liveSourceId),
+        onExpansionChanged: (value) => _saveExpansion(_liveSourceId, value),
+        hideDetails: ref.watch(hideAmountsProvider));
     if (response.type == 'bill_card' && response.bills.isNotEmpty) {
       return _answerView(
           activity: activity,
@@ -557,6 +935,8 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
               Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             for (var index = 0; index < response.bills.length; index++)
               BillCardWidget(
+                compact: true,
+                expectedLedgerId: ref.read(currentLedgerIdProvider),
                 billInfo: response.bills[index],
                 transactionId: index < response.transactionIds.length
                     ? response.transactionIds[index]
@@ -570,27 +950,22 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
       activity: activity,
       content:
           Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        _answerText(response.text),
+        if (p?.hasDeclaredMetric == true && interrupted) ...[
+          _financialCard(p!, sourceId: _liveSourceId, live: true),
+          Text(AppLocalizations.of(context).agentQueryRetained),
+        ] else if (p != null && !interrupted)
+          _financialContent(p, response.text,
+              sourceId: _liveSourceId,
+              live: true,
+              key: ValueKey('live-detail-$_activeAgentRunId'),
+              keepLead: _declinedWrite ||
+                  _continuingMessageId != null ||
+                  response.queryContext['limit'] != null)
+        else
+          _answerText(response.text),
         if (response.action != null) _buildResponseAction(response.action!),
       ]),
-      actions: _answerActions(response.text),
     );
-  }
-
-  AIResponseAction? _responseActionFor(Message message) {
-    final metadata = message.metadata;
-    if (metadata == null || metadata.isEmpty) return null;
-    try {
-      final decoded = jsonDecode(metadata);
-      if (decoded is! Map) return null;
-      final action = decoded['action'];
-      for (final candidate in AIResponseAction.values) {
-        if (candidate.name == action) return candidate;
-      }
-      return null;
-    } on Object {
-      return null;
-    }
   }
 
   Widget _buildResponseAction(AIResponseAction action) {
@@ -617,46 +992,49 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
     );
   }
 
-  // 构建用户头像
-  Widget _buildUserAvatar() {
-    return Container(
-      width: 32,
-      height: 32,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        border: Border.all(
-          color: BeeTokens.border(context),
-          width: 1,
-        ),
-      ),
-      child: ClipOval(
-        child: Image.file(
-          File(_userAvatarPath!),
-          fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) {
-            // 加载失败时不显示
-            return const SizedBox.shrink();
-          },
-        ),
-      ),
-    );
-  }
-
   Widget _buildInputArea() {
     final l = AppLocalizations.of(context);
+    final configured =
+        ref.watch(aiChatTextModelConfiguredProvider).valueOrNull != false;
     return BeeConversationInput(
         controller: _inputController,
-        hint: l.aiChatInputHint,
+        focusNode: _inputFocus,
+        hint: configured ? l.aiChatComposerHint : l.aiChatComposerUnconfigured,
         sendLabel: l.v4AIChatSend,
         stopLabel: l.agentRunStop,
+        quickActionsLabel: l.aiChatStartQuickActions,
+        onQuickActions: () => showAgentQuickActions(context,
+            view: widget.view,
+            onPrompt: _sendMessageText,
+            onRecord: _draftEntry),
         busy: _isLoading,
+        enabled: !_switching && configured,
         onSend: _sendMessage,
         onStop: _stopCurrentAgentRun);
+  }
+
+  void _resolveWrite(bool approved) {
+    final pending = _pendingWrite;
+    if (pending == null || !mounted) return;
+    setState(() {
+      _pendingWrite = null;
+      _declinedWrite = !approved;
+    });
+    _chatService.resolveToolAuthorization(
+        pending.authorizationId,
+        approved &&
+                !_stopRequested &&
+                pending.runId == _activeAgentRunId &&
+                pending.ledgerId == ref.read(currentLedgerIdProvider)
+            ? AgentToolAuthorizationChoice.allowOnce
+            : AgentToolAuthorizationChoice.deny);
   }
 
   void _stopCurrentAgentRun() {
     final runId = _activeAgentRunId;
     if (!_isLoading || runId == null) return;
+    _stopRequested = true;
+    if (_pendingWrite != null) _resolveWrite(false);
     _chatService.cancelAgentRun(runId);
     if (_isAuthorizationDialogOpen && mounted) {
       Navigator.of(context).pop(AgentToolAuthorizationChoice.deny);
@@ -672,6 +1050,7 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
     final text = _inputController.text.trim();
     if (!mounted || text.isEmpty || _isLoading) return;
 
+    if (_switching || !_inputController.value.composing.isCollapsed) return;
     _inputController.clear();
     await _sendMessageText(text);
   }
@@ -680,45 +1059,85 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
   ///
   /// [text] is both the visible user message and the Agent's current request.
   Future<void> _sendMessageText(String text,
-      {bool readOnly = false, bool review = false}) async {
-    if (!mounted || text.isEmpty || _isLoading) return;
+      {bool readOnly = false,
+      bool review = false,
+      Map<String, Object?>? viewOverride,
+      ({Message reply, Message source})? continuation,
+      List<Map<String, Object?>> repeatQueries = const []}) async {
+    if (!mounted ||
+        text.trim().isEmpty ||
+        _isLoading ||
+        _switching ||
+        _conversationId == null) {
+      return;
+    }
+    if (ref.read(aiChatTextModelConfiguredProvider).valueOrNull == false) {
+      await _configureModel();
+      return;
+    }
+    final conversationId = _conversationId!;
+    final agentRunId = const Uuid().v4();
+    final ledgerId = ref.read(currentLedgerIdProvider);
+    if (continuation != null &&
+        (continuation.reply.conversationId != conversationId ||
+            continuation.source.conversationId != conversationId ||
+            _saved(continuation.reply).data['contextLedgerId'] != ledgerId)) {
+      return;
+    }
+    final retained = continuation == null ? null : _saved(continuation.reply);
+    final chosen = viewOverride ?? widget.view;
+    final view =
+        chosen['ledgerId'] == ledgerId ? chosen : const <String, Object?>{};
+    _activeAgentRunId = agentRunId;
+    _sourceText = text;
+    _stopRequested = false;
+    _declinedWrite = false;
 
     setState(() {
       _isLoading = true;
-      _followLatest = true;
+      _queryAnchorSource = null;
+      _liveCardPositioned = false;
+      _followLatest = continuation == null;
       _isUserScrolling = false;
     });
 
     try {
       final repo = ref.read(repositoryProvider);
-      final ledgerId = ref.read(currentLedgerIdProvider);
 
       // Persist the actual request, including period and scope, for follow-ups.
-      final sourceId = await repo.createMessage(
-        MessagesCompanion.insert(
-          conversationId: _conversationId!,
-          role: 'user',
-          content: text,
-          messageType: 'text',
-          metadata: Value(jsonEncode({'contextLedgerId': ledgerId})),
-          createdAt: Value(DateTime.now()),
-        ),
-      );
+      final sourceId = continuation?.source.id ??
+          await repo.createMessage(
+            MessagesCompanion.insert(
+              conversationId: conversationId,
+              role: 'user',
+              content: text,
+              messageType: 'text',
+              metadata: Value(jsonEncode({
+                'contextLedgerId': ledgerId,
+                if (review) 'review': true,
+                if (view.isNotEmpty) 'view': view
+              })),
+              createdAt: Value(DateTime.now()),
+            ),
+          );
       if (!mounted) return;
 
-      _scrollToBottom();
+      if (continuation == null) _scrollToBottom();
 
       // chat_service 内部走 BillExtractionService.forLedger,会自动查
       // 当前账本可用分类 + 同币种账户,page 层不再预查。
       final chatService = _chatService;
       final currentLocale = Localizations.localeOf(context);
       final l10n = AppLocalizations.of(context);
-      final agentRunId = const Uuid().v4();
 
       logger.info('AIChat', '当前账本ID: $ledgerId');
 
       setState(() {
         _hasLiveAgentMessage = true;
+        _continuingMessageId = continuation?.reply.id;
+        _liveSourceId = sourceId;
+        _liveQueryContext = retained?.queryContext ?? const {};
+        _livePresentation = retained?.presentation;
         _streamingAgentText = '';
         _agentModelPhase = null;
         _agentExecutionSteps = const [];
@@ -726,17 +1145,20 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
         _liveAssistantMessageId = null;
         _activeAgentRunId = agentRunId;
       });
-      _scrollToBottom();
+      if (continuation == null) _scrollToBottom();
 
       AIResponse? response;
       await for (final event in chatService.processMessageEvents(
         text,
         ledgerId: ledgerId,
         runId: agentRunId,
-        conversationId: _conversationId,
+        conversationId: conversationId,
         sourceMessageId: sourceId,
-        view: widget.view,
+        view: view,
         review: review,
+        repeatQueries: repeatQueries,
+        continueQueryContext: retained?.queryContext,
+        isCancelled: () => !mounted || _stopRequested,
         languageCode: currentLocale.languageCode,
         l10n: l10n,
         readOnly: readOnly,
@@ -762,6 +1184,16 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
                 ),
               ];
             });
+            if (_stopRequested ||
+                request.ledgerId != ledgerId && request.ledgerId != null) {
+              chatService.resolveToolAuthorization(
+                  request.authorizationId, AgentToolAuthorizationChoice.deny);
+              break;
+            }
+            if (request.toolName == 'record_transaction_from_text') {
+              setState(() => _pendingWrite = request);
+              break;
+            }
             _isAuthorizationDialogOpen = true;
             final choice = mounted
                 ? await AgentToolAuthorizationDialog.show(
@@ -793,10 +1225,14 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
               :final callId,
               :final arguments,
               :final result,
+              :final queryContext,
               :final error,
               :final succeeded
             ):
             setState(() {
+              if (queryContext != null) {
+                _setLiveEvidence(queryContext, ledgerId);
+              }
               _agentExecutionSteps = _updateExecutionStep(
                 toolName: toolName,
                 callId: callId,
@@ -817,26 +1253,53 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
       // route. Do not persist or update UI after the page has been disposed.
       if (!mounted) return;
       response ??= AIResponse.error(l10n.agentRunFailed);
+      if (_declinedWrite && !_stopRequested && response.type != 'bill_card') {
+        final read = _agentExecutionSteps.any((step) =>
+            step.status == AgentExecutionStepStatus.completed &&
+            step.toolName != 'record_transaction_from_text' &&
+            step.result?['error'] == null);
+        response = read
+            ? AIResponse(
+                type: response.type,
+                text: '${l10n.aiChatWriteCancelled}\n\n${response.text}',
+                queryContext: response.queryContext,
+                action: response.action)
+            : AIResponse.text(l10n.aiChatWriteCancelled);
+      }
       setState(() {
         _liveAgentResponse = response;
-        _liveAssistantMessageId = response?.receiptMessageId;
+        _setLiveEvidence(response!.queryContext, ledgerId);
+        _liveAssistantMessageId = response.receiptMessageId;
       });
 
       // 保存 AI 回复。多笔 metadata 用新格式 {bills, txIds, undoneIds};
       // transactionId 列仍存第一笔 id(getMessageByTransactionId 兼容)。
       final reply = MessagesCompanion.insert(
-        conversationId: _conversationId!,
+        conversationId: conversationId,
         role: 'assistant',
         content: response.text,
         messageType: response.type,
-        metadata: _responseMetadata(response, ledgerId),
+        metadata:
+            _responseMetadata(response, ledgerId, sourceId, retained: retained),
         transactionId: response.transactionId != null
             ? Value(response.transactionId)
             : const Value.absent(),
         createdAt: Value(DateTime.now()),
       );
       final int assistantMessageId;
-      if (response.receiptMessageId case final int id) {
+      if (continuation != null) {
+        final saved = await repo.getMessageById(continuation.reply.id);
+        if (saved == null ||
+            saved.metadata != continuation.reply.metadata ||
+            saved.content != continuation.reply.content) {
+          return;
+        }
+        await repo.updateMessage(saved.copyWith(
+            content: response.text,
+            messageType: response.type,
+            metadata: reply.metadata));
+        assistantMessageId = saved.id;
+      } else if (response.receiptMessageId case final int id) {
         await ChatReceiptStore(ref.read(databaseProvider))
             .finish(id, sourceId, reply);
         assistantMessageId = id;
@@ -868,7 +1331,6 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
       setState(() {
         // Content was already rendered from the provider's real SSE chunks.
         // Do not replay it with the old typewriter simulation after persistence.
-        _animatingMessageId = null;
         _hasLiveAgentMessage = false;
         _streamingAgentText = '';
         _agentModelPhase = null;
@@ -890,28 +1352,82 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
           _streamingAgentText = '';
           _agentModelPhase = null;
           _agentExecutionSteps = const [];
+          _liveQueryContext = const {};
+          _livePresentation = null;
+          _liveSourceId = null;
+          _continuingMessageId = null;
           _liveAgentResponse = null;
           _liveAssistantMessageId = null;
           _activeAgentRunId = null;
           _isAuthorizationDialogOpen = false;
+          _pendingWrite = null;
         });
       }
     }
   }
 
-  Value<String?> _responseMetadata(AIResponse response, int ledgerId) {
+  void _setLiveEvidence(Map<String, Object?> queryContext, int ledgerId) {
+    final hadMetric = _livePresentation?.hasDeclaredMetric == true;
+    _liveQueryContext = queryContext;
+    _livePresentation = AgentFinancialPresentation.select(
+        LedgerEvidenceSheet.fromQueryContext(queryContext, ledgerId));
+    final sourceId = _liveSourceId;
+    if (hadMetric ||
+        _livePresentation?.hasDeclaredMetric != true ||
+        sourceId == null ||
+        !_followLatest ||
+        _continuingMessageId != null) {
+      return;
+    }
+    // Keep the first verified figure in view while model text grows underneath.
+    // An explicit drag or jump immediately gives control back to the reader.
+    _followLatest = false;
+    _queryAnchorSource = sourceId;
+    _chatScrollCoordinator.onUserScroll();
+    if (_scrollController.hasClients &&
+        _scrollController.position.isScrollingNotifier.value) {
+      _scrollController.jumpTo(_scrollController.position.pixels);
+    }
+    WidgetsBinding.instance.endOfFrame.then((_) {
+      if (mounted &&
+          _queryAnchorSource == sourceId &&
+          !_liveCardPositioned &&
+          _scrollController.hasClients) {
+        // A long user message may still keep the lazy reply row out of the tree.
+        _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+      }
+    });
+  }
+
+  Value<String?> _responseMetadata(
+      AIResponse response, int ledgerId, int sourceId,
+      {_SavedTurn? retained}) {
     final metadata = <String, Object?>{
       'contextLedgerId': ledgerId,
       'analysisTemplatesAllowed': response.allowPromptSuggestions,
+      'sourceMessageId': sourceId,
+      if (retained != null) 'continuedExplanation': true,
+      if (_agentExecutionSteps
+          .any((s) => s.toolName == 'record_transaction_from_text'))
+        'writeRequested': true,
+      if (response.wasStopped) 'replyStatus': 'stopped',
+      if (_agentExecutionSteps.any((s) =>
+          s.status == AgentExecutionStepStatus.failed &&
+          P0AgentPolicy.readTools.contains(s.toolName)))
+        'queryReadFailed': true,
+      if ((response.wasStopped || response.type == 'error') &&
+          _streamingAgentText.trim().isNotEmpty)
+        'partialText': _streamingAgentText,
       if (response.queryContext.isNotEmpty)
         'queryContext': response.queryContext,
       if (response.supplementalText != null)
         'supplementalText': response.supplementalText,
     };
     metadata.addAll(AssistantExecutionMetadata.encode(
-      AgentExecutionTimeline.projectSteps(
-          AppLocalizations.of(context), _agentExecutionSteps,
-          finished: true),
+      retained?.steps ??
+          AgentExecutionTimeline.projectSteps(
+              AppLocalizations.of(context), _agentExecutionSteps,
+              finished: true),
     ));
     if (response.bills.isNotEmpty) {
       metadata.addAll(Map<String, Object?>.from(jsonDecode(_encodeBillMetadata(
@@ -989,15 +1505,19 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
   }
 
   /// 点击按钮时滚动到底部（立即执行）
-  void _scrollToBottomWithAnimation() {
+  Future<void> _scrollToBottomWithAnimation() async {
+    _queryAnchorSource = null;
     _followLatest = true;
     _isUserScrolling = false;
-    if (_scrollController.hasClients) {
-      _scrollController.animateTo(
+    final id = _conversationId;
+    if (!_scrollController.hasClients) return;
+    await _scrollController.animateTo(
         _scrollController.position.maxScrollExtent,
         duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
+        curve: Curves.easeOut);
+    if (mounted && _followLatest && _conversationId == id) {
+      // Rows with variable Markdown height may finish layout during the animation.
+      _chatScrollCoordinator.requestInitialPositioning();
     }
   }
 
@@ -1036,63 +1556,57 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
 
   /// 撤销单笔(多笔卡片里的某一笔,或单笔卡片)
   Future<void> _handleUndoOne(int messageId, int transactionId) async {
-    final chatService = ref.read(aiChatServiceProvider);
-    final success = await chatService.undoTransaction(transactionId);
-
-    if (!success) {
-      if (mounted) {
-        showBeeToast(context, AppLocalizations.of(context).aiChatUndoFailed,
-            tone: BeeTone.error);
-      }
-      return;
-    }
-
+    final db = ref.read(databaseProvider);
     final repo = ref.read(repositoryProvider);
-    final message = await repo.getMessageById(messageId);
-    if (message == null || message.metadata == null) {
-      if (mounted) {
-        showBeeToast(context, AppLocalizations.of(context).aiChatUndone,
-            tone: BeeTone.success);
-      }
+    final ledger = ref.read(currentLedgerIdProvider);
+    final conversation = _conversationId;
+    final l = AppLocalizations.of(context);
+    bool undone;
+    try {
+      undone = await db.transaction(() async {
+        final message = await repo.getMessageById(messageId);
+        if (message == null ||
+            message.conversationId != conversation ||
+            message.metadata == null) {
+          return false;
+        }
+        final parsed = _parseBillMetadata(message);
+        if (!parsed.txIds.contains(transactionId) ||
+            parsed.undoneIds.contains(transactionId)) {
+          return false;
+        }
+        if (!await _chatService.undoTransaction(transactionId,
+            expectedLedgerId: ledger)) {
+          return false;
+        }
+        await repo.updateMessage(message.copyWith(
+            metadata: Value(_encodeBillMetadata(parsed.bills, parsed.txIds,
+                {...parsed.undoneIds, transactionId},
+                existingMetadata: message.metadata))));
+        return true;
+      });
+    } catch (error, stack) {
+      logger.error('AIChat', '撤销回执失败', error, stack);
+      undone = false;
+    }
+    if (!mounted) return;
+    if (!undone) {
+      showBeeToast(context, l.aiChatUndoFailed, tone: BeeTone.error);
       return;
     }
-
-    final parsed = _parseBillMetadata(message);
-    final newUndone = {...parsed.undoneIds, transactionId};
-    await repo.updateMessage(message.copyWith(
-      metadata: Value(_encodeBillMetadata(
-        parsed.bills,
-        parsed.txIds,
-        newUndone,
-        existingMetadata: message.metadata,
-      )),
-    ));
-
     ref.read(statsRefreshProvider.notifier).state++;
-
-    // 找出这笔对应的账本触发同步
-    final idx = parsed.txIds.indexOf(transactionId);
-    if (idx >= 0 && idx < parsed.bills.length) {
-      final ledgerId = parsed.bills[idx].ledgerId;
-      if (ledgerId != null) {
-        await PostProcessor.sync(ref, ledgerId: ledgerId);
-        logger.info('AIChat', '撤销单笔成功 txId=$transactionId,已同步');
-      }
-    }
-
-    if (mounted) {
-      showBeeToast(context, AppLocalizations.of(context).aiChatUndone,
-          tone: BeeTone.success);
-    }
+    await PostProcessor.sync(ref, ledgerId: ledger);
+    if (mounted) showBeeToast(context, l.aiChatUndone, tone: BeeTone.success);
   }
 
   Future<void> _handleEdit(int messageId, int transactionId) async {
     try {
+      final ledger = ref.read(currentLedgerIdProvider);
       final repo = ref.read(repositoryProvider);
 
       final transaction = await repo.getTransactionById(transactionId);
 
-      if (transaction == null) {
+      if (transaction == null || transaction.ledgerId != ledger) {
         if (mounted) {
           showBeeToast(
               context, AppLocalizations.of(context).aiChatTransactionNotFound,
@@ -1102,21 +1616,8 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
       }
 
       if (mounted) {
-        await Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => TransactionEditorPage(
-              initialKind: transaction.type,
-              quickAdd: true,
-              initialCategoryId: transaction.categoryId,
-              initialAmount: transaction.amount,
-              initialDate: transaction.happenedAt,
-              initialNote: transaction.note,
-              editingTransactionId: transaction.id,
-              initialAccountId: transaction.accountId,
-              initialToAccountId: transaction.toAccountId,
-            ),
-          ),
-        );
+        await TransactionEditUtils.editTransaction(
+            context, ref, transaction, null);
 
         // 从编辑页面返回后，无论是否保存，都刷新账单卡片
         if (mounted) {
@@ -1137,12 +1638,13 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
   /// 刷新账单卡片信息(根据 messageId 定位消息,根据 txId 在多笔里定位行)
   Future<void> _refreshBillCard(int messageId, int transactionId) async {
     try {
+      final ledger = ref.read(currentLedgerIdProvider);
       final repo = ref.read(repositoryProvider);
       final message = await repo.getMessageById(messageId);
       if (message == null || message.metadata == null) return;
 
       final transaction = await repo.getTransactionById(transactionId);
-      if (transaction == null) return;
+      if (transaction == null || transaction.ledgerId != ledger) return;
 
       final category = transaction.categoryId == null
           ? null
@@ -1200,7 +1702,8 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
     final transaction =
         await ref.read(repositoryProvider).getTransactionById(transactionId);
     if (!mounted) return;
-    if (transaction == null) {
+    if (transaction == null ||
+        transaction.ledgerId != ref.read(currentLedgerIdProvider)) {
       showBeeToast(
           context, AppLocalizations.of(context).aiChatTransactionNotFound,
           tone: BeeTone.warning);
@@ -1221,33 +1724,33 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
           value: 'copy',
           label: l10n.aiChatCopy,
           icon: const Icon(Icons.copy, size: 20)),
-      BeeMenuAction(
-          value: 'delete',
-          label: l10n.commonDelete,
-          icon: const Icon(Icons.delete_outline, size: 20),
-          danger: true),
+      if (!_isLoading)
+        BeeMenuAction(
+            value: 'delete',
+            label: l10n.commonDelete,
+            icon: const Icon(Icons.delete_outline, size: 20),
+            danger: true),
     ]);
     if (!mounted) return;
     if (selected == 'copy') {
-      await Clipboard.setData(ClipboardData(text: message.content));
-      if (mounted) {
-        showBeeToast(context, l10n.aiChatCopied, tone: BeeTone.success);
-      }
+      await _copyMessage(message);
     } else if (selected == 'delete') {
       await _deleteMessage(message);
     }
   }
 
   Future<void> _showBillCardMenu(Offset position, Message message) async {
+    if (_isLoading) return;
     final l10n = AppLocalizations.of(context);
     HapticFeedback.mediumImpact();
     final selected =
         await showBeeContextMenu<String>(context, anchor: position, items: [
-      BeeMenuAction(
-          value: 'delete',
-          label: l10n.commonDelete,
-          icon: const Icon(Icons.delete_outline, size: 20),
-          danger: true),
+      if (!_isLoading)
+        BeeMenuAction(
+            value: 'delete',
+            label: l10n.commonDelete,
+            icon: const Icon(Icons.delete_outline, size: 20),
+            danger: true),
     ]);
     if (selected == 'delete' && mounted) await _deleteMessage(message);
   }
@@ -1361,6 +1864,8 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
               final txId = i < txIds.length ? txIds[i] : null;
               final isUndone = txId != null && undoneIds.contains(txId);
               return BillCardWidget(
+                compact: true,
+                expectedLedgerId: ref.read(currentLedgerIdProvider),
                 billInfo: bills[i],
                 transactionId: txId,
                 isUndone: isUndone,
@@ -1385,9 +1890,29 @@ class _AIChatControlsState extends ConsumerState<AIChatControls>
     WidgetsBinding.instance.removeObserver(this);
     final runId = _activeAgentRunId;
     if (runId != null) _chatService.cancelAgentRun(runId);
+    _inputFocus.dispose();
     _inputController.dispose();
     _chatScrollCoordinator.dispose();
     _scrollController.dispose();
     super.dispose();
   }
+}
+
+final class _SavedTurn {
+  _SavedTurn(this.metadata, this.ledgerId);
+  final String? metadata;
+  final int ledgerId;
+  late final Map data = _AIChatControlsState._readMetadata(metadata);
+  late final Map<String, Object?> queryContext =
+      data['contextLedgerId'] == ledgerId && data['queryContext'] is Map
+          ? Map<String, Object?>.from(data['queryContext'] as Map)
+          : const {};
+  late final queries =
+      LedgerEvidenceSheet.fromQueryContext(queryContext, ledgerId);
+  late final presentation = AgentFinancialPresentation.select(queries);
+  late final steps = AssistantExecutionMetadata.decode(metadata);
+  late final suggestions =
+      AssistantFollowUpMetadata.decode(metadata, ledgerId: ledgerId);
+  late final allowsSuggestions =
+      AssistantFollowUpMetadata.allowsAnalysisTemplates(metadata);
 }

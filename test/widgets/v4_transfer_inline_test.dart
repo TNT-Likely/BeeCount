@@ -629,5 +629,27 @@ void main() {
           throwsStateError);
       expect(await db.select(db.transactions).get(), isEmpty);
     }
+    // The editor was opened on ledger 1 before a move changed the live row.
+    final target = await repo.createLedger(name: '转入账本');
+    final id = await repo.addTransaction(
+        ledgerId: 1,
+        type: 'expense',
+        amount: 28,
+        happenedAt: DateTime(2026, 10, 25),
+        note: 'old entry');
+    await repo.moveTransactionsLocally(
+        sourceLedgerId: 1, targetLedgerId: target, transactionIds: {id});
+    await expectLater(
+        persistTransferDraft(ref,
+            ledgerId: 1,
+            fromAccountId: cnyFrom,
+            toAccountId: cnyTo,
+            result: draft(),
+            editingId: id,
+            onCreated: (_) => fail('an edit must not create')),
+        throwsStateError);
+    final moved = await repo.getTransactionById(id);
+    expect(
+        (moved?.ledgerId, moved?.amount, moved?.type), (target, 28, 'expense'));
   });
 }

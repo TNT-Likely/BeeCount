@@ -46,9 +46,19 @@ final class AgentToolPresentation {
     if (!queryTools.contains(toolName)) return lines;
     final start =
         _displayDate(result?['periodStart'] ?? arguments['start'], l10n);
-    final end = _displayDate(result?['periodEnd'] ?? arguments['end'], l10n);
+    final rawEnd = result?['periodEnd'] ?? arguments['end'];
+    final endDate =
+        rawEnd is String ? DateTime.tryParse(rawEnd)?.toLocal() : null;
+    final dayBoundary = endDate != null &&
+        endDate == DateTime(endDate.year, endDate.month, endDate.day);
+    final end = dayBoundary
+        ? DateFormat.yMd(l10n.localeName)
+            .format(DateTime(endDate.year, endDate.month, endDate.day - 1))
+        : _displayDate(rawEnd, l10n);
     if (start != null && end != null) {
-      lines.add(l10n.agentFollowUpRange(start, end));
+      lines.add(dayBoundary
+          ? l10n.agentQueryBasisRange(start, end)
+          : l10n.agentFollowUpRange(start, end));
     }
     if (toolName == 'get_category_breakdown') {
       lines.add(
@@ -81,8 +91,25 @@ final class AgentToolPresentation {
     if (points is List) {
       lines.add(l10n.agentActivityReturnedGroups(points.length));
     }
+    final metric = arguments['answerMetric'];
+    final incomeCount = result['incomeCount'];
+    final expenseCount = result['expenseCount'];
     final count = result['transactionCount'];
-    if (count is int && count >= 0) {
+    if (toolName == 'get_period_overview' &&
+        metric == 'expense' &&
+        expenseCount is int) {
+      lines.add(l10n.agentQueryFlowCount(expenseCount, l10n.homeExpense));
+    } else if (toolName == 'get_period_overview' &&
+        metric == 'income' &&
+        incomeCount is int) {
+      lines.add(l10n.agentQueryFlowCount(incomeCount, l10n.homeIncome));
+    } else if (toolName == 'get_period_overview' &&
+        (metric == 'balance' || metric == 'overview') &&
+        incomeCount is int &&
+        expenseCount is int) {
+      lines.add(l10n.agentQueryFlowCount(
+          incomeCount + expenseCount, l10n.agentQueryIncomeAndExpense));
+    } else if (count is int && count >= 0) {
       lines.add(l10n.agentActivityReturnedRows(count));
     }
     final currency = result['currency'];
@@ -91,10 +118,10 @@ final class AgentToolPresentation {
       final income = result['totalIncome'] ?? result['income'];
       final money =
           NumberFormat.simpleCurrency(locale: l10n.localeName, name: currency);
-      if (income is num && income.isFinite) {
+      if (metric != 'expense' && income is num && income.isFinite) {
         lines.add('${l10n.categoryIncome}：${money.format(income)}');
       }
-      if (expense is num && expense.isFinite) {
+      if (metric != 'income' && expense is num && expense.isFinite) {
         lines.add('${l10n.categoryExpense}：${money.format(expense)}');
       }
     }
@@ -104,7 +131,7 @@ final class AgentToolPresentation {
 
   static String? _displayDate(Object? raw, AppLocalizations l10n) {
     if (raw is! String) return null;
-    final date = DateTime.tryParse(raw);
+    final date = DateTime.tryParse(raw)?.toLocal();
     if (date == null) return null;
     final format = date.hour == 0 &&
             date.minute == 0 &&

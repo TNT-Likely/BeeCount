@@ -64,6 +64,10 @@ void main() {
     final overviewParameters =
         definitions['get_period_overview']!['parameters'] as Map;
     final overviewProperties = overviewParameters['properties'] as Map;
+    expect(overviewParameters['required'], contains('answerMetric'));
+    expect(overviewProperties['answerMetric']['enum'],
+        ['expense', 'income', 'balance', 'overview', 'unspecified']);
+    expect(overviewProperties['rangeMode']['enum'], ['to_date', 'full_period']);
     expect(
       (overviewProperties['period'] as Map)['enum'],
       containsAll(<String>[

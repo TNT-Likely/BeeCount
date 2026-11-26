@@ -1,3 +1,4 @@
+import 'package:flutter_agent_ui/flutter_agent_ui.dart';
 import 'package:agentcore/agentcore.dart' show AgentNativeModelPhase;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -55,6 +56,9 @@ void main() {
           status: AgentExecutionStepStatus.running),
     ])));
     expect(find.text('正在执行：记录交易'), findsOneWidget);
+    expect(find.text('记录交易'), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('agent-activity-toggle')));
+    await tester.pump();
     expect(find.text('记录交易'), findsOneWidget);
     expect(find.textContaining('思考中'), findsNothing);
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
@@ -75,47 +79,33 @@ void main() {
         ])));
     expect(find.text('正在整理回答…'), findsOneWidget);
     expect(find.byType(AgentMarkdownText), findsOneWidget);
-    expect(find.text('收支概览'), findsOneWidget);
+    expect(find.text('收支概览'), findsNothing);
     await tester.tap(find.byKey(const ValueKey('agent-activity-toggle')));
     await tester.pump();
-    expect(find.text('收支概览'), findsNothing);
+    expect(find.text('收支概览'), findsOneWidget);
     await tester.tap(find.byKey(const ValueKey('agent-activity-toggle')));
     await tester.pump();
     expect(find.byType(AgentMarkdownText), findsOneWidget);
   });
 
-  testWidgets('等待模型、真实思考和工具后的回答状态区分展示', (tester) async {
+  testWidgets('查询结果已核对后，等待和生成阶段都能看到准确笔数', (tester) async {
     Widget timeline(AgentNativeModelPhase phase) => host(AgentExecutionTimeline(
             isStreaming: true,
             modelPhase: phase,
+            basis: const AgentActivityStep(
+                title: '85 笔支出', status: AgentActivityStatus.completed),
             steps: const [
               AgentExecutionStep(
                   toolName: 'get_period_overview',
                   arguments: {},
                   status: AgentExecutionStepStatus.completed)
             ]));
-    await tester.pumpWidget(timeline(AgentNativeModelPhase.awaitingResponse));
-    expect(find.text('正在等待模型响应…'), findsOneWidget);
-    expect(find.text('模型正在思考…'), findsNothing);
-    expect(find.text('收支概览'), findsOneWidget);
-    await tester.pumpWidget(timeline(AgentNativeModelPhase.thinking));
-    expect(find.text('模型正在思考…'), findsOneWidget);
-    expect(find.text('收支概览'), findsOneWidget);
-    await tester.pumpWidget(timeline(AgentNativeModelPhase.generating));
-    expect(find.text('正在整理回答…'), findsOneWidget);
-    expect(find.text('收支概览'), findsOneWidget);
-    await tester.pumpWidget(host(const AgentExecutionTimeline(
-        isStreaming: false,
-        modelPhase: AgentNativeModelPhase.thinking,
-        steps: [
-          AgentExecutionStep(
-              toolName: 'get_period_overview',
-              arguments: {},
-              status: AgentExecutionStepStatus.completed)
-        ])));
-    expect(find.text('已完成 1 项操作'), findsOneWidget);
-    expect(find.text('模型正在思考…'), findsNothing);
-    expect(find.text('收支概览'), findsNothing);
+    for (final phase in AgentNativeModelPhase.values) {
+      await tester.pumpWidget(timeline(phase));
+      expect(find.text('已查 85 笔支出，整理中'), findsOneWidget);
+      expect(find.text('模型正在思考…'), findsNothing);
+      expect(find.text('收支概览'), findsNothing);
+    }
   });
 
   testWidgets('结束时失败或未批准操作不能显示成功，也不暴露原始异常', (tester) async {

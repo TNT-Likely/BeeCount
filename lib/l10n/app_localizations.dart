@@ -100,6 +100,102 @@ abstract class AppLocalizations {
     Locale('zh', 'TW')
   ];
 
+  /// No description provided for @agentQueryFlowCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{flow} · {count} transactions'**
+  String agentQueryFlowCount(int count, String flow);
+
+  /// No description provided for @agentQueryOpenBills.
+  ///
+  /// In en, this message translates to:
+  /// **'View {countLabel}'**
+  String agentQueryOpenBills(String countLabel);
+
+  /// No description provided for @agentQueryIncomeAndExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Income and expenses'**
+  String get agentQueryIncomeAndExpense;
+
+  /// No description provided for @agentQueryTotalByDate.
+  ///
+  /// In en, this message translates to:
+  /// **'{flow} this month through {date}'**
+  String agentQueryTotalByDate(String date, String flow);
+
+  /// No description provided for @agentQueryBasis.
+  ///
+  /// In en, this message translates to:
+  /// **'Query details'**
+  String get agentQueryBasis;
+
+  /// No description provided for @agentQueryReading.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking {scope}…'**
+  String agentQueryReading(String scope);
+
+  /// No description provided for @agentQueryThisMonthFlow.
+  ///
+  /// In en, this message translates to:
+  /// **'this month’s {flow}'**
+  String agentQueryThisMonthFlow(String flow);
+
+  /// No description provided for @agentQueryReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Checked {countLabel}. Preparing your answer…'**
+  String agentQueryReady(String countLabel);
+
+  /// No description provided for @agentQueryReadyPrivate.
+  ///
+  /// In en, this message translates to:
+  /// **'Results ready. Preparing your answer…'**
+  String get agentQueryReadyPrivate;
+
+  /// No description provided for @agentQueryBasisRange.
+  ///
+  /// In en, this message translates to:
+  /// **'{start} – {end}'**
+  String agentQueryBasisRange(String start, String end);
+
+  /// No description provided for @agentQueryStatsExcluded.
+  ///
+  /// In en, this message translates to:
+  /// **'Excludes internal transfers and bills excluded from statistics'**
+  String get agentQueryStatsExcluded;
+
+  /// No description provided for @agentQueryStatsIncluded.
+  ///
+  /// In en, this message translates to:
+  /// **'Includes bills marked as excluded from statistics. Internal transfers are excluded.'**
+  String get agentQueryStatsIncluded;
+
+  /// No description provided for @agentQueryRetained.
+  ///
+  /// In en, this message translates to:
+  /// **'The explanation was interrupted. Your checked results are available.'**
+  String get agentQueryRetained;
+
+  /// No description provided for @agentQueryResume.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue explanation'**
+  String get agentQueryResume;
+
+  /// No description provided for @agentQueryRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry query'**
+  String get agentQueryRetry;
+
+  /// No description provided for @agentQueryReadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The ledger query did not finish'**
+  String get agentQueryReadFailed;
+
   /// No description provided for @agentEvidenceScope.
   ///
   /// In en, this message translates to:
@@ -10579,7 +10675,7 @@ abstract class AppLocalizations {
   /// No description provided for @aiChatClearHistoryDialogContent.
   ///
   /// In en, this message translates to:
-  /// **'Are you sure you want to clear all conversation records? This action cannot be undone.'**
+  /// **'Clear the messages in this conversation? Entries you have saved will stay in your ledger.'**
   String get aiChatClearHistoryDialogContent;
 
   /// No description provided for @aiChatInputHint.
@@ -10785,6 +10881,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The transaction details are incomplete. Please include an amount and purpose, then try again.'**
   String get agentRecordIncomplete;
+
+  /// No description provided for @agentRecordChooseSubcategory.
+  ///
+  /// In en, this message translates to:
+  /// **'No entries were saved. Please add one of these {parent} categories to your original request and send it again: {choices}.'**
+  String agentRecordChooseSubcategory(String parent, String choices);
 
   /// No description provided for @agentRecordCreated.
   ///
@@ -18225,6 +18327,420 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sync this ledger before transferring its rules.'**
   String get cloudRecurringSyncFirst;
+
+  /// No description provided for @aiChatNavigation.
+  ///
+  /// In en, this message translates to:
+  /// **'Conversation options'**
+  String get aiChatNavigation;
+
+  /// No description provided for @aiChatNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New conversation'**
+  String get aiChatNew;
+
+  /// No description provided for @aiChatHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Past conversations'**
+  String get aiChatHistory;
+
+  /// No description provided for @aiChatNoHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'No earlier conversations in this ledger yet.'**
+  String get aiChatNoHistory;
+
+  /// No description provided for @aiChatPermissionsDepth.
+  ///
+  /// In en, this message translates to:
+  /// **'Permissions and execution depth'**
+  String get aiChatPermissionsDepth;
+
+  /// No description provided for @aiChatClearCurrent.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear this conversation'**
+  String get aiChatClearCurrent;
+
+  /// No description provided for @aiChatAnswerActions.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer options'**
+  String get aiChatAnswerActions;
+
+  /// No description provided for @aiChatCopyAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy answer'**
+  String get aiChatCopyAnswer;
+
+  /// No description provided for @aiChatAskAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask again'**
+  String get aiChatAskAgain;
+
+  /// No description provided for @aiChatRepeatQuery.
+  ///
+  /// In en, this message translates to:
+  /// **'Run with the same filters'**
+  String get aiChatRepeatQuery;
+
+  /// No description provided for @aiChatCheckedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Checked {count} ledger queries'**
+  String aiChatCheckedCount(int count);
+
+  /// No description provided for @aiChatQueryProcess.
+  ///
+  /// In en, this message translates to:
+  /// **'Execution details'**
+  String get aiChatQueryProcess;
+
+  /// No description provided for @aiChatWriteAccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookkeeping permission'**
+  String get aiChatWriteAccess;
+
+  /// No description provided for @aiChatWriteQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Save this entry to your ledger?'**
+  String get aiChatWriteQuestion;
+
+  /// No description provided for @aiChatConfirmWrite.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm entry'**
+  String get aiChatConfirmWrite;
+
+  /// No description provided for @aiChatWriteCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled. No entry was saved.'**
+  String get aiChatWriteCancelled;
+
+  /// No description provided for @aiChatInterrupted.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer interrupted'**
+  String get aiChatInterrupted;
+
+  /// No description provided for @aiChatStopped.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer stopped'**
+  String get aiChatStopped;
+
+  /// No description provided for @aiChatHiddenMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Message hidden in privacy mode'**
+  String get aiChatHiddenMessage;
+
+  /// No description provided for @aiChatReceiptView.
+  ///
+  /// In en, this message translates to:
+  /// **'View this entry'**
+  String get aiChatReceiptView;
+
+  /// No description provided for @aiChatReplyDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Read the full answer'**
+  String get aiChatReplyDetails;
+
+  /// No description provided for @agentAnswerIncomeExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Income and expenses'**
+  String get agentAnswerIncomeExpense;
+
+  /// No description provided for @agentAnswerMonthBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'{month} balance'**
+  String agentAnswerMonthBalance(String month);
+
+  /// No description provided for @agentAnswerAccountBreakdown.
+  ///
+  /// In en, this message translates to:
+  /// **'Spending by account'**
+  String get agentAnswerAccountBreakdown;
+
+  /// No description provided for @agentAnswerLowerExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Spent less than the previous period'**
+  String get agentAnswerLowerExpense;
+
+  /// No description provided for @agentAnswerHigherExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Spent more than the previous period'**
+  String get agentAnswerHigherExpense;
+
+  /// No description provided for @agentAnswerEqualExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Spending matched the previous period'**
+  String get agentAnswerEqualExpense;
+
+  /// No description provided for @agentAnswerUnassignedAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'No account assigned'**
+  String get agentAnswerUnassignedAccount;
+
+  /// No description provided for @agentAnswerTransferNote.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} internal transfers excluded from income and expenses.'**
+  String agentAnswerTransferNote(int count);
+
+  /// No description provided for @agentAnswerFrozenBill.
+  ///
+  /// In en, this message translates to:
+  /// **'Bill at the time of the answer'**
+  String get agentAnswerFrozenBill;
+
+  /// No description provided for @agentAnswerCurrentBill.
+  ///
+  /// In en, this message translates to:
+  /// **'View current bill'**
+  String get agentAnswerCurrentBill;
+
+  /// No description provided for @agentAnswerBillChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'The bill has changed since this answer.'**
+  String get agentAnswerBillChanged;
+
+  /// No description provided for @agentAnswerBillGone.
+  ///
+  /// In en, this message translates to:
+  /// **'The original bill is no longer in this ledger. Its recorded values are shown here.'**
+  String get agentAnswerBillGone;
+
+  /// No description provided for @agentAnswerCurrentAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Current amount'**
+  String get agentAnswerCurrentAmount;
+
+  /// No description provided for @agentAnswerCurrentAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Current account'**
+  String get agentAnswerCurrentAccount;
+
+  /// No description provided for @agentAnswerLegacyEvidence.
+  ///
+  /// In en, this message translates to:
+  /// **'This older answer saved its filters only. You can use them to look up the current bills.'**
+  String get agentAnswerLegacyEvidence;
+
+  /// No description provided for @agentAnswerLookupCurrent.
+  ///
+  /// In en, this message translates to:
+  /// **'Look up current bills'**
+  String get agentAnswerLookupCurrent;
+
+  /// No description provided for @agentAnswerCurrentResults.
+  ///
+  /// In en, this message translates to:
+  /// **'Current bills matching the original filters'**
+  String get agentAnswerCurrentResults;
+
+  /// No description provided for @agentAnswerSnapshotUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'The saved evidence could not be read.'**
+  String get agentAnswerSnapshotUnavailable;
+
+  /// No description provided for @aiChatStartTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What would you like to explore?'**
+  String get aiChatStartTitle;
+
+  /// No description provided for @aiChatStartExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Spending this period'**
+  String get aiChatStartExpense;
+
+  /// No description provided for @aiChatStartExpenseCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 expense} other{{count} expenses}}'**
+  String aiChatStartExpenseCount(int count);
+
+  /// No description provided for @aiChatStartTrend.
+  ///
+  /// In en, this message translates to:
+  /// **'Spending trend'**
+  String get aiChatStartTrend;
+
+  /// No description provided for @aiChatStartReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Review this period'**
+  String get aiChatStartReview;
+
+  /// No description provided for @aiChatStartReviewPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Review the income and spending in this ledger from {start} through {end}.'**
+  String aiChatStartReviewPrompt(String start, String end);
+
+  /// No description provided for @aiChatStartTopics.
+  ///
+  /// In en, this message translates to:
+  /// **'You could also ask'**
+  String get aiChatStartTopics;
+
+  /// No description provided for @aiChatStartFood.
+  ///
+  /// In en, this message translates to:
+  /// **'Which accounts paid for dining?'**
+  String get aiChatStartFood;
+
+  /// No description provided for @aiChatStartFoodPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Which accounts paid for dining in this ledger from {start} through {end}, and how much did each spend?'**
+  String aiChatStartFoodPrompt(String start, String end);
+
+  /// No description provided for @aiChatStartCompare.
+  ///
+  /// In en, this message translates to:
+  /// **'How did spending change from the previous period?'**
+  String get aiChatStartCompare;
+
+  /// No description provided for @aiChatStartComparePrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Compare spending in this ledger from {start} through {end} with the corresponding dates in the previous period.'**
+  String aiChatStartComparePrompt(String start, String end);
+
+  /// No description provided for @aiChatStartShopping.
+  ///
+  /// In en, this message translates to:
+  /// **'How much went to shopping?'**
+  String get aiChatStartShopping;
+
+  /// No description provided for @aiChatStartShoppingPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'How much did this ledger spend on shopping from {start} through {end}?'**
+  String aiChatStartShoppingPrompt(String start, String end);
+
+  /// No description provided for @aiChatStartRecord.
+  ///
+  /// In en, this message translates to:
+  /// **'Record a lunch expense'**
+  String get aiChatStartRecord;
+
+  /// No description provided for @aiChatStartRecordDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'Record a lunch expense of '**
+  String get aiChatStartRecordDraft;
+
+  /// No description provided for @aiChatStartNoBills.
+  ///
+  /// In en, this message translates to:
+  /// **'Start with your first transaction'**
+  String get aiChatStartNoBills;
+
+  /// No description provided for @aiChatStartNoBillsDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'This ledger has no transactions yet. Enter an amount and what it was for to record your first expense.'**
+  String get aiChatStartNoBillsDetail;
+
+  /// No description provided for @aiChatStartNoModel.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a text model first'**
+  String get aiChatStartNoModel;
+
+  /// No description provided for @aiChatStartNoModelDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect a text service so the assistant can understand your questions and use ledger tools.'**
+  String get aiChatStartNoModelDetail;
+
+  /// No description provided for @aiChatStartModelSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Open AI service settings'**
+  String get aiChatStartModelSettings;
+
+  /// No description provided for @aiChatStartLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'The ledger overview could not load'**
+  String get aiChatStartLoadError;
+
+  /// No description provided for @aiChatStartLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading your ledger…'**
+  String get aiChatStartLoading;
+
+  /// No description provided for @aiChatStartQuickActions.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick actions'**
+  String get aiChatStartQuickActions;
+
+  /// No description provided for @aiChatComposerHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask about your ledger…'**
+  String get aiChatComposerHint;
+
+  /// No description provided for @aiChatRetryAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get aiChatRetryAnswer;
+
+  /// No description provided for @aiChatPreviousPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'What about last month?'**
+  String get aiChatPreviousPeriod;
+
+  /// No description provided for @aiChatDiningAccounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Dining by account'**
+  String get aiChatDiningAccounts;
+
+  /// No description provided for @agentAnswerSnapshotLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved the latest {saved} of {total} matching bills at the time of the answer.'**
+  String agentAnswerSnapshotLimit(int saved, int total);
+
+  /// No description provided for @aiChatComposerUnconfigured.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up a text model to ask…'**
+  String get aiChatComposerUnconfigured;
+
+  /// No description provided for @aiChatAssistantName.
+  ///
+  /// In en, this message translates to:
+  /// **'AI Assistant'**
+  String get aiChatAssistantName;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

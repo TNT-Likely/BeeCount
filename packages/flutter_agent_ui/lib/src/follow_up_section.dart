@@ -32,6 +32,7 @@ class AgentFollowUpSection extends StatefulWidget {
       required this.onSelected,
       this.style = const AgentFollowUpStyle(),
       this.enabled = true,
+      this.compact = false,
       this.visibleQuestionCount = 2});
 
   final List<AgentPromptSuggestion> questions;
@@ -42,6 +43,7 @@ class AgentFollowUpSection extends StatefulWidget {
   final bool enabled;
   final AgentFollowUpStyle style;
   final int visibleQuestionCount;
+  final bool compact;
 
   @override
   State<AgentFollowUpSection> createState() => _AgentFollowUpSectionState();
@@ -99,6 +101,47 @@ class _AgentFollowUpSectionState extends State<AgentFollowUpSection> {
                 index++)
               questions[(_start + index) % questions.length],
           ];
+    if (widget.compact) {
+      return Semantics(
+        label: widget.title,
+        container: true,
+        explicitChildNodes: true,
+        child: Wrap(
+            key: const ValueKey('agent-follow-up-chips'),
+            spacing: 6,
+            runSpacing: 2,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              for (final q in shown)
+                OutlinedButton(
+                    key: ValueKey('agent-follow-up-${q.id}'),
+                    onPressed:
+                        widget.enabled ? () => widget.onSelected(q) : null,
+                    style: OutlinedButton.styleFrom(
+                        foregroundColor: foreground,
+                        backgroundColor: theme.colorScheme.surface,
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        minimumSize: const Size(44, 44),
+                        side: BorderSide(color: theme.dividerColor),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14))),
+                    child: Row(mainAxisSize: MainAxisSize.min, children: [
+                      Flexible(child: Text(q.title)),
+                      const SizedBox(width: 4),
+                      Icon(Icons.north_east, size: 14, color: muted),
+                    ])),
+              if (questions.length > count)
+                IconButton(
+                    key: const ValueKey('agent-follow-up-rotate'),
+                    tooltip: widget.rotateLabel,
+                    onPressed: widget.enabled
+                        ? () => setState(
+                            () => _start = (_start + count) % questions.length)
+                        : null,
+                    icon: Icon(Icons.refresh_rounded, size: 18, color: muted)),
+            ]),
+      );
+    }
     return Padding(
         padding: const EdgeInsets.only(top: 8, bottom: 12),
         child: DecoratedBox(

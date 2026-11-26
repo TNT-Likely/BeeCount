@@ -33,7 +33,7 @@ void main() {
     addTearDown(t.view.resetDevicePixelRatio);
   }
 
-  testWidgets('紧凑英文大字输入可直接编辑、发送与停止，运行中禁用文字输入', (t) async {
+  testWidgets('紧凑英文大字输入可直接编辑、发送与停止，运行中保留可编辑的下一条草稿', (t) async {
     small(t);
     final input = TextEditingController();
     addTearDown(input.dispose);
@@ -61,13 +61,18 @@ void main() {
       ]);
     })));
     await t.enterText(find.byType(TextField), 'QA direct text');
+    await t.pump();
     await t.tap(find.byKey(const ValueKey('ai-chat-send')));
     await t.pumpAndSettle();
     expect(sent, 'QA direct text');
-    expect(t.widget<TextField>(find.byType(TextField)).enabled, false);
+    expect(t.widget<TextField>(find.byType(TextField)).enabled, true);
+    await t.enterText(find.byType(TextField), '下一条草稿');
+    await t.testTextInput.receiveAction(TextInputAction.send);
+    expect(sent, 'QA direct text');
     await t.tap(find.byKey(const ValueKey('ai-chat-send')));
     await t.pumpAndSettle();
     expect(stopped, 1);
+    expect(input.text, '下一条草稿');
     expect(t.widget<TextField>(find.byType(TextField)).enabled, true);
     expect(t.takeException(), isNull);
   });

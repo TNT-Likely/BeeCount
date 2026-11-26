@@ -9,6 +9,68 @@ class AppLocalizationsZh extends AppLocalizations {
   AppLocalizationsZh([String locale = 'zh']) : super(locale);
 
   @override
+  String agentQueryFlowCount(int count, String flow) {
+    return '$count 笔$flow';
+  }
+
+  @override
+  String agentQueryOpenBills(String countLabel) {
+    return '查看 $countLabel';
+  }
+
+  @override
+  String get agentQueryIncomeAndExpense => '收支';
+
+  @override
+  String agentQueryTotalByDate(String date, String flow) {
+    return '截至$date，本月$flow';
+  }
+
+  @override
+  String get agentQueryBasis => '查账依据';
+
+  @override
+  String agentQueryReading(String scope) {
+    return '正在查$scope';
+  }
+
+  @override
+  String agentQueryThisMonthFlow(String flow) {
+    return '本月$flow';
+  }
+
+  @override
+  String agentQueryReady(String countLabel) {
+    return '已查 $countLabel，整理中';
+  }
+
+  @override
+  String get agentQueryReadyPrivate => '已查到结果，整理中';
+
+  @override
+  String agentQueryBasisRange(String start, String end) {
+    return '$start 至 $end';
+  }
+
+  @override
+  String get agentQueryStatsExcluded => '排除内部转账及不计收支的账单';
+
+  @override
+  String get agentQueryStatsIncluded => '含标为不计收支的账单，排除内部转账';
+
+  @override
+  String get agentQueryRetained => '文字解读已中断，查账结果已保留';
+
+  @override
+  String get agentQueryResume => '继续解读';
+
+  @override
+  String get agentQueryRetry => '重新查账';
+
+  @override
+  String get agentQueryReadFailed => '账本查询未完成';
+
+  @override
   String get agentEvidenceScope => '查询范围';
 
   @override
@@ -5553,7 +5615,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get aiChatClearHistoryDialogTitle => '清除对话历史';
 
   @override
-  String get aiChatClearHistoryDialogContent => '确定要清除所有对话记录吗?此操作不可恢复。';
+  String get aiChatClearHistoryDialogContent => '清空后将移除这段聊天记录，已记下的账单会保留。';
 
   @override
   String get aiChatInputHint => '例如: 买了杯咖啡35块';
@@ -5660,6 +5722,11 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get agentRecordIncomplete => '未识别到完整的记账信息，请补充金额和用途后重试。';
+
+  @override
+  String agentRecordChooseSubcategory(String parent, String choices) {
+    return '这次还没记账。请在原记账内容里加上「$parent」下的一个子分类，再发给我。可选分类有 $choices。';
+  }
 
   @override
   String agentRecordCreated(int count) {
@@ -9696,11 +9763,298 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get cloudRecurringSyncFirst => '请先完成账本同步再交接。';
+
+  @override
+  String get aiChatNavigation => '对话操作';
+
+  @override
+  String get aiChatNew => '新对话';
+
+  @override
+  String get aiChatHistory => '历史对话';
+
+  @override
+  String get aiChatNoHistory => '这个账本还没有历史对话。';
+
+  @override
+  String get aiChatPermissionsDepth => '权限与执行深度';
+
+  @override
+  String get aiChatClearCurrent => '清空这段对话';
+
+  @override
+  String get aiChatAnswerActions => '回答操作';
+
+  @override
+  String get aiChatCopyAnswer => '复制回答';
+
+  @override
+  String get aiChatAskAgain => '再问一次';
+
+  @override
+  String get aiChatRepeatQuery => '按相同条件重新查询';
+
+  @override
+  String aiChatCheckedCount(int count) {
+    return '已查账 $count 项';
+  }
+
+  @override
+  String get aiChatQueryProcess => '执行过程';
+
+  @override
+  String get aiChatWriteAccess => '记账授权';
+
+  @override
+  String get aiChatWriteQuestion => '把这笔写入账本？';
+
+  @override
+  String get aiChatConfirmWrite => '确认记账';
+
+  @override
+  String get aiChatWriteCancelled => '已取消，这笔没有记入账本。';
+
+  @override
+  String get aiChatInterrupted => '回答中断';
+
+  @override
+  String get aiChatStopped => '已停止回答';
+
+  @override
+  String get aiChatHiddenMessage => '隐私模式已隐藏消息内容';
+
+  @override
+  String get aiChatReceiptView => '查看这笔账单';
+
+  @override
+  String get aiChatReplyDetails => '展开完整回答';
+
+  @override
+  String get agentAnswerIncomeExpense => '收支结余';
+
+  @override
+  String agentAnswerMonthBalance(String month) {
+    return '$month结余';
+  }
+
+  @override
+  String get agentAnswerAccountBreakdown => '分账户支出';
+
+  @override
+  String get agentAnswerLowerExpense => '比上期少支出';
+
+  @override
+  String get agentAnswerHigherExpense => '比上期多支出';
+
+  @override
+  String get agentAnswerEqualExpense => '与上期支出持平';
+
+  @override
+  String get agentAnswerUnassignedAccount => '未指定账户';
+
+  @override
+  String agentAnswerTransferNote(int count) {
+    return '收支已排除 $count 笔内部转账。';
+  }
+
+  @override
+  String get agentAnswerFrozenBill => '回答时的账单';
+
+  @override
+  String get agentAnswerCurrentBill => '查看当前账单';
+
+  @override
+  String get agentAnswerBillChanged => '这笔账单在回答后有修改。';
+
+  @override
+  String get agentAnswerBillGone => '原账单已不在此账本，这里保留回答时的记录。';
+
+  @override
+  String get agentAnswerCurrentAmount => '当前金额';
+
+  @override
+  String get agentAnswerCurrentAccount => '当前账户';
+
+  @override
+  String get agentAnswerLegacyEvidence => '这条旧回复仅保存了查询条件，可按这些条件查看当前账单。';
+
+  @override
+  String get agentAnswerLookupCurrent => '查询当前账单';
+
+  @override
+  String get agentAnswerCurrentResults => '按原条件查到的当前账单';
+
+  @override
+  String get agentAnswerSnapshotUnavailable => '无法读取回答时保存的明细。';
+
+  @override
+  String get aiChatStartTitle => '想从哪笔账聊起？';
+
+  @override
+  String get aiChatStartExpense => '本期累计支出';
+
+  @override
+  String aiChatStartExpenseCount(int count) {
+    return '$count 笔支出';
+  }
+
+  @override
+  String get aiChatStartTrend => '支出走势';
+
+  @override
+  String get aiChatStartReview => '复盘这段收支';
+
+  @override
+  String aiChatStartReviewPrompt(String start, String end) {
+    return '请复盘这个账本从 $start 到 $end 的收支（含首尾两天）。';
+  }
+
+  @override
+  String get aiChatStartTopics => '也可以这样问';
+
+  @override
+  String get aiChatStartFood => '餐饮主要花在哪些账户？';
+
+  @override
+  String aiChatStartFoodPrompt(String start, String end) {
+    return '从 $start 到 $end（含首尾两天），餐饮主要花在哪些账户？分别花了多少？';
+  }
+
+  @override
+  String get aiChatStartCompare => '比上期同期多花了多少？';
+
+  @override
+  String aiChatStartComparePrompt(String start, String end) {
+    return '请比较这个账本从 $start 到 $end（含首尾两天）和上个账期同期的支出。';
+  }
+
+  @override
+  String get aiChatStartShopping => '这段时间购物花了多少？';
+
+  @override
+  String aiChatStartShoppingPrompt(String start, String end) {
+    return '从 $start 到 $end（含首尾两天），购物一共花了多少？';
+  }
+
+  @override
+  String get aiChatStartRecord => '记一笔午餐';
+
+  @override
+  String get aiChatStartRecordDraft => '记一笔午餐，金额是';
+
+  @override
+  String get aiChatStartNoBills => '从第一笔开始';
+
+  @override
+  String get aiChatStartNoBillsDetail => '这个账本还没有流水。告诉我金额和用途，确认后就能记下第一笔。';
+
+  @override
+  String get aiChatStartNoModel => '先选一个文本模型';
+
+  @override
+  String get aiChatStartNoModelDetail => '连接文本服务后，AI 助手就能理解你的问题并调用账本工具。';
+
+  @override
+  String get aiChatStartModelSettings => '打开 AI 服务设置';
+
+  @override
+  String get aiChatStartLoadError => '账本概览未能加载';
+
+  @override
+  String get aiChatStartLoading => '正在读取账本…';
+
+  @override
+  String get aiChatStartQuickActions => '快捷操作';
+
+  @override
+  String get aiChatComposerHint => '问账本，或记一笔…';
+
+  @override
+  String get aiChatRetryAnswer => '重试';
+
+  @override
+  String get aiChatPreviousPeriod => '上个月呢？';
+
+  @override
+  String get aiChatDiningAccounts => '餐饮按账户看';
+
+  @override
+  String agentAnswerSnapshotLimit(int saved, int total) {
+    return '共匹配 $total 笔，已保存回答时最近 $saved 笔的明细。';
+  }
+
+  @override
+  String get aiChatComposerUnconfigured => '配置文本模型后可提问';
+
+  @override
+  String get aiChatAssistantName => 'AI 助手';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
 class AppLocalizationsZhTw extends AppLocalizationsZh {
   AppLocalizationsZhTw(): super('zh_TW');
+
+  @override
+  String agentQueryFlowCount(int count, String flow) {
+    return '$count 筆$flow';
+  }
+
+  @override
+  String agentQueryOpenBills(String countLabel) {
+    return '查看 $countLabel';
+  }
+
+  @override
+  String get agentQueryIncomeAndExpense => '收支';
+
+  @override
+  String agentQueryTotalByDate(String date, String flow) {
+    return '截至$date，本月$flow';
+  }
+
+  @override
+  String get agentQueryBasis => '查帳依據';
+
+  @override
+  String agentQueryReading(String scope) {
+    return '正在查$scope';
+  }
+
+  @override
+  String agentQueryThisMonthFlow(String flow) {
+    return '本月$flow';
+  }
+
+  @override
+  String agentQueryReady(String countLabel) {
+    return '已查 $countLabel，整理中';
+  }
+
+  @override
+  String get agentQueryReadyPrivate => '已查到結果，整理中';
+
+  @override
+  String agentQueryBasisRange(String start, String end) {
+    return '$start 至 $end';
+  }
+
+  @override
+  String get agentQueryStatsExcluded => '排除內部轉帳及不計收支的帳單';
+
+  @override
+  String get agentQueryStatsIncluded => '含標為不計收支的帳單，排除內部轉帳';
+
+  @override
+  String get agentQueryRetained => '文字解讀已中斷，查帳結果已保留';
+
+  @override
+  String get agentQueryResume => '繼續解讀';
+
+  @override
+  String get agentQueryRetry => '重新查帳';
+
+  @override
+  String get agentQueryReadFailed => '帳本查詢未完成';
 
   @override
   String get agentEvidenceScope => '查詢範圍';
@@ -15247,7 +15601,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get aiChatClearHistoryDialogTitle => '清除對話歷史';
 
   @override
-  String get aiChatClearHistoryDialogContent => '確定要清除所有對話記錄嗎？此操作不可恢復。';
+  String get aiChatClearHistoryDialogContent => '清空後將移除這段聊天記錄，已記下的帳單會保留。';
 
   @override
   String get aiChatInputHint => '例如：買了杯咖啡35元';
@@ -15354,6 +15708,11 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get agentRecordIncomplete => '未識別到完整的記帳資訊，請補充金額和用途後重試。';
+
+  @override
+  String agentRecordChooseSubcategory(String parent, String choices) {
+    return '這次還沒記帳。請在原記帳內容裡加上「$parent」下的一個子分類，再傳給我。可選分類有 $choices。';
+  }
 
   @override
   String agentRecordCreated(int count) {
@@ -19222,4 +19581,229 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get cloudRecurringSyncFirst => '請先完成帳本同步再交接。';
+
+  @override
+  String get aiChatNavigation => '對話操作';
+
+  @override
+  String get aiChatNew => '新對話';
+
+  @override
+  String get aiChatHistory => '歷史對話';
+
+  @override
+  String get aiChatNoHistory => '這個帳本還沒有歷史對話。';
+
+  @override
+  String get aiChatPermissionsDepth => '權限與執行深度';
+
+  @override
+  String get aiChatClearCurrent => '清空這段對話';
+
+  @override
+  String get aiChatAnswerActions => '回答操作';
+
+  @override
+  String get aiChatCopyAnswer => '複製回答';
+
+  @override
+  String get aiChatAskAgain => '再問一次';
+
+  @override
+  String get aiChatRepeatQuery => '按相同條件重新查詢';
+
+  @override
+  String aiChatCheckedCount(int count) {
+    return '已查帳 $count 項';
+  }
+
+  @override
+  String get aiChatQueryProcess => '執行過程';
+
+  @override
+  String get aiChatWriteAccess => '記帳授權';
+
+  @override
+  String get aiChatWriteQuestion => '將這筆寫入帳本？';
+
+  @override
+  String get aiChatConfirmWrite => '確認記帳';
+
+  @override
+  String get aiChatWriteCancelled => '已取消，這筆沒有記入帳本。';
+
+  @override
+  String get aiChatInterrupted => '回答中斷';
+
+  @override
+  String get aiChatStopped => '已停止回答';
+
+  @override
+  String get aiChatHiddenMessage => '隱私模式已隱藏訊息內容';
+
+  @override
+  String get aiChatReceiptView => '查看這筆帳單';
+
+  @override
+  String get aiChatReplyDetails => '展開完整回答';
+
+  @override
+  String get agentAnswerIncomeExpense => '收支結餘';
+
+  @override
+  String agentAnswerMonthBalance(String month) {
+    return '$month結餘';
+  }
+
+  @override
+  String get agentAnswerAccountBreakdown => '分帳戶支出';
+
+  @override
+  String get agentAnswerLowerExpense => '比上期少支出';
+
+  @override
+  String get agentAnswerHigherExpense => '比上期多支出';
+
+  @override
+  String get agentAnswerEqualExpense => '與上期支出持平';
+
+  @override
+  String get agentAnswerUnassignedAccount => '未指定帳戶';
+
+  @override
+  String agentAnswerTransferNote(int count) {
+    return '收支已排除 $count 筆內部轉帳。';
+  }
+
+  @override
+  String get agentAnswerFrozenBill => '回答時的帳單';
+
+  @override
+  String get agentAnswerCurrentBill => '查看當前帳單';
+
+  @override
+  String get agentAnswerBillChanged => '這筆帳單在回答後有修改。';
+
+  @override
+  String get agentAnswerBillGone => '原帳單已不在此帳本，這裡保留回答時的記錄。';
+
+  @override
+  String get agentAnswerCurrentAmount => '當前金額';
+
+  @override
+  String get agentAnswerCurrentAccount => '當前帳戶';
+
+  @override
+  String get agentAnswerLegacyEvidence => '這條舊回覆僅保存了查詢條件，可按這些條件查看當前帳單。';
+
+  @override
+  String get agentAnswerLookupCurrent => '查詢當前帳單';
+
+  @override
+  String get agentAnswerCurrentResults => '按原條件查到的當前帳單';
+
+  @override
+  String get agentAnswerSnapshotUnavailable => '無法讀取回答時保存的明細。';
+
+  @override
+  String get aiChatStartTitle => '想從哪筆帳聊起？';
+
+  @override
+  String get aiChatStartExpense => '本期累計支出';
+
+  @override
+  String aiChatStartExpenseCount(int count) {
+    return '$count 筆支出';
+  }
+
+  @override
+  String get aiChatStartTrend => '支出走勢';
+
+  @override
+  String get aiChatStartReview => '回顧這段收支';
+
+  @override
+  String aiChatStartReviewPrompt(String start, String end) {
+    return '請回顧這個帳本從 $start 到 $end 的收支（含首尾兩天）。';
+  }
+
+  @override
+  String get aiChatStartTopics => '也可以這樣問';
+
+  @override
+  String get aiChatStartFood => '餐飲主要花在哪些帳戶？';
+
+  @override
+  String aiChatStartFoodPrompt(String start, String end) {
+    return '從 $start 到 $end（含首尾兩天），餐飲主要花在哪些帳戶？分別花了多少？';
+  }
+
+  @override
+  String get aiChatStartCompare => '比上期同期多花了多少？';
+
+  @override
+  String aiChatStartComparePrompt(String start, String end) {
+    return '請比較這個帳本從 $start 到 $end（含首尾兩天）和上個帳期同期的支出。';
+  }
+
+  @override
+  String get aiChatStartShopping => '這段時間購物花了多少？';
+
+  @override
+  String aiChatStartShoppingPrompt(String start, String end) {
+    return '從 $start 到 $end（含首尾兩天），購物一共花了多少？';
+  }
+
+  @override
+  String get aiChatStartRecord => '記一筆午餐';
+
+  @override
+  String get aiChatStartRecordDraft => '記一筆午餐，金額是';
+
+  @override
+  String get aiChatStartNoBills => '從第一筆開始';
+
+  @override
+  String get aiChatStartNoBillsDetail => '這個帳本還沒有流水。告訴我金額和用途，確認後就能記下第一筆。';
+
+  @override
+  String get aiChatStartNoModel => '先選一個文字模型';
+
+  @override
+  String get aiChatStartNoModelDetail => '連接文字服務後，AI 助手就能理解你的問題並使用帳本工具。';
+
+  @override
+  String get aiChatStartModelSettings => '開啟 AI 服務設定';
+
+  @override
+  String get aiChatStartLoadError => '帳本概覽未能載入';
+
+  @override
+  String get aiChatStartLoading => '正在讀取帳本…';
+
+  @override
+  String get aiChatStartQuickActions => '快捷操作';
+
+  @override
+  String get aiChatComposerHint => '問帳本，或記一筆…';
+
+  @override
+  String get aiChatRetryAnswer => '重試';
+
+  @override
+  String get aiChatPreviousPeriod => '上個月呢？';
+
+  @override
+  String get aiChatDiningAccounts => '餐飲按帳戶看';
+
+  @override
+  String agentAnswerSnapshotLimit(int saved, int total) {
+    return '共符合 $total 筆，已保存回答時最近 $saved 筆的明細。';
+  }
+
+  @override
+  String get aiChatComposerUnconfigured => '設定文字模型後即可提問';
+
+  @override
+  String get aiChatAssistantName => 'AI 助手';
 }

@@ -16,6 +16,37 @@ import '../../ai_eval/support/ledger_fixture.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   setUp(() => SharedPreferences.setMockInitialValues({}));
+  test('继续解读在模型启动前停止时仍保留原账本的快照', () async {
+    final fixture = await LedgerEvalFixture.create();
+    addTearDown(fixture.close);
+    final ledger = fixture.ledgers['main']!;
+    final model = _ReplayModel([
+      core.AgentTurn.toolCalls([
+        core.AgentToolCall(
+            name: 'get_period_overview',
+            arguments: {'period': 'current_month', 'answerMetric': 'expense'})
+      ]),
+      const core.AgentTurn.finalText('已核对')
+    ]);
+    final service = AIChatService(
+        repo: fixture.repository, agentFacade: _facade(fixture, model));
+    final original = await service.processMessage('本月花了多少？', ledgerId: ledger);
+    expect(original.queryContext['snapshots'], isNotEmpty);
+    for (final id in [ledger, fixture.ledgers['other']!]) {
+      final events = await service
+          .processMessageEvents('本月花了多少？',
+              ledgerId: id,
+              readOnly: true,
+              continueQueryContext: original.queryContext,
+              isCancelled: () => true)
+          .toList();
+      final stopped = (events.single as AgentRunCompletedEvent).result.response;
+      expect(stopped.wasStopped, isTrue);
+      expect(
+          stopped.queryContext, id == ledger ? original.queryContext : isEmpty);
+    }
+    expect(model.requests, hasLength(2));
+  });
   final suite = jsonDecode(File('test/ai_eval/fixtures/readonly_cases_v1.json')
       .readAsStringSync()) as Map;
   final cases = (suite['cases'] as List)

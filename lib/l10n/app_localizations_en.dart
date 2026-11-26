@@ -9,6 +9,68 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String agentQueryFlowCount(int count, String flow) {
+    return '$flow · $count transactions';
+  }
+
+  @override
+  String agentQueryOpenBills(String countLabel) {
+    return 'View $countLabel';
+  }
+
+  @override
+  String get agentQueryIncomeAndExpense => 'Income and expenses';
+
+  @override
+  String agentQueryTotalByDate(String date, String flow) {
+    return '$flow this month through $date';
+  }
+
+  @override
+  String get agentQueryBasis => 'Query details';
+
+  @override
+  String agentQueryReading(String scope) {
+    return 'Checking $scope…';
+  }
+
+  @override
+  String agentQueryThisMonthFlow(String flow) {
+    return 'this month’s $flow';
+  }
+
+  @override
+  String agentQueryReady(String countLabel) {
+    return 'Checked $countLabel. Preparing your answer…';
+  }
+
+  @override
+  String get agentQueryReadyPrivate => 'Results ready. Preparing your answer…';
+
+  @override
+  String agentQueryBasisRange(String start, String end) {
+    return '$start – $end';
+  }
+
+  @override
+  String get agentQueryStatsExcluded => 'Excludes internal transfers and bills excluded from statistics';
+
+  @override
+  String get agentQueryStatsIncluded => 'Includes bills marked as excluded from statistics. Internal transfers are excluded.';
+
+  @override
+  String get agentQueryRetained => 'The explanation was interrupted. Your checked results are available.';
+
+  @override
+  String get agentQueryResume => 'Continue explanation';
+
+  @override
+  String get agentQueryRetry => 'Retry query';
+
+  @override
+  String get agentQueryReadFailed => 'The ledger query did not finish';
+
+  @override
   String get agentEvidenceScope => 'Query scope';
 
   @override
@@ -5553,7 +5615,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiChatClearHistoryDialogTitle => 'Clear Conversation History';
 
   @override
-  String get aiChatClearHistoryDialogContent => 'Are you sure you want to clear all conversation records? This action cannot be undone.';
+  String get aiChatClearHistoryDialogContent => 'Clear the messages in this conversation? Entries you have saved will stay in your ledger.';
 
   @override
   String get aiChatInputHint => 'e.g.: Bought a coffee for \$35';
@@ -5660,6 +5722,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get agentRecordIncomplete => 'The transaction details are incomplete. Please include an amount and purpose, then try again.';
+
+  @override
+  String agentRecordChooseSubcategory(String parent, String choices) {
+    return 'No entries were saved. Please add one of these $parent categories to your original request and send it again: $choices.';
+  }
 
   @override
   String agentRecordCreated(int count) {
@@ -9734,4 +9801,235 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cloudRecurringSyncFirst => 'Sync this ledger before transferring its rules.';
+
+  @override
+  String get aiChatNavigation => 'Conversation options';
+
+  @override
+  String get aiChatNew => 'New conversation';
+
+  @override
+  String get aiChatHistory => 'Past conversations';
+
+  @override
+  String get aiChatNoHistory => 'No earlier conversations in this ledger yet.';
+
+  @override
+  String get aiChatPermissionsDepth => 'Permissions and execution depth';
+
+  @override
+  String get aiChatClearCurrent => 'Clear this conversation';
+
+  @override
+  String get aiChatAnswerActions => 'Answer options';
+
+  @override
+  String get aiChatCopyAnswer => 'Copy answer';
+
+  @override
+  String get aiChatAskAgain => 'Ask again';
+
+  @override
+  String get aiChatRepeatQuery => 'Run with the same filters';
+
+  @override
+  String aiChatCheckedCount(int count) {
+    return 'Checked $count ledger queries';
+  }
+
+  @override
+  String get aiChatQueryProcess => 'Execution details';
+
+  @override
+  String get aiChatWriteAccess => 'Bookkeeping permission';
+
+  @override
+  String get aiChatWriteQuestion => 'Save this entry to your ledger?';
+
+  @override
+  String get aiChatConfirmWrite => 'Confirm entry';
+
+  @override
+  String get aiChatWriteCancelled => 'Cancelled. No entry was saved.';
+
+  @override
+  String get aiChatInterrupted => 'Answer interrupted';
+
+  @override
+  String get aiChatStopped => 'Answer stopped';
+
+  @override
+  String get aiChatHiddenMessage => 'Message hidden in privacy mode';
+
+  @override
+  String get aiChatReceiptView => 'View this entry';
+
+  @override
+  String get aiChatReplyDetails => 'Read the full answer';
+
+  @override
+  String get agentAnswerIncomeExpense => 'Income and expenses';
+
+  @override
+  String agentAnswerMonthBalance(String month) {
+    return '$month balance';
+  }
+
+  @override
+  String get agentAnswerAccountBreakdown => 'Spending by account';
+
+  @override
+  String get agentAnswerLowerExpense => 'Spent less than the previous period';
+
+  @override
+  String get agentAnswerHigherExpense => 'Spent more than the previous period';
+
+  @override
+  String get agentAnswerEqualExpense => 'Spending matched the previous period';
+
+  @override
+  String get agentAnswerUnassignedAccount => 'No account assigned';
+
+  @override
+  String agentAnswerTransferNote(int count) {
+    return '$count internal transfers excluded from income and expenses.';
+  }
+
+  @override
+  String get agentAnswerFrozenBill => 'Bill at the time of the answer';
+
+  @override
+  String get agentAnswerCurrentBill => 'View current bill';
+
+  @override
+  String get agentAnswerBillChanged => 'The bill has changed since this answer.';
+
+  @override
+  String get agentAnswerBillGone => 'The original bill is no longer in this ledger. Its recorded values are shown here.';
+
+  @override
+  String get agentAnswerCurrentAmount => 'Current amount';
+
+  @override
+  String get agentAnswerCurrentAccount => 'Current account';
+
+  @override
+  String get agentAnswerLegacyEvidence => 'This older answer saved its filters only. You can use them to look up the current bills.';
+
+  @override
+  String get agentAnswerLookupCurrent => 'Look up current bills';
+
+  @override
+  String get agentAnswerCurrentResults => 'Current bills matching the original filters';
+
+  @override
+  String get agentAnswerSnapshotUnavailable => 'The saved evidence could not be read.';
+
+  @override
+  String get aiChatStartTitle => 'What would you like to explore?';
+
+  @override
+  String get aiChatStartExpense => 'Spending this period';
+
+  @override
+  String aiChatStartExpenseCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count expenses',
+      one: '1 expense',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get aiChatStartTrend => 'Spending trend';
+
+  @override
+  String get aiChatStartReview => 'Review this period';
+
+  @override
+  String aiChatStartReviewPrompt(String start, String end) {
+    return 'Review the income and spending in this ledger from $start through $end.';
+  }
+
+  @override
+  String get aiChatStartTopics => 'You could also ask';
+
+  @override
+  String get aiChatStartFood => 'Which accounts paid for dining?';
+
+  @override
+  String aiChatStartFoodPrompt(String start, String end) {
+    return 'Which accounts paid for dining in this ledger from $start through $end, and how much did each spend?';
+  }
+
+  @override
+  String get aiChatStartCompare => 'How did spending change from the previous period?';
+
+  @override
+  String aiChatStartComparePrompt(String start, String end) {
+    return 'Compare spending in this ledger from $start through $end with the corresponding dates in the previous period.';
+  }
+
+  @override
+  String get aiChatStartShopping => 'How much went to shopping?';
+
+  @override
+  String aiChatStartShoppingPrompt(String start, String end) {
+    return 'How much did this ledger spend on shopping from $start through $end?';
+  }
+
+  @override
+  String get aiChatStartRecord => 'Record a lunch expense';
+
+  @override
+  String get aiChatStartRecordDraft => 'Record a lunch expense of ';
+
+  @override
+  String get aiChatStartNoBills => 'Start with your first transaction';
+
+  @override
+  String get aiChatStartNoBillsDetail => 'This ledger has no transactions yet. Enter an amount and what it was for to record your first expense.';
+
+  @override
+  String get aiChatStartNoModel => 'Select a text model first';
+
+  @override
+  String get aiChatStartNoModelDetail => 'Connect a text service so the assistant can understand your questions and use ledger tools.';
+
+  @override
+  String get aiChatStartModelSettings => 'Open AI service settings';
+
+  @override
+  String get aiChatStartLoadError => 'The ledger overview could not load';
+
+  @override
+  String get aiChatStartLoading => 'Loading your ledger…';
+
+  @override
+  String get aiChatStartQuickActions => 'Quick actions';
+
+  @override
+  String get aiChatComposerHint => 'Ask about your ledger…';
+
+  @override
+  String get aiChatRetryAnswer => 'Retry';
+
+  @override
+  String get aiChatPreviousPeriod => 'What about last month?';
+
+  @override
+  String get aiChatDiningAccounts => 'Dining by account';
+
+  @override
+  String agentAnswerSnapshotLimit(int saved, int total) {
+    return 'Saved the latest $saved of $total matching bills at the time of the answer.';
+  }
+
+  @override
+  String get aiChatComposerUnconfigured => 'Set up a text model to ask…';
+
+  @override
+  String get aiChatAssistantName => 'AI Assistant';
 }

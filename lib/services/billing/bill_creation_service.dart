@@ -22,6 +22,16 @@ import 'category_matcher.dart';
 /// 依赖 Riverpod,后台自动记账也能复用同一条汇率预拉路径(A6)。
 typedef EnsureRate = Future<bool> Function(String currencyCode);
 
+/// The requested parent is known but the text does not identify a writable
+/// child. No transaction has been created for this bill.
+final class BillCategoryNeedsChoice implements Exception {
+  BillCategoryNeedsChoice({required this.parent, required List<String> choices})
+      : choices = List.unmodifiable(choices);
+
+  final String parent;
+  final List<String> choices;
+}
+
 class BillCreationService {
   static const _tag = 'BillCreation';
 
@@ -36,9 +46,14 @@ class BillCreationService {
   /// **保证 amount 非空且 abs > 0、time 非空**,内部无需再做兜底。
   ///
   /// 返回创建的交易 ID,失败(数据库异常)返回 null。
+  /// [sourceText] 可补充当前这一笔的原文线索。交互入口启用
+  /// [requestCategoryChoice] 时，已知父分类的歧义会在写入前抛出
+  /// [BillCategoryNeedsChoice]，让调用方展示候选。
   Future<int?> createFromBill({
     required BillInfo bill,
     required int ledgerId,
+    String? sourceText,
+    bool requestCategoryChoice = false,
     List<String>? billingTypes,
     List<String>? customTagNames,
     AppLocalizations? l10n,
@@ -56,11 +71,14 @@ class BillCreationService {
         '[类型判断] type=${bill.type?.name} amount=$amount → $transactionType');
 
     // 2. 查询对应类型的所有可用分类
-    final categories = await _loadUsableCategories(transactionType);
+    final hierarchy = await getCategoriesByType(transactionType);
+    final categories = CategoryHierarchy.getUsableCategories(hierarchy);
 
     // 3. 匹配分类(AI 名称 → 完全匹配 → 模糊匹配 → 规则匹配 → 兜底"其他")
-    var categoryId =
-        await _matchCategory(bill.category, bill.note ?? '', categories);
+    var categoryId = _matchCategory(bill.category, bill.note ?? '', categories,
+        hierarchy: hierarchy,
+        sourceText: sourceText,
+        requestCategoryChoice: requestCategoryChoice);
     if (categoryId == null && categories.isNotEmpty) {
       categoryId = _fallbackCategoryId(categories);
     }
@@ -189,7 +207,7 @@ class BillCreationService {
     return transactionId;
   }
 
-  /// 获取按类型过滤的可用分类(排除有子分类的父分类)。公开给业务复用。
+  /// 获取该类型的完整分类树，包括有子分类的父分类。
   Future<List<Category>> getCategoriesByType(String type) async {
     final top = await repo.getTopLevelCategories(type);
     final all = <Category>[...top];
@@ -219,24 +237,38 @@ class BillCreationService {
     return 'expense';
   }
 
-  Future<List<Category>> _loadUsableCategories(String type) async {
-    final top = await repo.getTopLevelCategories(type);
-    final all = <Category>[...top];
-    for (final c in top) {
-      all.addAll(await repo.getSubCategories(c.id));
-    }
-    return CategoryHierarchy.getUsableCategories(all);
-  }
-
   /// 按 AI 给的 category 名称匹配本地分类。完全匹配 → 模糊匹配 → 规则匹配。
-  Future<int?> _matchCategory(
+  int? _matchCategory(
     String? aiCategoryName,
     String note,
-    List<Category> categories,
-  ) async {
+    List<Category> categories, {
+    required List<Category> hierarchy,
+    required bool requestCategoryChoice,
+    String? sourceText,
+  }) {
     if (categories.isEmpty) return null;
 
     if (aiCategoryName != null && aiCategoryName.isNotEmpty) {
+      final name = aiCategoryName.trim().toLowerCase();
+      final parent = hierarchy.firstWhereOrNull(
+          (c) => c.parentId == null && c.name.trim().toLowerCase() == name);
+      if (parent != null) {
+        final children =
+            categories.where((c) => c.parentId == parent.id).toList();
+        if (children.isNotEmpty) {
+          final child = CategoryMatcher.matchChild(
+              parent: parent.name,
+              children: children,
+              note: note,
+              sourceText: sourceText);
+          if (child != null) return child.id;
+          if (requestCategoryChoice) {
+            throw BillCategoryNeedsChoice(
+                parent: parent.name,
+                choices: children.map((c) => c.name).toList());
+          }
+        }
+      }
       // 完全匹配
       final exact =
           categories.firstWhereOrNull((c) => c.name == aiCategoryName);

@@ -63,7 +63,8 @@ class AiBookkeeper {
       BillInfo? entry}) async {
     final context = await AiExtractionContext.forLedger(
         repository: _repo, ledgerId: ledgerId);
-    if (entry != null && (context.customPromptTemplate?.trim().isEmpty ?? true)) {
+    if (entry != null &&
+        (context.customPromptTemplate?.trim().isEmpty ?? true)) {
       return [entry];
     }
     return _engine.extractFromText(text, context, billGuard: billGuard);
@@ -140,6 +141,8 @@ class AiBookkeeper {
     Future<void> Function(int txId, int index)? onSaved,
     void Function()? onSaving,
     Future<int?> Function(Future<int?> Function())? atomicBill,
+    bool requestCategoryChoice = false,
+    String? sourceText,
   }) async {
     if (bills.isEmpty) {
       return BookkeepingResult.empty;
@@ -164,6 +167,8 @@ class AiBookkeeper {
               ledgerId: ledgerId,
               billingTypes: billingTypes,
               l10n: l10n,
+              requestCategoryChoice: requestCategoryChoice,
+              sourceText: bills.length == 1 ? sourceText : null,
             );
         final txId = await (atomicBill == null ? save() : atomicBill(save));
         if (txId == null) {
@@ -198,6 +203,9 @@ class AiBookkeeper {
         }
         saved.add(enriched);
         txIds.add(txId);
+      } on BillCategoryNeedsChoice {
+        // Roll back the interactive message before asking the user to choose.
+        rethrow;
       } catch (e, st) {
         failed++;
         logger.error(_tag, '第 ${i + 1} 笔创建异常', e, st);
