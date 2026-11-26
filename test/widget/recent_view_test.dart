@@ -9,14 +9,17 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:beecount/data/db.dart' show Account, Category, Transaction;
 import 'package:beecount/widget/views/recent_view.dart';
-import 'package:beecount/widget/widget_data_service.dart' show RecentTransactionItem;
+import 'package:beecount/widget/widget_data_service.dart'
+    show RecentTransactionItem;
 import 'package:beecount/widget/widget_spec.dart' show HWSize;
 
 void main() {
   Widget wrap(Widget child, Size size) {
     return Directionality(
       textDirection: TextDirection.ltr,
-      child: SizedBox(width: size.width, height: size.height, child: child),
+      child: Center(
+          child:
+              SizedBox(width: size.width, height: size.height, child: child)),
     );
   }
 
@@ -74,7 +77,7 @@ void main() {
 
   for (final dark in [false, true]) {
     group('RecentView.medium(${dark ? "暗色" : "亮色"}, 364x169)', () {
-      testWidgets('支出/收入/转账混合 3 笔传入,medium 截断渲染前 2 笔', (tester) async {
+      testWidgets('支出/收入/转账混合 3 笔传入,中号按顺序显示三笔', (tester) async {
         const size = Size(364, 169);
         final cat = sampleCategory(1, '餐饮', icon: 'restaurant');
         final accA = sampleAccount(1, '招商银行');
@@ -134,12 +137,18 @@ void main() {
 
         expect(tester.takeException(), isNull);
         expect(find.text('餐饮'), findsNWidgets(2));
+        final rowFinder = find.byType(RecentTransactionRow);
+        expect(rowFinder, findsNWidgets(3));
+        final rowRects = [
+          for (var i = 0; i < 3; i++) tester.getRect(rowFinder.at(i))
+        ];
+        expect(rowRects.first.height, greaterThanOrEqualTo(28));
+        expect(rowRects[0].bottom, lessThanOrEqualTo(rowRects[1].top));
+        expect(rowRects[1].bottom, lessThanOrEqualTo(rowRects[2].top));
         expect(find.text('-¥32.5'), findsOneWidget);
         expect(find.text('+¥8,000'), findsOneWidget);
-        // medium 只渲最近 2 笔(顶部加统一内容标签后 169 高度装不下 3 行,
-        // 见 RecentView 类文档),第 3 笔转账不渲染。
-        expect(find.text('招商银行 → 支付宝'), findsNothing);
-        expect(find.text('¥500'), findsNothing);
+        expect(find.text('招商银行 → 支付宝'), findsOneWidget);
+        expect(find.text('¥500'), findsOneWidget);
       });
 
       testWidgets('分类/账户都缺失时用"未分类"兜底,不抛异常', (tester) async {
@@ -281,10 +290,11 @@ void main() {
 
       testWidgets('今天发生的交易显示时:分,更早显示月/日', (tester) async {
         const size = Size(364, 169);
-        final now = DateTime.now();
+        final now = DateTime(2026, 9, 15, 14, 38);
         await tester.pumpWidget(wrap(
           RecentView(
             size: HWSize.medium,
+            referenceDate: now,
             items: [
               RecentTransactionItem(
                 transaction: sampleTransaction(
@@ -346,7 +356,7 @@ void main() {
         expect(find.text('暂无交易'), findsOneWidget);
       });
 
-      testWidgets('超出上限(10 笔)按 take(2) 截断,不抛异常', (tester) async {
+      testWidgets('超出上限(10 笔)按 take(3) 截断,不抛异常', (tester) async {
         const size = Size(364, 169);
         await tester.pumpWidget(wrap(
           RecentView(
@@ -374,7 +384,7 @@ void main() {
         await tester.pump();
 
         expect(tester.takeException(), isNull);
-        expect(find.byType(RecentTransactionRow), findsNWidgets(2));
+        expect(find.byType(RecentTransactionRow), findsNWidgets(3));
       });
     });
   }

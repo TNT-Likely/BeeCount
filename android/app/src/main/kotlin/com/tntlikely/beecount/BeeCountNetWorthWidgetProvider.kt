@@ -5,12 +5,10 @@ import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Log
 import android.widget.RemoteViews
 import es.antonborri.home_widget.HomeWidgetProvider
-import java.io.File
 
 /**
  * 净资产小组件(小/中/大三档)。
@@ -55,25 +53,7 @@ open class BeeCountNetWorthWidgetProvider : HomeWidgetProvider() {
                 Log.d(TAG, "Widget $widgetId resolved image key: $imageKey")
 
                 val views = RemoteViews(context.packageName, R.layout.net_worth_widget).apply {
-                    val imagePath = widgetData.getString(imageKey, null)
-                    Log.d(TAG, "Image path from SharedPreferences: $imagePath")
-
-                    if (imagePath != null) {
-                        val file = File(imagePath)
-                        Log.d(TAG, "File exists: ${file.exists()}, size: ${if (file.exists()) file.length() else 0}")
-
-                        val bitmap = BitmapFactory.decodeFile(imagePath)
-                        if (bitmap != null) {
-                            Log.d(TAG, "Bitmap decoded successfully: ${bitmap.width}x${bitmap.height}")
-                            setImageViewBitmap(R.id.widget_image, bitmap)
-                        } else {
-                            Log.e(TAG, "Failed to decode bitmap from file")
-                            setImageViewResource(R.id.widget_image, R.mipmap.ic_launcher)
-                        }
-                    } else {
-                        Log.w(TAG, "No image path for key $imageKey, showing placeholder")
-                        setImageViewResource(R.id.widget_image, R.mipmap.ic_launcher)
-                    }
+                    setWidgetArtwork(context, widgetData, imageKey)
 
                     // 整块点击 → 资产页。第一版不分区。
                     // TODO: 大号有账户明细列表时,考虑按行分区深链到具体账户。

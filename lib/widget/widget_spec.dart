@@ -2,18 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:home_widget/home_widget.dart' show HomeWidgetInfo;
 
 /// 桌面小组件内容类型。
-///
-/// 各类型合法尺寸组合(`HWType` × `HWSize`,见 `.docs/home-widget/plan.md`
-/// §二「逐组件 spec」):
-/// - glance    (收支速览)  : small, medium
-/// - netWorth  (净资产)    : small, medium, large
-/// - quickAdd  (快速记账)  : small, medium
-/// - budget    (预算进度)  : small, medium
-/// - recent    (最近交易)  : medium, large
-/// - dashboard (综合仪表盘): large
-///
-/// P1(本阶段)只落地了 [WidgetSpec.glanceMedium] 的真实取数/渲染,其余
-/// 类型仅登记目录条目,渲染管线会按 Phase B(P2)前的约定跳过它们。
+/// 支持的内容和尺寸组合以 [WidgetSpec.catalog] 为准。
 enum HWType {
   glance,
   netWorth,
@@ -31,7 +20,7 @@ enum HWSize { small, medium, large }
 
 /// 单个"内容类型 + 尺寸"的渲染规格。
 ///
-/// 渲染管线(`WidgetManager.updateAllWidgets`)按 [catalog] 匹配用户"已安装"
+/// 渲染管线(`WidgetManager.updateAllWidgetsLocalized`)按 [catalog] 匹配用户"已安装"
 /// 的组件(`HomeWidget.getInstalledWidgets()`),只对已安装的 spec 取数、
 /// 渲染成图片,写入 [imageKey] 对应的共享存储位置,原生壳按 key 读取展示。
 @immutable
@@ -44,9 +33,13 @@ class WidgetSpec {
   ///
   /// 全部 14 个 spec 均按此尺寸渲染;唯一例外是 [glanceMedium]——其渲染
   /// 尺寸按平台(iOS 364×169 / Android 364×182)分叉、不直接取用这里的值
-  /// (见 `WidgetManager._renderGlance` 注释,属 D2 back-compat)。取值接近
+  /// (见 `WidgetManager` 注释,属 D2 back-compat)。取值接近
   /// iOS systemSmall/Medium/Large 的常见尺寸。
   final Size logicalSize;
+
+  /// The Android launcher's medium overview has a taller transparent canvas.
+  Size canvasSize({required bool android}) =>
+      android && this == glanceMedium ? const Size(364, 182) : logicalSize;
 
   /// iOS Widget `kind` 标识(对应 [HomeWidgetInfo.iOSKind])。只有已在原生壳
   /// (`BeeCountWidgetBundle.swift`)注册的类型才有值;未注册类型此字段为
@@ -92,12 +85,8 @@ class WidgetSpec {
 
   /// 渲染输出图片的存储 key,原生壳按此 key 读取图片文件路径。
   ///
-  /// **例外(D2 back-compat)**:现有中号收支速览([glanceMedium])沿用旧 key
-  /// `widgetImage`,**不**改成 `widget_glance_medium`——这样现有 iOS
-  /// `BeeCountWidget.swift` / Android `BeeCountWidgetProvider.kt` 原生壳
-  /// 完全不用改,存量用户桌面已放置的组件 100% 继续工作(原生壳读 key 的
-  /// 改动不在本阶段范围,见 plan.md P3/P4)。其余所有新 spec 一律
-  /// `widget_<type>_<size>`(枚举名直接拼接,如 `widget_netWorth_small`)。
+  /// 中号收支速览沿用 `widgetImage`，其余规格使用 `widget_<type>_<size>`。
+  /// 同一个 key 供旧版路径和新版外观清单使用，已有桌面组件升级后可继续读取。
   String get imageKey {
     if (this == glanceMedium) {
       return 'widgetImage';

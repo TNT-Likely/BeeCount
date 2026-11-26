@@ -6,13 +6,11 @@
 
 BeeCount 的桌面小组件采用统一图片方案：
 
-1. `WidgetDataService` 从当前账本读取数据。
-2. `WidgetManager` 用 Flutter View 离屏渲染 PNG。
-3. `home_widget` 将 PNG 路径写入共享存储。
-4. iOS WidgetKit / Android AppWidgetProvider 读取并展示 PNG。
-5. App 内发生记账、切账本、主题或语言变化时，重新生成图片并通知原生组件刷新。
-
-因此，原生层“成功显示图片”不代表 Flutter 内容正确；验收时必须同时检查生成的 PNG 和真实桌面组件。
+1. App 在启动完成、切换账本及外观偏好变化时预热全部 14 种规格。记账、恢复前台时优先更新已安装的组件。每批共用一份账本查询结果。
+2. `WidgetManager` 按 App 的语言和明暗偏好生成 PNG。跟随系统时支持英文、简中、繁中、韩语、俄语和两种明暗外观；指定语言或明暗时只补需要的组合。账本数据、配色和卡片版式版本相同的已有图片会复用。独立修改版式时，在 `widget_render_content.dart` 递增版式版本，以便已放置的组件在首次同步时换图。
+3. 每种规格在共享存储用 `<imageKey>.appearance.v1` 保存偏好、语言和明暗对应的文件路径，以及同一批数据的后备图。新数据写到另一组文件再发布清单，旧 `imageKey`（含 `widgetImage`）继续指向当前后备图。
+4. WidgetKit 根据 SwiftUI 的 `locale` 和 `colorScheme` 选图。Android 在系统语言广播后更新 RemoteViews，Android 12 起由桌面选用浅色或深色图，早期版本通过夜间布局资源在桌面重新加载布局时选图。系统切换无需启动 Flutter。添加页使用内置示例。
+5. 验收时同时检查生成的 PNG 和已放置的桌面组件。将 App 语言和主题设为跟随系统，准备真实数据后退出 App，分别切换系统语言与明暗，核对桌面文案、金额和图片哈希。固定 App 偏好后再重复切换，验证固定项优先。
 
 ## 2. 新增组件的必改清单
 
@@ -21,7 +19,7 @@ BeeCount 的桌面小组件采用统一图片方案：
 - 在 `lib/widget/widget_spec.dart` 登记类型、尺寸、图片 key、iOS kind 和 Android provider。
 - 在 `lib/widget/widget_data_service.dart` 增加可复用的数据模型与查询；一次更新批次内应复用查询结果。
 - 在 `lib/widget/views/` 创建纯展示 View，不直接访问数据库、Provider、网络或插件。
-- 在 `lib/widget/widget_manager.dart` 接入取数、渲染、图片落盘和原生刷新。
+- 在 `lib/widget/widget_render_content.dart` 登记绘制所需的数据和指纹，在 `widget_card_builder.dart` 接入真实 View。桌面、App 组件库和两端添加页都使用这个构造入口。
 - 补齐 ARB 文案，并通过项目现有本地化生成流程更新生成文件。
 - 在 `lib/pages/settings/widget_management_page.dart` 补充组件说明。
 
@@ -37,7 +35,7 @@ BeeCount 的桌面小组件采用统一图片方案：
 
 - 添加 `AppWidgetProvider`、Manifest receiver、RemoteViews layout 和 `appwidget-provider` XML。
 - XML 必须声明 `initialLayout`、`previewImage`、`resizeMode`、`widgetCategory`、`description` 和正确的最小尺寸。
-- 默认与英文预览图必须同时存在于 `drawable-nodpi`、`drawable-en-nodpi`。
+- 添加页预览提供简中、繁中和英文资源，各有亮色和暗色两套。
 - Provider 读取的共享存储 key 必须与 `WidgetSpec.imageKey` 完全一致。
 
 ## 3. 离屏渲染约束
@@ -64,12 +62,7 @@ RenderView
 
 预览图必须由真实 View 和示例数据生成，禁止单独手绘一套容易漂移的 UI。
 
-在 `test/widget/widget_preview_generator_test.dart` 中：
-
-- 导入新 View。
-- 增加中英文示例文案和稳定的示例数据。
-- 为每个公开尺寸生成预览 PNG。
-- 使用与 Android drawable 和 iOS `WidgetPreviewAssets` 一致的资源名。
+在 `lib/widget/widget_preview.dart` 补充固定样例，在 `test/widget/widget_preview_generator_test.dart` 登记与 Android drawable 和 iOS `WidgetPreviewAssets` 对应的资源名。生成器按简中、繁中、英文和深浅色渲染全部公开尺寸。中号收支速览在 iOS 使用 364×169 的画布，在 Android 使用 364×182 的画布。
 
 在 macOS 运行：
 
@@ -78,7 +71,7 @@ GEN_WIDGET_PREVIEWS=1 flutter test \
   test/widget/widget_preview_generator_test.dart
 ```
 
-生成器会写入 Android 默认/英文资源目录，并同步到 `ios/BeeCountWidget/Previews/`。提交前应人工打开新 PNG，确认文字、图形、圆角和尺寸完整。
+生成器会写入 Android 对应语言和夜间限定的 drawable 目录，以及 `ios/BeeCountWidget/Previews/`。目前每个平台各有 84 张预览图。提交前应人工打开新 PNG，确认文字、图形、圆角和尺寸完整。
 
 ## 5. 自动化测试
 
@@ -106,7 +99,7 @@ iOS 和 Android 必须分别完成：
 1. 打开系统小组件添加页，确认名称、描述和静态预览正确。
 2. 把所有新增尺寸添加到桌面。
 3. 打开 BeeCount 触发重新渲染，再回桌面确认内容刷新。
-4. 分别检查有数据、空数据、亮色、暗色以及至少中英文两种语言。
+4. 分别检查有数据、空数据、亮色、暗色以及简中、繁中、英文。
 5. 检查标题、核心图形、数字、底部文案和圆角，无空白、裁切、红屏或拉伸。
 6. 点击组件，确认深链进入预期页面。
 7. 修改一笔交易后确认组件能再次刷新，而不是只显示安装时快照。
@@ -117,7 +110,7 @@ PR 描述应附两端添加页预览和桌面实际展示截图。任何一端�
 
 - [ ] Flutter spec、iOS kind、Android provider、图片 key 一致。
 - [ ] 两端原生入口均已注册。
-- [ ] 中英文预览图已生成并纳入资源。
+- [ ] 简中、繁中和英文的深浅色预览图已生成并纳入资源。
 - [ ] iOS preview 使用 bundle 资产，不读取 App Group。
 - [ ] Android XML 配置了 `previewImage`。
 - [ ] 离屏 harness 中所有关键绘制区域宽高大于 0。

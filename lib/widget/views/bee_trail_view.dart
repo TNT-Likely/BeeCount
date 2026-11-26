@@ -43,72 +43,74 @@ class BeeTrailView extends StatelessWidget {
       dots.insert(0, false);
     }
 
-    return Container(
+    return WidgetCardSurface(
       width: width,
       height: height,
-      padding: const EdgeInsets.fromLTRB(10, 9, 10, 9),
-      decoration: BoxDecoration(
-        color: widgetCardBackground(dark),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(titleLabel,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                  color: widgetTextSecondary(dark),
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600)),
-          const SizedBox(height: 3),
-          if (recorded == 0)
-            Expanded(
-              child: Center(
-                child: Text(emptyLabel,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        color: widgetTextTertiary(dark), fontSize: 11)),
-              ),
-            )
-          else ...[
-            Text('$streak $streakSuffix',
+      dark: dark,
+      padding: const EdgeInsets.all(13),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        WidgetCardHeading(
+            icon: Icons.hexagon_outlined,
+            title: titleLabel,
+            dark: dark,
+            compact: true),
+        const SizedBox(height: 4),
+        if (recorded == 0)
+          Expanded(
+              child: WidgetCardEmpty(
+                  icon: Icons.hexagon_outlined,
+                  label: emptyLabel,
+                  dark: dark,
+                  compact: true))
+        else ...[
+          Align(
+            alignment: Alignment.centerLeft,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Text.rich(
+                TextSpan(text: '$streak ', children: [
+                  TextSpan(
+                      text: streakSuffix,
+                      style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                          color: widgetTextSecondary(dark))),
+                ]),
+                maxLines: 1,
                 style: TextStyle(
+                    fontSize: 27,
+                    height: 1.06,
                     color: widgetTextPrimary(dark),
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                    height: 1.0)),
-            const SizedBox(height: 4),
-            Expanded(
-              // home_widget 的离屏树会给 Column 子节点松散的横向约束。
-              // CustomPaint 没有 child 时默认宽度为 0，必须显式撑满，否则
-              // PNG 里只会留下标题和完成率，看不到蜂巢。
-              child: SizedBox.expand(
-                child: CustomPaint(
-                  painter: _HivePainter(dots, themeColor, dark),
-                ),
+                    fontWeight: FontWeight.w600,
+                    fontFeatures: const [kWidgetTabularFeature]),
               ),
             ),
-            const SizedBox(height: 3),
-            Row(
-              children: [
-                Expanded(
-                  child: Text(completionLabel,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                          color: widgetTextTertiary(dark), fontSize: 9)),
-                ),
-                Text('${(recorded / recent.length * 100).round()}%',
+          ),
+          const SizedBox(height: 4),
+          Expanded(
+              child: SizedBox.expand(
+                  child: CustomPaint(
+                      painter: _HivePainter(dots, themeColor, dark)))),
+          const SizedBox(height: 5),
+          Row(children: [
+            Expanded(
+                child: Text(completionLabel,
                     style: TextStyle(
                         color: widgetTextSecondary(dark),
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700)),
-              ],
-            ),
-          ],
+                        fontSize: 9.5,
+                        height: 1.1))),
+            const SizedBox(width: 3),
+            Text('${(recorded / recent.length * 100).round()}%',
+                style: TextStyle(
+                    color: widgetTextPrimary(dark),
+                    fontSize: 11,
+                    height: 1.1,
+                    fontWeight: FontWeight.w600,
+                    fontFeatures: const [kWidgetTabularFeature])),
+          ]),
         ],
-      ),
+      ]),
     );
   }
 
@@ -134,35 +136,27 @@ class _HivePainter extends CustomPainter {
     const rows = 4;
     const columns = 7;
     final cellWidth = size.width / (columns + 0.5);
-    final radius = cellWidth * 0.46;
     final rowHeight = size.height / rows;
+    final radius = math.min(cellWidth * .52, rowHeight * .48);
+    final hexagon = Path();
+    for (var side = 0; side < 6; side++) {
+      final angle = (60 * side - 30) * math.pi / 180;
+      final x = radius * math.cos(angle), y = radius * math.sin(angle);
+      if (side == 0) {
+        hexagon.moveTo(x, y);
+      } else {
+        hexagon.lineTo(x, y);
+      }
+    }
+    hexagon.close();
+    final recorded = Paint()..color = color;
+    final empty = Paint()..color = widgetCardSoft(dark);
     for (var row = 0; row < rows; row++) {
       for (var column = 0; column < columns; column++) {
-        final index = row * columns + column;
-        final center = Offset(
-          cellWidth * (column + 0.5 + (row.isOdd ? 0.5 : 0)),
-          rowHeight * (row + 0.5),
-        );
-        final path = Path();
-        for (var side = 0; side < 6; side++) {
-          final angle = (60 * side - 30) * 3.141592653589793 / 180;
-          final point = Offset(center.dx + radius * math.cos(angle),
-              center.dy + radius * math.sin(angle));
-          if (side == 0) {
-            path.moveTo(point.dx, point.dy);
-          } else {
-            path.lineTo(point.dx, point.dy);
-          }
-        }
-        path.close();
-        canvas.drawPath(
-            path,
-            Paint()
-              ..color = dots[index]
-                  ? color.withValues(alpha: 0.90)
-                  : (dark
-                      ? Colors.white.withValues(alpha: 0.09)
-                      : const Color(0xFFF1F1F1)));
+        final center = Offset(cellWidth * (column + (row.isOdd ? 1 : .5)),
+            rowHeight * (row + .5));
+        canvas.drawPath(hexagon.shift(center),
+            dots[row * columns + column] ? recorded : empty);
       }
     }
   }

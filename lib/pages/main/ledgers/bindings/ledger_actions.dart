@@ -334,21 +334,10 @@ mixin _LedgerActions on ConsumerState<LedgersPageNew> {
         logger.warning('LedgersPage', '改账本元数据后同步失败(本地已生效,下次同步重试): $e');
       }
 
-      // 起始日影响小部件「本月」口径,立即刷新
-      try {
-        final repository = ref.read(repositoryProvider);
-        final redForIncome = ref.read(incomeExpenseColorSchemeProvider);
-        // 没有 BuildContext,靠 languageProvider 还原当前 App 语言(见
-        // widget_manager.dart resolveWidgetLocalizations 文档)。
-        await WidgetManager().updateAllWidgetsLocalized(
-          repository,
-          ledger.id,
-          ref.read(primaryColorProvider),
-          explicitLocale: ref.read(languageProvider),
-          redForIncome: redForIncome,
-          baseCurrency: ref.read(baseCurrencyProvider),
-        );
-      } catch (_) {}
+      // 起始日影响当前账本小组件的本月统计。
+      if (mounted && ledger.id == ref.read(currentLedgerIdProvider)) {
+        await updateAppWidget(ref);
+      }
     } catch (e) {
       if (!mounted) return;
       await _ledgerError(context,

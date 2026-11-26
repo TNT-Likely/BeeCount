@@ -6,23 +6,7 @@ import '../widget_data_service.dart' show RecentTransactionItem;
 import '../widget_spec.dart' show HWSize;
 import 'widget_view_style.dart';
 
-/// 最近交易(recent)小组件视图:中/大两档,`WidgetSpec.recentMedium` /
-/// `recentLarge` 对应渲染。
-///
-/// headless 组件(见 `widget_view_style.dart` 顶部注释)——消费
-/// `WidgetDataService.gatherRecent` 返回的 `List<RecentTransactionItem>`
-/// (分类/账户可能为 null:转账无分类、或分类/账户已被删除,由本文件负责
-/// 兜底展示,不依赖上游保证非空)。
-///
-/// 每行的展示逻辑抽成公开的 [RecentTransactionRow],供本视图自身与
-/// dashboard 综合仪表盘(`DashboardView`,Phase B2b 同批次新增)直接复用,
-/// 避免"最近交易一行长什么样"在两个文件里各写一遍。
-///
-/// - medium:最近 2 笔(原为 3 笔,顶部加统一内容标签后 169 高度只装得下
-///   2 行,3 行会被 [WidgetOverflowClip] 裁掉半行);large:最近 6 笔。取数
-///   (`WidgetDataService.gatherRecent`)按最大需求给,这里 `take(_limit)`
-///   截断,同 QuickAddView/BudgetView 的约定。
-/// - 空列表(全新账本还没有任何交易)显示 [emptyLabel] 占位文案。
+/// 账本最近交易。中号显示三笔，大号显示六笔。
 class RecentView extends StatelessWidget {
   final HWSize size;
 
@@ -36,19 +20,17 @@ class RecentView extends StatelessWidget {
   final bool redForIncome;
   final bool dark;
 
-  /// 分类/转账账户都缺失时的兜底名称。对应 arb key `commonUncategorized`——
-  /// 本文件不依赖 BuildContext,取不到真正的 l10n,由调用方(`WidgetManager`,
-  /// 见其 `resolveWidgetLocalizations`/`updateAllWidgetsLocalized`)显式传入
-  /// 真实文案;这里的默认值只是彻底拿不到 locale 时的兜底。
+  /// 分类和转账账户均缺失时显示当前图片语言对应的 commonUncategorized。
   final String uncategorizedLabel;
 
   /// 空列表占位文案。
   final String emptyLabel;
 
-  /// 左上内容标签(「最近交易」,复用 arb `widgetRecentTransactions`)——
-  /// 六款组件统一的内容标签制(2026-07 用户拍板 A 方案)。
+  /// 当前图片语言的「最近交易」标题。
   final String titleLabel;
 
+  /// 用来区分当日交易和历史日期，选择器样例可以固定这一天。
+  final DateTime? referenceDate;
   final double width;
   final double height;
 
@@ -60,6 +42,7 @@ class RecentView extends StatelessWidget {
     required this.themeColor,
     required this.redForIncome,
     required this.dark,
+    this.referenceDate,
     this.uncategorizedLabel = '未分类',
     this.emptyLabel = '暂无交易',
     this.titleLabel = '最近交易',
@@ -67,67 +50,33 @@ class RecentView extends StatelessWidget {
     required this.height,
   });
 
-  /// medium 展示最近 2 笔,large 展示最近 6 笔(见类文档)。
-  int get _limit => size == HWSize.large ? 6 : 2;
-
   @override
   Widget build(BuildContext context) {
-    final take = items.take(_limit).toList();
-
-    return Container(
+    final large = size == HWSize.large;
+    return WidgetCardSurface(
       width: width,
       height: height,
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: widgetCardBackground(dark),
-        borderRadius: BorderRadius.circular(20),
-      ),
+      dark: dark,
+      padding: EdgeInsets.symmetric(
+          horizontal: large ? 18 : 17, vertical: large ? 18 : 14),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            titleLabel,
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: widgetTextSecondary(dark),
-            ),
-          ),
-          const SizedBox(height: 4),
+          WidgetCardHeading(
+              icon: Icons.receipt_long_outlined, title: titleLabel, dark: dark),
+          const SizedBox(height: 7),
           Expanded(
-            child: take.isEmpty
-                ? Center(
-                    child: Text(
-                      emptyLabel,
-                      style:
-                          TextStyle(fontSize: 12, color: widgetTextTertiary(dark)),
-                    ),
-                  )
-                // 每行一个 Expanded 等分槽:2/6 行的自然高度小于卡片可用
-                // 高度,若按自然高度顶对齐排,底部会剩一大块空白(2026-07
-                // 用户点名);等分后多余空间摊进行间,列表撑满整卡。行内容
-                // 在自己的槽内垂直居中,槽比内容矮时(真实设备字体度量偏大)
-                // 由 WidgetOverflowClip 裁切兜底而不是抛 RenderFlex 溢出。
-                // 注意**不能**用 SingleChildScrollView——离屏树无 View 会
-                // 炸,见 WidgetOverflowClip 文档(真机红屏根因)。
-                : Column(
-                    children: [
-                      for (final item in take)
-                        Expanded(
-                          child: WidgetOverflowClip(
-                            alignment: Alignment.center,
-                            child: RecentTransactionRow(
-                              item: item,
-                              defaultCurrency: defaultCurrency,
-                              uncategorizedLabel: uncategorizedLabel,
-                              themeColor: themeColor,
-                              redForIncome: redForIncome,
-                              dark: dark,
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
+            child: RecentWidgetRows(
+              items: items.take(large ? 6 : 3).toList(),
+              defaultCurrency: defaultCurrency,
+              themeColor: themeColor,
+              redForIncome: redForIncome,
+              dark: dark,
+              compact: !large,
+              referenceDate: referenceDate,
+              uncategorizedLabel: uncategorizedLabel,
+              emptyLabel: emptyLabel,
+            ),
           ),
         ],
       ),
@@ -135,11 +84,58 @@ class RecentView extends StatelessWidget {
   }
 }
 
-/// 最近交易单行:分类/转账图标 + 名称 + 次行(分类或账户 · 时间) + 右侧金额。
-///
-/// 公开(非 `RecentView` 私有),供 dashboard 综合仪表盘直接复用同一行组件
-/// (见 [RecentView] 类文档)——调用方按需自行控制外层间距/分隔线,本组件
-/// 只负责单行内容本身。
+/// 最近交易卡片和仪表盘按同一顺序展示分类、账户、时间与原币金额。
+class RecentWidgetRows extends StatelessWidget {
+  const RecentWidgetRows({
+    super.key,
+    required this.items,
+    required this.defaultCurrency,
+    required this.uncategorizedLabel,
+    required this.emptyLabel,
+    required this.themeColor,
+    required this.redForIncome,
+    required this.dark,
+    this.referenceDate,
+    this.compact = false,
+  });
+
+  final List<RecentTransactionItem> items;
+  final String defaultCurrency, uncategorizedLabel, emptyLabel;
+  final Color themeColor;
+  final DateTime? referenceDate;
+  final bool redForIncome, dark, compact;
+
+  @override
+  Widget build(BuildContext context) {
+    if (items.isEmpty) {
+      return WidgetCardEmpty(
+          icon: Icons.inbox_outlined,
+          label: emptyLabel,
+          dark: dark,
+          compact: compact);
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (var i = 0; i < items.length; i++) ...[
+          if (i > 0) Container(height: 1, color: widgetDivider(dark)),
+          Expanded(
+              child: RecentTransactionRow(
+            item: items[i],
+            defaultCurrency: defaultCurrency,
+            uncategorizedLabel: uncategorizedLabel,
+            themeColor: themeColor,
+            redForIncome: redForIncome,
+            dark: dark,
+            compact: compact,
+            referenceDate: referenceDate,
+          )),
+        ],
+      ],
+    );
+  }
+}
+
 class RecentTransactionRow extends StatelessWidget {
   final RecentTransactionItem item;
   final String defaultCurrency;
@@ -147,6 +143,8 @@ class RecentTransactionRow extends StatelessWidget {
   final Color themeColor;
   final bool redForIncome;
   final bool dark;
+  final bool compact;
+  final DateTime? referenceDate;
 
   const RecentTransactionRow({
     super.key,
@@ -156,6 +154,8 @@ class RecentTransactionRow extends StatelessWidget {
     required this.themeColor,
     required this.redForIncome,
     required this.dark,
+    this.referenceDate,
+    this.compact = false,
   });
 
   bool get _isTransfer => item.transaction.type == 'transfer';
@@ -184,7 +184,7 @@ class RecentTransactionRow extends StatelessWidget {
   /// 月/日"),不引入 intl 依赖——这个固定格式不随 locale 变化。
   String get _timeText {
     final dt = item.transaction.happenedAt;
-    final now = DateTime.now();
+    final now = referenceDate ?? DateTime.now();
     final isToday =
         dt.year == now.year && dt.month == now.month && dt.day == now.day;
     if (isToday) {
@@ -207,9 +207,9 @@ class RecentTransactionRow extends StatelessWidget {
   Color get _amountColor {
     switch (item.transaction.type) {
       case 'expense':
-        return widgetExpenseColor(redForIncome);
+        return widgetExpenseColor(redForIncome, dark: dark);
       case 'income':
-        return widgetIncomeColor(redForIncome);
+        return widgetIncomeColor(redForIncome, dark: dark);
       default:
         return widgetTextPrimary(dark);
     }
@@ -231,71 +231,71 @@ class RecentTransactionRow extends StatelessWidget {
   }
 
   Widget _leadingIcon() {
-    if (_isTransfer) {
-      // 转账没有分类,直接用一个更贴切的图标而不是
-      // CategoryService.getCategoryIcon(null) 兜底的通用图标(同主应用
-      // 交易列表对转账使用专属图标的做法一致)。
-      return Icon(Icons.swap_horiz, size: 16, color: themeColor);
-    }
-    return widgetCategoryIcon(icon: item.category?.icon, color: themeColor, size: 16);
+    final ink = Color.lerp(widgetTextPrimary(dark), themeColor, .10)!;
+    if (_isTransfer) return Icon(Icons.swap_horiz, size: 16, color: ink);
+    return widgetCategoryIcon(icon: item.category?.icon, color: ink, size: 16);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 5),
-      child: Row(
+    return LayoutBuilder(builder: (context, box) {
+      final iconSize = compact ? 28.0 : 31.0;
+      return Row(
         children: [
           Container(
-            width: 30,
-            height: 30,
+            width: iconSize,
+            height: iconSize,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: themeColor.withValues(alpha: dark ? 0.22 : 0.12),
-              shape: BoxShape.circle,
+              color: widgetCardSoft(dark),
+              borderRadius: BorderRadius.circular(9),
             ),
             child: _leadingIcon(),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 9),
           Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  _primaryName,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: widgetTextPrimary(dark),
-                  ),
-                ),
+                Text(_primaryName,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                        fontSize: compact ? 12 : 13,
+                        height: 1.15,
+                        fontWeight: FontWeight.w600,
+                        color: widgetTextPrimary(dark))),
                 const SizedBox(height: 2),
-                Text(
-                  _secondaryLine,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 10.5, color: widgetTextTertiary(dark)),
-                ),
+                Text(_secondaryLine,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                        fontSize: compact ? 9.5 : 10,
+                        height: 1.15,
+                        color: widgetTextSecondary(dark))),
               ],
             ),
           ),
-          const SizedBox(width: 8),
-          Text(
-            _amountText,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: _amountColor,
-              fontFeatures: const [kWidgetTabularFeature],
+          const SizedBox(width: 7),
+          ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: box.maxWidth * .46),
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerRight,
+              child: Text(_amountText,
+                  maxLines: 1,
+                  style: TextStyle(
+                    fontSize: 15,
+                    height: 1.15,
+                    fontWeight: FontWeight.w600,
+                    color: _amountColor,
+                    fontFeatures: const [kWidgetTabularFeature],
+                  )),
             ),
           ),
         ],
-      ),
-    );
+      );
+    });
   }
 }

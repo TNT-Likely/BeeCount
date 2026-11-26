@@ -620,6 +620,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get widgetToday => 'Today';
 
   @override
+  String get widgetFrequentCategories => 'Frequent categories';
+
+  @override
+  String get widgetNoFrequentCategories => 'No frequent categories';
+
+  @override
+  String get widgetAccountBalances => 'Account balances';
+
+  @override
+  String get widgetSpendingShare => 'Share of spending';
+
+  @override
+  String get widgetAddExpense => 'Add expense';
+
+  @override
   String get widgetQuickAddLabel => 'Add';
 
   @override
@@ -4478,7 +4493,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get widgetGalleryQuickAddTitle => 'Quick Add';
 
   @override
-  String get widgetGalleryQuickAddDesc => 'One-tap entry for your frequent categories';
+  String get widgetGalleryQuickAddDesc => 'See your frequent categories and tap to add an expense.';
 
   @override
   String get widgetGalleryBudgetDesc => 'Track your budget progress at a glance';
@@ -4523,7 +4538,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get iosWidgetStep3 => 'Search and select \"BeeCount\"';
 
   @override
-  String get iosWidgetStep4 => 'Select medium widget and add to home screen';
+  String get iosWidgetStep4 => 'Choose a size and add the widget to your Home Screen';
 
   @override
   String get androidWidgetStep1 => 'Long press on home screen blank area';
@@ -4541,13 +4556,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aboutWidget => 'About Widget';
 
   @override
-  String get widgetDescription => 'Widget automatically syncs to display today\'s and this month\'s income and expense data, refreshing every 30 minutes. Data updates immediately when app is opened.';
+  String get widgetDescription => 'Widgets show your latest ledger snapshot. When BeeCount follows the system, the widget can switch its language and appearance on the Home Screen.';
 
   @override
   String get widgetQuickEntryTitle => 'Quick Entry';
 
   @override
-  String get widgetQuickEntryDesc => 'Tap the left side of the widget to quickly add an expense, or tap the right side to add an income. You can also use beecount://new?type=transfer via Shortcuts to quickly start a transfer.';
+  String get widgetQuickEntryDesc => 'On the medium Overview widget, tap the left side to add an expense or the right side to add income. Tap Quick Add to enter an expense. For a transfer, use beecount://new?type=transfer in Shortcuts.';
 
   @override
   String get appName => 'BeeCount';

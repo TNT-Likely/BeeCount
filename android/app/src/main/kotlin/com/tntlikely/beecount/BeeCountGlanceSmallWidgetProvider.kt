@@ -5,12 +5,10 @@ import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Log
 import android.widget.RemoteViews
 import es.antonborri.home_widget.HomeWidgetProvider
-import java.io.File
 
 /**
  * 收支速览小组件·小号(1×1 方形,仅一档)。
@@ -39,25 +37,7 @@ class BeeCountGlanceSmallWidgetProvider : HomeWidgetProvider() {
                 Log.d(TAG, "Updating widget $widgetId")
 
                 val views = RemoteViews(context.packageName, R.layout.glance_small_widget).apply {
-                    val imagePath = widgetData.getString(IMAGE_KEY, null)
-                    Log.d(TAG, "Image path from SharedPreferences: $imagePath")
-
-                    if (imagePath != null) {
-                        val file = File(imagePath)
-                        Log.d(TAG, "File exists: ${file.exists()}, size: ${if (file.exists()) file.length() else 0}")
-
-                        val bitmap = BitmapFactory.decodeFile(imagePath)
-                        if (bitmap != null) {
-                            Log.d(TAG, "Bitmap decoded successfully: ${bitmap.width}x${bitmap.height}")
-                            setImageViewBitmap(R.id.widget_image, bitmap)
-                        } else {
-                            Log.e(TAG, "Failed to decode bitmap from file")
-                            setImageViewResource(R.id.widget_image, R.mipmap.ic_launcher)
-                        }
-                    } else {
-                        Log.w(TAG, "No image path for key $IMAGE_KEY, showing placeholder")
-                        setImageViewResource(R.id.widget_image, R.mipmap.ic_launcher)
-                    }
+                    setWidgetArtwork(context, widgetData, IMAGE_KEY)
 
                     // 整块点击 → 记支出(小号主视觉是今日支出大数,没有中号的
                     // 左右分区语义;与 iOS 小号 family 的整卡 Link 行为一致)。

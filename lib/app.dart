@@ -16,7 +16,6 @@ import 'pages/main/mine_page.dart';
 import 'pages/transaction/transaction_editor_page.dart';
 import 'providers.dart';
 import 'l10n/app_localizations.dart';
-import 'widget/widget_manager.dart';
 import 'pages/shared/navigation/ledger_tab_bar.dart';
 import 'pages/shared/navigation/quick_add_actions.dart';
 import 'cloud/sync_service.dart';
@@ -567,22 +566,20 @@ class _BeeAppState extends ConsumerState<BeeApp>
     }
   }
 
-  /// 小组件「净资产 / 预算 / 最近交易」卡片点击 → `beecount://open?page=` 的
-  /// 落地页路由。detail(最近交易)先落统计页,后续可按需换成专门的明细列表页。
+  /// 桌面卡片点击后，打开独立页面或切换到已有的明细、统计标签。
   void _openPageForDeepLink(NavigatorState nav, String? page) {
+    final tab = AppLinkService.mainTabForOpenPage(page);
+    if (tab != null) {
+      nav.popUntil((route) => route.isFirst);
+      ref.read(bottomTabIndexProvider.notifier).state = tab;
+      return;
+    }
     switch (page) {
       case 'assets':
         nav.push(MaterialPageRoute(builder: (_) => const AccountsPage()));
         break;
       case 'budget':
         nav.push(MaterialPageRoute(builder: (_) => const BudgetPage()));
-        break;
-      case 'detail':
-        // 最近交易 / 仪表盘主体 → 首页明细列表:App 没有独立的明细页,首页
-        // 就是完整账单流,切回主壳首页 tab 而不是 push 页面。(此前误映射到
-        // 洞察/统计页,真机反馈"点小组件进了洞察页"。)
-        nav.popUntil((route) => route.isFirst);
-        ref.read(bottomTabIndexProvider.notifier).state = 0;
         break;
       default:
         logger.warning('AppLink', 'open 未知 page: $page');
@@ -770,18 +767,6 @@ class _BeeAppState extends ConsumerState<BeeApp>
     }
   }
 
-  @override
-  void didChangePlatformBrightness() {
-    super.didChangePlatformBrightness();
-    // 系统明暗切换时重渲小组件:图片渲染方案不会随系统主题自动重绘(原生壳
-    // 只是展示一张静态 PNG),渲染时机全靠 App 侧触发。小组件明暗跟随**系统**
-    // 而非 App 内主题设置(行业惯例,桌面是系统的地盘;widget_manager 渲染
-    // 批次内取 PlatformDispatcher.platformBrightness),这里监听的正是系统
-    // 明暗变化——App 在前台/存活时系统切换明暗,桌面组件立刻换肤,而不是
-    // 等下一次记账/前台恢复才刷新。
-    _updateWidget();
-  }
-
   Future<void> _checkAppLockOnResume() async {
     final shouldLock = await AppLockService.shouldLockOnResume();
     if (shouldLock && mounted) {
@@ -789,31 +774,7 @@ class _BeeAppState extends ConsumerState<BeeApp>
     }
   }
 
-  Future<void> _updateWidget() async {
-    try {
-      final repository = ref.read(repositoryProvider);
-      final ledgerId = ref.read(currentLedgerIdProvider);
-      final primaryColor = ref.read(primaryColorProvider);
-      final redForIncome = ref.read(incomeExpenseColorSchemeProvider);
-      final baseCurrency = ref.read(baseCurrencyProvider);
-
-      final widgetManager = WidgetManager();
-      // 前台恢复路径也走本地化封装,让小组件文案跟随 App 语言(与
-      // main.dart / theme_providers 等无 context 调用点一致,靠 languageProvider
-      // 还原 locale,不依赖 async 后可能失效的 BuildContext)。
-      await widgetManager.updateAllWidgetsLocalized(
-        repository,
-        ledgerId,
-        primaryColor,
-        explicitLocale: ref.read(languageProvider),
-        redForIncome: redForIncome,
-        baseCurrency: baseCurrency,
-      );
-      logger.info('App', 'App恢复前台，小组件数据已更新');
-    } catch (e) {
-      logger.warning('App', '更新小组件失败: $e');
-    }
-  }
+  Future<void> _updateWidget() => updateAppWidget(ref);
 
   @override
   Widget build(BuildContext context) {

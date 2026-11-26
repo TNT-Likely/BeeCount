@@ -1210,6 +1210,36 @@ abstract class AppLocalizations {
   /// **'Today'**
   String get widgetToday;
 
+  /// No description provided for @widgetFrequentCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'Frequent categories'**
+  String get widgetFrequentCategories;
+
+  /// No description provided for @widgetNoFrequentCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'No frequent categories'**
+  String get widgetNoFrequentCategories;
+
+  /// No description provided for @widgetAccountBalances.
+  ///
+  /// In en, this message translates to:
+  /// **'Account balances'**
+  String get widgetAccountBalances;
+
+  /// No description provided for @widgetSpendingShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share of spending'**
+  String get widgetSpendingShare;
+
+  /// No description provided for @widgetAddExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Add expense'**
+  String get widgetAddExpense;
+
   /// No description provided for @widgetQuickAddLabel.
   ///
   /// In en, this message translates to:
@@ -8509,7 +8539,7 @@ abstract class AppLocalizations {
   /// No description provided for @widgetGalleryQuickAddDesc.
   ///
   /// In en, this message translates to:
-  /// **'One-tap entry for your frequent categories'**
+  /// **'See your frequent categories and tap to add an expense.'**
   String get widgetGalleryQuickAddDesc;
 
   /// No description provided for @widgetGalleryBudgetDesc.
@@ -8599,7 +8629,7 @@ abstract class AppLocalizations {
   /// No description provided for @iosWidgetStep4.
   ///
   /// In en, this message translates to:
-  /// **'Select medium widget and add to home screen'**
+  /// **'Choose a size and add the widget to your Home Screen'**
   String get iosWidgetStep4;
 
   /// No description provided for @androidWidgetStep1.
@@ -8635,7 +8665,7 @@ abstract class AppLocalizations {
   /// No description provided for @widgetDescription.
   ///
   /// In en, this message translates to:
-  /// **'Widget automatically syncs to display today\'s and this month\'s income and expense data, refreshing every 30 minutes. Data updates immediately when app is opened.'**
+  /// **'Widgets show your latest ledger snapshot. When BeeCount follows the system, the widget can switch its language and appearance on the Home Screen.'**
   String get widgetDescription;
 
   /// No description provided for @widgetQuickEntryTitle.
@@ -8647,7 +8677,7 @@ abstract class AppLocalizations {
   /// No description provided for @widgetQuickEntryDesc.
   ///
   /// In en, this message translates to:
-  /// **'Tap the left side of the widget to quickly add an expense, or tap the right side to add an income. You can also use beecount://new?type=transfer via Shortcuts to quickly start a transfer.'**
+  /// **'On the medium Overview widget, tap the left side to add an expense or the right side to add income. Tap Quick Add to enter an expense. For a transfer, use beecount://new?type=transfer in Shortcuts.'**
   String get widgetQuickEntryDesc;
 
   /// No description provided for @appName.

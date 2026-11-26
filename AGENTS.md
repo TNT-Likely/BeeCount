@@ -4,6 +4,7 @@
 
 - When adding or changing source strings, update the corresponding Traditional Chinese entries (`app_zh_TW.arb`) in the same change.
 - Add or change Korean (`app_ko.arb`) and Russian (`app_ru.arb`) translations only when the user explicitly asks.
+- Default localization verification covers Simplified Chinese, Traditional Chinese, and English. Run Korean or Russian localization checks only when the user explicitly asks. This applies to automated tests, manual QA, and screenshots.
 - These instructions apply to agent work. Follow the project's localization generator and fallback behavior for untranslated entries.
 
 ## Git Workflow

@@ -620,6 +620,21 @@ class AppLocalizationsZh extends AppLocalizations {
   String get widgetToday => '今日';
 
   @override
+  String get widgetFrequentCategories => '常用分类';
+
+  @override
+  String get widgetNoFrequentCategories => '暂无常用分类';
+
+  @override
+  String get widgetAccountBalances => '账户余额';
+
+  @override
+  String get widgetSpendingShare => '支出占比';
+
+  @override
+  String get widgetAddExpense => '记一笔';
+
+  @override
   String get widgetQuickAddLabel => '记一笔';
 
   @override
@@ -4478,7 +4493,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get widgetGalleryQuickAddTitle => '快速记账';
 
   @override
-  String get widgetGalleryQuickAddDesc => '常用分类一键速记';
+  String get widgetGalleryQuickAddDesc => '查看常用分类，轻点卡片记一笔支出。';
 
   @override
   String get widgetGalleryBudgetDesc => '预算进度实时掌握';
@@ -4523,7 +4538,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get iosWidgetStep3 => '搜索并选择\"蜜蜂记账\"';
 
   @override
-  String get iosWidgetStep4 => '选择中型小组件，添加到主屏幕';
+  String get iosWidgetStep4 => '选择所需尺寸，将小组件添加到主屏幕';
 
   @override
   String get androidWidgetStep1 => '长按主屏幕空白区域';
@@ -4541,13 +4556,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get aboutWidget => '关于小组件';
 
   @override
-  String get widgetDescription => '小组件会自动同步显示今日和本月的收支数据，每30分钟自动刷新一次。打开应用后会立即更新数据。';
+  String get widgetDescription => '小组件显示最近一次更新的账本数据。语言和外观设为跟随系统时，可以在桌面直接切换。';
 
   @override
   String get widgetQuickEntryTitle => '快捷记账';
 
   @override
-  String get widgetQuickEntryDesc => '点击小组件左侧区域可快速新建支出，点击右侧区域可快速新建收入。也可通过快捷指令使用 beecount://new?type=transfer 快速发起转账。';
+  String get widgetQuickEntryDesc => '轻点中号「收支速览」左侧记支出，右侧记收入。「快速记账」整张卡都可以点按。转账可通过快捷指令打开 beecount://new?type=transfer。';
 
   @override
   String get appName => '蜜蜂记账';
@@ -10721,7 +10736,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get widgetBeeTrailStreakSuffix => '天';
 
   @override
-  String get widgetBeeTrailCompletion => '本月完成率';
+  String get widgetBeeTrailCompletion => '近 28 天完成率';
 
   @override
   String get widgetBeeTrailEmpty => '今天記一筆，點亮第一格';
@@ -10740,6 +10755,21 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get widgetToday => '今日';
+
+  @override
+  String get widgetFrequentCategories => '常用分類';
+
+  @override
+  String get widgetNoFrequentCategories => '暫無常用分類';
+
+  @override
+  String get widgetAccountBalances => '帳戶餘額';
+
+  @override
+  String get widgetSpendingShare => '支出占比';
+
+  @override
+  String get widgetAddExpense => '記一筆';
 
   @override
   String get widgetQuickAddLabel => '記一筆';
@@ -14600,7 +14630,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get widgetGalleryQuickAddTitle => '快速記帳';
 
   @override
-  String get widgetGalleryQuickAddDesc => '常用分類一鍵速記';
+  String get widgetGalleryQuickAddDesc => '查看常用分類，輕點卡片記一筆支出。';
 
   @override
   String get widgetGalleryBudgetDesc => '預算進度即時掌握';
@@ -14645,7 +14675,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get iosWidgetStep3 => '搜索並選擇\"蜜蜂記帳\"';
 
   @override
-  String get iosWidgetStep4 => '選擇中型小組件，添加到主屏幕';
+  String get iosWidgetStep4 => '選擇所需尺寸，將小工具加入主畫面';
 
   @override
   String get androidWidgetStep1 => '長按主屏幕空白區域';
@@ -14663,13 +14693,13 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get aboutWidget => '關于小組件';
 
   @override
-  String get widgetDescription => '小組件會自動同步顯示今日和本月的收支數據，每30分鐘自動刷新一次。打開應用後會立即更新數據。';
+  String get widgetDescription => '小工具顯示最近一次更新的帳本資料。語言和外觀設為跟隨系統時，可以在主畫面直接切換。';
 
   @override
   String get widgetQuickEntryTitle => '快捷記帳';
 
   @override
-  String get widgetQuickEntryDesc => '點擊小組件左側區域可快速新建支出，點擊右側區域可快速新建收入。也可透過捷徑使用 beecount://new?type=transfer 快速發起轉帳。';
+  String get widgetQuickEntryDesc => '輕點中型「收支速覽」左側記支出，右側記收入。「快速記帳」整張卡片都可以點按。轉帳可透過捷徑開啟 beecount://new?type=transfer。';
 
   @override
   String get appName => '蜜蜂記帳';

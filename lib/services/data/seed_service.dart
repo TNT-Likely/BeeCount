@@ -454,6 +454,22 @@ class SeedService {
     );
   }
 
+  /// Resolves a stored seed key with the same names used when creating a ledger.
+  /// Existing labels and user-defined category names pass through unchanged.
+  static String localizedCategoryName(
+      String name, String kind, AppLocalizations l10n) {
+    if (kind != 'expense' && kind != 'income') return name;
+    final flat = kind == 'income' ? flatIncomeCategoryKeys : flatExpenseCategoryKeys;
+    final groups = kind == 'income'
+        ? hierarchicalIncomeCategories
+        : hierarchicalExpenseCategories;
+    if (flat.contains(name)) return _getTranslatedCategoryName(name, kind, l10n);
+    if (groups.containsKey(name)) {
+      return _getTranslatedParentCategoryName(name, kind, l10n);
+    }
+    return name.contains('_') ? _getTranslatedSubCategoryName(name, kind, l10n) : name;
+  }
+
   /// 获取翻译后的分类名称（用于一级分类模式）
   static String _getTranslatedCategoryName(
     String key,

@@ -44,69 +44,48 @@ class ConsumptionRhythmView extends StatelessWidget {
             day.expenseTotal > maximum ? day.expenseTotal : maximum);
     final empty = maxExpense == 0;
 
-    return Container(
+    return WidgetCardSurface(
       width: width,
       height: height,
-      padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
-      decoration: BoxDecoration(
-        color: widgetCardBackground(dark),
-        borderRadius: BorderRadius.circular(20),
-      ),
+      dark: dark,
+      padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 15),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            children: [
-              Container(
-                width: 7,
-                height: 7,
-                decoration:
-                    BoxDecoration(color: themeColor, shape: BoxShape.circle),
-              ),
-              const SizedBox(width: 6),
-              Text(titleLabel,
-                  style: TextStyle(
-                      color: widgetTextSecondary(dark),
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600)),
-              const Spacer(),
-              Text(rangeLabel,
-                  style:
-                      TextStyle(color: widgetTextTertiary(dark), fontSize: 10)),
-            ],
-          ),
+          WidgetCardHeading(
+              icon: Icons.bar_chart_rounded,
+              title: titleLabel,
+              meta: rangeLabel,
+              dark: dark),
           const SizedBox(height: 7),
-          Expanded(
-            child: empty
-                ? Center(
-                    child: Text(emptyLabel,
-                        style: TextStyle(
-                            color: widgetTextTertiary(dark), fontSize: 12)))
-                : _HeatMap(
+          if (empty)
+            Expanded(
+                child: WidgetCardEmpty(
+                    icon: Icons.bar_chart_rounded,
+                    label: emptyLabel,
+                    dark: dark))
+          else ...[
+            Expanded(
+                child: _HeatMap(
                     days: days,
                     maxExpense: maxExpense,
                     color: themeColor,
-                    dark: dark),
-          ),
-          const SizedBox(height: 5),
-          Text(
-            empty ? '' : _comparisonLabel(days),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-                color: empty
-                    ? widgetTextTertiary(dark)
-                    : widgetTextSecondary(dark),
-                fontSize: 11,
-                fontWeight: FontWeight.w500),
-          ),
+                    dark: dark)),
+            const SizedBox(height: 5),
+            Text(_comparisonLabel(days),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                    color: widgetTextSecondary(dark),
+                    fontSize: 11,
+                    height: 1.15)),
+          ],
         ],
       ),
     );
   }
 
   String _comparisonLabel(List<DailyWidgetActivity> days) {
-    if (days.every((day) => day.expenseTotal == 0)) return emptyLabel;
     final recent = days
         .skip((days.length - 7).clamp(0, days.length))
         .fold<double>(0, (sum, day) => sum + day.expenseTotal);
@@ -142,6 +121,7 @@ class _HeatMap extends StatelessWidget {
       cells.insert(0, null);
     }
     return Column(
+      key: const ValueKey('widget-rhythm-grid'),
       children: [
         for (var row = 0; row < 3; row++)
           Expanded(
@@ -168,10 +148,12 @@ class _HeatMap extends StatelessWidget {
   Widget _cell(DailyWidgetActivity? day) {
     final ratio =
         day == null || maxExpense == 0 ? 0.0 : day.expenseTotal / maxExpense;
-    final alpha = ratio == 0 ? (dark ? 0.10 : 0.08) : 0.22 + ratio * 0.70;
+    final base = widgetCardSoft(dark);
+    final fill =
+        ratio <= 0 ? base : Color.lerp(base, color, .18 + .82 * ratio)!;
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: color.withValues(alpha: alpha),
+        color: fill,
         borderRadius: BorderRadius.circular(4),
       ),
     );

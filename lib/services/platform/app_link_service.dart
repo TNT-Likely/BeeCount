@@ -41,7 +41,7 @@ enum AppLinkAction {
   newTransaction,
 
   /// 打开指定页面（净资产/预算/最近交易明细），配合小组件点击深链使用：
-  /// `beecount://open?page=assets|budget|detail`
+  /// `beecount://open?page=assets|budget|detail|statistics|transactions`
   open,
 
   /// 未知
@@ -163,7 +163,7 @@ class AppLinkResult {
 /// - beecount://new?type=expense&category=12 - 手动记账并预填分类（小组件
 ///   「快速记账」点分类格用，category 为分类 id）
 /// - beecount://add?amount=100&type=expense&category=餐饮 - 自动记账
-/// - beecount://open?page=assets|budget|detail - 打开指定页面（小组件点击
+/// - beecount://open?page=assets|budget|detail|statistics|transactions - 打开指定页面（小组件点击
 ///   净资产/预算/最近交易卡片用）
 /// - beecount://auto-billing?text=... - 文本自动记账（兼容旧版）
 /// - beecount://quick-billing - 快速记账（兼容旧版）
@@ -271,6 +271,13 @@ class AppLinkService {
       }
     }
   }
+
+  /// Targets represented by pages already mounted in the main tab shell.
+  static int? mainTabForOpenPage(String? page) => switch (page) {
+        'detail' || 'transactions' => 0,
+        'statistics' => 1,
+        _ => null,
+      };
 
   /// 解析 URI 获取动作类型
   static AppLinkAction parseAction(Uri uri) {

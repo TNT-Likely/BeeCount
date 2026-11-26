@@ -123,7 +123,7 @@ Future<int?> showTransactionMove(
     ref.read(budgetRefreshProvider.notifier).state++;
     ref.read(attachmentListRefreshProvider.notifier).state++;
     ref.read(tagListRefreshProvider.notifier).state++;
-    updateAppWidget(ref, context);
+    updateAppWidget(ref);
     showBeeToast(context, l.transactionMoveDone(count), tone: BeeTone.success);
     return targetId;
   } catch (error) {

@@ -11,7 +11,7 @@
           而不是切内容或变形拉伸。
     -->
     <ImageView
-        android:id="@+id/widget_image"
+        style="@style/WidgetArtworkImage"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="fitCenter"

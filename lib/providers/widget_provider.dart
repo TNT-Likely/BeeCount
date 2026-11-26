@@ -1,72 +1,85 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../l10n/app_localizations.dart';
+
+import '../data/repositories/base_repository.dart';
+import '../services/system/logger_service.dart';
+import '../skins/premium_skins.dart';
 import '../widget/widget_manager.dart';
 import '../providers.dart';
 
-/// Provider for widget manager
-final widgetManagerProvider = Provider<WidgetManager>((ref) {
-  return WidgetManager();
+final widgetManagerProvider = Provider<WidgetManager>((ref) => WidgetManager());
+
+typedef _WidgetSettings = ({
+  BaseRepository repository,
+  int ledgerId,
+  String baseCurrency,
+  Locale? locale,
+  ThemeMode theme,
+  Color lightColor,
+  Color darkColor,
+  bool redForIncome,
 });
 
-/// Function to update widget data
-/// Call this after any transaction change (add/edit/delete)
-Future<void> updateAppWidget(WidgetRef ref, BuildContext context) async {
-  try {
-    final l10n = AppLocalizations.of(context);
-    final repository = ref.read(repositoryProvider);
-    final currentLedgerId = ref.read(currentLedgerIdProvider);
-    final primaryColor = ref.read(primaryColorProvider);
-    final redForIncome = ref.read(incomeExpenseColorSchemeProvider);
-    final baseCurrency = ref.read(baseCurrencyProvider);
+final _widgetSettings = Provider<_WidgetSettings>((ref) {
+  final color = ref.watch(primaryColorProvider);
+  final skin = ref.watch(headerSkinsEnabledProvider)
+      ? ref.watch(premiumSkinsProvider).selectedSkin
+      : null;
+  return (
+    repository: ref.watch(repositoryProvider),
+    ledgerId: ref.watch(currentLedgerIdProvider),
+    baseCurrency: ref.watch(baseCurrencyProvider),
+    locale: ref.watch(languageProvider),
+    theme: ref.watch(themeModeProvider),
+    lightColor: skin?.colors(Brightness.light).accent ?? color,
+    darkColor: skin?.colors(Brightness.dark).accent ?? color,
+    redForIncome: ref.watch(incomeExpenseColorSchemeProvider),
+  );
+});
 
-    final widgetManager = ref.read(widgetManagerProvider);
-    await widgetManager.updateAllWidgets(
-      repository,
-      currentLedgerId,
-      primaryColor,
-      redForIncome: redForIncome,
-      glanceTitleLabel: l10n.widgetGalleryGlanceTitle,
-      quickAddTitleLabel: l10n.widgetGalleryQuickAddTitle,
-      recentTitleLabel: l10n.widgetRecentTransactions,
-      dashboardTitleLabel: l10n.widgetDashboardTitle,
-      monthSuffix: l10n.widgetMonthSuffix,
-      todayLabel: l10n.widgetToday,
-      todayExpenseLabel: l10n.widgetTodayExpense,
-      todayIncomeLabel: l10n.widgetTodayIncome,
-      monthExpenseLabel: l10n.widgetMonthExpense,
-      monthIncomeLabel: l10n.widgetMonthIncome,
-      baseCurrency: baseCurrency,
-      // 净资产视图文案:这里是唯一真正有 BuildContext 的调用点,直接用
-      // AppLocalizations.of(context) 最准确;其余调用点(main.dart/app.dart/
-      // providers/theme_providers.dart/pages/main/ledgers_page_new.dart)
-      // 均走 WidgetManager.updateAllWidgetsLocalized(靠 languageProvider
-      // 还原 locale),见 widget_manager.dart updateAllWidgets 文档。
-      netWorthLabel: l10n.accountTotalBalance,
-      totalAssetsLabel: l10n.totalAssets,
-      totalLiabilitiesLabel: l10n.totalLiabilities,
-      noAccountsLabel: l10n.widgetNoAccounts,
-      quickAddLabel: l10n.widgetQuickAddLabel,
-      budgetLabel: l10n.budgetMonthlyBudget,
-      budgetUsedLabel: l10n.budgetUsed,
-      budgetTotalLabel: l10n.widgetBudgetTotal,
-      budgetRemainingLabel: l10n.widgetBudgetRemaining,
-      noBudgetLabel: l10n.widgetNoBudget,
-      uncategorizedLabel: l10n.commonUncategorized,
-      noTransactionsLabel: l10n.widgetNoTransactions,
-      dashboardRecentLabel: l10n.widgetRecentTransactions,
-      consumptionRhythmTitleLabel: l10n.widgetConsumptionRhythmTitle,
-      consumptionRhythmRangeLabel: l10n.widgetConsumptionRhythmRange,
-      consumptionRhythmStableLabel: l10n.widgetConsumptionRhythmStable,
-      consumptionRhythmIncreaseLabel: l10n.widgetConsumptionRhythmIncrease,
-      consumptionRhythmDecreaseLabel: l10n.widgetConsumptionRhythmDecrease,
-      consumptionRhythmEmptyLabel: l10n.widgetConsumptionRhythmEmpty,
-      beeTrailTitleLabel: l10n.widgetBeeTrailTitle,
-      beeTrailStreakSuffix: l10n.widgetBeeTrailStreakSuffix,
-      beeTrailCompletionLabel: l10n.widgetBeeTrailCompletion,
-      beeTrailEmptyLabel: l10n.widgetBeeTrailEmpty,
-    );
-  } catch (e) {
-    // Silently fail to avoid disrupting the app
+final _readyWidgetSettings = Provider<_WidgetSettings?>((ref) =>
+    ref.watch(appInitStateProvider) == AppInitState.ready
+        ? ref.watch(_widgetSettings)
+        : null);
+
+/// Start after startup preferences and the active ledger are restored. The root
+/// subscription also sees language choices made in onboarding or settings that
+/// immediately rebuild/dispose the page making the change.
+void listenForAppWidgetUpdates(ProviderContainer container) {
+  container.listen(
+      _readyWidgetSettings,
+      (previous, next) {
+        if (next != null && next != previous) {
+          unawaited(_update(container.read(widgetManagerProvider), next,
+              warmUp: true));
+        }
+      },
+      fireImmediately: true,
+      onError: (error, stack) {
+        logger.error('WidgetManager', '读取小组件设置失败', error, stack);
+      });
+}
+
+Future<void> updateAppWidget(WidgetRef ref) async {
+  try {
+    await _update(ref.read(widgetManagerProvider), ref.read(_widgetSettings));
+  } catch (e, st) {
+    logger.error('WidgetManager', '刷新桌面小组件失败', e, st);
   }
 }
+
+Future<void> _update(WidgetManager manager, _WidgetSettings settings,
+        {bool warmUp = false}) =>
+    manager.updateAllWidgetsLocalized(
+      settings.repository,
+      settings.ledgerId,
+      settings.lightColor,
+      darkThemeColor: settings.darkColor,
+      explicitLocale: settings.locale,
+      themeMode: settings.theme,
+      redForIncome: settings.redForIncome,
+      baseCurrency: settings.baseCurrency,
+      warmUpAllSpecs: warmUp,
+    );

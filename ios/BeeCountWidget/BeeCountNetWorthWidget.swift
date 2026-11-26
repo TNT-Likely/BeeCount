@@ -9,15 +9,10 @@ import WidgetKit
 import SwiftUI
 import UIKit
 
-struct BeeCountNetWorthEntry: TimelineEntry {
-    let date: Date
-    let widgetImagePath: String
-}
-
-struct BeeCountNetWorthProvider: TimelineProvider {
+struct BeeCountNetWorthProvider: WidgetImageProviding {
     /// 按 widget family 选渲染管线写入的图片 key（对应
     /// `lib/widget/widget_spec.dart` 的 `netWorthSmall/Medium/Large`）。
-    private func imageKey(for family: WidgetFamily) -> String {
+    func imageKey(for family: WidgetFamily) -> String {
         switch family {
         case .systemSmall:
             return "widget_netWorth_small"
@@ -27,46 +22,10 @@ struct BeeCountNetWorthProvider: TimelineProvider {
             return "widget_netWorth_medium"
         }
     }
-
-    func placeholder(in context: Context) -> BeeCountNetWorthEntry {
-        BeeCountNetWorthEntry(
-            date: Date(),
-            // 添加页预览:用 bundle 内静态资产(见 WidgetPreviewAssets 注释)。
-            widgetImagePath: WidgetPreviewAssets.path(forImageKey: imageKey(for: context.family))
-        )
-    }
-
-    func getSnapshot(in context: Context, completion: @escaping (BeeCountNetWorthEntry) -> ()) {
-        // 添加页预览(isPreview):运行时图片在预览上下文读不到(App
-        // Group 访问受限,添加页只会显示占位色块),改用 bundle 内静态
-        // 预览资产,详见 WidgetPreviewAssets。
-        if context.isPreview {
-            completion(BeeCountNetWorthEntry(
-                date: Date(),
-                widgetImagePath: WidgetPreviewAssets.path(forImageKey: imageKey(for: context.family))))
-            return
-        }
-        let userDefaults = UserDefaults(suiteName: "group.com.tntlikely.beecount")
-        let imagePath = userDefaults?.string(forKey: imageKey(for: context.family)) ?? ""
-        let entry = BeeCountNetWorthEntry(date: Date(), widgetImagePath: imagePath)
-        completion(entry)
-    }
-
-    func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
-        let userDefaults = UserDefaults(suiteName: "group.com.tntlikely.beecount")
-        let imagePath = userDefaults?.string(forKey: imageKey(for: context.family)) ?? ""
-        let entry = BeeCountNetWorthEntry(date: Date(), widgetImagePath: imagePath)
-
-        // 设置30分钟后刷新
-        let nextUpdate = Calendar.current.date(byAdding: .minute, value: 30, to: Date())!
-        let timeline = Timeline(entries: [entry], policy: .after(nextUpdate))
-        completion(timeline)
-    }
 }
 
 struct BeeCountNetWorthWidgetEntryView : View {
-    var entry: BeeCountNetWorthProvider.Entry
-    @Environment(\.widgetFamily) var widgetFamily
+    let image: UIImage?
 
     // 净资产卡片点击 → 资产页。第一版整块点击、不分区；后续如需按账户明细
     // 列表分区跳转，可参考 BeeCountWidget.swift 的 GeometryReader 分区写法。
@@ -74,31 +33,9 @@ struct BeeCountNetWorthWidgetEntryView : View {
     private let assetsURL = URL(string: "beecount://open?page=assets")!
 
     var body: some View {
-        if let uiImage = UIImage(contentsOfFile: entry.widgetImagePath) {
-            Link(destination: assetsURL) {
-                Image(uiImage: uiImage)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .clipped()
-            }
-        } else {
-            // Placeholder view when image is not available
-            ZStack {
-                Color(red: 1.0, green: 0.76, blue: 0.03)
-                VStack {
-                    Image(systemName: "chart.pie.fill")
-                        .font(.system(size: 32))
-                        .foregroundColor(.white)
-                    Text(BehaviorWidgetCopy.localized(
-                        simplifiedChinese: "净资产", traditionalChinese: "淨資產",
-                        english: "Net Worth"))
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(.white)
-                }
-            }
+        WidgetCardImage(image: image, symbol: "chart.pie.fill", label: BehaviorWidgetCopy.localized(
+            simplifiedChinese: "净资产", traditionalChinese: "淨資產", english: "Net Worth"))
             .widgetURL(assetsURL)
-        }
     }
 }
 
@@ -107,13 +44,8 @@ struct BeeCountNetWorthWidget: Widget {
 
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: BeeCountNetWorthProvider()) { entry in
-            if #available(iOS 17.0, *) {
-                BeeCountNetWorthWidgetEntryView(entry: entry)
-                    .containerBackground(for: .widget) {
-                        Color.clear
-                    }
-            } else {
-                BeeCountNetWorthWidgetEntryView(entry: entry)
+            WidgetImageContent(entry: entry) { image in
+                BeeCountNetWorthWidgetEntryView(image: image)
             }
         }
         .configurationDisplayName(BehaviorWidgetCopy.localized(

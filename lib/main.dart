@@ -92,18 +92,14 @@ Future<void> runBeeCount({PremiumSkins? premiumSkins}) async {
   }
 
   // 创建全局ProviderContainer（需要在周期交易生成之前创建，因为需要使用 repositoryProvider）
-  // observers 必须挂在这里(根容器):无 override 的全局 provider 元素都挂载
-  // 于根容器,riverpod 只通知元素所属容器的 observers;历史上挂在下面
-  // ProviderScope(parent: ...) 子作用域上,didUpdateProvider 从未被回调,
-  // _WidgetUpdateObserver 一直是死代码(2026-07 review 发现)——启动预热/
-  // 切账本触发的小组件渲染全靠它,必须真正生效。
   final container = ProviderContainer(
-    observers: const [_WidgetUpdateObserver()],
     overrides: [
       if (premiumSkins != null)
         premiumSkinsProvider.overrideWith((_) => premiumSkins),
     ],
   );
+
+  listenForAppWidgetUpdates(container);
 
   // 初始化应用模式（需要在生成重复交易之前，确保模式正确）
   // 直接从 SharedPreferences 读取并设置到 appModeProvider
@@ -166,59 +162,6 @@ Future<void> runBeeCount({PremiumSkins? premiumSkins}) async {
     parent: container,
     child: const MainApp(),
   ));
-}
-
-/// Provider observer to update widget on app start
-class _WidgetUpdateObserver extends ProviderObserver {
-  const _WidgetUpdateObserver();
-  @override
-  void didUpdateProvider(
-    ProviderBase provider,
-    Object? previousValue,
-    Object? newValue,
-    ProviderContainer container,
-  ) {
-    // Update widget when current ledger is loaded
-    if (provider == currentLedgerIdProvider && newValue != null) {
-      _updateWidgetOnStart(container);
-    }
-  }
-
-  void _updateWidgetOnStart(ProviderContainer container) async {
-    try {
-      // 先等主币种从 prefs 恢复完成再取值:本回调由 currentLedgerIdProvider
-      // 首次赋值触发,与 baseCurrencyInitProvider 的异步恢复是并行的两条链,
-      // 不等的话可能读到 StateProvider 的默认 'CNY',把净资产系列首轮渲成
-      // 错误的 ¥ 符号,要到下一次触发才纠正(2026-07 用户实机反馈)。
-      await container.read(baseCurrencyInitProvider.future);
-      final repository = container.read(repositoryProvider);
-      final ledgerId = container.read(currentLedgerIdProvider);
-      final primaryColor = container.read(primaryColorProvider);
-      final redForIncome = container.read(incomeExpenseColorSchemeProvider);
-      final baseCurrency = container.read(baseCurrencyProvider);
-      // 没有 BuildContext,靠 languageProvider 还原当前 App 语言(见
-      // widget_manager.dart resolveWidgetLocalizations 文档)。
-      final locale = container.read(languageProvider);
-
-      final widgetManager = WidgetManager();
-      await widgetManager.updateAllWidgetsLocalized(
-        repository,
-        ledgerId,
-        primaryColor,
-        explicitLocale: locale,
-        redForIncome: redForIncome,
-        baseCurrency: baseCurrency,
-        // 预热:启动 / 切账本时把全部类型×尺寸的图渲染齐,这样用户随后往桌面
-        // 添加任何一种小组件都立刻有图可显,不用等下一次 App 内触发渲染
-        // (「添加小组件后得等一会」的修复;高频数据变化触发仍只渲已安装)。
-        warmUpAllSpecs: true,
-      );
-
-      logger.info('App', '小组件数据已更新(全目录预热)');
-    } catch (e) {
-      logger.warning('App', '更新小组件失败（可能在不支持的平台上运行）: $e');
-    }
-  }
 }
 
 /// 恢复用户之前设置的记账提醒

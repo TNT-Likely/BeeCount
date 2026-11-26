@@ -41,6 +41,7 @@ class NetWorthBreakdownData {
   final double totalAssets;
   final double totalLiabilities;
   final double netWorth;
+  final bool? hasAccounts;
 
   /// 折算时因缺有效汇率被整条剔除的币种(ISO 大写);为空表示全部币种(含
   /// 只有一种币种的常见情形)都成功折算。与净资产页 `convertedNetWorthProvider`
@@ -51,6 +52,7 @@ class NetWorthBreakdownData {
     required this.totalAssets,
     required this.totalLiabilities,
     required this.netWorth,
+    this.hasAccounts,
     this.missingCurrencies = const [],
   });
 }
@@ -252,6 +254,7 @@ class WidgetDataService {
       totalAssets: converted.totalAssets,
       totalLiabilities: converted.totalLiabilities,
       netWorth: converted.netWorth,
+      hasAccounts: breakdown.isNotEmpty,
       missingCurrencies: converted.missingCurrencies,
     );
   }
@@ -330,19 +333,14 @@ class WidgetDataService {
   /// 本周期(账本自定义起始日)支出常用分类 top-[limit],按支出合计降序
   /// (复用 [BaseRepository.totalsByCategory] 已有的降序排序)。
   ///
-  /// "未分类"桶(`id == null`)被剔除:快速记账格点开即需跳转
-  /// `beecount://new?type=expense&category=<id>`,没有具体分类 id 无法深链。
-  ///
-  /// **本周期用过的分类不足 [limit] 时,用账本其余可用支出分类(按 sortOrder)
-  /// 补足**(补进来的 `total` 记 0)。快速记账组件是"入口"而不是"报表":
-  /// 月初刚翻篇、或刚建账本时本周期一笔都还没记,不补的话中号 2×4 网格会
-  /// 空出一大片占位格,而用户真正想要的恰恰是这时候有格子可点。默认分类
-  /// seed 就有 40+ 个支出分类(见 `SeedService.flatExpenseCategoryKeys`),
-  /// 正常账本补得满。
+  /// A quick-entry card labels these categories as frequently used. Leave
+  /// [includeUnused] off for that card so a new ledger can show its empty state.
+  /// Older callers can still fill the list from the available expense categories.
   static Future<List<QuickAddCategoryItem>> gatherQuickAddCategories({
     required BaseRepository repository,
     required int ledgerId,
     int limit = 6,
+    bool includeUnused = true,
   }) async {
     final now = DateTime.now();
     final ledger = await repository.getLedgerById(ledgerId);
@@ -366,7 +364,7 @@ class WidgetDataService {
               total: e.total,
             ))
         .toList();
-    if (items.length >= limit) return items;
+    if (!includeUnused || items.length >= limit) return items;
 
     // 补足(见方法文档):按 sortOrder 取账本可用支出分类,跳过已在列表里的。
     final used = items.map((e) => e.categoryId).toSet();
@@ -596,7 +594,7 @@ class WidgetDataService {
   }
 }
 
-/// 一次渲染批次(`WidgetManager.updateAllWidgets` 单次调用)内的取数缓存。
+/// 一次渲染批次(`WidgetManager.updateAllWidgetsLocalized` 单次调用)内的取数缓存。
 ///
 /// 同一类型多个尺寸的 spec、以及 dashboard 对 glance/趋势/最近交易/常用分类
 /// 的复用,原本各自独立调用 `WidgetDataService.gather*`——预热(warm-up)
@@ -605,7 +603,7 @@ class WidgetDataService {
 /// 耗时来源。本类把每种数据在一个批次内压到只查一次:memoize 的是 Future
 /// 本身——首个调用者触发查询,后续调用共享同一个 Future,天然并发安全。
 ///
-/// 生命周期 = 一个批次:每次 `updateAllWidgets` 新建一个,批次结束即丢弃,
+/// 生命周期 = 一个批次:每批新建一个,批次结束即丢弃,
 /// 不做跨批次缓存(数据新鲜度优先,批次间数据本来就可能已变化)。
 class WidgetGatherBatch {
   final BaseRepository repository;
@@ -667,12 +665,10 @@ class WidgetGatherBatch {
 
   Future<List<QuickAddCategoryItem>>? _quickAdd;
 
-  /// 常用支出分类,按批次内最大需求(medium 2×4 网格的 7 个)取一次;
-  /// small(3)与 dashboard(3)由 View 自行截断/补位(QuickAddView /
-  /// DashboardView 内部都有 take)。
+  /// 两档快速记账共用一次取数，小号取前三个分类。
   Future<List<QuickAddCategoryItem>> quickAddCategories() =>
       _quickAdd ??= WidgetDataService.gatherQuickAddCategories(
-          repository: repository, ledgerId: ledgerId, limit: 7);
+          repository: repository, ledgerId: ledgerId, limit: 7, includeUnused: false);
 
   Future<BudgetOverview>? _budget;
   Future<BudgetOverview> budget() => _budget ??= WidgetDataService.gatherBudget(
@@ -705,6 +701,6 @@ class WidgetGatherBatch {
         glance: await glance(),
         netWorthTrend: await netWorthTrend30(),
         recent: await recent(),
-        quickAdd: await quickAddCategories(),
+        quickAdd: const [],
       );
 }
