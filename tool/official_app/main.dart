@@ -17,42 +17,59 @@ class _AppStoreSkins extends PremiumSkins {
   }
 
   final OfficialRuntime _runtime;
-  late final _skins = [
-    for (final skin in autumnCollection)
-      if (autumnArtworks[skin.id] case final artwork?)
-        PremiumSkin(
-          id: skin.id,
-          name: skin.name,
-          englishName: skin.englishName,
-          colors: (brightness) {
-            final colors = autumnMaterial(skin.id, brightness);
-            return (accent: colors.accent, onAccent: colors.onAccent);
-          },
-          preview: (context) => SkinArtworkHost(
-            artwork: artwork,
-            brightness: Theme.of(context).brightness,
-            display: const SkinDisplay(motionEnabled: false),
-            child: const SizedBox.expand(),
-          ),
-          scene: (context, settings, child, topInset) =>
-              _scene(context, skin.id, artwork, settings, child, topInset),
-        ),
+  late final _collections = [
+    for (final pack in officialSkinCollections)
+      PremiumSkinCollection(
+        id: pack.id,
+        name: pack.name,
+        traditionalName: pack.traditionalName,
+        englishName: pack.englishName,
+        skins: [
+          for (final skin in pack.skins)
+            if (officialArtworks[skin.id] case final artwork?)
+              PremiumSkin(
+                id: skin.id,
+                name: skin.name,
+                traditionalName: skin.traditionalName,
+                englishName: skin.englishName,
+                colors: (brightness) {
+                  final colors = officialMaterial(skin.id, brightness);
+                  return (accent: colors.accent, onAccent: colors.onAccent);
+                },
+                preview: (context) {
+                  final settings = appearanceFor(skin.id);
+                  return SkinArtworkHost(
+                    artwork: artwork,
+                    brightness: Theme.of(context).brightness,
+                    display: SkinDisplay(
+                      sceneStrength: settings.scene,
+                      motionIntensity: settings.motion,
+                      motionEnabled: settings.animated,
+                    ),
+                    child: const SizedBox.expand(),
+                  );
+                },
+                scene: (context, settings, child, topInset) => _scene(
+                    context, skin.id, artwork, settings, child, topInset),
+              ),
+        ],
+      ),
   ];
 
-  StoreProduct? get _product => _runtime.commerce?.products
-      .where((product) =>
-          product.id == officialPackProductId &&
-          product.kind == ProductKind.nonConsumable)
-      .firstOrNull;
+  @override
+  List<PremiumSkinCollection> get collections =>
+      _runtime.paidSkinsEnabled ? _collections : const [];
 
   @override
-  List<PremiumSkin> get skins => _runtime.paidSkinsEnabled ? _skins : const [];
+  bool ownsPack(String packId) => _runtime.ownsPack(packId);
+
   @override
-  bool get owned => _runtime.owned;
+  String? priceForPack(String packId) =>
+      _runtime.productForPack(packId)?.localizedPrice;
+
   @override
-  String? get price => _product?.localizedPrice;
-  @override
-  bool get salesEnabled => _runtime.commerce?.salesEnabled == true;
+  bool salesEnabledForPack(String packId) =>
+      _runtime.readyForPack(packId) && _runtime.commerce?.salesEnabled == true;
   @override
   bool get canMakePayments => _runtime.gateway?.canMakePayments == true;
   @override
@@ -89,13 +106,8 @@ class _AppStoreSkins extends PremiumSkins {
   Future<void> clearSelection() => _runtime.clearSelection();
 
   @override
-  Future<SkinPurchaseResult> purchase() async {
-    final product = _product;
-    final commerce = _runtime.commerce;
-    if (product == null || commerce == null) {
-      return SkinPurchaseResult.unavailable;
-    }
-    final result = await commerce.purchase(product);
+  Future<SkinPurchaseResult> purchasePack(String packId) async {
+    final result = await _runtime.purchasePack(packId);
     return switch (result) {
       PurchaseLaunchResult.launched => SkinPurchaseResult.launched,
       PurchaseLaunchResult.pending => SkinPurchaseResult.pending,
@@ -147,7 +159,7 @@ Widget _scene(
   double topInset,
 ) {
   final base = Theme.of(context);
-  final material = autumnMaterial(id, base.brightness);
+  final material = officialMaterial(id, base.brightness);
   final opacity = 1 - settings.transparency;
   final surfaces = BeeCardTheme.of(context).copyWith(
     canvas: Colors.transparent,

@@ -18741,6 +18741,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'AI Assistant'**
   String get aiChatAssistantName;
+
+  /// No description provided for @skinCollectionCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{1-skin collection} other{{count}-skin collection}}'**
+  String skinCollectionCount(int count);
+
+  /// No description provided for @skinOwnedCollectionCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Owned · {count, plural, one{1 skin} other{{count} skins}}'**
+  String skinOwnedCollectionCount(int count);
+
+  /// No description provided for @skinUnlockPack.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock {count, plural, one{1 skin} other{{count} skins}} · {price}'**
+  String skinUnlockPack(int count, String price);
+
+  /// No description provided for @skinRestoreOwned.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchases restored for {names}.'**
+  String skinRestoreOwned(String names);
+
+  /// No description provided for @skinRestoreMissingPack.
+  ///
+  /// In en, this message translates to:
+  /// **'No purchase was found for {name}. Check with the Apple Account used to buy it.'**
+  String skinRestoreMissingPack(String name);
+
+  /// No description provided for @skinRedeemDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter an offer code in the App Store sheet to unlock the collection it covers.'**
+  String get skinRedeemDetails;
+
+  /// No description provided for @skinPreviewExpand.
+  ///
+  /// In en, this message translates to:
+  /// **'Full-screen preview'**
+  String get skinPreviewExpand;
+
+  /// No description provided for @skinPreviewLedger.
+  ///
+  /// In en, this message translates to:
+  /// **'Sample ledger'**
+  String get skinPreviewLedger;
+
+  /// No description provided for @skinPreviewLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get skinPreviewLight;
+
+  /// No description provided for @skinPreviewDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get skinPreviewDark;
+
+  /// No description provided for @skinPreviewLunch.
+  ///
+  /// In en, this message translates to:
+  /// **'Lunch'**
+  String get skinPreviewLunch;
+
+  /// No description provided for @skinPreviewMetro.
+  ///
+  /// In en, this message translates to:
+  /// **'Subway'**
+  String get skinPreviewMetro;
+
+  /// No description provided for @skinPreviewCoffee.
+  ///
+  /// In en, this message translates to:
+  /// **'Coffee'**
+  String get skinPreviewCoffee;
+
+  /// No description provided for @skinPreviewIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Freelance income'**
+  String get skinPreviewIncome;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -4561,5 +4561,19 @@
   "aiChatDiningAccounts": "餐饮按账户看",
   "agentAnswerSnapshotLimit": "共匹配 {total} 笔，已保存回答时最近 {saved} 笔的明细。",
   "aiChatComposerUnconfigured": "配置文本模型后可提问",
-  "aiChatAssistantName": "AI 助手"
+  "aiChatAssistantName": "AI 助手",
+  "skinCollectionCount": "{count} 款合集",
+  "skinOwnedCollectionCount": "已购 · {count} 款",
+  "skinUnlockPack": "解锁 {count} 款 · {price}",
+  "skinRestoreOwned": "已恢复购买，可用合集为「{names}」。",
+  "skinRestoreMissingPack": "未找到「{name}」的购买记录。请用购买时的 Apple 账户重新查询。",
+  "skinRedeemDetails": "在 App Store 的系统面板输入赠送码，可解锁该码对应的皮肤合集。",
+  "skinPreviewExpand": "全屏试穿",
+  "skinPreviewLedger": "示例账本",
+  "skinPreviewLight": "浅色",
+  "skinPreviewDark": "深色",
+  "skinPreviewLunch": "午餐",
+  "skinPreviewMetro": "地铁",
+  "skinPreviewCoffee": "咖啡",
+  "skinPreviewIncome": "兼职收入"
 }

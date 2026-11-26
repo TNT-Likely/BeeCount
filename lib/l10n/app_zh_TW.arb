@@ -3879,5 +3879,19 @@
   "aiChatDiningAccounts": "餐飲按帳戶看",
   "agentAnswerSnapshotLimit": "共符合 {total} 筆，已保存回答時最近 {saved} 筆的明細。",
   "aiChatComposerUnconfigured": "設定文字模型後即可提問",
-  "aiChatAssistantName": "AI 助手"
+  "aiChatAssistantName": "AI 助手",
+  "skinCollectionCount": "{count} 款合輯",
+  "skinOwnedCollectionCount": "已購 · {count} 款",
+  "skinUnlockPack": "解鎖 {count} 款 · {price}",
+  "skinRestoreOwned": "已恢復購買，可用合輯為「{names}」。",
+  "skinRestoreMissingPack": "找不到「{name}」的購買記錄。請使用購買時的 Apple 帳號重新查詢。",
+  "skinRedeemDetails": "在 App Store 的系統面板輸入贈送碼，即可解鎖該代碼對應的皮膚合輯。",
+  "skinPreviewExpand": "全螢幕試用",
+  "skinPreviewLedger": "範例帳本",
+  "skinPreviewLight": "淺色",
+  "skinPreviewDark": "深色",
+  "skinPreviewLunch": "午餐",
+  "skinPreviewMetro": "捷運",
+  "skinPreviewCoffee": "咖啡",
+  "skinPreviewIncome": "兼職收入"
 }

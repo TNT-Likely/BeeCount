@@ -5263,5 +5263,57 @@
     }
   },
   "aiChatComposerUnconfigured": "Set up a text model to ask…",
-  "aiChatAssistantName": "AI Assistant"
+  "aiChatAssistantName": "AI Assistant",
+  "skinCollectionCount": "{count, plural, one{1-skin collection} other{{count}-skin collection}}",
+  "@skinCollectionCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "skinOwnedCollectionCount": "Owned · {count, plural, one{1 skin} other{{count} skins}}",
+  "@skinOwnedCollectionCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "skinUnlockPack": "Unlock {count, plural, one{1 skin} other{{count} skins}} · {price}",
+  "@skinUnlockPack": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "skinRestoreOwned": "Purchases restored for {names}.",
+  "@skinRestoreOwned": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "skinRestoreMissingPack": "No purchase was found for {name}. Check with the Apple Account used to buy it.",
+  "@skinRestoreMissingPack": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "skinRedeemDetails": "Enter an offer code in the App Store sheet to unlock the collection it covers.",
+  "skinPreviewExpand": "Full-screen preview",
+  "skinPreviewLedger": "Sample ledger",
+  "skinPreviewLight": "Light",
+  "skinPreviewDark": "Dark",
+  "skinPreviewLunch": "Lunch",
+  "skinPreviewMetro": "Subway",
+  "skinPreviewCoffee": "Coffee",
+  "skinPreviewIncome": "Freelance income"
 }

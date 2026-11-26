@@ -2,6 +2,7 @@ import 'package:beecount_business_ui/beecount_business_ui.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../../providers/feature_highlight_providers.dart';
@@ -59,17 +60,9 @@ class _HeaderSkinPageState extends ConsumerState<HeaderSkinPage> {
     }
     final active = activeSkinId(ref.watch(headerSkinProvider), runtime);
     final primary = ref.watch(primaryColorProvider);
-    final paidSkins = runtime.skins;
-    final showAutumn =
-        paidSkins.isNotEmpty && _filter != HeaderSkinFilter.static_;
-    final today = Theme.of(context);
-    final price = runtime.price;
-    final autumnCaption = runtime.owned
-        ? skinText(context, '已购 · 6 款', 'Owned · 6 skins')
-        : skinText(context, '6 款合集', '6-skin collection');
-    final caption = !runtime.owned && price != null && runtime.salesEnabled
-        ? '$autumnCaption · $price'
-        : autumnCaption;
+    final collections = _filter == HeaderSkinFilter.static_
+        ? const <PremiumSkinCollection>[]
+        : runtime.collections.where((pack) => pack.skins.isNotEmpty);
 
     Widget grid(Iterable<BeeSkinChoice> items, {bool locked = false}) =>
         LayoutBuilder(builder: (_, bounds) {
@@ -101,40 +94,51 @@ class _HeaderSkinPageState extends ConsumerState<HeaderSkinPage> {
           ],
         );
 
-    Widget autumnGroup() => Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Wrap(
-              spacing: 12,
-              alignment: WrapAlignment.spaceBetween,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 2, bottom: 6),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(skinText(context, '秋日手记', 'Autumn Journal'),
-                          key: const ValueKey('autumn-collection-title'),
-                          style: today.textTheme.titleSmall),
-                      const SizedBox(height: 2),
-                      Text(caption, style: today.textTheme.bodySmall),
-                    ],
-                  ),
+    Widget paidGroup(PremiumSkinCollection pack) {
+      final theme = Theme.of(context);
+      final owned = runtime.ownsPack(pack.id);
+      final price = runtime.priceForPack(pack.id);
+      final count = pack.skins.length;
+      var caption = owned
+          ? l.skinOwnedCollectionCount(count)
+          : l.skinCollectionCount(count);
+      if (!owned && price != null && runtime.salesEnabledForPack(pack.id)) {
+        caption = '$caption · $price';
+      }
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Wrap(
+            spacing: 12,
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 2, bottom: 6),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(pack.nameOf(context),
+                        key: ValueKey('skin-collection-${pack.id}'),
+                        style: theme.textTheme.titleSmall),
+                    Text(caption, style: theme.textTheme.bodySmall),
+                  ],
                 ),
-                const SkinStoreActions(),
-              ],
-            ),
-            grid(
-              paidSkins.map((skin) => BeeSkinChoice(
-                  id: skin.id,
-                  name: premiumSkinName(context, skin),
-                  preview: skin.preview(context))),
-              locked: !runtime.owned,
-            ),
-            const SizedBox(height: 16),
-          ],
-        );
+              ),
+              SkinStoreActions(pack: pack),
+            ],
+          ),
+          grid(
+              pack.skins.map((skin) => BeeSkinChoice(
+                    id: skin.id,
+                    name: premiumSkinName(context, skin),
+                    preview: _VisibleSkinPreview(skin: skin),
+                  )),
+              locked: !owned),
+          const SizedBox(height: 16),
+        ],
+      );
+    }
 
     return V4PageScaffold(
       body: Column(children: [
@@ -164,8 +168,8 @@ class _HeaderSkinPageState extends ConsumerState<HeaderSkinPage> {
                   if (_freeInGroup(group).isNotEmpty)
                     freeGroup(skinGroupLabel(l, group),
                         _freeInGroup(group).map((skin) => skin.id)),
-                  if (showAutumn && group == HeaderSkinGroup.anniversary)
-                    autumnGroup(),
+                  if (group == HeaderSkinGroup.anniversary)
+                    for (final pack in collections) paidGroup(pack),
                 ],
               ],
             ),
@@ -286,6 +290,38 @@ class _SkinTile extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Scrolling the catalog or opening an editor suspends off-screen painters.
+class _VisibleSkinPreview extends StatefulWidget {
+  const _VisibleSkinPreview({required this.skin});
+  final PremiumSkin skin;
+
+  @override
+  State<_VisibleSkinPreview> createState() => _VisibleSkinPreviewState();
+}
+
+class _VisibleSkinPreviewState extends State<_VisibleSkinPreview> {
+  bool _visible = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final enabled = !MediaQuery.disableAnimationsOf(context) &&
+        ModalRoute.isCurrentOf(context) != false;
+    final child = TickerMode(
+      enabled: enabled && _visible,
+      child: Builder(builder: widget.skin.preview),
+    );
+    if (!enabled) return child;
+    return VisibilityDetector(
+      key: ValueKey('skin-thumbnail-${widget.skin.id}'),
+      onVisibilityChanged: (info) {
+        final visible = info.visibleFraction > 0;
+        if (mounted && visible != _visible) setState(() => _visible = visible);
+      },
+      child: child,
     );
   }
 }
