@@ -168,7 +168,8 @@ class LoggerService {
   bool _isLoaded = false;
   Timer? _saveTimer;
   int _clearGeneration = 0;
-  Future<void>? _loadPending;
+  Future<bool>? _loadPending;
+  bool _loadFailed = false;
   Future<void> _writeTail = Future<void>.value();
 
   /// 获取所有日志（自动加载持久化的日志）
@@ -177,6 +178,15 @@ class LoggerService {
       _loadLogs();
     }
     return _logs.toList();
+  }
+
+  /// Includes persisted history even if export is opened during startup.
+  Future<List<LogEntry>> snapshotForExport() async {
+    _loadLogs(retryAfterFailure: true);
+    if (await _loadPending == false) {
+      throw StateError('Could not load log history');
+    }
+    return List<LogEntry>.unmodifiable(_logs);
   }
 
   /// 添加监听器
@@ -223,31 +233,45 @@ class LoggerService {
   }
 
   /// 加载持久化的日志
-  void _loadLogs() {
-    if (_isLoaded) return;
+  void _loadLogs({bool retryAfterFailure = false}) {
+    if (_isLoaded && !(retryAfterFailure && _loadFailed)) return;
     _isLoaded = true;
+    _loadFailed = false;
     final generation = _clearGeneration;
     _loadPending = Future<SharedPreferences>.sync(_getPreferences).then((prefs) {
       // A clear may happen while preferences are still loading. The old snapshot
       // must never be appended after the user has removed it.
-      if (generation != _clearGeneration) return;
+      if (generation != _clearGeneration) return true;
       final jsonStr = prefs.getString(_storageKey);
-      if (jsonStr == null || jsonStr.isEmpty) return;
+      if (jsonStr == null || jsonStr.isEmpty) return true;
       final List<dynamic> jsonList = jsonDecode(jsonStr);
       final now = DateTime.now();
+      final restored = <LogEntry>[];
       for (final json in jsonList) {
         try {
           final entry = LogEntry.fromJson(json as Map<String, dynamic>);
           final age = now.difference(entry.timestamp);
-          if (age.inHours < _maxStorageHours) _logs.add(entry);
+          if (age.inHours < _maxStorageHours) restored.add(entry);
         } catch (e) {
           debugPrint('加载日志条目失败: $e');
         }
       }
+      // New logs may already have arrived during I/O. Keep the newest records
+      // across both sources. Stable sorting puts history first on equal times.
+      restored.addAll(_logs);
+      mergeSort(restored, compare: (a, b) => a.timestamp.compareTo(b.timestamp));
+      final start = restored.length > _maxLogs ? restored.length - _maxLogs : 0;
+      _logs
+        ..clear()
+        ..addAll(restored.skip(start));
       debugPrint('从持久化存储加载了 ${_logs.length} 条日志');
       _notifyListeners();
+      return true;
     }).catchError((Object e) {
-      debugPrint('加载日志失败: $e');
+      if (generation != _clearGeneration) return true;
+      _loadFailed = true;
+      debugPrint('加载日志失败: ${e.runtimeType}');
+      return false;
     });
   }
 
@@ -259,8 +283,8 @@ class LoggerService {
 
   Future<void> _doSaveLogs() async {
     final generation = _clearGeneration;
-    await _loadPending;
-    if (generation != _clearGeneration) return;
+    _loadLogs(retryAfterFailure: true);
+    if (await _loadPending == false || generation != _clearGeneration) return;
     final now = DateTime.now();
     final validLogs = _logs.where((log) {
       final age = now.difference(log.timestamp);
@@ -351,6 +375,8 @@ class LoggerService {
   void clear() {
     _clearGeneration++;
     _isLoaded = true;
+    _loadFailed = false;
+    _loadPending = null;
     _saveTimer?.cancel();
     _logs.clear();
     _notifyListeners();
@@ -358,15 +384,26 @@ class LoggerService {
   }
 
   /// 导出所有日志为文本
-  String exportAsText() {
+  String exportAsText() => formatExport(_logs, DateTime.now());
+
+  static String formatExport(Iterable<LogEntry> entries, DateTime exportedAt,
+      {bool includeDates = false}) {
     final buffer = StringBuffer();
     buffer.writeln('=== BeeCount 日志导出 ===');
-    buffer.writeln('导出时间: ${DateTime.now()}');
-    buffer.writeln('日志数量: ${_logs.length}');
+    buffer.writeln('导出时间: $exportedAt');
+    buffer.writeln('日志数量: ${entries.length}');
     buffer.writeln('=' * 50);
     buffer.writeln();
 
-    for (final log in _logs) {
+    String? previousDate;
+    for (final log in entries) {
+      if (includeDates) {
+        final date = log.timestamp.toIso8601String().split('T').first;
+        if (previousDate != date) {
+          buffer.writeln('--- $date ---');
+          previousDate = date;
+        }
+      }
       buffer.write(log.toFormattedString());
       buffer.writeln();
     }

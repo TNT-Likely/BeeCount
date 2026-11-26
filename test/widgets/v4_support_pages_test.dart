@@ -30,6 +30,8 @@ import 'package:webview_flutter_platform_interface/webview_flutter_platform_inte
 class _Platform extends SupportPlatform {
   bool ios = false, google = false;
   Completer<String>? versionGate;
+  Completer<Uri>? feedbackGate;
+  int feedbackReads = 0;
   final opened = <Uri>[];
   final copied = <String>[];
   final products = <ProductPromo>[];
@@ -42,6 +44,12 @@ class _Platform extends SupportPlatform {
   @override
   Future<String> version() async =>
       versionGate == null ? 'dev-9.0.0 (QA)' : await versionGate!.future;
+  @override
+  Future<Uri> feedbackUri() async {
+    feedbackReads++;
+    return feedbackGate!.future;
+  }
+
   @override
   Future<bool> open(Uri uri) async {
     opened.add(uri);
@@ -375,6 +383,46 @@ void main() {
     await t.pumpAndSettle();
     expect(platform.downloaded, isFalse);
     expect(find.byType(AboutPage), findsOneWidget);
+  });
+  check('feedback launches the chooser once, and can retry a failed launch',
+      (t) async {
+    final uri = Uri.https(
+        'github.com',
+        '/TNT-Likely/BeeCount/issues/new/choose',
+        {'app_version': '4.0.1 (412)', 'device': 'QA model'});
+    platform.feedbackGate = Completer<Uri>();
+    var succeeds = false;
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+            const MethodChannel('plugins.flutter.io/url_launcher'),
+            (call) async {
+      launched.add((call.arguments as Map)['url'] as String);
+      return succeeds;
+    });
+    await host(t, const AboutPage());
+    const feedback = ValueKey('support-feedback');
+    await tap(t, feedback);
+    await tap(t, feedback);
+    expect(platform.feedbackReads, 1);
+    expect(launched, isEmpty);
+    platform.feedbackGate!.complete(uri);
+    await t.pumpAndSettle();
+    expect(launched, [uri.toString()]);
+    expect(find.text(l.updateCannotOpenLink), findsOneWidget);
+    succeeds = true;
+    await tap(t, feedback);
+    expect(launched, [uri.toString(), uri.toString()]);
+  });
+  check('closing About during feedback metadata lookup skips the launch',
+      (t) async {
+    platform.feedbackGate = Completer<Uri>();
+    await host(t, const AboutPage());
+    await tap(t, const ValueKey('support-feedback'));
+    await host(t, const SizedBox.shrink());
+    platform.feedbackGate!.complete(Uri.https('github.com', '/'));
+    await t.pumpAndSettle();
+    expect(launched, isEmpty);
+    expect(t.takeException(), isNull);
   });
   for (final store in ['ios', 'play']) {
     check('$store build hides check update', (t) async {

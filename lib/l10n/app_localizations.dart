@@ -9952,6 +9952,132 @@ abstract class AppLocalizations {
   /// **'Copied to clipboard'**
   String get logCenterCopied;
 
+  /// No description provided for @logCenterErrors.
+  ///
+  /// In en, this message translates to:
+  /// **'Errors'**
+  String get logCenterErrors;
+
+  /// No description provided for @logCenterNoErrors.
+  ///
+  /// In en, this message translates to:
+  /// **'No error logs'**
+  String get logCenterNoErrors;
+
+  /// No description provided for @logCenterOtherLogs.
+  ///
+  /// In en, this message translates to:
+  /// **'Other log entries: {count}'**
+  String logCenterOtherLogs(int count);
+
+  /// No description provided for @logCenterNoMatches.
+  ///
+  /// In en, this message translates to:
+  /// **'No logs match these filters'**
+  String get logCenterNoMatches;
+
+  /// No description provided for @logCenterViewAll.
+  ///
+  /// In en, this message translates to:
+  /// **'View all logs'**
+  String get logCenterViewAll;
+
+  /// No description provided for @logCenterSearchAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Search all logs ({count})'**
+  String logCenterSearchAll(int count);
+
+  /// No description provided for @logCenterResetFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset filters and view all'**
+  String get logCenterResetFilters;
+
+  /// No description provided for @logShareTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Share logs'**
+  String get logShareTitle;
+
+  /// No description provided for @logShareScope.
+  ///
+  /// In en, this message translates to:
+  /// **'Includes all log levels ({count} entries).'**
+  String logShareScope(int count);
+
+  /// No description provided for @logShareOriginal.
+  ///
+  /// In en, this message translates to:
+  /// **'Original'**
+  String get logShareOriginal;
+
+  /// No description provided for @logShareRedacted.
+  ///
+  /// In en, this message translates to:
+  /// **'Redacted'**
+  String get logShareRedacted;
+
+  /// No description provided for @logShareOriginalHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Original logs may include email addresses, transaction details or server addresses.'**
+  String get logShareOriginalHint;
+
+  /// No description provided for @logShareRedactedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Keeps timestamps, recognized modules and error types. Personal details and original messages are hidden.'**
+  String get logShareRedactedHint;
+
+  /// No description provided for @logSharePreview.
+  ///
+  /// In en, this message translates to:
+  /// **'File preview'**
+  String get logSharePreview;
+
+  /// No description provided for @logShareSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Share TXT file'**
+  String get logShareSend;
+
+  /// No description provided for @logSharePreparing.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing file…'**
+  String get logSharePreparing;
+
+  /// No description provided for @logShareLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t prepare the log file.'**
+  String get logShareLoadFailed;
+
+  /// No description provided for @logShareFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t open the share sheet. Retry or save this file.'**
+  String get logShareFailed;
+
+  /// No description provided for @logShareSaveFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Save file'**
+  String get logShareSaveFile;
+
+  /// No description provided for @logShareSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t save the file. You can try again.'**
+  String get logShareSaveFailed;
+
+  /// No description provided for @logShareSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'BeeCount logs'**
+  String get logShareSubject;
+
   /// No description provided for @configImportExportTitle.
   ///
   /// In en, this message translates to:

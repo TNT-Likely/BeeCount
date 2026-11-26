@@ -5231,6 +5231,75 @@ class AppLocalizationsZh extends AppLocalizations {
   String get logCenterCopied => '已复制到剪贴板';
 
   @override
+  String get logCenterErrors => '错误';
+
+  @override
+  String get logCenterNoErrors => '暂无错误日志';
+
+  @override
+  String logCenterOtherLogs(int count) {
+    return '还有 $count 条其他级别的日志';
+  }
+
+  @override
+  String get logCenterNoMatches => '没有符合筛选条件的日志';
+
+  @override
+  String get logCenterViewAll => '查看全部日志';
+
+  @override
+  String logCenterSearchAll(int count) {
+    return '在全部日志中搜索（$count）';
+  }
+
+  @override
+  String get logCenterResetFilters => '清除筛选，查看全部';
+
+  @override
+  String get logShareTitle => '分享日志';
+
+  @override
+  String logShareScope(int count) {
+    return '将分享全部 $count 条日志，包含各个级别的记录。';
+  }
+
+  @override
+  String get logShareOriginal => '原文';
+
+  @override
+  String get logShareRedacted => '脱敏';
+
+  @override
+  String get logShareOriginalHint => '原文可能包含邮箱、账单内容或服务地址。';
+
+  @override
+  String get logShareRedactedHint => '保留时间、可识别的模块和错误类型，隐藏个人信息与业务原文。';
+
+  @override
+  String get logSharePreview => '文件预览';
+
+  @override
+  String get logShareSend => '分享 TXT 文件';
+
+  @override
+  String get logSharePreparing => '正在准备文件…';
+
+  @override
+  String get logShareLoadFailed => '未能生成日志文件。';
+
+  @override
+  String get logShareFailed => '系统分享未打开。可以重试或保存这份文件。';
+
+  @override
+  String get logShareSaveFile => '保存文件';
+
+  @override
+  String get logShareSaveFailed => '保存失败，可以重试。';
+
+  @override
+  String get logShareSubject => 'BeeCount 运行日志';
+
+  @override
   String get configImportExportTitle => '配置导入导出';
 
   @override
@@ -15215,6 +15284,75 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get logCenterCopied => '已複製到剪貼簿';
+
+  @override
+  String get logCenterErrors => '錯誤';
+
+  @override
+  String get logCenterNoErrors => '目前沒有錯誤日誌';
+
+  @override
+  String logCenterOtherLogs(int count) {
+    return '還有 $count 筆其他層級的日誌';
+  }
+
+  @override
+  String get logCenterNoMatches => '沒有符合篩選條件的日誌';
+
+  @override
+  String get logCenterViewAll => '查看全部日誌';
+
+  @override
+  String logCenterSearchAll(int count) {
+    return '在全部日誌中搜尋（$count）';
+  }
+
+  @override
+  String get logCenterResetFilters => '清除篩選，查看全部';
+
+  @override
+  String get logShareTitle => '分享日誌';
+
+  @override
+  String logShareScope(int count) {
+    return '將分享全部 $count 筆日誌，包含各個層級的紀錄。';
+  }
+
+  @override
+  String get logShareOriginal => '原文';
+
+  @override
+  String get logShareRedacted => '去識別化';
+
+  @override
+  String get logShareOriginalHint => '原文可能包含電子郵件、帳務內容或服務位址。';
+
+  @override
+  String get logShareRedactedHint => '保留時間、可辨識的模組和錯誤類型，隱藏個人資訊與業務原文。';
+
+  @override
+  String get logSharePreview => '檔案預覽';
+
+  @override
+  String get logShareSend => '分享 TXT 檔案';
+
+  @override
+  String get logSharePreparing => '正在準備檔案…';
+
+  @override
+  String get logShareLoadFailed => '無法產生日誌檔案。';
+
+  @override
+  String get logShareFailed => '無法開啟系統分享。可以重試或儲存這份檔案。';
+
+  @override
+  String get logShareSaveFile => '儲存檔案';
+
+  @override
+  String get logShareSaveFailed => '儲存失敗，可以重試。';
+
+  @override
+  String get logShareSubject => 'BeeCount 執行日誌';
 
   @override
   String get configImportExportTitle => '配置匯入匯出';

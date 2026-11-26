@@ -6,6 +6,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../../services/system/update_service.dart';
 import '../../../../services/system/logger_service.dart';
+import 'feedback_link.dart';
 import 'product_promo_actions.dart';
 
 final supportPlatformProvider =
@@ -17,12 +18,13 @@ class SupportPlatform {
   bool get isIOS => Platform.isIOS;
   bool get isGooglePlay =>
       const bool.fromEnvironment('GOOGLE_PLAY', defaultValue: false);
-  Future<String> version() async {
-    final p = await PackageInfo.fromPlatform();
-    const ciVersion = String.fromEnvironment('CI_VERSION');
-    final version = ciVersion.isNotEmpty ? ciVersion : 'dev-${p.version}';
-    return version.startsWith('dev-') ? '$version (${p.buildNumber})' : version;
-  }
+  Future<String> version() async =>
+      supportVersionLabel(await PackageInfo.fromPlatform());
+
+  Future<Uri> feedbackUri() => githubFeedbackUri();
+
+  Future<bool> launchFeedback(Uri uri) =>
+      launchUrl(uri, mode: LaunchMode.externalApplication);
 
   Future<void> copy(String text) =>
       Clipboard.setData(ClipboardData(text: text));

@@ -162,26 +162,9 @@ class MainActivity: FlutterFragmentActivity() {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
 
-        android.util.Log.e("MainActivity", "==========================================")
-        android.util.Log.e("MainActivity", "configureFlutterEngine 被调用！！！")
-        android.util.Log.e("MainActivity", "==========================================")
-
         // 日志桥接的MethodChannel
         val loggerChannel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, LOGGER_CHANNEL)
-        android.util.Log.e("MainActivity", "即将调用 LoggerPlugin.setup")
         LoggerPlugin.setup(loggerChannel)
-        android.util.Log.e("MainActivity", "LoggerPlugin.setup 调用完成")
-
-        // 测试日志
-        LoggerPlugin.info("MainActivity", "日志系统已初始化")
-
-        // 延迟发送测试日志，确保 Flutter 端已就绪
-        android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
-            LoggerPlugin.info("MainActivity", "延迟测试日志 - Flutter 端应该已就绪")
-            LoggerPlugin.debug("MainActivity", "这是一条 DEBUG 日志")
-            LoggerPlugin.warning("MainActivity", "这是一条 WARNING 日志")
-            LoggerPlugin.error("MainActivity", "这是一条 ERROR 日志")
-        }, 2000)
 
         // 截图监听的MethodChannel
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, SCREENSHOT_CHANNEL).setMethodCallHandler { call, result ->

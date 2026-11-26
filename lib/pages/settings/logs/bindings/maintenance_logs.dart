@@ -1,13 +1,14 @@
+import 'package:flutter/foundation.dart' show mergeSort;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:beecount_business_ui/maintenance.dart';
 import '../../../../services/system/logger_service.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../data/bindings/maintenance_access.dart';
 import '../../../shared/scaffold/widgets/page_scaffold.dart';
+import 'log_share_sheet.dart';
 
 class MaintenanceLogsControls extends ConsumerStatefulWidget {
   const MaintenanceLogsControls({super.key});
@@ -16,8 +17,9 @@ class MaintenanceLogsControls extends ConsumerStatefulWidget {
 }
 
 class _LogsState extends ConsumerState<MaintenanceLogsControls> {
-  final _levels = LogLevel.values.toSet(),
-      _sources = LogPlatform.values.toSet();
+  var _levels = LogLevel.values.toSet();
+  var _sources = LogPlatform.values.toSet();
+  bool _errorsOnly = true;
   final _search = TextEditingController();
   String _keyword = '';
   bool _clearing = false, _exporting = false;
@@ -40,26 +42,103 @@ class _LogsState extends ConsumerState<MaintenanceLogsControls> {
     if (mounted) setState(() {});
   }
 
-  List<LogEntry> get _filtered => _logger.logs
-      .where((log) {
-        if (!_levels.contains(log.level) || !_sources.contains(log.platform)) {
-          return false;
+  bool _isReportedError(LogEntry log) =>
+      log.level == LogLevel.error &&
+      // Older Android builds injected this exact smoke-test record on launch.
+      // Keep its original entry available in All and in full-log exports.
+      !(log.platform == LogPlatform.android &&
+          log.tag == 'MainActivity' &&
+          log.message == '这是一条 ERROR 日志');
+
+  bool _matchesText(LogEntry log, String keyword) =>
+      log.message.toLowerCase().contains(keyword) ||
+      log.tag.toLowerCase().contains(keyword) ||
+      (log.error?.toString().toLowerCase().contains(keyword) ?? false) ||
+      (log.stackTrace?.toString().toLowerCase().contains(keyword) ?? false);
+
+  bool get _hasFilters =>
+      _sources.length != LogPlatform.values.length ||
+      (!_errorsOnly && _levels.length != LogLevel.values.length);
+
+  void _viewAll({bool keepSearch = false}) {
+    setState(() {
+      _errorsOnly = false;
+      _levels = LogLevel.values.toSet();
+      _sources = LogPlatform.values.toSet();
+      if (!keepSearch) {
+        _search.clear();
+        _keyword = '';
+      }
+    });
+  }
+
+  Future<void> _chooseFilters(TargetPlatform platform) async {
+    final l = AppLocalizations.of(context);
+    final levels = {..._levels}, sources = {..._sources};
+    final apply = await showBeeSheet<bool>(
+      context,
+      title: l.searchFilterTitle,
+      child: StatefulBuilder(builder: (context, setDraft) {
+        void toggle<T>(Set<T> draft, T item, bool selected) {
+          setDraft(() {
+            if (selected) {
+              draft.add(item);
+            } else {
+              draft.remove(item);
+            }
+          });
         }
-        final keyword = _keyword.toLowerCase();
-        return keyword.isEmpty ||
-            log.message.toLowerCase().contains(keyword) ||
-            log.tag.toLowerCase().contains(keyword);
-      })
-      .toList()
-      .reversed
-      .toList();
-  Future<void> _export() async {
+
+        return SingleChildScrollView(
+          child: BeeMaintenanceLogFilters(
+            levelLabel: l.logCenterFilterLevel,
+            sourceLabel: l.logCenterFilterPlatform,
+            levels: [
+              if (!_errorsOnly)
+                for (final level in LogLevel.values)
+                  BeeMaintenanceFilterChoice(
+                    key: ValueKey('maintenance-level-${level.name}'),
+                    label: level.displayName,
+                    selected: levels.contains(level),
+                    onSelected: (value) => toggle(levels, level, value),
+                  ),
+            ],
+            sources: [
+              for (final source in LogPlatform.values)
+                if (!(platform == TargetPlatform.android &&
+                        source == LogPlatform.ios) &&
+                    !(platform == TargetPlatform.iOS &&
+                        source == LogPlatform.android))
+                  BeeMaintenanceFilterChoice(
+                    key: ValueKey('maintenance-source-${source.name}'),
+                    label: source.displayName,
+                    selected: sources.contains(source),
+                    onSelected: (value) => toggle(sources, source, value),
+                  ),
+            ],
+          ),
+        );
+      }),
+      footer: Builder(
+          builder: (sheetContext) => BeeButton(
+                key: const ValueKey('maintenance-apply-filters'),
+                label: l.commonConfirm,
+                onPressed: () => Navigator.pop(sheetContext, true),
+              )),
+    );
+    if (apply == true && mounted) {
+      setState(() {
+        _levels = levels;
+        _sources = sources;
+      });
+    }
+  }
+
+  Future<void> _export(BuildContext anchor) async {
     if (_exporting) return;
     setState(() => _exporting = true);
     try {
-      // Preserve the original platform sharing contract and complete-log scope.
-      // ignore: deprecated_member_use
-      await Share.share(_logger.exportAsText(), subject: 'BeeCount 日志导出');
+      await showLogShareSheet(anchor, _logger);
     } catch (_) {
       if (mounted) {
         showBeeToast(
@@ -155,131 +234,211 @@ class _LogsState extends ConsumerState<MaintenanceLogsControls> {
                 ]));
   }
 
+  Widget _emptyState(
+    AppLocalizations l, {
+    required int total,
+    required int errorCount,
+    required int otherLevels,
+    required int searchMatches,
+  }) {
+    if (total == 0) {
+      return BeeEmptyState(
+          title: l.logCenterEmpty, icon: const BeeLineIcon('Inbox', size: 36));
+    }
+    final noErrors = _errorsOnly && errorCount == 0;
+    final canExpandSearch =
+        _errorsOnly && _keyword.trim().isNotEmpty && searchMatches > 0;
+    final String action;
+    if (canExpandSearch) {
+      action = l.logCenterSearchAll(searchMatches);
+    } else if (noErrors) {
+      action = l.logCenterViewAll;
+    } else {
+      action = l.logCenterResetFilters;
+    }
+    return BeeSurface(
+      padding: EdgeInsets.zero,
+      child: BeeEmptyState(
+        title: noErrors ? l.logCenterNoErrors : l.logCenterNoMatches,
+        message: noErrors && otherLevels > 0
+            ? l.logCenterOtherLogs(otherLevels)
+            : null,
+        icon: BeeLineIcon(noErrors ? 'CircleCheck' : 'Search', size: 32),
+        action: BeeButton(
+          label: action,
+          kind: BeeButtonKind.secondary,
+          onPressed: () => _viewAll(keepSearch: canExpandSearch),
+        ),
+      ),
+    );
+  }
+
+  Widget _dateHeading(BuildContext context, DateTime date, DateTime now) {
+    final l = AppLocalizations.of(context);
+    final calendar = MaterialLocalizations.of(context);
+    var label = calendar.formatShortDate(date);
+    if (DateUtils.isSameDay(date, now)) {
+      label = '${l.calendarToday} · ${calendar.formatShortMonthDay(date)}';
+    } else if (DateUtils.isSameDay(
+        date, DateTime(now.year, now.month, now.day - 1))) {
+      label = '${l.commonYesterday} · ${calendar.formatShortMonthDay(date)}';
+    }
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(2, 7, 2, 8),
+      child: Row(children: [
+        Flexible(
+            child: Text(label,
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: Theme.of(context).hintColor,
+                    ))),
+        const SizedBox(width: 8),
+        const Expanded(child: Divider(height: 1)),
+      ]),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context),
-        logs = _filtered,
-        platform = ref.watch(maintenancePlatformProvider);
+    final l = AppLocalizations.of(context);
+    final platform = ref.watch(maintenancePlatformProvider);
+    final logs = _logger.logs;
+    final errorCount = logs.where(_isReportedError).length;
+    final keyword = _keyword.trim().toLowerCase();
+    final matches = keyword.isEmpty
+        ? logs
+        : logs.where((log) => _matchesText(log, keyword)).toList();
+    final visible = matches.reversed
+        .where((log) =>
+            _sources.contains(log.platform) &&
+            (_errorsOnly ? _isReportedError(log) : _levels.contains(log.level)))
+        .toList();
+    // Recovered history can arrive after the first current-session records.
+    mergeSort(visible, compare: (a, b) => b.timestamp.compareTo(a.timestamp));
+    final now = DateTime.now();
     return V4PageScaffold(
-        body: Column(children: [
-      BeePageHeader(
+      body: Column(children: [
+        BeePageHeader(
           title: l.logCenterTitle,
           subtitle: l.logCenterSubtitle,
           leading: const BackButton(),
           actions: [
+            Builder(
+                builder: (anchor) => BeeIconButton(
+                      label: l.logCenterExport,
+                      icon: const BeeLineIcon('Share2', size: 20),
+                      onPressed: _exporting ? null : () => _export(anchor),
+                    )),
             BeeIconButton(
-                label: l.logCenterExport,
-                icon: const BeeLineIcon('Share2', size: 20),
-                onPressed: _exporting ? null : _export),
-            BeeIconButton(
-                label: l.logCenterClear,
-                icon: const BeeLineIcon('Trash2', size: 20),
-                onPressed: _clearing ? null : _clear)
-          ]),
-      Expanded(
-          child: CustomScrollView(slivers: [
-        SliverPadding(
-            padding: const EdgeInsets.fromLTRB(17, 10, 17, 0),
+              label: l.logCenterClear,
+              icon: const BeeLineIcon('Trash2', size: 20),
+              onPressed: _clearing ? null : _clear,
+            ),
+          ],
+        ),
+        Expanded(
+            child: CustomScrollView(slivers: [
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(17, 8, 17, 8),
             sliver: SliverToBoxAdapter(
                 child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                  BeeSurface(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                BeeSegmented<bool>(
+                  key: const ValueKey('maintenance-log-group'),
+                  value: _errorsOnly,
+                  items: [
+                    BeeSegment(true, '${l.logCenterErrors}  $errorCount'),
+                    BeeSegment(false, '${l.v4SearchAll}  ${logs.length}'),
+                  ],
+                  onChanged: (errorsOnly) =>
+                      setState(() => _errorsOnly = errorsOnly),
+                ),
+                const SizedBox(height: 10),
+                Row(children: [
+                  Expanded(
                       child: BeeSearchField(
-                          key: const ValueKey('maintenance-log-search'),
-                          controller: _search,
-                          hint: l.logCenterSearchHint,
-                          clearLabel: l.searchClearFilter,
-                          onChanged: (value) =>
-                              setState(() => _keyword = value))),
-                  const SizedBox(height: 12),
-                  BeeMaintenanceLogFilters(
-                      levelLabel: l.logCenterFilterLevel,
-                      sourceLabel: l.logCenterFilterPlatform,
-                      levels: [
-                        for (final level in LogLevel.values)
-                          BeeMaintenanceFilterChoice(
-                              key: ValueKey('maintenance-level-${level.name}'),
-                              label: level.displayName,
-                              selected: _levels.contains(level),
-                              onSelected: (selected) => setState(() {
-                                    if (selected) {
-                                      _levels.add(level);
-                                    } else {
-                                      _levels.remove(level);
-                                    }
-                                  }))
-                      ],
-                      sources: [
-                        for (final source in LogPlatform.values)
-                          if (!(platform == TargetPlatform.android &&
-                                  source == LogPlatform.ios) &&
-                              !(platform == TargetPlatform.iOS &&
-                                  source == LogPlatform.android))
-                            BeeMaintenanceFilterChoice(
-                                key: ValueKey(
-                                    'maintenance-source-${source.name}'),
-                                label: source.displayName,
-                                selected: _sources.contains(source),
-                                onSelected: (selected) => setState(() {
-                                      if (selected) {
-                                        _sources.add(source);
-                                      } else {
-                                        _sources.remove(source);
-                                      }
-                                    }))
-                      ]),
-                  const SizedBox(height: 12),
-                  Wrap(spacing: 16, runSpacing: 5, children: [
-                    Text('${l.logCenterTotal}: ${_logger.logs.length}',
-                        style: TextStyle(
-                            fontSize: 12, color: Theme.of(context).hintColor)),
-                    Text('${l.logCenterFiltered}: ${logs.length}',
-                        style: TextStyle(
-                            fontSize: 12, color: Theme.of(context).hintColor))
-                  ]),
-                  const SizedBox(height: 12),
-                ]))),
-        if (logs.isEmpty)
-          SliverToBoxAdapter(
-              child: BeeEmptyState(
-                  title: l.logCenterEmpty,
-                  icon: const BeeLineIcon('Inbox', size: 36)))
-        else
-          SliverPadding(
+                    key: const ValueKey('maintenance-log-search'),
+                    controller: _search,
+                    hint: l.logCenterSearchHint,
+                    clearLabel: l.searchClearFilter,
+                    onChanged: (value) => setState(() => _keyword = value),
+                  )),
+                  const SizedBox(width: 8),
+                  BeeIconButton(
+                    key: const ValueKey('maintenance-filter-logs'),
+                    label: l.searchFilterTitle,
+                    icon: const BeeLineIcon('SlidersHorizontal', size: 20),
+                    selected: _hasFilters,
+                    onPressed: () => _chooseFilters(platform),
+                  ),
+                ]),
+                if (_hasFilters || keyword.isNotEmpty)
+                  Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Text('${l.logCenterFiltered}: ${visible.length}',
+                          style: TextStyle(
+                              fontSize: 12,
+                              color: Theme.of(context).hintColor))),
+              ],
+            )),
+          ),
+          if (visible.isEmpty)
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 17),
+              sliver: SliverToBoxAdapter(
+                  child: _emptyState(
+                l,
+                total: logs.length,
+                errorCount: errorCount,
+                otherLevels:
+                    logs.where((entry) => entry.level != LogLevel.error).length,
+                searchMatches: matches.length,
+              )),
+            )
+          else
+            SliverPadding(
               padding: const EdgeInsets.fromLTRB(17, 0, 17, 24),
               sliver: SliverList.builder(
-                  itemCount: logs.length,
-                  itemBuilder: (context, index) {
-                    final log = logs[index];
-                    return Padding(
-                        padding: const EdgeInsets.only(bottom: 10),
-                        child: BeeMaintenanceLogCard(
-                            key: ValueKey(
-                                'maintenance-log-${log.timestamp.microsecondsSinceEpoch}-${log.tag}'),
+                itemCount: visible.length,
+                itemBuilder: (context, index) {
+                  final log = visible[index], date = log.timestamp.toLocal();
+                  final startsDay = index == 0 ||
+                      !DateUtils.isSameDay(
+                          date, visible[index - 1].timestamp.toLocal());
+                  return Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        if (startsDay) _dateHeading(context, date, now),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: BeeMaintenanceLogCard(
+                            key: ObjectKey(log),
                             level: log.level.displayName,
                             source: log.platform.displayName,
-                            time:
-                                '${log.timestamp.hour.toString().padLeft(2, '0')}:${log.timestamp.minute.toString().padLeft(2, '0')}:${log.timestamp.second.toString().padLeft(2, '0')}.${log.timestamp.millisecond.toString().padLeft(3, '0')}',
+                            time: date.toIso8601String().substring(11, 23),
                             tag: log.tag,
                             message: log.message,
                             error: log.error?.toString(),
                             levelColor: switch (log.level) {
-                              LogLevel.debug => Colors.grey,
+                              LogLevel.debug => Theme.of(context).hintColor,
                               LogLevel.info => Colors.blue,
-                              LogLevel.warning => Colors.orange,
-                              LogLevel.error => Colors.red
+                              _ => null,
                             },
                             tone: switch (log.level) {
-                              LogLevel.debug => BeeTone.neutral,
-                              LogLevel.info => BeeTone.neutral,
                               LogLevel.warning => BeeTone.warning,
-                              LogLevel.error => BeeTone.error
+                              LogLevel.error => BeeTone.error,
+                              _ => BeeTone.neutral,
                             },
                             onDetails: () => _details(log),
-                            onCopy: () => _copy(log)));
-                  })),
-      ])),
-    ]));
+                            onCopy: () => _copy(log),
+                          ),
+                        ),
+                      ]);
+                },
+              ),
+            ),
+        ])),
+      ]),
+    );
   }
 }

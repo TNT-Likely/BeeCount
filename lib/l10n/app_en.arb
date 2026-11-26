@@ -2430,6 +2430,48 @@
   "logCenterClearConfirmMessage": "Are you sure you want to clear all logs? This action cannot be undone.",
   "logCenterCleared": "Logs cleared",
   "logCenterCopied": "Copied to clipboard",
+  "logCenterErrors": "Errors",
+  "logCenterNoErrors": "No error logs",
+  "logCenterOtherLogs": "Other log entries: {count}",
+  "@logCenterOtherLogs": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "logCenterNoMatches": "No logs match these filters",
+  "logCenterViewAll": "View all logs",
+  "logCenterSearchAll": "Search all logs ({count})",
+  "@logCenterSearchAll": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "logCenterResetFilters": "Reset filters and view all",
+  "logShareTitle": "Share logs",
+  "logShareScope": "Includes all log levels ({count} entries).",
+  "@logShareScope": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "logShareOriginal": "Original",
+  "logShareRedacted": "Redacted",
+  "logShareOriginalHint": "Original logs may include email addresses, transaction details or server addresses.",
+  "logShareRedactedHint": "Keeps timestamps, recognized modules and error types. Personal details and original messages are hidden.",
+  "logSharePreview": "File preview",
+  "logShareSend": "Share TXT file",
+  "logSharePreparing": "Preparing file…",
+  "logShareLoadFailed": "Couldn’t prepare the log file.",
+  "logShareFailed": "Couldn’t open the share sheet. Retry or save this file.",
+  "logShareSaveFile": "Save file",
+  "logShareSaveFailed": "Couldn’t save the file. You can try again.",
+  "logShareSubject": "BeeCount logs",
   "configImportExportTitle": "Config Import/Export",
   "configImportExportSubtitle": "Backup and restore app configurations",
   "configImportExportInfoTitle": "Feature Description",

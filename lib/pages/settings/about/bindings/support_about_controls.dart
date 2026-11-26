@@ -29,6 +29,7 @@ class SupportAboutControls extends ConsumerStatefulWidget {
 class _SupportAboutControlsState extends ConsumerState<SupportAboutControls> {
   String? version;
   bool versionFailed = false;
+  bool _openingFeedback = false;
   @override
   void initState() {
     super.initState();
@@ -41,6 +42,26 @@ class _SupportAboutControlsState extends ConsumerState<SupportAboutControls> {
       if (mounted) setState(() => version = value);
     } catch (_) {
       if (mounted) setState(() => versionFailed = true);
+    }
+  }
+
+  Future<void> _openFeedback() async {
+    if (_openingFeedback) return;
+    final platform = ref.read(supportPlatformProvider);
+    setState(() => _openingFeedback = true);
+    bool opened;
+    try {
+      final uri = await platform.feedbackUri();
+      if (!mounted) return;
+      opened = await platform.launchFeedback(uri);
+    } catch (_) {
+      opened = false;
+    }
+    if (!mounted) return;
+    setState(() => _openingFeedback = false);
+    if (!opened) {
+      showBeeToast(context, AppLocalizations.of(context).updateCannotOpenLink,
+          tone: BeeTone.error);
     }
   }
 
@@ -186,8 +207,7 @@ class _SupportAboutControlsState extends ConsumerState<SupportAboutControls> {
                 title: l.mineFeedback,
                 subtitle: l.mineFeedbackSubtitle,
                 leading: const BeeLineIcon('MessageSquare'),
-                onTap: () =>
-                    open('https://github.com/TNT-Likely/BeeCount/issues')),
+                onTap: _openingFeedback ? null : _openFeedback),
             BeeSupportAction(
                 key: const ValueKey('support-logs'),
                 title: l.logCenterTitle,
