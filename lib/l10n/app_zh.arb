@@ -2194,6 +2194,7 @@
   "logShareScope": "将分享全部 {count} 条日志原文。",
   "logShareOriginalHint": "原文可能包含邮箱、账单内容或服务地址。",
   "logSharePreview": "文件预览",
+  "logShareFullscreen": "全屏",
   "logShareSend": "分享 TXT 文件",
   "logSharePreparing": "正在准备文件…",
   "logShareLoadFailed": "未能生成日志文件。",

@@ -106,6 +106,13 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  void usePhoneViewport(WidgetTester tester) {
+    tester.view.devicePixelRatio = 2;
+    tester.view.physicalSize = const Size(640, 1136);
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+  }
+
   testWidgets(
       'cold preview and original attachment share one snapshot until reopened',
       (tester) async {
@@ -128,6 +135,17 @@ void main() {
     await tester.drag(preview, const Offset(0, 200));
     await tester.pumpAndSettle();
     final header = find.text('=== BeeCount 日志导出 ===');
+    expect(tester.getRect(preview).overlaps(tester.getRect(header)), isTrue);
+    final compactScroll =
+        find.descendant(of: preview, matching: find.byType(Scrollable));
+    final compactOffset =
+        tester.state<ScrollableState>(compactScroll).position.pixels;
+    expect(compactOffset, lessThan(0));
+    await tap(tester, 'log-share-preview-fullscreen');
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+    expect(tester.state<ScrollableState>(compactScroll).position.pixels,
+        closeTo(compactOffset, .01));
     expect(tester.getRect(preview).overlaps(tester.getRect(header)), isTrue);
 
     logger.info('App', 'arrived after preview');
@@ -188,16 +206,18 @@ void main() {
     testWidgets(
         'neutral preview card collapses on a narrow screen with large text (${brightness.name})',
         (tester) async {
-      await tester.binding.setSurfaceSize(const Size(320, 568));
-      addTearDown(() => tester.binding.setSurfaceSize(null));
+      usePhoneViewport(tester);
       await mount(tester, brightness: brightness, textScale: 1.6);
       await open(tester);
 
       final card = find.byKey(const ValueKey('log-share-preview-card'));
       final header = find.byKey(const ValueKey('log-share-preview-toggle'));
+      final fullscreen =
+          find.byKey(const ValueKey('log-share-preview-fullscreen'));
       final lines = find.byKey(const ValueKey('log-share-preview-lines'));
       final send = find.byKey(const ValueKey('log-share-send'));
       final context = tester.element(card);
+      expect(MediaQuery.sizeOf(context), const Size(320, 568));
       final cards = BeeCardTheme.of(context);
       final ink = Theme.of(context).colorScheme.onSurface;
       final material = tester.widget<Material>(card);
@@ -213,6 +233,12 @@ void main() {
               (w) => w is BeeLineIcon && w.name == 'FileText'));
       expect(tester.widget<BeeLineIcon>(fileIcon).color, ink);
       expect(tester.getSize(header).height, greaterThanOrEqualTo(44));
+      expect(tester.getSize(fullscreen).width, greaterThanOrEqualTo(44));
+      expect(tester.getSize(fullscreen).height, greaterThanOrEqualTo(44));
+      expect(find.byTooltip(l.logShareFullscreen), findsOneWidget);
+      final fullscreenSemantics = tester.getSemantics(fullscreen);
+      expect(fullscreenSemantics.hasFlag(ui.SemanticsFlag.isButton), isTrue);
+      expect(fullscreenSemantics.id, isNot(tester.getSemantics(header).id));
       expect(tester.getSize(card).width, tester.getSize(send).width);
       expect(tester.widget<BeeButton>(send).kind, BeeButtonKind.primary);
       expect(tester.getSemantics(header).hasFlag(ui.SemanticsFlag.isExpanded),
@@ -223,10 +249,17 @@ void main() {
               .overlaps(tester.getRect(find.textContaining(privateNote))),
           isTrue);
 
-      // The trailing end of the row is also a toggle target.
-      final edge = tester.getTopRight(header) +
-          Offset(-8, tester.getSize(header).height / 2);
-      await tester.tapAt(edge);
+      await tester.tap(fullscreen);
+      await tester.pumpAndSettle();
+      final reader = find.byKey(const ValueKey('log-share-fullscreen-page'));
+      expect(reader, findsOneWidget);
+      expect(tester.getRect(reader).size, const Size(320, 568));
+      expect(tester.takeException(), isNull);
+      await tester.pageBack();
+      await tester.pumpAndSettle();
+      expect(find.text(l.logShareTitle), findsOneWidget);
+      expect(lines, findsOneWidget);
+      await tester.tap(header);
       await tester.pumpAndSettle();
       expect(lines, findsNothing);
       expect(tester.getSemantics(header).hasFlag(ui.SemanticsFlag.isExpanded),
@@ -240,6 +273,81 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   }
+
+  testWidgets(
+      'read the end from a collapsed preview and share the same complete snapshot',
+      (tester) async {
+    usePhoneViewport(tester);
+    const lastFrame = 'final frame of the original stack';
+    const beforeReading = 'arrived after opening the share sheet';
+    const duringReading = 'arrived during full-screen reading';
+    final message = [
+      privateNote,
+      for (var i = 1; i <= 80; i++) 'Diagnostic line $i',
+    ].join('\n');
+    final entry = LogEntry(
+      timestamp: DateTime.now(),
+      level: LogLevel.error,
+      platform: LogPlatform.flutter,
+      tag: 'App',
+      message: message,
+      error: 'original exception',
+      stackTrace:
+          StackTrace.fromString("${List.filled(1100, 'x').join()} $lastFrame"),
+    );
+    await prefs.setString('app_logs', jsonEncode([entry.toJson()]));
+    await mount(tester, textScale: 1.6);
+    await open(tester);
+    await tap(tester, 'log-share-preview-toggle');
+    final compact = find.byKey(const ValueKey('log-share-preview-lines'));
+    expect(compact, findsNothing);
+    logger.info('App', beforeReading);
+    await tap(tester, 'log-share-preview-fullscreen');
+    final reader = find.byKey(const ValueKey('log-share-fullscreen-page'));
+    final lines = find.byKey(const ValueKey('log-share-fullscreen-lines'));
+    expect(find.descendant(of: reader, matching: lines), findsOneWidget);
+    expect(platform.shares, isEmpty);
+    final scroll =
+        find.descendant(of: lines, matching: find.byType(Scrollable));
+    final tail =
+        find.descendant(of: lines, matching: find.textContaining(lastFrame));
+    final position = tester.state<ScrollableState>(scroll).position;
+    expect(position.extentAfter, greaterThan(0));
+    final initialOffset = position.pixels;
+    final firstRecord =
+        find.descendant(of: lines, matching: find.textContaining(privateNote));
+    expect(tester.getRect(lines).overlaps(tester.getRect(firstRecord)), isTrue);
+    logger.info('App', duringReading);
+    await tester.scrollUntilVisible(tail, 290, scrollable: scroll);
+    expect(position.pixels, greaterThan(initialOffset));
+    expect(tester.getRect(lines).overlaps(tester.getRect(tail)), isTrue);
+    await tester.drag(lines, const Offset(0, -320));
+    await tester.pumpAndSettle();
+    expect(position.extentAfter, closeTo(0, .1));
+    expect(find.textContaining(beforeReading), findsNothing);
+    expect(find.textContaining(duringReading), findsNothing);
+
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(reader, findsNothing);
+    expect(find.text(l.logShareScope(1)), findsOneWidget);
+    expect(compact, findsNothing);
+    final send = find.byKey(const ValueKey('log-share-send'));
+    final sheetScroll = find.descendant(
+        of: find.byType(BeeSheet), matching: find.byType(Scrollable));
+    await tester.scrollUntilVisible(send.hitTestable(), 100,
+        scrollable: sheetScroll);
+    await tester.pumpAndSettle();
+    expect(send.hitTestable(), findsOneWidget);
+    await tap(tester, 'log-share-send');
+    final attachment = platform.shares.single;
+    final content = utf8.decode(attachment.bytes);
+    expect(content, contains(entry.toFormattedString()));
+    expect(content, isNot(contains(beforeReading)));
+    expect(content, isNot(contains(duringReading)));
+    expect(tester.takeException(), isNull);
+    await tester.pump(const Duration(seconds: 3));
+  });
 
   testWidgets(
       'double tap opens one native chooser anchored inside the current window',

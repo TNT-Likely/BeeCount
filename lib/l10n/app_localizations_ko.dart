@@ -5291,6 +5291,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get logSharePreview => 'File preview';
 
   @override
+  String get logShareFullscreen => 'Full screen';
+
+  @override
   String get logShareSend => 'Share TXT file';
 
   @override

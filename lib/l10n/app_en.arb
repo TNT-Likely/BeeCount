@@ -2469,6 +2469,7 @@
   },
   "logShareOriginalHint": "Original logs may include email addresses, transaction details or server addresses.",
   "logSharePreview": "File preview",
+  "logShareFullscreen": "Full screen",
   "logShareSend": "Share TXT file",
   "logSharePreparing": "Preparing file…",
   "logShareLoadFailed": "Couldn’t prepare the log file.",

@@ -1547,6 +1547,7 @@
     "logShareScope": "將分享全部 {count} 筆日誌原文。",
     "logShareOriginalHint": "原文可能包含電子郵件、帳務內容或服務位址。",
     "logSharePreview": "檔案預覽",
+    "logShareFullscreen": "全螢幕",
     "logShareSend": "分享 TXT 檔案",
     "logSharePreparing": "正在準備檔案…",
     "logShareLoadFailed": "無法產生日誌檔案。",

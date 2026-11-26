@@ -5291,6 +5291,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get logSharePreview => '文件预览';
 
   @override
+  String get logShareFullscreen => '全屏';
+
+  @override
   String get logShareSend => '分享 TXT 文件';
 
   @override
@@ -15356,6 +15359,9 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get logSharePreview => '檔案預覽';
+
+  @override
+  String get logShareFullscreen => '全螢幕';
 
   @override
   String get logShareSend => '分享 TXT 檔案';

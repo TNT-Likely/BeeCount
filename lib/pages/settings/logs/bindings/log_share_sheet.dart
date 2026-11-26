@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../services/system/log_export_service.dart';
 import '../../../../services/system/logger_service.dart';
+import '../../../shared/scaffold/widgets/page_scaffold.dart';
 
 final logExportPlatformProvider =
     Provider<LogExportPlatform>((ref) => const LogExportPlatform());
@@ -167,7 +168,7 @@ class _LogShareContentState extends State<_LogShareContent> {
                 style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurface.withValues(alpha: .70))),
             const SizedBox(height: 12),
-            _FilePreview(key: ObjectKey(file), text: file.text),
+            _FilePreview(key: ObjectKey(file), text: file.text, busy: _busy),
             const SizedBox(height: 12),
             send,
           ]),
@@ -180,8 +181,9 @@ class _LogShareContentState extends State<_LogShareContent> {
 /// Limit text layout to visible rows, including when a log contains a long
 /// single-line payload. These line breaks exist only in the preview.
 class _FilePreview extends StatefulWidget {
-  const _FilePreview({super.key, required this.text});
+  const _FilePreview({super.key, required this.text, required this.busy});
   final String text;
+  final bool busy;
 
   @override
   State<_FilePreview> createState() => _FilePreviewState();
@@ -189,6 +191,7 @@ class _FilePreview extends StatefulWidget {
 
 class _FilePreviewState extends State<_FilePreview> {
   bool _expanded = true;
+  bool _reading = false;
   late final List<String> _rows = [
     for (final line in const LineSplitter().convert(widget.text))
       ..._wrapLongLine(line),
@@ -198,7 +201,6 @@ class _FilePreviewState extends State<_FilePreview> {
   static final _dateHeading = RegExp(r'^--- \d{4}-\d{2}-\d{2} ---$');
   late final int _bodyStart =
       _rows.indexWhere(_dateHeading.hasMatch).clamp(0, _rows.length);
-  final _bodyKey = UniqueKey();
 
   Iterable<String> _wrapLongLine(String line) sync* {
     var start = 0;
@@ -212,11 +214,74 @@ class _FilePreviewState extends State<_FilePreview> {
     yield line.substring(start);
   }
 
+  Future<void> _openFullscreen() async {
+    if (_reading) return;
+    _reading = true;
+    try {
+      await Navigator.of(context, rootNavigator: true).push<void>(
+        MaterialPageRoute(
+          builder: (_) =>
+              _FullscreenPreview(rows: _rows, bodyStart: _bodyStart),
+        ),
+      );
+    } finally {
+      _reading = false;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cards = BeeCardTheme.of(context);
     final ink = theme.colorScheme.onSurface;
+    final l = AppLocalizations.of(context);
+    final toggle = Semantics(
+      key: const ValueKey('log-share-preview-toggle'),
+      button: true,
+      expanded: _expanded,
+      child: InkWell(
+        onTap: () => setState(() => _expanded = !_expanded),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: BeeUiTokens.touchTarget),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            child: Row(children: [
+              BeeLineIcon('FileText', size: 16, color: ink),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(l.logSharePreview,
+                    style: theme.textTheme.labelLarge?.copyWith(
+                        fontSize: 13, fontWeight: FontWeight.w600, color: ink)),
+              ),
+              const SizedBox(width: 8),
+              BeeLineIcon(_expanded ? 'ChevronUp' : 'ChevronDown',
+                  size: 16, color: ink.withValues(alpha: .70)),
+            ]),
+          ),
+        ),
+      ),
+    );
+    final fullscreen = Tooltip(
+      message: l.logShareFullscreen,
+      excludeFromSemantics: true,
+      child: TextButton.icon(
+        key: const ValueKey('log-share-preview-fullscreen'),
+        onPressed: widget.busy ? null : _openFullscreen,
+        icon: const BeeLineIcon('Expand', size: 15),
+        label: Text(l.logShareFullscreen),
+        style: TextButton.styleFrom(
+          backgroundColor: theme.colorScheme.primary.withValues(alpha: .20),
+          foregroundColor: ink,
+          textStyle: theme.textTheme.labelLarge
+              ?.copyWith(fontSize: 13, fontWeight: FontWeight.w600),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          minimumSize: const Size(44, 30),
+          tapTargetSize: MaterialTapTargetSize.padded,
+          visualDensity: VisualDensity.standard,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+      ),
+    );
     return Material(
       key: const ValueKey('log-share-preview-card'),
       color: cards.overlay,
@@ -227,71 +292,117 @@ class _FilePreviewState extends State<_FilePreview> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Semantics(
-            key: const ValueKey('log-share-preview-toggle'),
-            button: true,
-            expanded: _expanded,
-            child: InkWell(
-              onTap: () => setState(() => _expanded = !_expanded),
-              child: ConstrainedBox(
-                constraints:
-                    const BoxConstraints(minHeight: BeeUiTokens.touchTarget),
-                child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  child: Row(children: [
-                    BeeLineIcon('FileText', size: 16, color: ink),
-                    const SizedBox(width: 8),
-                    Expanded(
-                        child: Text(
-                            AppLocalizations.of(context).logSharePreview,
-                            style: theme.textTheme.labelLarge?.copyWith(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: ink))),
-                    const SizedBox(width: 8),
-                    BeeLineIcon(_expanded ? 'ChevronUp' : 'ChevronDown',
-                        size: 16, color: ink.withValues(alpha: .70)),
-                  ]),
-                ),
-              ),
-            ),
-          ),
+          LayoutBuilder(
+              builder: (context, bounds) => Row(children: [
+                    Expanded(child: toggle),
+                    Container(width: 1, height: 19, color: cards.divider),
+                    ConstrainedBox(
+                      constraints:
+                          BoxConstraints(maxWidth: bounds.maxWidth / 2),
+                      child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 7),
+                          child: fullscreen),
+                    ),
+                  ])),
           if (_expanded) ...[
             Divider(height: 1, thickness: 1, color: cards.divider),
             Container(
               height: 124,
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               color: cards.soft,
-              child: _buildLines(theme.textTheme.bodySmall?.copyWith(
-                  fontFamily: 'monospace',
-                  fontSize: 11,
-                  height: 1.55,
-                  color: ink)),
+              child: _PreviewLines(
+                key: const ValueKey('log-share-preview-lines'),
+                rows: _rows,
+                bodyStart: _bodyStart,
+                fontSize: 11,
+                lineHeight: 1.55,
+              ),
             ),
           ],
         ],
       ),
     );
   }
+}
 
-  Widget _buildLines(TextStyle? style) {
+class _FullscreenPreview extends StatelessWidget {
+  const _FullscreenPreview({required this.rows, required this.bodyStart});
+  final List<String> rows;
+  final int bodyStart;
+
+  @override
+  Widget build(BuildContext context) {
+    final cards = BeeCardTheme.of(context);
+    return V4PageScaffold(
+      key: const ValueKey('log-share-fullscreen-page'),
+      body: ColoredBox(
+        color: cards.overlay,
+        child: Column(children: [
+          BeePageHeader(
+              title: AppLocalizations.of(context).logSharePreview,
+              leading: const BackButton()),
+          Divider(height: 1, thickness: 1, color: cards.divider),
+          Expanded(
+            child: SafeArea(
+                top: false,
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 730),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 12),
+                      child: _PreviewLines(
+                        key: const ValueKey('log-share-fullscreen-lines'),
+                        rows: rows,
+                        bodyStart: bodyStart,
+                        fontSize: 15,
+                        lineHeight: 1.7,
+                      ),
+                    ),
+                  ),
+                )),
+          ),
+        ]),
+      ),
+    );
+  }
+}
+
+class _PreviewLines extends StatelessWidget {
+  const _PreviewLines(
+      {super.key,
+      required this.rows,
+      required this.bodyStart,
+      required this.fontSize,
+      required this.lineHeight});
+  final List<String> rows;
+  final int bodyStart;
+  final double fontSize, lineHeight;
+
+  @override
+  Widget build(BuildContext context) {
+    const bodyKey = ValueKey('log-preview-records');
+    final theme = Theme.of(context);
+    final style = theme.textTheme.bodySmall?.copyWith(
+        fontFamily: 'monospace',
+        fontSize: fontSize,
+        height: lineHeight,
+        color: theme.colorScheme.onSurface);
     return CustomScrollView(
-      key: const ValueKey('log-share-preview-lines'),
       primary: false,
-      center: _bodyKey,
+      center: bodyKey,
       slivers: [
-        if (_bodyStart > 0)
+        if (bodyStart > 0)
           SliverList.builder(
-            itemCount: _bodyStart,
+            itemCount: bodyStart,
             itemBuilder: (_, index) =>
-                Text(_rows[_bodyStart - 1 - index], style: style),
+                Text(rows[bodyStart - 1 - index], style: style),
           ),
         SliverList.builder(
-          key: _bodyKey,
-          itemCount: _rows.length - _bodyStart,
+          key: bodyKey,
+          itemCount: rows.length - bodyStart,
           itemBuilder: (_, index) =>
-              Text(_rows[_bodyStart + index], style: style),
+              Text(rows[bodyStart + index], style: style),
         ),
       ],
     );

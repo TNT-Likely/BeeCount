@@ -10060,6 +10060,12 @@ abstract class AppLocalizations {
   /// **'File preview'**
   String get logSharePreview;
 
+  /// No description provided for @logShareFullscreen.
+  ///
+  /// In en, this message translates to:
+  /// **'Full screen'**
+  String get logShareFullscreen;
+
   /// No description provided for @logShareSend.
   ///
   /// In en, this message translates to:
