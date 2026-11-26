@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:beecount/data/db.dart';
+import 'package:drift/drift.dart' show Value;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 
@@ -363,6 +365,82 @@ Future<void> _incremental(FixtureCloud service, FixtureDevice a,
   });
 }
 
+Future<Map<String, dynamic>> _capacityDelta(FixtureCloud service,
+    FixtureDevice a, FixtureDevice b, RichLedgerFixture f, int cursor) async {
+  await b.engine.pull('');
+  final key = f.id('rent-month-end');
+  final target = await (a.db.select(a.db.transactions)
+        ..where((row) => row.syncId.equals(key)))
+      .getSingle();
+  const note = '容量验收：既有账本只改一笔备注';
+  await a.repo
+      .updateTransactionFields(id: target.id, writeNote: true, note: note);
+  expect(await a.tracker.getUnpushedCount(), 1);
+  final start = await service.traffic();
+  final watch = Stopwatch()..start();
+  final receipt = await a.engine.sync(ledgerId: '${target.ledgerId}');
+  expect(receipt.error, isNull);
+  await b.engine.pull('');
+  watch.stop();
+  final end = await service.traffic();
+  final copy = await (b.db.select(b.db.transactions)
+        ..where((row) => row.syncId.equals(key)))
+      .getSingle();
+  expect(copy.note, note);
+  final delta = await service.eventsAfter(cursor);
+  f.assertEvents('Capacity incremental journal', {'transaction/$key': 'upsert'},
+      delta.events);
+  expect(await a.tracker.getUnpushedCount(), 0);
+  expect(await b.tracker.getUnpushedCount(), 0);
+  return {
+    'updated_transactions': 1,
+    'events': delta.events.length,
+    'unrelated_events': 0,
+    'elapsed_ms': watch.elapsedMilliseconds,
+    for (final field in [
+      'requests',
+      'request_body_bytes',
+      'response_body_bytes'
+    ])
+      field: (end[field] as int) - (start[field] as int),
+  };
+}
+
+Future<void> _checkMismatchDiagnostics(FixtureDevice b, RichLedgerFixture f,
+    Map<String, dynamic> observedEvent) async {
+  final childId = f.id('dinner');
+  final child = await (b.db.select(b.db.categories)
+        ..where((row) => row.syncId.equals(childId)))
+      .getSingle();
+  final wrongParent = await (b.db.select(b.db.categories)
+        ..where((row) => row.syncId.equals(f.id('transport'))))
+      .getSingle();
+  Future<void> setParent(int id) =>
+      (b.db.update(b.db.categories)..where((row) => row.id.equals(child.id)))
+          .write(CategoriesCompanion(parentId: Value(id)));
+  try {
+    await setParent(wrongParent.id);
+    await expectLater(
+        f.assertLocal(b.db),
+        throwsA(isA<StateError>().having(
+            (e) => e.message,
+            'wrong parent',
+            allOf(contains('$childId).parentId'),
+                contains(wrongParent.syncId)))));
+  } finally {
+    await setParent(child.parentId!);
+  }
+  final id = observedEvent['entity_sync_id'] as String;
+  final action = observedEvent['action'] as String;
+  expect(
+      () => f.assertEvents('Event diagnostic', {'transaction/$id': action},
+          [observedEvent, observedEvent]),
+      throwsA(isA<StateError>().having(
+          (e) => e.message,
+          'duplicated transaction',
+          contains('duplicate event transaction/${f.aliases[id] ?? id}'))));
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   HttpOverrides.global = null;
@@ -412,6 +490,20 @@ void main() {
             expect(after.events, isEmpty);
             expect(await a.tracker.getUnpushedCount(), 0);
             expect(await b.tracker.getUnpushedCount(), 0);
+            if (Platform.environment['CLOUD_SYNC_QA_SUITE'] == 'capacity') {
+              r['small_delta'] =
+                  await _capacityDelta(service, a, b, f, after.cursor);
+            } else {
+              await _checkMismatchDiagnostics(
+                  b,
+                  f,
+                  before.events
+                      .firstWhere((e) => e['entity_type'] == 'transaction'));
+              r['assertion_checks'] = {
+                'wrong_parent_detected': true,
+                'duplicate_event_detected': true
+              };
+            }
             r.addAll({
               'remote_events': before.events.length,
               'cold_device_inserted': inserted,

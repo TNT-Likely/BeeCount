@@ -100,6 +100,16 @@ class FixtureCloud {
     return jsonDecode(utf8.decode(res.bodyBytes));
   }
 
+  Future<Map<String, dynamic>> traffic() async {
+    final response = await http
+        .get(origin.resolve('/__qa__/traffic'))
+        .timeout(const Duration(seconds: 10));
+    if (response.statusCode != 200) {
+      throw StateError('QA traffic counters returned ${response.statusCode}');
+    }
+    return jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
+  }
+
   Future<({int cursor, List<Map<String, dynamic>> events})> eventsAfter(
       int cursor) async {
     final events = <Map<String, dynamic>>[];

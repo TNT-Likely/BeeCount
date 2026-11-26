@@ -28,7 +28,7 @@ python3 scripts/qa/cloud_sync_baseline.py run --database both \
 
 ## 发版前专项
 
-容量使用同一套逐笔业务断言，记录全量上传和空设备恢复耗时，分别选择 `--transactions 10000` 和 `50000`。跨版本探针可编译上一发行版 App 与当前 Cloud 配对，也可让当前 App 连接上一发行版 Cloud。
+容量使用同一套逐笔业务断言，记录全量上传、空设备恢复耗时和进程内存峰值，分别选择 `--transactions 10000` 和 `50000`。完成后在原账本只改一笔备注，记录 A 上传至 B 读到新值的耗时、请求数量及上下行字节，并核对事件数为 1。常规套件另在合成副本上改错父分类、改坏图片内容和注入重复事件，检查失败信息能定位对应字段、文件或交易。跨版本探针可编译上一发行版 App 与当前 Cloud 配对，也可让当前 App 连接上一发行版 Cloud。
 
 ```sh
 python3 scripts/qa/cloud_sync_baseline.py run --suite capacity --transactions 10000 --cloud-repo ../BeeCount-Cloud

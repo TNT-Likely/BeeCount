@@ -145,7 +145,7 @@ def run_file(cfg, suite, dest, origin, log_dir, python, app_sha, app_repo):
     """Only evidence produced by this invocation can satisfy a case."""
     directory = dest / suite
     directory.mkdir(mode=0o700)
-    settings = {"CLOUD_SYNC_QA_URL": origin, "CLOUD_SYNC_QA_OUTPUT": str(directory),
+    settings = {"CLOUD_SYNC_QA_URL": origin, "CLOUD_SYNC_QA_OUTPUT": str(directory), "CLOUD_SYNC_QA_SUITE": cfg.suite,
                 "CLOUD_SYNC_QA_APP_SHA": app_sha,
                 "CLOUD_SYNC_QA_SEED": str(cfg.seed), "CLOUD_SYNC_QA_TRANSACTIONS": str(cfg.transactions)}
     if suite == "contracts":
