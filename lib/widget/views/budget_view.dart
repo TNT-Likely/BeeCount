@@ -87,7 +87,7 @@ class BudgetView extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.baseline,
         textBaseline: TextBaseline.alphabetic,
         children: [
-          Flexible(flex: 2, child: _caption(label, fontSize: small ? 9 : 10)),
+          Expanded(flex: 2, child: _caption(label, fontSize: small ? 9 : 10)),
           const SizedBox(width: 4),
           Expanded(
             flex: 3,

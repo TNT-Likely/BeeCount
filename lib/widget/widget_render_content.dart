@@ -10,7 +10,7 @@ import 'widget_spec.dart';
 
 // Bump when the drawing changes without a corresponding ledger or build change.
 const _widgetLayoutRevision = 'cards-4.0';
-const _budgetLayoutRevision = 2;
+const _budgetLayoutRevision = 3;
 
 /// The data and drawing inputs for one size, shared across its appearances.
 /// Only their hash is persisted alongside the PNG paths.

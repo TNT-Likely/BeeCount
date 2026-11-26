@@ -73,6 +73,8 @@ void main() {
           dailyAvailable: 105.3,
         ),
         currencyCode: 'CNY',
+        usedLabel: 'Used',
+        totalLabel: 'Total',
         themeColor: const Color(0xFFF5A623),
         redForIncome: true,
         dark: false,
@@ -84,13 +86,14 @@ void main() {
     await tester.pump();
 
     expect(tester.takeException(), isNull);
-    for (final value in ['剩', '已用', '总额', '¥1,158', '¥6,842', '¥8,000']) {
+    for (final value in ['剩', 'Used', 'Total', '¥1,158', '¥6,842', '¥8,000']) {
       expect(find.text(value), findsOneWidget);
     }
-    expect(tester.getRect(find.text('已用')).left,
-        closeTo(tester.getRect(find.text('总额')).left, .01));
-    expect(tester.getRect(find.text('¥6,842')).right,
-        closeTo(tester.getRect(find.text('¥8,000')).right, .01));
+    expect(tester.getRect(find.text('Used')).left,
+        closeTo(tester.getRect(find.text('Total')).left, .01));
+    final right = tester.getRect(find.byType(BudgetView)).right - 13;
+    expect(tester.getRect(find.text('¥6,842')).right, closeTo(right, .01));
+    expect(tester.getRect(find.text('¥8,000')).right, closeTo(right, .01));
   });
 
   CategoryBudgetUsage category(String name, double used, double budget) {
