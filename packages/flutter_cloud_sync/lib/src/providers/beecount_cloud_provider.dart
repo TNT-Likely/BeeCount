@@ -1921,14 +1921,14 @@ class BeeCountCloudStorageService implements CloudStorageService {
     required this.auth,
     http.Client? httpClient,
   }) : _httpClient = httpClient ?? http.Client(),
-       _useSeparatePushClient = httpClient == null;
+       _usesDefaultClient = httpClient == null;
 
   final String baseUrl;
   final String apiPrefix;
   final BeeCountCloudAuthService auth;
   final http.Client _httpClient;
 
-  final bool _useSeparatePushClient;
+  final bool _usesDefaultClient;
   http.Client? _pushClient;
   int _pushesInFlight = 0;
   final Stopwatch _pushIdle = Stopwatch();
@@ -2189,24 +2189,11 @@ class BeeCountCloudStorageService implements CloudStorageService {
       query[restoring ? 'restore_device_id' : 'device_id'] = deviceId;
     }
 
-    Future<http.Response> readPage() => _authedRequest(
+    final response = await _authedRequest(
       method: 'GET',
       path: '/sync/pull',
       query: query,
     );
-    late final http.Response response;
-    try {
-      response = await readPage();
-    } on http.ClientException catch (error) {
-      // An idle connection can close while the previous page is applied to
-      // the local database. Repeating this GET keeps the same page and cursor.
-      if (error.uri?.path.endsWith('$apiPrefix/sync/pull') != true ||
-          !error.message
-              .startsWith('Connection closed before full header was received')) {
-        rethrow;
-      }
-      response = await readPage();
-    }
     if (response.statusCode < 200 || response.statusCode >= 300) {
       throw CloudStorageException(
           'Pull failed: ${_extractErrorMessage(response)}');
@@ -3521,6 +3508,30 @@ class BeeCountCloudStorageService implements CloudStorageService {
     return response;
   }
 
+  Future<http.Response> _sendPullPage(http.Request request) async {
+    int? status;
+    try {
+      final stream = await _httpClient.send(request);
+      status = stream.statusCode;
+      return await http.Response.fromStream(stream);
+    } on Exception {
+      // A complete HTTP status remains authoritative even if its error body
+      // is truncated. A successful page is usable only after its entire body.
+      if (status != null && (status < 200 || status >= 300)) rethrow;
+    }
+
+    // A peer can send FIN, RST, or disconnect during a 200 response. Discard
+    // the incomplete page and read its original URI and credentials once.
+    final retry = http.Request(request.method, request.url)
+      ..headers.addAll(request.headers);
+    final client = _usesDefaultClient ? http.Client() : _httpClient;
+    try {
+      return await http.Response.fromStream(await client.send(retry));
+    } finally {
+      if (_usesDefaultClient) client.close();
+    }
+  }
+
   Future<http.Response> _request({
     required String method,
     required String path,
@@ -3544,7 +3555,8 @@ class BeeCountCloudStorageService implements CloudStorageService {
     if (body != null) {
       request.body = jsonEncode(body);
     }
-    if (path == '/sync/push' && _useSeparatePushClient) return _sendPush(request);
+    if (method == 'GET' && path == '/sync/pull') return _sendPullPage(request);
+    if (path == '/sync/push' && _usesDefaultClient) return _sendPush(request);
     final streamed = await _httpClient.send(request);
     return http.Response.fromStream(streamed);
   }
