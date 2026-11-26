@@ -1920,14 +1920,40 @@ class BeeCountCloudStorageService implements CloudStorageService {
     required this.apiPrefix,
     required this.auth,
     http.Client? httpClient,
-  }) : _httpClient = httpClient ?? http.Client();
+  }) : _httpClient = httpClient ?? http.Client(),
+       _useSeparatePushClient = httpClient == null;
 
   final String baseUrl;
   final String apiPrefix;
   final BeeCountCloudAuthService auth;
   final http.Client _httpClient;
 
+  final bool _useSeparatePushClient;
+  http.Client? _pushClient;
+  int _pushesInFlight = 0;
+  final Stopwatch _pushIdle = Stopwatch();
+
+  // Preparing a large ledger can outlive a proxy's keep-alive window. Retire
+  // idle write connections before sending; the durable outbox owns retries.
+  Future<http.Response> _sendPush(http.Request request) async {
+    if (_pushesInFlight == 0 && _pushIdle.elapsed >= const Duration(seconds: 3)) {
+      _pushClient?.close();
+      _pushClient = null;
+    }
+    _pushesInFlight++;
+    try {
+      final client = _pushClient ??= http.Client();
+      return await http.Response.fromStream(await client.send(request));
+    } finally {
+      _pushesInFlight--;
+      if (_pushesInFlight == 0) {
+        _pushIdle..reset()..start();
+      }
+    }
+  }
+
   void dispose() {
+    _pushClient?.close();
     _httpClient.close();
   }
 
@@ -3518,6 +3544,7 @@ class BeeCountCloudStorageService implements CloudStorageService {
     if (body != null) {
       request.body = jsonEncode(body);
     }
+    if (path == '/sync/push' && _useSeparatePushClient) return _sendPush(request);
     final streamed = await _httpClient.send(request);
     return http.Response.fromStream(streamed);
   }

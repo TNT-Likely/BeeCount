@@ -25,6 +25,11 @@ class _ReceiptProvider extends FakeBeeCountCloudProvider {
       send(changes);
 }
 
+class _LocalAuth extends FakeBeeCountCloudAuthService {
+  @override
+  Future<String> requireAccessToken() async => 'local-test';
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   late Directory directory;
@@ -66,6 +71,43 @@ void main() {
     await engine.dispose();
     await db.close();
     await directory.delete(recursive: true);
+  });
+
+  test(
+      'push requests reuse a current socket and retire it after idle preparation',
+      () async {
+    final previousHttp = HttpOverrides.current;
+    HttpOverrides.global = null;
+    addTearDown(() => HttpOverrides.global = previousHttp);
+    final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
+    server.idleTimeout = const Duration(seconds: 30);
+    addTearDown(() => server.close(force: true));
+    final ports = <int>[];
+    server.listen((request) async {
+      ports.add(request.connectionInfo!.remotePort);
+      await request.drain<void>();
+      request.response.write('{"accepted":1,"rejected":0}');
+      await request.response.close();
+    });
+    final auth = _LocalAuth();
+    addTearDown(auth.dispose);
+    final storage = BeeCountCloudStorageService(
+        baseUrl: 'http://127.0.0.1:${server.port}', apiPrefix: '', auth: auth);
+    addTearDown(storage.dispose);
+    Future<void> send() async {
+      final response = await storage.pushEntityChanges(changes: [
+        {'operation_id': 'one'}
+      ]);
+      expect(response.items.single.status, 'accepted');
+    }
+
+    await send();
+    await send();
+    await Future<void>.delayed(const Duration(milliseconds: 3100));
+    await send();
+    expect(ports, hasLength(3));
+    expect(ports[1], ports[0]);
+    expect(ports[2], isNot(ports[1]));
   });
 
   test('mixed receipts acknowledge only accepted or reconciled operations',
@@ -228,6 +270,84 @@ void main() {
     expect(await engine.push('$ledgerId'), 2);
     expect(await tracker.getUnpushedCount(), 0);
   });
+
+  for (final entry in ['sync', 'startup', 'manual']) {
+    test(
+        '$entry resumes history after a dictionary upload fails on a newly created ledger',
+        () async {
+      await add('before-journal', 12);
+      await db.into(db.tags).insert(
+          TagsCompanion.insert(name: 'tag', syncId: const Value('before-tag')));
+      provider.send = (changes) async {
+        expect(changes.any((row) => row['entity_type'] == 'tag'), isTrue);
+        provider.pushFakeLedgerSnapshot(ledgerId: 'ledger-test');
+        throw CloudStorageException('dictionary unavailable');
+      };
+      expect((await engine.sync(ledgerId: '$ledgerId')).hasError, isTrue);
+      await engine.dispose();
+      await db.close();
+      open();
+      final sent = <String>[];
+      provider.send = (changes) async {
+        sent.addAll(changes.map((row) => row['entity_sync_id'] as String));
+        return BeeCountCloudPushResult(List.filled(
+            changes.length, const BeeCountCloudPushItem('accepted')));
+      };
+      final ledger = await (db.select(db.ledgers)
+            ..where((l) => l.id.equals(ledgerId)))
+          .getSingle();
+      expect(await engine.initialUploadAction(ledger, remoteExists: null),
+          InitialUploadAction.incremental);
+      expect(await engine.initialUploadAction(ledger, remoteExists: true),
+          InitialUploadAction.resume);
+      if (entry == 'startup') {
+        await engine.fullPush(ledgerId: ledgerId, resumePreparation: true);
+        await engine.push('$ledgerId');
+      } else if (entry == 'manual') {
+        await engine.uploadCurrentLedger(ledgerId: ledgerId);
+      } else {
+        expect((await engine.sync(ledgerId: '$ledgerId')).hasError, isFalse);
+      }
+      expect(await engine.initialUploadAction(ledger, remoteExists: true),
+          InitialUploadAction.incremental);
+      expect(sent, contains('before-journal'));
+      expect(provider.writeCreateLedgerCalls, hasLength(1));
+      expect(await tracker.getUnpushedCount(), 0);
+    });
+  }
+
+  test('first upload stages more transactions than SQLite bind variables',
+      () async {
+    const count = 32768;
+    await db.customStatement(
+        "WITH RECURSIVE n(i) AS (SELECT 1 UNION ALL SELECT i+1 FROM n WHERE i<?) "
+        "INSERT INTO transactions (ledger_id, type, amount, sync_id) "
+        "SELECT ?, 'expense', i, 'large-' || i FROM n",
+        [count, ledgerId]);
+    final other = await db.into(db.ledgers).insert(LedgersCompanion.insert(
+        name: 'Other', syncId: const Value('other-ledger')));
+    await db.into(db.transactions).insert(TransactionsCompanion.insert(
+        ledgerId: other,
+        type: 'expense',
+        amount: 1,
+        syncId: const Value('outside-large')));
+    var reachedNetwork = false;
+    provider.send = (changes) async {
+      reachedNetwork = true;
+      expect(changes.length, 500);
+      throw CloudStorageException('stop after first prepared batch');
+    };
+    final result = await engine.sync(ledgerId: '$ledgerId');
+    expect(result.hasError, isTrue);
+    expect(reachedNetwork, isTrue, reason: result.error);
+    expect(await tracker.getUnpushedCount(), count + 1);
+    final last = await (db.select(db.localChanges)
+          ..where((r) => r.entitySyncId.equals('large-$count')))
+        .getSingle();
+    final change = jsonDecode(last.wireJson!)['change'];
+    expect(change['operation_id'], last.operationId);
+    expect(change['payload']['amount'], count);
+  }, timeout: const Timeout(Duration(minutes: 2)));
 
   test(
       'switching account during upload leaves the old operation unacknowledged',

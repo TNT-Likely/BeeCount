@@ -22,9 +22,10 @@ APP = Path(__file__).resolve().parents[2]
 SERVER = Path(__file__).with_name("cloud_sync_server.py")
 CASES = {"upload": ("full-upload", "incremental-upload"),
          "pull": ("full-pull", "delta-pull", "same-device-restore"), "relations": ("relations",),
+         "full_upload_retry": ("upload-resume-dictionary", "upload-resume-uncommitted", "upload-resume-lost-receipt"),
          "contracts": ("shared-ledger", "recovery"), "mode": ("mode-switch",),
          "compatibility": ("compatibility",)}
-CORE = ("upload", "pull", "relations", "contracts", "mode")
+CORE = ("upload", "full_upload_retry", "pull", "relations", "contracts", "mode")
 CLOUD_PATHS = {
     "ATTACHMENT_STORAGE_DIR": "attachments", "BACKUP_STORAGE_DIR": "backups",
     "BACKUP_STAGING_DIR": "staging", "RESTORE_DIR": "restore", "RCLONE_CONFIG_PATH": "rclone.conf",

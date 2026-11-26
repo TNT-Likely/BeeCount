@@ -7,6 +7,9 @@ import zipfile
 
 NAMES = {
     "full-upload": "本地全量上传", "incremental-upload": "本地增量上传",
+    "upload-resume-dictionary": "首次上传字典失败后重启",
+    "upload-resume-uncommitted": "首次上传第二批发送前断线",
+    "upload-resume-lost-receipt": "首次上传第二批提交后丢回执",
     "full-pull": "本地全量拉取", "delta-pull": "本地增量拉取",
     "relations": "父子分类、多标签、共用小票与冷恢复", "shared-ledger": "共享账本与同名个人字典",
     "recovery": "回执重试、删除与游标", "mode-switch": "切换本地存储后重新启用 Cloud",

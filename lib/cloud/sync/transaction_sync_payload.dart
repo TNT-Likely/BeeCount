@@ -164,3 +164,56 @@ Future<({List<String> names, List<String> ids})> readTransactionSyncTags(
   }
   return (names: names, ids: ids.toList());
 }
+
+/// Reads both kinds of tag links with two ledger-scoped queries for a full upload.
+Future<Map<int, ({List<String> names, Set<String> ids})>> readLedgerSyncTags(
+    BeeDatabase db, Ledger ledger,
+    {int? firstId, int? lastId}) async {
+  final result = <int, ({List<String> names, Set<String> ids})>{};
+  final tx = db.transactions;
+  var selection = tx.ledgerId.equals(ledger.id);
+  if (firstId != null && lastId != null) {
+    selection = selection & tx.id.isBetweenValues(firstId, lastId);
+  }
+  final links = db.transactionTags;
+  final tags = db.tags;
+  final local = await (db.selectOnly(links).join([
+    d.innerJoin(tx, tx.id.equalsExp(links.transactionId), useColumns: false),
+    d.innerJoin(tags, tags.id.equalsExp(links.tagId), useColumns: false),
+  ])
+        ..addColumns([tx.id, tags.name, tags.syncId])
+        ..where(selection)
+        ..orderBy([d.OrderingTerm.asc(links.id)]))
+      .get();
+  for (final row in local) {
+    final entry = result.putIfAbsent(
+        row.read(tx.id)!, () => (names: [], ids: <String>{}));
+    entry.names.add(row.read(tags.name)!);
+    final id = row.read(tags.syncId);
+    if (id != null && id.isNotEmpty) entry.ids.add(id);
+  }
+  final overrides = db.transactionTagOverrides;
+  final shared = db.sharedLedgerTags;
+  final rows = await (db.selectOnly(overrides).join([
+    d.innerJoin(tx, tx.syncId.equalsExp(overrides.transactionSyncId),
+        useColumns: false),
+    d.leftOuterJoin(
+        shared,
+        shared.syncId.equalsExp(overrides.tagSyncId) &
+            shared.ledgerSyncId.equals(ledger.syncId ?? ''),
+        useColumns: false),
+  ])
+        ..addColumns([tx.id, overrides.tagSyncId, shared.name])
+        ..where(selection)
+        ..orderBy([d.OrderingTerm.asc(overrides.tagSyncId)]))
+      .get();
+  for (final row in rows) {
+    final entry = result.putIfAbsent(
+        row.read(tx.id)!, () => (names: [], ids: <String>{}));
+    final name = row.read(shared.name);
+    if (entry.ids.add(row.read(overrides.tagSyncId)!) && name != null) {
+      entry.names.add(name);
+    }
+  }
+  return result;
+}

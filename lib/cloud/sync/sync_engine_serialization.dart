@@ -154,11 +154,42 @@ extension SyncEngineSerializationExt on SyncEngine {
   ///
   /// **in-flight 单飞**:同 ledger 的并发调用复用第一个 future,避免 sync_changes
   /// 表 2-3x 膨胀。详见 `.docs/concurrent-fullpush-bloat.md`。
-  Future<void> fullPush({required int ledgerId}) async {
-    (await _fullPushResult(ledgerId)).requireSuccess();
+  Future<void> fullPush(
+      {required int ledgerId, bool resumePreparation = false}) async {
+    (await _fullPushResult(ledgerId, remoteExists: resumePreparation))
+        .requireSuccess();
   }
 
-  Future<_PushTally> _fullPushResult(int ledgerId) async {
+  Future<bool> _hasFullPreparation(Ledger ledger) async {
+    final key = ledger.syncId;
+    if (key == null || (ledger.isShared && ledger.myRole != 'owner')) {
+      return false;
+    }
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.containsKey(_fullPreparationKey(_receiptScope, key));
+  }
+
+  /// Missing metadata is authoritative only after a successful remote list.
+  /// A device with no bootstrap checkpoint only sends its normal journal to
+  /// an existing ledger, including a partial restore or a shared editor copy.
+  Future<InitialUploadAction> initialUploadAction(Ledger ledger,
+      {required bool? remoteExists}) async {
+    if (remoteExists == null || (ledger.isShared && ledger.myRole != 'owner')) {
+      return InitialUploadAction.incremental;
+    }
+    if (!remoteExists) return InitialUploadAction.create;
+    return await _hasFullPreparation(ledger)
+        ? InitialUploadAction.resume
+        : InitialUploadAction.incremental;
+  }
+
+  String _fullPreparationKey(String scope, String ledger) {
+    final digest = sha256.convert(utf8.encode(jsonEncode([scope, ledger])));
+    return 'beecount_full_push_preparing_$digest';
+  }
+
+  Future<_PushTally> _fullPushResult(int ledgerId,
+      {bool remoteExists = false}) async {
     await _recoverTransactionMoves();
     final incremental = _pushInFlight['$ledgerId'];
     if (incremental != null) await incremental.future;
@@ -171,7 +202,8 @@ extension SyncEngineSerializationExt on SyncEngine {
     completer.future.ignore(); // 防 unhandled async error
     _fullPushInFlight[ledgerId] = completer;
     try {
-      final tally = await _doFullPush(ledgerId: ledgerId);
+      final tally =
+          await _doFullPush(ledgerId: ledgerId, remoteExists: remoteExists);
       completer.complete(tally);
       return tally;
     } catch (e, st) {
@@ -184,18 +216,29 @@ extension SyncEngineSerializationExt on SyncEngine {
     }
   }
 
-  Future<_PushTally> _doFullPush({required int ledgerId}) async {
+  Future<_PushTally> _doFullPush(
+      {required int ledgerId, required bool remoteExists}) async {
     logger.info('SyncEngine', '开始全量推送 ledger=$ledgerId');
 
-    Future<Ledger> readLedger() => (db.select(db.ledgers)
-          ..where((l) => l.id.equals(ledgerId)))
-        .getSingle();
+    Future<Ledger> readLedger() =>
+        (db.select(db.ledgers)..where((l) => l.id.equals(ledgerId)))
+            .getSingle();
     var ledger = await readLedger();
     if (ledger.syncId == null || ledger.syncId!.length < 3) {
       await _ensureLedgerSyncId(ledger);
       ledger = await readLedger();
     }
     final pathForSnapshot = ledger.syncId!;
+    // The remote ledger can become visible before any historical row has a local
+    // journal entry. Restart preparation at its original write time in that window.
+    final scope = _receiptScope;
+    final prefs = await SharedPreferences.getInstance();
+    final preparation = _fullPreparationKey(scope, pathForSnapshot);
+    final previousStart = prefs.getInt(preparation);
+    final startedAt = previousStart ?? DateTime.now().microsecondsSinceEpoch;
+    if (previousStart == null && !await prefs.setInt(preparation, startedAt)) {
+      throw CloudStorageException('Could not save initial upload progress');
+    }
 
     // 0. 先用专用的 writeCreateLedger API(POST /write/ledgers)显式带 currency
     //    创建 server 端账本。这是修复"app 选 JPY 创建账本,server 端却是 CNY"的
@@ -206,33 +249,38 @@ extension SyncEngineSerializationExt on SyncEngine {
     //    能正确建账本。
     //    幂等性:如果账本已存在(例如老数据 / 重试),server 会返回 409 或类似错误,
     //    这里 try/catch 吞掉,不阻塞后续 storage.upload + _pushAllEntities。
-    try {
-      await provider.writeCreateLedger(
-        ledgerId: pathForSnapshot,
-        ledgerName: ledger.name,
-        currency: ledger.currency,
-        // The create endpoint emits ledger metadata before later snapshot/upserts.
-        // Preserve the period there so its default 1 cannot be replayed over us.
-        monthStartDay: ledger.monthStartDay,
-      );
-      logger.info('SyncEngine',
-          'writeCreateLedger 成功: ledgerId=$pathForSnapshot, name=${ledger.name}, currency=${ledger.currency}');
-    } catch (e, st) {
-      // 已存在 / 其他错误都不阻断流程,后续 storage.upload + _pushAllEntities
-      // 仍会跑,部分 server 实现会从这两条路径 auto-create / 修正 meta。
-      logger.warning('SyncEngine',
-          'writeCreateLedger 失败（已存在或其他原因,继续走 storage 上传）: $e', st);
+    if (!remoteExists) {
+      try {
+        await provider.writeCreateLedger(
+          ledgerId: pathForSnapshot,
+          ledgerName: ledger.name,
+          currency: ledger.currency,
+          // The create endpoint emits ledger metadata before later snapshot/upserts.
+          // Preserve the period there so its default 1 cannot be replayed over us.
+          monthStartDay: ledger.monthStartDay,
+          idempotencyKey:
+              'initial-${sha256.convert(utf8.encode('$pathForSnapshot/$startedAt'))}',
+        );
+        logger.info('SyncEngine',
+            'writeCreateLedger 成功: ledgerId=$pathForSnapshot, name=${ledger.name}, currency=${ledger.currency}');
+      } catch (e, st) {
+        // 已存在 / 其他错误都不阻断流程,后续 storage.upload + _pushAllEntities
+        // 仍会跑,部分 server 实现会从这两条路径 auto-create / 修正 meta。
+        logger.warning('SyncEngine',
+            'writeCreateLedger 失败（已存在或其他原因,继续走 storage 上传）: $e', st);
+      }
     }
 
     // A recurring ledger may already have server-only entries and later edits.
     final held = await _adoptBeforeUpload(ledger);
     // Only acknowledge changes present before this upload started.
     final unpushed = await changeTracker.getUnpushedChangesForLedger(ledgerId);
-    final bulkExclusions = await _recurringBulkExclusions(ledger, held, unpushed);
+    final bulkExclusions =
+        await _recurringBulkExclusions(ledger, held, unpushed);
     // 1. 上传 JSON 快照
     //    path 用 ledger.syncId，跟 _push/_pushAllEntities 的 ledger_id 一致，
     //    避免 server 出现两条 external_id 指向同一账本的分裂。
-    if (bulkExclusions == null) {
+    if (bulkExclusions == null && !remoteExists) {
       try {
         final jsonData = await _exportLedgerJson(ledger);
         await provider.storage.upload(
@@ -267,7 +315,14 @@ extension SyncEngineSerializationExt on SyncEngine {
         (journalIds[(row.entityType, row.entitySyncId)] ??= []).add(row.id);
       }
     }
-    return _pushAllEntities(ledger, bulkExclusions, journalIds);
+    _requireReceiptScope(scope);
+    return _pushAllEntities(
+        ledger, bulkExclusions, journalIds, startedAt, remoteExists, () async {
+      if (!await prefs.remove(preparation)) {
+        throw CloudStorageException(
+            'Could not finish initial upload preparation');
+      }
+    });
   }
 
   /// 推送所有实体为个体变更(fullPush 时调用)。
@@ -276,139 +331,184 @@ extension SyncEngineSerializationExt on SyncEngine {
   /// 实体(account / category / tag)由调用方通过 [pushUserGlobalEntities] 统一
   /// 推送 — 本函数入口处会调它一次,跨 ledger 并发的 fullPush 共享同一份
   /// user-global push,避免重复(详见 .docs/concurrent-fullpush-bloat.md)。
-  Future<_PushTally> _pushAllEntities(Ledger ledger, Set<int>? recurringExclusions,
-      Map<(String, String), List<int>> journalIds) async {
-    // 1) 先推 user-global(单飞,多账本并行 fullPush 时共享同一次推送)
+  Future<_PushTally> _pushAllEntities(
+    Ledger ledger,
+    Set<int>? recurringExclusions,
+    Map<(String, String), List<int>> journalIds,
+    int startedAt,
+    bool remoteExists,
+    Future<void> Function() staged,
+  ) async {
+    const pageSize = 500;
     final scope = _receiptScope;
     var outcome = await _pushUserGlobalResult();
+    final ledgerKey = ledger.syncId!;
+    final now = DateTime.fromMicrosecondsSinceEpoch(startedAt, isUtc: true)
+        .toIso8601String();
+    final order = <(String, String)>[];
+    final retries = <LocalChange>[];
 
-    // 2) 再处理本 ledger 的 ledger-scope 推送
-    // 跟增量 _push 保持一致:用 ledger.syncId 作为 server 认的 external_id,
-    // 跨设备时同一账本永远同一个 external_id,不会分裂成多条。
-    final ledgerId = ledger.syncId ?? ledger.id.toString();
-    final now = DateTime.now().toUtc().toIso8601String();
-    final syncChanges = <Map<String, dynamic>>[];
-    final localIds = <(String, String), int>{('ledger', ledgerId): ledger.id};
+    // Each local read and write batch only holds one page of transaction payloads.
+    // All pages commit together before a network request can observe the outbox.
+    await db.transaction(() async {
+      _requireReceiptScope(scope);
+      final pending =
+          await changeTracker.getUnpushedChangesForLedger(ledger.id);
+      final byId = {for (final row in pending) row.id: row};
+      final pendingKeys = {
+        for (final row in pending) (row.entityType, row.entitySyncId)
+      };
+      final newKeys = <(String, String)>{};
 
-    // 推一条 ledger:upsert,显式带 ledgerName + currency。否则:
-    //   - storage.upload 的 metadata 虽然带了 currency,但 server 端 auto-create
-    //     ledger 时不一定从 metadata 读 currency(字段名可能对不上,或默认走 CNY)
-    //   - 结果:用户在 app 选 JPY 创建账本,server 端 canonical state 是 CNY
-    // 推一条显式的 ledger upsert 可以兜底,server 收到后用 payload 里的 currency
-    // 覆盖默认值。
-    syncChanges.add({
-      'ledger_id': ledgerId,
-      'entity_type': 'ledger',
-      'entity_sync_id': ledgerId,
-      'action': 'upsert',
-      'payload': EntitySerializer.serializeLedger(ledger),
-      'updated_at': now,
-    });
+      Future<void> stage(
+              List<
+                      ({
+                        int id,
+                        String type,
+                        String key,
+                        Map<String, dynamic> payload
+                      })>
+                  page) =>
+          db.batch((batch) {
+            for (final entity in page) {
+              final key = (entity.type, entity.key);
+              final rows = (journalIds[key] ?? const <int>[])
+                  .map((id) => byId[id])
+                  .whereType<LocalChange>()
+                  .toList();
+              if (rows.any((row) => row.wireJson != null)) {
+                retries.addAll(rows);
+                continue;
+              }
+              // A later edit/delete has its own operation and receipt.
+              if (rows.isEmpty && pendingKeys.contains(key)) continue;
+              final operation = rows.lastOrNull?.operationId ?? _uuid.v4();
+              final change = {
+                'ledger_id': ledgerKey,
+                'entity_type': entity.type,
+                'entity_sync_id': entity.key,
+                'action': 'upsert',
+                'payload': entity.payload,
+                // The explicit create endpoint just initialized ledger metadata.
+                'updated_at': entity.type == 'ledger'
+                    ? DateTime.now().toUtc().toIso8601String()
+                    : now,
+                'operation_id': operation,
+              };
+              final wire = jsonEncode({'scope': scope, 'change': change});
+              order.add(key);
+              if (rows.isEmpty) {
+                newKeys.add(key);
+                batch.insert(
+                    db.localChanges,
+                    LocalChangesCompanion.insert(
+                        entityType: entity.type,
+                        entityId: entity.id,
+                        entitySyncId: entity.key,
+                        ledgerId: ledger.id,
+                        action: 'upsert',
+                        operationId: d.Value(operation),
+                        wireJson: d.Value(wire),
+                        writeMicros: d.Value(startedAt)));
+              } else {
+                for (final row in rows) {
+                  batch.update(db.localChanges,
+                      LocalChangesCompanion(wireJson: d.Value(wire)),
+                      where: (c) => c.id.equals(row.id));
+                }
+              }
+            }
+          });
 
-    // tx push 需要查类目/账户/标签的 syncId 做 denormalize 用,这里仍要预拉。
-    // 分类自定义图标已经在 [pushUserGlobalEntities] 走 [_serializeEntityForPush]
-    // 时上传到 server(payload 里带 iconCloudFileId/sha256),这里不需要再批量传。
-    final categories = await db.select(db.categories).get();
-    final accounts = await db.select(db.accounts).get();
-    final tags = await db.select(db.tags).get();
-
-    // 预算:按账本过滤推,不跨账本。分类预算带 categorySyncId。
-    final budgets = await (db.select(db.budgets)
-          ..where((b) => b.ledgerId.equals(ledger.id)))
-        .get();
-    for (final budget in budgets) {
-      final syncId = budget.syncId ?? _uuid.v4();
-      if (budget.syncId == null) {
-        await (db.update(db.budgets)..where((b) => b.id.equals(budget.id)))
-            .write(BudgetsCompanion(syncId: d.Value(syncId)));
+      // A resumed remote ledger already has metadata from its create request.
+      // Subsequent metadata edits have their own journal entries.
+      if (!remoteExists) {
+        await stage([
+          (
+            id: ledger.id,
+            type: 'ledger',
+            key: ledgerKey,
+            payload: EntitySerializer.serializeLedger(ledger)
+          )
+        ]);
       }
-      String? catSyncId;
-      if (budget.categoryId != null) {
-        final cat = categories
-            .cast<Category?>()
-            .firstWhere((c) => c?.id == budget.categoryId, orElse: () => null);
-        catSyncId = cat?.syncId;
+      final categories = {
+        for (final c in await db.select(db.categories).get()) c.id: c
+      };
+      final accounts = {
+        for (final a in await db.select(db.accounts).get()) a.id: a
+      };
+      final budgets = await (db.select(db.budgets)
+            ..where((b) => b.ledgerId.equals(ledger.id)))
+          .get();
+      for (final budget in budgets) {
+        final key = budget.syncId ?? _uuid.v4();
+        if (budget.syncId == null) {
+          await (db.update(db.budgets)..where((b) => b.id.equals(budget.id)))
+              .write(BudgetsCompanion(syncId: d.Value(key)));
+        }
+        await stage([
+          (
+            id: budget.id,
+            type: 'budget',
+            key: key,
+            payload: EntitySerializer.serializeBudget(budget,
+                ledgerSyncId: ledgerKey,
+                categorySyncId: categories[budget.categoryId]?.syncId)
+          )
+        ]);
       }
-      localIds[('budget', syncId)] = budget.id;
-      syncChanges.add({
-        'ledger_id': ledgerId,
-        'entity_type': 'budget',
-        'entity_sync_id': syncId,
-        'action': 'upsert',
-        'payload': EntitySerializer.serializeBudget(
-          budget,
-          ledgerSyncId: ledger.syncId,
-          categorySyncId: catSyncId,
-        ),
-        'updated_at': now,
-      });
-    }
-
-    // 交易
-    final transactions = await (db.select(db.transactions)
-          ..where((t) => t.ledgerId.equals(ledger.id)))
-        .get();
-
-    // 预加载所有附件，按 transactionId 分组
-    final allAttachments = await (db.select(db.transactionAttachments)
-          ..where((a) =>
-              a.transactionId.isIn(transactions.map((t) => t.id).toList())))
-        .get();
-    final attachmentsByTx = <int, List<TransactionAttachment>>{};
-    for (final a in allAttachments) {
-      attachmentsByTx.putIfAbsent(a.transactionId, () => []).add(a);
-    }
-
-    for (final tx in transactions) {
-      if (recurringExclusions?.contains(tx.id) ?? false) continue;
-      final syncId = tx.syncId ?? _uuid.v4();
-      if (tx.syncId == null) {
-        await (db.update(db.transactions)..where((t) => t.id.equals(tx.id)))
-            .write(TransactionsCompanion(syncId: d.Value(syncId)));
-      }
-
-      final cat = tx.categoryId != null
-          ? categories
-              .cast<Category?>()
-              .firstWhere((c) => c?.id == tx.categoryId, orElse: () => null)
-          : null;
-      final acc = tx.accountId != null
-          ? accounts
-              .cast<Account?>()
-              .firstWhere((a) => a?.id == tx.accountId, orElse: () => null)
-          : null;
-      final toAcc = tx.toAccountId != null
-          ? accounts
-              .cast<Account?>()
-              .firstWhere((a) => a?.id == tx.toAccountId, orElse: () => null)
-          : null;
-
-      final txTags = await readTransactionSyncTags(db, tx, ledger.syncId);
-
-      // 构建附件数据
-      final txAtts = attachmentsByTx[tx.id] ?? [];
-      final attMaps = txAtts
-          .map((a) => <String, dynamic>{
-                'fileName': a.fileName,
-                'originalName': a.originalName,
-                'fileSize': a.fileSize,
-                'width': a.width,
-                'height': a.height,
-                'sortOrder': a.sortOrder,
-                if (a.cloudFileId != null) 'cloudFileId': a.cloudFileId,
-                if (a.cloudSha256 != null) 'cloudSha256': a.cloudSha256,
-              })
-          .toList();
-
-      localIds[('transaction', syncId)] = tx.id;
-      syncChanges.add({
-        'ledger_id': ledgerId,
-        'entity_type': 'transaction',
-        'entity_sync_id': syncId,
-        'action': 'upsert',
-        'payload': {
-          ...EntitySerializer.serializeTransaction(
-            tx,
+      int? after;
+      while (true) {
+        final query = db.select(db.transactions)
+          ..where((t) => t.ledgerId.equals(ledger.id))
+          ..orderBy([(t) => d.OrderingTerm.asc(t.id)])
+          ..limit(pageSize);
+        if (after != null) query.where((t) => t.id.isBiggerThanValue(after!));
+        final transactions = await query.get();
+        if (transactions.isEmpty) break;
+        final ids = transactions.map((t) => t.id).toList();
+        final tagLinks = await readLedgerSyncTags(db, ledger,
+            firstId: ids.first, lastId: ids.last);
+        final attachments = await (db.select(db.transactionAttachments)
+              ..where((a) => a.transactionId.isIn(ids))
+              ..orderBy([
+                (a) => d.OrderingTerm.asc(a.sortOrder),
+                (a) => d.OrderingTerm.asc(a.id)
+              ]))
+            .get();
+        final byTx = <int, List<Map<String, dynamic>>>{};
+        for (final att in attachments) {
+          (byTx[att.transactionId] ??= []).add({
+            'fileName': att.fileName,
+            'originalName': att.originalName,
+            'fileSize': att.fileSize,
+            'width': att.width,
+            'height': att.height,
+            'sortOrder': att.sortOrder,
+            if (att.cloudFileId != null) 'cloudFileId': att.cloudFileId,
+            if (att.cloudSha256 != null) 'cloudSha256': att.cloudSha256,
+          });
+        }
+        final page = <({
+          int id,
+          String type,
+          String key,
+          Map<String, dynamic> payload
+        })>[];
+        for (final tx in transactions) {
+          if (recurringExclusions?.contains(tx.id) ?? false) continue;
+          final key = tx.syncId ?? _uuid.v4();
+          if (tx.syncId == null) {
+            await (db.update(db.transactions)..where((t) => t.id.equals(tx.id)))
+                .write(TransactionsCompanion(syncId: d.Value(key)));
+          }
+          final cat = categories[tx.categoryId];
+          final acc = accounts[tx.accountId];
+          final to = accounts[tx.toAccountId];
+          final tags = tagLinks[tx.id];
+          final payload = EntitySerializer.serializeTransaction(
+            tx.syncId == null ? tx.copyWith(syncId: d.Value(key)) : tx,
             categoryName: cat?.name,
             categoryKind: cat?.kind,
             categorySyncId: cat?.syncId,
@@ -416,90 +516,57 @@ extension SyncEngineSerializationExt on SyncEngine {
             accountSyncId: acc?.syncId,
             fromAccountName: tx.type == 'transfer' ? acc?.name : null,
             fromAccountSyncId: tx.type == 'transfer' ? acc?.syncId : null,
-            toAccountName: toAcc?.name,
-            toAccountSyncId: toAcc?.syncId,
-            ledgerSyncId: ledger.syncId,
-            tagNames: txTags.names,
-            tagSyncIds: txTags.ids,
-            attachments: attMaps,
-          ),
-          if (recurringExclusions != null) 'restoredSnapshot': true,
-        },
-        'updated_at': now,
-      });
-    }
-
-    // A snapshot can contain pre-journal entities. Stage them durably so an
-    // interruption after creating the remote ledger can resume incrementally.
-    // Keep an already-sent operation frozen across explicit full-upload retries.
-    final snapshots = <Map<String, dynamic>>[];
-    final retries = <LocalChange>[];
-    await db.transaction(() async {
+            toAccountName: to?.name,
+            toAccountSyncId: to?.syncId,
+            ledgerSyncId: ledgerKey,
+            tagNames: tags?.names ?? const [],
+            tagSyncIds: tags?.ids.toList() ?? const [],
+            attachments: byTx[tx.id] ?? const [],
+          );
+          if (recurringExclusions != null) payload['restoredSnapshot'] = true;
+          page.add(
+              (id: tx.id, type: 'transaction', key: key, payload: payload));
+        }
+        await stage(page);
+        after = ids.last;
+        if (transactions.length < pageSize) break;
+      }
+      if (newKeys.isNotEmpty) {
+        final t = db.localChanges;
+        final inserted = await (db.selectOnly(t)
+              ..addColumns([t.id, t.entityType, t.entitySyncId])
+              ..where(t.ledgerId.equals(ledger.id) & t.pushedAt.isNull()))
+            .get();
+        for (final row in inserted) {
+          final key = (row.read(t.entityType)!, row.read(t.entitySyncId)!);
+          if (newKeys.contains(key)) journalIds[key] = [row.read(t.id)!];
+        }
+      }
       _requireReceiptScope(scope);
-      final pending = await changeTracker.getUnpushedChangesForLedger(ledger.id);
-      final byId = {for (final row in pending) row.id: row};
-      final pendingKeys = {for (final row in pending) (row.entityType, row.entitySyncId)};
-      for (final change in syncChanges) {
-        final key = (change['entity_type'] as String, change['entity_sync_id'] as String);
-        final rows = (journalIds[key] ?? const <int>[]).map((id) => byId[id]).whereType<LocalChange>().toList();
-        if (rows.any((row) => row.wireJson != null)) {
-          retries.addAll(rows);
-          continue;
-        }
-        final operation = rows.lastOrNull?.operationId ?? _uuid.v4();
-        change['operation_id'] = operation;
-        snapshots.add(change);
-        final wire = jsonEncode({'scope': scope, 'change': change});
-        if (rows.isNotEmpty) {
-          await (db.update(db.localChanges)..where((c) => c.id.isIn(rows.map((r) => r.id))))
-              .write(LocalChangesCompanion(wireJson: d.Value(wire)));
-        } else if (!pendingKeys.contains(key)) {
-          final id = await db.into(db.localChanges).insert(LocalChangesCompanion.insert(
-              entityType: key.$1, entityId: localIds[key]!, entitySyncId: key.$2,
-              ledgerId: ledger.id, action: 'upsert', operationId: d.Value(operation),
-              wireJson: d.Value(wire), writeMicros: d.Value(DateTime.parse(now).microsecondsSinceEpoch)));
-          journalIds[key] = [id];
-        }
-      }
     });
-    outcome += await _sendTracked(retries, ledgerId);
 
-    // 统计实体数量
-    final accountCount = accounts.length;
-    final categoryCount = categories.length;
-    final tagCount = tags.length;
-    final txCount = transactions.length;
-    logger.info(
-        'SyncEngine',
-        '开始推送个体变更 共${syncChanges.length}条 '
-            '(accounts=$accountCount, categories=$categoryCount, tags=$tagCount, transactions=$txCount)');
-
-    // 分批推送:每条 change 平均 ~500 字节,500 条 ≈ 250KB,远低于网关限制,
-    // 但单次请求内 server 事务处理时间 ~100ms 可接受。
-    // 5 倍原先 100 的吞吐,3 万条交易上传从 300 批降到 60 批,耗时约 1/5。
-    const batchSize = 500;
-    for (var i = 0; i < snapshots.length; i += batchSize) {
-      final end = (i + batchSize > snapshots.length)
-          ? snapshots.length
-          : i + batchSize;
-      final batch = snapshots.sublist(i, end);
-      try {
-        logger.info('SyncEngine',
-            '推送批次 ${i ~/ batchSize + 1}: ${batch.length}条 (${i + 1}-$end)');
-        _requireReceiptScope(scope);
-        final receipt = await provider.pushChanges(changes: batch);
-        outcome += await _settleBatch(scope, batch, receipt, [
-          for (final change in batch)
-            journalIds[(change['entity_type'] as String, change['entity_sync_id'] as String)] ?? const <int>[],
-        ]);
-        logger.info('SyncEngine', '批次 ${i ~/ batchSize + 1} 推送成功');
-      } catch (e, st) {
-        logger.error('SyncEngine', '批次 ${i ~/ batchSize + 1} 推送失败', e, st);
-        rethrow; // 让调用方知道失败
-      }
+    // From this point a normal incremental sync can finish the durable outbox,
+    // even if the first request fails or its successful reply is lost.
+    await staged();
+    outcome += await _sendTracked(retries, ledgerKey);
+    for (var at = 0; at < order.length; at += pageSize) {
+      final keys = order.sublist(at, (at + pageSize).clamp(at, order.length));
+      final ids = [for (final key in keys) journalIds[key]!];
+      final t = db.localChanges;
+      final rows = await (db.selectOnly(t)
+            ..addColumns([t.id, t.wireJson])
+            ..where(t.id.isIn(ids.map((r) => r.first))))
+          .get();
+      final wires = {
+        for (final row in rows)
+          row.read(t.id)!: (jsonDecode(row.read(t.wireJson)!)['change']
+              as Map<String, dynamic>)
+      };
+      final outgoing = [for (final group in ids) wires[group.first]!];
+      _requireReceiptScope(scope);
+      final receipt = await provider.pushChanges(changes: outgoing);
+      outcome += await _settleBatch(scope, outgoing, receipt, ids);
     }
-
-    logger.info('SyncEngine', '全量推送个体变更完成 ${snapshots.length} 条');
     return outcome;
   }
 
@@ -516,24 +583,14 @@ extension SyncEngineSerializationExt on SyncEngine {
     final tags = await db.select(db.tags).get();
 
     final items = <Map<String, dynamic>>[];
+    final categoriesById = {for (final cat in categories) cat.id: cat};
+    final accountsById = {for (final acc in accounts) acc.id: acc};
+    final tagsByTx = await readLedgerSyncTags(db, ledger);
     for (final tx in transactions) {
-      final cat = tx.categoryId != null
-          ? categories
-              .cast<Category?>()
-              .firstWhere((c) => c?.id == tx.categoryId, orElse: () => null)
-          : null;
-      final acc = tx.accountId != null
-          ? accounts
-              .cast<Account?>()
-              .firstWhere((a) => a?.id == tx.accountId, orElse: () => null)
-          : null;
-      final toAcc = tx.toAccountId != null
-          ? accounts
-              .cast<Account?>()
-              .firstWhere((a) => a?.id == tx.toAccountId, orElse: () => null)
-          : null;
-
-      final txTags = await readTransactionSyncTags(db, tx, ledger.syncId);
+      final cat = categoriesById[tx.categoryId];
+      final acc = accountsById[tx.accountId];
+      final toAcc = accountsById[tx.toAccountId];
+      final txTags = tagsByTx[tx.id];
 
       items.add(EntitySerializer.serializeTransaction(
         tx,
@@ -547,8 +604,8 @@ extension SyncEngineSerializationExt on SyncEngine {
         toAccountName: toAcc?.name,
         toAccountSyncId: toAcc?.syncId,
         ledgerSyncId: ledger.syncId,
-        tagNames: txTags.names,
-        tagSyncIds: txTags.ids,
+        tagNames: txTags?.names ?? const [],
+        tagSyncIds: txTags?.ids.toList() ?? const [],
       ));
     }
 

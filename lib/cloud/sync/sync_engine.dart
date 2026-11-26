@@ -75,6 +75,8 @@ class SyncResult {
 /// 同步状态
 enum SyncEngineStatus { idle, pushing, pulling, syncing, error }
 
+enum InitialUploadAction { incremental, create, resume }
+
 /// 核心同步编排器 — 实现 SyncService 接口
 /// 负责 push 本地变更到服务端、pull 远程变更到本地
 class SyncEngine implements app.SyncService {
@@ -214,20 +216,16 @@ class SyncEngine implements app.SyncService {
   Future<void> uploadCurrentLedger({required int ledgerId}) async {
     logger.info('SyncEngine', '上传账本 ledger=$ledgerId');
 
-    // 用户主动点"上传"永远只做增量：用 server 的 entity diff log 把本地未推
-    // 送的 changes 推上去，绝不触发 fullPush。
-    //
-    // 原因：fullPush 会把本地当前 ledger 的 JSON 快照整体覆盖到 server 的
-    // snapshot（path = ledger.syncId），一旦本地不是"完整权威版本"（比如
-    // B 刚登录、bootstrap pull 还没跑完 / 跑了但漏了几条、多设备期间某条
-    // 交易延迟到达），web 立刻就看到"剩几条"的残缺快照 —— 这是典型的
-    // "覆盖丢数据"场景。
-    //
-    // 即使一次 fullPush 之后后续 pull 再回灌也不行：snapshot 是权威源，
-    // sync_changes 只是 diff，web 端读的是 snapshot。
-    //
-    // 增量 push 只推 changeTracker 登记过的本地操作，不会把没 own 的数据
-    // 误推回去，所以是安全的。本地没变更时直接返回，不需要 fallback。
+    // A partial restore must never replace an existing remote snapshot. Only
+    // this device's persisted, unfinished preparation can resume an initial upload.
+    final ledger = await (db.select(db.ledgers)..where((l) => l.id.equals(ledgerId))).getSingleOrNull();
+    if (ledger != null && await _hasFullPreparation(ledger)) {
+      final remote = await provider.storage.list(path: '');
+      final action = await initialUploadAction(ledger, remoteExists: remote.any((r) => r.path == ledger.syncId));
+      if (action != InitialUploadAction.incremental) {
+        await fullPush(ledgerId: ledgerId, resumePreparation: action == InitialUploadAction.resume);
+      }
+    }
     final pushed = await push(ledgerId.toString());
     logger.info('SyncEngine', '上传账本完成：增量推送 $pushed 条变更');
 
@@ -257,7 +255,11 @@ class SyncEngine implements app.SyncService {
         );
       }
 
-      final unpushedCount = await _countPendingUploads(ledgerId);
+      final ledgerRowStatus = await (db.select(db.ledgers)
+            ..where((l) => l.id.equals(ledgerId)))
+          .getSingleOrNull();
+      final preparing = ledgerRowStatus != null && await _hasFullPreparation(ledgerRowStatus);
+      final unpushedCount = await _countPendingUploads(ledgerId) + (preparing ? 1 : 0);
       final fingerprint = unpushedCount > 0 ? 'has_changes' : 'synced';
       final cached = _statusCache[ledgerId];
       if (!_localChanged &&
@@ -273,9 +275,6 @@ class SyncEngine implements app.SyncService {
       final localCount = countRow.read(txCount) ?? 0;
 
       // 检查云端是否有数据。path 用 ledger.syncId 跟 push 侧保持一致。
-      final ledgerRowStatus = await (db.select(db.ledgers)
-            ..where((l) => l.id.equals(ledgerId)))
-          .getSingleOrNull();
       final hasRemote = await provider.storage.exists(
         path: ledgerRowStatus?.syncId ?? ledgerId.toString(),
       );
@@ -424,28 +423,18 @@ class SyncEngine implements app.SyncService {
       }
 
       // §7 共享账本:Editor 永不 fullPush(会把 Editor 本地状态覆盖 Owner 的)。
-      final isSharedAsEditor =
-          ledgerRow.isShared && ledgerRow.myRole != 'owner';
-
-      bool shouldFullPush = false;
-      if (!isSharedAsEditor) {
+      bool? remoteExists;
+      if (!ledgerRow.isShared || ledgerRow.myRole == 'owner') {
         try {
-          final remoteLedgers = await provider.storage.list(path: '');
-          // 用本账本的 syncId 跟远端列表比对(没 syncId 视为不在)。
-          final mySyncId = ledgerRow.syncId;
-          final remoteHasThisLedger = mySyncId != null &&
-              mySyncId.isNotEmpty &&
-              remoteLedgers.any((l) => l.path == mySyncId);
-          shouldFullPush = !remoteHasThisLedger;
-          logger.info('SyncEngine',
-              '远端账本=${remoteLedgers.length}, 本账本(syncId=$mySyncId) 命中=$remoteHasThisLedger → fullPush=$shouldFullPush');
+          final remote = await provider.storage.list(path: '');
+          remoteExists = remote.any((r) => r.path == ledgerRow.syncId);
         } catch (e, st) {
-          // list 失败保守走增量(fullPush 风险更大)。
-          logger.warning('SyncEngine', '远端 ledger 列表查询失败,按已存在处理: $e', st);
+          logger.warning('SyncEngine', '远端 ledger 列表查询失败,仅推已登记变更: $e', st);
         }
       }
-
-      if (shouldFullPush) {
+      final action = await initialUploadAction(ledgerRow, remoteExists: remoteExists);
+      if (action != InitialUploadAction.incremental) {
+        final resumePreparation = action == InitialUploadAction.resume;
         // 远端没这个账本 → 首次绑定 / server 数据被清。
         // fullPush 推所有 entity + ledger 自身。
 
@@ -456,18 +445,11 @@ class SyncEngine implements app.SyncService {
         // 设备 sync 必然分裂。
         await _ensureLedgerSyncId(ledgerRow);
 
-        final localTxCount = (await (db.select(db.transactions)
-                  ..where((t) => t.ledgerId.equals(ledgerIdInt)))
-                .get())
-            .length;
-        logger.info('SyncEngine', '远端无数据,本地 $localTxCount 条交易,触发 fullPush');
-
-        if (localTxCount > 0) {
-          // server 端重建/切换后,本地 attachments.cloudFileId 指向的文件已
-          // 失效。清掉云端引用,让 uploadAttachments 重新上传并回填新 ID。
+        if (!resumePreparation) {
+          // Only a genuinely new remote ledger needs fresh attachment references.
           await _resetAttachmentCloudRefs(ledgerIdInt);
         }
-        outcome = await _fullPushResult(ledgerIdInt);
+        outcome = await _fullPushResult(ledgerIdInt, remoteExists: resumePreparation);
         // Deletes and edits made during the upload need their own receipts.
         if (outcome.rejected == 0) outcome += await _pushResult(ledgerId);
       } else {

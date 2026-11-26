@@ -6,17 +6,17 @@ part of 'sync_engine.dart';
 /// 这些方法不参与 sync 的高层编排,跟 push / pull / apply 解耦,所以独立成 part。
 /// 主入口 [SyncEngine] 通过 extension 的方式承载,可以自由访问类的私有字段。
 extension SyncEngineAttachmentsExt on SyncEngine {
+  d.JoinedSelectStatement _transactionIdsForLedger(int ledgerId) =>
+      db.selectOnly(db.transactions)
+        ..addColumns([db.transactions.id])
+        ..where(db.transactions.ledgerId.equals(ledgerId));
+
   /// 清掉某账本下所有附件的 cloudFileId / cloudSha256。
   /// 用于"远端账本被重建/清空"的场景：本地以为文件在云上，实际已失效，
   /// 重置后下次 uploadAttachments 会把它们当新的重新上传。
   Future<void> _resetAttachmentCloudRefs(int ledgerId) async {
-    final txs = await (db.select(db.transactions)
-          ..where((t) => t.ledgerId.equals(ledgerId)))
-        .get();
-    if (txs.isEmpty) return;
-    final txIds = txs.map((t) => t.id).toList();
     final count = await (db.update(db.transactionAttachments)
-          ..where((a) => a.transactionId.isIn(txIds)))
+          ..where((a) => a.transactionId.isInQuery(_transactionIdsForLedger(ledgerId))))
         .write(const TransactionAttachmentsCompanion(
       cloudFileId: d.Value(null),
       cloudSha256: d.Value(null),
@@ -77,13 +77,8 @@ extension SyncEngineAttachmentsExt on SyncEngine {
         .getSingleOrNull();
     final serverLedgerId = ledgerRow?.syncId ?? ledgerId.toString();
 
-    final txs = await (db.select(db.transactions)
-          ..where((t) => t.ledgerId.equals(ledgerId)))
-        .get();
-    if (txs.isEmpty) return 0;
-    final txIds = txs.map((t) => t.id).toList();
     final atts = await (db.select(db.transactionAttachments)
-          ..where((a) => a.transactionId.isIn(txIds))
+          ..where((a) => a.transactionId.isInQuery(_transactionIdsForLedger(ledgerId)))
           ..where((a) => a.cloudFileId.isNull()))
         .get();
     if (atts.isEmpty) return 0;
@@ -147,13 +142,8 @@ extension SyncEngineAttachmentsExt on SyncEngine {
 
   /// 下载云端附件到本地。Phase 3:并发 + retry。
   Future<int> downloadAttachments({required int ledgerId}) async {
-    final txs = await (db.select(db.transactions)
-          ..where((t) => t.ledgerId.equals(ledgerId)))
-        .get();
-    if (txs.isEmpty) return 0;
-    final txIds = txs.map((t) => t.id).toList();
     final atts = await (db.select(db.transactionAttachments)
-          ..where((a) => a.transactionId.isIn(txIds))
+          ..where((a) => a.transactionId.isInQuery(_transactionIdsForLedger(ledgerId)))
           ..where((a) => a.cloudFileId.isNotNull()))
         .get();
     if (atts.isEmpty) return 0;
