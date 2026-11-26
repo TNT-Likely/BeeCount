@@ -165,6 +165,21 @@ class ChangeTracker {
         payloadJson: jsonEncode(patch));
   }
 
+  Future<void> recordTransactionAttachments(int transactionId) async {
+    final tx = await (db.select(db.transactions)
+          ..where((t) => t.id.equals(transactionId)))
+        .getSingleOrNull();
+    if (tx == null || tx.syncId == null) return;
+    final attachments = await readTransactionSyncAttachments(db, transactionId);
+    await recordLedgerChange(
+        entityType: 'transaction',
+        entityId: transactionId,
+        entitySyncId: tx.syncId!,
+        ledgerId: tx.ledgerId,
+        action: 'update',
+        payloadJson: jsonEncode({'attachments': attachments}));
+  }
+
   /// 低层 insert,不对外暴露。路径统一:所有 record*Change 走这条,行为
   /// (日志 / insert 语义)一处维护。
   Future<void> _insert({

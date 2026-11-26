@@ -121,26 +121,17 @@ extension SyncEngineAttachmentsExt on SyncEngine {
           bytes: bytes,
           fileName: att.originalName ?? att.fileName,
         );
-        await (db.update(db.transactionAttachments)
-              ..where((a) => a.id.equals(att.id)))
-            .write(TransactionAttachmentsCompanion(
-          cloudFileId: d.Value(result.fileId),
-          cloudSha256: d.Value(result.sha256),
-        ));
-        // 回填后给父 tx 登记 update change(详见旧 _legacyUploadAttachments 注释,
-        // 防 "仅元数据" race)。
-        final txRow = await (db.select(db.transactions)
-              ..where((t) => t.id.equals(att.transactionId)))
-            .getSingleOrNull();
-        if (txRow?.syncId != null) {
-          await changeTracker.recordLedgerChange(
-            entityType: 'transaction',
-            entityId: att.transactionId,
-            entitySyncId: txRow!.syncId!,
-            ledgerId: txRow.ledgerId,
-            action: 'update',
-          );
-        }
+        await db.transaction(() async {
+          final updated = await (db.update(db.transactionAttachments)
+                ..where((a) => a.id.equals(att.id)))
+              .write(TransactionAttachmentsCompanion(
+            cloudFileId: d.Value(result.fileId),
+            cloudSha256: d.Value(result.sha256),
+          ));
+          if (updated > 0) {
+            await changeTracker.recordTransactionAttachments(att.transactionId);
+          }
+        });
         return true;
       } catch (e) {
         lastError = e;

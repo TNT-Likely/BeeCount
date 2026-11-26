@@ -78,8 +78,9 @@ extension _SyncEngineOutbox on SyncEngine {
       LocalChange row, String? ledger) async {
     if (row.wireJson != null) {
       final cached = jsonDecode(row.wireJson!) as Map<String, dynamic>;
-      if (cached['scope'] == _receiptScope)
+      if (cached['scope'] == _receiptScope) {
         return cached['change'] as Map<String, dynamic>;
+      }
     }
     final patch = row.payloadJson == null
         ? null
@@ -193,8 +194,9 @@ extension _SyncEngineOutbox on SyncEngine {
         }
         var changed = false;
         for (final id in journalIds[i]) {
-          if (await _settle(id, outgoing[i], item, removedFiles))
+          if (await _settle(id, outgoing[i], item, removedFiles)) {
             changed = true;
+          }
         }
         final winner = item.winner;
         if (journalIds[i].isEmpty &&

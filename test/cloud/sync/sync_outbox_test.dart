@@ -139,8 +139,7 @@ void main() {
       'confirmed_change_id',
       'receipt_scope'
     ]) {
-      await db
-          .customStatement('ALTER TABLE local_changes DROP COLUMN ' + column);
+      await db.customStatement('ALTER TABLE local_changes DROP COLUMN $column');
     }
     await db.customStatement('PRAGMA user_version = 36');
     await engine.dispose();
@@ -244,6 +243,32 @@ void main() {
     await expectLater(
         engine.push('$ledgerId'), throwsA(isA<CloudStorageException>()));
     expect(await tracker.getUnpushedCount(), 1);
+  });
+
+  test(
+      'attachment adds, reordering, uploaded IDs and removal queue only attachment fields',
+      () async {
+    final id = await add('attachment-parent', 10);
+    final a = await repo.createAttachment(transactionId: id, fileName: 'a');
+    final b = await repo.createAttachment(transactionId: id, fileName: 'b');
+    await repo.updateAttachmentSortOrders(
+        [(id: b, sortOrder: 0), (id: a, sortOrder: 1)]);
+    await repo.updateAttachmentCloudRef(b, cloudFileId: 'cloud-b');
+    await repo.deleteAttachmentByFileName('a');
+    await repo.deleteAttachmentsByTransaction(id);
+    final patches = (await tracker.getUnpushedChanges())
+        .map((row) => jsonDecode(row.payloadJson!) as Map<String, dynamic>)
+        .toList();
+    expect(patches, hasLength(6));
+    expect(
+        patches.every(
+            (patch) => patch.length == 1 && patch.containsKey('attachments')),
+        isTrue);
+    expect((patches[2]['attachments'] as List).map((a) => a['fileName']),
+        ['b', 'a']);
+    expect(patches[3]['attachments'][0]['cloudFileId'], 'cloud-b');
+    expect((patches[4]['attachments'] as List).single['fileName'], 'b');
+    expect(patches.last['attachments'], isEmpty);
   });
 
   test('truncated and contradictory receipts cannot clear the queue', () {

@@ -4,9 +4,32 @@ import '../../data/db.dart';
 import '../../services/system/logger_service.dart';
 import 'entity_serializer.dart';
 
+Future<List<Map<String, dynamic>>> readTransactionSyncAttachments(
+    BeeDatabase db, int transactionId) async {
+  final txAttachments = await (db.select(db.transactionAttachments)
+        ..where((a) => a.transactionId.equals(transactionId))
+        ..orderBy([
+          (a) => d.OrderingTerm.asc(a.sortOrder),
+          (a) => d.OrderingTerm.asc(a.id)
+        ]))
+      .get();
+  return txAttachments
+      .map((a) => <String, dynamic>{
+            'fileName': a.fileName,
+            'originalName': a.originalName,
+            'fileSize': a.fileSize,
+            'width': a.width,
+            'height': a.height,
+            'sortOrder': a.sortOrder,
+            if (a.cloudFileId != null) 'cloudFileId': a.cloudFileId,
+            if (a.cloudSha256 != null) 'cloudSha256': a.cloudSha256,
+          })
+      .toList();
+}
+
 Future<Map<String, dynamic>> serializeTransactionForSync(
     BeeDatabase db, Transaction tx, String? parentLedgerSyncId) async {
-// 获取关联数据
+  // 获取关联数据
   final cat = tx.categoryId != null
       ? await (db.select(db.categories)
             ..where((c) => c.id.equals(tx.categoryId!)))
@@ -22,29 +45,14 @@ Future<Map<String, dynamic>> serializeTransactionForSync(
           .getSingleOrNull()
       : null;
 
-// 获取标签(连同 tag.syncId,server 端按 id 反查最新名字)
+  // 获取标签(连同 tag.syncId,server 端按 id 反查最新名字)
   final txTags = await readTransactionSyncTags(db, tx, parentLedgerSyncId);
 
-// 获取附件
-  final txAttachments = await (db.select(db.transactionAttachments)
-        ..where((a) => a.transactionId.equals(tx.id)))
-      .get();
-  final attMaps = txAttachments
-      .map((a) => <String, dynamic>{
-            'fileName': a.fileName,
-            'originalName': a.originalName,
-            'fileSize': a.fileSize,
-            'width': a.width,
-            'height': a.height,
-            'sortOrder': a.sortOrder,
-            if (a.cloudFileId != null) 'cloudFileId': a.cloudFileId,
-            if (a.cloudSha256 != null) 'cloudSha256': a.cloudSha256,
-          })
-      .toList();
-// 早期警告:tx 有附件但部分 cloudFileId 缺失。push 出去后 server 端
-// 会把 attachments 当 "仅元数据" 处理,web 预览报错。理论上 sync 顺序
-// upload → push 应该让这里永远不触发;触发了说明 upload 跨 sync 边界
-// 出过 race(参考 sync_engine_attachments.dart::uploadAttachments 注释)。
+  final attMaps = await readTransactionSyncAttachments(db, tx.id);
+  // 早期警告:tx 有附件但部分 cloudFileId 缺失。push 出去后 server 端
+  // 会把 attachments 当 "仅元数据" 处理,web 预览报错。理论上 sync 顺序
+  // upload → push 应该让这里永远不触发;触发了说明 upload 跨 sync 边界
+  // 出过 race(参考 sync_engine_attachments.dart::uploadAttachments 注释)。
   if (attMaps.isNotEmpty) {
     final withCloud = attMaps.where((a) => a['cloudFileId'] != null).length;
     if (withCloud < attMaps.length) {
@@ -57,10 +65,10 @@ Future<Map<String, dynamic>> serializeTransactionForSync(
     }
   }
 
-// §7 v25 共享账本:tx 有 *SyncIdOverride 字段时(Editor 在共享账本下
-// 记的 tx),override 优先 — push 给 server 的 categoryId / accountId
-// 走 override(Owner 的 syncId)。同时反查 SharedLedger* 拿 name/kind
-// 用作 denormalized 文本(server LWW 名字字段)。
+  // §7 v25 共享账本:tx 有 *SyncIdOverride 字段时(Editor 在共享账本下
+  // 记的 tx),override 优先 — push 给 server 的 categoryId / accountId
+  // 走 override(Owner 的 syncId)。同时反查 SharedLedger* 拿 name/kind
+  // 用作 denormalized 文本(server LWW 名字字段)。
   String? finalCategorySyncId = tx.categorySyncIdOverride;
   String? finalCategoryName = cat?.name;
   String? finalCategoryKind = cat?.kind;

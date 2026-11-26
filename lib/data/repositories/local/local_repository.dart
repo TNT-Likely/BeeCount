@@ -3131,22 +3131,21 @@ class LocalRepository extends BaseRepository {
     String? cloudFileId,
     String? cloudSha256,
   }) async {
-    final id = await _attachmentRepo.createAttachment(
-      transactionId: transactionId,
-      fileName: fileName,
-      originalName: originalName,
-      fileSize: fileSize,
-      width: width,
-      height: height,
-      sortOrder: sortOrder,
-      cloudFileId: cloudFileId,
-      cloudSha256: cloudSha256,
-    );
-    // 附件本身不走 sync_change 表（server 通过 tx payload 里的 attachments
-    // 数组下发），但必须给父 tx 登记一条 update change，否则另一台设备永远
-    // 收不到"这条 tx 多了附件"的通知。
-    await _recordTransactionUpdateForAttachmentChange(transactionId);
-    return id;
+    return db.transaction(() async {
+      final id = await _attachmentRepo.createAttachment(
+        transactionId: transactionId,
+        fileName: fileName,
+        originalName: originalName,
+        fileSize: fileSize,
+        width: width,
+        height: height,
+        sortOrder: sortOrder,
+        cloudFileId: cloudFileId,
+        cloudSha256: cloudSha256,
+      );
+      await changeTracker?.recordTransactionAttachments(transactionId);
+      return id;
+    });
   }
 
   @override
@@ -3158,53 +3157,46 @@ class LocalRepository extends BaseRepository {
           int transactionId) =>
       _attachmentRepo.getAttachmentsByTransaction(transactionId);
 
-  @override
-  Future<void> deleteAttachment(int id) async {
-    // 在真正删除之前读出 transactionId，删除后登记父 tx update，让 B 端 pull
-    // 下去也能看到附件已被移除。
-    final row = await _attachmentRepo.getAttachmentById(id);
-    await _attachmentRepo.deleteAttachment(id);
-    if (row != null) {
-      await _recordTransactionUpdateForAttachmentChange(row.transactionId);
-    }
+  Future<void> _changeAttachments(
+      d.Expression<bool> affected, Future<void> Function() mutate) async {
+    final tracker = changeTracker;
+    if (tracker == null) return mutate();
+    final table = db.transactionAttachments;
+    await db.transaction(() async {
+      final parents = await (db.selectOnly(table, distinct: true)
+            ..addColumns([table.transactionId])
+            ..where(affected)).get();
+      await mutate();
+      for (final parent in parents) {
+        await tracker.recordTransactionAttachments(parent.read(table.transactionId)!);
+      }
+    });
   }
 
   @override
-  Future<void> deleteAttachmentsByTransaction(int transactionId) async {
-    await _attachmentRepo.deleteAttachmentsByTransaction(transactionId);
-    await _recordTransactionUpdateForAttachmentChange(transactionId);
-  }
+  Future<void> deleteAttachment(int id) => _changeAttachments(
+      db.transactionAttachments.id.equals(id), () => _attachmentRepo.deleteAttachment(id));
 
-  /// 附件增删触发父 tx 的 update change，让 push 侧重序列化 tx payload
-  /// （带上新 attachments 数组）推到 server，B 端 pull 后同步到视图。
-  Future<void> _recordTransactionUpdateForAttachmentChange(
-      int transactionId) async {
-    if (changeTracker == null) return;
-    final tx = await _transactionRepo.getTransactionById(transactionId);
-    if (tx == null || tx.syncId == null) return;
-    await changeTracker!.recordLedgerChange(
-      entityType: 'transaction',
-      entityId: transactionId,
-      entitySyncId: tx.syncId!,
-      ledgerId: tx.ledgerId,
-      action: 'update',
-    );
-  }
+  @override
+  Future<void> deleteAttachmentsByTransaction(int transactionId) => _changeAttachments(
+      db.transactionAttachments.transactionId.equals(transactionId),
+      () => _attachmentRepo.deleteAttachmentsByTransaction(transactionId));
 
   @override
   Future<void> updateAttachmentSortOrder(int id, int sortOrder) =>
-      _attachmentRepo.updateAttachmentSortOrder(id, sortOrder);
+      updateAttachmentSortOrders([(id: id, sortOrder: sortOrder)]);
 
   @override
-  Future<void> updateAttachmentSortOrders(
-          List<({int id, int sortOrder})> updates) =>
-      _attachmentRepo.updateAttachmentSortOrders(updates);
+  Future<void> updateAttachmentSortOrders(List<({int id, int sortOrder})> updates) =>
+      _changeAttachments(db.transactionAttachments.id.isIn(updates.map((row) => row.id)),
+          () => _attachmentRepo.updateAttachmentSortOrders(updates));
 
   @override
   Future<void> updateAttachmentCloudRef(int id,
           {String? cloudFileId, String? cloudSha256}) =>
-      _attachmentRepo.updateAttachmentCloudRef(id,
-          cloudFileId: cloudFileId, cloudSha256: cloudSha256);
+      _changeAttachments(db.transactionAttachments.id.equals(id),
+          () => _attachmentRepo.updateAttachmentCloudRef(id,
+              cloudFileId: cloudFileId, cloudSha256: cloudSha256));
 
   @override
   Future<bool> attachmentExistsByFileName(String fileName) =>
@@ -3241,8 +3233,9 @@ class LocalRepository extends BaseRepository {
       _attachmentRepo.getAllAttachments();
 
   @override
-  Future<void> deleteAttachmentByFileName(String fileName) =>
-      _attachmentRepo.deleteAttachmentByFileName(fileName);
+  Future<void> deleteAttachmentByFileName(String fileName) => _changeAttachments(
+      db.transactionAttachments.fileName.equals(fileName),
+      () => _attachmentRepo.deleteAttachmentByFileName(fileName));
 
   @override
   Stream<List<TransactionAttachment>> watchAttachmentsByTransaction(
