@@ -2163,11 +2163,24 @@ class BeeCountCloudStorageService implements CloudStorageService {
       query[restoring ? 'restore_device_id' : 'device_id'] = deviceId;
     }
 
-    final response = await _authedRequest(
+    Future<http.Response> readPage() => _authedRequest(
       method: 'GET',
       path: '/sync/pull',
       query: query,
     );
+    late final http.Response response;
+    try {
+      response = await readPage();
+    } on http.ClientException catch (error) {
+      // An idle connection can close while the previous page is applied to
+      // the local database. Repeating this GET keeps the same page and cursor.
+      if (error.uri?.path.endsWith('$apiPrefix/sync/pull') != true ||
+          !error.message
+              .startsWith('Connection closed before full header was received')) {
+        rethrow;
+      }
+      response = await readPage();
+    }
     if (response.statusCode < 200 || response.statusCode >= 300) {
       throw CloudStorageException(
           'Pull failed: ${_extractErrorMessage(response)}');
