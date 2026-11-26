@@ -4538,7 +4538,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get iosWidgetStep3 => '搜索并选择\"蜜蜂记账\"';
 
   @override
-  String get iosWidgetStep4 => '选择中型小组件，添加到主屏幕';
+  String get iosWidgetStep4 => '选择所需尺寸，将小组件添加到主屏幕';
 
   @override
   String get androidWidgetStep1 => '长按主屏幕空白区域';
@@ -14675,7 +14675,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get iosWidgetStep3 => '搜索並選擇\"蜜蜂記帳\"';
 
   @override
-  String get iosWidgetStep4 => '選擇中型小組件，添加到主屏幕';
+  String get iosWidgetStep4 => '選擇所需尺寸，將小工具加入主畫面';
 
   @override
   String get androidWidgetStep1 => '長按主屏幕空白區域';

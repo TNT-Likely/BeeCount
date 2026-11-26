@@ -1844,7 +1844,7 @@
   "iosWidgetStep1": "长按主屏幕空白区域，进入编辑模式",
   "iosWidgetStep2": "点击左上角的\"+\"按钮",
   "iosWidgetStep3": "搜索并选择\"蜜蜂记账\"",
-  "iosWidgetStep4": "选择中型小组件，添加到主屏幕",
+  "iosWidgetStep4": "选择所需尺寸，将小组件添加到主屏幕",
   "androidWidgetStep1": "长按主屏幕空白区域",
   "androidWidgetStep2": "选择\"小组件\"或\"Widgets\"",
   "androidWidgetStep3": "找到并长按\"蜜蜂记账\"小组件",

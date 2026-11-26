@@ -2098,7 +2098,7 @@
   "iosWidgetStep1": "Long press on home screen blank area to enter edit mode",
   "iosWidgetStep2": "Tap the \"+\" button in upper left corner",
   "iosWidgetStep3": "Search and select \"BeeCount\"",
-  "iosWidgetStep4": "Select medium widget and add to home screen",
+  "iosWidgetStep4": "Choose a size and add the widget to your Home Screen",
   "androidWidgetStep1": "Long press on home screen blank area",
   "androidWidgetStep2": "Select \"Widgets\"",
   "androidWidgetStep3": "Find and long press \"BeeCount\" widget",

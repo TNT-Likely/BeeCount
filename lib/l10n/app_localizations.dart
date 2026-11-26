@@ -8629,7 +8629,7 @@ abstract class AppLocalizations {
   /// No description provided for @iosWidgetStep4.
   ///
   /// In en, this message translates to:
-  /// **'Select medium widget and add to home screen'**
+  /// **'Choose a size and add the widget to your Home Screen'**
   String get iosWidgetStep4;
 
   /// No description provided for @androidWidgetStep1.

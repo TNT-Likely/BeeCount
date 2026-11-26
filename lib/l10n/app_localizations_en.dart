@@ -4538,7 +4538,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get iosWidgetStep3 => 'Search and select \"BeeCount\"';
 
   @override
-  String get iosWidgetStep4 => 'Select medium widget and add to home screen';
+  String get iosWidgetStep4 => 'Choose a size and add the widget to your Home Screen';
 
   @override
   String get androidWidgetStep1 => 'Long press on home screen blank area';
