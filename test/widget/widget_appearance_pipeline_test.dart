@@ -4,6 +4,7 @@ import 'dart:ui' as ui;
 
 import 'package:beecount/data/db.dart';
 import 'package:beecount/data/repositories/local/local_repository.dart';
+import 'package:beecount/l10n/app_localizations.dart';
 import 'package:beecount/widget/widget_manager.dart';
 import 'package:beecount/widget/widget_spec.dart';
 import 'package:crypto/crypto.dart';
@@ -43,7 +44,7 @@ void main() {
     });
 
     // Keep the database, shared store and real home_widget PNG writer private
-    // to this test. The only installed family is Glance, in both sizes.
+    // to this test. Glance reports money changes, Quick Add shows the accent.
     SharedPreferences.setMockInitialValues({});
     PackageInfo.setMockInitialValues(
         appName: 'Widget QA',
@@ -60,7 +61,7 @@ void main() {
         case 'getInstalledWidgets':
           return [
             for (final spec in [
-              WidgetSpec.glanceSmall,
+              WidgetSpec.quickAddSmall,
               WidgetSpec.glanceMedium
             ])
               {'kind': spec.iosKind, 'family': spec.iosFamily},
@@ -83,14 +84,15 @@ void main() {
     });
 
     binding.platformDispatcher.localesTestValue = const [
-      Locale('fr'),
-      Locale('en')
+      Locale('en'),
+      Locale('zh', 'TW'),
     ];
     binding.platformDispatcher.platformBrightnessTestValue = Brightness.light;
     final first = await repo.createLedger(name: 'Sample A');
     final second = await repo.createLedger(name: 'Sample B', currency: 'USD');
+    // Exercise built-in category keys and user-entered names in the same PNG.
     final food = await repo.createCategory(
-        name: 'Lunch', kind: 'expense', icon: 'restaurant');
+        name: 'dining', kind: 'expense', icon: 'restaurant');
     final account = await repo.createAccount(
         ledgerId: first, name: 'Wallet', initialBalance: 8000);
     await repo.addTransaction(
@@ -100,6 +102,47 @@ void main() {
         categoryId: food,
         accountId: account,
         happenedAt: DateTime.now());
+    final now = DateTime.now();
+    final categories = [
+      ('transport', 'directions_car', 18.0),
+      ('shopping', 'shopping_cart', 29.50),
+      ('Cinema', 'movie', 24.0),
+      ('Health', 'local_hospital', 12.50),
+      ('Home', 'home', 19.0),
+      ('Phone', 'phone', 16.70),
+    ];
+    for (final (i, item) in categories.indexed) {
+      final category = await repo.createCategory(
+          name: item.$1, kind: 'expense', icon: item.$2);
+      await repo.addTransaction(
+          ledgerId: first,
+          type: 'expense',
+          amount: item.$3,
+          categoryId: category,
+          accountId: account,
+          happenedAt: now.subtract(Duration(days: i + 1)));
+      if (i < 2) {
+        await repo.createBudget(
+            ledgerId: first,
+            type: 'category',
+            categoryId: category,
+            amount: 50 + i * 10);
+      }
+    }
+    final salary = await repo.createCategory(
+        name: 'salary', kind: 'income', icon: 'payments');
+    await repo.addTransaction(
+        ledgerId: first,
+        type: 'income',
+        amount: 3200,
+        categoryId: salary,
+        accountId: account,
+        happenedAt: now.subtract(const Duration(days: 2)));
+    await repo.createAccount(
+        ledgerId: first,
+        name: 'Travel card',
+        type: 'credit_card',
+        initialBalance: -320);
     await repo.createBudget(ledgerId: first, type: 'total', amount: 600);
     await repo.addTransaction(
         ledgerId: second,
@@ -121,10 +164,10 @@ void main() {
             as Map<String, dynamic>;
     Map<String, String> images(WidgetSpec s) =>
         Map<String, String>.from(manifest(s)['images'] as Map);
-    const locales = ['en', 'zh', 'zh-TW', 'ko', 'ru'];
-    final variantKeys = {
-      for (final lang in locales)
-        for (final tone in ['light', 'dark']) '$lang.$tone'
+    const officialLocales = ['zh', 'zh-TW', 'en'];
+    final officialVariants = {
+      for (final lang in officialLocales)
+        for (final tone in Brightness.values) '$lang.${tone.name}'
     };
     final evidencePath =
         Platform.environment['BEECOUNT_WIDGET_APPEARANCE_EVIDENCE'];
@@ -134,42 +177,50 @@ void main() {
     final watch = Stopwatch()..start();
     await refresh(warmUp: true);
     final warmUpMs = watch.elapsedMilliseconds;
-
+    var verifiedPngs = 0;
     for (final spec in WidgetSpec.catalog) {
       expect(storage, contains('${spec.imageKey}.appearance.v1'),
           reason: '${spec.imageKey} was not published');
       final variants = images(spec);
-      expect(variants.keys.toSet(), variantKeys, reason: spec.imageKey);
+      expect(variants.keys, containsAll(officialVariants),
+          reason: spec.imageKey);
       expect(storage[spec.imageKey], variants['en.light']);
       expect(manifest(spec)['fallback'], storage[spec.imageKey]);
       expect(manifest(spec)['locale'], 'system');
       expect(manifest(spec)['theme'], 'system');
-      expect(variants.values.toSet(), hasLength(variantKeys.length));
-      for (final entry in variants.entries) {
-        final file = File(entry.value);
+      final officialPaths = {for (final key in officialVariants) variants[key]};
+      expect(officialPaths, hasLength(officialVariants.length));
+      for (final key in officialVariants) {
+        final file = File(variants[key]!);
         expect(file.parent.path, '${directory.path}/home_widget');
         final bytes = await file.readAsBytes();
         expect(bytes.take(8), [137, 80, 78, 71, 13, 10, 26, 10]);
         final header = ByteData.sublistView(bytes);
         expect(header.getUint32(16), (spec.logicalSize.width * 3).round());
         expect(header.getUint32(20), (spec.logicalSize.height * 3).round());
-        final exportSample = spec == WidgetSpec.glanceMedium ||
-            (spec == WidgetSpec.netWorthMedium &&
-                const {'en.light', 'ru.light'}.contains(entry.key)) ||
-            (const [WidgetSpec.netWorthLarge, WidgetSpec.beeTrailSmall]
-                    .contains(spec) &&
-                const {'en.light', 'zh.dark'}.contains(entry.key));
-        if (evidence != null && exportSample) {
-          await file.copy('${evidence.path}/${spec.imageKey}.${entry.key}.png');
+        if (evidence != null) {
+          await file.copy('${evidence.path}/${spec.imageKey}.$key.png');
         }
+        verifiedPngs++;
       }
     }
-    final initialCount = WidgetSpec.catalog.length * variantKeys.length;
-    expect(pngWrites, initialCount);
-    final small = images(WidgetSpec.glanceSmall),
+    // System mode warms all supported locales; inspect/export only official ones.
+    expect(verifiedPngs, WidgetSpec.catalog.length * officialVariants.length);
+    final initialCount = pngWrites;
+    expect(
+        initialCount,
+        WidgetSpec.catalog.length *
+            AppLocalizations.supportedLocales.length *
+            Brightness.values.length);
+    final quickAdd = images(WidgetSpec.quickAddSmall),
         medium = images(WidgetSpec.glanceMedium);
+    final recent = images(WidgetSpec.recentMedium);
+    expect(await _pngHash(quickAdd['en.light']!),
+        isNot(await _pngHash(quickAdd['zh-TW.light']!)));
+    expect(await _pngHash(recent['en.light']!),
+        isNot(await _pngHash(recent['zh.light']!)));
     expect(await _pngHash(medium['en.light']!),
-        isNot(await _pngHash(medium['ru.light']!)));
+        isNot(await _pngHash(medium['zh-TW.light']!)));
     expect(await _pngHash(medium['en.light']!),
         isNot(await _pngHash(medium['zh.light']!)));
     expect(await _pngHash(medium['en.light']!),
@@ -191,20 +242,22 @@ void main() {
     expect(pngWrites, initialCount);
     expect(notified, hasLength(afterWarmUp));
 
-    const pinned = Locale('ru');
+    const pinned = Locale('zh', 'TW');
     await refresh(locale: pinned, theme: ThemeMode.dark);
     expect(pngWrites, initialCount);
     expect(notified.length, greaterThan(afterWarmUp));
-    expect(storage['widgetImage'], medium['ru.dark']);
-    expect(manifest(WidgetSpec.glanceMedium)['locale'], 'ru');
+    expect(storage['widgetImage'], medium['zh-TW.dark']);
+    expect(manifest(WidgetSpec.glanceMedium)['locale'], 'zh-TW');
     expect(manifest(WidgetSpec.glanceMedium)['theme'], 'dark');
 
     await refresh(locale: pinned, theme: ThemeMode.dark, accent: blue);
     final accentHash =
-        await _pngHash(storage[WidgetSpec.glanceSmall.imageKey]!);
-    expect(accentHash, isNot(await _pngHash(small['ru.dark']!)));
-    expect(images(WidgetSpec.glanceSmall).keys, ['ru.dark']);
-    expect(pngWrites, initialCount + 2);
+        await _pngHash(storage[WidgetSpec.quickAddSmall.imageKey]!);
+    expect(accentHash, isNot(await _pngHash(quickAdd['zh-TW.dark']!)));
+    expect(images(WidgetSpec.quickAddSmall).keys, ['zh-TW.dark']);
+    expect(pngWrites - initialCount, inInclusiveRange(1, 2));
+    final beforeExpense = pngWrites;
+    final previousGlance = await _pngHash(storage['widgetImage']!);
 
     await repo.addTransaction(
         ledgerId: first,
@@ -214,13 +267,13 @@ void main() {
         accountId: account,
         happenedAt: DateTime.now());
     await refresh(locale: pinned, theme: ThemeMode.dark, accent: blue);
-    expect(await _pngHash(storage[WidgetSpec.glanceSmall.imageKey]!),
-        isNot(accentHash));
-    expect(pngWrites, initialCount + 4);
+    expect(await _pngHash(storage['widgetImage']!), isNot(previousGlance));
+    expect(pngWrites - beforeExpense, inInclusiveRange(1, 2));
 
     final previous = {
       for (final spec in WidgetSpec.catalog) spec: manifest(spec)
     };
+    final beforeSwitch = pngWrites;
     final firstLedgerHash = await _pngHash(storage['widgetImage']!);
     await refresh(
         locale: pinned,
@@ -231,23 +284,30 @@ void main() {
     for (final spec in WidgetSpec.catalog) {
       final updated = manifest(spec);
       expect(updated['fingerprint'], isNot(previous[spec]!['fingerprint']));
-      expect(images(spec).keys, ['ru.dark']);
-      expect((previous[spec]!['images'] as Map).values,
+      expect(images(spec).keys, ['zh-TW.dark']);
+      final oldPaths = previous[spec]!['images'] as Map;
+      expect(officialVariants.map((key) => oldPaths[key]),
           isNot(contains(updated['fallback'])));
       expect(storage[spec.imageKey], updated['fallback']);
     }
     expect(await _pngHash(storage['widgetImage']!), isNot(firstLedgerHash));
-    expect(pngWrites, initialCount + 4 + WidgetSpec.catalog.length);
+    expect(pngWrites, beforeSwitch + WidgetSpec.catalog.length);
     if (evidence != null) {
       await File('${evidence.path}/result.json')
           .writeAsString(const JsonEncoder.withIndent('  ').convert({
         'catalogSizes': WidgetSpec.catalog.length,
-        'systemVariantsPerSize': variantKeys.length,
-        'firstWarmUpPngs': initialCount,
+        'officialLocales': officialLocales,
+        'officialVariantsPerSize': officialVariants.length,
+        'officialPngsVerified': verifiedPngs,
+        'firstWarmUpPngWrites': initialCount,
         'firstWarmUpMs': warmUpMs,
         'unchangedWarmUpPngs': 0,
         'unchangedWarmUpMs': cachedMs,
         'pinnedSettingsPngs': 0,
+        'pinnedAppearance': 'zh-TW.dark',
+        'newAccentPngs': beforeExpense - initialCount,
+        'newExpensePngs': beforeSwitch - beforeExpense,
+        'ledgerSwitchPngs': pngWrites - beforeSwitch,
         'totalPngWrites': pngWrites,
       }));
     }

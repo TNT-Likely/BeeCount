@@ -620,6 +620,21 @@ class AppLocalizationsKo extends AppLocalizations {
   String get widgetToday => 'Today';
 
   @override
+  String get widgetFrequentCategories => 'Frequent categories';
+
+  @override
+  String get widgetNoFrequentCategories => 'No frequent categories';
+
+  @override
+  String get widgetAccountBalances => 'Account balances';
+
+  @override
+  String get widgetSpendingShare => 'Share of spending';
+
+  @override
+  String get widgetAddExpense => 'Add expense';
+
+  @override
   String get widgetQuickAddLabel => 'Add';
 
   @override
@@ -4478,7 +4493,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get widgetGalleryQuickAddTitle => 'Quick Add';
 
   @override
-  String get widgetGalleryQuickAddDesc => 'One-tap entry for your frequent categories';
+  String get widgetGalleryQuickAddDesc => 'See your frequent categories and tap to add an expense.';
 
   @override
   String get widgetGalleryBudgetDesc => 'Track your budget progress at a glance';

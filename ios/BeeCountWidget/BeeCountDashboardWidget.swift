@@ -23,45 +23,23 @@ struct BeeCountDashboardWidgetEntryView : View {
     private let detailURL = URL(string: "beecount://open?page=detail")!
     private let expenseURL = URL(string: "beecount://new?type=expense")!
 
+    @ViewBuilder
     var body: some View {
-        if let uiImage = image {
+        let artwork = WidgetCardImage(image: image, symbol: "square.grid.2x2", label: BehaviorWidgetCopy.localized(
+            simplifiedChinese: "综合仪表盘", traditionalChinese: "綜合儀表盤", english: "Dashboard"))
+        if image == nil {
+            artwork.widgetURL(detailURL)
+        } else {
             GeometryReader { geometry in
                 ZStack {
-                    Image(uiImage: uiImage)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: geometry.size.width, height: geometry.size.height)
-                        .clipped()
-
-                    // 透明点击层:底部快捷记账行约占卡片高度 18%
-                    // (与 DashboardView 底部按钮行的布局比例对齐)。
+                    artwork.frame(width: geometry.size.width, height: geometry.size.height)
                     VStack(spacing: 0) {
-                        Link(destination: detailURL) {
-                            Color.clear
-                        }
-                        .frame(height: geometry.size.height * 0.82)
-                        Link(destination: expenseURL) {
-                            Color.clear
-                        }
+                        Link(destination: detailURL) { Color.clear.contentShape(Rectangle()) }
+                            .frame(height: geometry.size.height * 0.82)
+                        Link(destination: expenseURL) { Color.clear.contentShape(Rectangle()) }
                     }
                 }
             }
-        } else {
-            // Placeholder view when image is not available
-            ZStack {
-                Color(red: 1.0, green: 0.76, blue: 0.03)
-                VStack {
-                    Image(systemName: "square.grid.2x2.fill")
-                        .font(.system(size: 32))
-                        .foregroundColor(.white)
-                    Text(BehaviorWidgetCopy.localized(
-                        simplifiedChinese: "综合仪表盘", traditionalChinese: "綜合儀表盤",
-                        english: "Dashboard"))
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(.white)
-                }
-            }
-            .widgetURL(detailURL)
         }
     }
 }

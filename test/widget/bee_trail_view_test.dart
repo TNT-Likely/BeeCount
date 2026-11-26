@@ -20,7 +20,9 @@ void main() {
 
   Widget wrap(Widget child) => Directionality(
         textDirection: TextDirection.ltr,
-        child: SizedBox(width: size.width, height: size.height, child: child),
+        child: Center(
+            child:
+                SizedBox(width: size.width, height: size.height, child: child)),
       );
 
   /// 与 HomeWidget.renderFlutterWidget 一致的离屏布局结构。固定 SizedBox
@@ -41,7 +43,7 @@ void main() {
         dark: dark,
         titleLabel: '记账连续蜂迹',
         streakSuffix: '天',
-        completionLabel: '本月完成率',
+        completionLabel: '近 28 天完成率',
         emptyLabel: '今天记一笔，点亮第一格',
         width: size.width,
         height: size.height,
@@ -51,9 +53,36 @@ void main() {
       expect(tester.takeException(), isNull);
       expect(find.text('记账连续蜂迹'), findsOneWidget);
       expect(find.text('5 天'), findsOneWidget);
-      expect(find.text('本月完成率'), findsOneWidget);
+      expect(find.text('近 28 天完成率'), findsOneWidget);
+      final grid = tester.getRect(find.byType(CustomPaint));
+      expect(grid.width, greaterThan(100));
+      expect(grid.height, greaterThan(30));
+      expect(grid.top, greaterThan(tester.getRect(find.text('5 天')).bottom));
+      expect(grid.bottom, lessThan(tester.getRect(find.text('近 28 天完成率')).top));
     });
   }
+
+  testWidgets('较长英文完成率标签换行，完整保留百分比和蜂巢', (tester) async {
+    const label = '28-day recording rate';
+    await tester.pumpWidget(wrap(BeeTrailView(
+      activity: activity(),
+      themeColor: const Color(0xFFF5A623),
+      dark: true,
+      titleLabel: 'Record Bee Trail',
+      streakSuffix: 'days',
+      completionLabel: label,
+      emptyLabel: '',
+      width: size.width,
+      height: size.height,
+    )));
+    final footer = tester.getRect(find.text(label));
+    final grid = tester.getRect(find.byType(CustomPaint));
+    expect(tester.takeException(), isNull);
+    expect(footer.height, greaterThan(15));
+    expect(footer.right, lessThan(tester.getRect(find.text('18%')).left));
+    expect(grid.height, greaterThan(25));
+    expect(grid.bottom, lessThan(footer.top));
+  });
 
   testWidgets('没有记账历史时显示引导文案', (tester) async {
     await tester.pumpWidget(wrap(BeeTrailView(

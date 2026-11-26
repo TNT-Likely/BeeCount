@@ -46,6 +46,7 @@ class BeeCountDashboardWidgetProvider : HomeWidgetProvider() {
                             context, widgetId * 10 + 1, detailIntent,
                             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                         )
+                        setOnClickPendingIntent(R.id.widget_root, detailPending)
                         setOnClickPendingIntent(R.id.widget_click, detailPending)
 
                         val expenseIntent = createLaunchIntentWithDeepLink(context, "beecount://new?type=expense")

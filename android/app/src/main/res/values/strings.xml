@@ -24,7 +24,7 @@
     <string name="widget_description">查看今日和本月的收支情况</string>
     <string name="widget_glance_small_description">今日支出一眼可见,点按直接记一笔</string>
     <string name="widget_networth_description">总资产、总负债与净值趋势</string>
-    <string name="widget_quickadd_description">常用分类一键速记</string>
+    <string name="widget_quickadd_description">查看常用分类，点按记支出</string>
     <string name="widget_budget_description">预算进度实时掌握</string>
     <string name="widget_recent_description">快速查看最近几笔账单</string>
     <string name="widget_dashboard_description">收支、趋势与最近交易一屏看尽</string>

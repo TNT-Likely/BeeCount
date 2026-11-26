@@ -25,7 +25,7 @@
     <string name="widget_description">Today\'s and this month\'s income &amp; expenses</string>
     <string name="widget_glance_small_description">Today\'s spending at a glance; tap to add</string>
     <string name="widget_networth_description">Assets, liabilities, and net-worth trend</string>
-    <string name="widget_quickadd_description">One-tap entry for your top categories</string>
+    <string name="widget_quickadd_description">View frequent categories and tap to add an expense</string>
     <string name="widget_budget_description">Track budget progress at a glance</string>
     <string name="widget_recent_description">A quick look at your latest transactions</string>
     <string name="widget_dashboard_description">Income, trend, and recent activity in one view</string>

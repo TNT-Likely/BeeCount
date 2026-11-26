@@ -644,6 +644,21 @@ class AppLocalizationsRu extends AppLocalizations {
   String get widgetToday => 'Сегодня';
 
   @override
+  String get widgetFrequentCategories => 'Frequent categories';
+
+  @override
+  String get widgetNoFrequentCategories => 'No frequent categories';
+
+  @override
+  String get widgetAccountBalances => 'Account balances';
+
+  @override
+  String get widgetSpendingShare => 'Share of spending';
+
+  @override
+  String get widgetAddExpense => 'Add expense';
+
+  @override
   String get widgetQuickAddLabel => 'Добавить';
 
   @override

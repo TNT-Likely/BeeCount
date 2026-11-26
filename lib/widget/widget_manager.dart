@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:intl/date_symbol_data_local.dart' show initializeDateFormatting;
 import 'package:flutter/material.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -77,6 +78,8 @@ List<WidgetSpec> orderCatalogForWarmUp(List<WidgetSpec> installedFirst) {
   ];
 }
 
+final _widgetDateFormats = initializeDateFormatting();
+
 class WidgetManager {
   static final WidgetManager _instance = WidgetManager._internal();
   factory WidgetManager() => _instance;
@@ -148,6 +151,7 @@ class WidgetManager {
     final specs = warmUp ? orderCatalogForWarmUp(installed) : installed;
     if (specs.isEmpty) return;
     final version = await _appVersion;
+    await _widgetDateFormats;
     final today = DateTime.now();
     // Notify each installed family as soon as its files are ready, before
     // warming the other families for widgets added when the app is closed.
@@ -163,9 +167,7 @@ class WidgetManager {
           break;
         }
         try {
-          final size = spec == WidgetSpec.glanceMedium && Platform.isAndroid
-              ? const Size(364, 182)
-              : spec.logicalSize;
+          final size = spec.canvasSize(android: Platform.isAndroid);
           final content = await prepareWidgetContent(
             spec: spec,
             batch: batch,

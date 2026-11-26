@@ -9,84 +9,84 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:beecount/data/repositories/budget_repository.dart'
     show BudgetOverview, BudgetUsage, CategoryBudgetUsage;
 import 'package:beecount/widget/views/budget_view.dart';
+import 'package:beecount/widget/views/widget_view_style.dart'
+    show widgetTextPrimary, widgetExpenseColor;
 import 'package:beecount/widget/widget_spec.dart' show HWSize;
 
 void main() {
   Widget wrap(Widget child, Size size) {
     return Directionality(
       textDirection: TextDirection.ltr,
-      child: SizedBox(width: size.width, height: size.height, child: child),
+      child: Center(child: SizedBox.fromSize(size: size, child: child)),
     );
   }
 
   // 兜底占比排(无分类预算时):见 BudgetView.fallbackShares 文档。
   testWidgets('medium:无分类预算但有支出占比兜底 → 渲染占比小卡', (tester) async {
     const size = Size(364, 169);
-    await tester.pumpWidget(Directionality(
-      textDirection: TextDirection.ltr,
-      child: SizedBox(
+    await tester.pumpWidget(wrap(
+      BudgetView(
+        size: HWSize.medium,
+        overview: BudgetOverview(
+          totalBudget: BudgetUsage(used: 3200, budget: 5000),
+          categoryBudgets: const [], // 用户只设了总预算
+          daysRemaining: 10,
+          dailyAvailable: 180,
+        ),
+        currencyCode: 'CNY',
+        themeColor: const Color(0xFFF5A623),
+        redForIncome: true,
+        dark: false,
+        monthLabel: 'Nov 2026',
+        spendingShareLabel: 'Spending share',
+        categoryUsageLabel: 'Category budget usage',
+        fallbackShares: const [
+          (name: '餐饮', share: 0.52),
+          (name: '购物', share: 0.31),
+          (name: '交通', share: 0.17),
+        ],
         width: size.width,
         height: size.height,
-        child: BudgetView(
-          size: HWSize.medium,
-          overview: BudgetOverview(
-            totalBudget: BudgetUsage(used: 3200, budget: 5000),
-            categoryBudgets: const [], // 用户只设了总预算
-            daysRemaining: 10,
-            dailyAvailable: 180,
-          ),
-          currencyCode: 'CNY',
-          themeColor: const Color(0xFFF5A623),
-          redForIncome: true,
-          dark: false,
-          fallbackShares: const [
-            (name: '餐饮', share: 0.52),
-            (name: '购物', share: 0.31),
-            (name: '交通', share: 0.17),
-          ],
-          width: size.width,
-          height: size.height,
-        ),
       ),
+      size,
     ));
     await tester.pump();
 
     expect(tester.takeException(), isNull);
     expect(find.text('餐饮'), findsOneWidget);
+    expect(find.text('Nov 2026'), findsOneWidget);
+    expect(find.text('Spending share'), findsOneWidget);
+    expect(find.text('Category budget usage'), findsNothing);
     expect(find.text('52%'), findsOneWidget);
     expect(find.text('17%'), findsOneWidget);
   });
 
-  // 小卡底部一排 + 压缩字数(用户拍板:两行不好):去「总额」、金额去小数,
-  // `剩 ¥1,158 / ¥8,000` 千位金额放得下。
-  testWidgets('small:底部一排压缩格式,千位金额完整显示', (tester) async {
+  testWidgets('small:余额、已用和总额保留真实金额', (tester) async {
     const size = Size(155, 155);
-    await tester.pumpWidget(Directionality(
-      textDirection: TextDirection.ltr,
-      child: SizedBox(
+    await tester.pumpWidget(wrap(
+      BudgetView(
+        size: HWSize.small,
+        overview: BudgetOverview(
+          totalBudget: BudgetUsage(used: 6842, budget: 8000),
+          categoryBudgets: const [],
+          daysRemaining: 11,
+          dailyAvailable: 105.3,
+        ),
+        currencyCode: 'CNY',
+        themeColor: const Color(0xFFF5A623),
+        redForIncome: true,
+        dark: false,
         width: size.width,
         height: size.height,
-        child: BudgetView(
-          size: HWSize.small,
-          overview: BudgetOverview(
-            totalBudget: BudgetUsage(used: 6842, budget: 8000),
-            categoryBudgets: const [],
-            daysRemaining: 11,
-            dailyAvailable: 105.3,
-          ),
-          currencyCode: 'CNY',
-          themeColor: const Color(0xFFF5A623),
-          redForIncome: true,
-          dark: false,
-          width: size.width,
-          height: size.height,
-        ),
       ),
+      size,
     ));
     await tester.pump();
 
     expect(tester.takeException(), isNull);
-    expect(find.text('剩 ¥1,158 / ¥8,000'), findsOneWidget);
+    for (final value in ['剩', '已用', '总额', '¥1,158', '¥6,842', '¥8,000']) {
+      expect(find.text(value), findsOneWidget);
+    }
   });
 
   CategoryBudgetUsage category(String name, double used, double budget) {
@@ -150,6 +150,7 @@ void main() {
 
         expect(tester.takeException(), isNull);
         expect(find.text('128%'), findsOneWidget);
+        expect(find.text('¥-1,400'), findsOneWidget);
       });
 
       testWidgets('未设总预算时显示占位文案,不抛异常', (tester) async {
@@ -209,34 +210,80 @@ void main() {
 
       expect(tester.takeException(), isNull);
       expect(find.text('餐饮'), findsOneWidget);
-      expect(find.text('90%'), findsOneWidget);
+      expect(tester.widget<Text>(find.text('40%')).style?.color,
+          widgetTextPrimary(false));
+      expect(tester.widget<Text>(find.text('90%')).style?.color,
+          widgetExpenseColor(false));
     });
 
-    testWidgets('有分类预算但无总预算:总览退化提示,分类用量照常展示', (tester) async {
+    for (final cardSize in [HWSize.small, HWSize.medium]) {
+      testWidgets('只有分类预算时展示真实分类用量 ($cardSize)', (tester) async {
+        final size = cardSize == HWSize.small
+            ? const Size(155, 155)
+            : const Size(364, 169);
+        await tester.pumpWidget(wrap(
+          BudgetView(
+            size: cardSize,
+            overview: BudgetOverview(
+              categoryBudgets: [
+                category('餐饮', 90, 100),
+                category('购物', 40, 100)
+              ],
+              daysRemaining: 10,
+              dailyAvailable: 0,
+            ),
+            fallbackShares: const [(name: '无预算占比', share: .95)],
+            currencyCode: 'CNY',
+            themeColor: Colors.amber,
+            redForIncome: false,
+            dark: true,
+            categoryUsageLabel: '分类预算',
+            remainingLabel: '剩余',
+            width: size.width,
+            height: size.height,
+          ),
+          size,
+        ));
+        expect(tester.takeException(), isNull);
+        expect(find.text('未设预算'), findsNothing);
+        expect(find.text('无预算占比'), findsNothing);
+        expect(find.text('分类预算'), findsOneWidget);
+        expect(find.text('餐饮'), findsOneWidget);
+        expect(find.text('90%'), findsOneWidget);
+        if (cardSize == HWSize.small) {
+          expect(find.text('¥10'), findsOneWidget);
+          expect(find.text('购物'), findsNothing);
+        } else {
+          expect(find.text('购物'), findsOneWidget);
+          expect(find.text('40%'), findsOneWidget);
+          expect(find.text('¥90 / ¥100'), findsOneWidget);
+        }
+      });
+    }
+
+    testWidgets('完全无预算且本月有支出时保留支出占比', (tester) async {
       const size = Size(364, 169);
       await tester.pumpWidget(wrap(
-        BudgetView(
+        const BudgetView(
           size: HWSize.medium,
-          overview: BudgetOverview(
-            totalBudget: null,
-            categoryBudgets: [category('餐饮', 900, 1000)],
-            daysRemaining: 10,
-            dailyAvailable: 180,
-          ),
-          currencyCode: 'USD',
-          themeColor: const Color(0xFFF5A623),
-          redForIncome: true,
+          overview: BudgetOverview(daysRemaining: 0, dailyAvailable: 0),
+          fallbackShares: [(name: '餐饮', share: .87)],
+          currencyCode: 'CNY',
+          themeColor: Colors.amber,
+          redForIncome: false,
           dark: true,
-          width: size.width,
-          height: size.height,
+          categoryUsageLabel: '分类预算',
+          spendingShareLabel: '支出占比',
+          width: 364,
+          height: 169,
         ),
         size,
       ));
-      await tester.pump();
-
       expect(tester.takeException(), isNull);
       expect(find.text('未设预算'), findsOneWidget);
-      expect(find.text('餐饮'), findsOneWidget);
+      expect(find.text('支出占比'), findsOneWidget);
+      expect(find.text('分类预算'), findsNothing);
+      expect(find.text('87%'), findsOneWidget);
     });
 
     testWidgets('完全没有预算数据时显示占位文案,不抛异常', (tester) async {

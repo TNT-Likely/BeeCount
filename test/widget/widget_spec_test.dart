@@ -7,9 +7,27 @@ library;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:home_widget/home_widget.dart';
 
+import 'package:beecount/services/platform/app_link_service.dart';
 import 'package:beecount/widget/widget_spec.dart';
 
 void main() {
+  test('desktop card URLs select the existing transaction and analytics tabs',
+      () {
+    for (final (page, tab) in [
+      ('transactions', 0),
+      ('detail', 0),
+      ('statistics', 1)
+    ]) {
+      final link = Uri.parse('beecount://open?page=$page');
+      expect(AppLinkService.parseAction(link), AppLinkAction.open);
+      expect(
+          AppLinkService.mainTabForOpenPage(link.queryParameters['page']), tab);
+    }
+    for (final value in ['assets', 'budget', 'unknown', null]) {
+      expect(AppLinkService.mainTabForOpenPage(value), isNull);
+    }
+  });
+
   group('WidgetSpec.imageKey', () {
     test('glance-medium 沿用旧 key widgetImage(D2 back-compat)', () {
       expect(WidgetSpec.glanceMedium.imageKey, 'widgetImage');

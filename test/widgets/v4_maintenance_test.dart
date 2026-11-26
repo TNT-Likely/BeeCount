@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:ui' as ui;
+import 'package:beecount/widget/widget_spec.dart';
 import 'package:beecount/data/db.dart';
 import 'package:beecount/data/repositories/local/local_repository.dart';
 import 'package:beecount/l10n/app_localizations.dart';
@@ -993,11 +994,11 @@ void main() {
     expect(t.takeException(), isNull);
   });
   for (final platform in [TargetPlatform.android, TargetPlatform.iOS]) {
-    scenario('组件${platform.name}全部9张真实预览与原尺寸和平台四步引导', (t) async {
+    scenario('组件${platform.name}全部 14 张真实预览、平台画布和添加引导', (t) async {
       await show(t, const WidgetManagementPage(), platform: platform);
       final cards = <String, Size>{};
       final viewTypes = <String>{};
-      for (var step = 0; step < 14; step++) {
+      for (var step = 0; step < 32; step++) {
         for (final card in t.widgetList<BeeMaintenanceWidgetCard>(
             find.byType(BeeMaintenanceWidgetCard))) {
           cards['${card.title}|${card.sizeLabel}'] = card.previewSize;
@@ -1006,7 +1007,9 @@ void main() {
         await t.drag(find.byType(ListView), const Offset(0, -500));
         await flush(t, cycles: 2);
       }
-      expect(cards, hasLength(9));
+      final canvases = WidgetSpec.catalog.map((spec) =>
+          spec.canvasSize(android: platform == TargetPlatform.android));
+      expect(cards.values, unorderedEquals(canvases));
       expect(
           viewTypes,
           containsAll([
@@ -1018,13 +1021,6 @@ void main() {
             'DashboardView',
             'ConsumptionRhythmView',
             'BeeTrailView'
-          ]));
-      expect(
-          cards.values,
-          containsAll([
-            const Size(155, 155),
-            const Size(364, 169),
-            const Size(364, 382)
           ]));
       expect(
           find.text(platform == TargetPlatform.iOS

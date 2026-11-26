@@ -6,6 +6,8 @@ import 'package:beecount/pages/settings/data/bindings/maintenance_access.dart';
 import 'package:beecount/providers/font_scale_provider.dart';
 import 'package:beecount/theme.dart';
 import 'package:beecount/widget/views/glance_view.dart';
+import 'package:beecount/widget/views/widget_view_style.dart';
+import 'package:beecount/widget/widget_spec.dart';
 import 'package:beecount_business_ui/maintenance.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:flutter/material.dart';
@@ -65,12 +67,7 @@ void main() {
         textDirection: TextDirection.ltr, child: Center(child: canvas)));
     final canvasRect = t.getRect(find.byKey(_canvasKey));
     final content = find.descendant(
-        of: find.byType(GlanceView),
-        matching: find.byWidgetPredicate((widget) =>
-            widget is Container &&
-            widget.decoration is BoxDecoration &&
-            (widget.decoration! as BoxDecoration).borderRadius ==
-                BorderRadius.circular(16)));
+        of: find.byType(GlanceView), matching: find.byType(WidgetCardSurface));
     expect(t.getRect(content).top - canvasRect.top, 6.5);
     expect(t.getSize(content), const Size(364, 169));
     expect(t.takeException(), isNull);
@@ -126,7 +123,7 @@ void main() {
       for (final english in [false, true]) {
         for (final brightness in Brightness.values) {
           testWidgets(
-              'all nine real previews $width scale=$scale en=$english ${brightness.name}',
+              'all fourteen real previews $width scale=$scale en=$english ${brightness.name}',
               (t) async {
             t.view.devicePixelRatio = 3;
             t.view.physicalSize = Size(width * 3, 900 * 3);
@@ -187,12 +184,13 @@ void main() {
               await t.drag(find.byType(ListView), const Offset(0, -600));
               await t.pumpAndSettle();
             }
-            expect(cards, hasLength(9));
+            expect(cards, hasLength(WidgetSpec.catalog.length));
             expect(
                 cards.values,
                 containsAll([
                   const Size(155, 155),
                   const Size(364, 169),
+                  const Size(364, 182),
                   const Size(364, 382)
                 ]));
             expect(t.takeException(), isNull);

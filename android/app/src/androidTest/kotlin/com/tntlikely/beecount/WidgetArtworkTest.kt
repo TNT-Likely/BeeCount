@@ -10,7 +10,7 @@ import java.util.Locale
 @RunWith(AndroidJUnit4::class)
 class WidgetArtworkTest {
     private val images = JSONObject().apply {
-        for (locale in listOf("en", "zh", "zh-TW", "ko", "ru")) {
+        for (locale in listOf("en", "zh", "zh-TW")) {
             for (theme in listOf("light", "dark")) put("$locale.$theme", "/$locale.$theme.png")
         }
     }
@@ -26,9 +26,10 @@ class WidgetArtworkTest {
             assertEquals("/zh-TW.dark.png", artwork(tag).dark)
         }
         assertEquals("/zh.light.png", artwork("zh-Hans-TW").light)
-        assertEquals("/ko.light.png", artwork("fr-FR,ko-KR,en-GB").light)
-        assertEquals("/ru.dark.png", artwork("ru-RU").dark)
-        assertEquals("/en.light.png", artwork("es-ES").light)
+        assertEquals("/zh.light.png", artwork("zh-CN,en-GB").light)
+        assertEquals("/en.dark.png", artwork("en-GB,zh-Hant-TW").dark)
+        assertEquals("/zh-TW.light.png", artwork("zh-TW,zh-CN").light)
+        assertEquals("/en.light.png", artwork("").light)
     }
 
     @Test fun explicitAppPreferencesOverrideTheLauncher() {

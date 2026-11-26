@@ -11,30 +11,55 @@ final class WidgetImageManifestTests: XCTestCase {
         XCTAssertEqual(manifest.preferredPath(locales: chinese, dark: false), "/tw-light")
         XCTAssertEqual(manifest.preferredPath(locales: chinese, dark: true), "/tw-dark")
         XCTAssertEqual(manifest.preferredPath(locales: [Locale(identifier: "en-GB")], dark: true), "/en-dark")
-        XCTAssertNil(manifest.preferredPath(locales: [Locale(identifier: "ko")], dark: true))
+        XCTAssertNil(manifest.preferredPath(locales: [Locale(identifier: "zh-Hans")], dark: true))
         XCTAssertEqual(manifest.fallback, "/fallback")
     }
 
     func testChineseScriptPrecedesRegionAndUnsupportedLanguagesUseTheNextPreference() {
         let cases = [(["zh-Hans-TW"], "zh"), (["zh-Hant-CN"], "zh-TW"), (["zh-MO"], "zh-TW"),
                      (["zh-HK"], "zh-TW"), (["zh-TW"], "zh-TW"), (["zh-SG"], "zh"),
-                     (["ja", "ko-KR"], "ko"), (["fr", "ru-RU", "en"], "ru"), (["fr"], "en")]
+                     (["und", "zh-HK", "en"], "zh-TW"), (["und", "en-GB", "zh"], "en"), ([], "en")]
         for (identifiers, expected) in cases {
             XCTAssertEqual(WidgetImageManifest.language(for: identifiers.map(Locale.init(identifier:))), expected)
         }
     }
 
+    func testGalleryLoadsOnlyLocalizedArtworkFromItsBundle() throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString + ".bundle")
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        try Data("<?xml version=\"1.0\"?><plist version=\"1.0\"><dict><key>CFBundleIdentifier</key><string>test.widgetPreviews</string></dict></plist>".utf8)
+            .write(to: directory.appendingPathComponent("Info.plist"))
+        let names = ["en", "en_dark", "zh", "zh_dark", "zh_TW_dark"]
+        for name in names {
+            try Data().write(to: directory.appendingPathComponent("widget_preview_glance_" + name + ".png"))
+        }
+        let bundle = try XCTUnwrap(Bundle(url: directory))
+        func resource(_ locale: String, _ dark: Bool, _ key: String = "widgetImage") -> String {
+            let path = WidgetPreviewAssets.path(forImageKey: key, locales: [Locale(identifier: locale)],
+                                                dark: dark, bundle: bundle)
+            return (path as NSString).lastPathComponent
+        }
+        XCTAssertEqual(resource("zh-Hant-HK", true), "widget_preview_glance_zh_TW_dark.png")
+        XCTAssertEqual(resource("zh-Hant-HK", false), "widget_preview_glance_zh.png")
+        XCTAssertEqual(resource("zh-Hans-TW", true), "widget_preview_glance_zh_dark.png")
+        XCTAssertEqual(resource("en-GB", false), "widget_preview_glance_en.png")
+        XCTAssertEqual(resource("und", true), "widget_preview_glance_en_dark.png")
+        XCTAssertEqual(resource("en", true, "missing"), "")
+        XCTAssertEqual(resource("en", true, "widget_dashboard_large"), "")
+    }
+
     func testPinnedSettingsOverrideOnlyTheirOwnDimension() {
-        let ru = [Locale(identifier: "ru")]
+        let chinese = [Locale(identifier: "zh-Hans-CN")]
         let pinnedLocale = WidgetImageManifest(locale: "en", theme: "system",
                                               images: ["en.dark": "/en-dark"], fallback: "")
         let pinnedTheme = WidgetImageManifest(locale: "system", theme: "light",
-                                             images: ["ru.light": "/ru-light"], fallback: "")
+                                             images: ["zh.light": "/zh-light"], fallback: "")
         let pinnedBoth = WidgetImageManifest(locale: "zh-TW", theme: "light",
                                             images: ["zh-TW.light": "/tw-light"], fallback: "")
-        XCTAssertEqual(pinnedLocale.preferredPath(locales: ru, dark: true), "/en-dark")
-        XCTAssertEqual(pinnedTheme.preferredPath(locales: ru, dark: true), "/ru-light")
-        XCTAssertEqual(pinnedBoth.preferredPath(locales: ru, dark: true), "/tw-light")
+        XCTAssertEqual(pinnedLocale.preferredPath(locales: chinese, dark: true), "/en-dark")
+        XCTAssertEqual(pinnedTheme.preferredPath(locales: chinese, dark: true), "/zh-light")
+        XCTAssertEqual(pinnedBoth.preferredPath(locales: chinese, dark: true), "/tw-light")
     }
 
     func testExistingWidgetSurvivesMissingOrInvalidManifestAndUsesNewFallbackWhenPublished() throws {

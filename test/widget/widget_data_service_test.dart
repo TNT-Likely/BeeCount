@@ -436,6 +436,17 @@ void main() {
       expect(items[1].total, 300); // 100 + 200
     });
 
+    test('4.x quick entry only shows categories used by the current ledger', () async {
+      final food = await repo.createCategory(name: 'Lunch', kind: 'expense');
+      await repo.createCategory(name: 'Shopping', kind: 'expense');
+      WidgetGatherBatch batch() => WidgetGatherBatch(
+          repository: repo, ledgerId: 1, baseCurrency: 'CNY');
+      expect(await batch().quickAddCategories(), isEmpty);
+      await repo.addTransaction(ledgerId: 1, type: 'expense', amount: 10,
+          categoryId: food, happenedAt: DateTime.now());
+      expect((await batch().quickAddCategories()).map((c) => c.name), ['Lunch']);
+    });
+
     test('账本自定义 monthStartDay:按自定义周期取本期常用分类', () async {
       await db.customStatement(
           "INSERT INTO ledgers (id, name, currency, month_start_day) "

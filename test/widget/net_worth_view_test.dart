@@ -8,18 +8,20 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:beecount/data/db.dart' show Account;
 import 'package:beecount/widget/views/net_worth_view.dart';
-import 'package:beecount/widget/widget_data_service.dart' show NetWorthAccountItem;
+import 'package:beecount/widget/widget_data_service.dart'
+    show NetWorthAccountItem;
 import 'package:beecount/widget/widget_spec.dart' show HWSize;
 
 void main() {
   Widget wrap(Widget child, Size size) {
     return Directionality(
       textDirection: TextDirection.ltr,
-      child: SizedBox(width: size.width, height: size.height, child: child),
+      child: Center(child: SizedBox.fromSize(size: size, child: child)),
     );
   }
 
-  List<({DateTime date, double assets, double liabilities, double net})> sampleTrend() {
+  List<({DateTime date, double assets, double liabilities, double net})>
+      sampleTrend() {
     final base = DateTime(2026, 6, 1);
     return List.generate(10, (i) {
       final assets = 100000.0 + i * 500;
@@ -58,6 +60,7 @@ void main() {
             totalLiabilities: 20000,
             baseCurrency: 'CNY',
             trend: sampleTrend(),
+            rangeLabel: '近 30 天',
             themeColor: const Color(0xFFF5A623),
             redForIncome: true,
             dark: dark,
@@ -73,6 +76,9 @@ void main() {
 
         expect(tester.takeException(), isNull);
         expect(find.text('净资产'), findsOneWidget);
+        expect(find.text('CNY'), findsOneWidget);
+        expect(find.text('+6.8%'), findsOneWidget);
+        expect(find.textContaining('近 30 天'), findsOneWidget);
       });
 
       testWidgets('空趋势(新账本无历史)不抛异常,环比 chip 不渲染', (tester) async {
@@ -85,6 +91,7 @@ void main() {
             totalLiabilities: 0,
             baseCurrency: 'CNY',
             trend: const [],
+            hasAccounts: false,
             themeColor: const Color(0xFFF5A623),
             redForIncome: true,
             dark: dark,
@@ -99,6 +106,7 @@ void main() {
         await tester.pump();
 
         expect(tester.takeException(), isNull);
+        expect(find.text('暂无账户'), findsOneWidget);
       });
     });
   }
@@ -159,6 +167,45 @@ void main() {
     });
   });
 
+  testWidgets('已有零余额账户时保留零金额和历史趋势', (tester) async {
+    const size = Size(155, 155);
+    final day = DateTime(2026, 10, 1);
+    await tester.pumpWidget(wrap(
+      NetWorthView(
+        size: HWSize.small,
+        netWorth: 0,
+        totalAssets: 0,
+        totalLiabilities: 0,
+        baseCurrency: 'CNY',
+        hasAccounts: true,
+        trend: [
+          (date: day, assets: 0.0, liabilities: 0.0, net: 0.0),
+          (
+            date: day.add(const Duration(days: 1)),
+            assets: 0.0,
+            liabilities: 0.0,
+            net: 0.0
+          ),
+        ],
+        themeColor: Colors.amber,
+        redForIncome: true,
+        dark: true,
+        netWorthLabel: '净资产',
+        totalAssetsLabel: '总资产',
+        totalLiabilitiesLabel: '总负债',
+        rangeLabel: '近 30 天',
+        width: size.width,
+        height: size.height,
+      ),
+      size,
+    ));
+    expect(tester.takeException(), isNull);
+    expect(find.text('¥0'), findsOneWidget);
+    expect(find.text('近 30 天'), findsOneWidget);
+    expect(find.text('暂无账户'), findsNothing);
+    expect(find.textContaining('%'), findsNothing);
+  });
+
   group('NetWorthView.large', () {
     testWidgets('364x382 亮色 + 4 条账户明细(含未折算兜底)不抛异常', (tester) async {
       const size = Size(364, 382);
@@ -182,7 +229,7 @@ void main() {
               convertedBalance: 30000,
             ),
             NetWorthAccountItem(
-              account: sampleAccount(3, '日元活期', currency: 'JPY'),
+              account: sampleAccount(3, '美元活期', currency: 'USD'),
               balance: 200000,
               convertedBalance: null, // 缺汇率,兜底原币展示
             ),
@@ -207,8 +254,8 @@ void main() {
 
       expect(tester.takeException(), isNull);
       expect(find.text('招商银行'), findsOneWidget);
-      // 未折算账户应显示日元符号而非人民币符号(兜底原币,不能借用 baseCurrency)。
-      expect(find.textContaining('¥200,000'), findsOneWidget);
+      // 未折算的账户仍使用原始币种。
+      expect(find.text(r'$200,000'), findsOneWidget);
     });
 
     testWidgets('空账户明细 + 空趋势(暗色)显示占位文案,不抛异常', (tester) async {

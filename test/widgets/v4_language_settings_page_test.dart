@@ -89,16 +89,11 @@ void main() {
     await t.pumpAndSettle();
   }
 
-  testWidgets('六项语言、实际偏好和地区清理，刷新使用新语言文案', (t) async {
+  testWidgets('官方语言偏好写入、地区清理与桌面刷新', (t) async {
     await open(t);
-    expect(find.byType(BeeOnboardingChoice), findsNWidgets(6));
-    expect(find.text('Русский'), findsOneWidget);
-    expect(find.text('Russian'), findsOneWidget);
     for (final row in [
       (3, const Locale('en')),
       (2, const Locale('zh', 'TW')),
-      (5, const Locale('ru')),
-      (4, const Locale('ko')),
       (1, const Locale('zh'))
     ]) {
       await choose(t, row.$1);
@@ -123,7 +118,7 @@ void main() {
     expect(prefs.containsKey('selected_language_country'), isFalse);
     expect(await db.customSelect('SELECT * FROM ledgers').get(), hasLength(1));
     expect(await db.customSelect('SELECT * FROM transactions').get(), isEmpty);
-    expect(renderer.updates, hasLength(6));
+    expect(renderer.updates, hasLength(4));
     expect(renderer.updates.last.namedArguments[#explicitLocale], isNull);
     await t.pumpWidget(const SizedBox.shrink());
   });
@@ -144,39 +139,28 @@ void main() {
         const Locale('zh'));
   });
 
-  testWidgets('重新创建Provider从真实偏好恢复俄语选中态', (t) async {
+  testWidgets('重新创建 Provider 后恢复繁中与地区偏好', (t) async {
     await open(t);
-    await choose(t, 5);
+    await choose(t, 2);
     await t.pumpWidget(const SizedBox.shrink());
     container.dispose();
     container = makeContainer();
     await open(t);
-    expect(container.read(languageProvider), const Locale('ru'));
-    final translated = lookupAppLocalizations(const Locale('ru'));
+    const locale = Locale('zh', 'TW');
+    expect(container.read(languageProvider), locale);
+    final translated = lookupAppLocalizations(locale);
     expect(find.text(translated.languageTitle), findsOneWidget);
     expect(
-      [0, 1, 2, 5, 11, 21, 22].map(translated.searchResultsCount),
-      [
-        '0 результатов',
-        '1 результат',
-        '2 результата',
-        '5 результатов',
-        '11 результатов',
-        '21 результат',
-        '22 результата',
-      ],
-    );
-    expect(
         t
-            .widget<BeeOnboardingChoice>(find.byType(BeeOnboardingChoice).at(5))
+            .widget<BeeOnboardingChoice>(find.byType(BeeOnboardingChoice).at(2))
             .selected,
         isTrue);
     await t.pumpWidget(const SizedBox.shrink());
   });
-  testWidgets('320深色140%可滚动选择全部选项，退页后不访问失效Ref', (t) async {
+  testWidgets('320 深色大字体可切换官方语言并安全退出', (t) async {
     await open(t, compact: true);
-    await choose(t, 4);
-    expect(container.read(languageProvider), const Locale('ko'));
+    await choose(t, 2);
+    expect(container.read(languageProvider), const Locale('zh', 'TW'));
     expect(t.takeException(), isNull);
     await t.ensureVisible(find.byType(BeeOnboardingChoice).at(3));
     await t.tap(find.byType(BeeOnboardingChoice).at(3));

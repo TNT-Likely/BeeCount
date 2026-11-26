@@ -31,16 +31,8 @@ private struct BehaviorWidgetEntryView: View {
     let label: String
 
     var body: some View {
-        if let image = image {
-            Link(destination: destination) {
-                Image(uiImage: image).resizable().scaledToFill().frame(maxWidth: .infinity, maxHeight: .infinity).clipped()
-            }
-        } else {
-            ZStack {
-                Color(red: 1.0, green: 0.76, blue: 0.03)
-                VStack { Image(systemName: symbol).font(.system(size: 28)); Text(label).font(.system(size: 13, weight: .semibold)) }.foregroundColor(.white)
-            }.widgetURL(destination)
-        }
+        WidgetCardImage(image: image, symbol: symbol, label: label)
+            .widgetURL(destination)
     }
 }
 

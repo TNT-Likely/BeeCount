@@ -1,884 +1,189 @@
-/// 桌面小组件「选择器预览图」生成器(不是回归测试)。
-///
-/// 用真实的 headless View + 示例数据渲染出静态 PNG,**中英双语两套**:
-/// - 简体中文(默认) → `android/app/src/main/res/drawable-nodpi/`
-/// - 英文            → `android/app/src/main/res/drawable-en-nodpi/`
-///
-/// 各 `<appwidget-provider>` 的 `android:previewImage` 引用同名资源,Android
-/// 按**系统语言**自动选取(与 values/values-en 的 strings 同一套资源限定符
-/// 机制;其它语言回退默认简中)。这样选择器里能看到「长得像真组件」的预览
-/// (用户拍板:静态预览即可),全 Android 版本通吃。
-///
-/// **只在本机手动运行**,CI 上自动跳过(依赖 macOS 系统中文字体与本地
-/// Flutter SDK 的 MaterialIcons 字体,且产物是二进制资源不是断言):
-///
-/// ```bash
-/// GEN_WIDGET_PREVIEWS=1 noproxy flutter test \
-///     test/widget/widget_preview_generator_test.dart
-/// ```
-///
-/// 字体说明:flutter_test 默认字体是 Ahem(所有字形都是实心方块),直接渲染
-/// 出的 PNG 没法看。这里把 macOS 的冬青黑体(Hiragino Sans GB,CJK+Latin
-/// 全覆盖)以 family 名 `Roboto` 载入,并用 [DefaultTextStyle] 把该 family
-/// 注入 View(View 内部的 TextStyle 未指定 fontFamily,Text.merge 会继承),
-/// MaterialIcons 从 Flutter SDK 缓存载入以渲染分类/装饰图标。
-///
-/// 英文文案与真实运行时一致:逐条镜像 `lib/l10n/app_en.arb` 里 widget 用到的
-/// key(appTitle/widgetTodayExpense/.../widgetBudgetRemaining),不另造措辞;
-/// 金额用 USD($)更贴近英文用户观感。
+/// Regenerate the two platforms' picker assets from the real gallery cards:
+/// GEN_WIDGET_PREVIEWS=1 flutter test test/widget/widget_preview_generator_test.dart
 library;
 
 import 'dart:io';
 import 'dart:ui' as ui;
 
+import 'package:beecount/l10n/app_localizations.dart';
+import 'package:beecount/services/data/seed_service.dart';
+import 'package:beecount/theme.dart';
+import 'package:beecount/widget/widget_preview.dart';
+import 'package:beecount/widget/widget_spec.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
-import 'package:beecount/data/db.dart' show Account, Category, Transaction;
-import 'package:beecount/data/repositories/budget_repository.dart'
-    show BudgetOverview, BudgetUsage, CategoryBudgetUsage;
-import 'package:beecount/widget/views/bee_trail_view.dart';
-import 'package:beecount/widget/views/budget_view.dart';
-import 'package:beecount/widget/views/consumption_rhythm_view.dart';
-import 'package:beecount/widget/views/dashboard_view.dart';
-import 'package:beecount/widget/views/glance_view.dart';
-import 'package:beecount/widget/views/net_worth_view.dart';
-import 'package:beecount/widget/views/quick_add_view.dart';
-import 'package:beecount/widget/views/recent_view.dart';
-import 'package:beecount/widget/widget_data_service.dart'
-    show
-        DashboardWidgetData,
-        DailyWidgetActivity,
-        GlanceWidgetData,
-        NetWorthAccountItem,
-        QuickAddCategoryItem,
-        RecentTransactionItem;
-import 'package:beecount/widget/widget_spec.dart' show HWSize;
+final _names = {
+  WidgetSpec.glanceSmall: 'glance_small',
+  WidgetSpec.glanceMedium: 'glance',
+  WidgetSpec.netWorthSmall: 'networth_small',
+  WidgetSpec.netWorthMedium: 'networth',
+  WidgetSpec.netWorthLarge: 'networth_large',
+  WidgetSpec.quickAddSmall: 'quickadd',
+  WidgetSpec.quickAddMedium: 'quickadd_medium',
+  WidgetSpec.budgetSmall: 'budget',
+  WidgetSpec.budgetMedium: 'budget_medium',
+  WidgetSpec.recentMedium: 'recent',
+  WidgetSpec.recentLarge: 'recent_large',
+  WidgetSpec.dashboardLarge: 'dashboard',
+  WidgetSpec.consumptionRhythmMedium: 'consumption_rhythm',
+  WidgetSpec.beeTrailSmall: 'bee_trail',
+};
 
-const _honey = Color(0xFFF5A623);
+const _pickerLocales = [
+  (Locale('zh'), '', 'PickerHans'),
+  (Locale('zh', 'TW'), '-b+zh+Hant', 'PickerHant'),
+  (Locale('en'), '-en', 'PickerLatin'),
+];
+const _androidDir = 'android/app/src/main/res';
+const _iosDir = 'ios/BeeCountWidget/Previews';
 
-final bool _enabled = Platform.environment['GEN_WIDGET_PREVIEWS'] == '1';
-
-// ---------------------------------------------------------------------------
-// 语言包:每种语言一套文案 + 示例数据 + 输出目录
-// ---------------------------------------------------------------------------
-
-class _Pack {
-  final String name; // 日志用
-  final String outDir; // Android 资源目录(语言限定符)
-  final String currency; // 传给 View 的币种码(决定符号)
-  final String sym; // glance 预格式化金额用的符号
-  // 统一内容标签(A 方案,2026-07):glance/quickAdd/dashboard 各自的左上
-  // 标题;recent 的标题直接复用下面的 recentLabel(同一个 arb key)。
-  final String glanceTitleLabel, quickAddTitleLabel, dashboardTitleLabel;
-  // glance
-  final String monthSuffix;
-  final String todayLabel; // 「今日」徽章/前缀(widgetToday)
-  final String todayExpenseLabel, todayIncomeLabel;
-  final String monthExpenseLabel, monthIncomeLabel;
-  // netWorth
-  final String netWorthLabel, totalAssetsLabel, totalLiabilitiesLabel;
-  // quickAdd / budget / recent / dashboard
-  final String addLabel;
-  final String budgetLabel, usedLabel, totalLabel, remainingLabel;
-  final String recentLabel;
-  // consumption rhythm / bee trail
-  final String rhythmTitle,
-      rhythmRange,
-      rhythmStable,
-      rhythmIncrease,
-      rhythmDecrease,
-      rhythmEmpty;
-  final String beeTrailTitle,
-      beeTrailStreakSuffix,
-      beeTrailCompletion,
-      beeTrailEmpty;
-
-  /// 餐饮/交通/购物/娱乐/医疗/居家/通讯 顺序;前 4 个给 glance/recent/
-  /// dashboard 用,后 3 个只有快速记账中号(2×4 网格 7 分类)吃得下。
-  final List<String> categoryNames;
-  final String salaryName;
-  final List<String> accountNames; // 主账户 / 次账户
-
-  const _Pack({
-    required this.name,
-    required this.outDir,
-    required this.currency,
-    required this.sym,
-    required this.glanceTitleLabel,
-    required this.quickAddTitleLabel,
-    required this.dashboardTitleLabel,
-    required this.monthSuffix,
-    required this.todayLabel,
-    required this.todayExpenseLabel,
-    required this.todayIncomeLabel,
-    required this.monthExpenseLabel,
-    required this.monthIncomeLabel,
-    required this.netWorthLabel,
-    required this.totalAssetsLabel,
-    required this.totalLiabilitiesLabel,
-    required this.addLabel,
-    required this.budgetLabel,
-    required this.usedLabel,
-    required this.totalLabel,
-    required this.remainingLabel,
-    required this.recentLabel,
-    required this.rhythmTitle,
-    required this.rhythmRange,
-    required this.rhythmStable,
-    required this.rhythmIncrease,
-    required this.rhythmDecrease,
-    required this.rhythmEmpty,
-    required this.beeTrailTitle,
-    required this.beeTrailStreakSuffix,
-    required this.beeTrailCompletion,
-    required this.beeTrailEmpty,
-    required this.categoryNames,
-    required this.salaryName,
-    required this.accountNames,
-  });
-}
-
-/// 简体中文(默认资源,文案镜像 app_zh.arb)。
-const _zh = _Pack(
-  name: 'zh',
-  outDir: 'android/app/src/main/res/drawable-nodpi',
-  currency: 'CNY',
-  sym: '¥',
-  glanceTitleLabel: '收支速览', // widgetGalleryGlanceTitle
-  quickAddTitleLabel: '快速记账', // widgetGalleryQuickAddTitle
-  dashboardTitleLabel: '本月概览', // widgetDashboardTitle
-  monthSuffix: '月',
-  todayLabel: '今日',
-  todayExpenseLabel: '今日支出',
-  todayIncomeLabel: '今日收入',
-  monthExpenseLabel: '本月支出',
-  monthIncomeLabel: '本月收入',
-  netWorthLabel: '净资产',
-  totalAssetsLabel: '总资产',
-  totalLiabilitiesLabel: '总负债',
-  addLabel: '记一笔',
-  budgetLabel: '本月预算',
-  usedLabel: '已用',
-  totalLabel: '总额',
-  remainingLabel: '剩',
-  recentLabel: '最近交易',
-  rhythmTitle: '消费节奏',
-  rhythmRange: '近 30 天',
-  rhythmStable: '消费很均匀',
-  rhythmIncrease: '比上周更快',
-  rhythmDecrease: '比上周更稳',
-  rhythmEmpty: '近 30 天还没有支出',
-  beeTrailTitle: '记账连续蜂迹',
-  beeTrailStreakSuffix: '天',
-  beeTrailCompletion: '近 28 天完成率',
-  beeTrailEmpty: '今天记一笔，点亮第一格',
-  categoryNames: ['餐饮', '交通', '购物', '娱乐', '医疗', '居家', '通讯'],
-  salaryName: '工资',
-  accountNames: ['招商银行', '支付宝'],
-);
-
-/// 英文(drawable-en,文案逐条镜像 app_en.arb 对应 key)。
-const _en = _Pack(
-  name: 'en',
-  outDir: 'android/app/src/main/res/drawable-en-nodpi',
-  currency: 'USD',
-  sym: '\$',
-  glanceTitleLabel: 'Overview', // widgetGalleryGlanceTitle
-  quickAddTitleLabel: 'Quick Add', // widgetGalleryQuickAddTitle
-  dashboardTitleLabel: 'This Month', // widgetDashboardTitle
-  monthSuffix: '', // widgetMonthSuffix(en 为空,徽章只显示月份数字)
-  todayLabel: 'Today', // widgetToday
-  todayExpenseLabel: "Today's Expense", // widgetTodayExpense
-  todayIncomeLabel: "Today's Income", // widgetTodayIncome
-  monthExpenseLabel: "Month's Expense", // widgetMonthExpense
-  monthIncomeLabel: "Month's Income", // widgetMonthIncome
-  netWorthLabel: 'Net Assets', // accountTotalBalance
-  totalAssetsLabel: 'Total Assets', // totalAssets
-  totalLiabilitiesLabel: 'Total Liabilities', // totalLiabilities
-  addLabel: 'Add', // widgetQuickAddLabel
-  budgetLabel: 'Monthly Budget', // budgetMonthlyBudget
-  usedLabel: 'Used', // budgetUsed
-  totalLabel: 'Total', // widgetBudgetTotal
-  remainingLabel: 'Left', // widgetBudgetRemaining
-  recentLabel: 'Recent Transactions', // widgetRecentTransactions
-  rhythmTitle: 'Spending Rhythm',
-  rhythmRange: 'Last 30 days',
-  rhythmStable: 'Spending is steady',
-  rhythmIncrease: 'Faster than last week',
-  rhythmDecrease: 'Steadier than last week',
-  rhythmEmpty: 'No spending in the last 30 days',
-  beeTrailTitle: 'Record Bee Trail',
-  beeTrailStreakSuffix: 'days',
-  beeTrailCompletion: '28-day completion',
-  beeTrailEmpty: 'Add a record to light the first cell',
-  categoryNames: [
-    'Dining',
-    'Transport',
-    'Shopping',
-    'Movies',
-    'Health',
-    'Home',
-    'Phone',
-  ],
-  salaryName: 'Salary',
-  accountNames: ['Bank Card', 'Cash'],
-);
-
-// ---------------------------------------------------------------------------
-// 字体
-// ---------------------------------------------------------------------------
-
-/// 把系统 CJK 字体注册成默认 family `Roboto`;返回是否成功(失败则预览里的
-/// 中文会渲染成方块,应中止检查环境而不是提交烂图)。
-Future<bool> _loadCjkAsDefault() async {
-  const candidates = [
-    '/System/Library/Fonts/Hiragino Sans GB.ttc',
-    '/System/Library/Fonts/PingFang.ttc',
-  ];
-  for (final path in candidates) {
-    final f = File(path);
-    if (!f.existsSync()) continue;
-    try {
-      final bytes = f.readAsBytesSync();
-      final loader = FontLoader('Roboto')
-        ..addFont(Future.value(ByteData.view(bytes.buffer)));
-      await loader.load();
-      return true;
-    } catch (_) {
-      // ttc 解析失败换下一个候选。
-    }
+Future<void> _loadFonts() async {
+  var root = File(Platform.resolvedExecutable).parent;
+  while (!Directory('${root.path}/material_fonts').existsSync() &&
+      root.parent.path != root.path) {
+    root = root.parent;
   }
-  return false;
-}
-
-Future<void> _loadMaterialIcons() async {
-  var root = Platform.environment['FLUTTER_ROOT'];
-  if (root == null || root.isEmpty) {
-    // flutter_tester 位于 $FLUTTER_ROOT/bin/cache/artifacts/engine/<os>/,
-    // 从可执行路径向上推导。
-    var dir = File(Platform.resolvedExecutable).parent;
-    for (var i = 0; i < 4; i++) {
-      dir = dir.parent;
+  final fonts = '${root.path}/material_fonts';
+  final files = {
+    'PickerLatin': [
+      for (final w in ['Regular', 'Medium', 'Bold']) '$fonts/Roboto-$w.ttf'
+    ],
+    'PickerHans': ['/System/Library/Fonts/Hiragino Sans GB.ttc'],
+    'PickerHant': ['/System/Library/Fonts/STHeiti Medium.ttc'],
+    'MaterialIcons': ['$fonts/MaterialIcons-Regular.otf'],
+  };
+  for (final entry in files.entries) {
+    final loader = FontLoader(entry.key);
+    for (final name in entry.value) {
+      loader.addFont(File(name).readAsBytes().then(ByteData.sublistView));
     }
-    root = dir.path;
+    await loader.load();
   }
-  final otf = File(
-      '$root/bin/cache/artifacts/material_fonts/MaterialIcons-Regular.otf');
-  if (!otf.existsSync()) return;
-  final loader = FontLoader('MaterialIcons')
-    ..addFont(Future.value(ByteData.view(otf.readAsBytesSync().buffer)));
-  await loader.load();
 }
 
-// ---------------------------------------------------------------------------
-// 截图
-// ---------------------------------------------------------------------------
-
-Future<void> _capture(
-  WidgetTester tester,
-  Widget view,
-  Size logical,
-  String outDir,
-  String outName,
-) async {
+Future<Uint8List> _capture(WidgetTester tester, WidgetSpec spec, Size size,
+    AppLocalizations l, String font, bool dark) async {
   final key = GlobalKey();
-  await tester.pumpWidget(
-    Directionality(
-      textDirection: TextDirection.ltr,
-      child: DefaultTextStyle(
-        // View 内部 TextStyle 未指定 fontFamily,merge 后继承这里的
-        // Roboto(已被替换为 CJK 字体,见 _loadCjkAsDefault)。
-        style: const TextStyle(fontFamily: 'Roboto', color: Colors.black),
-        child: Center(
+  await tester.pumpWidget(Directionality(
+    textDirection: TextDirection.ltr,
+    child: DefaultTextStyle(
+      style: TextStyle(fontFamily: font),
+      child: Center(
           child: RepaintBoundary(
-            key: key,
-            child: SizedBox(
-              width: logical.width,
-              height: logical.height,
-              child: view,
-            ),
-          ),
-        ),
-      ),
+              key: key,
+              child: SizedBox.fromSize(
+                size: size,
+                child: buildWidgetPreview(
+                    spec: spec,
+                    canvas: size,
+                    l: l,
+                    dark: dark,
+                    themeColor: BeeTheme.honeyGold,
+                    redForIncome: false),
+              ))),
     ),
-  );
+  ));
   await tester.pump();
-  expect(tester.takeException(), isNull, reason: '$outName 渲染抛异常');
-
-  await tester.runAsync(() async {
+  expect(tester.takeException(), isNull,
+      reason: '${spec.imageKey} ${l.localeName} $dark');
+  return (await tester.runAsync(() async {
     final boundary =
         key.currentContext!.findRenderObject()! as RenderRepaintBoundary;
-    // @3x:主流手机物理密度是 3x(xxhdpi / iPhone Retina 3x),2x 源图在
-    // 选择器里被放大显示会糊(2026-07 用户实机反馈);3x 起渲染,launcher/
-    // 添加页缩放方向只会是缩小,不再失真。
-    final image = await boundary.toImage(pixelRatio: 3.0);
-    final data = await image.toByteData(format: ui.ImageByteFormat.png);
-    final out = File('$outDir/$outName.png');
-    out.createSync(recursive: true);
-    out.writeAsBytesSync(data!.buffer.asUint8List(), flush: true);
-    // 供人工核对尺寸。
-    // ignore: avoid_print
-    print('生成 $outDir/$outName.png (${image.width}x${image.height})');
-  });
+    final image = await boundary.toImage(pixelRatio: 3);
+    try {
+      final data = (await image.toByteData(format: ui.ImageByteFormat.png))!;
+      return data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+    } finally {
+      image.dispose();
+    }
+  }))!;
 }
 
-// ---------------------------------------------------------------------------
-// 示例数据(金额对齐样式预览 Artifact,亮色版)
-// ---------------------------------------------------------------------------
-
-List<({DateTime date, double assets, double liabilities, double net})>
-    _trend() {
-  final base = DateTime(2026, 6, 20);
-  const points = <double>[
-    82000, 82300, 82100, 83000, 83400, 83200, 84100, //
-    84600, 84400, 85200, 85600, 85400, 86100, 86420,
-  ];
-  return [
-    for (var i = 0; i < points.length; i++)
-      (
-        date: base.add(Duration(days: i * 2)),
-        assets: points[i] + 5680,
-        liabilities: 5680.0,
-        net: points[i],
-      ),
-  ];
-}
-
-Account _account(int id, String name, {String type = 'bank'}) => Account(
-      id: id,
-      ledgerId: 1,
-      name: name,
-      type: type,
-      currency: 'CNY',
-      initialBalance: 0,
-      sortOrder: id,
-      hidden: false,
-    );
-
-Category _category(int id, String name, String icon) => Category(
-      id: id,
-      name: name,
-      kind: 'expense',
-      icon: icon,
-      sortOrder: id,
-      level: 1,
-      iconType: 'material',
-    );
-
-/// 7 个:快速记账中号 2×4 网格用满(7 分类 + 记一笔);小号/dashboard 各自
-/// take(3) 截断。
-List<QuickAddCategoryItem> _quickAddCategories(_Pack p) => [
-      QuickAddCategoryItem(
-          categoryId: 1,
-          name: p.categoryNames[0],
-          icon: 'restaurant',
-          total: 1620),
-      QuickAddCategoryItem(
-          categoryId: 2,
-          name: p.categoryNames[1],
-          icon: 'directions_car',
-          total: 480),
-      QuickAddCategoryItem(
-          categoryId: 3,
-          name: p.categoryNames[2],
-          icon: 'shopping_cart',
-          total: 2350),
-      QuickAddCategoryItem(
-          categoryId: 4, name: p.categoryNames[3], icon: 'movie', total: 300),
-      QuickAddCategoryItem(
-          categoryId: 5,
-          name: p.categoryNames[4],
-          icon: 'local_hospital',
-          total: 260),
-      QuickAddCategoryItem(
-          categoryId: 6, name: p.categoryNames[5], icon: 'home', total: 180),
-      QuickAddCategoryItem(
-          categoryId: 7, name: p.categoryNames[6], icon: 'phone', total: 99),
-    ];
-
-List<RecentTransactionItem> _recentItems(_Pack p) {
-  final cafe = _category(1, p.categoryNames[0], 'local_cafe');
-  final salary = _category(2, p.salaryName, 'payments');
-  final grocery = _category(3, p.categoryNames[2], 'shopping_cart');
-  final main = _account(1, p.accountNames[0]);
-  final sub = _account(2, p.accountNames[1], type: 'cash');
-  Transaction tx({
-    required int id,
-    required String type,
-    required double amount,
-    int? categoryId,
-    required DateTime at,
-  }) =>
-      Transaction(
-        id: id,
-        ledgerId: 1,
-        type: type,
-        amount: amount,
-        categoryId: categoryId,
-        accountId: 1,
-        happenedAt: at,
-        excludeFromStats: false,
-        excludeFromBudget: false,
-      );
-  return [
-    RecentTransactionItem(
-      transaction: tx(
-          id: 1,
-          type: 'expense',
-          amount: 32,
-          categoryId: 1,
-          at: DateTime(2026, 7, 20, 9, 12)),
-      category: cafe,
-      account: main,
-    ),
-    RecentTransactionItem(
-      transaction: tx(
-          id: 2,
-          type: 'income',
-          amount: 18500,
-          categoryId: 2,
-          at: DateTime(2026, 7, 19, 10, 0)),
-      category: salary,
-      account: main,
-    ),
-    RecentTransactionItem(
-      transaction: tx(
-          id: 3,
-          type: 'expense',
-          amount: 156.8,
-          categoryId: 3,
-          at: DateTime(2026, 7, 19, 18, 40)),
-      category: grocery,
-      account: sub,
-    ),
-  ];
-}
-
-List<DailyWidgetActivity> _behaviorActivity() {
-  final start = DateTime(2026, 8, 1);
-  return List.generate(30, (index) {
-    final expense = switch (index % 6) {
-      0 => 0.0,
-      1 => 28.0,
-      2 => 96.0,
-      3 => 42.0,
-      4 => 180.0,
-      _ => 68.0,
-    };
-    return DailyWidgetActivity(
-      date: start.add(Duration(days: index)),
-      expenseTotal: expense,
-      // 保留几处未记账日，同时让末尾形成连续记录，预览能同时展示蜂巢
-      // 密度和当前 streak。
-      hasRecord: index >= 25 || index % 4 != 0,
-    );
-  });
-}
-
-Future<void> _generatePack(WidgetTester tester, _Pack p) async {
-  // 0) 收支速览·小号(Android 独立 provider 的选择器预览;iOS 走 placeholder
-  // 不用它,但同名资源两语都备齐)
-  await _capture(
-    tester,
-    GlanceView.small(
-      todayExpense: '${p.sym}128.5',
-      // 155dp 小卡底部双栏放不下千位金额(会 ellipsis),预览样本刻意取短。
-      monthExpense: '${p.sym}842.3',
-      monthIncome: '${p.sym}1,850',
-      themeColor: _honey,
-      redForIncome: false,
-      dark: false,
-      todayLabel: p.todayLabel,
-      todayExpenseLabel: p.todayExpenseLabel,
-      monthExpenseLabel: p.monthExpenseLabel,
-      monthIncomeLabel: p.monthIncomeLabel,
-      width: 155,
-      height: 155,
-    ),
-    const Size(155, 155),
-    p.outDir,
-    'widget_preview_glance_small',
-  );
-
-  // 1) 收支速览(中号,Android 2:1)
-  await _capture(
-    tester,
-    GlanceView.medium(
-      todayExpense: '${p.sym}128.5',
-      todayIncome: '${p.sym}0',
-      monthExpense: '${p.sym}6,842.3',
-      monthIncome: '${p.sym}18,500',
-      themeColor: _honey,
-      redForIncome: false,
-      dark: false,
-      titleLabel: p.glanceTitleLabel,
-      monthSuffix: p.monthSuffix,
-      todayLabel: p.todayLabel,
-      todayExpenseLabel: p.todayExpenseLabel,
-      todayIncomeLabel: p.todayIncomeLabel,
-      monthExpenseLabel: p.monthExpenseLabel,
-      monthIncomeLabel: p.monthIncomeLabel,
-      width: 364,
-      height: 182,
-    ),
-    const Size(364, 182),
-    p.outDir,
-    'widget_preview_glance',
-  );
-
-  // 1.5) 净资产·小(Android 小号入口的选择器预览)
-  await _capture(
-    tester,
-    NetWorthView(
-      size: HWSize.small,
-      netWorth: 86420,
-      totalAssets: 92100,
-      totalLiabilities: 5680,
-      baseCurrency: p.currency,
-      trend: _trend(),
-      themeColor: _honey,
-      redForIncome: false,
-      dark: false,
-      netWorthLabel: p.netWorthLabel,
-      totalAssetsLabel: p.totalAssetsLabel,
-      totalLiabilitiesLabel: p.totalLiabilitiesLabel,
-      width: 155,
-      height: 155,
-    ),
-    const Size(155, 155),
-    p.outDir,
-    'widget_preview_networth_small',
-  );
-
-  // 2) 净资产(中号)
-  await _capture(
-    tester,
-    NetWorthView(
-      size: HWSize.medium,
-      netWorth: 86420,
-      totalAssets: 92100,
-      totalLiabilities: 5680,
-      baseCurrency: p.currency,
-      trend: _trend(),
-      themeColor: _honey,
-      redForIncome: false,
-      dark: false,
-      netWorthLabel: p.netWorthLabel,
-      totalAssetsLabel: p.totalAssetsLabel,
-      totalLiabilitiesLabel: p.totalLiabilitiesLabel,
-      width: 364,
-      height: 169,
-    ),
-    const Size(364, 169),
-    p.outDir,
-    'widget_preview_networth',
-  );
-
-  // 2.5) 净资产·大(Android 大号入口的选择器预览:趋势 + 资产负债 + 账户明细)
-  await _capture(
-    tester,
-    NetWorthView(
-      size: HWSize.large,
-      netWorth: 86420,
-      totalAssets: 92100,
-      totalLiabilities: 5680,
-      baseCurrency: p.currency,
-      trend: _trend(),
-      topAccounts: [
-        NetWorthAccountItem(
-            account: _account(1, p.accountNames[0]),
-            balance: 48200,
-            convertedBalance: 48200),
-        NetWorthAccountItem(
-            account: _account(2, p.accountNames[1], type: 'cash'),
-            balance: 12650,
-            convertedBalance: 12650),
-      ],
-      themeColor: _honey,
-      redForIncome: false,
-      dark: false,
-      netWorthLabel: p.netWorthLabel,
-      totalAssetsLabel: p.totalAssetsLabel,
-      totalLiabilitiesLabel: p.totalLiabilitiesLabel,
-      width: 364,
-      height: 382,
-    ),
-    const Size(364, 382),
-    p.outDir,
-    'widget_preview_networth_large',
-  );
-
-  // 3) 快速记账(小号 2×2)
-  await _capture(
-    tester,
-    QuickAddView(
-      size: HWSize.small,
-      categories: _quickAddCategories(p),
-      themeColor: _honey,
-      dark: false,
-      addLabel: p.addLabel,
-      titleLabel: p.quickAddTitleLabel,
-      width: 155,
-      height: 155,
-    ),
-    const Size(155, 155),
-    p.outDir,
-    'widget_preview_quickadd',
-  );
-
-  // 3.5) 快速记账·中(Android 中号入口的选择器预览:2×4 网格,7 分类 + 记一笔)
-  await _capture(
-    tester,
-    QuickAddView(
-      size: HWSize.medium,
-      categories: _quickAddCategories(p),
-      themeColor: _honey,
-      dark: false,
-      addLabel: p.addLabel,
-      titleLabel: p.quickAddTitleLabel,
-      width: 364,
-      height: 169,
-    ),
-    const Size(364, 169),
-    p.outDir,
-    'widget_preview_quickadd_medium',
-  );
-
-  // 4) 预算进度(小号环形)
-  await _capture(
-    tester,
-    BudgetView(
-      size: HWSize.small,
-      overview: BudgetOverview(
-        // 真实典型金额:底部单行压缩格式(剩 ¥x / ¥y,金额去小数),千位
-        // 金额也放得下——预览同时验证单行不被省略号截断。
-        totalBudget: BudgetUsage(used: 6842, budget: 8000),
-        categoryBudgets: [
-          CategoryBudgetUsage(
-            budgetId: 1,
-            categoryId: 1,
-            categoryName: p.categoryNames[0],
-            usage: BudgetUsage(used: 162, budget: 180),
-          ),
-        ],
-        daysRemaining: 11,
-        dailyAvailable: 10.5,
-      ),
-      currencyCode: p.currency,
-      themeColor: _honey,
-      redForIncome: false,
-      dark: false,
-      budgetLabel: p.budgetLabel,
-      usedLabel: p.usedLabel,
-      totalLabel: p.totalLabel,
-      remainingLabel: p.remainingLabel,
-      width: 155,
-      height: 155,
-    ),
-    const Size(155, 155),
-    p.outDir,
-    'widget_preview_budget',
-  );
-
-  // 4.5) 预算进度·中(Android 中号入口的选择器预览:总预算条 + 分类用量)
-  await _capture(
-    tester,
-    BudgetView(
-      size: HWSize.medium,
-      overview: BudgetOverview(
-        totalBudget: BudgetUsage(used: 6842, budget: 8000),
-        categoryBudgets: [
-          CategoryBudgetUsage(
-            budgetId: 1,
-            categoryId: 1,
-            categoryName: p.categoryNames[0],
-            usage: BudgetUsage(used: 1620, budget: 1800),
-          ),
-          CategoryBudgetUsage(
-            budgetId: 2,
-            categoryId: 2,
-            categoryName: p.categoryNames[1],
-            usage: BudgetUsage(used: 480, budget: 1000),
-          ),
-          CategoryBudgetUsage(
-            budgetId: 3,
-            categoryId: 3,
-            categoryName: p.categoryNames[2],
-            usage: BudgetUsage(used: 2350, budget: 3000),
-          ),
-        ],
-        daysRemaining: 11,
-        dailyAvailable: 105.3,
-      ),
-      currencyCode: p.currency,
-      themeColor: _honey,
-      redForIncome: false,
-      dark: false,
-      budgetLabel: p.budgetLabel,
-      usedLabel: p.usedLabel,
-      totalLabel: p.totalLabel,
-      remainingLabel: p.remainingLabel,
-      width: 364,
-      height: 169,
-    ),
-    const Size(364, 169),
-    p.outDir,
-    'widget_preview_budget_medium',
-  );
-
-  // 5) 最近交易(中号)
-  await _capture(
-    tester,
-    RecentView(
-      size: HWSize.medium,
-      items: _recentItems(p),
-      defaultCurrency: p.currency,
-      themeColor: _honey,
-      redForIncome: false,
-      dark: false,
-      titleLabel: p.recentLabel,
-      width: 364,
-      height: 169,
-    ),
-    const Size(364, 169),
-    p.outDir,
-    'widget_preview_recent',
-  );
-
-  // 5.5) 最近交易·大(Android 大号入口的选择器预览:6 笔)
-  await _capture(
-    tester,
-    RecentView(
-      size: HWSize.large,
-      items: [..._recentItems(p), ..._recentItems(p)],
-      defaultCurrency: p.currency,
-      themeColor: _honey,
-      redForIncome: false,
-      dark: false,
-      titleLabel: p.recentLabel,
-      width: 364,
-      height: 382,
-    ),
-    const Size(364, 382),
-    p.outDir,
-    'widget_preview_recent_large',
-  );
-
-  // 6) 综合仪表盘(大号)
-  await _capture(
-    tester,
-    DashboardView(
-      data: DashboardWidgetData(
-        glance: const GlanceWidgetData(
-          todayExpenseTotal: 128.5,
-          todayIncomeTotal: 0,
-          monthExpenseTotal: 6842.3,
-          monthIncomeTotal: 18500,
-        ),
-        netWorthTrend: _trend(),
-        recent: _recentItems(p).take(2).toList(),
-        quickAdd: _quickAddCategories(p).take(3).toList(),
-      ),
-      defaultCurrency: p.currency,
-      themeColor: _honey,
-      redForIncome: false,
-      dark: false,
-      monthExpenseLabel: p.monthExpenseLabel,
-      monthIncomeLabel: p.monthIncomeLabel,
-      recentLabel: p.recentLabel,
-      quickAddLabel: p.addLabel,
-      titleLabel: p.dashboardTitleLabel,
-      width: 364,
-      height: 382,
-    ),
-    const Size(364, 382),
-    p.outDir,
-    'widget_preview_dashboard',
-  );
-
-  // 7) 消费节奏(中号)
-  await _capture(
-    tester,
-    ConsumptionRhythmView(
-      activity: _behaviorActivity(),
-      themeColor: _honey,
-      dark: false,
-      titleLabel: p.rhythmTitle,
-      rangeLabel: p.rhythmRange,
-      stableLabel: p.rhythmStable,
-      increaseLabel: p.rhythmIncrease,
-      decreaseLabel: p.rhythmDecrease,
-      emptyLabel: p.rhythmEmpty,
-      width: 364,
-      height: 169,
-    ),
-    const Size(364, 169),
-    p.outDir,
-    'widget_preview_consumption_rhythm',
-  );
-
-  // 8) 记账连续蜂迹(小号)
-  await _capture(
-    tester,
-    BeeTrailView(
-      activity: _behaviorActivity(),
-      themeColor: _honey,
-      dark: false,
-      titleLabel: p.beeTrailTitle,
-      streakSuffix: p.beeTrailStreakSuffix,
-      completionLabel: p.beeTrailCompletion,
-      emptyLabel: p.beeTrailEmpty,
-      width: 155,
-      height: 155,
-    ),
-    const Size(155, 155),
-    p.outDir,
-    'widget_preview_bee_trail',
-  );
+void _write(String path, Uint8List png) {
+  final file = File(path);
+  file.parent.createSync(recursive: true);
+  file.writeAsBytesSync(png);
 }
 
 void main() {
-  TestWidgetsFlutterBinding.ensureInitialized();
-
+  final enabled = Platform.environment['GEN_WIDGET_PREVIEWS'] == '1';
   setUpAll(() async {
-    if (!_enabled) return;
-    final cjkOk = await _loadCjkAsDefault();
-    expect(cjkOk, isTrue,
-        reason: '未能加载系统 CJK 字体(Hiragino/PingFang),中文会渲染成方块;'
-            '请在 macOS 上运行本生成器');
-    await _loadMaterialIcons();
+    if (enabled) {
+      await _loadFonts();
+      await initializeDateFormatting();
+    }
   });
 
-  testWidgets(
-    '生成中英双语 Android/iOS 选择器预览图',
-    (tester) async {
-      await _generatePack(tester, _zh);
-      await _generatePack(tester, _en);
+  test('every registered size has a picker image', () {
+    expect(_names.keys.toSet(), WidgetSpec.catalog.toSet());
+  });
 
-      // 同步一份到 iOS 扩展 bundle(添加页静态预览,见 WidgetPreviewAssets):
-      // Android 语言目录 → ios/BeeCountWidget/Previews/<base>_{zh,en}.png,
-      // 避免双份资产漂移(iOS 那份最初是手工拷的快照,现在随生成器自动同步)。
-      const iosDir = 'ios/BeeCountWidget/Previews';
-      Directory(iosDir).createSync(recursive: true);
-      var synced = 0;
-      for (final pack in [_zh, _en]) {
-        for (final f in Directory(pack.outDir).listSync().whereType<File>()) {
-          final base = f.uri.pathSegments.last;
-          if (!base.startsWith('widget_preview_') || !base.endsWith('.png')) {
-            continue;
+  test('cards use localized seed category names and preserve custom labels',
+      () {
+    final zh = lookupAppLocalizations(const Locale('zh'));
+    final en = lookupAppLocalizations(const Locale('en'));
+    expect(SeedService.localizedCategoryName('dining', 'expense', zh), '餐饮');
+    expect(SeedService.localizedCategoryName('transport', 'expense', en),
+        'Transport');
+    expect(SeedService.localizedCategoryName('salary', 'income', en), 'Salary');
+    expect(SeedService.localizedCategoryName('dining_breakfast', 'expense', en),
+        'Breakfast');
+    expect(
+        SeedService.localizedCategoryName('My_trip', 'expense', zh), 'My_trip');
+  });
+
+  test('bundled picker images cover the official locales and both appearances',
+      () {
+    for (final (locale, qualifier, _) in _pickerLocales) {
+      for (final dark in [false, true]) {
+        for (final spec in WidgetSpec.catalog) {
+          final name = 'widget_preview_${_names[spec]}';
+          for (final (android, path) in [
+            (
+              true,
+              '$_androidDir/drawable$qualifier${dark ? '-night' : ''}-nodpi/$name.png'
+            ),
+            (
+              false,
+              '$_iosDir/${name}_${locale.toString()}${dark ? '_dark' : ''}.png'
+            ),
+          ]) {
+            final bytes = File(path).readAsBytesSync();
+            final header = ByteData.sublistView(bytes);
+            final canvas = spec.canvasSize(android: android);
+            expect(header.getUint32(0), 0x89504e47, reason: path);
+            expect(header.getUint32(16), canvas.width * 3, reason: path);
+            expect(header.getUint32(20), canvas.height * 3, reason: path);
           }
-          final name = base.substring(0, base.length - 4);
-          f.copySync('$iosDir/${name}_${pack.name}.png');
-          synced++;
         }
       }
-      // ignore: avoid_print
-      print('已同步 $synced 个预览到 $iosDir');
-    },
-    // 预览图生成器:GEN_WIDGET_PREVIEWS=1 手动运行,CI 上自动跳过。
-    skip: !_enabled,
-  );
+    }
+  }, skip: enabled);
+
+  testWidgets('regenerate the official Android and WidgetKit picker images',
+      (tester) async {
+    for (final (locale, qualifier, font) in _pickerLocales) {
+      final l = lookupAppLocalizations(locale);
+      for (final dark in [false, true]) {
+        final folder = 'drawable$qualifier${dark ? '-night' : ''}-nodpi';
+        for (final spec in WidgetSpec.catalog) {
+          final basename = 'widget_preview_${_names[spec]!}';
+          final android = spec.canvasSize(android: true);
+          final ios = spec.canvasSize(android: false);
+          final png = await _capture(tester, spec, android, l, font, dark);
+          _write('$_androidDir/$folder/$basename.png', png);
+          final iosPng = ios == android
+              ? png
+              : await _capture(tester, spec, ios, l, font, dark);
+          _write(
+              '$_iosDir/${basename}_${locale.toString()}${dark ? '_dark' : ''}.png',
+              iosPng);
+        }
+      }
+    }
+  }, skip: !enabled, timeout: const Timeout(Duration(minutes: 5)));
 }

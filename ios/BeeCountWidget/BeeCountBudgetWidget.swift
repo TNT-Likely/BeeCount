@@ -30,31 +30,9 @@ struct BeeCountBudgetWidgetEntryView : View {
     private let budgetURL = URL(string: "beecount://open?page=budget")!
 
     var body: some View {
-        if let uiImage = image {
-            Link(destination: budgetURL) {
-                Image(uiImage: uiImage)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .clipped()
-            }
-        } else {
-            // Placeholder view when image is not available
-            ZStack {
-                Color(red: 1.0, green: 0.76, blue: 0.03)
-                VStack {
-                    Image(systemName: "creditcard.fill")
-                        .font(.system(size: 32))
-                        .foregroundColor(.white)
-                    Text(BehaviorWidgetCopy.localized(
-                        simplifiedChinese: "预算", traditionalChinese: "預算",
-                        english: "Budget"))
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(.white)
-                }
-            }
+        WidgetCardImage(image: image, symbol: "creditcard.fill", label: BehaviorWidgetCopy.localized(
+            simplifiedChinese: "预算", traditionalChinese: "預算", english: "Budget"))
             .widgetURL(budgetURL)
-        }
     }
 }
 

@@ -9,16 +9,23 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:beecount/data/db.dart' show Account, Category, Transaction;
 import 'package:beecount/widget/views/dashboard_view.dart';
-import 'package:beecount/widget/views/recent_view.dart' show RecentTransactionRow;
+import 'package:beecount/widget/views/recent_view.dart'
+    show RecentTransactionRow;
 import 'package:beecount/widget/widget_data_service.dart'
-    show DashboardWidgetData, GlanceWidgetData, QuickAddCategoryItem, RecentTransactionItem;
+    show
+        DashboardWidgetData,
+        GlanceWidgetData,
+        QuickAddCategoryItem,
+        RecentTransactionItem;
 import 'package:beecount/widget/widget_spec.dart' show HWSize;
 
 void main() {
   Widget wrap(Widget child, Size size) {
     return Directionality(
       textDirection: TextDirection.ltr,
-      child: SizedBox(width: size.width, height: size.height, child: child),
+      child: Center(
+          child:
+              SizedBox(width: size.width, height: size.height, child: child)),
     );
   }
 
@@ -149,7 +156,16 @@ void main() {
         expect(find.text('最近交易'), findsOneWidget);
         // recent 只取前 2 笔,即便传入了 3 笔。
         expect(find.byType(RecentTransactionRow), findsNWidgets(2));
-        // quickAdd 只取前 3 个分类 + 1 个记一笔按钮。
+        final card = tester.getRect(find.byType(DashboardView));
+        final action =
+            tester.getRect(find.byKey(const ValueKey('dashboard-add-expense')));
+        expect(action.left, closeTo(card.left, .01));
+        expect(action.width, closeTo(card.width, .01));
+        expect(action.top, closeTo(card.top + card.height * .82, .01));
+        expect(action.bottom, closeTo(card.bottom, .01));
+        expect(find.textContaining('分类0'), findsNothing);
+        expect(find.text('净资产趋势'), findsOneWidget);
+        expect(find.text('近 30 天'), findsOneWidget);
         expect(find.text('记一笔'), findsOneWidget);
       });
 
@@ -180,6 +196,7 @@ void main() {
 
         expect(tester.takeException(), isNull);
         expect(find.text('暂无交易'), findsOneWidget);
+        expect(find.text('净资产趋势'), findsNothing);
         expect(find.text('记一笔'), findsOneWidget);
         expect(find.byType(RecentTransactionRow), findsNothing);
       });

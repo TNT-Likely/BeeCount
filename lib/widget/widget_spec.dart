@@ -2,18 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:home_widget/home_widget.dart' show HomeWidgetInfo;
 
 /// 桌面小组件内容类型。
-///
-/// 各类型合法尺寸组合(`HWType` × `HWSize`,见 `.docs/home-widget/plan.md`
-/// §二「逐组件 spec」):
-/// - glance    (收支速览)  : small, medium
-/// - netWorth  (净资产)    : small, medium, large
-/// - quickAdd  (快速记账)  : small, medium
-/// - budget    (预算进度)  : small, medium
-/// - recent    (最近交易)  : medium, large
-/// - dashboard (综合仪表盘): large
-///
-/// P1(本阶段)只落地了 [WidgetSpec.glanceMedium] 的真实取数/渲染,其余
-/// 类型仅登记目录条目,渲染管线会按 Phase B(P2)前的约定跳过它们。
+/// 支持的内容和尺寸组合以 [WidgetSpec.catalog] 为准。
 enum HWType {
   glance,
   netWorth,
@@ -47,6 +36,10 @@ class WidgetSpec {
   /// (见 `WidgetManager` 注释,属 D2 back-compat)。取值接近
   /// iOS systemSmall/Medium/Large 的常见尺寸。
   final Size logicalSize;
+
+  /// The Android launcher's medium overview has a taller transparent canvas.
+  Size canvasSize({required bool android}) =>
+      android && this == glanceMedium ? const Size(364, 182) : logicalSize;
 
   /// iOS Widget `kind` 标识(对应 [HomeWidgetInfo.iOSKind])。只有已在原生壳
   /// (`BeeCountWidgetBundle.swift`)注册的类型才有值;未注册类型此字段为

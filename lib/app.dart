@@ -566,22 +566,20 @@ class _BeeAppState extends ConsumerState<BeeApp>
     }
   }
 
-  /// 小组件「净资产 / 预算 / 最近交易」卡片点击 → `beecount://open?page=` 的
-  /// 落地页路由。detail(最近交易)先落统计页,后续可按需换成专门的明细列表页。
+  /// 桌面卡片点击后，打开独立页面或切换到已有的明细、统计标签。
   void _openPageForDeepLink(NavigatorState nav, String? page) {
+    final tab = AppLinkService.mainTabForOpenPage(page);
+    if (tab != null) {
+      nav.popUntil((route) => route.isFirst);
+      ref.read(bottomTabIndexProvider.notifier).state = tab;
+      return;
+    }
     switch (page) {
       case 'assets':
         nav.push(MaterialPageRoute(builder: (_) => const AccountsPage()));
         break;
       case 'budget':
         nav.push(MaterialPageRoute(builder: (_) => const BudgetPage()));
-        break;
-      case 'detail':
-        // 最近交易 / 仪表盘主体 → 首页明细列表:App 没有独立的明细页,首页
-        // 就是完整账单流,切回主壳首页 tab 而不是 push 页面。(此前误映射到
-        // 洞察/统计页,真机反馈"点小组件进了洞察页"。)
-        nav.popUntil((route) => route.isFirst);
-        ref.read(bottomTabIndexProvider.notifier).state = 0;
         break;
       default:
         logger.warning('AppLink', 'open 未知 page: $page');

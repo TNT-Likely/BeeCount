@@ -1,23 +1,8 @@
-//
-//  WidgetPreviewAssets.swift
-//  BeeCountWidget
-//
-//  添加页(widget gallery)的静态预览资产。
-//
-//  背景:各 provider 的 getSnapshot 读的是 App Group 里由主 App 渲染管线
-//  写入的运行时图片路径——但 iOS 添加页的预览渲染发生在受限上下文里,
-//  读不到 App Group 文件(已知系统行为),导致添加页只能看到占位色块。
-//  解法:把与 Android 选择器同一套静态预览 PNG(Previews/ 目录,随
-//  test/widget/widget_preview_generator_test.dart 生成,中英双语)打进扩展
-//  bundle,placeholder / isPreview 快照直接用 bundle 内文件——bundle 内
-//  资源在预览上下文里没有访问限制。
-//
-
 import Foundation
 
+/// Synthetic chooser previews live in the extension bundle. Runtime ledger
+/// images are read only for placed widgets by WidgetImageContent.
 enum WidgetPreviewAssets {
-    /// 渲染管线 imageKey → 预览资产 base 名(与 Android
-    /// res/drawable-nodpi 的文件名一致;语言后缀 _zh/_en 由 [path] 追加)。
     private static let assetByImageKey: [String: String] = [
         "widgetImage": "widget_preview_glance",
         "widget_glance_small": "widget_preview_glance_small",
@@ -35,13 +20,23 @@ enum WidgetPreviewAssets {
         "widget_beeTrail_small": "widget_preview_bee_trail",
     ]
 
-    /// 按系统语言(zh → 中文,其余 → 英文)返回 bundle 内预览 PNG 的路径;
-    /// 找不到时返回空串(EntryView 会走占位分支,不崩)。
-    static func path(forImageKey imageKey: String, locales: [Locale]) -> String {
+    static func path(forImageKey imageKey: String, locales: [Locale], dark: Bool,
+                     bundle: Bundle = .main) -> String {
         guard let base = assetByImageKey[imageKey] else { return "" }
-        let lang = WidgetImageManifest.language(for: locales).hasPrefix("zh") ? "zh" : "en"
-        return Bundle.main.path(forResource: "\(base)_\(lang)", ofType: "png")
-            ?? Bundle.main.path(forResource: "\(base)_zh", ofType: "png")
-            ?? ""
+        let languages: [String]
+        switch WidgetImageManifest.language(for: locales) {
+        case "zh-TW": languages = ["zh_TW", "zh", "en"]
+        case "zh": languages = ["zh", "en"]
+        default: languages = ["en", "zh"]
+        }
+
+        for tag in languages {
+            let name = "\(base)_\(tag)"
+            if dark, let path = bundle.path(forResource: name + "_dark", ofType: "png") {
+                return path
+            }
+            if let path = bundle.path(forResource: name, ofType: "png") { return path }
+        }
+        return ""
     }
 }

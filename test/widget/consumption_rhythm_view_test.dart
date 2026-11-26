@@ -25,7 +25,9 @@ void main() {
 
   Widget wrap(Widget child) => Directionality(
         textDirection: TextDirection.ltr,
-        child: SizedBox(width: size.width, height: size.height, child: child),
+        child: Center(
+            child:
+                SizedBox(width: size.width, height: size.height, child: child)),
       );
 
   Widget renderHarness(Widget child) => Directionality(
@@ -55,7 +57,17 @@ void main() {
       expect(tester.takeException(), isNull);
       expect(find.text('消费节奏'), findsOneWidget);
       expect(find.text('Last 30 days'), findsOneWidget);
-      expect(find.byType(ConsumptionRhythmView), findsOneWidget);
+      final grid = find.byKey(const ValueKey('widget-rhythm-grid'));
+      final cells =
+          find.descendant(of: grid, matching: find.byType(DecoratedBox));
+      expect(cells, findsNWidgets(30));
+      final first = tester.getRect(cells.at(0)),
+          tenth = tester.getRect(cells.at(9));
+      final nextRow = tester.getRect(cells.at(10));
+      expect(tenth.top, closeTo(first.top, .01));
+      expect(tenth.left, greaterThan(first.right));
+      expect(nextRow.top, greaterThan(first.bottom));
+      expect(nextRow.left, closeTo(first.left, .01));
     });
   }
 

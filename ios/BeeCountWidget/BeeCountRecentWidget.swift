@@ -31,31 +31,9 @@ struct BeeCountRecentWidgetEntryView : View {
     private let detailURL = URL(string: "beecount://open?page=detail")!
 
     var body: some View {
-        if let uiImage = image {
-            Link(destination: detailURL) {
-                Image(uiImage: uiImage)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .clipped()
-            }
-        } else {
-            // Placeholder view when image is not available
-            ZStack {
-                Color(red: 1.0, green: 0.76, blue: 0.03)
-                VStack {
-                    Image(systemName: "clock.fill")
-                        .font(.system(size: 32))
-                        .foregroundColor(.white)
-                    Text(BehaviorWidgetCopy.localized(
-                        simplifiedChinese: "最近交易", traditionalChinese: "最近交易",
-                        english: "Recent"))
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(.white)
-                }
-            }
+        WidgetCardImage(image: image, symbol: "clock.fill", label: BehaviorWidgetCopy.localized(
+            simplifiedChinese: "最近交易", traditionalChinese: "最近交易", english: "Recent"))
             .widgetURL(detailURL)
-        }
     }
 }
 

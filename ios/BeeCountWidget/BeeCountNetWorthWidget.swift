@@ -33,31 +33,9 @@ struct BeeCountNetWorthWidgetEntryView : View {
     private let assetsURL = URL(string: "beecount://open?page=assets")!
 
     var body: some View {
-        if let uiImage = image {
-            Link(destination: assetsURL) {
-                Image(uiImage: uiImage)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .clipped()
-            }
-        } else {
-            // Placeholder view when image is not available
-            ZStack {
-                Color(red: 1.0, green: 0.76, blue: 0.03)
-                VStack {
-                    Image(systemName: "chart.pie.fill")
-                        .font(.system(size: 32))
-                        .foregroundColor(.white)
-                    Text(BehaviorWidgetCopy.localized(
-                        simplifiedChinese: "净资产", traditionalChinese: "淨資產",
-                        english: "Net Worth"))
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(.white)
-                }
-            }
+        WidgetCardImage(image: image, symbol: "chart.pie.fill", label: BehaviorWidgetCopy.localized(
+            simplifiedChinese: "净资产", traditionalChinese: "淨資產", english: "Net Worth"))
             .widgetURL(assetsURL)
-        }
     }
 }
 

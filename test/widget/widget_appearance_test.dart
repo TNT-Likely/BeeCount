@@ -1,7 +1,15 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:beecount/data/db.dart';
+import 'package:beecount/data/repositories/local/local_repository.dart';
+import 'package:beecount/l10n/app_localizations.dart';
 import 'package:beecount/widget/widget_appearance.dart';
+import 'package:beecount/widget/widget_data_service.dart';
+import 'package:beecount/widget/widget_render_content.dart';
+import 'package:beecount/widget/widget_spec.dart';
+import 'package:crypto/crypto.dart';
+import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -11,7 +19,7 @@ WidgetAppearance appearance(
     WidgetAppearance(
         explicitLocale: locale,
         theme: theme,
-        systemLocales: const [Locale('fr'), Locale('ko')],
+        systemLocales: const [Locale('fr'), Locale('zh', 'TW')],
         systemBrightness: Brightness.dark);
 
 void main() {
@@ -20,8 +28,10 @@ void main() {
   test(
       'system language uses preference order, Chinese script before region, then English fallback',
       () {
-    expect(resolveWidgetLocale(const [Locale('fr'), Locale('ru')]),
-        const Locale('ru'));
+    expect(
+        resolveWidgetLocale(
+            const [Locale('fr'), Locale('zh', 'TW'), Locale('en')]),
+        const Locale('zh', 'TW'));
     expect(resolveWidgetLocale(const [Locale('zh', 'HK')]),
         const Locale('zh', 'TW'));
     expect(
@@ -38,9 +48,11 @@ void main() {
         const Locale('zh', 'TW'));
     expect(resolveWidgetLocale(const [Locale('de')]), const Locale('en'));
     expect(appearance().variants.first,
-        (locale: const Locale('ko'), brightness: Brightness.dark));
-    expect(appearance().variants.toSet(), hasLength(10));
-    expect(appearance(theme: ThemeMode.light).variants.toSet(), hasLength(5));
+        (locale: const Locale('zh', 'TW'), brightness: Brightness.dark));
+    final supportedCount = AppLocalizations.supportedLocales.length;
+    expect(appearance().variants.toSet(), hasLength(supportedCount * 2));
+    expect(appearance(theme: ThemeMode.light).variants.toSet(),
+        hasLength(supportedCount));
     expect(appearance(locale: const Locale('zh', 'TW')).variants.toSet(),
         hasLength(2));
   });
@@ -73,6 +85,61 @@ void main() {
   const manifestKey = '$imageKey.appearance.v1';
   Future<String> write(String key, String contents) async =>
       (await File('${directory.path}/$key.png').writeAsString(contents)).path;
+
+  test('an existing 3.x card upgrades once on the same app build', () async {
+    final db = BeeDatabase.forTesting(NativeDatabase.memory());
+    addTearDown(db.close);
+    final repo = LocalRepository(db);
+    final ledger =
+        await repo.createLedger(name: 'Widget upgrade', currency: 'CNY');
+    final day = DateTime(2026, 7, 20);
+    final spec = WidgetSpec.glanceMedium;
+    final size = spec.logicalSize;
+    const version = '4.0.2+7';
+    // The pre-upgrade fingerprint for an empty CNY ledger. Keep this fixture
+    // independent of the current serializer so a layout-only change is tested.
+    final old = sha256
+        .convert(utf8.encode(jsonEncode([
+          version,
+          'widgetImage',
+          ledger,
+          size.width,
+          size.height,
+          [1.0, 0.0, 0.0, 0.0],
+          [1.0, 1.0, 1.0, 1.0],
+          false,
+          ['CNY', 7, 0.0, 0.0, 0.0, 0.0],
+        ])))
+        .toString();
+    final current = await prepareWidgetContent(
+        spec: spec,
+        batch: WidgetGatherBatch(
+            repository: repo, ledgerId: ledger, baseCurrency: 'CNY'),
+        size: size,
+        lightColor: Colors.black,
+        darkColor: Colors.white,
+        redForIncome: false,
+        appVersion: version,
+        today: day);
+    expect(current.fingerprint, isNot(old));
+    var renders = 0;
+    Future<bool> update(String hash) => cacheWidgetAppearance(
+        imageKey: spec.imageKey,
+        fingerprint: hash,
+        appearance:
+            appearance(locale: const Locale('en'), theme: ThemeMode.light),
+        render: (key, _) async {
+          renders++;
+          return (path: await write(key, hash), complete: true);
+        });
+    await update(old);
+    final priorPath = prefs[imageKey]!;
+    expect(await update(current.fingerprint), isTrue);
+    expect(prefs[imageKey], isNot(priorPath));
+    expect(await File(prefs[imageKey]!).readAsString(), current.fingerprint);
+    expect(await update(current.fingerprint), isFalse);
+    expect(renders, 2);
+  });
 
   test(
       'an interrupted data change leaves the published images intact; retry uses bounded slots',
@@ -125,10 +192,10 @@ void main() {
 
     await update(const Locale('en'), true);
     await File(prefs[imageKey]!).delete();
-    await update(const Locale('ru'), false);
+    await update(const Locale('zh', 'TW'), false);
     final fallback = jsonDecode(prefs[manifestKey]!)['fallback'] as String;
     expect(await File(fallback).exists(), isTrue);
-    expect(fallback, endsWith('ru.light.png'));
+    expect(fallback, endsWith('zh-TW.light.png'));
   });
 
   test(
