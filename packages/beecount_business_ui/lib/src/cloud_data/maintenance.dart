@@ -119,19 +119,22 @@ class BeeMaintenanceLogFilters extends StatelessWidget {
   Widget build(BuildContext context) => BeeMaintenanceCard(
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        Text(levelLabel,
-            style: TextStyle(fontSize: 12, color: Theme.of(context).hintColor)),
-        const SizedBox(height: 8),
-        Wrap(spacing: 8, runSpacing: 4, children: [
-          for (final item in levels)
-            BeeChoiceChip(
-                key: item.key,
-                compact: true,
-                label: item.label,
-                selected: item.selected,
-                onSelected: item.onSelected)
-        ]),
-        const SizedBox(height: 14),
+        if (levels.isNotEmpty) ...[
+          Text(levelLabel,
+              style:
+                  TextStyle(fontSize: 12, color: Theme.of(context).hintColor)),
+          const SizedBox(height: 8),
+          Wrap(spacing: 8, runSpacing: 4, children: [
+            for (final item in levels)
+              BeeChoiceChip(
+                  key: item.key,
+                  compact: true,
+                  label: item.label,
+                  selected: item.selected,
+                  onSelected: item.onSelected)
+          ]),
+          const SizedBox(height: 14),
+        ],
         Text(sourceLabel,
             style: TextStyle(fontSize: 12, color: Theme.of(context).hintColor)),
         const SizedBox(height: 8),
@@ -166,54 +169,84 @@ class BeeMaintenanceLogCard extends StatelessWidget {
   final Color? levelColor;
   final VoidCallback onDetails, onCopy;
   @override
-  Widget build(BuildContext context) => BeeSurface(
+  Widget build(BuildContext context) {
+    final color = levelColor ?? beeToneColor(context, tone);
+    final secondary = Theme.of(context).hintColor;
+    final emphasized = tone == BeeTone.error || tone == BeeTone.warning;
+    final icon = switch (tone) {
+      BeeTone.error => 'CircleAlert',
+      BeeTone.warning => 'TriangleAlert',
+      _ => 'Info',
+    };
+    const radius = BorderRadius.all(Radius.circular(16));
+    return BeeSurface(
       padding: EdgeInsets.zero,
+      borderRadius: radius,
       child: InkWell(
-          onTap: onDetails,
-          onLongPress: onCopy,
-          borderRadius: BorderRadius.circular(22),
-          child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Wrap(
-                        spacing: 7,
-                        runSpacing: 5,
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        children: [
-                          _MaintenanceBadge(
-                              label: level,
-                              color: levelColor ?? beeToneColor(context, tone)),
-                          _MaintenanceBadge(
-                              label: source,
-                              color: Theme.of(context).hintColor),
-                          Text(time,
-                              style: TextStyle(
-                                  fontSize: 11,
-                                  color: Theme.of(context).hintColor))
-                        ]),
-                    const SizedBox(height: 10),
-                    Text('[$tag]',
+        onTap: onDetails,
+        onLongPress: onCopy,
+        borderRadius: radius,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 12),
+          child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: emphasized
+                    ? color.withValues(alpha: .12)
+                    : BeeCardTheme.of(context).soft,
+                borderRadius: BorderRadius.circular(11),
+              ),
+              child: Center(
+                  child: BeeLineIcon(icon,
+                      size: 17, color: emphasized ? color : secondary)),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                  Text(message,
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                          fontSize: 14,
+                          height: 1.45,
+                          fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 5),
+                  Wrap(
+                      spacing: 6,
+                      runSpacing: 3,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        _MaintenanceBadge(label: level, color: color),
+                        Text('[$tag]',
+                            style: TextStyle(fontSize: 11, color: secondary)),
+                        Text(source,
+                            style: TextStyle(fontSize: 11, color: secondary)),
+                        Text(time,
+                            style: TextStyle(fontSize: 11, color: secondary)),
+                      ]),
+                  if (error != null) ...[
+                    const SizedBox(height: 4),
+                    Text(error!,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                             fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: Theme.of(context).hintColor)),
-                    const SizedBox(height: 5),
-                    Text(message,
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontSize: 13, height: 1.6)),
-                    if (error != null) ...[
-                      const SizedBox(height: 6),
-                      Text('Error: $error',
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                              fontSize: 12,
-                              color: beeToneColor(context, BeeTone.error)))
-                    ],
-                  ]))));
+                            color: beeToneColor(context, BeeTone.error))),
+                  ],
+                ])),
+            const SizedBox(width: 3),
+            Padding(
+                padding: const EdgeInsets.only(top: 7),
+                child: BeeLineIcon('ChevronRight', size: 15, color: secondary)),
+          ]),
+        ),
+      ),
+    );
+  }
 }
 
 class _MaintenanceBadge extends StatelessWidget {

@@ -8,6 +8,7 @@ import 'package:beecount/pages/settings/help_center_page.dart';
 import 'package:beecount/pages/settings/privacy_policy_page.dart';
 import 'package:beecount/pages/settings/shortcuts_guide_page.dart';
 import 'package:beecount/pages/donation/donation_page.dart';
+import 'package:beecount/pages/settings/support/bindings/feedback_link.dart';
 import 'package:beecount/pages/settings/support/bindings/support_platform.dart';
 import 'package:beecount/dev/component_gallery/support_sample.dart';
 import 'package:beecount/pages/donation/bindings/support_donation_controls.dart';
@@ -22,6 +23,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:in_app_purchase_platform_interface/in_app_purchase_platform_interface.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 // ignore: depend_on_referenced_packages
 import 'package:webview_flutter_platform_interface/webview_flutter_platform_interface.dart'
@@ -30,6 +32,8 @@ import 'package:webview_flutter_platform_interface/webview_flutter_platform_inte
 class _Platform extends SupportPlatform {
   bool ios = false, google = false;
   Completer<String>? versionGate;
+  Completer<Uri>? feedbackGate;
+  final feedbackRequests = <(FeedbackKind, Locale)>[];
   final opened = <Uri>[];
   final copied = <String>[];
   final products = <ProductPromo>[];
@@ -42,6 +46,23 @@ class _Platform extends SupportPlatform {
   @override
   Future<String> version() async =>
       versionGate == null ? 'dev-9.0.0 (QA)' : await versionGate!.future;
+  @override
+  Future<Uri> feedbackUri(FeedbackKind kind, Locale locale) {
+    feedbackRequests.add((kind, locale));
+    return feedbackGate?.future ??
+        githubFeedbackUri(
+          kind: kind,
+          locale: locale,
+          ciVersion: '4.0.1',
+          readPackage: () async => PackageInfo(
+              appName: 'QA',
+              packageName: 'qa.app',
+              version: '0.0.1',
+              buildNumber: '412'),
+          readDevice: () async => (osVersion: 'Android 15', model: 'QA model'),
+        );
+  }
+
   @override
   Future<bool> open(Uri uri) async {
     opened.add(uri);
@@ -375,6 +396,100 @@ void main() {
     await t.pumpAndSettle();
     expect(platform.downloaded, isFalse);
     expect(find.byType(AboutPage), findsOneWidget);
+  });
+  check('closing the feedback type picker reads no metadata and opens no link',
+      (t) async {
+    await host(t, const AboutPage());
+    await tap(t, const ValueKey('support-feedback'));
+    expect(find.text(l.feedbackChooseType), findsOneWidget);
+    for (final text in [
+      l.feedbackBug,
+      l.feedbackBugHint,
+      l.feedbackQuestion,
+      l.feedbackQuestionHint,
+      l.feedbackFeature,
+      l.feedbackFeatureHint,
+    ]) {
+      expect(find.text(text), findsOneWidget);
+    }
+    expect(platform.feedbackRequests, isEmpty);
+    await t.tap(find.byType(CloseButton));
+    await t.pumpAndSettle();
+    expect(find.text(l.feedbackChooseType), findsNothing);
+    expect(platform.feedbackRequests, isEmpty);
+    expect(launched, isEmpty);
+  });
+  check('each type opens its corresponding template in the app language',
+      (t) async {
+    const locale = Locale('zh', 'TW');
+    await host(t, const AboutPage(), locale: locale, scale: 1.6);
+    const templates = {
+      FeedbackKind.bug: '01-bug_report_zh.yml',
+      FeedbackKind.question: '03-question_zh.yml',
+      FeedbackKind.feature: '02-feature_request_zh.yml',
+    };
+    for (final entry in templates.entries) {
+      await tap(t, const ValueKey('support-feedback'));
+      await tap(t, ValueKey(entry.key));
+      expect(platform.feedbackRequests.last, (entry.key, locale));
+      final launchedUri = Uri.parse(launched.last);
+      expect(launchedUri.path, '/TNT-Likely/BeeCount/issues/new');
+      expect(launchedUri.queryParameters, {
+        'template': entry.value,
+        if (entry.key != FeedbackKind.feature) 'app_version': '4.0.1 (412)',
+        if (entry.key == FeedbackKind.bug) ...{
+          'os_version': 'Android 15',
+          'device': 'QA model',
+        },
+      });
+    }
+    expect(launched, hasLength(3));
+  });
+  check(
+      'feedback opens the selected bug form once and can retry a failed launch',
+      (t) async {
+    final uri = Uri.https('github.com', '/TNT-Likely/BeeCount/issues/new', {
+      'template': '04-bug_report_en.yml',
+      'app_version': '4.0.1 (412)',
+      'device': 'QA model'
+    });
+    platform.feedbackGate = Completer<Uri>();
+    var succeeds = false;
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+            const MethodChannel('plugins.flutter.io/url_launcher'),
+            (call) async {
+      launched.add((call.arguments as Map)['url'] as String);
+      return succeeds;
+    });
+    await host(t, const AboutPage());
+    const feedback = ValueKey('support-feedback');
+    await tap(t, feedback);
+    expect(platform.feedbackRequests, isEmpty);
+    await tap(t, const ValueKey(FeedbackKind.bug));
+    await tap(t, feedback);
+    expect(platform.feedbackRequests, [(FeedbackKind.bug, const Locale('en'))]);
+    expect(launched, isEmpty);
+    platform.feedbackGate!.complete(uri);
+    await t.pumpAndSettle();
+    expect(launched, [uri.toString()]);
+    expect(find.text(l.updateCannotOpenLink), findsOneWidget);
+    succeeds = true;
+    await tap(t, feedback);
+    await tap(t, const ValueKey(FeedbackKind.bug));
+    expect(launched, [uri.toString(), uri.toString()]);
+  });
+  check('closing About during feedback metadata lookup skips the launch',
+      (t) async {
+    platform.feedbackGate = Completer<Uri>();
+    await host(t, const AboutPage());
+    await tap(t, const ValueKey('support-feedback'));
+    await tap(t, const ValueKey(FeedbackKind.question));
+    await host(t, const SizedBox.shrink());
+    platform.feedbackGate!.complete(Uri.https('github.com', '/'));
+    await t.pumpAndSettle();
+    expect(launched, isEmpty);
+    expect(t.takeException(), isNull);
   });
   for (final store in ['ios', 'play']) {
     check('$store build hides check update', (t) async {

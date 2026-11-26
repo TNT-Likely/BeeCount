@@ -303,55 +303,95 @@ void main() {
   Future<T> io<T extends Object>(
           WidgetTester t, Future<T> Function() operation) async =>
       (await t.runAsync(operation))!;
-  scenario('日志四级别三来源均保留，最新在前并响应真实日志监听', (t) async {
+  final group = find.byKey(const ValueKey('maintenance-log-group'));
+  final logSearch = find.byKey(const ValueKey('maintenance-log-search'));
+  final logCards = find.byType(BeeMaintenanceLogCard);
+
+  Future<void> selectLogGroup(WidgetTester t, {required bool errors}) async {
+    final options = t.widget<BeeSegmented<bool>>(group).items;
+    final label = options.firstWhere((item) => item.value == errors).label;
+    await t.tap(find.descendant(of: group, matching: find.text(label)));
+    await t.pumpAndSettle();
+  }
+
+  Future<void> openLogFilters(WidgetTester t) async {
+    await t.tap(find.byKey(const ValueKey('maintenance-filter-logs')));
+    await t.pumpAndSettle();
+  }
+
+  Future<void> applyLogFilters(WidgetTester t) async {
+    await t.tap(find.byKey(const ValueKey('maintenance-apply-filters')));
+    await t.pumpAndSettle();
+  }
+
+  scenario('日志默认错误，历史乱序以时间降序显示，两组数量响应新记录', (t) async {
+    await prefs.setString('app_logs',
+        jsonEncode(logs.reversed.map((entry) => entry.toJson()).toList()));
     await show(t, const LogCenterPage(), platform: TargetPlatform.macOS);
-    expect(find.byType(BeeChoiceChip), findsNWidgets(7));
-    expect(find.text('${l.logCenterFiltered}: 12'), findsOneWidget);
+    expect(t.widget<BeeSegmented<bool>>(group).value, isTrue);
+    expect(find.text('${l.logCenterErrors}  3'), findsOneWidget);
+    expect(find.text('${l.v4SearchAll}  12'), findsOneWidget);
+    final errors = t.widgetList<BeeMaintenanceLogCard>(logCards);
+    expect(
+        errors.map((card) => card.tag), ['CaseTag11', 'CaseTag7', 'CaseTag3']);
+    expect(errors.every((card) => card.tone == BeeTone.error), isTrue);
+    await selectLogGroup(t, errors: false);
     source.info('new-owned', 'New owned log');
     await flush(t);
-    expect(find.text('${l.logCenterFiltered}: 13'), findsOneWidget);
-    expect(
-        t
-            .widgetList<BeeMaintenanceLogCard>(
-                find.byType(BeeMaintenanceLogCard))
-            .first
-            .message,
-        'New owned log');
-    expect(
-        t
-            .widgetList<BeeMaintenanceLogCard>(
-                find.byType(BeeMaintenanceLogCard))
-            .first
-            .levelColor,
-        Colors.blue);
+    expect(find.text('${l.v4SearchAll}  13'), findsOneWidget);
+    expect(find.text('${l.logCenterErrors}  3'), findsOneWidget);
+    final first = t.widgetList<BeeMaintenanceLogCard>(logCards).first;
+    expect(first.message, 'New owned log');
+    expect(first.levelColor, Colors.blue);
   });
-  scenario('日志级别及来源多选允许清空并按交集过滤', (t) async {
+  scenario('日志级别与来源可多选或全不选，取消草稿保留当时筛选', (t) async {
     await show(t, const LogCenterPage(), platform: TargetPlatform.macOS);
+    await selectLogGroup(t, errors: false);
+    await openLogFilters(t);
+    expect(find.byType(BeeChoiceChip), findsNWidgets(7));
     for (final level in LogLevel.values) {
       await t.tap(find.byKey(ValueKey('maintenance-level-${level.name}')));
-      await flush(t);
+      await t.pump();
     }
-    expect(find.text(l.logCenterEmpty), findsOneWidget);
+    await applyLogFilters(t);
+    expect(find.text(l.logCenterNoMatches), findsOneWidget);
+    expect(find.text('${l.logCenterFiltered}: 0'), findsOneWidget);
+    await openLogFilters(t);
     for (final level in [LogLevel.debug, LogLevel.warning]) {
       await t.tap(find.byKey(ValueKey('maintenance-level-${level.name}')));
-      await flush(t);
+      await t.pump();
     }
+    await applyLogFilters(t);
     expect(find.text('${l.logCenterFiltered}: 6'), findsOneWidget);
+    await openLogFilters(t);
     for (final platform in [LogPlatform.android, LogPlatform.ios]) {
       await t.tap(find.byKey(ValueKey('maintenance-source-${platform.name}')));
-      await flush(t);
+      await t.pump();
     }
+    await applyLogFilters(t);
+    expect(find.text('${l.logCenterFiltered}: 2'), findsOneWidget);
+    await openLogFilters(t);
+    await t.tap(find.byKey(const ValueKey('maintenance-source-flutter')));
+    await t.pump();
+    await t.tap(find.byType(CloseButton));
+    await t.pumpAndSettle();
     expect(find.text('${l.logCenterFiltered}: 2'), findsOneWidget);
   });
   for (final platform in [TargetPlatform.android, TargetPlatform.iOS]) {
     scenario('日志${platform.name}仅隐藏对方平台筛选入口仍保留原默认所有来源', (t) async {
       await show(t, const LogCenterPage(), platform: platform);
-      expect(find.byType(BeeChoiceChip), findsNWidgets(6));
+      await openLogFilters(t);
+      expect(find.byType(BeeChoiceChip), findsNWidgets(2));
+      expect(find.text(l.logCenterFilterLevel), findsNothing);
       expect(
           find.byKey(ValueKey(
               'maintenance-source-${platform == TargetPlatform.android ? 'ios' : 'android'}')),
           findsNothing);
-      expect(find.text('${l.logCenterFiltered}: 12'), findsOneWidget);
+      await applyLogFilters(t);
+      await selectLogGroup(t, errors: false);
+      expect(find.text('${l.v4SearchAll}  12'), findsOneWidget);
+      await openLogFilters(t);
+      expect(find.byType(BeeChoiceChip), findsNWidgets(6));
     });
   }
   for (final brightness in Brightness.values) {
@@ -540,18 +580,61 @@ void main() {
     expect(border.borderSide, BorderSide.none);
     expect(border.borderRadius, BorderRadius.circular(13));
   });
-  scenario('日志搜索大小写不敏感匹配message或tag，清除不改多选', (t) async {
+  scenario('错误组搜索可保留大小写原文切换全部，消息与标签忽略大小写', (t) async {
     await show(t, const LogCenterPage(), platform: TargetPlatform.macOS);
-    await t.enterText(
-        find.byKey(const ValueKey('maintenance-log-search')), 'cAsEtAg5');
+    await t.enterText(logSearch, 'cAsEtAg5');
     await flush(t);
+    expect(find.text(l.logCenterNoMatches), findsOneWidget);
+    await tap(t, l.logCenterSearchAll(1));
+    expect(t.widget<BeeSegmented<bool>>(group).value, isFalse);
+    expect(t.widget<BeeSearchField>(logSearch).controller!.text, 'cAsEtAg5');
     expect(find.text('${l.logCenterFiltered}: 1'), findsOneWidget);
+    expect(find.text('[CaseTag5]'), findsOneWidget);
     await action(t, l.searchClearFilter);
-    expect(find.text('${l.logCenterFiltered}: 12'), findsOneWidget);
-    await t.enterText(find.byKey(const ValueKey('maintenance-log-search')),
-        'OWNED MESSAGE 1');
+    expect(t.widget<BeeSearchField>(logSearch).controller!.text, isEmpty);
+    await t.enterText(logSearch, 'OWNED MESSAGE 1');
     await flush(t);
     expect(find.text('${l.logCenterFiltered}: 3'), findsOneWidget);
+  });
+  scenario('错误组搜索可定位异常与堆栈，真正零命中可重置筛选', (t) async {
+    await show(t, const LogCenterPage());
+    for (final keyword in ['OWNED ERROR DETAIL', 'OWNED STACK LINE']) {
+      await t.enterText(logSearch, keyword);
+      await t.pump();
+      expect(find.text('[CaseTag3]'), findsOneWidget);
+      expect(find.text('${l.logCenterFiltered}: 1'), findsOneWidget);
+    }
+    await t.enterText(logSearch, 'without-any-match');
+    await t.pump();
+    expect(find.text(l.logCenterNoMatches), findsOneWidget);
+    await tap(t, l.logCenterResetFilters);
+    expect(t.widget<BeeSegmented<bool>>(group).value, isFalse);
+    expect(t.widget<BeeSearchField>(logSearch).controller!.text, isEmpty);
+  });
+  scenario('旧版 Android 启动样例仅从错误组隐藏，零错误仍可查看全部原始日志', (t) async {
+    final oldDemo = LogEntry(
+      timestamp: DateTime.now(),
+      level: LogLevel.error,
+      platform: LogPlatform.android,
+      tag: 'MainActivity',
+      message: '这是一条 ERROR 日志',
+    );
+    await prefs.setString(
+        'app_logs', jsonEncode([logs.first.toJson(), oldDemo.toJson()]));
+    await show(t, const LogCenterPage());
+    expect(find.text(l.logCenterNoErrors), findsOneWidget);
+    expect(find.text(l.logCenterOtherLogs(1)), findsOneWidget);
+    expect(logCards, findsNothing);
+    await tap(t, l.logCenterViewAll);
+    expect(find.text(oldDemo.message), findsOneWidget);
+    expect(find.text(logs.first.message), findsOneWidget);
+    source.error(oldDemo.tag, oldDemo.message);
+    await flush(t);
+    await selectLogGroup(t, errors: true);
+    final card = t.widget<BeeMaintenanceLogCard>(logCards);
+    expect(card.message, oldDemo.message);
+    expect(card.source, LogPlatform.flutter.displayName);
+    expect(source.logs, hasLength(3));
   });
   scenario('日志详情保留时间级别来源错误堆栈，复制完整原格式', (t) async {
     String? copied;
@@ -599,43 +682,30 @@ void main() {
     await flush(t);
     expect(copied, logs[11].toFormattedString());
   });
-  scenario('导出保留全部日志而非仅过滤结果且保留subject', (t) async {
-    Map? payload;
-    const channel = MethodChannel('dev.fluttercommunity.plus/share');
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(channel, (call) async {
-      payload = call.arguments as Map;
-      return 'dev.fluttercommunity.plus/share/success';
-    });
-    addTearDown(() => TestDefaultBinaryMessengerBinding
-        .instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(channel, null));
+  scenario('从有搜索条件的错误组打开分享，范围提示涵盖全部原文日志', (t) async {
     await show(t, const LogCenterPage());
-    await t.enterText(
-        find.byKey(const ValueKey('maintenance-log-search')), 'CaseTag5');
+    await t.enterText(logSearch, 'CaseTag3');
     await flush(t);
+    expect(find.text('${l.logCenterFiltered}: 1'), findsOneWidget);
     await action(t, l.logCenterExport);
-    expect(payload!['subject'], 'BeeCount 日志导出');
-    expect(payload!['text'], contains('CaseTag0'));
-    expect(payload!['text'], contains('CaseTag11'));
-    expect(payload!['text'], contains('日志数量: 12'));
+    expect(find.text(l.logShareTitle), findsOneWidget);
+    expect(find.text(l.logShareScope(12)), findsOneWidget);
+    expect(find.text(l.logShareOriginalHint), findsOneWidget);
+    expect(find.byType(ChoiceChip), findsNothing);
   });
-  scenario('导出故障沿原失败提示且可重试', (t) async {
-    var fail = true;
-    const channel = MethodChannel('dev.fluttercommunity.plus/share');
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(channel, (call) async {
-      if (fail) throw PlatformException(code: 'owned');
-      return 'dev.fluttercommunity.plus/share/success';
-    });
-    addTearDown(() => TestDefaultBinaryMessengerBinding
-        .instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(channel, null));
+  scenario('收起文件预览并取消分享后，重新打开默认展开', (t) async {
     await show(t, const LogCenterPage());
     await action(t, l.logCenterExport);
-    expect(find.text(l.logCenterExportFailed), findsOneWidget);
-    fail = false;
+    final preview = find.byKey(const ValueKey('log-share-preview-lines'));
+    await t.tap(find.text(l.logSharePreview));
+    await t.pumpAndSettle();
+    expect(preview, findsNothing);
+    await t.tap(find.byType(CloseButton));
+    await t.pumpAndSettle();
+    expect(find.byType(BeeSheet), findsNothing);
     await action(t, l.logCenterExport);
+    expect(find.byType(BeeSheet), findsOneWidget);
+    expect(preview, findsOneWidget);
   });
   scenario('日志清空取消无写入，确认清全部并持久化', (t) async {
     await show(t, const LogCenterPage());
@@ -646,6 +716,7 @@ void main() {
     await tap(t, l.commonConfirm);
     await source.waitForPendingWorkForTesting();
     expect(source.logs, isEmpty);
+    expect(find.text(l.logCenterEmpty), findsOneWidget);
     await prefs.reload();
     expect(jsonDecode(prefs.getString('app_logs')!), isEmpty);
     expect(

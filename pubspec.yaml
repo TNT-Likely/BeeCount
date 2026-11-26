@@ -30,6 +30,7 @@ dependencies:
   flutter_svg: ^2.0.10+1
   flutter_markdown_plus: ^1.0.3
   package_info_plus: ^8.0.2
+  device_info_plus: ^11.3.0
   url_launcher: ^6.3.0
   in_app_review: ^2.0.9
   http: ^1.2.2

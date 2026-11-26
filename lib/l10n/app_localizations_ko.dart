@@ -2077,6 +2077,27 @@ class AppLocalizationsKo extends AppLocalizations {
   String get mineFeedbackSubtitle => '문제나 제안 사항을 알려주세요';
 
   @override
+  String get feedbackChooseType => 'Choose a feedback type';
+
+  @override
+  String get feedbackBug => 'Bug report';
+
+  @override
+  String get feedbackQuestion => 'Usage question';
+
+  @override
+  String get feedbackFeature => 'Feature request';
+
+  @override
+  String get feedbackBugHint => 'Report a crash, error, or unexpected result';
+
+  @override
+  String get feedbackQuestionHint => 'Ask how to use an existing feature';
+
+  @override
+  String get feedbackFeatureHint => 'Suggest a new feature or an improvement';
+
+  @override
   String get mineHelp => '도움말';
 
   @override
@@ -5229,6 +5250,69 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get logCenterCopied => '클립보드에 복사되었습니다';
+
+  @override
+  String get logCenterErrors => 'Errors';
+
+  @override
+  String get logCenterNoErrors => 'No error logs';
+
+  @override
+  String logCenterOtherLogs(int count) {
+    return 'Other log entries: $count';
+  }
+
+  @override
+  String get logCenterNoMatches => 'No logs match these filters';
+
+  @override
+  String get logCenterViewAll => 'View all logs';
+
+  @override
+  String logCenterSearchAll(int count) {
+    return 'Search all logs ($count)';
+  }
+
+  @override
+  String get logCenterResetFilters => 'Reset filters and view all';
+
+  @override
+  String get logShareTitle => 'Share logs';
+
+  @override
+  String logShareScope(int count) {
+    return 'All $count log entries will be shared as recorded.';
+  }
+
+  @override
+  String get logShareOriginalHint => 'Original logs may include email addresses, transaction details or server addresses.';
+
+  @override
+  String get logSharePreview => 'File preview';
+
+  @override
+  String get logShareFullscreen => 'Full screen';
+
+  @override
+  String get logShareSend => 'Share TXT file';
+
+  @override
+  String get logSharePreparing => 'Preparing file…';
+
+  @override
+  String get logShareLoadFailed => 'Couldn’t prepare the log file.';
+
+  @override
+  String get logShareFailed => 'Couldn’t open the share sheet. Retry or save this file.';
+
+  @override
+  String get logShareSaveFile => 'Save file';
+
+  @override
+  String get logShareSaveFailed => 'Couldn’t save the file. You can try again.';
+
+  @override
+  String get logShareSubject => 'BeeCount logs';
 
   @override
   String get configImportExportTitle => '설정 가져오기/내보내기';

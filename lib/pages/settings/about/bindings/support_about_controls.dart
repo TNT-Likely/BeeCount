@@ -16,6 +16,7 @@ import '../../../../services/marketing/product_promos.dart';
 import '../../../../utils/website_urls.dart';
 import '../../../shared/branding/bee_artwork.dart';
 import '../../../../dev/component_gallery/component_gallery_page.dart';
+import '../../support/bindings/feedback_link.dart';
 import '../../support/bindings/support_frame.dart';
 import '../../support/bindings/support_platform.dart';
 
@@ -29,6 +30,7 @@ class SupportAboutControls extends ConsumerStatefulWidget {
 class _SupportAboutControlsState extends ConsumerState<SupportAboutControls> {
   String? version;
   bool versionFailed = false;
+  bool _openingFeedback = false;
   @override
   void initState() {
     super.initState();
@@ -41,6 +43,70 @@ class _SupportAboutControlsState extends ConsumerState<SupportAboutControls> {
       if (mounted) setState(() => version = value);
     } catch (_) {
       if (mounted) setState(() => versionFailed = true);
+    }
+  }
+
+  Future<FeedbackKind?> _chooseFeedbackType() {
+    final l = AppLocalizations.of(context);
+    return showBeeSheet<FeedbackKind>(
+      context,
+      title: l.feedbackChooseType,
+      child: Builder(builder: (sheetContext) {
+        final iconColor = Theme.of(sheetContext).colorScheme.onSurfaceVariant;
+        return SingleChildScrollView(
+          child: BeeSupportActions(actions: [
+            for (final (kind, title, hint, icon) in [
+              (FeedbackKind.bug, l.feedbackBug, l.feedbackBugHint, 'Bug'),
+              (
+                FeedbackKind.question,
+                l.feedbackQuestion,
+                l.feedbackQuestionHint,
+                'BookOpen'
+              ),
+              (
+                FeedbackKind.feature,
+                l.feedbackFeature,
+                l.feedbackFeatureHint,
+                'Lightbulb'
+              ),
+            ])
+              BeeSupportAction(
+                key: ValueKey(kind),
+                title: title,
+                subtitle: hint,
+                leading: BeeLineIcon(icon, size: 20, color: iconColor),
+                onTap: () {
+                  if (ModalRoute.of(sheetContext)?.isCurrent == true) {
+                    Navigator.pop(sheetContext, kind);
+                  }
+                },
+              ),
+          ]),
+        );
+      }),
+    );
+  }
+
+  Future<void> _openFeedback() async {
+    if (_openingFeedback) return;
+    setState(() => _openingFeedback = true);
+    bool opened;
+    try {
+      final kind = await _chooseFeedbackType();
+      if (kind == null || !mounted) return;
+      final platform = ref.read(supportPlatformProvider);
+      final uri =
+          await platform.feedbackUri(kind, Localizations.localeOf(context));
+      if (!mounted) return;
+      opened = await platform.launchFeedback(uri);
+    } catch (_) {
+      opened = false;
+    } finally {
+      if (mounted) setState(() => _openingFeedback = false);
+    }
+    if (mounted && !opened) {
+      showBeeToast(context, AppLocalizations.of(context).updateCannotOpenLink,
+          tone: BeeTone.error);
     }
   }
 
@@ -186,8 +252,7 @@ class _SupportAboutControlsState extends ConsumerState<SupportAboutControls> {
                 title: l.mineFeedback,
                 subtitle: l.mineFeedbackSubtitle,
                 leading: const BeeLineIcon('MessageSquare'),
-                onTap: () =>
-                    open('https://github.com/TNT-Likely/BeeCount/issues')),
+                onTap: _openingFeedback ? null : _openFeedback),
             BeeSupportAction(
                 key: const ValueKey('support-logs'),
                 title: l.logCenterTitle,
