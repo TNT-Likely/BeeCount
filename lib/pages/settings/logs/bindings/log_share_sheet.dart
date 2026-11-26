@@ -217,6 +217,12 @@ class _FilePreviewState extends State<_FilePreview> {
     for (final line in const LineSplitter().convert(widget.text))
       ..._wrapLongLine(line),
   ];
+  // A dated section starts the actual log records. Keep the file header
+  // reachable above it even when large text makes the header taller.
+  static final _dateHeading = RegExp(r'^--- \d{4}-\d{2}-\d{2} ---$');
+  late final int _bodyStart =
+      _rows.indexWhere(_dateHeading.hasMatch).clamp(0, _rows.length);
+  final _bodyKey = UniqueKey();
 
   Iterable<String> _wrapLongLine(String line) sync* {
     var start = 0;
@@ -232,6 +238,10 @@ class _FilePreviewState extends State<_FilePreview> {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context)
+        .textTheme
+        .bodySmall
+        ?.copyWith(fontFamily: 'monospace', fontSize: 11, height: 1.55);
     return Container(
       height: 124,
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
@@ -239,12 +249,24 @@ class _FilePreviewState extends State<_FilePreview> {
         color: BeeCardTheme.of(context).soft,
         borderRadius: BorderRadius.circular(13),
       ),
-      child: ListView.builder(
+      child: CustomScrollView(
+        key: const ValueKey('log-share-preview-lines'),
         primary: false,
-        itemCount: _rows.length,
-        itemBuilder: (_, index) => Text(_rows[index],
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                fontFamily: 'monospace', fontSize: 11, height: 1.55)),
+        center: _bodyKey,
+        slivers: [
+          if (_bodyStart > 0)
+            SliverList.builder(
+              itemCount: _bodyStart,
+              itemBuilder: (_, index) =>
+                  Text(_rows[_bodyStart - 1 - index], style: style),
+            ),
+          SliverList.builder(
+            key: _bodyKey,
+            itemCount: _rows.length - _bodyStart,
+            itemBuilder: (_, index) =>
+                Text(_rows[_bodyStart + index], style: style),
+          ),
+        ],
       ),
     );
   }

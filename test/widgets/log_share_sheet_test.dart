@@ -110,7 +110,14 @@ void main() {
     loading.complete(prefs);
     await tester.pumpAndSettle();
     expect(find.text(l.logShareScope(1)), findsOneWidget);
-    expect(find.textContaining(privateNote), findsOneWidget);
+    final preview = find.byKey(const ValueKey('log-share-preview-lines'));
+    final firstRecord = find.textContaining(privateNote);
+    expect(
+        tester.getRect(preview).overlaps(tester.getRect(firstRecord)), isTrue);
+    await tester.drag(preview, const Offset(0, 200));
+    await tester.pumpAndSettle();
+    final header = find.text('=== BeeCount 日志导出 ===');
+    expect(tester.getRect(preview).overlaps(tester.getRect(header)), isTrue);
 
     logger.info('App', 'arrived after preview');
     await tap(tester, 'log-share-redacted');
