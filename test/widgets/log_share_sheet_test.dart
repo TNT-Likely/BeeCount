@@ -248,6 +248,11 @@ void main() {
           matching: find.byWidgetPredicate(
               (w) => w is BeeLineIcon && w.name == 'FileText'));
       expect(tester.widget<BeeLineIcon>(fileIcon).color, ink);
+      final fullscreenIcon = find.descendant(
+          of: fullscreen,
+          matching: find.byWidgetPredicate(
+              (w) => w is BeeLineIcon && w.name == 'Expand'));
+      expect(IconTheme.of(tester.element(fullscreenIcon)).color, ink);
       expect(tester.getSize(header).height, greaterThanOrEqualTo(44));
       expect(tester.getSize(fullscreen).width, greaterThanOrEqualTo(44));
       expect(tester.getSize(fullscreen).height, greaterThanOrEqualTo(44));

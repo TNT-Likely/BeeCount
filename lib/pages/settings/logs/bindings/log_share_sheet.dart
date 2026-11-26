@@ -272,6 +272,7 @@ class _FilePreviewState extends State<_FilePreview> {
         style: TextButton.styleFrom(
           backgroundColor: theme.colorScheme.primary.withValues(alpha: .20),
           foregroundColor: ink,
+          iconColor: ink,
           textStyle: theme.textTheme.labelLarge
               ?.copyWith(fontSize: 13, fontWeight: FontWeight.w600),
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
