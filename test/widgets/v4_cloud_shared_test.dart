@@ -981,7 +981,8 @@ void main() {
     final tags = await db.select(db.transactionTagOverrides).get();
     expect(tags.single.transactionSyncId, 'history-tx');
     expect(tags.single.tagSyncId, 'shared-tag');
-    await t.runAsync(() => engine.onInviteAccepted('book-shared'));
+    // Reuse the test clock that owns this engine and its Drift connection.
+    await engine.onInviteAccepted('book-shared');
     await flush(t);
     expect(await db.select(db.transactions).get(), hasLength(1));
     expect(await db.select(db.sharedLedgerTags).get(), hasLength(1));
