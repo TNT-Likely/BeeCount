@@ -197,10 +197,11 @@ class FakeBeeCountCloudProvider extends BeeCountCloudProvider {
   }
 
   @override
-  Future<void> pushChanges({
+  Future<BeeCountCloudPushResult> pushChanges({
     required List<Map<String, dynamic>> changes,
   }) async {
     pushedBatches.add(changes);
+    return BeeCountCloudPushResult(List.filled(changes.length, const BeeCountCloudPushItem('accepted')));
   }
 
   @override

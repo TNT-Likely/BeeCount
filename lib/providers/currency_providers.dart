@@ -243,12 +243,13 @@ Future<bool> refreshExchangeRates(Ref ref,
 /// UI 层薄封装:`WidgetRef` 与 `Ref` 的 read 能力等价,直接转发到同一实现。
 /// ConsumerState 里只有 `WidgetRef`,无法 cast 成 `Ref`,故单开此入口。
 Future<bool> refreshExchangeRatesFromUi(WidgetRef ref,
-        {bool force = false, Set<String>? extraQuotes}) =>
+        {bool force = false, Set<String>? extraQuotes, String? newLedgerBase}) =>
     _refreshExchangeRatesImpl(
       read: ref.read,
       readFuture: <T>(p) => ref.read(p.future),
       force: force,
       extraQuotes: extraQuotes,
+      newLedgerBase: newLedgerBase,
     );
 
 /// 真正的实现:只依赖 read / readFuture 两个能力,与 Ref / WidgetRef 解耦。
@@ -263,12 +264,16 @@ Future<bool> _refreshExchangeRatesImpl({
   required Future<T> Function<T>(FutureProvider<T>) readFuture,
   required bool force,
   Set<String>? extraQuotes,
+  String? newLedgerBase,
 }) async {
   try {
     final repo = read(repositoryProvider);
 
     // base 集合:主币种 ∪ 各账本本位币(大写)
-    final bases = <String>{read(baseCurrencyProvider).toUpperCase()};
+    final bases = <String>{
+      read(baseCurrencyProvider).toUpperCase(),
+      if (newLedgerBase != null) newLedgerBase.toUpperCase(),
+    };
     try {
       final ledgers = await repo.getAllLedgers();
       bases.addAll(ledgers

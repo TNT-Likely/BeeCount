@@ -355,7 +355,7 @@ class BeeCountCloudProvider implements CloudProvider {
   }
 
   /// 推送增量变更（个体实体级别，非 ledger_snapshot 包装）
-  Future<void> pushChanges({
+  Future<BeeCountCloudPushResult> pushChanges({
     required List<Map<String, dynamic>> changes,
   }) async {
     final storage = _storage;
@@ -2210,10 +2210,10 @@ class BeeCountCloudStorageService implements CloudStorageService {
   }
 
   /// 推送增量变更（个体实体级别，非 ledger_snapshot 包装）
-  Future<void> pushEntityChanges({
+  Future<BeeCountCloudPushResult> pushEntityChanges({
     required List<Map<String, dynamic>> changes,
   }) async {
-    if (changes.isEmpty) return;
+    if (changes.isEmpty) return const BeeCountCloudPushResult([]);
     // 先确保 session 有效（触发 token refresh），再读 deviceId
     await auth.requireAccessToken();
     final deviceId = auth.currentDeviceId;
@@ -2229,16 +2229,90 @@ class BeeCountCloudStorageService implements CloudStorageService {
       body: {
         'device_id': deviceId,
         'changes': changes,
+        'return_results': true,
       },
     );
-    final bodyPreview = response.body.length > 200
-        ? response.body.substring(0, 200)
-        : response.body;
-    debugPrint('[BCC] pushEntityChanges response: ${response.statusCode} $bodyPreview');
     if (response.statusCode < 200 || response.statusCode >= 300) {
       throw CloudStorageException(
           'Push entity changes failed (${response.statusCode}): ${_extractErrorMessage(response)}');
     }
+    final body = _decodeJsonObject(response.body);
+    final counts = {for (final key in ['accepted', 'rejected', 'conflict_count']) key: body[key]};
+    debugPrint('[BCC] pushEntityChanges response: ${response.statusCode} ${jsonEncode(counts)}');
+    if (body['results'] == null && body['rejected'] is int && body['rejected'] > 0) {
+      return _legacyPushResult(body, changes);
+    }
+    return BeeCountCloudPushResult.fromJson(body, changes.length);
+  }
+
+  /// Old servers return at most twenty conflict samples, without a per-row receipt.
+  /// Unique complete samples describe the whole batch. For ambiguous batches,
+  /// replay the frozen requests individually to identify the actual outcomes.
+  Future<BeeCountCloudPushResult> _legacyPushResult(
+      Map<String, dynamic> body, List<Map<String, dynamic>> changes) async {
+    final accepted = body['accepted'];
+    final rejected = body['rejected'];
+    if (accepted is! int || rejected is! int || accepted < 0 || rejected < 1 ||
+        accepted + rejected != changes.length) {
+      throw CloudStorageException('Invalid sync push acknowledgement');
+    }
+    final conflicts = body['conflict_count'];
+    final samples = body['conflict_samples'];
+    final matched = <int, Map<String, dynamic>>{};
+    if (samples is List) {
+      for (final sample in samples.whereType<Map<String, dynamic>>()) {
+        final matches = [
+          for (int i = 0; i < changes.length; i++)
+            if (changes[i]['entity_type'] == sample['entityType'] &&
+                changes[i]['entity_sync_id'] == sample['entitySyncId'] &&
+                changes[i]['ledger_id'] == sample['ledgerId']) i,
+        ];
+        if (matches.length == 1) matched[matches.single] = sample;
+      }
+    }
+    if (changes.length > 1 && (matched.length != rejected || rejected != conflicts)) {
+      final items = <BeeCountCloudPushItem>[];
+      for (final change in changes) {
+        items.addAll((await pushEntityChanges(changes: [change])).items);
+      }
+      return BeeCountCloudPushResult(items);
+    }
+    final items = <BeeCountCloudPushItem>[];
+    for (int i = 0; i < changes.length; i++) {
+      final sample = matched[i];
+      if (sample == null) {
+        final status = changes.length > 1 ? 'accepted' : conflicts == 1 ? 'conflict' : 'rejected';
+        items.add(BeeCountCloudPushItem(status));
+        continue;
+      }
+      // Do not touch either the local or server device cursor, and include
+      // this device's own older changes when its previous edit was the winner.
+      final id = sample['existingChangeId'];
+      BeeCountCloudSyncChange? winner;
+      if (id is int && id > 0) {
+        final response = await _authedRequest(method: 'GET', path: '/sync/pull',
+            query: {'since': '${id - 1}', 'limit': '1'});
+        if (response.statusCode == 200) {
+          final rows = _decodeJsonObject(response.body)['changes'];
+          if (rows is List && rows.isNotEmpty) {
+            final found = BeeCountCloudSyncChange.fromJson(rows.first as Map<String, dynamic>);
+            final payload = found.payload;
+            if (found.changeId == id &&
+                found.entityType == changes[i]['entity_type'] &&
+                found.entitySyncId == changes[i]['entity_sync_id'] &&
+                found.ledgerId == (changes[i]['ledger_id'] ?? '__user_global__') &&
+                (found.action == 'delete' || (payload != null &&
+                    (found.entityType != 'transaction' ||
+                        ['type', 'amount', 'happenedAt'].every(payload.containsKey))))) {
+              winner = found;
+            }
+          }
+        }
+      }
+      items.add(BeeCountCloudPushItem('conflict', changeId: winner?.changeId,
+          reason: sample['reason'] as String?, winner: winner));
+    }
+    return BeeCountCloudPushResult(items);
   }
 
   Future<Map<String, BeeCountCloudAttachmentExistsItem>> attachmentBatchExists({
@@ -3579,6 +3653,19 @@ class BeeCountCloudSyncChange {
     this.payload,
   });
 
+  factory BeeCountCloudSyncChange.fromJson(Map<String, dynamic> row) => BeeCountCloudSyncChange(
+    changeId: row['change_id'] as int, ledgerId: row['ledger_id'] as String,
+    entityType: row['entity_type'] as String, entitySyncId: row['entity_sync_id'] as String,
+    action: row['action'] as String, updatedByDeviceId: row['updated_by_device_id'] as String?,
+    updatedAt: row['updated_at'] as String?, payload: row['payload'] as Map<String,dynamic>?,
+  );
+
+  Map<String, dynamic> toJson() => {
+    'change_id': changeId, 'ledger_id': ledgerId, 'entity_type': entityType,
+    'entity_sync_id': entitySyncId, 'action': action, 'updated_by_device_id': updatedByDeviceId,
+    'updated_at': updatedAt, 'payload': payload,
+  };
+
   final int changeId;
   final String ledgerId;
   final String entityType;
@@ -3587,6 +3674,55 @@ class BeeCountCloudSyncChange {
   final String? updatedByDeviceId;
   final String? updatedAt;
   final Map<String, dynamic>? payload;
+}
+
+/// One result for each submitted change, in request order.
+class BeeCountCloudPushItem {
+  const BeeCountCloudPushItem(this.status, {this.changeId, this.winner, this.reason});
+  final String status;
+  final int? changeId;
+  final BeeCountCloudSyncChange? winner;
+  final String? reason;
+}
+
+class BeeCountCloudPushResult {
+  const BeeCountCloudPushResult(this.items);
+  final List<BeeCountCloudPushItem> items;
+
+  factory BeeCountCloudPushResult.fromJson(Map<String, dynamic> json, int count) {
+    final accepted = json['accepted'], rejected = json['rejected'];
+    if (accepted is! int || rejected is! int || accepted < 0 || rejected < 0 ||
+        accepted + rejected != count) {
+      throw CloudStorageException('Invalid sync push acknowledgement');
+    }
+    final results = json['results'];
+    if (results == null) {
+      // Older servers expose aggregate counters. A mixed response cannot identify
+      // successful rows, so leave the whole batch queued until it can be reconciled.
+      if (rejected != 0) {
+        throw CloudStorageException('Cloud rejected $rejected of $count changes; pending changes were retained');
+      }
+      return BeeCountCloudPushResult(List.filled(count, const BeeCountCloudPushItem('accepted')));
+    }
+    if (results is! List || results.length != count) {
+      throw CloudStorageException('Incomplete sync push acknowledgement');
+    }
+    final items = results.map((row) {
+      if (row is! Map<String, dynamic> ||
+          !const {'accepted','rejected','conflict'}.contains(row['status'])) {
+        throw CloudStorageException('Invalid sync push item');
+      }
+      final winner = row['winner'];
+      return BeeCountCloudPushItem(row['status'] as String,
+        changeId: row['change_id'] as int?, reason: row['reason'] as String?,
+        winner: winner == null ? null : BeeCountCloudSyncChange.fromJson(winner as Map<String,dynamic>));
+    }).toList();
+    if (items.where((i) => i.status == 'accepted').length != accepted ||
+        items.where((i) => i.status == 'conflict').length != (json['conflict_count'] ?? 0)) {
+      throw CloudStorageException('Inconsistent sync push acknowledgement');
+    }
+    return BeeCountCloudPushResult(items);
+  }
 }
 
 class BeeCountCloudPullResult {

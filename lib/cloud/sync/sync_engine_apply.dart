@@ -8,10 +8,19 @@ part of 'sync_engine.dart';
 extension SyncEngineApplyExt on SyncEngine {
   /// 应用单条远程变更到本地数据库
   /// 返回 true 表示已应用，false 表示跳过
-  Future<bool> applyRemoteChange(BeeCountCloudSyncChange change) async {
+  Future<bool> applyRemoteChange(BeeCountCloudSyncChange change,
+          {bool authoritative = false}) =>
+      _applyWithAttachmentCleanup((files) =>
+          _applyRemoteChange(change, files, authoritative: authoritative));
+
+  Future<bool> _applyRemoteChange(
+      BeeCountCloudSyncChange change, Set<String> removedFiles, {bool authoritative = false}) async {
     // 跳过本设备自己的变更
     final deviceId = await _getDeviceId();
-    if (change.updatedByDeviceId == deviceId) return false;
+    if (!authoritative) {
+      if (change.updatedByDeviceId == deviceId) return false;
+      if (await _deferOrSkipRemote(change)) return false;
+    }
 
     // 如果没有 payload 且不是删除操作，跳过（无法应用）
     if (change.payload == null && change.action != 'delete') {
@@ -22,7 +31,7 @@ extension SyncEngineApplyExt on SyncEngine {
 
     switch (change.entityType) {
       case 'transaction':
-        await _applyTransactionChange(change);
+        await _applyTransactionChange(change, removedFiles);
         return true;
       case 'account':
         await _applyAccountChange(change);
@@ -53,7 +62,8 @@ extension SyncEngineApplyExt on SyncEngine {
 
   // ==================== Apply 方法 ====================
 
-  Future<void> _applyTransactionChange(BeeCountCloudSyncChange change) async {
+  Future<void> _applyTransactionChange(
+      BeeCountCloudSyncChange change, Set<String> removedFiles) async {
     final syncId = change.entitySyncId;
 
     if (change.action == 'delete') {
@@ -67,9 +77,10 @@ extension SyncEngineApplyExt on SyncEngine {
         existingId = existing?.id;
       }
       if (existingId != null) {
-        // 先清磁盘附件(原图 + 缩略图),再删 transaction_attachments 行 ——
-        // 反过来就查不到 fileName 了。
-        await _cleanupTxAttachmentFilesOnDisk(existingId);
+        final attachments = await (db.select(db.transactionAttachments)
+              ..where((row) => row.transactionId.equals(existingId!)))
+            .get();
+        removedFiles.addAll(attachments.map((row) => row.fileName));
         await (db.delete(db.transactionTags)
               ..where((tt) => tt.transactionId.equals(existingId!)))
             .go();
@@ -237,7 +248,7 @@ extension SyncEngineApplyExt on SyncEngine {
         type: d.Value(type),
         amount: d.Value(amount),
         happenedAt: d.Value(happenedAt),
-        note: d.Value(note),
+        note: payload.containsKey('note') ? d.Value(note) : const d.Value.absent(),
         categoryId: d.Value(categoryId),
         accountId: d.Value(accountId),
         toAccountId: d.Value(toAccountId),
@@ -261,7 +272,7 @@ extension SyncEngineApplyExt on SyncEngine {
       ));
       // 更新标签和附件(existing 路径)
       await _syncTransactionTags(existingId, syncId, payload);
-      await _syncTransactionAttachments(existingId, payload);
+      await _syncTransactionAttachments(existingId, payload, removedFiles);
       logger.debug('SyncEngine', 'pull: 更新交易 $syncId');
     } else {
       // 插入
@@ -294,7 +305,8 @@ extension SyncEngineApplyExt on SyncEngine {
       activePullCache?.putTransaction(syncId, id, createdByUserId);
       // 同步标签和附件(新插入路径 — existing 必空,跳过相关 SELECT/DELETE)
       await _syncTransactionTags(id, syncId, payload, isNewlyInserted: true);
-      await _syncTransactionAttachments(id, payload, isNewlyInserted: true);
+      await _syncTransactionAttachments(id, payload, removedFiles,
+          isNewlyInserted: true);
       logger.debug('SyncEngine', 'pull: 新增交易 $syncId');
     }
   }
@@ -801,6 +813,8 @@ extension SyncEngineApplyExt on SyncEngine {
     final ledgerList = await (db.select(db.ledgers)
           ..where((l) => l.syncId.equals(syncId)))
         .get();
+    final localEdits = await _ledgerChangesToProtect(syncId: syncId);
+    if (localEdits.any((c) => c.entityType == 'ledger_snapshot')) return;
     final name = payload['ledgerName'] as String?;
     final currency = payload['currency'] as String?;
     // bool 不是 num,as num? 天然挡掉;越界 clamp。key 缺失 → null →
@@ -848,13 +862,8 @@ extension SyncEngineApplyExt on SyncEngine {
       await (db.delete(db.ledgers)..where((l) => l.id.isIn(dupIds))).go();
     }
 
-    final comp = LedgersCompanion(
-      name: name != null ? d.Value(name) : const d.Value.absent(),
-      currency: currency != null ? d.Value(currency) : const d.Value.absent(),
-      monthStartDay: monthStartDay != null
-          ? d.Value(monthStartDay)
-          : const d.Value.absent(),
-    );
+    final comp = _remoteLedgerMetadata(localEdits,
+        name: name, currency: currency, monthStartDay: monthStartDay);
     await (db.update(db.ledgers)..where((l) => l.id.equals(ledger.id)))
         .write(comp);
     logger.debug(
@@ -876,6 +885,7 @@ extension SyncEngineApplyExt on SyncEngine {
     Map<String, dynamic> payload, {
     bool isNewlyInserted = false,
   }) async {
+    if (!payload.containsKey('tagIds') && !payload.containsKey('tags')) return;
     // 删除旧关联,按新 payload 重建(主表 + override)。新插入路径跳过 — 必空。
     if (!isNewlyInserted) {
       await (db.delete(db.transactionTags)
@@ -890,14 +900,12 @@ extension SyncEngineApplyExt on SyncEngine {
     final tagIds = rawTagIds is List
         ? rawTagIds.whereType<String>().toList(growable: false)
         : const <String>[];
-    final tagsStr = payload['tags'] as String?;
-    final tagNamesFromStr = (tagsStr == null || tagsStr.isEmpty)
-        ? const <String>[]
-        : tagsStr
-            .split(',')
-            .map((s) => s.trim())
-            .where((s) => s.isNotEmpty)
-            .toList();
+    final rawNames = payload['tags'];
+    final names = rawNames is List
+        ? rawNames.whereType<String>()
+        : (rawNames as String? ?? '').split(',');
+    final tagNamesFromStr =
+        names.map((name) => name.trim()).where((name) => name.isNotEmpty).toList();
 
     final linkedLocalIds = <int>{};
     final overrideSyncIds = <String>{};
@@ -1004,7 +1012,8 @@ extension SyncEngineApplyExt on SyncEngine {
   /// [isNewlyInserted] 新插入 tx 路径,existing 必空,跳过 SELECT 省 N+1。
   Future<void> _syncTransactionAttachments(
     int transactionId,
-    Map<String, dynamic> payload, {
+    Map<String, dynamic> payload,
+    Set<String> removedFiles, {
     bool isNewlyInserted = false,
   }) async {
     // key 缺失 → legacy 行为，不碰本地
@@ -1027,7 +1036,6 @@ extension SyncEngineApplyExt on SyncEngine {
     /// db.into().insert / db.update().write / db.delete().go(N 次小 fsync)。
     final inserts = <TransactionAttachmentsCompanion>[];
     final updates = <({int id, TransactionAttachmentsCompanion data})>[];
-    final attachmentsToDeleteFromDisk = <String>[];
     final deleteIds = <int>[];
 
     for (final att in attachmentsList) {
@@ -1089,7 +1097,7 @@ extension SyncEngineApplyExt on SyncEngine {
     for (final ex in existing) {
       if (remoteFileNames.contains(ex.fileName)) continue;
       deleteIds.add(ex.id);
-      attachmentsToDeleteFromDisk.add(ex.fileName);
+      removedFiles.add(ex.fileName);
     }
 
     if (inserts.isNotEmpty || updates.isNotEmpty || deleteIds.isNotEmpty) {
@@ -1110,17 +1118,6 @@ extension SyncEngineApplyExt on SyncEngine {
       });
     }
 
-    // 磁盘清理跑在事务外(IO 失败不影响 DB 状态)
-    for (final fn in attachmentsToDeleteFromDisk) {
-      try {
-        final file = await _getAttachmentFile(fn);
-        if (file != null && file.existsSync()) {
-          await file.delete();
-        }
-      } catch (e, st) {
-        logger.warning('SyncEngine', '删除本地孤立附件文件失败: $fn', st);
-      }
-    }
   }
 }
 

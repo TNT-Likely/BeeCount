@@ -67,8 +67,10 @@ class EntitySerializer {
       'fromAccountId': fromAccountSyncId ?? '',
       'toAccountName': toAccountName ?? '',
       'toAccountId': toAccountSyncId ?? '',
-      if (tagNames != null && tagNames.isNotEmpty) 'tags': tagNames.join(','),
-      if (tagSyncIds != null && tagSyncIds.isNotEmpty) 'tagIds': tagSyncIds,
+      // A supplied empty collection clears the relationship. Omitting both
+      // keys leaves tags untouched in a partial change.
+      if (tagNames != null) 'tags': tagNames.join(','),
+      if (tagSyncIds != null) 'tagIds': tagSyncIds,
       // 即使是 `[]` 也必须写出来，不能变 null 后被 if-spread 过滤掉。否则
       // A 端删光所有附件时 payload 里完全没有 attachments 字段 → B 端没法
       // 区分"没发送附件信息"和"全删光了"，B 就永远同步不到删除。

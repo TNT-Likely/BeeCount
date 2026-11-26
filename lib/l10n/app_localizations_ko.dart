@@ -7213,6 +7213,16 @@ class AppLocalizationsKo extends AppLocalizations {
   String get budgetSetupAction => '설정하기';
 
   @override
+  String cloudSyncPushConflicts(int count) {
+    return 'Cloud retained its version for $count conflicting edit(s).';
+  }
+
+  @override
+  String cloudSyncPushUnconfirmed(int count) {
+    return '$count change(s) have not been confirmed and remain queued.';
+  }
+
+  @override
   String get syncHealthTitle => '동기화 상태';
 
   @override
@@ -7285,6 +7295,17 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get syncHealthRowUnpushed => '업로드 대기 중';
+
+  @override
+  String syncHealthRecentConflicts(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'In the past 7 days, Cloud could not accept $count local edits because of version conflicts.',
+      one: 'In the past 7 days, Cloud could not accept 1 local edit because of a version conflict.',
+    );
+    return '$_temp0';
+  }
 
   @override
   String syncHealthValue(int local, int remote) {

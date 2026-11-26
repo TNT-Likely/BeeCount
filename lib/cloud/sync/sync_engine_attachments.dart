@@ -294,56 +294,41 @@ extension SyncEngineAttachmentsExt on SyncEngine {
     }
   }
 
-  /// 清理给定交易的本地磁盘附件(原图 + 缩略图)。在 transaction_attachments
-  /// 行被 db.delete **之前** 调 —— 之后 fileName 就查不到了。
-  ///
-  /// 跟 `LocalTransactionRepository._deleteAttachmentsForTransaction` 几乎一样,
-  /// 但那个是 private;这里是 sync pull 路径独立使用(不想走完整 repo 接口,
-  /// 因为 repo 的 deleteTransaction 会 record changeTracker,会造成 pull →
-  /// record → push 的回环)。失败只 warn 不抛,不 block 事件 apply。
-  Future<void> _cleanupTxAttachmentFilesOnDisk(int transactionId) async {
+  /// 只在整页或完整快照成功提交后回收无引用原件。同一页面可以先移除、
+  /// 后关联同一文件；失败回滚时保留原件和缩略图。
+  Future<T> _applyWithAttachmentCleanup<T>(
+      Future<T> Function(Set<String> removedFiles) apply) async {
+    final removedFiles = <String>{};
+    final result = await db.transaction(() => apply(removedFiles));
+    if (removedFiles.isEmpty) return result;
     try {
-      final attachments = await (db.select(db.transactionAttachments)
-            ..where((a) => a.transactionId.equals(transactionId)))
-          .get();
-      if (attachments.isEmpty) return;
-
       final appDir = await getApplicationDocumentsDirectory();
-      final attachmentDir = Directory('${appDir.path}/attachments');
       final cacheDir = await getTemporaryDirectory();
-      final thumbDir = Directory('${cacheDir.path}/attachment_thumbs');
-
-      for (final att in attachments) {
-        // 多笔共享同一物理文件:此处 DB 行尚未删(apply 在本函数之后才删行)，
-        // 故排除本交易,看是否还有其他交易的行引用同 fileName,有就保留文件。
-        final others = await (db.select(db.transactionAttachments)
-              ..where((a) => a.fileName.equals(att.fileName))
-              ..where((a) => a.transactionId.equals(transactionId).not()))
-            .get();
-        if (others.isNotEmpty) continue;
-
-        final file = File('${attachmentDir.path}/${att.fileName}');
-        if (await file.exists()) {
-          try {
-            await file.delete();
-          } catch (e) {
-            logger.warning('SyncEngine',
-                'pull delete: unlink attachment failed ${att.fileName}: $e');
+      await db.transaction(() async {
+        for (final name in removedFiles) {
+          if (name.isEmpty || p.basename(name) != name ||
+              name.contains('\\') || name == '.' || name == '..') continue;
+          final reference = await (db.select(db.transactionAttachments)
+                ..where((row) => row.fileName.equals(name))
+                ..limit(1))
+              .getSingleOrNull();
+          if (reference != null) continue;
+          final original = File(p.join(appDir.path, 'attachments', name));
+          final thumb = File(p.join(cacheDir.path, 'attachment_thumbs',
+              '${p.basenameWithoutExtension(name)}_thumb.jpg'));
+          for (final file in [original, thumb]) {
+            try {
+              if (file.existsSync()) file.deleteSync();
+            } on FileSystemException catch (error) {
+              logger.warning('SyncEngine', '清理无引用附件失败: $error');
+            }
           }
         }
-        final thumbName =
-            '${p.basenameWithoutExtension(att.fileName)}_thumb.jpg';
-        final thumbFile = File('${thumbDir.path}/$thumbName');
-        if (await thumbFile.exists()) {
-          try {
-            await thumbFile.delete();
-          } catch (_) {/* best effort */}
-        }
-      }
-    } catch (e, st) {
-      logger.warning(
-          'SyncEngine', 'pull delete: 清理附件磁盘文件异常 tx=$transactionId: $e\n$st');
+      });
+    } catch (error, stack) {
+      logger.warning('SyncEngine', '清理无引用附件失败: $error', stack);
     }
+    return result;
   }
 
   /// 清理给定分类(含直接子分类)的本地自定义图标文件。

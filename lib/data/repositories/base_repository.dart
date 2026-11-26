@@ -63,6 +63,14 @@ abstract class BaseRepository
   /// 把重算成果冲回)。返回实际改动条数。
   Future<int> recalcNativeAmountsForLedger(int ledgerId, String newBase);
 
+  /// 保存用户确认的本位币及按该币种重算的交易，一起提交同步队列。
+  Future<int> updateLedgerAndRecalculateAmounts({
+    required int id,
+    required String currency,
+    String? name,
+    int? monthStartDay,
+  });
+
   /// 存量补折算(L11):只重算「currencyCode≠本位币 且 nativeAmount==amount」
   /// 的外币交易(迁移回填后从没折算过的)。缺汇率的跳过留待用户。逐笔记 change。
   /// 返回实际改动条数。

@@ -13708,6 +13708,18 @@ abstract class AppLocalizations {
   /// **'Set up'**
   String get budgetSetupAction;
 
+  /// No description provided for @cloudSyncPushConflicts.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud retained its version for {count} conflicting edit(s).'**
+  String cloudSyncPushConflicts(int count);
+
+  /// No description provided for @cloudSyncPushUnconfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} change(s) have not been confirmed and remain queued.'**
+  String cloudSyncPushUnconfirmed(int count);
+
   /// No description provided for @syncHealthTitle.
   ///
   /// In en, this message translates to:
@@ -13851,6 +13863,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Pending pushes'**
   String get syncHealthRowUnpushed;
+
+  /// No description provided for @syncHealthRecentConflicts.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{In the past 7 days, Cloud could not accept 1 local edit because of a version conflict.} other{In the past 7 days, Cloud could not accept {count} local edits because of version conflicts.}}'**
+  String syncHealthRecentConflicts(int count);
 
   /// No description provided for @syncHealthValue.
   ///

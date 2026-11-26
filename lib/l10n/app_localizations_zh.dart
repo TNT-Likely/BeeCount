@@ -7207,6 +7207,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get budgetSetupAction => '去设置';
 
   @override
+  String cloudSyncPushConflicts(int count) {
+    return '发现 $count 项版本冲突。';
+  }
+
+  @override
+  String cloudSyncPushUnconfirmed(int count) {
+    return '$count 项变更尚未得到确认，已保留待传。';
+  }
+
+  @override
   String get syncHealthTitle => '同步状态';
 
   @override
@@ -7279,6 +7289,11 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get syncHealthRowUnpushed => '未推送变更';
+
+  @override
+  String syncHealthRecentConflicts(int count) {
+    return '过去 7 天有 $count 项本地更改因版本冲突未被云端接受。';
+  }
 
   @override
   String syncHealthValue(int local, int remote) {
@@ -17193,6 +17208,16 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get budgetSetupAction => '去設置';
 
   @override
+  String cloudSyncPushConflicts(int count) {
+    return '發現 $count 項版本衝突。';
+  }
+
+  @override
+  String cloudSyncPushUnconfirmed(int count) {
+    return '$count 項變更尚未得到確認，已保留待傳。';
+  }
+
+  @override
   String get syncHealthTitle => '同步狀態';
 
   @override
@@ -17265,6 +17290,11 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get syncHealthRowUnpushed => '未推送變更';
+
+  @override
+  String syncHealthRecentConflicts(int count) {
+    return '過去 7 天有 $count 項本機變更因版本衝突未獲雲端接受。';
+  }
 
   @override
   String syncHealthValue(int local, int remote) {

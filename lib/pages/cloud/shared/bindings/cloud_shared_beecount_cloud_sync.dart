@@ -66,7 +66,11 @@ class _CloudSharedSyncControlsState
     final ledgerId = ref.read(currentLedgerIdProvider);
     if (engine is! SyncEngine || ledgerId <= 0) return;
 
-    bool active() => mounted && ref.read(currentLedgerIdProvider) == ledgerId;
+    final auth = engine.provider.auth;
+    final viewer = auth is BeeCountCloudAuthService ? auth.currentUserId : null;
+    bool active() => mounted && ref.read(currentLedgerIdProvider) == ledgerId &&
+        identical(ref.read(syncServiceProvider), engine) &&
+        (auth is! BeeCountCloudAuthService || auth.currentUserId == viewer);
     setState(() {
       _checking = true;
       _checkError = null;
@@ -140,7 +144,7 @@ class _CloudSharedSyncControlsState
           _checking = false;
           _autoSyncing = false;
         });
-        if (ref.read(currentLedgerIdProvider) != ledgerId) {
+        if (!active()) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted) _onRefresh();
           });
@@ -153,7 +157,7 @@ class _CloudSharedSyncControlsState
   Widget build(BuildContext context) {
     final ledgerId = ref.watch(currentLedgerIdProvider);
     final l10n = AppLocalizations.of(context);
-    ref.listen<int>(currentLedgerIdProvider, (_, __) {
+    void resetReport() {
       setState(() {
         _latestReport = null;
         _checkError = null;
@@ -161,6 +165,14 @@ class _CloudSharedSyncControlsState
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) _onRefresh();
       });
+    }
+    ref.listen<int>(currentLedgerIdProvider, (_, __) => resetReport());
+    ref.listen(syncServiceProvider, (previous, next) {
+      if (!identical(previous, next)) resetReport();
+    });
+    ref.listen(cloudSharedUserProvider, (previous, next) {
+      if (previous?.hasValue == true && next.hasValue &&
+          previous?.valueOrNull?.id != next.valueOrNull?.id) resetReport();
     });
     return V4PageScaffold(
         body: Column(children: [
@@ -410,6 +422,7 @@ class _CloudSharedSyncControlsState
             l10n.syncHealthCheckFailed(_checkError ?? effective.error ?? ''),
             style: const TextStyle(color: Colors.red, fontSize: 12),
           ),
+          if (effective.recentConflicts > 0) _recentConflictHint(context, effective.recentConflicts),
           const SizedBox(height: 12),
           BeeButton(
               label: l10n.v4RecordingRetry,
@@ -459,9 +472,16 @@ class _CloudSharedSyncControlsState
         _pairRow(context, l10n.syncHealthRowTag, effective.tags),
         const SizedBox(height: 8),
         _unpushedRow(context, effective.unpushedChanges),
+        if (effective.recentConflicts > 0) _recentConflictHint(context, effective.recentConflicts),
       ],
     );
   }
+
+  Widget _recentConflictHint(BuildContext context, int count) => Padding(
+        padding: const EdgeInsets.only(top: 4),
+        child: Text(AppLocalizations.of(context).syncHealthRecentConflicts(count),
+            style: TextStyle(fontSize: 12, color: BeeTokens.textSecondary(context))),
+      );
 
   Widget _groupHeader(BuildContext context, String text) {
     return Padding(

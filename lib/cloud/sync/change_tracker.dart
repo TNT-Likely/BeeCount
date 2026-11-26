@@ -1,6 +1,11 @@
+import 'dart:convert';
+
 import 'package:drift/drift.dart' as d;
+import 'package:uuid/uuid.dart';
 
 import '../../data/db.dart';
+import 'entity_serializer.dart';
+import 'transaction_sync_payload.dart';
 import '../../services/system/logger_service.dart';
 
 /// 本地变更追踪器。在 Repository 层捕获写操作,记录到 local_changes 表,
@@ -33,7 +38,12 @@ class ChangeTracker {
 
   /// 已知的 user-global 实体类型。recordUserGlobalChange 用白名单校验防止
   /// 调用方误用(把 transaction 之类传进来也能通过,但被 assert 拦住)。
-  static const Set<String> _userGlobalEntityTypes = {'account', 'category', 'tag', 'exchange_rate_override'};
+  static const Set<String> _userGlobalEntityTypes = {
+    'account',
+    'category',
+    'tag',
+    'exchange_rate_override'
+  };
 
   /// 公开 read-only 视图给 sync_engine 的 push 路径用,判断"这条 change 是否
   /// 是 user-global 类型",决定 push 时 scope 字段。
@@ -97,6 +107,64 @@ class ChangeTracker {
     );
   }
 
+  /// Save exactly the fields this edit changed. Older Cloud versions receive
+  /// the accompanying full row; newer ones can preserve independent Web edits.
+  Future<void> recordTransactionEdit(
+      Transaction before, Transaction after) async {
+    final oldValues = EntitySerializer.serializeTransaction(before);
+    final newValues = EntitySerializer.serializeTransaction(after);
+    final patch = <String, dynamic>{};
+    for (final key in const [
+      'type',
+      'amount',
+      'happenedAt',
+      'note',
+      'currencyCode',
+      'nativeAmount',
+      'excludeFromStats',
+      'excludeFromBudget'
+    ]) {
+      if (oldValues[key] != newValues[key]) patch[key] = newValues[key];
+    }
+    final relationKeys = <String>{
+      if (before.categoryId != after.categoryId ||
+          before.categorySyncIdOverride != after.categorySyncIdOverride) ...[
+        'categoryId',
+        'categoryName',
+        'categoryKind'
+      ],
+      if (before.accountId != after.accountId ||
+          before.type != after.type ||
+          before.accountSyncIdOverride != after.accountSyncIdOverride) ...[
+        'accountId',
+        'accountName',
+        'fromAccountId',
+        'fromAccountName'
+      ],
+      if (before.toAccountId != after.toAccountId ||
+          before.toAccountSyncIdOverride != after.toAccountSyncIdOverride) ...[
+        'toAccountId',
+        'toAccountName'
+      ],
+    };
+    if (relationKeys.isNotEmpty) {
+      final payload = await serializeTransactionForSync(db, after, null);
+      for (final key in relationKeys) {
+        // Empty strings are the cross-version wire representation for clearing
+        // a transaction's category/account relationship.
+        patch[key] = payload[key] ?? '';
+      }
+    }
+    if (patch.isEmpty) return;
+    await recordLedgerChange(
+        entityType: 'transaction',
+        entityId: after.id,
+        entitySyncId: after.syncId!,
+        ledgerId: after.ledgerId,
+        action: 'update',
+        payloadJson: jsonEncode(patch));
+  }
+
   /// 低层 insert,不对外暴露。路径统一:所有 record*Change 走这条,行为
   /// (日志 / insert 语义)一处维护。
   Future<void> _insert({
@@ -107,14 +175,28 @@ class ChangeTracker {
     required String action,
     String? payloadJson,
   }) async {
-    await db.into(db.localChanges).insert(LocalChangesCompanion.insert(
-      entityType: entityType,
-      entityId: entityId,
-      entitySyncId: entitySyncId,
-      ledgerId: ledgerId,
-      action: action,
-      payloadJson: d.Value(payloadJson),
-    ));
+    await db.transaction(() async {
+      final previous = await (db.select(db.localChanges)
+            ..where((c) =>
+                c.entityType.equals(entityType) &
+                c.entitySyncId.equals(entitySyncId) &
+                c.writeMicros.isNotNull())
+            ..orderBy([(c) => d.OrderingTerm.desc(c.id)])
+            ..limit(1))
+          .getSingleOrNull();
+      final now = DateTime.now().microsecondsSinceEpoch;
+      final last = previous?.writeMicros ?? 0;
+      await db.into(db.localChanges).insert(LocalChangesCompanion.insert(
+            entityType: entityType,
+            entityId: entityId,
+            entitySyncId: entitySyncId,
+            ledgerId: ledgerId,
+            action: action,
+            payloadJson: d.Value(payloadJson),
+            operationId: d.Value(const Uuid().v4()),
+            writeMicros: d.Value(now > last ? now : last + 1),
+          ));
+    });
     logger.debug('ChangeTracker', '$action $entityType($entitySyncId)');
   }
 
@@ -147,13 +229,13 @@ class ChangeTracker {
 
     final now = DateTime.now();
     await db.into(db.localChanges).insert(LocalChangesCompanion.insert(
-      entityType: entityType,
-      entityId: entityId,
-      entitySyncId: entitySyncId,
-      ledgerId: ledgerId,
-      action: 'upsert',
-      pushedAt: d.Value(now),
-    ));
+          entityType: entityType,
+          entityId: entityId,
+          entitySyncId: entitySyncId,
+          ledgerId: ledgerId,
+          action: 'upsert',
+          pushedAt: d.Value(now),
+        ));
     logger.debug('ChangeTracker',
         'pulled-from-server marker: $entityType($entitySyncId)');
   }
@@ -174,21 +256,35 @@ class ChangeTracker {
         .get();
   }
 
+  Future<LocalChange?> pendingEntity(String entityType, String syncId) =>
+      (db.select(db.localChanges)
+            ..where((c) =>
+                c.entityType.equals(entityType) &
+                c.entitySyncId.equals(syncId) &
+                c.pushedAt.isNull())
+            ..orderBy([(c) => d.OrderingTerm.desc(c.id)])
+            ..limit(1))
+          .getSingleOrNull();
+
+  Future<bool> hasPendingEntity(String entityType, String entitySyncId) async =>
+      await pendingEntity(entityType, entitySyncId) != null;
+
   /// 标记变更已推送
   Future<void> markPushed(List<int> changeIds) async {
     if (changeIds.isEmpty) return;
     final now = DateTime.now();
-    await (db.update(db.localChanges)
-          ..where((c) => c.id.isIn(changeIds)))
+    await (db.update(db.localChanges)..where((c) => c.id.isIn(changeIds)))
         .write(LocalChangesCompanion(pushedAt: d.Value(now)));
     logger.debug('ChangeTracker', '标记 ${changeIds.length} 条变更已推送');
   }
 
   /// 清理已推送的旧变更（保留最近 7 天）
-  Future<int> cleanupPushedChanges({Duration retention = const Duration(days: 7)}) async {
+  Future<int> cleanupPushedChanges(
+      {Duration retention = const Duration(days: 7)}) async {
     final cutoff = DateTime.now().subtract(retention);
     final count = await (db.delete(db.localChanges)
-          ..where((c) => c.pushedAt.isNotNull() & c.pushedAt.isSmallerThanValue(cutoff)))
+          ..where((c) =>
+              c.pushedAt.isNotNull() & c.pushedAt.isSmallerThanValue(cutoff)))
         .go();
     if (count > 0) {
       logger.info('ChangeTracker', '清理 $count 条已推送的旧变更');

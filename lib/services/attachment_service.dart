@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:crypto/crypto.dart';
@@ -124,19 +125,18 @@ class AttachmentService {
       final File savedFile;
       int? width;
       int? height;
-      final int fileSize;
+      final Uint8List bytes;
       if (urgent) {
         // 跳过压缩,sync copy。iOS background launch 状态下唯一可靠的写法。
         // 同时跳过 _getImageInfo:它走 ui.instantiateImageCodec 也是 platform
         // channel,后台冻结时也卡。width/height 留 null 不影响主功能。
-        final bytes = sourceFile.readAsBytesSync();
+        bytes = sourceFile.readAsBytesSync();
         fileName = 'sha_${sha256.convert(bytes)}$finalExt';
         final destPath = '${dir.path}/$fileName';
         savedFile = File(destPath);
         if (!savedFile.existsSync()) {
           sourceFile.copySync(destPath);
         }
-        fileSize = savedFile.lengthSync();
       } else {
         final keepOriginal =
             await ref.read(attachmentKeepOriginalProvider.future);
@@ -154,7 +154,7 @@ class AttachmentService {
           }
           fileToStore = compressedFile;
         }
-        final bytes = await fileToStore.readAsBytes();
+        bytes = await fileToStore.readAsBytes();
         fileName = 'sha_${sha256.convert(bytes)}$finalExt';
         final destPath = '${dir.path}/$fileName';
         if (await File(destPath).exists()) {
@@ -165,10 +165,9 @@ class AttachmentService {
           await fileToStore.rename(destPath);
         }
         savedFile = File(destPath);
-        final imageInfo = await _getImageInfo(savedFile.path);
+        final imageInfo = await _getImageInfo(bytes);
         width = imageInfo?.width;
         height = imageInfo?.height;
-        fileSize = await savedFile.length();
       }
 
       // 保存到数据库(Drift FFI,纯 Dart,不走 platform channel,不受冻结影响)
@@ -177,11 +176,21 @@ class AttachmentService {
         transactionId: transactionId,
         fileName: fileName,
         originalName: path.basename(sourceFile.path),
-        fileSize: fileSize,
+        fileSize: bytes.length,
         width: width,
         height: height,
         sortOrder: index,
       );
+      // A simultaneous pull can remove the previous last reference while this
+      // link is being created. Once it is committed, restore the original if
+      // that cleanup ran between deduplication and insertion.
+      if (!savedFile.existsSync()) {
+        if (urgent) {
+          savedFile.writeAsBytesSync(bytes);
+        } else {
+          await savedFile.writeAsBytes(bytes);
+        }
+      }
 
       logger.info('AttachmentService',
           '附件保存成功${urgent ? "(urgent/sync copy)" : ""}: $fileName');
@@ -408,11 +417,10 @@ class AttachmentService {
   }
 
   /// 获取图片尺寸信息
-  Future<({int width, int height})?> _getImageInfo(String imagePath) async {
+  Future<({int width, int height})?> _getImageInfo(Uint8List bytes) async {
     ui.ImmutableBuffer? buffer;
     ui.ImageDescriptor? descriptor;
     try {
-      final bytes = await File(imagePath).readAsBytes();
       // 只读取尺寸，避免为长截图解码整张原图而占用大量内存。
       buffer = await ui.ImmutableBuffer.fromUint8List(bytes);
       descriptor = await ui.ImageDescriptor.encoded(buffer);

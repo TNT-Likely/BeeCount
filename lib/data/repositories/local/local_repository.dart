@@ -1,9 +1,13 @@
+import 'dart:convert';
+
 import 'package:flutter_cloud_sync/flutter_cloud_sync.dart' show CloudServiceStore;
 import 'package:drift/drift.dart' as d;
 import 'package:uuid/uuid.dart';
+import 'package:flutter/foundation.dart' show listEquals;
 
 import '../../db.dart';
 import '../../../cloud/sync/change_tracker.dart';
+import '../../../cloud/sync/transaction_sync_payload.dart' show readTransactionSyncTags;
 import '../../../services/currency/rate_math.dart';
 import '../../../utils/shared_ledger_picker_filter.dart';
 import '../../../utils/app_localizations_resolver.dart';
@@ -132,30 +136,50 @@ class LocalRepository extends BaseRepository {
 
   @override
   Future<void> updateLedgerName({required int id, required String name}) =>
-      _ledgerRepo.updateLedgerName(id: id, name: name);
+      updateLedger(id: id, name: name);
 
   @override
   Future<void> updateLedger(
       {required int id,
       String? name,
       String? currency,
-      int? monthStartDay}) async {
-    await _ledgerRepo.updateLedger(
-        id: id, name: name, currency: currency, monthStartDay: monthStartDay);
-    if (changeTracker != null) {
-      final row = await (db.select(db.ledgers)..where((l) => l.id.equals(id)))
-          .getSingleOrNull();
-      if (row != null && row.syncId != null && row.syncId!.isNotEmpty) {
-        await changeTracker!.recordLedgerChange(
-          entityType: 'ledger',
-          entityId: id,
-          entitySyncId: row.syncId!,
-          ledgerId: id,
-          action: 'update',
-        );
-      }
-    }
-  }
+      int? monthStartDay}) =>
+      db.transaction(() async {
+        final row = await getLedgerById(id);
+        if (row == null) return;
+        final day = monthStartDay?.clamp(1, 28);
+        final patch = {
+          if (name != null && name != row.name) 'ledgerName': name,
+          if (currency != null && currency != row.currency) 'currency': currency,
+          if (day != null && day != row.monthStartDay) 'monthStartDay': day,
+        };
+        if (patch.isEmpty) return;
+        await _ledgerRepo.updateLedger(
+            id: id, name: name, currency: currency, monthStartDay: day);
+        if (row.syncId?.isNotEmpty == true) {
+          await changeTracker?.recordLedgerChange(
+            entityType: 'ledger',
+            entityId: id,
+            entitySyncId: row.syncId!,
+            ledgerId: id,
+            action: 'update',
+            payloadJson: jsonEncode(patch),
+          );
+        }
+      });
+
+  @override
+  Future<int> updateLedgerAndRecalculateAmounts({
+    required int id,
+    required String currency,
+    String? name,
+    int? monthStartDay,
+  }) =>
+      db.transaction(() async {
+        await updateLedger(
+            id: id, name: name, currency: currency, monthStartDay: monthStartDay);
+        return _recalcNativeAmountsInner(id, currency, onlyUnconverted: false);
+      });
 
   @override
   Future<void> deleteLedger(int id) async {
@@ -386,38 +410,40 @@ class LocalRepository extends BaseRepository {
       currencyCode: currencyCode,
       nativeAmount: nativeAmount,
     );
-    final id = await _transactionRepo.addTransaction(
-      ledgerId: ledgerId,
-      type: type,
-      amount: amount,
-      categoryId: categoryId,
-      accountId: accountId,
-      toAccountId: toAccountId,
-      happenedAt: happenedAt,
-      note: note,
-      syncId: syncId,
-      categorySyncIdOverride: categorySyncIdOverride,
-      accountSyncIdOverride: accountSyncIdOverride,
-      toAccountSyncIdOverride: toAccountSyncIdOverride,
-      excludeFromStats: excludeFromStats,
-      excludeFromBudget: excludeFromBudget,
-      recurringId: recurringId,
-      currencyCode: cc,
-      nativeAmount: na,
-    );
-    if (changeTracker != null) {
-      final tx = await _transactionRepo.getTransactionById(id);
-      if (tx != null) {
-        await changeTracker!.recordLedgerChange(
-          entityType: 'transaction',
-          entityId: id,
-          entitySyncId: tx.syncId!,
-          ledgerId: ledgerId,
-          action: 'create',
-        );
+    return db.transaction(() async {
+      final id = await _transactionRepo.addTransaction(
+        ledgerId: ledgerId,
+        type: type,
+        amount: amount,
+        categoryId: categoryId,
+        accountId: accountId,
+        toAccountId: toAccountId,
+        happenedAt: happenedAt,
+        note: note,
+        syncId: syncId,
+        categorySyncIdOverride: categorySyncIdOverride,
+        accountSyncIdOverride: accountSyncIdOverride,
+        toAccountSyncIdOverride: toAccountSyncIdOverride,
+        excludeFromStats: excludeFromStats,
+        excludeFromBudget: excludeFromBudget,
+        recurringId: recurringId,
+        currencyCode: cc,
+        nativeAmount: na,
+      );
+      if (changeTracker != null) {
+        final tx = await _transactionRepo.getTransactionById(id);
+        if (tx != null) {
+          await changeTracker!.recordLedgerChange(
+            entityType: 'transaction',
+            entityId: id,
+            entitySyncId: tx.syncId!,
+            ledgerId: ledgerId,
+            action: 'create',
+          );
+        }
       }
-    }
-    return id;
+      return id;
+    });
   }
 
   @override
@@ -479,98 +505,78 @@ class LocalRepository extends BaseRepository {
     String? currencyCode,
     double? nativeAmount,
   }) async {
-    final old = await _transactionRepo.getTransactionById(id);
-    // v30 联动兜底(与 Cloud merge/mutator 的 L14 同规则):调用方不传两字段时——
-    //   a) 账户变了(如转账换账户对,transfer_form 不传币种)→ 币种应跟随新
-    //      账户,按新币种重新解析+折算(审查发现:原只联动 amount,换账户后
-    //      currencyCode 残留旧币种);
-    //   b) 仅 amount 变了 → 按该笔隐含汇率联动缩放;amount 未变 → 不动。
-    var effCurrency = currencyCode;
-    var effNative = nativeAmount;
-    if (currencyCode == null && nativeAmount == null && old != null) {
-      final int? newAccountId = accountId is d.Value<int?>
-          ? accountId.value
-          : (accountId is int ? accountId : old.accountId);
-      final accountChanged = (accountId is d.Value<int?> || accountId is int) &&
-          newAccountId != old.accountId;
-      if (accountChanged) {
-        final (cc, na) = await _resolveTxCurrency(
-          ledgerId: old.ledgerId,
-          accountId: newAccountId,
-          amount: amount,
-        );
-        effCurrency = cc;
-        effNative = na;
-      } else if (old.nativeAmount != null && old.amount != amount) {
-        final oldNative = old.nativeAmount!;
-        if (old.amount == 0 || oldNative == old.amount) {
-          effNative = amount; // 同币种/未折算(隐含汇率 1)→ 跟随
-        } else {
-          effNative = oldNative / old.amount * amount; // 外币按隐含汇率缩放
+    return db.transaction(() async {
+      final old = await _transactionRepo.getTransactionById(id);
+      // v30 联动兜底(与 Cloud merge/mutator 的 L14 同规则):调用方不传两字段时——
+      //   a) 账户变了(如转账换账户对,transfer_form 不传币种)→ 币种应跟随新
+      //      账户,按新币种重新解析+折算(审查发现:原只联动 amount,换账户后
+      //      currencyCode 残留旧币种);
+      //   b) 仅 amount 变了 → 按该笔隐含汇率联动缩放;amount 未变 → 不动。
+      var effCurrency = currencyCode;
+      var effNative = nativeAmount;
+      if (currencyCode == null && nativeAmount == null && old != null) {
+        final int? newAccountId = accountId is d.Value<int?>
+            ? accountId.value
+            : (accountId is int ? accountId : old.accountId);
+        final accountChanged = (accountId is d.Value<int?> || accountId is int) &&
+            newAccountId != old.accountId;
+        if (accountChanged) {
+          final (cc, na) = await _resolveTxCurrency(
+            ledgerId: old.ledgerId,
+            accountId: newAccountId,
+            amount: amount,
+          );
+          effCurrency = cc;
+          effNative = na;
+        } else if (old.nativeAmount != null && old.amount != amount) {
+          final oldNative = old.nativeAmount!;
+          if (old.amount == 0 || oldNative == old.amount) {
+            effNative = amount; // 同币种/未折算(隐含汇率 1)→ 跟随
+          } else {
+            effNative = oldNative / old.amount * amount; // 外币按隐含汇率缩放
+          }
         }
       }
-    }
-    if (changeTracker != null) {
-      if (old?.syncId != null) {
-        await _transactionRepo.updateTransaction(
-          id: id,
-          type: type,
-          amount: amount,
-          categoryId: categoryId,
-          note: note,
-          happenedAt: happenedAt,
-          accountId: accountId,
-          categorySyncIdOverride: categorySyncIdOverride,
-          accountSyncIdOverride: accountSyncIdOverride,
-          toAccountSyncIdOverride: toAccountSyncIdOverride,
-          excludeFromStats: excludeFromStats,
-          excludeFromBudget: excludeFromBudget,
-          currencyCode: effCurrency,
-          nativeAmount: effNative,
-        );
-        await changeTracker!.recordLedgerChange(
-          entityType: 'transaction',
-          entityId: id,
-          entitySyncId: old!.syncId!,
-          ledgerId: old.ledgerId,
-          action: 'update',
-        );
-        return;
+      await _transactionRepo.updateTransaction(
+        id: id,
+        type: type,
+        amount: amount,
+        categoryId: categoryId,
+        note: note,
+        happenedAt: happenedAt,
+        accountId: accountId,
+        categorySyncIdOverride: categorySyncIdOverride,
+        accountSyncIdOverride: accountSyncIdOverride,
+        toAccountSyncIdOverride: toAccountSyncIdOverride,
+        excludeFromStats: excludeFromStats,
+        excludeFromBudget: excludeFromBudget,
+        currencyCode: effCurrency,
+        nativeAmount: effNative,
+      );
+      if (changeTracker != null && old?.syncId != null) {
+        final updated = await _transactionRepo.getTransactionById(id);
+        if (updated != null) await changeTracker!.recordTransactionEdit(old!, updated);
       }
-    }
-    await _transactionRepo.updateTransaction(
-      id: id,
-      type: type,
-      amount: amount,
-      categoryId: categoryId,
-      note: note,
-      happenedAt: happenedAt,
-      accountId: accountId,
-      categorySyncIdOverride: categorySyncIdOverride,
-      accountSyncIdOverride: accountSyncIdOverride,
-      toAccountSyncIdOverride: toAccountSyncIdOverride,
-      excludeFromStats: excludeFromStats,
-      excludeFromBudget: excludeFromBudget,
-      currencyCode: effCurrency,
-      nativeAmount: effNative,
-    );
+    });
   }
 
   @override
   Future<void> deleteTransaction(int id) async {
-    if (changeTracker != null) {
-      final tx = await _transactionRepo.getTransactionById(id);
-      if (tx?.syncId != null) {
-        await changeTracker!.recordLedgerChange(
-          entityType: 'transaction',
-          entityId: id,
-          entitySyncId: tx!.syncId!,
-          ledgerId: tx.ledgerId,
-          action: 'delete',
-        );
+    return db.transaction(() async {
+      if (changeTracker != null) {
+        final tx = await _transactionRepo.getTransactionById(id);
+        if (tx?.syncId != null) {
+          await changeTracker!.recordLedgerChange(
+            entityType: 'transaction',
+            entityId: id,
+            entitySyncId: tx!.syncId!,
+            ledgerId: tx.ledgerId,
+            action: 'delete',
+          );
+        }
       }
-    }
-    await _transactionRepo.deleteTransaction(id);
+      await _transactionRepo.deleteTransaction(id);
+    });
   }
 
   @override
@@ -1613,8 +1619,34 @@ class LocalRepository extends BaseRepository {
 
   @override
   Future<void> updateCategorySortOrders(
-          List<({int id, int sortOrder})> updates) =>
-      _categoryRepo.updateCategorySortOrders(updates);
+      List<({int id, int sortOrder})> updates) async {
+    if (updates.isEmpty) return;
+    final tracker = changeTracker;
+    if (tracker == null) return _categoryRepo.updateCategorySortOrders(updates);
+
+    final orders = {for (final update in updates) update.id: update.sortOrder};
+    await db.transaction(() async {
+      final categories = await (db.select(db.categories)
+            ..where((row) => row.id.isIn(orders.keys)))
+          .get();
+      for (final category in categories) {
+        final order = orders[category.id]!;
+        if (category.sortOrder == order) continue;
+        final syncId =
+            (category.syncId ?? '').isEmpty ? _uuid.v4() : category.syncId!;
+        await (db.update(db.categories)
+              ..where((row) => row.id.equals(category.id)))
+            .write(CategoriesCompanion(
+                sortOrder: d.Value(order), syncId: d.Value(syncId)));
+        await tracker.recordUserGlobalChange(
+          entityType: 'category',
+          entityId: category.id,
+          entitySyncId: syncId,
+          action: 'update',
+        );
+      }
+    });
+  }
 
   @override
   Future<String> getCategoryFullName(int categoryId) =>
@@ -2275,8 +2307,28 @@ class LocalRepository extends BaseRepository {
           _accountRepo.getAssetCompositionByTypeAndCurrency();
 
   @override
-  Future<void> updateAccountValuation(int accountId, double newValue) =>
-      _accountRepo.updateAccountValuation(accountId, newValue);
+  Future<void> updateAccountValuation(int accountId, double newValue) async {
+    final tracker = changeTracker;
+    if (tracker == null)
+      return _accountRepo.updateAccountValuation(accountId, newValue);
+    await db.transaction(() async {
+      final account = await _accountRepo.getAccount(accountId);
+      if (account == null) return;
+      await _accountRepo.updateAccountValuation(accountId, newValue);
+      var syncId = account.syncId;
+      if (syncId == null || syncId.isEmpty) {
+        syncId = _uuid.v4();
+        await (db.update(db.accounts)..where((row) => row.id.equals(accountId)))
+            .write(AccountsCompanion(syncId: d.Value(syncId)));
+      }
+      await tracker.recordUserGlobalChange(
+        entityType: 'account',
+        entityId: accountId,
+        entitySyncId: syncId,
+        action: 'update',
+      );
+    });
+  }
 
   @override
   Future<SharedLedgerAccount?> getSharedAccountBySyncId(String syncId) =>
@@ -2758,40 +2810,104 @@ class LocalRepository extends BaseRepository {
     });
   }
 
-  @override
-  Future<void> addTagToTransaction({
-    required int transactionId,
-    required int tagId,
-  }) =>
-      _tagRepo.addTagToTransaction(transactionId: transactionId, tagId: tagId);
+  /// Persist only the tag relationship. A later edit to an unrelated field on
+  /// another device must survive an offline tag change.
+  Future<void> _editTransactionTags(int transactionId,
+      Future<void> Function(Transaction tx, String? ledgerSyncId) edit) {
+    return db.transaction(() async {
+      var tx = await _transactionRepo.getTransactionById(transactionId);
+      if (tx == null) return;
+      final ledgerSyncId = (await getLedgerById(tx.ledgerId))?.syncId;
+      final tracker = changeTracker;
+      if (tracker == null) return edit(tx, ledgerSyncId);
+      if ((tx.syncId ?? '').isEmpty) {
+        final id = _uuid.v4();
+        await (db.update(db.transactions)
+              ..where((row) => row.id.equals(transactionId)))
+            .write(TransactionsCompanion(syncId: d.Value(id)));
+        tx = tx.copyWith(syncId: d.Value(id));
+      }
+      final before = await readTransactionSyncTags(db, tx, ledgerSyncId);
+      await edit(tx, ledgerSyncId);
+      final after = await readTransactionSyncTags(db, tx, ledgerSyncId);
+      if (listEquals(before.names, after.names) &&
+          listEquals(before.ids, after.ids)) return;
+      await tracker.recordLedgerChange(
+        entityType: 'transaction',
+        entityId: tx.id,
+        entitySyncId: tx.syncId!,
+        ledgerId: tx.ledgerId,
+        action: 'update',
+        payloadJson:
+            jsonEncode({'tags': after.names.join(','), 'tagIds': after.ids}),
+      );
+    });
+  }
 
   @override
-  Future<void> addTagsToTransaction({
-    required int transactionId,
-    required List<int> tagIds,
-  }) =>
-      _tagRepo.addTagsToTransaction(
-          transactionId: transactionId, tagIds: tagIds);
+  Future<void> addTagToTransaction(
+          {required int transactionId, required int tagId}) =>
+      _editTransactionTags(
+          transactionId,
+          (_, __) => _tagRepo.addTagToTransaction(
+              transactionId: transactionId, tagId: tagId));
 
   @override
-  Future<void> removeTagFromTransaction({
-    required int transactionId,
-    required int tagId,
-  }) =>
-      _tagRepo.removeTagFromTransaction(
-          transactionId: transactionId, tagId: tagId);
+  Future<void> addTagsToTransaction(
+          {required int transactionId, required List<int> tagIds}) =>
+      _editTransactionTags(
+          transactionId,
+          (_, __) => _tagRepo.addTagsToTransaction(
+              transactionId: transactionId, tagIds: tagIds));
+
+  @override
+  Future<void> removeTagFromTransaction(
+          {required int transactionId, required int tagId}) =>
+      _editTransactionTags(
+          transactionId,
+          (_, __) => _tagRepo.removeTagFromTransaction(
+              transactionId: transactionId, tagId: tagId));
 
   @override
   Future<void> removeAllTagsFromTransaction(int transactionId) =>
-      _tagRepo.removeAllTagsFromTransaction(transactionId);
+      updateTransactionTags(transactionId: transactionId, tagIds: const []);
 
   @override
-  Future<void> updateTransactionTags({
-    required int transactionId,
-    required List<int> tagIds,
-  }) =>
-      _tagRepo.updateTransactionTags(
-          transactionId: transactionId, tagIds: tagIds);
+  Future<void> updateTransactionTags(
+          {required int transactionId, required List<int> tagIds}) =>
+      _editTransactionTags(transactionId, (tx, ledgerSyncId) async {
+        await _tagRepo.updateTransactionTags(
+            transactionId: transactionId,
+            tagIds: tagIds.where((id) => id >= 0).toList());
+        final requested = tagIds.where((id) => id < 0).toSet();
+        if (tx.syncId == null) {
+          if (requested.isNotEmpty)
+            throw StateError(
+                'Shared tags require a synchronized transaction identity');
+          return;
+        }
+        await (db.delete(db.transactionTagOverrides)
+              ..where((row) => row.transactionSyncId.equals(tx.syncId!)))
+            .go();
+        if (requested.isEmpty) return;
+        final shared = await (db.select(db.sharedLedgerTags)
+              ..where((row) => row.ledgerSyncId.equals(ledgerSyncId ?? '')))
+            .get();
+        final selected = shared
+            .where(
+                (tag) => requested.contains(syntheticIdForSyncId(tag.syncId)))
+            .toList();
+        if (selected.length != requested.length)
+          throw StateError('The selected shared tag is no longer available');
+        final now = DateTime.now().toUtc();
+        await db.batch((batch) => batch.insertAll(db.transactionTagOverrides, [
+              for (final tag in selected)
+                TransactionTagOverridesCompanion.insert(
+                    transactionSyncId: tx.syncId!,
+                    tagSyncId: tag.syncId,
+                    createdAt: now),
+            ]));
+      });
 
   @override
   Future<List<Tag>> getTagsForTransaction(int transactionId) =>

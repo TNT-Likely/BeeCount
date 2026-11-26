@@ -777,7 +777,7 @@ final syncServiceProvider = Provider<SyncService>((ref) {
           ref.read(cachedTransactionsProvider.notifier).state = null;
           // 不再无条件 bump avatarRefreshProvider — engine.onAvatarChanged
           // 只在真下载头像时触发,避免每次 bootstrap 闪一次头像。
-          ref.read(lastSyncErrorProvider.notifier).state = null;
+          ref.read(lastSyncErrorProvider.notifier).state = result.error;
         } catch (e, st) {
           logger.error('SyncProvider', '自动同步异常', e, st);
           ref.read(lastSyncErrorProvider.notifier).state = e.toString();

@@ -35,30 +35,8 @@ class TransactionBatchBinding {
                 'Shared tags require a synchronized transaction identity');
           }
         },
-        update: (transaction) async {
-          await repo.updateTransactionTags(
-              transactionId: transaction.id,
-              tagIds: ids.where((id) => id >= 0).toList());
-          if (repo is LocalRepository && transaction.syncId != null) {
-            await (repo.db.delete(repo.db.transactionTagOverrides)
-                  ..where(
-                      (t) => t.transactionSyncId.equals(transaction.syncId!)))
-                .go();
-            for (final id in ids.where((id) => id < 0)) {
-              await repo.db.into(repo.db.transactionTagOverrides).insert(
-                  TransactionTagOverridesCompanion.insert(
-                      transactionSyncId: transaction.syncId!,
-                      tagSyncId: byId[id]!.syncId!,
-                      createdAt: DateTime.now().toUtc()));
-            }
-            await repo.changeTracker?.recordLedgerChange(
-                entityType: 'transaction',
-                entityId: transaction.id,
-                entitySyncId: transaction.syncId!,
-                ledgerId: ledgerId,
-                action: 'update');
-          }
-        });
+        update: (transaction) => repo.updateTransactionTags(
+            transactionId: transaction.id, tagIds: ids.toList()));
   }
 
   Future<int> replaceNotes({

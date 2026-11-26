@@ -4140,6 +4140,8 @@ class $ConversationsTable extends Conversations
 
 class Conversation extends DataClass implements Insertable<Conversation> {
   final int id;
+
+  /// Older global conversations are adopted on first access.
   final int? ledgerId;
   final String title;
   final DateTime createdAt;
@@ -8084,6 +8086,42 @@ class $LocalChangesTable extends LocalChanges
   late final GeneratedColumn<String> payloadJson = GeneratedColumn<String>(
       'payload_json', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _operationIdMeta =
+      const VerificationMeta('operationId');
+  @override
+  late final GeneratedColumn<String> operationId = GeneratedColumn<String>(
+      'operation_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _writeMicrosMeta =
+      const VerificationMeta('writeMicros');
+  @override
+  late final GeneratedColumn<int> writeMicros = GeneratedColumn<int>(
+      'write_micros', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _wireJsonMeta =
+      const VerificationMeta('wireJson');
+  @override
+  late final GeneratedColumn<String> wireJson = GeneratedColumn<String>(
+      'wire_json', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _deferredJsonMeta =
+      const VerificationMeta('deferredJson');
+  @override
+  late final GeneratedColumn<String> deferredJson = GeneratedColumn<String>(
+      'deferred_json', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _confirmedChangeIdMeta =
+      const VerificationMeta('confirmedChangeId');
+  @override
+  late final GeneratedColumn<int> confirmedChangeId = GeneratedColumn<int>(
+      'confirmed_change_id', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _receiptScopeMeta =
+      const VerificationMeta('receiptScope');
+  @override
+  late final GeneratedColumn<String> receiptScope = GeneratedColumn<String>(
+      'receipt_scope', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _createdAtMeta =
       const VerificationMeta('createdAt');
   @override
@@ -8107,6 +8145,12 @@ class $LocalChangesTable extends LocalChanges
         ledgerId,
         action,
         payloadJson,
+        operationId,
+        writeMicros,
+        wireJson,
+        deferredJson,
+        confirmedChangeId,
+        receiptScope,
         createdAt,
         pushedAt
       ];
@@ -8163,6 +8207,40 @@ class $LocalChangesTable extends LocalChanges
           payloadJson.isAcceptableOrUnknown(
               data['payload_json']!, _payloadJsonMeta));
     }
+    if (data.containsKey('operation_id')) {
+      context.handle(
+          _operationIdMeta,
+          operationId.isAcceptableOrUnknown(
+              data['operation_id']!, _operationIdMeta));
+    }
+    if (data.containsKey('write_micros')) {
+      context.handle(
+          _writeMicrosMeta,
+          writeMicros.isAcceptableOrUnknown(
+              data['write_micros']!, _writeMicrosMeta));
+    }
+    if (data.containsKey('wire_json')) {
+      context.handle(_wireJsonMeta,
+          wireJson.isAcceptableOrUnknown(data['wire_json']!, _wireJsonMeta));
+    }
+    if (data.containsKey('deferred_json')) {
+      context.handle(
+          _deferredJsonMeta,
+          deferredJson.isAcceptableOrUnknown(
+              data['deferred_json']!, _deferredJsonMeta));
+    }
+    if (data.containsKey('confirmed_change_id')) {
+      context.handle(
+          _confirmedChangeIdMeta,
+          confirmedChangeId.isAcceptableOrUnknown(
+              data['confirmed_change_id']!, _confirmedChangeIdMeta));
+    }
+    if (data.containsKey('receipt_scope')) {
+      context.handle(
+          _receiptScopeMeta,
+          receiptScope.isAcceptableOrUnknown(
+              data['receipt_scope']!, _receiptScopeMeta));
+    }
     if (data.containsKey('created_at')) {
       context.handle(_createdAtMeta,
           createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
@@ -8194,6 +8272,18 @@ class $LocalChangesTable extends LocalChanges
           .read(DriftSqlType.string, data['${effectivePrefix}action'])!,
       payloadJson: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}payload_json']),
+      operationId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}operation_id']),
+      writeMicros: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}write_micros']),
+      wireJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}wire_json']),
+      deferredJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}deferred_json']),
+      confirmedChangeId: attachedDatabase.typeMapping.read(
+          DriftSqlType.int, data['${effectivePrefix}confirmed_change_id']),
+      receiptScope: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}receipt_scope']),
       createdAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
       pushedAt: attachedDatabase.typeMapping
@@ -8215,6 +8305,12 @@ class LocalChange extends DataClass implements Insertable<LocalChange> {
   final int ledgerId;
   final String action;
   final String? payloadJson;
+  final String? operationId;
+  final int? writeMicros;
+  final String? wireJson;
+  final String? deferredJson;
+  final int? confirmedChangeId;
+  final String? receiptScope;
   final DateTime createdAt;
   final DateTime? pushedAt;
   const LocalChange(
@@ -8225,6 +8321,12 @@ class LocalChange extends DataClass implements Insertable<LocalChange> {
       required this.ledgerId,
       required this.action,
       this.payloadJson,
+      this.operationId,
+      this.writeMicros,
+      this.wireJson,
+      this.deferredJson,
+      this.confirmedChangeId,
+      this.receiptScope,
       required this.createdAt,
       this.pushedAt});
   @override
@@ -8238,6 +8340,24 @@ class LocalChange extends DataClass implements Insertable<LocalChange> {
     map['action'] = Variable<String>(action);
     if (!nullToAbsent || payloadJson != null) {
       map['payload_json'] = Variable<String>(payloadJson);
+    }
+    if (!nullToAbsent || operationId != null) {
+      map['operation_id'] = Variable<String>(operationId);
+    }
+    if (!nullToAbsent || writeMicros != null) {
+      map['write_micros'] = Variable<int>(writeMicros);
+    }
+    if (!nullToAbsent || wireJson != null) {
+      map['wire_json'] = Variable<String>(wireJson);
+    }
+    if (!nullToAbsent || deferredJson != null) {
+      map['deferred_json'] = Variable<String>(deferredJson);
+    }
+    if (!nullToAbsent || confirmedChangeId != null) {
+      map['confirmed_change_id'] = Variable<int>(confirmedChangeId);
+    }
+    if (!nullToAbsent || receiptScope != null) {
+      map['receipt_scope'] = Variable<String>(receiptScope);
     }
     map['created_at'] = Variable<DateTime>(createdAt);
     if (!nullToAbsent || pushedAt != null) {
@@ -8257,6 +8377,24 @@ class LocalChange extends DataClass implements Insertable<LocalChange> {
       payloadJson: payloadJson == null && nullToAbsent
           ? const Value.absent()
           : Value(payloadJson),
+      operationId: operationId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(operationId),
+      writeMicros: writeMicros == null && nullToAbsent
+          ? const Value.absent()
+          : Value(writeMicros),
+      wireJson: wireJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(wireJson),
+      deferredJson: deferredJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deferredJson),
+      confirmedChangeId: confirmedChangeId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(confirmedChangeId),
+      receiptScope: receiptScope == null && nullToAbsent
+          ? const Value.absent()
+          : Value(receiptScope),
       createdAt: Value(createdAt),
       pushedAt: pushedAt == null && nullToAbsent
           ? const Value.absent()
@@ -8275,6 +8413,12 @@ class LocalChange extends DataClass implements Insertable<LocalChange> {
       ledgerId: serializer.fromJson<int>(json['ledgerId']),
       action: serializer.fromJson<String>(json['action']),
       payloadJson: serializer.fromJson<String?>(json['payloadJson']),
+      operationId: serializer.fromJson<String?>(json['operationId']),
+      writeMicros: serializer.fromJson<int?>(json['writeMicros']),
+      wireJson: serializer.fromJson<String?>(json['wireJson']),
+      deferredJson: serializer.fromJson<String?>(json['deferredJson']),
+      confirmedChangeId: serializer.fromJson<int?>(json['confirmedChangeId']),
+      receiptScope: serializer.fromJson<String?>(json['receiptScope']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       pushedAt: serializer.fromJson<DateTime?>(json['pushedAt']),
     );
@@ -8290,6 +8434,12 @@ class LocalChange extends DataClass implements Insertable<LocalChange> {
       'ledgerId': serializer.toJson<int>(ledgerId),
       'action': serializer.toJson<String>(action),
       'payloadJson': serializer.toJson<String?>(payloadJson),
+      'operationId': serializer.toJson<String?>(operationId),
+      'writeMicros': serializer.toJson<int?>(writeMicros),
+      'wireJson': serializer.toJson<String?>(wireJson),
+      'deferredJson': serializer.toJson<String?>(deferredJson),
+      'confirmedChangeId': serializer.toJson<int?>(confirmedChangeId),
+      'receiptScope': serializer.toJson<String?>(receiptScope),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'pushedAt': serializer.toJson<DateTime?>(pushedAt),
     };
@@ -8303,6 +8453,12 @@ class LocalChange extends DataClass implements Insertable<LocalChange> {
           int? ledgerId,
           String? action,
           Value<String?> payloadJson = const Value.absent(),
+          Value<String?> operationId = const Value.absent(),
+          Value<int?> writeMicros = const Value.absent(),
+          Value<String?> wireJson = const Value.absent(),
+          Value<String?> deferredJson = const Value.absent(),
+          Value<int?> confirmedChangeId = const Value.absent(),
+          Value<String?> receiptScope = const Value.absent(),
           DateTime? createdAt,
           Value<DateTime?> pushedAt = const Value.absent()}) =>
       LocalChange(
@@ -8313,6 +8469,16 @@ class LocalChange extends DataClass implements Insertable<LocalChange> {
         ledgerId: ledgerId ?? this.ledgerId,
         action: action ?? this.action,
         payloadJson: payloadJson.present ? payloadJson.value : this.payloadJson,
+        operationId: operationId.present ? operationId.value : this.operationId,
+        writeMicros: writeMicros.present ? writeMicros.value : this.writeMicros,
+        wireJson: wireJson.present ? wireJson.value : this.wireJson,
+        deferredJson:
+            deferredJson.present ? deferredJson.value : this.deferredJson,
+        confirmedChangeId: confirmedChangeId.present
+            ? confirmedChangeId.value
+            : this.confirmedChangeId,
+        receiptScope:
+            receiptScope.present ? receiptScope.value : this.receiptScope,
         createdAt: createdAt ?? this.createdAt,
         pushedAt: pushedAt.present ? pushedAt.value : this.pushedAt,
       );
@@ -8329,6 +8495,20 @@ class LocalChange extends DataClass implements Insertable<LocalChange> {
       action: data.action.present ? data.action.value : this.action,
       payloadJson:
           data.payloadJson.present ? data.payloadJson.value : this.payloadJson,
+      operationId:
+          data.operationId.present ? data.operationId.value : this.operationId,
+      writeMicros:
+          data.writeMicros.present ? data.writeMicros.value : this.writeMicros,
+      wireJson: data.wireJson.present ? data.wireJson.value : this.wireJson,
+      deferredJson: data.deferredJson.present
+          ? data.deferredJson.value
+          : this.deferredJson,
+      confirmedChangeId: data.confirmedChangeId.present
+          ? data.confirmedChangeId.value
+          : this.confirmedChangeId,
+      receiptScope: data.receiptScope.present
+          ? data.receiptScope.value
+          : this.receiptScope,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       pushedAt: data.pushedAt.present ? data.pushedAt.value : this.pushedAt,
     );
@@ -8344,6 +8524,12 @@ class LocalChange extends DataClass implements Insertable<LocalChange> {
           ..write('ledgerId: $ledgerId, ')
           ..write('action: $action, ')
           ..write('payloadJson: $payloadJson, ')
+          ..write('operationId: $operationId, ')
+          ..write('writeMicros: $writeMicros, ')
+          ..write('wireJson: $wireJson, ')
+          ..write('deferredJson: $deferredJson, ')
+          ..write('confirmedChangeId: $confirmedChangeId, ')
+          ..write('receiptScope: $receiptScope, ')
           ..write('createdAt: $createdAt, ')
           ..write('pushedAt: $pushedAt')
           ..write(')'))
@@ -8351,8 +8537,22 @@ class LocalChange extends DataClass implements Insertable<LocalChange> {
   }
 
   @override
-  int get hashCode => Object.hash(id, entityType, entityId, entitySyncId,
-      ledgerId, action, payloadJson, createdAt, pushedAt);
+  int get hashCode => Object.hash(
+      id,
+      entityType,
+      entityId,
+      entitySyncId,
+      ledgerId,
+      action,
+      payloadJson,
+      operationId,
+      writeMicros,
+      wireJson,
+      deferredJson,
+      confirmedChangeId,
+      receiptScope,
+      createdAt,
+      pushedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -8364,6 +8564,12 @@ class LocalChange extends DataClass implements Insertable<LocalChange> {
           other.ledgerId == this.ledgerId &&
           other.action == this.action &&
           other.payloadJson == this.payloadJson &&
+          other.operationId == this.operationId &&
+          other.writeMicros == this.writeMicros &&
+          other.wireJson == this.wireJson &&
+          other.deferredJson == this.deferredJson &&
+          other.confirmedChangeId == this.confirmedChangeId &&
+          other.receiptScope == this.receiptScope &&
           other.createdAt == this.createdAt &&
           other.pushedAt == this.pushedAt);
 }
@@ -8376,6 +8582,12 @@ class LocalChangesCompanion extends UpdateCompanion<LocalChange> {
   final Value<int> ledgerId;
   final Value<String> action;
   final Value<String?> payloadJson;
+  final Value<String?> operationId;
+  final Value<int?> writeMicros;
+  final Value<String?> wireJson;
+  final Value<String?> deferredJson;
+  final Value<int?> confirmedChangeId;
+  final Value<String?> receiptScope;
   final Value<DateTime> createdAt;
   final Value<DateTime?> pushedAt;
   const LocalChangesCompanion({
@@ -8386,6 +8598,12 @@ class LocalChangesCompanion extends UpdateCompanion<LocalChange> {
     this.ledgerId = const Value.absent(),
     this.action = const Value.absent(),
     this.payloadJson = const Value.absent(),
+    this.operationId = const Value.absent(),
+    this.writeMicros = const Value.absent(),
+    this.wireJson = const Value.absent(),
+    this.deferredJson = const Value.absent(),
+    this.confirmedChangeId = const Value.absent(),
+    this.receiptScope = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.pushedAt = const Value.absent(),
   });
@@ -8397,6 +8615,12 @@ class LocalChangesCompanion extends UpdateCompanion<LocalChange> {
     required int ledgerId,
     required String action,
     this.payloadJson = const Value.absent(),
+    this.operationId = const Value.absent(),
+    this.writeMicros = const Value.absent(),
+    this.wireJson = const Value.absent(),
+    this.deferredJson = const Value.absent(),
+    this.confirmedChangeId = const Value.absent(),
+    this.receiptScope = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.pushedAt = const Value.absent(),
   })  : entityType = Value(entityType),
@@ -8412,6 +8636,12 @@ class LocalChangesCompanion extends UpdateCompanion<LocalChange> {
     Expression<int>? ledgerId,
     Expression<String>? action,
     Expression<String>? payloadJson,
+    Expression<String>? operationId,
+    Expression<int>? writeMicros,
+    Expression<String>? wireJson,
+    Expression<String>? deferredJson,
+    Expression<int>? confirmedChangeId,
+    Expression<String>? receiptScope,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? pushedAt,
   }) {
@@ -8423,6 +8653,12 @@ class LocalChangesCompanion extends UpdateCompanion<LocalChange> {
       if (ledgerId != null) 'ledger_id': ledgerId,
       if (action != null) 'action': action,
       if (payloadJson != null) 'payload_json': payloadJson,
+      if (operationId != null) 'operation_id': operationId,
+      if (writeMicros != null) 'write_micros': writeMicros,
+      if (wireJson != null) 'wire_json': wireJson,
+      if (deferredJson != null) 'deferred_json': deferredJson,
+      if (confirmedChangeId != null) 'confirmed_change_id': confirmedChangeId,
+      if (receiptScope != null) 'receipt_scope': receiptScope,
       if (createdAt != null) 'created_at': createdAt,
       if (pushedAt != null) 'pushed_at': pushedAt,
     });
@@ -8436,6 +8672,12 @@ class LocalChangesCompanion extends UpdateCompanion<LocalChange> {
       Value<int>? ledgerId,
       Value<String>? action,
       Value<String?>? payloadJson,
+      Value<String?>? operationId,
+      Value<int?>? writeMicros,
+      Value<String?>? wireJson,
+      Value<String?>? deferredJson,
+      Value<int?>? confirmedChangeId,
+      Value<String?>? receiptScope,
       Value<DateTime>? createdAt,
       Value<DateTime?>? pushedAt}) {
     return LocalChangesCompanion(
@@ -8446,6 +8688,12 @@ class LocalChangesCompanion extends UpdateCompanion<LocalChange> {
       ledgerId: ledgerId ?? this.ledgerId,
       action: action ?? this.action,
       payloadJson: payloadJson ?? this.payloadJson,
+      operationId: operationId ?? this.operationId,
+      writeMicros: writeMicros ?? this.writeMicros,
+      wireJson: wireJson ?? this.wireJson,
+      deferredJson: deferredJson ?? this.deferredJson,
+      confirmedChangeId: confirmedChangeId ?? this.confirmedChangeId,
+      receiptScope: receiptScope ?? this.receiptScope,
       createdAt: createdAt ?? this.createdAt,
       pushedAt: pushedAt ?? this.pushedAt,
     );
@@ -8475,6 +8723,24 @@ class LocalChangesCompanion extends UpdateCompanion<LocalChange> {
     if (payloadJson.present) {
       map['payload_json'] = Variable<String>(payloadJson.value);
     }
+    if (operationId.present) {
+      map['operation_id'] = Variable<String>(operationId.value);
+    }
+    if (writeMicros.present) {
+      map['write_micros'] = Variable<int>(writeMicros.value);
+    }
+    if (wireJson.present) {
+      map['wire_json'] = Variable<String>(wireJson.value);
+    }
+    if (deferredJson.present) {
+      map['deferred_json'] = Variable<String>(deferredJson.value);
+    }
+    if (confirmedChangeId.present) {
+      map['confirmed_change_id'] = Variable<int>(confirmedChangeId.value);
+    }
+    if (receiptScope.present) {
+      map['receipt_scope'] = Variable<String>(receiptScope.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -8494,6 +8760,12 @@ class LocalChangesCompanion extends UpdateCompanion<LocalChange> {
           ..write('ledgerId: $ledgerId, ')
           ..write('action: $action, ')
           ..write('payloadJson: $payloadJson, ')
+          ..write('operationId: $operationId, ')
+          ..write('writeMicros: $writeMicros, ')
+          ..write('wireJson: $wireJson, ')
+          ..write('deferredJson: $deferredJson, ')
+          ..write('confirmedChangeId: $confirmedChangeId, ')
+          ..write('receiptScope: $receiptScope, ')
           ..write('createdAt: $createdAt, ')
           ..write('pushedAt: $pushedAt')
           ..write(')'))
@@ -16746,6 +17018,12 @@ typedef $$LocalChangesTableCreateCompanionBuilder = LocalChangesCompanion
   required int ledgerId,
   required String action,
   Value<String?> payloadJson,
+  Value<String?> operationId,
+  Value<int?> writeMicros,
+  Value<String?> wireJson,
+  Value<String?> deferredJson,
+  Value<int?> confirmedChangeId,
+  Value<String?> receiptScope,
   Value<DateTime> createdAt,
   Value<DateTime?> pushedAt,
 });
@@ -16758,6 +17036,12 @@ typedef $$LocalChangesTableUpdateCompanionBuilder = LocalChangesCompanion
   Value<int> ledgerId,
   Value<String> action,
   Value<String?> payloadJson,
+  Value<String?> operationId,
+  Value<int?> writeMicros,
+  Value<String?> wireJson,
+  Value<String?> deferredJson,
+  Value<int?> confirmedChangeId,
+  Value<String?> receiptScope,
   Value<DateTime> createdAt,
   Value<DateTime?> pushedAt,
 });
@@ -16791,6 +17075,25 @@ class $$LocalChangesTableFilterComposer
 
   ColumnFilters<String> get payloadJson => $composableBuilder(
       column: $table.payloadJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get operationId => $composableBuilder(
+      column: $table.operationId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get writeMicros => $composableBuilder(
+      column: $table.writeMicros, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get wireJson => $composableBuilder(
+      column: $table.wireJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get deferredJson => $composableBuilder(
+      column: $table.deferredJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get confirmedChangeId => $composableBuilder(
+      column: $table.confirmedChangeId,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get receiptScope => $composableBuilder(
+      column: $table.receiptScope, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnFilters(column));
@@ -16830,6 +17133,27 @@ class $$LocalChangesTableOrderingComposer
   ColumnOrderings<String> get payloadJson => $composableBuilder(
       column: $table.payloadJson, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get operationId => $composableBuilder(
+      column: $table.operationId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get writeMicros => $composableBuilder(
+      column: $table.writeMicros, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get wireJson => $composableBuilder(
+      column: $table.wireJson, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get deferredJson => $composableBuilder(
+      column: $table.deferredJson,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get confirmedChangeId => $composableBuilder(
+      column: $table.confirmedChangeId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get receiptScope => $composableBuilder(
+      column: $table.receiptScope,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnOrderings(column));
 
@@ -16866,6 +17190,24 @@ class $$LocalChangesTableAnnotationComposer
 
   GeneratedColumn<String> get payloadJson => $composableBuilder(
       column: $table.payloadJson, builder: (column) => column);
+
+  GeneratedColumn<String> get operationId => $composableBuilder(
+      column: $table.operationId, builder: (column) => column);
+
+  GeneratedColumn<int> get writeMicros => $composableBuilder(
+      column: $table.writeMicros, builder: (column) => column);
+
+  GeneratedColumn<String> get wireJson =>
+      $composableBuilder(column: $table.wireJson, builder: (column) => column);
+
+  GeneratedColumn<String> get deferredJson => $composableBuilder(
+      column: $table.deferredJson, builder: (column) => column);
+
+  GeneratedColumn<int> get confirmedChangeId => $composableBuilder(
+      column: $table.confirmedChangeId, builder: (column) => column);
+
+  GeneratedColumn<String> get receiptScope => $composableBuilder(
+      column: $table.receiptScope, builder: (column) => column);
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -16907,6 +17249,12 @@ class $$LocalChangesTableTableManager extends RootTableManager<
             Value<int> ledgerId = const Value.absent(),
             Value<String> action = const Value.absent(),
             Value<String?> payloadJson = const Value.absent(),
+            Value<String?> operationId = const Value.absent(),
+            Value<int?> writeMicros = const Value.absent(),
+            Value<String?> wireJson = const Value.absent(),
+            Value<String?> deferredJson = const Value.absent(),
+            Value<int?> confirmedChangeId = const Value.absent(),
+            Value<String?> receiptScope = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
             Value<DateTime?> pushedAt = const Value.absent(),
           }) =>
@@ -16918,6 +17266,12 @@ class $$LocalChangesTableTableManager extends RootTableManager<
             ledgerId: ledgerId,
             action: action,
             payloadJson: payloadJson,
+            operationId: operationId,
+            writeMicros: writeMicros,
+            wireJson: wireJson,
+            deferredJson: deferredJson,
+            confirmedChangeId: confirmedChangeId,
+            receiptScope: receiptScope,
             createdAt: createdAt,
             pushedAt: pushedAt,
           ),
@@ -16929,6 +17283,12 @@ class $$LocalChangesTableTableManager extends RootTableManager<
             required int ledgerId,
             required String action,
             Value<String?> payloadJson = const Value.absent(),
+            Value<String?> operationId = const Value.absent(),
+            Value<int?> writeMicros = const Value.absent(),
+            Value<String?> wireJson = const Value.absent(),
+            Value<String?> deferredJson = const Value.absent(),
+            Value<int?> confirmedChangeId = const Value.absent(),
+            Value<String?> receiptScope = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
             Value<DateTime?> pushedAt = const Value.absent(),
           }) =>
@@ -16940,6 +17300,12 @@ class $$LocalChangesTableTableManager extends RootTableManager<
             ledgerId: ledgerId,
             action: action,
             payloadJson: payloadJson,
+            operationId: operationId,
+            writeMicros: writeMicros,
+            wireJson: wireJson,
+            deferredJson: deferredJson,
+            confirmedChangeId: confirmedChangeId,
+            receiptScope: receiptScope,
             createdAt: createdAt,
             pushedAt: pushedAt,
           ),

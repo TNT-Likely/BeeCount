@@ -2652,7 +2652,9 @@
     "budgetManagementDesc": "設置月度預算，控制支出",
     "budgetSetupHint": "設置預算，輕鬆掌控每月開支",
     "budgetSetupAction": "去設置",
-    "syncHealthTitle": "同步狀態",
+    "cloudSyncPushConflicts": "發現 {count} 項版本衝突。",
+  "cloudSyncPushUnconfirmed": "{count} 項變更尚未得到確認，已保留待傳。",
+  "syncHealthTitle": "同步狀態",
     "cloudSyncHelpTitle": "同步說明 · 為什麼有時同步不動？",
     "cloudSyncHelpModesTitle": "三種同步方式",
     "cloudSyncHelpModesBody": "• 增量同步（日常自動）：記一筆 / 改一筆後，只把這條變化自動上傳下載，快、無需手動操作 —— 平時一直在跑的就是它。\n• 全量上傳：首次開啟雲同步、或雲端還沒有這個帳本的資料時，把本機全部資料一次性推上雲。\n• 全量下載：換新裝置、重裝、或本機為空時，從雲端把全部資料拉下來。",
@@ -2683,6 +2685,7 @@
     "syncHealthRowCategory": "分類",
     "syncHealthRowTag": "標籤",
     "syncHealthRowUnpushed": "未推送變更",
+    "syncHealthRecentConflicts": "過去 7 天有 {count} 項本機變更因版本衝突未獲雲端接受。",
     "syncHealthValue": "本地 {local} · 雲端 {remote}",
     "@syncHealthValue": {
         "placeholders": {

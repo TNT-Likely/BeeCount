@@ -225,66 +225,14 @@ Future<void> _persistRecordingMetadata(
 }) async {
   final repo = ref.read(repositoryProvider);
   final res = result;
-  // 更新标签关联
-  // §7 共享账本:tag.id < 0 是 synthetic(Owner tag from SharedLedger*),
-  // 主表 Tags 没该行,不能直接写 transaction_tags.tag_id。分两类:
-  // - 正数 id → 写 transaction_tags 主表(老路径)
-  // - 负数 id → 走 SharedLedgerTags 反查 syncId → 写 transaction_tag_overrides
-  final normalTagIds = res.tagIds.where((id) => id >= 0).toList();
-  final syntheticTagIds = res.tagIds.where((id) => id < 0).toList();
-
-  if (normalTagIds.isNotEmpty) {
+  if (editing || res.tagIds.isNotEmpty) {
     await repo.updateTransactionTags(
       transactionId: transactionId,
-      tagIds: normalTagIds,
+      tagIds: repo is LocalRepository
+          ? res.tagIds
+          : res.tagIds.where((id) => id >= 0).toList(),
     );
     ref.read(tagListRefreshProvider.notifier).state++;
-  } else if (editing) {
-    // 编辑模式没主表 tag → 清掉旧主表关联
-    await repo.removeAllTagsFromTransaction(transactionId);
-    ref.read(tagListRefreshProvider.notifier).state++;
-  }
-
-  // §7 写 override:先反查 tx.syncId + 把 synthetic tag_id 翻译成
-  // Owner tag syncId,再 upsert 进 TransactionTagOverrides
-  if (repo is LocalRepository) {
-    final txRow = await (repo.db.select(repo.db.transactions)
-          ..where((t) => t.id.equals(transactionId)))
-        .getSingleOrNull();
-    final txSyncId = txRow?.syncId;
-    if (txSyncId != null) {
-      await (repo.db.delete(repo.db.transactionTagOverrides)
-            ..where((t) => t.transactionSyncId.equals(txSyncId)))
-          .go();
-      if (syntheticTagIds.isNotEmpty) {
-        final allShared = await repo.db.select(repo.db.sharedLedgerTags).get();
-        final now = DateTime.now().toUtc();
-        for (final sid in syntheticTagIds) {
-          for (final s in allShared) {
-            if (syntheticIdForSyncId(s.syncId) == sid) {
-              await repo.db.into(repo.db.transactionTagOverrides).insert(
-                    TransactionTagOverridesCompanion.insert(
-                      transactionSyncId: txSyncId,
-                      tagSyncId: s.syncId,
-                      createdAt: now,
-                    ),
-                  );
-              break;
-            }
-          }
-        }
-        ref.read(tagListRefreshProvider.notifier).state++;
-      }
-      // 这里**不再**重复 recordLedgerChange(transaction:update)。
-      // 之前为了"override 变化也走 push"专门补一条 update,但
-      // - addTransaction / updateTransaction 已经登记过一次 change
-      // - _serializeEntityForPush('transaction') 在 push 时**统一**读 DB
-      //   最新状态(包括 transaction_tag_overrides 表),payload 自然含
-      //   最新 overrides
-      // 结论:那条补登记的 update 跟前面的 create/update 推同样 payload,
-      // 服务端 sync_changes 表凭空多一条 row(已观察到共享账本 Editor
-      // 创建 tx 时 1 秒内 2 条 identical upsert)。直接砍。
-    }
   }
   // Save files after tag writes, so a failed tag retry cannot duplicate them.
   if (res.pendingAttachments.isNotEmpty) {
