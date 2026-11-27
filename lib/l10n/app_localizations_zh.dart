@@ -10304,6 +10304,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String cloudTestVersionRequireApp(String version, String target) {
     return '已连通 BeeCount Cloud v$version，但服务端最低要求 App v$target。请先更新 App 后再同步。';
   }
+
+  @override
+  String get accountsEmptyTitle => '开始管理你的资产与负债';
+
+  @override
+  String get accountsEmptyDescription => '添加常用账户后，即可自动汇总净资产、追踪余额趋势与多币种分布。';
+
+  @override
+  String get accountsEmptyAction => '添加第一个账户';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -20438,4 +20447,13 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String cloudTestVersionRequireApp(String version, String target) {
     return '已連通 BeeCount Cloud v$version，但伺服器端最低要求 App v$target。請先更新 App 後再同步。';
   }
+
+  @override
+  String get accountsEmptyTitle => '開始管理你的資產與負債';
+
+  @override
+  String get accountsEmptyDescription => '新增常用帳戶後，即可自動彙總淨資產、追蹤餘額趨勢與多幣別分布。';
+
+  @override
+  String get accountsEmptyAction => '新增第一個帳戶';
 }

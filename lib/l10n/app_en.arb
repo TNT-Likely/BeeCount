@@ -5564,5 +5564,8 @@
         "type": "String"
       }
     }
-  }
+  },
+  "accountsEmptyTitle": "Track your assets & liabilities",
+  "accountsEmptyDescription": "Add your everyday accounts to see net worth, balance trends, and multi-currency breakdown.",
+  "accountsEmptyAction": "Add your first account"
 }

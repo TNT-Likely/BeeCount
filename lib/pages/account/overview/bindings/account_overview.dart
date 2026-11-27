@@ -30,30 +30,42 @@ mixin _AccountsOverviewBindings on ConsumerState<AccountsPage> {
       data: (accounts) {
         final groups = _reorderingGroups ?? _groupAccounts(accounts);
 
-        return ListView(
-          controller: _assetListController,
-          padding: EdgeInsets.only(
-            left: 17,
-            right: 17,
-            top: 8.0.scaled(context, ref),
-            bottom: widget.asTab
-                ? 8.0.scaled(context, ref) +
-                    56 +
-                    MediaQuery.of(context).padding.bottom +
-                    24
-                : 24 + MediaQuery.paddingOf(context).bottom,
-          ),
-          children: [
-            if (accounts.isEmpty)
-              Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 36),
-                  child: BeeStatus(
-                      label: l10n.accountsEmptyMessage,
-                      action: BeeButton(
-                          label: l10n.accountAddButton,
-                          onPressed: () =>
-                              _addAccount(context, ref, ledgerId))))
-            else ...[
+        final topPadding = 8.0.scaled(context, ref);
+        final bottomPadding = widget.asTab
+            ? 8.0.scaled(context, ref) +
+                56 +
+                MediaQuery.of(context).padding.bottom +
+                24
+            : 24 + MediaQuery.paddingOf(context).bottom;
+
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            final emptyMinHeight =
+                (constraints.maxHeight - topPadding - bottomPadding)
+                    .clamp(0.0, double.infinity);
+            return ListView(
+              controller: _assetListController,
+              padding: EdgeInsets.only(
+                left: 17,
+                right: 17,
+                top: topPadding,
+                bottom: bottomPadding,
+              ),
+              children: [
+                if (accounts.isEmpty)
+                  ConstrainedBox(
+                    constraints: BoxConstraints(minHeight: emptyMinHeight),
+                    child: Align(
+                      alignment: const Alignment(0, -0.15),
+                      child: _buildEmptyAccountsCard(
+                        context,
+                        l10n,
+                        primaryColor,
+                        ledgerId,
+                      ),
+                    ),
+                  )
+                else ...[
               // 资产汇总及图表分别使用受控业务组件。
               _buildNetWorthAndCompositionCard(
                 context,
@@ -158,6 +170,8 @@ mixin _AccountsOverviewBindings on ConsumerState<AccountsPage> {
             ],
           ],
         );
+          },
+        );
       },
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (err, stack) => BeeStatus(
@@ -167,6 +181,110 @@ mixin _AccountsOverviewBindings on ConsumerState<AccountsPage> {
           action: BeeButton(
               label: l10n.helpCenterRetry,
               onPressed: () => ref.invalidate(allAccountsStreamProvider))),
+    );
+  }
+
+  Widget _buildEmptyAccountsCard(
+    BuildContext context,
+    AppLocalizations l10n,
+    Color primaryColor,
+    int ledgerId,
+  ) {
+    final isDark = BeeTokens.isDark(context);
+    final softTint = primaryColor.withValues(alpha: isDark ? 0.16 : 0.14);
+    final ringTint = primaryColor.withValues(alpha: isDark ? 0.30 : 0.28);
+
+    return Container(
+      key: const ValueKey('accounts-empty-card'),
+      width: double.infinity,
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        color: BeeTokens.surface(context),
+        borderRadius: BorderRadius.circular(26),
+        border: Border.all(
+          color: BeeTokens.border(context),
+          width: 1,
+        ),
+      ),
+      child: Stack(
+        alignment: Alignment.topCenter,
+        children: [
+          Positioned(
+            top: -42,
+            child: IgnorePointer(
+              child: Container(
+                width: 240,
+                height: 140,
+                decoration: BoxDecoration(
+                  gradient: RadialGradient(
+                    colors: [
+                      softTint,
+                      softTint.withValues(alpha: 0),
+                    ],
+                    stops: const [0.0, 0.72],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 36, 24, 28),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 72,
+                  height: 72,
+                  decoration: BoxDecoration(
+                    color: softTint,
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(color: ringTint, width: 1),
+                  ),
+                  alignment: Alignment.center,
+                  child: BeeLineIcon(
+                    'Wallet',
+                    size: 32,
+                    color: primaryColor,
+                  ),
+                ),
+                const SizedBox(height: 18),
+                Text(
+                  l10n.accountsEmptyTitle,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 19,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -0.2,
+                    color: BeeTokens.textPrimary(context),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 260),
+                  child: Text(
+                    l10n.accountsEmptyDescription,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 13.5,
+                      height: 1.6,
+                      color: BeeTokens.textSecondary(context),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  child: BeeButton(
+                    label: l10n.accountsEmptyAction,
+                    icon: const BeeLineIcon('Plus', size: 18),
+                    onPressed: () => _addAccount(context, ref, ledgerId),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 

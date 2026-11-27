@@ -19257,6 +19257,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reached BeeCount Cloud v{version}, which requires BeeCount App v{target}+. Please update the app before syncing.'**
   String cloudTestVersionRequireApp(String version, String target);
+
+  /// No description provided for @accountsEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Track your assets & liabilities'**
+  String get accountsEmptyTitle;
+
+  /// No description provided for @accountsEmptyDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your everyday accounts to see net worth, balance trends, and multi-currency breakdown.'**
+  String get accountsEmptyDescription;
+
+  /// No description provided for @accountsEmptyAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your first account'**
+  String get accountsEmptyAction;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

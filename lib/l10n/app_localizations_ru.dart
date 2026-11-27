@@ -10826,4 +10826,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String cloudTestVersionRequireApp(String version, String target) {
     return 'Reached BeeCount Cloud v$version, which requires BeeCount App v$target+. Please update the app before syncing.';
   }
+
+  @override
+  String get accountsEmptyTitle => 'Track your assets & liabilities';
+
+  @override
+  String get accountsEmptyDescription => 'Add your everyday accounts to see net worth, balance trends, and multi-currency breakdown.';
+
+  @override
+  String get accountsEmptyAction => 'Add your first account';
 }
