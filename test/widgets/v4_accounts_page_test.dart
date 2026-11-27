@@ -91,11 +91,33 @@ void main() {
   testWidgets('无账户保留设置和新建，进入真实编辑页不生成账户', (tester) async {
     await open(tester);
     final l = strings(tester);
-    expect(find.text(l.accountsEmptyMessage), findsOneWidget);
-    await tester.tap(find.text(l.accountAddButton));
+    expect(find.byKey(const ValueKey('accounts-empty-card')), findsOneWidget);
+    expect(find.text(l.accountsEmptyTitle), findsOneWidget);
+    expect(find.text(l.accountsEmptyDescription), findsOneWidget);
+    await tester.tap(find.text(l.accountsEmptyAction));
     await ready(tester, find.byType(AccountEditPage));
     expect(await repo.getAllAccounts(), isEmpty);
     await close(tester);
+  });
+
+  testWidgets('无账户空态在繁体中文、英文和深色小屏下正常渲染', (tester) async {
+    for (final cfg in [
+      (locale: const Locale('zh', 'TW'), brightness: Brightness.light, size: const Size(375, 667)),
+      (locale: const Locale('en'), brightness: Brightness.dark, size: const Size(390, 844)),
+    ]) {
+      await open(
+        tester,
+        locale: cfg.locale,
+        brightness: cfg.brightness,
+        size: cfg.size,
+      );
+      final l = strings(tester);
+      expect(find.byKey(const ValueKey('accounts-empty-card')), findsOneWidget);
+      expect(find.text(l.accountsEmptyTitle), findsOneWidget);
+      expect(find.text(l.accountsEmptyAction), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      await close(tester);
+    }
   });
 
   testWidgets('真实单币种净资产包含隐藏账户，隐私和趋势选择保持原偏好', (tester) async {

@@ -4,6 +4,7 @@ import 'package:beecount_ui/beecount_ui.dart';
 import 'package:beecount_business_ui/beecount_business_ui.dart';
 import 'package:flutter_cloud_sync/flutter_cloud_sync.dart' hide SyncStatus;
 import '../../../../providers.dart';
+import '../../../../cloud/cloud_version_policy.dart';
 import '../../../../cloud/sync_service.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../cloud/cloud_service_page.dart';
@@ -59,24 +60,54 @@ class MineCloudBinding extends ConsumerWidget {
     final l = AppLocalizations.of(context),
         cfg = ref.watch(activeCloudConfigProvider);
     final version = ref.watch(beecountCloudServerVersionProvider).valueOrNull;
+    final compat = ref.watch(cloudVersionCompatibilityProvider).valueOrNull;
     final auth = ref.watch(mineCloudUserProvider);
     final ledgerId = ref.watch(currentLedgerIdProvider);
     final live = ref.watch(syncStatusProvider(ledgerId));
     final status =
         live.valueOrNull ?? ref.watch(lastSyncStatusProvider(ledgerId));
     final local = cfg.valueOrNull?.type == CloudBackendType.local;
+    final isBeeCountCloud =
+        cfg.valueOrNull?.type == CloudBackendType.beecountCloud;
     final canUseCloud = !local &&
         (cfg.valueOrNull?.type == CloudBackendType.icloud ||
             auth.valueOrNull != null);
     final projection =
         mineSyncPresentation(local ? SyncDiff.notConfigured : status?.diff, l);
     final error = cfg.error ?? auth.error ?? live.error;
-    final state = error != null
+    final versionBlocked = isBeeCountCloud && (compat?.isBlocking ?? false);
+    final state = versionBlocked
         ? BeeSyncState.error
-        : canUseCloud && live.isLoading
-            ? BeeSyncState.checking
-            : projection.state;
-    final label = error != null ? l.mineSyncError : projection.label;
+        : error != null
+            ? BeeSyncState.error
+            : canUseCloud && live.isLoading
+                ? BeeSyncState.checking
+                : projection.state;
+    final label = versionBlocked
+        ? (compat!.upgradeTargetIsCloud
+            ? l.cloudVersionSyncPausedCloud
+            : l.cloudVersionSyncPausedApp)
+        : error != null
+            ? l.mineSyncError
+            : (isBeeCountCloud &&
+                    compat?.status ==
+                        CloudVersionMatchStatus.upgradeAppRecommended
+                ? '${projection.label} · ${l.cloudVersionBadgeUpdateApp}'
+                : projection.label);
+    String cloudServiceLabel() {
+      final base = version?.isNotEmpty == true
+          ? 'BeeCount Cloud v$version'
+          : 'BeeCount Cloud';
+      if (compat == null || !compat.needsNotice) return base;
+      return switch (compat.status) {
+        CloudVersionMatchStatus.upgradeCloudRecommended =>
+          '$base · ${l.cloudVersionBadgeRecommend}',
+        CloudVersionMatchStatus.upgradeCloudRequired =>
+          '$base · ${l.cloudVersionBadgeOutdated}',
+        _ => base,
+      };
+    }
+
     void open(Widget page) =>
         Navigator.push(context, MaterialPageRoute<void>(builder: (_) => page));
     return Column(mainAxisSize: MainAxisSize.min, children: [
@@ -92,10 +123,7 @@ class MineCloudBinding extends ConsumerWidget {
                     CloudBackendType.icloud => 'iCloud',
                     CloudBackendType.supabase => l.mineCloudServiceCustom,
                     CloudBackendType.s3 => 'S3',
-                    CloudBackendType.beecountCloud =>
-                      version?.isNotEmpty == true
-                          ? 'BeeCount Cloud v$version'
-                          : 'BeeCount Cloud'
+                    CloudBackendType.beecountCloud => cloudServiceLabel()
                   }),
           onTap: () => open(const CloudServicePage())),
       const Divider(height: 1, indent: 12, endIndent: 12),

@@ -10222,4 +10222,163 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get skinPreviewIncome => 'Freelance income';
+
+  @override
+  String get cloudVersionRecommendCloudTitle => 'Upgrade BeeCount Cloud';
+
+  @override
+  String get cloudVersionRequireCloudTitle => 'BeeCount Cloud Upgrade Required';
+
+  @override
+  String get cloudVersionRecommendAppTitle => 'Update BeeCount App';
+
+  @override
+  String get cloudVersionRequireAppTitle => 'BeeCount App Update Required';
+
+  @override
+  String get cloudVersionHomePauseCloudTitle => 'Sync Paused · Upgrade Cloud';
+
+  @override
+  String get cloudVersionHomePauseAppTitle => 'Sync Paused · Update App';
+
+  @override
+  String cloudVersionRecommendCloudDesc(String target) {
+    return 'Your Cloud server is below the recommended v$target+ for this App. Some new features or sync improvements may not work as expected.';
+  }
+
+  @override
+  String cloudVersionRequireCloudDesc(String target) {
+    return 'Your Cloud server is below the minimum required v$target+. Cloud sync is paused to avoid sync errors, while local bookkeeping continues normally.';
+  }
+
+  @override
+  String cloudVersionRecommendAppDesc(String target) {
+    return 'Your Cloud server is running a newer version. Update BeeCount App to v$target+ for the best matched experience.';
+  }
+
+  @override
+  String cloudVersionRequireAppDesc(String server, String target) {
+    return 'Cloud v$server requires BeeCount App v$target+. Cloud sync is paused while local bookkeeping continues normally.';
+  }
+
+  @override
+  String cloudVersionHomeRecommendCloudDesc(String server, String target) {
+    return 'Connected to Cloud v$server. Upgrade to v$target+ to match this App version.';
+  }
+
+  @override
+  String cloudVersionHomePauseCloudDesc(String server, String target) {
+    return 'Cloud v$server is below minimum v$target. Local bookkeeping still works and will sync after upgrading.';
+  }
+
+  @override
+  String cloudVersionHomeRecommendAppDesc(String server, String target) {
+    return 'Cloud is now v$server. Update BeeCount App to v$target+ to stay matched.';
+  }
+
+  @override
+  String cloudVersionHomePauseAppDesc(String server, String target) {
+    return 'Cloud v$server requires App v$target+. Local bookkeeping still works and will resume after updating.';
+  }
+
+  @override
+  String cloudVersionChipMinCloud(String version) {
+    return 'Min Cloud v$version+';
+  }
+
+  @override
+  String cloudVersionChipRecCloud(String version) {
+    return 'Rec Cloud v$version+';
+  }
+
+  @override
+  String cloudVersionChipMinApp(String version) {
+    return 'Min App v$version+';
+  }
+
+  @override
+  String cloudVersionChipRecApp(String version) {
+    return 'Rec App v$version+';
+  }
+
+  @override
+  String get cloudVersionRecheckAction => 'Re-check';
+
+  @override
+  String get cloudVersionUpgradeGuideAction => 'Upgrade guide';
+
+  @override
+  String get cloudVersionGoUpdateAction => 'Update app';
+
+  @override
+  String get cloudVersionViewAction => 'Details';
+
+  @override
+  String get cloudVersionDismissAction => 'Got it';
+
+  @override
+  String get cloudVersionUseOfflineAction => 'Use offline';
+
+  @override
+  String get cloudVersionBadgeRecommend => 'Upgrade advised';
+
+  @override
+  String get cloudVersionBadgeOutdated => 'Outdated';
+
+  @override
+  String get cloudVersionBadgeUpdateApp => 'Update app';
+
+  @override
+  String get cloudVersionSyncPausedCloud => 'Sync paused · Upgrade Cloud';
+
+  @override
+  String get cloudVersionSyncPausedApp => 'Sync paused · Update App';
+
+  @override
+  String get cloudVersionMatchedShort => 'Matched';
+
+  @override
+  String cloudVersionRecheckMatched(String version) {
+    return 'Connected to Cloud v$version, versions matched';
+  }
+
+  @override
+  String get cloudVersionRecheckStillMismatch => 'Versions still mismatch. Please upgrade and try again.';
+
+  @override
+  String get cloudVersionRecheckFailed => 'Unable to reach server. Check your network and try again.';
+
+  @override
+  String cloudTestSuccessVersionMatched(String version) {
+    return 'Connected · BeeCount Cloud v$version (matched with current App)';
+  }
+
+  @override
+  String cloudTestVersionRecommendCloud(String version, String target) {
+    return 'Connected to BeeCount Cloud v$version, below recommended v$target. Upgrading the server is advised, though you can still save and use it.';
+  }
+
+  @override
+  String cloudTestVersionRequireCloud(String version, String target) {
+    return 'Reached BeeCount Cloud v$version, below minimum required v$target. Please upgrade the server before syncing.';
+  }
+
+  @override
+  String cloudTestVersionRecommendApp(String version, String target) {
+    return 'Connected to BeeCount Cloud v$version. This server recommends BeeCount App v$target+.';
+  }
+
+  @override
+  String cloudTestVersionRequireApp(String version, String target) {
+    return 'Reached BeeCount Cloud v$version, which requires BeeCount App v$target+. Please update the app before syncing.';
+  }
+
+  @override
+  String get accountsEmptyTitle => 'Track your assets & liabilities';
+
+  @override
+  String get accountsEmptyDescription => 'Add your everyday accounts to see net worth, balance trends, and multi-currency breakdown.';
+
+  @override
+  String get accountsEmptyAction => 'Add your first account';
 }

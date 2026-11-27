@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_cloud_sync/flutter_cloud_sync.dart' hide SyncStatus;
 import 'package:flutter_cloud_sync_icloud/flutter_cloud_sync_icloud.dart';
+import '../../../../cloud/cloud_version_policy.dart';
 import '../../../../providers/sync_providers.dart';
 import '../../../../providers/database_providers.dart';
 import '../../../../services/system/logger_service.dart';
@@ -1553,6 +1554,7 @@ class _CloudConfigurationControlsState
     try {
       bool connectionSuccess = false;
       String? errorDetail;
+      CloudVersionCompatibility? cloudVersionCompat;
 
       try {
         switch (config.type) {
@@ -1658,6 +1660,21 @@ class _CloudConfigurationControlsState
                 throw Exception(
                     l10n.cloudErrorServerStatus('${response.statusCode}'));
               }
+              try {
+                final decoded = jsonDecode(response.body);
+                if (decoded is Map<String, dynamic>) {
+                  final serverInfo =
+                      BeeCountCloudServerVersion.fromJson(decoded);
+                  final appVer =
+                      await ref.read(currentAppVersionProvider.future);
+                  cloudVersionCompat = evaluateCloudVersionCompatibility(
+                    appVersion: appVer,
+                    server: serverInfo,
+                  );
+                }
+              } catch (_) {
+                // Keep connection success even if legacy server returns plain text.
+              }
               connectionSuccess = true;
             } catch (e) {
               String errorMsg = e.toString();
@@ -1744,9 +1761,49 @@ class _CloudConfigurationControlsState
       // 只在手动测试时显示对话框
       if (mounted && showDialog) {
         if (connectionSuccess) {
-          await AppDialog.info(context,
+          if (config.type == CloudBackendType.beecountCloud) {
+            ref.read(cloudVersionRuntimeBlockProvider.notifier).state = null;
+            ref.invalidate(beecountCloudServerInfoProvider);
+            ref.invalidate(cloudVersionCompatibilityProvider);
+          }
+          final compat = cloudVersionCompat;
+          if (compat != null && compat.isBlocking) {
+            final serverVer = compat.serverVersion ?? '';
+            final target = compat.targetVersion ?? '';
+            await AppDialog.error(
+              context,
+              title: compat.upgradeTargetIsCloud
+                  ? l10n.cloudVersionRequireCloudTitle
+                  : l10n.cloudVersionRequireAppTitle,
+              message: compat.upgradeTargetIsCloud
+                  ? l10n.cloudTestVersionRequireCloud(serverVer, target)
+                  : l10n.cloudTestVersionRequireApp(serverVer, target),
+            );
+          } else if (compat != null && compat.needsNotice) {
+            final serverVer = compat.serverVersion ?? '';
+            final target = compat.targetVersion ?? '';
+            await AppDialog.info(
+              context,
               title: l10n.cloudTestSuccessTitle,
-              message: l10n.cloudTestSuccessMessage);
+              message: compat.upgradeTargetIsCloud
+                  ? l10n.cloudTestVersionRecommendCloud(serverVer, target)
+                  : l10n.cloudTestVersionRecommendApp(serverVer, target),
+            );
+          } else if (compat != null &&
+              compat.isMatched &&
+              (compat.serverVersion?.isNotEmpty ?? false)) {
+            await AppDialog.info(
+              context,
+              title: l10n.cloudTestSuccessTitle,
+              message: l10n.cloudTestSuccessVersionMatched(
+                compat.serverVersion!,
+              ),
+            );
+          } else {
+            await AppDialog.info(context,
+                title: l10n.cloudTestSuccessTitle,
+                message: l10n.cloudTestSuccessMessage);
+          }
         } else {
           await AppDialog.error(context,
               title: l10n.cloudTestFailedTitle,

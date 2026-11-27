@@ -4,8 +4,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_cloud_sync/flutter_cloud_sync.dart' hide SyncStatus;
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../providers.dart';
+import '../../../../cloud/cloud_version_policy.dart';
+import '../../../../widgets/cloud_version_notice_card.dart';
 import 'package:beecount_ui/beecount_ui.dart';
 import 'package:beecount_business_ui/cloud_shared.dart';
 import '../../../shared/scaffold/widgets/page_scaffold.dart';
@@ -43,6 +46,7 @@ class _CloudSharedSyncControlsState
   bool _checking = false;
   bool _autoSyncing = false;
   bool _relogging = false;
+  bool _recheckingVersion = false;
   String? _checkError;
 
   @override
@@ -56,6 +60,50 @@ class _CloudSharedSyncControlsState
       if (!mounted) return;
       unawaited(_onRefresh());
     });
+  }
+
+  Future<void> _recheckVersion() async {
+    if (!mounted || _recheckingVersion) return;
+    final l10n = AppLocalizations.of(context);
+    setState(() => _recheckingVersion = true);
+    try {
+      final result = await recheckCloudVersionCompatibility(ref);
+      if (!mounted) return;
+      if (result.isMatched) {
+        showBeeToast(
+          context,
+          l10n.cloudVersionRecheckMatched(result.serverVersion ?? ''),
+          tone: BeeTone.success,
+        );
+        unawaited(_onRefresh());
+      } else if (result.isUnknown) {
+        showBeeToast(
+          context,
+          l10n.cloudVersionRecheckFailed,
+          tone: BeeTone.warning,
+        );
+      } else {
+        showBeeToast(
+          context,
+          l10n.cloudVersionRecheckStillMismatch,
+          tone: BeeTone.warning,
+        );
+        if (!result.isBlocking) {
+          unawaited(_onRefresh());
+        }
+      }
+    } finally {
+      if (mounted) setState(() => _recheckingVersion = false);
+    }
+  }
+
+  Future<void> _openUpgradeGuide(CloudVersionCompatibility compat) async {
+    final lang = Localizations.localeOf(context).languageCode;
+    final url = compat.upgradeTargetIsApp
+        ? kAppReleasesUrl
+        : (lang == 'zh' ? kCloudUpgradeGuideUrlZh : kCloudUpgradeGuideUrlEn);
+    final uri = Uri.parse(url);
+    await launchUrl(uri, mode: LaunchMode.externalApplication);
   }
 
   Future<void> _onRefresh() async {
@@ -210,6 +258,27 @@ class _CloudSharedSyncControlsState
                           _buildAccountSection(context, user),
                           const SizedBox(height: 12),
                           const _TwoFactorStatusRow(),
+                          Consumer(builder: (context, r, _) {
+                            final compat = r
+                                .watch(cloudVersionCompatibilityProvider)
+                                .valueOrNull;
+                            if (compat == null || !compat.needsNotice) {
+                              return const SizedBox.shrink();
+                            }
+                            return Padding(
+                              padding: const EdgeInsets.only(top: 12),
+                              child: CloudVersionNoticeCard(
+                                compatibility: compat,
+                                primaryLabel: l10n.cloudVersionRecheckAction,
+                                primaryBusy: _recheckingVersion,
+                                onPrimary: _recheckVersion,
+                                secondaryLabel: compat.upgradeTargetIsCloud
+                                    ? l10n.cloudVersionUpgradeGuideAction
+                                    : l10n.cloudVersionGoUpdateAction,
+                                onSecondary: () => _openUpgradeGuide(compat),
+                              ),
+                            );
+                          }),
                           const SizedBox(height: 12),
                           BeeCloudSharedCard(
                               child: _buildHealthSection(context)),
@@ -220,13 +289,27 @@ class _CloudSharedSyncControlsState
                             final v = r
                                 .watch(beecountCloudServerVersionProvider)
                                 .valueOrNull;
+                            final appVer =
+                                r.watch(currentAppVersionProvider).valueOrNull;
+                            final compat = r
+                                .watch(cloudVersionCompatibilityProvider)
+                                .valueOrNull;
                             if (v == null || v.isEmpty) {
                               return const SizedBox.shrink();
                             }
+                            final cleanApp =
+                                CloudSemVer.tryParse(appVer)?.normalized ??
+                                    appVer;
+                            final base = cleanApp != null && cleanApp.isNotEmpty
+                                ? 'App v$cleanApp · Cloud v$v'
+                                : 'BeeCount Cloud v$v';
+                            final text = (compat?.isMatched ?? false)
+                                ? '$base · ${l10n.cloudVersionMatchedShort}'
+                                : base;
                             return Padding(
                                 padding:
                                     const EdgeInsets.symmetric(vertical: 18),
-                                child: Text('BeeCount Cloud v$v',
+                                child: Text(text,
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                         fontSize: 11,
