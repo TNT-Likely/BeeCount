@@ -10381,4 +10381,78 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get accountsEmptyAction => 'Add your first account';
+
+  @override
+  String get lockPeriodTitle => 'Lock Period';
+
+  @override
+  String get lockPeriodEffectiveLine => 'Current Lock Line';
+
+  @override
+  String get lockPeriodEffectiveLineHint => 'Transactions on or before the lock line can no longer be added, edited, or deleted.';
+
+  @override
+  String get lockPeriodNotLocked => 'Not locked';
+
+  @override
+  String get lockPeriodRecords => 'Lock Records';
+
+  @override
+  String get lockPeriodAdd => 'Add Lock';
+
+  @override
+  String get lockPeriodConfirmTitle => 'Confirm Lock';
+
+  @override
+  String lockPeriodConfirmMessage(int count, String date) {
+    return 'Lock all bills on or before $date? There are $count bills in this ledger that will be locked. Locked bills can no longer be added, edited, or deleted.';
+  }
+
+  @override
+  String lockPeriodCreated(String date) {
+    return 'Lock applied. All bills on or before $date are now locked.';
+  }
+
+  @override
+  String get lockPeriodRevokeLatest => 'Revoke Latest Lock';
+
+  @override
+  String get lockPeriodRevokeConfirmTitle => 'Revoke Latest Lock';
+
+  @override
+  String lockPeriodRevokeConfirmMessage(String date, String effective) {
+    return 'Revoke the lock record of $date? The current lock line will fall back to $effective.';
+  }
+
+  @override
+  String lockPeriodRevoked(String effective) {
+    return 'Latest lock revoked. Current lock line: $effective.';
+  }
+
+  @override
+  String get lockPeriodNothingToRevoke => 'There is no lock record to revoke';
+
+  @override
+  String lockPeriodFailed(String error) {
+    return 'Lock operation failed: $error';
+  }
+
+  @override
+  String lockPeriodBatchNo(int batch) {
+    return 'Batch $batch';
+  }
+
+  @override
+  String get lockPeriodEmpty => 'No lock record yet';
+
+  @override
+  String get lockPeriodEmptyHint => 'After locking, bills on or before that date can no longer be added, edited, or deleted.';
+
+  @override
+  String lockPeriodMustBeLater(String effective) {
+    return 'The new lock date must be later than the current lock line ($effective).';
+  }
+
+  @override
+  String get lockPeriodNoLockLeft => 'no lock left';
 }

@@ -10381,4 +10381,78 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get accountsEmptyAction => 'Add your first account';
+
+  @override
+  String get lockPeriodTitle => '잠금 기간';
+
+  @override
+  String get lockPeriodEffectiveLine => '현재 잠금일';
+
+  @override
+  String get lockPeriodEffectiveLineHint => '잠금일 이전 및 당일 거래는 추가, 수정, 삭제할 수 없습니다.';
+
+  @override
+  String get lockPeriodNotLocked => '잠금 없음';
+
+  @override
+  String get lockPeriodRecords => '잠금 기록';
+
+  @override
+  String get lockPeriodAdd => '잠금 추가';
+
+  @override
+  String get lockPeriodConfirmTitle => '잠금 확인';
+
+  @override
+  String lockPeriodConfirmMessage(int count, String date) {
+    return '$date 이전 및 당일 청구서를 잠그시겠습니까? 현재 이 장부에 잠길 청구서가 $count건 있습니다. 잠금 후에는 추가, 수정, 삭제할 수 없습니다.';
+  }
+
+  @override
+  String lockPeriodCreated(String date) {
+    return '잠금이 적용되었습니다. $date 이전 및 당일 청구서가 잠겼습니다.';
+  }
+
+  @override
+  String get lockPeriodRevokeLatest => '최근 잠금 해제';
+
+  @override
+  String get lockPeriodRevokeConfirmTitle => '최근 잠금 해제';
+
+  @override
+  String lockPeriodRevokeConfirmMessage(String date, String effective) {
+    return '$date 잠금 기록을 해제하시겠습니까? 현재 잠금일이 $effective(으)로 되돌아갑니다.';
+  }
+
+  @override
+  String lockPeriodRevoked(String effective) {
+    return '최근 잠금을 해제했습니다. 현재 잠금일: $effective.';
+  }
+
+  @override
+  String get lockPeriodNothingToRevoke => '해제할 잠금 기록이 없습니다';
+
+  @override
+  String lockPeriodFailed(String error) {
+    return '잠금 작업 실패: $error';
+  }
+
+  @override
+  String lockPeriodBatchNo(int batch) {
+    return '$batch번째 잠금';
+  }
+
+  @override
+  String get lockPeriodEmpty => '잠금 기록 없음';
+
+  @override
+  String get lockPeriodEmptyHint => '잠금 후 해당일 이전 및 당일 청구서는 추가, 수정, 삭제할 수 없습니다.';
+
+  @override
+  String lockPeriodMustBeLater(String effective) {
+    return '새 잠금일은 현재 잠금일($effective)보다 이후여야 합니다.';
+  }
+
+  @override
+  String get lockPeriodNoLockLeft => '남은 잠금 없음';
 }

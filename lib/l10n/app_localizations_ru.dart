@@ -10835,4 +10835,78 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get accountsEmptyAction => 'Add your first account';
+
+  @override
+  String get lockPeriodTitle => 'Блокировка периода';
+
+  @override
+  String get lockPeriodEffectiveLine => 'Текущая дата блокировки';
+
+  @override
+  String get lockPeriodEffectiveLineHint => 'Операции до и включая дату блокировки нельзя добавлять, изменять или удалять.';
+
+  @override
+  String get lockPeriodNotLocked => 'Не заблокировано';
+
+  @override
+  String get lockPeriodRecords => 'Записи блокировки';
+
+  @override
+  String get lockPeriodAdd => 'Добавить блокировку';
+
+  @override
+  String get lockPeriodConfirmTitle => 'Подтвердить блокировку';
+
+  @override
+  String lockPeriodConfirmMessage(int count, String date) {
+    return 'Заблокировать все записи до $date включительно? В этом счёте будет заблокировано $count записей. После блокировки их нельзя добавлять, изменять или удалять.';
+  }
+
+  @override
+  String lockPeriodCreated(String date) {
+    return 'Блокировка применена. Все записи до $date включительно заблокированы.';
+  }
+
+  @override
+  String get lockPeriodRevokeLatest => 'Отменить последнюю блокировку';
+
+  @override
+  String get lockPeriodRevokeConfirmTitle => 'Отменить последнюю блокировку';
+
+  @override
+  String lockPeriodRevokeConfirmMessage(String date, String effective) {
+    return 'Отменить запись блокировки от $date? Текущая дата блокировки вернётся к $effective.';
+  }
+
+  @override
+  String lockPeriodRevoked(String effective) {
+    return 'Последняя блокировка отменена. Текущая дата блокировки: $effective.';
+  }
+
+  @override
+  String get lockPeriodNothingToRevoke => 'Нет записей блокировки для отмены';
+
+  @override
+  String lockPeriodFailed(String error) {
+    return 'Ошибка блокировки: $error';
+  }
+
+  @override
+  String lockPeriodBatchNo(int batch) {
+    return 'Блокировка №$batch';
+  }
+
+  @override
+  String get lockPeriodEmpty => 'Записей блокировки пока нет';
+
+  @override
+  String get lockPeriodEmptyHint => 'После блокировки записи до указанной даты включительно нельзя добавлять, изменять или удалять.';
+
+  @override
+  String lockPeriodMustBeLater(String effective) {
+    return 'Новая дата блокировки должна быть позже текущей ($effective).';
+  }
+
+  @override
+  String get lockPeriodNoLockLeft => 'блокировок не осталось';
 }

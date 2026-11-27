@@ -15,6 +15,8 @@ import '../cloud/member_list_page.dart';
 import '../cloud/member_stats_page.dart';
 import '../cloud/join_shared_ledger_page.dart';
 import '../budget/budget_page.dart';
+import '../settings/lock_period_settings_page.dart';
+import '../../config/features.dart';
 import '../../utils/currencies.dart';
 import '../../services/attachment_service.dart';
 import '../../services/system/logger_service.dart';

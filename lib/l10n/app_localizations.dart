@@ -19275,6 +19275,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add your first account'**
   String get accountsEmptyAction;
+
+  /// No description provided for @lockPeriodTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Lock Period'**
+  String get lockPeriodTitle;
+
+  /// No description provided for @lockPeriodEffectiveLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Lock Line'**
+  String get lockPeriodEffectiveLine;
+
+  /// No description provided for @lockPeriodEffectiveLineHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Transactions on or before the lock line can no longer be added, edited, or deleted.'**
+  String get lockPeriodEffectiveLineHint;
+
+  /// No description provided for @lockPeriodNotLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Not locked'**
+  String get lockPeriodNotLocked;
+
+  /// No description provided for @lockPeriodRecords.
+  ///
+  /// In en, this message translates to:
+  /// **'Lock Records'**
+  String get lockPeriodRecords;
+
+  /// No description provided for @lockPeriodAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Lock'**
+  String get lockPeriodAdd;
+
+  /// No description provided for @lockPeriodConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Lock'**
+  String get lockPeriodConfirmTitle;
+
+  /// No description provided for @lockPeriodConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Lock all bills on or before {date}? There are {count} bills in this ledger that will be locked. Locked bills can no longer be added, edited, or deleted.'**
+  String lockPeriodConfirmMessage(int count, String date);
+
+  /// No description provided for @lockPeriodCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Lock applied. All bills on or before {date} are now locked.'**
+  String lockPeriodCreated(String date);
+
+  /// No description provided for @lockPeriodRevokeLatest.
+  ///
+  /// In en, this message translates to:
+  /// **'Revoke Latest Lock'**
+  String get lockPeriodRevokeLatest;
+
+  /// No description provided for @lockPeriodRevokeConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Revoke Latest Lock'**
+  String get lockPeriodRevokeConfirmTitle;
+
+  /// No description provided for @lockPeriodRevokeConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Revoke the lock record of {date}? The current lock line will fall back to {effective}.'**
+  String lockPeriodRevokeConfirmMessage(String date, String effective);
+
+  /// No description provided for @lockPeriodRevoked.
+  ///
+  /// In en, this message translates to:
+  /// **'Latest lock revoked. Current lock line: {effective}.'**
+  String lockPeriodRevoked(String effective);
+
+  /// No description provided for @lockPeriodNothingToRevoke.
+  ///
+  /// In en, this message translates to:
+  /// **'There is no lock record to revoke'**
+  String get lockPeriodNothingToRevoke;
+
+  /// No description provided for @lockPeriodFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Lock operation failed: {error}'**
+  String lockPeriodFailed(String error);
+
+  /// No description provided for @lockPeriodBatchNo.
+  ///
+  /// In en, this message translates to:
+  /// **'Batch {batch}'**
+  String lockPeriodBatchNo(int batch);
+
+  /// No description provided for @lockPeriodEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No lock record yet'**
+  String get lockPeriodEmpty;
+
+  /// No description provided for @lockPeriodEmptyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'After locking, bills on or before that date can no longer be added, edited, or deleted.'**
+  String get lockPeriodEmptyHint;
+
+  /// No description provided for @lockPeriodMustBeLater.
+  ///
+  /// In en, this message translates to:
+  /// **'The new lock date must be later than the current lock line ({effective}).'**
+  String lockPeriodMustBeLater(String effective);
+
+  /// No description provided for @lockPeriodNoLockLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'no lock left'**
+  String get lockPeriodNoLockLeft;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -5567,5 +5567,80 @@
   },
   "accountsEmptyTitle": "Track your assets & liabilities",
   "accountsEmptyDescription": "Add your everyday accounts to see net worth, balance trends, and multi-currency breakdown.",
-  "accountsEmptyAction": "Add your first account"
+  "accountsEmptyAction": "Add your first account",
+    "lockPeriodTitle": "Lock Period",
+    "lockPeriodEffectiveLine": "Current Lock Line",
+    "lockPeriodEffectiveLineHint": "Transactions on or before the lock line can no longer be added, edited, or deleted.",
+    "lockPeriodNotLocked": "Not locked",
+    "lockPeriodRecords": "Lock Records",
+    "lockPeriodAdd": "Add Lock",
+    "lockPeriodConfirmTitle": "Confirm Lock",
+    "lockPeriodConfirmMessage": "Lock all bills on or before {date}? There are {count} bills in this ledger that will be locked. Locked bills can no longer be added, edited, or deleted.",
+    "@lockPeriodConfirmMessage": {
+      "placeholders": {
+        "count": {
+          "type": "int"
+        },
+        "date": {
+          "type": "String"
+        }
+      }
+    },
+    "lockPeriodCreated": "Lock applied. All bills on or before {date} are now locked.",
+    "@lockPeriodCreated": {
+      "placeholders": {
+        "date": {
+          "type": "String"
+        }
+      }
+    },
+    "lockPeriodRevokeLatest": "Revoke Latest Lock",
+    "lockPeriodRevokeConfirmTitle": "Revoke Latest Lock",
+    "lockPeriodRevokeConfirmMessage": "Revoke the lock record of {date}? The current lock line will fall back to {effective}.",
+    "@lockPeriodRevokeConfirmMessage": {
+      "placeholders": {
+        "date": {
+          "type": "String"
+        },
+        "effective": {
+          "type": "String"
+        }
+      }
+    },
+    "lockPeriodRevoked": "Latest lock revoked. Current lock line: {effective}.",
+    "@lockPeriodRevoked": {
+      "placeholders": {
+        "effective": {
+          "type": "String"
+        }
+      }
+    },
+    "lockPeriodNothingToRevoke": "There is no lock record to revoke",
+    "lockPeriodFailed": "Lock operation failed: {error}",
+    "@lockPeriodFailed": {
+      "placeholders": {
+        "error": {
+          "type": "String"
+        }
+      }
+    },
+    "lockPeriodBatchNo": "Batch {batch}",
+    "@lockPeriodBatchNo": {
+      "placeholders": {
+        "batch": {
+          "type": "int"
+        }
+      }
+    },
+    "lockPeriodEmpty": "No lock record yet",
+    "lockPeriodEmptyHint": "After locking, bills on or before that date can no longer be added, edited, or deleted.",
+    "lockPeriodMustBeLater": "The new lock date must be later than the current lock line ({effective}).",
+    "@lockPeriodMustBeLater": {
+      "placeholders": {
+        "effective": {
+          "type": "String"
+        }
+      }
+    },
+  "lockPeriodNoLockLeft": "no lock left"
 }

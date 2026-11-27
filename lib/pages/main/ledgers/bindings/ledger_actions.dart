@@ -117,6 +117,13 @@ mixin _LedgerActions on ConsumerState<LedgersPageNew> {
                       id: 'budget',
                       label: l.budgetManagement,
                       icon: const BeeLineIcon('ChartPie')),
+                  // 锁账入口是 ledger scope 的,挂在账本长按菜单里(与
+                  // 「预算管理」同级)。flag 关闭时整条不出现。
+                  if (kEnableLockPeriod)
+                    BeeAction(
+                        id: 'lockPeriod',
+                        label: l.lockPeriodTitle,
+                        icon: const BeeLineIcon('LockKeyhole')),
                   if (isBeeCountCloud) ...[
                     BeeAction(
                         id: 'members',
@@ -164,6 +171,20 @@ mixin _LedgerActions on ConsumerState<LedgersPageNew> {
       if (mounted) {
         await Navigator.of(context).push(
           MaterialPageRoute(builder: (_) => const BudgetPage()),
+        );
+      }
+    } else if (action == 'lockPeriod') {
+      // 锁账是账本内的权威状态,入口挂在账本长按菜单里 —— 跟「预算管理」
+      // 同构:先切到长按的账本再 push,并且把 ledger.id 显式带进页面,
+      // 保证"写入目标 / 只读态判定"用的是同一个账本。
+      if (ref.read(currentLedgerIdProvider) != ledger.id) {
+        ref.read(currentLedgerIdProvider.notifier).state = ledger.id;
+        ref.invalidate(currentLedgerProvider);
+      }
+      if (mounted) {
+        await Navigator.of(context).push(
+          MaterialPageRoute(
+              builder: (_) => LockPeriodSettingsPage(ledgerId: ledger.id)),
         );
       }
     } else if (action == 'members') {

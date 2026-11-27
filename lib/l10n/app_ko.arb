@@ -2178,5 +2178,80 @@
   "v4RecurringAutomatic": "자동 기록",
   "v4RecurringNextCaption": "다음 기록 · {when}",
   "v4RecurringUsageSummary": "앱을 열거나 돌아오면 예정된 거래가 자동으로 기록됩니다. 규칙을 눌러 일정을 수정하세요.",
-  "v4RecurringPreviewTitle": "예정된 기록 날짜"
+  "v4RecurringPreviewTitle": "예정된 기록 날짜",
+    "lockPeriodTitle": "잠금 기간",
+    "lockPeriodEffectiveLine": "현재 잠금일",
+    "lockPeriodEffectiveLineHint": "잠금일 이전 및 당일 거래는 추가, 수정, 삭제할 수 없습니다.",
+    "lockPeriodNotLocked": "잠금 없음",
+    "lockPeriodRecords": "잠금 기록",
+    "lockPeriodAdd": "잠금 추가",
+    "lockPeriodConfirmTitle": "잠금 확인",
+    "lockPeriodConfirmMessage": "{date} 이전 및 당일 청구서를 잠그시겠습니까? 현재 이 장부에 잠길 청구서가 {count}건 있습니다. 잠금 후에는 추가, 수정, 삭제할 수 없습니다.",
+    "@lockPeriodConfirmMessage": {
+      "placeholders": {
+        "count": {
+          "type": "int"
+        },
+        "date": {
+          "type": "String"
+        }
+      }
+    },
+    "lockPeriodCreated": "잠금이 적용되었습니다. {date} 이전 및 당일 청구서가 잠겼습니다.",
+    "@lockPeriodCreated": {
+      "placeholders": {
+        "date": {
+          "type": "String"
+        }
+      }
+    },
+    "lockPeriodRevokeLatest": "최근 잠금 해제",
+    "lockPeriodRevokeConfirmTitle": "최근 잠금 해제",
+    "lockPeriodRevokeConfirmMessage": "{date} 잠금 기록을 해제하시겠습니까? 현재 잠금일이 {effective}(으)로 되돌아갑니다.",
+    "@lockPeriodRevokeConfirmMessage": {
+      "placeholders": {
+        "date": {
+          "type": "String"
+        },
+        "effective": {
+          "type": "String"
+        }
+      }
+    },
+    "lockPeriodRevoked": "최근 잠금을 해제했습니다. 현재 잠금일: {effective}.",
+    "@lockPeriodRevoked": {
+      "placeholders": {
+        "effective": {
+          "type": "String"
+        }
+      }
+    },
+    "lockPeriodNothingToRevoke": "해제할 잠금 기록이 없습니다",
+    "lockPeriodFailed": "잠금 작업 실패: {error}",
+    "@lockPeriodFailed": {
+      "placeholders": {
+        "error": {
+          "type": "String"
+        }
+      }
+    },
+    "lockPeriodBatchNo": "{batch}번째 잠금",
+    "@lockPeriodBatchNo": {
+      "placeholders": {
+        "batch": {
+          "type": "int"
+        }
+      }
+    },
+    "lockPeriodEmpty": "잠금 기록 없음",
+    "lockPeriodEmptyHint": "잠금 후 해당일 이전 및 당일 청구서는 추가, 수정, 삭제할 수 없습니다.",
+    "lockPeriodMustBeLater": "새 잠금일은 현재 잠금일({effective})보다 이후여야 합니다.",
+    "@lockPeriodMustBeLater": {
+      "placeholders": {
+        "effective": {
+          "type": "String"
+        }
+      }
+    },
+  "lockPeriodNoLockLeft": "남은 잠금 없음"
 }

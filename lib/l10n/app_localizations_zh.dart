@@ -10313,6 +10313,80 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get accountsEmptyAction => '添加第一个账户';
+
+  @override
+  String get lockPeriodTitle => '锁账';
+
+  @override
+  String get lockPeriodEffectiveLine => '当前锁定日';
+
+  @override
+  String get lockPeriodEffectiveLineHint => '锁定日及以前的账单将无法新增、修改或删除。';
+
+  @override
+  String get lockPeriodNotLocked => '未锁账';
+
+  @override
+  String get lockPeriodRecords => '锁账记录';
+
+  @override
+  String get lockPeriodAdd => '新增锁账';
+
+  @override
+  String get lockPeriodConfirmTitle => '确认锁账';
+
+  @override
+  String lockPeriodConfirmMessage(int count, String date) {
+    return '确认将 $date 及以前的账单锁账？当前范围内有 $count 条账单将被锁定，锁定后无法新增、修改、删除。';
+  }
+
+  @override
+  String lockPeriodCreated(String date) {
+    return '锁账成功，$date 及以前的账单已锁定。';
+  }
+
+  @override
+  String get lockPeriodRevokeLatest => '撤销最近一次锁账';
+
+  @override
+  String get lockPeriodRevokeConfirmTitle => '撤销最近一次锁账';
+
+  @override
+  String lockPeriodRevokeConfirmMessage(String date, String effective) {
+    return '确认撤销 $date 的锁账记录？当前锁定日将回退至 $effective。';
+  }
+
+  @override
+  String lockPeriodRevoked(String effective) {
+    return '已撤销最近一次锁账，当前锁定日为 $effective。';
+  }
+
+  @override
+  String get lockPeriodNothingToRevoke => '当前没有可撤销的锁账记录';
+
+  @override
+  String lockPeriodFailed(String error) {
+    return '锁账操作失败：$error';
+  }
+
+  @override
+  String lockPeriodBatchNo(int batch) {
+    return '第 $batch 次锁账';
+  }
+
+  @override
+  String get lockPeriodEmpty => '暂无锁账记录';
+
+  @override
+  String get lockPeriodEmptyHint => '锁账后，该日期及以前的账单将无法新增、修改或删除。';
+
+  @override
+  String lockPeriodMustBeLater(String effective) {
+    return '新锁账日期必须晚于当前锁定日（$effective）。';
+  }
+
+  @override
+  String get lockPeriodNoLockLeft => '已无锁账';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -20456,4 +20530,78 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get accountsEmptyAction => '新增第一個帳戶';
+
+  @override
+  String get lockPeriodTitle => '鎖帳';
+
+  @override
+  String get lockPeriodEffectiveLine => '目前鎖定日';
+
+  @override
+  String get lockPeriodEffectiveLineHint => '鎖定日及以前的帳單將無法新增、修改或刪除。';
+
+  @override
+  String get lockPeriodNotLocked => '未鎖帳';
+
+  @override
+  String get lockPeriodRecords => '鎖帳紀錄';
+
+  @override
+  String get lockPeriodAdd => '新增鎖帳';
+
+  @override
+  String get lockPeriodConfirmTitle => '確認鎖帳';
+
+  @override
+  String lockPeriodConfirmMessage(int count, String date) {
+    return '確認將 $date 及以前的帳單鎖帳？目前範圍內有 $count 筆帳單將被鎖定，鎖定後無法新增、修改、刪除。';
+  }
+
+  @override
+  String lockPeriodCreated(String date) {
+    return '鎖帳成功，$date 及以前的帳單已鎖定。';
+  }
+
+  @override
+  String get lockPeriodRevokeLatest => '撤銷最近一次鎖帳';
+
+  @override
+  String get lockPeriodRevokeConfirmTitle => '撤銷最近一次鎖帳';
+
+  @override
+  String lockPeriodRevokeConfirmMessage(String date, String effective) {
+    return '確認撤銷 $date 的鎖帳紀錄？目前鎖定日將回退至 $effective。';
+  }
+
+  @override
+  String lockPeriodRevoked(String effective) {
+    return '已撤銷最近一次鎖帳，目前鎖定日為 $effective。';
+  }
+
+  @override
+  String get lockPeriodNothingToRevoke => '目前沒有可撤銷的鎖帳紀錄';
+
+  @override
+  String lockPeriodFailed(String error) {
+    return '鎖帳作業失敗：$error';
+  }
+
+  @override
+  String lockPeriodBatchNo(int batch) {
+    return '第 $batch 次鎖帳';
+  }
+
+  @override
+  String get lockPeriodEmpty => '尚無鎖帳紀錄';
+
+  @override
+  String get lockPeriodEmptyHint => '鎖帳後，該日期及以前的帳單將無法新增、修改或刪除。';
+
+  @override
+  String lockPeriodMustBeLater(String effective) {
+    return '新鎖帳日期必須晚於目前鎖定日（$effective）。';
+  }
+
+  @override
+  String get lockPeriodNoLockLeft => '已無鎖帳';
 }

@@ -4650,5 +4650,80 @@
   "cloudTestVersionRecommendCloud": "连接成功（BeeCount Cloud v{version}），但低于推荐版本 v{target}，建议先升级服务端。仍可保存并继续使用。",
   "cloudTestVersionRequireCloud": "已连通 BeeCount Cloud v{version}，但低于本版 App 最低要求 v{target}。请先升级服务端再开启同步。",
   "cloudTestVersionRecommendApp": "连接成功（BeeCount Cloud v{version}），服务端推荐搭配 App v{target}+，建议稍后更新应用。",
-  "cloudTestVersionRequireApp": "已连通 BeeCount Cloud v{version}，但服务端最低要求 App v{target}。请先更新 App 后再同步。"
+  "cloudTestVersionRequireApp": "已连通 BeeCount Cloud v{version}，但服务端最低要求 App v{target}。请先更新 App 后再同步。",
+    "lockPeriodTitle": "锁账",
+    "lockPeriodEffectiveLine": "当前锁定日",
+    "lockPeriodEffectiveLineHint": "锁定日及以前的账单将无法新增、修改或删除。",
+    "lockPeriodNotLocked": "未锁账",
+    "lockPeriodRecords": "锁账记录",
+    "lockPeriodAdd": "新增锁账",
+    "lockPeriodConfirmTitle": "确认锁账",
+    "lockPeriodConfirmMessage": "确认将 {date} 及以前的账单锁账？当前范围内有 {count} 条账单将被锁定，锁定后无法新增、修改、删除。",
+    "@lockPeriodConfirmMessage": {
+      "placeholders": {
+        "count": {
+          "type": "int"
+        },
+        "date": {
+          "type": "String"
+        }
+      }
+    },
+    "lockPeriodCreated": "锁账成功，{date} 及以前的账单已锁定。",
+    "@lockPeriodCreated": {
+      "placeholders": {
+        "date": {
+          "type": "String"
+        }
+      }
+    },
+    "lockPeriodRevokeLatest": "撤销最近一次锁账",
+    "lockPeriodRevokeConfirmTitle": "撤销最近一次锁账",
+    "lockPeriodRevokeConfirmMessage": "确认撤销 {date} 的锁账记录？当前锁定日将回退至 {effective}。",
+    "@lockPeriodRevokeConfirmMessage": {
+      "placeholders": {
+        "date": {
+          "type": "String"
+        },
+        "effective": {
+          "type": "String"
+        }
+      }
+    },
+    "lockPeriodRevoked": "已撤销最近一次锁账，当前锁定日为 {effective}。",
+    "@lockPeriodRevoked": {
+      "placeholders": {
+        "effective": {
+          "type": "String"
+        }
+      }
+    },
+    "lockPeriodNothingToRevoke": "当前没有可撤销的锁账记录",
+    "lockPeriodFailed": "锁账操作失败：{error}",
+    "@lockPeriodFailed": {
+      "placeholders": {
+        "error": {
+          "type": "String"
+        }
+      }
+    },
+    "lockPeriodBatchNo": "第 {batch} 次锁账",
+    "@lockPeriodBatchNo": {
+      "placeholders": {
+        "batch": {
+          "type": "int"
+        }
+      }
+    },
+    "lockPeriodEmpty": "暂无锁账记录",
+    "lockPeriodEmptyHint": "锁账后，该日期及以前的账单将无法新增、修改或删除。",
+    "lockPeriodMustBeLater": "新锁账日期必须晚于当前锁定日（{effective}）。",
+    "@lockPeriodMustBeLater": {
+      "placeholders": {
+        "effective": {
+          "type": "String"
+        }
+      }
+    },
+  "lockPeriodNoLockLeft": "已无锁账"
 }

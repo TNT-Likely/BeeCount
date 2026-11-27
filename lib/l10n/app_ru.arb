@@ -2939,5 +2939,80 @@
   "v4RecurringAmountTransfer": "На один перевод",
   "v4RecurringAutomatic": "Автоматический учёт",
   "v4RecurringNextCaption": "Следующая транзакция · {when}",
-  "v4RecurringUsageSummary": "Транзакции с наступившей датой добавляются при открытии приложения или возвращении в него. Нажмите на правило, чтобы изменить расписание."
+  "v4RecurringUsageSummary": "Транзакции с наступившей датой добавляются при открытии приложения или возвращении в него. Нажмите на правило, чтобы изменить расписание.",
+    "lockPeriodTitle": "Блокировка периода",
+    "lockPeriodEffectiveLine": "Текущая дата блокировки",
+    "lockPeriodEffectiveLineHint": "Операции до и включая дату блокировки нельзя добавлять, изменять или удалять.",
+    "lockPeriodNotLocked": "Не заблокировано",
+    "lockPeriodRecords": "Записи блокировки",
+    "lockPeriodAdd": "Добавить блокировку",
+    "lockPeriodConfirmTitle": "Подтвердить блокировку",
+    "lockPeriodConfirmMessage": "Заблокировать все записи до {date} включительно? В этом счёте будет заблокировано {count} записей. После блокировки их нельзя добавлять, изменять или удалять.",
+    "@lockPeriodConfirmMessage": {
+      "placeholders": {
+        "count": {
+          "type": "int"
+        },
+        "date": {
+          "type": "String"
+        }
+      }
+    },
+    "lockPeriodCreated": "Блокировка применена. Все записи до {date} включительно заблокированы.",
+    "@lockPeriodCreated": {
+      "placeholders": {
+        "date": {
+          "type": "String"
+        }
+      }
+    },
+    "lockPeriodRevokeLatest": "Отменить последнюю блокировку",
+    "lockPeriodRevokeConfirmTitle": "Отменить последнюю блокировку",
+    "lockPeriodRevokeConfirmMessage": "Отменить запись блокировки от {date}? Текущая дата блокировки вернётся к {effective}.",
+    "@lockPeriodRevokeConfirmMessage": {
+      "placeholders": {
+        "date": {
+          "type": "String"
+        },
+        "effective": {
+          "type": "String"
+        }
+      }
+    },
+    "lockPeriodRevoked": "Последняя блокировка отменена. Текущая дата блокировки: {effective}.",
+    "@lockPeriodRevoked": {
+      "placeholders": {
+        "effective": {
+          "type": "String"
+        }
+      }
+    },
+    "lockPeriodNothingToRevoke": "Нет записей блокировки для отмены",
+    "lockPeriodFailed": "Ошибка блокировки: {error}",
+    "@lockPeriodFailed": {
+      "placeholders": {
+        "error": {
+          "type": "String"
+        }
+      }
+    },
+    "lockPeriodBatchNo": "Блокировка №{batch}",
+    "@lockPeriodBatchNo": {
+      "placeholders": {
+        "batch": {
+          "type": "int"
+        }
+      }
+    },
+    "lockPeriodEmpty": "Записей блокировки пока нет",
+    "lockPeriodEmptyHint": "После блокировки записи до указанной даты включительно нельзя добавлять, изменять или удалять.",
+    "lockPeriodMustBeLater": "Новая дата блокировки должна быть позже текущей ({effective}).",
+    "@lockPeriodMustBeLater": {
+      "placeholders": {
+        "effective": {
+          "type": "String"
+        }
+      }
+    },
+  "lockPeriodNoLockLeft": "блокировок не осталось"
 }

@@ -32,6 +32,61 @@ String _formatDate(int year, int month, int day) =>
 bool isBusinessDateAtOrBefore(String date, String effectiveLockLine) =>
     effectiveLockLine.isNotEmpty && date.compareTo(effectiveLockLine) <= 0;
 
+/// 把「设备本地日历日」格式化成 `YYYY-MM-DD`。
+///
+/// 与 [businessDateInShanghai] 的区别:后者把**时刻**换算到上海日历日再格式化;
+/// 本函数只格式化传入 DateTime 自己的日历字段,不做任何时区换算 —— 用于
+/// "用户刚在日期选择器里挑了哪一天"这种本来就是日历日的场景。
+String formatYmd(DateTime date) => _formatDate(date.year, date.month, date.day);
+
+/// 解析 `YYYY-MM-DD` 成设备本地日历日(午夜)。
+///
+/// 格式非法 / 非真实日期(如 2026-02-30)返回 null。
+DateTime? parseYmd(String text) {
+  final parts = text.split('-');
+  if (parts.length != 3) return null;
+  final year = int.tryParse(parts[0]);
+  final month = int.tryParse(parts[1]);
+  final day = int.tryParse(parts[2]);
+  if (year == null || month == null || day == null) return null;
+  final parsed = DateTime(year, month, day);
+  if (parsed.year != year || parsed.month != month || parsed.day != day) {
+    return null;
+  }
+  return parsed;
+}
+
+/// 把「业务日期 <= [businessDate]」翻译成「UTC 时刻 < 排他上界」。
+///
+/// [businessDate] 是 `YYYY-MM-DD` 业务日(Asia/Shanghai 日历日)。
+/// 返回值是**该业务日次日上海零点**对应的 UTC 时刻(排他):
+/// `businessDateInShanghai(t) <= businessDate` ⟺ `t < 返回值`。
+///
+/// 供 SQL 侧一次聚合查询做边界比较 —— 上界以 DateTime 交给 Drift 绑定,
+/// 不假设 happened_at 的存储单位,也不必把流水读进内存再逐条换算时区。
+///
+/// 格式非法 / 非真实日期(如 2026-02-30)返回 null(调用方按"无边界"处理)。
+/// 与 [businessDateInShanghai] 共用同一时区常量,杜绝两套换算。
+DateTime? shanghaiDayEndUtcExclusive(String businessDate) {
+  final parts = businessDate.split('-');
+  if (parts.length != 3) return null;
+  final year = int.tryParse(parts[0]);
+  final month = int.tryParse(parts[1]);
+  final day = int.tryParse(parts[2]);
+  if (year == null || month == null || day == null) return null;
+  // 日历进位用 UTC 构造:不受设备本地时区的夏令时影响,
+  // 且 DateTime.utc 会把 day+1 正确进位到下个月 / 下一年。
+  final current = DateTime.utc(year, month, day);
+  // 拒绝不存在的日期(2026-02-30 会被进位成 03-02)。
+  if (current.year != year || current.month != month || current.day != day) {
+    return null;
+  }
+  final next = DateTime.utc(year, month, day + 1);
+  final local = tz.TZDateTime(
+      _location(), next.year, next.month, next.day);
+  return local.toUtc();
+}
+
 /// 本地写库用的 UTC ISO8601 字符串(App 侧 locked_at 口径)。
 String utcIsoNow() => DateTime.now().toUtc().toIso8601String();
 

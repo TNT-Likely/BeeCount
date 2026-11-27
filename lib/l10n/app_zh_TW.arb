@@ -3968,5 +3968,80 @@
   "cloudTestVersionRequireApp": "已連通 BeeCount Cloud v{version}，但伺服器端最低要求 App v{target}。請先更新 App 後再同步。",
   "accountsEmptyTitle": "開始管理你的資產與負債",
   "accountsEmptyDescription": "新增常用帳戶後，即可自動彙總淨資產、追蹤餘額趨勢與多幣別分布。",
-  "accountsEmptyAction": "新增第一個帳戶"
+  "accountsEmptyAction": "新增第一個帳戶",
+    "lockPeriodTitle": "鎖帳",
+    "lockPeriodEffectiveLine": "目前鎖定日",
+    "lockPeriodEffectiveLineHint": "鎖定日及以前的帳單將無法新增、修改或刪除。",
+    "lockPeriodNotLocked": "未鎖帳",
+    "lockPeriodRecords": "鎖帳紀錄",
+    "lockPeriodAdd": "新增鎖帳",
+    "lockPeriodConfirmTitle": "確認鎖帳",
+    "lockPeriodConfirmMessage": "確認將 {date} 及以前的帳單鎖帳？目前範圍內有 {count} 筆帳單將被鎖定，鎖定後無法新增、修改、刪除。",
+    "@lockPeriodConfirmMessage": {
+      "placeholders": {
+        "count": {
+          "type": "int"
+        },
+        "date": {
+          "type": "String"
+        }
+      }
+    },
+    "lockPeriodCreated": "鎖帳成功，{date} 及以前的帳單已鎖定。",
+    "@lockPeriodCreated": {
+      "placeholders": {
+        "date": {
+          "type": "String"
+        }
+      }
+    },
+    "lockPeriodRevokeLatest": "撤銷最近一次鎖帳",
+    "lockPeriodRevokeConfirmTitle": "撤銷最近一次鎖帳",
+    "lockPeriodRevokeConfirmMessage": "確認撤銷 {date} 的鎖帳紀錄？目前鎖定日將回退至 {effective}。",
+    "@lockPeriodRevokeConfirmMessage": {
+      "placeholders": {
+        "date": {
+          "type": "String"
+        },
+        "effective": {
+          "type": "String"
+        }
+      }
+    },
+    "lockPeriodRevoked": "已撤銷最近一次鎖帳，目前鎖定日為 {effective}。",
+    "@lockPeriodRevoked": {
+      "placeholders": {
+        "effective": {
+          "type": "String"
+        }
+      }
+    },
+    "lockPeriodNothingToRevoke": "目前沒有可撤銷的鎖帳紀錄",
+    "lockPeriodFailed": "鎖帳作業失敗：{error}",
+    "@lockPeriodFailed": {
+      "placeholders": {
+        "error": {
+          "type": "String"
+        }
+      }
+    },
+    "lockPeriodBatchNo": "第 {batch} 次鎖帳",
+    "@lockPeriodBatchNo": {
+      "placeholders": {
+        "batch": {
+          "type": "int"
+        }
+      }
+    },
+    "lockPeriodEmpty": "尚無鎖帳紀錄",
+    "lockPeriodEmptyHint": "鎖帳後，該日期及以前的帳單將無法新增、修改或刪除。",
+    "lockPeriodMustBeLater": "新鎖帳日期必須晚於目前鎖定日（{effective}）。",
+    "@lockPeriodMustBeLater": {
+      "placeholders": {
+        "effective": {
+          "type": "String"
+        }
+      }
+    },
+  "lockPeriodNoLockLeft": "已無鎖帳"
 }
