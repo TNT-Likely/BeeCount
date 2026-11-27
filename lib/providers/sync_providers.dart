@@ -721,6 +721,16 @@ final syncServiceProvider = Provider<SyncService>((ref) {
     Future<void> hydrateNewLedgers(Set<String> existingSyncIds) async {
       final newSyncIds =
           (await registeredLedgerSyncIds()).difference(existingSyncIds);
+      if (existingSyncIds.isEmpty && newSyncIds.isNotEmpty) {
+        // With no previously registered ledger, consume the account's ordinary
+        // delta first. A subsequent scoped snapshot can supply history omitted
+        // by device filtering and is authoritative for its own ledger.
+        try {
+          await engine.pull('');
+        } catch (e, st) {
+          logger.warning('SyncProvider', '首次拉取增量失败，继续恢复账本快照: $e', st);
+        }
+      }
       for (final syncId in newSyncIds) {
         try {
           final hydrated = await engine.hydrateLedgerFromServer(syncId);
@@ -777,7 +787,7 @@ final syncServiceProvider = Provider<SyncService>((ref) {
           ref.read(cachedTransactionsProvider.notifier).state = null;
           // 不再无条件 bump avatarRefreshProvider — engine.onAvatarChanged
           // 只在真下载头像时触发,避免每次 bootstrap 闪一次头像。
-          ref.read(lastSyncErrorProvider.notifier).state = null;
+          ref.read(lastSyncErrorProvider.notifier).state = result.error;
         } catch (e, st) {
           logger.error('SyncProvider', '自动同步异常', e, st);
           ref.read(lastSyncErrorProvider.notifier).state = e.toString();

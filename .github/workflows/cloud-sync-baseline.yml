@@ -1,0 +1,56 @@
+name: Cloud 双向同步基础 QA
+
+on:
+  workflow_dispatch:
+    inputs:
+      cloud_ref:
+        description: BeeCount-Cloud 提交、分支或标签
+        required: true
+        default: main
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    name: 四向同步 / ${{ matrix.database }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        database: [sqlite, postgresql]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: app
+      - uses: actions/checkout@v4
+        with:
+          repository: TNT-Likely/BeeCount-Cloud
+          ref: ${{ inputs.cloud_ref }}
+          path: cloud
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.27.3'
+          cache: true
+      - name: 安装 Cloud 依赖
+        run: |
+          python -m venv cloud/.venv
+          cloud/.venv/bin/python -m pip install -r cloud/requirements.txt
+      - name: 安装 PostgreSQL 服务工具
+        if: matrix.database == 'postgresql'
+        run: sudo apt-get update && sudo apt-get install -y postgresql
+      - name: 执行固定账本与断言
+        working-directory: app
+        env:
+          QA_DATABASE: ${{ matrix.database }}
+        run: python scripts/qa/cloud_sync_baseline.py run --database "$QA_DATABASE" --cloud-repo ../cloud --output "../results/$QA_DATABASE"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cloud-sync-${{ matrix.database }}
+          path: results/${{ matrix.database }}
+          if-no-files-found: error

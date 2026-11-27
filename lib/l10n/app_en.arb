@@ -1016,7 +1016,7 @@
   "mineDownloadTitle": "Download & Sync",
   "mineDownloadNeedCloudService": "Available in cloud service mode only",
   "mineDownloadComplete": "Sync Complete",
-  "mineDownloadResult": "Imported: {inserted} records",
+  "mineDownloadResult": "New transactions: {inserted}",
   "mineLoginTitle": "Login",
   "mineLoginSubtitle": "Only needed for sync",
   "cloudReloginTitle": "Re-login",
@@ -2578,7 +2578,7 @@
   "ledgersConflictUploading": "Uploading...",
   "ledgersConflictDownloading": "Downloading...",
   "ledgersConflictUploadSuccess": "Upload successful",
-  "ledgersConflictDownloadSuccess": "Download successful, merged {inserted} transactions",
+  "ledgersConflictDownloadSuccess": "Download complete. New transactions: {inserted}",
   "@ledgersConflictDownloadSuccess": {
     "placeholders": {
       "inserted": {
@@ -3474,6 +3474,10 @@
   "budgetManagementDesc": "Set monthly budget and control spending",
   "budgetSetupHint": "Set a budget to control monthly spending",
   "budgetSetupAction": "Set up",
+  "cloudSyncPushConflicts": "Cloud retained its version for {count} conflicting edit(s).",
+  "@cloudSyncPushConflicts": {"placeholders": {"count": {"type": "int"}}},
+  "cloudSyncPushUnconfirmed": "{count} change(s) have not been confirmed and remain queued.",
+  "@cloudSyncPushUnconfirmed": {"placeholders": {"count": {"type": "int"}}},
   "syncHealthTitle": "Sync status",
   "cloudSyncHelpTitle": "How sync works · Why it sometimes stalls",
   "cloudSyncHelpModesTitle": "Three sync modes",
@@ -3505,6 +3509,8 @@
   "syncHealthRowCategory": "Categories",
   "syncHealthRowTag": "Tags",
   "syncHealthRowUnpushed": "Pending pushes",
+  "syncHealthRecentConflicts": "{count, plural, =1{In the past 7 days, Cloud could not accept 1 local edit because of a version conflict.} other{In the past 7 days, Cloud could not accept {count} local edits because of version conflicts.}}",
+  "@syncHealthRecentConflicts": {"placeholders": {"count": {"type": "int"}}},
   "syncHealthValue": "Local {local} · Cloud {remote}",
   "@syncHealthValue": {
     "placeholders": {

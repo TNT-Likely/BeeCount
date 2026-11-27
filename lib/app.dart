@@ -310,23 +310,14 @@ class _BeeAppState extends ConsumerState<BeeApp>
                 .getUnpushedChangesForLedger(ledger.id);
             final mySyncId = ledger.syncId;
             final hasSyncId = mySyncId != null && mySyncId.isNotEmpty;
-            final inRemote = hasSyncId && remoteSyncIds.contains(mySyncId);
-
-            // fast skip:无待推送 + 已在远端 + 非共享 Editor 或 Owner
-            if (unpushed.isEmpty &&
-                inRemote &&
-                !pendingRecurring.contains(ledger.id)) {
+            final inRemote = remoteLedgers == null ? null : hasSyncId && remoteSyncIds.contains(mySyncId);
+            final action = await engine.initialUploadAction(ledger, remoteExists: inRemote);
+            if (unpushed.isEmpty && inRemote == true &&
+                action == InitialUploadAction.incremental && !pendingRecurring.contains(ledger.id)) {
               logger.info('AppStart', 'Phase2 skip $tag (无待推送 + 已绑定)');
               return _LedgerSyncResult.skip();
             }
-
-            // 共享账本 Editor:只 push 自己的 unpushed change,不 fullPush
-            // (会覆盖 Owner 数据)
-            final isSharedAsEditor =
-                ledger.isShared && ledger.myRole != 'owner';
-
-            // 需要 fullPush:非 Editor 且账本不在远端
-            if (!inRemote && !isSharedAsEditor) {
+            if (action != InitialUploadAction.incremental) {
               logger.info('AppStart', 'Phase2 $tag → fullPush');
               try {
                 await engine.uploadAttachments(ledgerId: ledger.id);
@@ -334,7 +325,7 @@ class _BeeAppState extends ConsumerState<BeeApp>
                 logger.warning('AppStart', '$tag uploadAttachments 失败', st);
                 logger.warning('AppStart', 'error: $e');
               }
-              await engine.fullPush(ledgerId: ledger.id);
+              await engine.fullPush(ledgerId: ledger.id, resumePreparation: action == InitialUploadAction.resume);
               // 推剩余 delete change
               final extra = await engine.push(ledger.id.toString());
               try {

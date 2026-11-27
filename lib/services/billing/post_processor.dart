@@ -92,6 +92,22 @@ class PostProcessor {
 
   // ============ 内部同步实现 ============
 
+  static Future<void> _syncCloud(
+      SyncEngine sync, int ledgerId, void Function() refresh) async {
+    try {
+      final result = await sync.sync(ledgerId: ledgerId.toString());
+      if (result.hasError) {
+        logger.error('PostProcessor', 'BeeCount Cloud 自动同步失败', result.error);
+      } else {
+        logger.info('PostProcessor', 'BeeCount Cloud 自动同步完成',
+            'ledgerId=$ledgerId, pushed=${result.pushed}, pulled=${result.pulled}');
+      }
+      refresh();
+    } catch (e, st) {
+      logger.error('PostProcessor', 'BeeCount Cloud 自动同步失败', e, st);
+    }
+  }
+
   static Future<void> _doSync(WidgetRef ref, int ledgerId) async {
     final sync = ref.read(syncServiceProvider);
     try {
@@ -104,15 +120,7 @@ class PostProcessor {
     // BeeCount Cloud：始终自动双向同步
     if (sync is SyncEngine) {
       final refresh = ref.read(syncStatusRefreshProvider.notifier);
-      Future(() async {
-        try {
-          await sync.sync(ledgerId: ledgerId.toString());
-          refresh.state++;
-          logger.info('PostProcessor', 'BeeCount Cloud 自动同步完成', 'ledgerId=$ledgerId');
-        } catch (e) {
-          logger.error('PostProcessor', 'BeeCount Cloud 自动同步失败', e);
-        }
-      });
+      Future(() => _syncCloud(sync, ledgerId, () => refresh.state++));
       return;
     }
 
@@ -144,15 +152,7 @@ class PostProcessor {
     // BeeCount Cloud：始终自动双向同步
     if (sync is SyncEngine) {
       final refresh = c.read(syncStatusRefreshProvider.notifier);
-      Future(() async {
-        try {
-          await sync.sync(ledgerId: ledgerId.toString());
-          refresh.state++;
-          logger.info('PostProcessor', 'BeeCount Cloud 自动同步完成', 'ledgerId=$ledgerId');
-        } catch (e) {
-          logger.error('PostProcessor', 'BeeCount Cloud 自动同步失败', e);
-        }
-      });
+      Future(() => _syncCloud(sync, ledgerId, () => refresh.state++));
       return;
     }
 
@@ -184,15 +184,7 @@ class PostProcessor {
     // BeeCount Cloud：始终自动双向同步
     if (sync is SyncEngine) {
       final refresh = ref.read(syncStatusRefreshProvider.notifier);
-      Future(() async {
-        try {
-          await sync.sync(ledgerId: ledgerId.toString());
-          refresh.state++;
-          logger.info('PostProcessor', 'BeeCount Cloud 自动同步完成', 'ledgerId=$ledgerId');
-        } catch (e) {
-          logger.error('PostProcessor', 'BeeCount Cloud 自动同步失败', e);
-        }
-      });
+      Future(() => _syncCloud(sync, ledgerId, () => refresh.state++));
       return;
     }
 

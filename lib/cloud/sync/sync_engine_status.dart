@@ -16,6 +16,35 @@ part of 'sync_engine.dart';
 /// 在 library 外不可见。命名特意避开顶层 `SyncEngineStatus` enum,叫
 /// `SyncEngineHealthChecks` 区分。
 extension SyncEngineHealthChecks on SyncEngine {
+  /// A ledger sync also uploads this account's global categories, accounts and tags.
+  Future<int> _countPendingUploads(int ledgerId) async {
+    final changes = db.localChanges;
+    final count = changes.id.count();
+    final row = await (db.selectOnly(changes)
+          ..addColumns([count])
+          ..where(changes.pushedAt.isNull() & changes.ledgerId.isIn([0, ledgerId])))
+        .getSingle();
+    return row.read(count) ?? 0;
+  }
+
+  Future<int> _countRecentConflicts(int ledgerId, String scope) async {
+    if (scope.isEmpty) return 0;
+    final now = DateTime.now();
+    final row = await db.customSelect(
+      r'''SELECT count(*) AS count FROM local_changes
+          WHERE ledger_id IN (0, ?) AND receipt_scope = ?
+            AND pushed_at BETWEEN ? AND ? AND confirmed_change_id IS NOT NULL
+            AND CASE WHEN json_valid(wire_json) THEN
+              json_extract(wire_json, '$.scope') = receipt_scope
+              AND json_type(wire_json, '$.conflict') IS NOT NULL END''',
+      variables: [d.Variable.withInt(ledgerId), d.Variable.withString(scope),
+        d.Variable.withDateTime(now.subtract(const Duration(days: 7))),
+        d.Variable.withDateTime(now)],
+      readsFrom: {db.localChanges},
+    ).getSingle();
+    return row.read<int>('count');
+  }
+
   /// 云同步页下拉刷新时用:对比本地 Drift 和 server `/read/ledgers/<id>/stats`
   /// 返回的计数,如果有差异就返回 hasDiff=true,UI 据此决定是否触发一次
   /// auto sync。server 端计数来源跟 web 实际展示一致(从最新 snapshot 读),
@@ -95,8 +124,9 @@ extension SyncEngineHealthChecks on SyncEngine {
         (await (db.select(db.tags)..where((t) => t.syncId.isNotNull())).get())
             .length;
 
-    final unpushed =
-        (await changeTracker.getUnpushedChangesForLedger(ledgerId)).length;
+    final unpushed = await _countPendingUploads(ledgerId);
+    final receiptScope = _receiptScope;
+    final conflicts = await _countRecentConflicts(ledgerId, receiptScope);
 
     // ---------- 远端 /read/ledgers/<id>/stats ----------
     try {
@@ -123,6 +153,7 @@ extension SyncEngineHealthChecks on SyncEngine {
             SyncCountPair(local: localCategories, remote: stats.categoryTotal),
         tags: SyncCountPair(local: localTags, remote: stats.tagTotal),
         unpushedChanges: unpushed,
+        recentConflicts: _receiptScope == receiptScope ? conflicts : 0,
       );
     } catch (e, st) {
       logger.warning('SyncEngine', 'checkSyncHealth 拉 stats 失败: $e', st);
@@ -141,6 +172,7 @@ extension SyncEngineHealthChecks on SyncEngine {
         categories: SyncCountPair(local: localCategories, remote: -1),
         tags: SyncCountPair(local: localTags, remote: -1),
         unpushedChanges: unpushed,
+        recentConflicts: _receiptScope == receiptScope ? conflicts : 0,
         error: e.toString(),
       );
     }

@@ -35,11 +35,27 @@ class AppCursorStore {
   }
 
   /// 把 cursor 推进到指定值。**只在整页 apply 成功后调**。
-  Future<void> commit(int cursor) async {
+  Future<void> commit(int cursor, {bool restoring = false, bool hasMore = false}) async {
     final key = await _key();
     if (key == null) return;
     final prefs = await SharedPreferences.getInstance();
+    // Save the continuation first: after a crash a normal pull must never
+    // resume halfway through a restore with its own-device filter enabled.
+    if (restoring && hasMore) await prefs.setInt('$key.restore', cursor);
     await prefs.setInt(key, cursor);
+    if (restoring && !hasMore) await prefs.remove('$key.restore');
+  }
+
+  Future<int?> _readRestoreCursor() async {
+    final key = await _key();
+    if (key == null) return null;
+    return (await SharedPreferences.getInstance()).getInt('$key.restore');
+  }
+
+  Future<void> _restartRestore() async {
+    final key = await _key();
+    if (key == null) return;
+    await (await SharedPreferences.getInstance()).setInt('$key.restore', 0);
   }
 
   /// Phase 2 上线时一次性迁移:把 cloud-sync 包内的 provider cursor 复制到

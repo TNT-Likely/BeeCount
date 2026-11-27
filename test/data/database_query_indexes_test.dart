@@ -93,7 +93,8 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
-  test('fresh v33 has query indexes and avoids relation scans and home sort',
+  test(
+      'fresh database has query indexes and avoids relation scans and home sort',
       () async {
     final db = BeeDatabase.forTesting(NativeDatabase.memory());
     addTearDown(db.close);
@@ -106,13 +107,13 @@ void main() {
     expect(
         (await db.customSelect('PRAGMA user_version').getSingle())
             .read<int>('user_version'),
-        33);
+        db.schemaVersion);
     await _seed(db);
     await _expectIndexedPlans(db);
   });
 
   test(
-      'existing v33 missing indexes repairs all rows and repeated opens are '
+      'existing database missing indexes repairs all rows and repeated opens are '
       'idempotent', () async {
     final dir = await Directory.systemTemp.createTemp('beecount-indexes-');
     addTearDown(() => dir.delete(recursive: true));
@@ -123,7 +124,10 @@ void main() {
       await db.customStatement('DROP INDEX "$name"');
     }
     final original = await _values(db);
-    expect(original.length, 31);
+    expect(
+        original.keys,
+        containsAll(
+            ['transactions', 'local_changes', 'pending_transaction_moves']));
     expect(
         (await _indexes(db)).keys.toSet().intersection(_queryIndexes), isEmpty);
     await db.close();
@@ -136,7 +140,7 @@ void main() {
         expect(
             (await db.customSelect('PRAGMA user_version').getSingle())
                 .read<int>('user_version'),
-            33);
+            db.schemaVersion);
         final indexes = await _indexes(db);
         expect(indexes.keys, containsAll(_queryIndexes));
         if (firstIndexes != null) expect(indexes, firstIndexes);
@@ -158,6 +162,27 @@ void main() {
     final original = await _values(db);
     final oldIndexes = await _indexes(db);
     await db.customStatement('DROP INDEX idx_transactions_ledger_happened_at');
+    await db.customStatement('DROP INDEX idx_local_changes_entity');
+    for (final column in [
+      'operation_id',
+      'write_micros',
+      'wire_json',
+      'deferred_json',
+      'confirmed_change_id',
+      'receipt_scope'
+    ]) {
+      await db.customStatement('ALTER TABLE local_changes DROP COLUMN $column');
+    }
+    for (final column in [
+      'cloud_handoff_key',
+      'cloud_handoff_scope',
+      'cloud_rule_id',
+      'cloud_handoff_issue'
+    ]) {
+      await db.customStatement(
+          'ALTER TABLE recurring_transactions DROP COLUMN $column');
+    }
+    await db.customStatement('DROP TABLE pending_transaction_moves');
     await db.customStatement('DROP TABLE agent_memory_fts');
     for (final table in [
       'agent_tool_calls',
@@ -177,7 +202,7 @@ void main() {
       expect(
           (await db.customSelect('PRAGMA user_version').getSingle())
               .read<int>('user_version'),
-          33);
+          db.schemaVersion);
       await _expectIndexedPlans(db);
     } finally {
       await db.close();

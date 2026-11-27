@@ -28,6 +28,8 @@ python3 scripts/qa/android_notification_badge.py review --run "$qa_run_dir"
 
 ## App 与 Cloud 联调
 
+涉及双向同步、附件、业务写入、Cloud 投影或迁移时，按 [双向同步基线](../../../../qa/cloud_sync/README.md) 运行 `scripts/qa/cloud_sync_baseline.py`。指定候选 Cloud 提交，在 SQLite 与 PostgreSQL 核对四向同步，并把同一轮 JSON、HTML、ZIP 和对应提交附在相关 PR。宿主基线与下方设备界面验收分别登记。
+
 仅当修改 Cloud，或验收目标明确涉及真实接口、同步链路和跨端往返时执行以下流程，并记录选择联调的原因。
 
 ```sh

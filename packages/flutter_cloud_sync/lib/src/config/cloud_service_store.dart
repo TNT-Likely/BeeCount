@@ -9,6 +9,7 @@ class CloudServiceStore {
   static const _kActiveType =
       'cloud_active_type'; // local | beecount_cloud | supabase | webdav | icloud | s3
   static const _kBeeCountCloudCfg = 'cloud_beecount_cloud_cfg';
+  static const _kQueueWhileLocal = 'cloud_queue_beecount_changes_while_local';
   static const _kSupabaseCfg = 'cloud_supabase_cfg';
   static const _kWebdavCfg = 'cloud_webdav_cfg';
   static const _kS3Cfg = 'cloud_s3_cfg';
@@ -74,7 +75,9 @@ class CloudServiceStore {
 
     switch (activeType) {
       case 'local':
-        return CloudServiceConfig.localStorage();
+        return CloudServiceConfig.localStorage(
+          queueBeeCountChanges: sp.getBool(_kQueueWhileLocal) ?? false,
+        );
 
       case 'beecount_cloud':
         final raw = sp.getString(_kBeeCountCloudCfg);
@@ -183,13 +186,21 @@ class CloudServiceStore {
     }
   }
 
+  Future<void> _activateLocal(SharedPreferences sp) async {
+    final previous = sp.getString(_kActiveType);
+    if (previous != 'local') {
+      await sp.setBool(_kQueueWhileLocal, previous == 'beecount_cloud');
+    }
+    await sp.setString(_kActiveType, 'local');
+  }
+
   /// 保存并激活配置
   Future<void> saveAndActivate(CloudServiceConfig cfg) async {
     final sp = await SharedPreferences.getInstance();
 
     switch (cfg.type) {
       case CloudBackendType.local:
-        await sp.setString(_kActiveType, 'local');
+        await _activateLocal(sp);
         // Provider 会在下次使用时自动初始化
         break;
 
@@ -260,7 +271,7 @@ class CloudServiceStore {
 
     switch (type) {
       case CloudBackendType.local:
-        await sp.setString(_kActiveType, 'local');
+        await _activateLocal(sp);
         return true;
 
       case CloudBackendType.beecountCloud:

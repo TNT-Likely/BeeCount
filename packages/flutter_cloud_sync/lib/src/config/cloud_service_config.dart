@@ -13,6 +13,11 @@ enum CloudBackendType {
 class CloudServiceConfig {
   final CloudBackendType type;
   final String name; // UI 展示名称
+  final bool queueBeeCountChangesWhileLocal;
+
+  bool get tracksBeeCountChanges =>
+      (type == CloudBackendType.beecountCloud && valid) ||
+      (type == CloudBackendType.local && queueBeeCountChangesWhileLocal);
 
   // BeeCount Cloud 配置
   final String? beecountCloudBaseUrl;
@@ -45,6 +50,7 @@ class CloudServiceConfig {
   const CloudServiceConfig({
     required this.type,
     required this.name,
+    this.queueBeeCountChangesWhileLocal = false,
     // BeeCount Cloud
     this.beecountCloudBaseUrl,
     this.beecountCloudApiPrefix,
@@ -164,9 +170,10 @@ class CloudServiceConfig {
   }
 
   // 本地存储配置(默认)
-  static CloudServiceConfig localStorage() => const CloudServiceConfig(
+  static CloudServiceConfig localStorage({bool queueBeeCountChanges = false}) => CloudServiceConfig(
         type: CloudBackendType.local,
         name: '__LOCAL_STORAGE__',
+        queueBeeCountChangesWhileLocal: queueBeeCountChanges,
       );
 
   String obfuscatedUrl() {
