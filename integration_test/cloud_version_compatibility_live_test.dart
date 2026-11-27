@@ -4,6 +4,7 @@ import 'package:beecount/main.dart' show MainApp;
 import 'package:beecount/providers/database_providers.dart';
 import 'package:beecount/providers/sync_providers.dart';
 import 'package:beecount/providers/ui_state_providers.dart';
+import 'package:beecount_business_ui/beecount_business_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cloud_sync/flutter_cloud_sync.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -141,7 +142,7 @@ void main() {
     await tester.pumpWidget(
       UncontrolledProviderScope(container: container, child: const MainApp()),
     );
-    await waitFor(find.text('QA 版本匹配基准'));
+    await waitFor(find.text('餐饮'));
 
     // 1. 匹配状态（App 4.1.0 + Cloud 1.11.0）
     final initialSync = await engine
@@ -160,8 +161,8 @@ void main() {
 
     await tap(find.text('我的'));
     await waitFor(find.text('BeeCount Cloud v1.11.0'));
-    await tap(find.text('云同步'));
-    await waitFor(find.textContaining('App v4.1.0 · Cloud v1.11.0'));
+    await tap(find.byType(BeeSyncStatus));
+    await waitFor(find.textContaining('App v4.1.0 · Cloud v1.11.0', skipOffstage: false));
     expect(find.text('建议升级 BeeCount Cloud'), findsNothing);
     expect(find.text('请先升级 BeeCount Cloud'), findsNothing);
     await binding.takeScreenshot('01-matched-sync-page');
@@ -206,7 +207,7 @@ void main() {
     await container.refresh(beecountCloudServerInfoProvider.future);
     await container.refresh(cloudVersionCompatibilityProvider.future);
     await waitFor(find.textContaining('同步已暂停'));
-    await tap(find.text('云同步'));
+    await tap(find.byType(BeeSyncStatus));
     await waitFor(find.text('请先升级 BeeCount Cloud'));
     await binding.takeScreenshot('04-cloud-required-paused');
 
@@ -257,7 +258,7 @@ void main() {
     // 5. 服务端升级回 1.11.0，用户点「重新检测」即时恢复并自动补传离线交易
     await setServerPolicy(version: '1.11.0', minApp: '4.0.0', recApp: '4.1.0');
     await tap(find.text('重新检测'));
-    await waitFor(find.textContaining('App v4.1.0 · Cloud v1.11.0'));
+    await waitFor(find.textContaining('App v4.1.0 · Cloud v1.11.0', skipOffstage: false));
     await tester.pump(const Duration(seconds: 2));
     expect(find.text('请先更新 BeeCount App'), findsNothing);
     expect(find.text('请先升级 BeeCount Cloud'), findsNothing);
@@ -274,12 +275,12 @@ void main() {
     // 回到明细页准备正常入口重启验证
     nav.popUntil((route) => route.isFirst);
     await tap(find.text('明细'));
-    await waitFor(find.text('QA 离线记账不受影响'));
+    await waitFor(find.text('餐饮'));
 
     binding.reportData!.addAll({
       'ledger_sync_id': ledgerSyncId,
       'expected_tx_sync_ids': [tx1SyncId, tx2SyncId, tx3SyncId],
-      'normal_ui_markers': ['QA 离线记账不受影响', '31'],
+      'normal_ui_markers': ['餐饮', '31'],
     });
   }, timeout: const Timeout(Duration(minutes: 8)));
 }
