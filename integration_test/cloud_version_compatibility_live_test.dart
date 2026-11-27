@@ -152,7 +152,7 @@ void main() {
     await tester.pumpWidget(
       UncontrolledProviderScope(container: container, child: const MainApp()),
     );
-    await waitFor(find.textContaining('QA版本餐饮'));
+    await waitFor(find.textContaining('QA版本餐饮', findRichText: true));
 
     // 1. 匹配状态（App 4.1.0 + Cloud 1.11.0）
     final initialSync = await engine
@@ -285,7 +285,7 @@ void main() {
     // 回到明细页准备正常入口重启验证
     nav.popUntil((route) => route.isFirst);
     await tap(find.text('明细'));
-    await waitFor(find.textContaining('QA版本餐饮'));
+    await waitFor(find.textContaining('QA版本餐饮', findRichText: true));
 
     binding.reportData!.addAll({
       'ledger_sync_id': ledgerSyncId,
