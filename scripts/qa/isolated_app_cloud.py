@@ -37,6 +37,7 @@ SCENARIOS = {
     'mcp-receipt-attachments': 'integration_test/mcp_receipt_attachments_live_test.dart',
     'recurring-consolidation': 'integration_test/recurring_consolidation_live_test.dart',
     'recurring-cloud': 'integration_test/recurring_cloud_live_test.dart',
+    'cloud-version-compatibility': 'integration_test/cloud_version_compatibility_live_test.dart',
 }
 
 
@@ -211,7 +212,9 @@ def prepare_cloud(args, root, run_id, skill_source, skill_identity):
                BOOTSTRAP_ADMIN_PASSWORD=credentials['admin_password'],
                REGISTRATION_ENABLED='true', ALLOW_APP_RW_SCOPES='true',
                BACKUP_SCHEDULER_ENABLED='false', RAG_INDEX_REFRESH_INTERVAL_SECONDS='0',
-               EXCHANGE_RATE_PROXY_ENABLED='false', EMBEDDING_API_KEY='', **paths)
+               EXCHANGE_RATE_PROXY_ENABLED='false', EMBEDDING_API_KEY='',
+               **({'APP_VERSION': '1.11.0'} if manifest.get('scenario') == 'cloud-version-compatibility' else {}),
+               **paths)
     write_json(root / 'cloud-env.json', env)
     manifest['cloud_python'] = str(python)
     migration = (
@@ -256,6 +259,18 @@ async def qa_set_fault(request: Request):
     fault['offline']=bool(body['offline'])
     fault['drop_move_receipt']=bool(body.get('drop_move_receipt', False))
     return {{'offline': fault['offline']}}
+@app.post('/__qa__/version-policy')
+async def qa_set_version_policy(request: Request):
+    body=await request.json()
+    assert body.get('run_id') == {run_id!r}
+    import src.version as _v
+    if 'version' in body and body['version'] is not None:
+        _v.__version__ = str(body['version']).strip()
+    if 'min_app_version' in body and body['min_app_version'] is not None:
+        _v.MIN_APP_VERSION = str(body['min_app_version']).strip()
+    if 'recommended_app_version' in body and body['recommended_app_version'] is not None:
+        _v.RECOMMENDED_APP_VERSION = str(body['recommended_app_version']).strip()
+    return {{'version': _v.__version__, 'min_app_version': _v.MIN_APP_VERSION, 'recommended_app_version': _v.RECOMMENDED_APP_VERSION}}
 @app.get('/__qa__/identity')
 def qa_identity():
     return {{'run_id': {run_id!r}, 'cloud_sha': {sha!r}, 'database_is_isolated': True}}
@@ -384,6 +399,8 @@ def verify_artifact(root, manifest):
 def build(root, manifest, flutter):
     source = snapshot(root, manifest)
     build_args = [flutter, 'build', 'ios', '--debug', '--simulator']
+    if manifest.get('scenario') == 'cloud-version-compatibility':
+        build_args += ['--build-name=4.1.0', '--build-number=410']
     if manifest.get('mode') != 'app-only':
         build_args += ['--target', SCENARIOS[manifest.get('scenario', 'transaction-copy')],
                        f'--dart-define-from-file={root / "defines.json"}']
@@ -538,7 +555,7 @@ def review(root, manifest, cloud_repo=None):
         inside(data, env[key])
     if any((runtime / name).exists() for name in ('.env', '.env.local')):
         raise ValueError('QA runtime must not load local environment files')
-    allowed = {'PATH', 'PYTHONPATH', 'PYTHONDONTWRITEBYTECODE', 'APP_ENV', 'TZ', 'JWT_SECRET',
+    allowed = {'PATH', 'PYTHONPATH', 'PYTHONDONTWRITEBYTECODE', 'APP_ENV', 'APP_VERSION', 'TZ', 'JWT_SECRET',
                'BOOTSTRAP_ADMIN_EMAIL', 'BOOTSTRAP_ADMIN_PASSWORD', 'REGISTRATION_ENABLED',
                'ALLOW_APP_RW_SCOPES', 'BACKUP_SCHEDULER_ENABLED', 'RAG_INDEX_REFRESH_INTERVAL_SECONDS',
                'EXCHANGE_RATE_PROXY_ENABLED', 'EMBEDDING_API_KEY', 'DATA_DIR', 'DATABASE_URL',
@@ -746,8 +763,10 @@ def restart_check(root, manifest, flutter):
     device(manifest)
     source = inside(root, root / 'app-source')
     with (root / 'raw-logs/normal-build.log').open('w') as log:
-        subprocess.run([flutter, 'build', 'ios', '--debug', '--simulator', '--target', 'lib/main.dart'],
-                       cwd=source, stdout=log, stderr=log, check=True)
+        normal_args = [flutter, 'build', 'ios', '--debug', '--simulator', '--target', 'lib/main.dart']
+        if manifest.get('scenario') == 'cloud-version-compatibility':
+            normal_args += ['--build-name=4.1.0', '--build-number=410']
+        subprocess.run(normal_args, cwd=source, stdout=log, stderr=log, check=True)
     manifest['resolved_lock_sha256'] = hashlib.sha256((source / 'pubspec.lock').read_bytes()).hexdigest()
     app = source / 'build/ios/iphonesimulator/Runner.app'
     for bundle, entitlements in [(p, source / 'ios/BeeCountWidgetExtension.entitlements')
@@ -826,6 +845,11 @@ def restart_check(root, manifest, flutter):
                 if child is None or child['parent_id'] != parent['id'] or child['level'] != 2:
                     raise ValueError('Normal App restart lost a stable child category relationship')
         rows = dict(transactions=rows, parent_name=parent['name'], child_sync_ids=report['child_sync_ids'])
+    elif manifest.get('scenario') == 'cloud-version-compatibility':
+        expected_ids = set(report['expected_tx_sync_ids'])
+        actual_ids = {r['sync_id'] for r in rows}
+        if not expected_ids.issubset(actual_ids):
+            raise ValueError('Normal App restart lost version-compatibility synced transactions')
     elif manifest.get('scenario') == 'recurring-cloud':
         with sqlite3.connect(f'file:{app_db}?mode=ro', uri=True) as db:
             db.row_factory = sqlite3.Row

@@ -3751,7 +3751,7 @@ abstract class AppLocalizations {
   /// No description provided for @mineDownloadResult.
   ///
   /// In en, this message translates to:
-  /// **'Imported: {inserted} records'**
+  /// **'New transactions: {inserted}'**
   String mineDownloadResult(Object inserted);
 
   /// No description provided for @mineLoginTitle.
@@ -10465,7 +10465,7 @@ abstract class AppLocalizations {
   /// No description provided for @ledgersConflictDownloadSuccess.
   ///
   /// In en, this message translates to:
-  /// **'Download successful, merged {inserted} transactions'**
+  /// **'Download complete. New transactions: {inserted}'**
   String ledgersConflictDownloadSuccess(int inserted);
 
   /// No description provided for @storageManagementTitle.
@@ -13894,6 +13894,18 @@ abstract class AppLocalizations {
   /// **'Set up'**
   String get budgetSetupAction;
 
+  /// No description provided for @cloudSyncPushConflicts.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud retained its version for {count} conflicting edit(s).'**
+  String cloudSyncPushConflicts(int count);
+
+  /// No description provided for @cloudSyncPushUnconfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} change(s) have not been confirmed and remain queued.'**
+  String cloudSyncPushUnconfirmed(int count);
+
   /// No description provided for @syncHealthTitle.
   ///
   /// In en, this message translates to:
@@ -14037,6 +14049,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Pending pushes'**
   String get syncHealthRowUnpushed;
+
+  /// No description provided for @syncHealthRecentConflicts.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{In the past 7 days, Cloud could not accept 1 local edit because of a version conflict.} other{In the past 7 days, Cloud could not accept {count} local edits because of version conflicts.}}'**
+  String syncHealthRecentConflicts(int count);
 
   /// No description provided for @syncHealthValue.
   ///
@@ -19011,6 +19029,252 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Freelance income'**
   String get skinPreviewIncome;
+
+  /// No description provided for @cloudVersionRecommendCloudTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Upgrade BeeCount Cloud'**
+  String get cloudVersionRecommendCloudTitle;
+
+  /// No description provided for @cloudVersionRequireCloudTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'BeeCount Cloud Upgrade Required'**
+  String get cloudVersionRequireCloudTitle;
+
+  /// No description provided for @cloudVersionRecommendAppTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Update BeeCount App'**
+  String get cloudVersionRecommendAppTitle;
+
+  /// No description provided for @cloudVersionRequireAppTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'BeeCount App Update Required'**
+  String get cloudVersionRequireAppTitle;
+
+  /// No description provided for @cloudVersionHomePauseCloudTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync Paused · Upgrade Cloud'**
+  String get cloudVersionHomePauseCloudTitle;
+
+  /// No description provided for @cloudVersionHomePauseAppTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync Paused · Update App'**
+  String get cloudVersionHomePauseAppTitle;
+
+  /// No description provided for @cloudVersionRecommendCloudDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Cloud server is below the recommended v{target}+ for this App. Some new features or sync improvements may not work as expected.'**
+  String cloudVersionRecommendCloudDesc(String target);
+
+  /// No description provided for @cloudVersionRequireCloudDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Cloud server is below the minimum required v{target}+. Cloud sync is paused to avoid sync errors, while local bookkeeping continues normally.'**
+  String cloudVersionRequireCloudDesc(String target);
+
+  /// No description provided for @cloudVersionRecommendAppDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Cloud server is running a newer version. Update BeeCount App to v{target}+ for the best matched experience.'**
+  String cloudVersionRecommendAppDesc(String target);
+
+  /// No description provided for @cloudVersionRequireAppDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud v{server} requires BeeCount App v{target}+. Cloud sync is paused while local bookkeeping continues normally.'**
+  String cloudVersionRequireAppDesc(String server, String target);
+
+  /// No description provided for @cloudVersionHomeRecommendCloudDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected to Cloud v{server}. Upgrade to v{target}+ to match this App version.'**
+  String cloudVersionHomeRecommendCloudDesc(String server, String target);
+
+  /// No description provided for @cloudVersionHomePauseCloudDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud v{server} is below minimum v{target}. Local bookkeeping still works and will sync after upgrading.'**
+  String cloudVersionHomePauseCloudDesc(String server, String target);
+
+  /// No description provided for @cloudVersionHomeRecommendAppDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud is now v{server}. Update BeeCount App to v{target}+ to stay matched.'**
+  String cloudVersionHomeRecommendAppDesc(String server, String target);
+
+  /// No description provided for @cloudVersionHomePauseAppDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud v{server} requires App v{target}+. Local bookkeeping still works and will resume after updating.'**
+  String cloudVersionHomePauseAppDesc(String server, String target);
+
+  /// No description provided for @cloudVersionChipMinCloud.
+  ///
+  /// In en, this message translates to:
+  /// **'Min Cloud v{version}+'**
+  String cloudVersionChipMinCloud(String version);
+
+  /// No description provided for @cloudVersionChipRecCloud.
+  ///
+  /// In en, this message translates to:
+  /// **'Rec Cloud v{version}+'**
+  String cloudVersionChipRecCloud(String version);
+
+  /// No description provided for @cloudVersionChipMinApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Min App v{version}+'**
+  String cloudVersionChipMinApp(String version);
+
+  /// No description provided for @cloudVersionChipRecApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Rec App v{version}+'**
+  String cloudVersionChipRecApp(String version);
+
+  /// No description provided for @cloudVersionRecheckAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Re-check'**
+  String get cloudVersionRecheckAction;
+
+  /// No description provided for @cloudVersionUpgradeGuideAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Upgrade guide'**
+  String get cloudVersionUpgradeGuideAction;
+
+  /// No description provided for @cloudVersionGoUpdateAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Update app'**
+  String get cloudVersionGoUpdateAction;
+
+  /// No description provided for @cloudVersionViewAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get cloudVersionViewAction;
+
+  /// No description provided for @cloudVersionDismissAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Got it'**
+  String get cloudVersionDismissAction;
+
+  /// No description provided for @cloudVersionUseOfflineAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Use offline'**
+  String get cloudVersionUseOfflineAction;
+
+  /// No description provided for @cloudVersionBadgeRecommend.
+  ///
+  /// In en, this message translates to:
+  /// **'Upgrade advised'**
+  String get cloudVersionBadgeRecommend;
+
+  /// No description provided for @cloudVersionBadgeOutdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Outdated'**
+  String get cloudVersionBadgeOutdated;
+
+  /// No description provided for @cloudVersionBadgeUpdateApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Update app'**
+  String get cloudVersionBadgeUpdateApp;
+
+  /// No description provided for @cloudVersionSyncPausedCloud.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync paused · Upgrade Cloud'**
+  String get cloudVersionSyncPausedCloud;
+
+  /// No description provided for @cloudVersionSyncPausedApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync paused · Update App'**
+  String get cloudVersionSyncPausedApp;
+
+  /// No description provided for @cloudVersionMatchedShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Matched'**
+  String get cloudVersionMatchedShort;
+
+  /// No description provided for @cloudVersionRecheckMatched.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected to Cloud v{version}, versions matched'**
+  String cloudVersionRecheckMatched(String version);
+
+  /// No description provided for @cloudVersionRecheckStillMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Versions still mismatch. Please upgrade and try again.'**
+  String get cloudVersionRecheckStillMismatch;
+
+  /// No description provided for @cloudVersionRecheckFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to reach server. Check your network and try again.'**
+  String get cloudVersionRecheckFailed;
+
+  /// No description provided for @cloudTestSuccessVersionMatched.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected · BeeCount Cloud v{version} (matched with current App)'**
+  String cloudTestSuccessVersionMatched(String version);
+
+  /// No description provided for @cloudTestVersionRecommendCloud.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected to BeeCount Cloud v{version}, below recommended v{target}. Upgrading the server is advised, though you can still save and use it.'**
+  String cloudTestVersionRecommendCloud(String version, String target);
+
+  /// No description provided for @cloudTestVersionRequireCloud.
+  ///
+  /// In en, this message translates to:
+  /// **'Reached BeeCount Cloud v{version}, below minimum required v{target}. Please upgrade the server before syncing.'**
+  String cloudTestVersionRequireCloud(String version, String target);
+
+  /// No description provided for @cloudTestVersionRecommendApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected to BeeCount Cloud v{version}. This server recommends BeeCount App v{target}+.'**
+  String cloudTestVersionRecommendApp(String version, String target);
+
+  /// No description provided for @cloudTestVersionRequireApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Reached BeeCount Cloud v{version}, which requires BeeCount App v{target}+. Please update the app before syncing.'**
+  String cloudTestVersionRequireApp(String version, String target);
+
+  /// No description provided for @accountsEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Track your assets & liabilities'**
+  String get accountsEmptyTitle;
+
+  /// No description provided for @accountsEmptyDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your everyday accounts to see net worth, balance trends, and multi-currency breakdown.'**
+  String get accountsEmptyDescription;
+
+  /// No description provided for @accountsEmptyAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your first account'**
+  String get accountsEmptyAction;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -1,4 +1,3 @@
-import 'package:flutter_cloud_sync/flutter_cloud_sync.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../data/db.dart';
@@ -23,15 +22,11 @@ final databaseProvider = Provider<BeeDatabase>((ref) {
 final repositoryProvider = Provider<BaseRepository>((ref) {
   final db = ref.watch(databaseProvider);
 
-  // 仅 BeeCount Cloud 后端激活时注入 ChangeTracker(记录增量变更供同步引擎推送)。
-  // 其它备份后端(iCloud / WebDAV / S3 / Supabase)走快照备份路径,不需要变更追踪。
-  final backendState = ref.watch(activeCloudConfigProvider.select(
-    (value) => (value.valueOrNull?.type, value.valueOrNull?.valid),
+  // 从 BeeCount Cloud 切到本地时继续记待传操作，重新启用 Cloud 后再推送。
+  final trackChanges = ref.watch(activeCloudConfigProvider.select(
+    (value) => value.valueOrNull?.tracksBeeCountChanges ?? false,
   ));
-  final tracker = (backendState.$1 == CloudBackendType.beecountCloud &&
-          backendState.$2 == true)
-      ? ChangeTracker(db)
-      : null;
+  final tracker = trackChanges ? ChangeTracker(db) : null;
   logger.info('RepositoryProvider',
       '✅ LocalRepository (changeTracker=${tracker != null})');
   return LocalRepository(db, changeTracker: tracker,

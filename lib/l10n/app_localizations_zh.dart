@@ -1990,7 +1990,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String mineDownloadResult(Object inserted) {
-    return '导入：$inserted 条';
+    return '新增 $inserted 笔账单';
   }
 
   @override
@@ -5505,7 +5505,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String ledgersConflictDownloadSuccess(int inserted) {
-    return '下载成功，已合并 $inserted 笔账单';
+    return '下载完成，新增 $inserted 笔账单';
   }
 
   @override
@@ -7306,6 +7306,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get budgetSetupAction => '去设置';
 
   @override
+  String cloudSyncPushConflicts(int count) {
+    return '发现 $count 项版本冲突。';
+  }
+
+  @override
+  String cloudSyncPushUnconfirmed(int count) {
+    return '$count 项变更尚未得到确认，已保留待传。';
+  }
+
+  @override
   String get syncHealthTitle => '同步状态';
 
   @override
@@ -7378,6 +7388,11 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get syncHealthRowUnpushed => '未推送变更';
+
+  @override
+  String syncHealthRecentConflicts(int count) {
+    return '过去 7 天有 $count 项本地更改因版本冲突未被云端接受。';
+  }
 
   @override
   String syncHealthValue(int local, int remote) {
@@ -10139,6 +10154,165 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get skinPreviewIncome => '兼职收入';
+
+  @override
+  String get cloudVersionRecommendCloudTitle => '建议升级 BeeCount Cloud';
+
+  @override
+  String get cloudVersionRequireCloudTitle => '请先升级 BeeCount Cloud';
+
+  @override
+  String get cloudVersionRecommendAppTitle => '建议更新 BeeCount App';
+
+  @override
+  String get cloudVersionRequireAppTitle => '请先更新 BeeCount App';
+
+  @override
+  String get cloudVersionHomePauseCloudTitle => '云同步已暂停 · 请升级 Cloud';
+
+  @override
+  String get cloudVersionHomePauseAppTitle => '云同步已暂停 · 请更新 App';
+
+  @override
+  String cloudVersionRecommendCloudDesc(String target) {
+    return '当前 Cloud 低于本版 App 推荐版本（v$target+），部分新功能或同步体验可能不可用，建议升级服务端。';
+  }
+
+  @override
+  String cloudVersionRequireCloudDesc(String target) {
+    return '当前 Cloud 低于最低要求（v$target+），为避免同步异常已暂停云同步。本地记账不受影响，升级服务端后点击重新检测即可恢复。';
+  }
+
+  @override
+  String cloudVersionRecommendAppDesc(String target) {
+    return '服务端已升级到较新版本，建议更新 App 至 v$target+ 以获得完整配套体验。';
+  }
+
+  @override
+  String cloudVersionRequireAppDesc(String server, String target) {
+    return '服务端 Cloud v$server 要求 App v$target+，当前已暂停云同步。本地记账不受影响，更新 App 后即可恢复。';
+  }
+
+  @override
+  String cloudVersionHomeRecommendCloudDesc(String server, String target) {
+    return '当前服务端为 v$server，升级至 v$target+ 可匹配新版 App。';
+  }
+
+  @override
+  String cloudVersionHomePauseCloudDesc(String server, String target) {
+    return '当前 Cloud v$server 低于最低要求 v$target。本地记账不受影响，升级后将自动恢复同步。';
+  }
+
+  @override
+  String cloudVersionHomeRecommendAppDesc(String server, String target) {
+    return '服务端已升级至 v$server，建议更新 App 至 v$target+。';
+  }
+
+  @override
+  String cloudVersionHomePauseAppDesc(String server, String target) {
+    return '服务端 Cloud v$server 需要 App v$target+。本地记账不受影响，更新后将自动恢复同步。';
+  }
+
+  @override
+  String cloudVersionChipMinCloud(String version) {
+    return '最低 Cloud v$version+';
+  }
+
+  @override
+  String cloudVersionChipRecCloud(String version) {
+    return '推荐 Cloud v$version+';
+  }
+
+  @override
+  String cloudVersionChipMinApp(String version) {
+    return '最低 App v$version+';
+  }
+
+  @override
+  String cloudVersionChipRecApp(String version) {
+    return '推荐 App v$version+';
+  }
+
+  @override
+  String get cloudVersionRecheckAction => '重新检测';
+
+  @override
+  String get cloudVersionUpgradeGuideAction => '查看升级说明';
+
+  @override
+  String get cloudVersionGoUpdateAction => '前往更新';
+
+  @override
+  String get cloudVersionViewAction => '去查看';
+
+  @override
+  String get cloudVersionDismissAction => '知道了';
+
+  @override
+  String get cloudVersionUseOfflineAction => '先离线记账';
+
+  @override
+  String get cloudVersionBadgeRecommend => '建议升级';
+
+  @override
+  String get cloudVersionBadgeOutdated => '版本过低';
+
+  @override
+  String get cloudVersionBadgeUpdateApp => '建议更新 App';
+
+  @override
+  String get cloudVersionSyncPausedCloud => '同步已暂停 · 请升级 Cloud';
+
+  @override
+  String get cloudVersionSyncPausedApp => '同步已暂停 · 请更新 App';
+
+  @override
+  String get cloudVersionMatchedShort => '版本已匹配';
+
+  @override
+  String cloudVersionRecheckMatched(String version) {
+    return '已检测到 Cloud v$version，版本已匹配';
+  }
+
+  @override
+  String get cloudVersionRecheckStillMismatch => '版本仍不匹配，请完成升级后再试';
+
+  @override
+  String get cloudVersionRecheckFailed => '暂时无法连接服务端，请检查网络后重试';
+
+  @override
+  String cloudTestSuccessVersionMatched(String version) {
+    return '连接成功 · BeeCount Cloud v$version（与当前 App 版本已匹配）';
+  }
+
+  @override
+  String cloudTestVersionRecommendCloud(String version, String target) {
+    return '连接成功（BeeCount Cloud v$version），但低于推荐版本 v$target，建议先升级服务端。仍可保存并继续使用。';
+  }
+
+  @override
+  String cloudTestVersionRequireCloud(String version, String target) {
+    return '已连通 BeeCount Cloud v$version，但低于本版 App 最低要求 v$target。请先升级服务端再开启同步。';
+  }
+
+  @override
+  String cloudTestVersionRecommendApp(String version, String target) {
+    return '连接成功（BeeCount Cloud v$version），服务端推荐搭配 App v$target+，建议稍后更新应用。';
+  }
+
+  @override
+  String cloudTestVersionRequireApp(String version, String target) {
+    return '已连通 BeeCount Cloud v$version，但服务端最低要求 App v$target。请先更新 App 后再同步。';
+  }
+
+  @override
+  String get accountsEmptyTitle => '开始管理你的资产与负债';
+
+  @override
+  String get accountsEmptyDescription => '添加常用账户后，即可自动汇总净资产、追踪余额趋势与多币种分布。';
+
+  @override
+  String get accountsEmptyAction => '添加第一个账户';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -12127,7 +12301,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String mineDownloadResult(Object inserted) {
-    return '匯入：$inserted 條';
+    return '新增 $inserted 筆帳單';
   }
 
   @override
@@ -15642,7 +15816,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String ledgersConflictDownloadSuccess(int inserted) {
-    return '下載成功，已合併 $inserted 筆帳單';
+    return '下載完成，新增 $inserted 筆帳單';
   }
 
   @override
@@ -17443,6 +17617,16 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get budgetSetupAction => '去設置';
 
   @override
+  String cloudSyncPushConflicts(int count) {
+    return '發現 $count 項版本衝突。';
+  }
+
+  @override
+  String cloudSyncPushUnconfirmed(int count) {
+    return '$count 項變更尚未得到確認，已保留待傳。';
+  }
+
+  @override
   String get syncHealthTitle => '同步狀態';
 
   @override
@@ -17515,6 +17699,11 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get syncHealthRowUnpushed => '未推送變更';
+
+  @override
+  String syncHealthRecentConflicts(int count) {
+    return '過去 7 天有 $count 項本機變更因版本衝突未獲雲端接受。';
+  }
 
   @override
   String syncHealthValue(int local, int remote) {
@@ -20108,4 +20297,163 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get skinPreviewIncome => '兼職收入';
+
+  @override
+  String get cloudVersionRecommendCloudTitle => '建議升級 BeeCount Cloud';
+
+  @override
+  String get cloudVersionRequireCloudTitle => '請先升級 BeeCount Cloud';
+
+  @override
+  String get cloudVersionRecommendAppTitle => '建議更新 BeeCount App';
+
+  @override
+  String get cloudVersionRequireAppTitle => '請先更新 BeeCount App';
+
+  @override
+  String get cloudVersionHomePauseCloudTitle => '雲同步已暫停 · 請升級 Cloud';
+
+  @override
+  String get cloudVersionHomePauseAppTitle => '雲同步已暫停 · 請更新 App';
+
+  @override
+  String cloudVersionRecommendCloudDesc(String target) {
+    return '目前 Cloud 低於本版 App 推薦版本（v$target+），部分新功能或同步體驗可能無法使用，建議升級伺服器端。';
+  }
+
+  @override
+  String cloudVersionRequireCloudDesc(String target) {
+    return '目前 Cloud 低於最低要求（v$target+），為避免同步異常已暫停雲同步。本機記帳不受影響，升級伺服器端後點擊重新偵測即可恢復。';
+  }
+
+  @override
+  String cloudVersionRecommendAppDesc(String target) {
+    return '伺服器端已升級至較新版本，建議更新 App 至 v$target+ 以獲得完整配套體驗。';
+  }
+
+  @override
+  String cloudVersionRequireAppDesc(String server, String target) {
+    return '伺服器端 Cloud v$server 要求 App v$target+，目前已暫停雲同步。本機記帳不受影響，更新 App 後即可恢復。';
+  }
+
+  @override
+  String cloudVersionHomeRecommendCloudDesc(String server, String target) {
+    return '目前伺服器端為 v$server，升級至 v$target+ 可搭配新版 App。';
+  }
+
+  @override
+  String cloudVersionHomePauseCloudDesc(String server, String target) {
+    return '目前 Cloud v$server 低於最低要求 v$target。本機記帳不受影響，升級後將自動恢復同步。';
+  }
+
+  @override
+  String cloudVersionHomeRecommendAppDesc(String server, String target) {
+    return '伺服器端已升級至 v$server，建議更新 App 至 v$target+。';
+  }
+
+  @override
+  String cloudVersionHomePauseAppDesc(String server, String target) {
+    return '伺服器端 Cloud v$server 需要 App v$target+。本機記帳不受影響，更新後將自動恢復同步。';
+  }
+
+  @override
+  String cloudVersionChipMinCloud(String version) {
+    return '最低 Cloud v$version+';
+  }
+
+  @override
+  String cloudVersionChipRecCloud(String version) {
+    return '推薦 Cloud v$version+';
+  }
+
+  @override
+  String cloudVersionChipMinApp(String version) {
+    return '最低 App v$version+';
+  }
+
+  @override
+  String cloudVersionChipRecApp(String version) {
+    return '推薦 App v$version+';
+  }
+
+  @override
+  String get cloudVersionRecheckAction => '重新偵測';
+
+  @override
+  String get cloudVersionUpgradeGuideAction => '查看升級說明';
+
+  @override
+  String get cloudVersionGoUpdateAction => '前往更新';
+
+  @override
+  String get cloudVersionViewAction => '前往查看';
+
+  @override
+  String get cloudVersionDismissAction => '知道了';
+
+  @override
+  String get cloudVersionUseOfflineAction => '先離線記帳';
+
+  @override
+  String get cloudVersionBadgeRecommend => '建議升級';
+
+  @override
+  String get cloudVersionBadgeOutdated => '版本過低';
+
+  @override
+  String get cloudVersionBadgeUpdateApp => '建議更新 App';
+
+  @override
+  String get cloudVersionSyncPausedCloud => '同步已暫停 · 請升級 Cloud';
+
+  @override
+  String get cloudVersionSyncPausedApp => '同步已暫停 · 請更新 App';
+
+  @override
+  String get cloudVersionMatchedShort => '版本已匹配';
+
+  @override
+  String cloudVersionRecheckMatched(String version) {
+    return '已偵測到 Cloud v$version，版本已匹配';
+  }
+
+  @override
+  String get cloudVersionRecheckStillMismatch => '版本仍不匹配，請完成升級後再試';
+
+  @override
+  String get cloudVersionRecheckFailed => '暫時無法連線伺服器端，請檢查網路後重試';
+
+  @override
+  String cloudTestSuccessVersionMatched(String version) {
+    return '連線成功 · BeeCount Cloud v$version（與目前 App 版本已匹配）';
+  }
+
+  @override
+  String cloudTestVersionRecommendCloud(String version, String target) {
+    return '連線成功（BeeCount Cloud v$version），但低於推薦版本 v$target，建議先升級伺服器端。仍可儲存並繼續使用。';
+  }
+
+  @override
+  String cloudTestVersionRequireCloud(String version, String target) {
+    return '已連通 BeeCount Cloud v$version，但低於本版 App 最低要求 v$target。請先升級伺服器端再開啟同步。';
+  }
+
+  @override
+  String cloudTestVersionRecommendApp(String version, String target) {
+    return '連線成功（BeeCount Cloud v$version），伺服器端推薦搭配 App v$target+，建議稍後更新應用程式。';
+  }
+
+  @override
+  String cloudTestVersionRequireApp(String version, String target) {
+    return '已連通 BeeCount Cloud v$version，但伺服器端最低要求 App v$target。請先更新 App 後再同步。';
+  }
+
+  @override
+  String get accountsEmptyTitle => '開始管理你的資產與負債';
+
+  @override
+  String get accountsEmptyDescription => '新增常用帳戶後，即可自動彙總淨資產、追蹤餘額趨勢與多幣別分布。';
+
+  @override
+  String get accountsEmptyAction => '新增第一個帳戶';
 }

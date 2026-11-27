@@ -53,6 +53,7 @@ extension SyncEngineRealtime on SyncEngine {
 
   /// 停止监听 WebSocket 实时事件
   void stopListeningRealtime() {
+    _pendingAutoSyncReason = null;
     _realtimeSubscription?.cancel();
     _realtimeSubscription = null;
     _pullDebounce?.cancel();
@@ -66,28 +67,29 @@ extension SyncEngineRealtime on SyncEngine {
   /// 2 秒防抖：WiFi ↔ 移动网络切换、或 WS reconnect 接着 connectivity 事件
   /// 这种"连续上线信号"只触发 1 次 sync。
   void _scheduleAutoSync({required String reason}) {
+    const reconnect = {
+      'ws_connected', 'network_restored', 'connectivity_restored',
+    };
+    if (_eventsController.isClosed) return;
+    if (!reconnect.contains(_pendingAutoSyncReason) || reconnect.contains(reason)) {
+      _pendingAutoSyncReason = reason;
+    }
     _autoSyncDebounce?.cancel();
     _autoSyncDebounce = Timer(const Duration(seconds: 2), () async {
-      if (_autoSyncing) {
-        logger.debug('SyncEngine',
-            'auto sync 跳过 (reason=$reason, 已在执行中)');
-        return;
-      }
+      if (_autoSyncing) return;
+      final scheduledReason = _pendingAutoSyncReason;
+      _pendingAutoSyncReason = null;
+      if (scheduledReason == null || _eventsController.isClosed) return;
       final resolver = ledgerIdResolver;
       if (resolver == null) {
         logger.debug('SyncEngine', 'auto sync 跳过 (reason=$reason, 无 resolver)');
         return;
       }
       final ledgerId = resolver();
-      if (ledgerId.isEmpty || ledgerId == '0') {
-        logger.debug('SyncEngine',
-            'auto sync 跳过 (reason=$reason, ledgerId 为空)');
-        return;
-      }
       _autoSyncing = true;
       try {
         logger.info('SyncEngine',
-            'auto sync 触发 (reason=$reason, ledger=$ledgerId)');
+            'auto sync 触发 (reason=$scheduledReason, ledger=$ledgerId)');
         // §7 共享账本:WS 重连 / 网络恢复时,顺手对账 ledger 列表 + 共享账本
         // 状态。如果 WS 期间错过了 member_change.removed(被踢),GC 1 会自动
         // 清掉本地残留共享账本;还有 dup ledger 检测兜底。
@@ -98,9 +100,7 @@ extension SyncEngineRealtime on SyncEngine {
         //     (sync_providers.dart 内 connectivity_plus listener 传的是
         //     `connectivity_restored`)
         // 这里同时匹配三种以兼容历史 caller。
-        if (reason == 'ws_connected' ||
-            reason == 'network_restored' ||
-            reason == 'connectivity_restored') {
+        if (reconnect.contains(scheduledReason)) {
           try {
             await syncLedgersFromServer();
           } catch (e, st) {
@@ -120,19 +120,50 @@ extension SyncEngineRealtime on SyncEngine {
                 '重连共享资源对账失败,继续 sync', e, st);
           }
         }
-        final result = await sync(ledgerId: ledgerId);
-        await retryPendingRecurring(except: int.tryParse(ledgerId));
-        if (result.hasError) {
+        // The active ledger gets the first turn. Include retained tombstones even
+        // when their ledger row has already gone, and deduplicate recurring work.
+        final active = int.tryParse(ledgerId) ?? 0;
+        final changes = db.localChanges;
+        final pending = await (db.selectOnly(changes, distinct: true)
+              ..addColumns([changes.ledgerId])
+              ..where(changes.pushedAt.isNull()))
+            .get();
+        final ledgers = <int>{if (active > 0) active};
+        for (final row in pending) {
+          final id = row.read(changes.ledgerId)!;
+          if (id > 0) ledgers.add(id);
+        }
+        try {
+          ledgers.addAll(await pendingRecurringLedgers());
+        } catch (e, st) {
+          logger.error('SyncEngine', '读取待传周期规则失败', e, st);
+        }
+        if (ledgers.isEmpty && pending.isNotEmpty) ledgers.add(0);
+        var pushed = 0;
+        var pulled = 0;
+        final errors = <String>[];
+        for (final id in ledgers) {
+          if (_eventsController.isClosed) break;
+          final result = await sync(ledgerId: id.toString());
+          pushed += result.pushed;
+          pulled += result.pulled;
+          if (result.hasError) errors.add('ledger=$id ${result.error}');
+        }
+        if (errors.isNotEmpty) {
           logger.warning('SyncEngine',
-              'auto sync 失败 (reason=$reason): ${result.error}');
+              'auto sync 失败 (reason=$scheduledReason): ${errors.join(', ')}');
         } else {
           logger.info('SyncEngine',
-              'auto sync 完成 (reason=$reason): pushed=${result.pushed} pulled=${result.pulled}');
+              'auto sync 完成 (reason=$scheduledReason): pushed=$pushed pulled=$pulled');
         }
       } catch (e, st) {
         logger.error('SyncEngine', 'auto sync 异常 (reason=$reason)', e, st);
       } finally {
         _autoSyncing = false;
+        final pending = _pendingAutoSyncReason;
+        if (pending != null && _autoSyncDebounce?.isActive != true) {
+          _scheduleAutoSync(reason: pending);
+        }
       }
     });
   }
@@ -473,10 +504,93 @@ extension SyncEngineRealtime on SyncEngine {
     }
   }
 
+  Future<int> _hydrationWatermark() async {
+    final maxId = db.localChanges.id.max();
+    final row =
+        await (db.selectOnly(db.localChanges)..addColumns([maxId])).getSingle();
+    return row.read(maxId) ?? 0;
+  }
+
+  Future<void> _checkHydrationEdits(Ledger ledger, int watermark,
+      {required bool includeOwnDictionaries}) async {
+    final scopes = [
+      ledger.id,
+      if (includeOwnDictionaries && ledger.myRole == 'owner') 0
+    ];
+    final pending = await (db.select(db.localChanges)
+          ..where((c) =>
+              c.ledgerId.isIn(scopes) &
+              (c.pushedAt.isNull() |
+                  (c.id.isBiggerThanValue(watermark) &
+                      (c.action.equals('upsert').not() |
+                          c.writeMicros.isNotNull()))))
+          ..limit(1))
+        .getSingleOrNull();
+    if (pending != null)
+      throw StateError(
+          'Hydration target has unpushed local changes or changed during download');
+  }
+
+  /// A restored personal ledger can precede its user-global dictionaries on an
+  /// older installation. Seed missing identities before resolving references.
+  Future<void> _restoreMissingSnapshotDictionaries(
+      String externalId, Map<String, dynamic> snapshot) async {
+    final known = <String, Set<String>>{
+      'account': (await db.select(db.accounts).get())
+          .map((a) => a.syncId)
+          .whereType<String>()
+          .toSet(),
+      'category': (await db.select(db.categories).get())
+          .map((a) => a.syncId)
+          .whereType<String>()
+          .toSet(),
+      'tag': (await db.select(db.tags).get())
+          .map((a) => a.syncId)
+          .whereType<String>()
+          .toSet(),
+    };
+    for (final (type, field) in const [
+      ('account', 'accounts'),
+      ('category', 'categories'),
+      ('tag', 'tags')
+    ]) {
+      final raw = snapshot[field] ?? const [];
+      if (raw is! List) throw FormatException('Invalid snapshot $field');
+      final items = raw.cast<Map<String, dynamic>>().toList();
+      if (type == 'category') {
+        items.sort((a, b) =>
+            ((a['level'] as int?) ?? 1).compareTo((b['level'] as int?) ?? 1));
+      }
+      for (final item in items) {
+        final id = item['syncId'];
+        if (id is! String || id.isEmpty || item['name'] is! String) {
+          throw FormatException('Invalid snapshot $field identity');
+        }
+        if (!known[type]!.add(id)) continue;
+        final change = BeeCountCloudSyncChange(
+            changeId: 0,
+            ledgerId: externalId,
+            entityType: type,
+            entitySyncId: id,
+            action: 'upsert',
+            payload: item);
+        switch (type) {
+          case 'account':
+            await _applyAccountChange(change);
+          case 'category':
+            await _applyCategoryChange(change);
+          case 'tag':
+            await _applyTagChange(change);
+        }
+      }
+    }
+  }
+
   /// 用正式 /full 当前快照水合一个已登记的账本,不重放其它账本的历史。
   /// 调用方先 syncLedgersFromServer / shared-resources;目标有待推变更则拒绝。
-  /// 不导入 owner 的 user-global 主表,不推进普通增量的全局 cursor。
-  Future<int> hydrateLedgerFromServer(String ledgerExternalId) async {
+  /// 本人账本补齐缺少的字典；协作者继续使用共享字典。快照不推进增量游标。
+  Future<int> hydrateLedgerFromServer(String ledgerExternalId,
+      {Ledger? recoveryTarget, int? journalWatermark}) async {
     await _recoverTransactionMoves();
     if (ledgerExternalId.isEmpty ||
         ledgerExternalId.trim() != ledgerExternalId) {
@@ -493,26 +607,71 @@ extension SyncEngineRealtime on SyncEngine {
     _pullInFlight = completer;
     _pullInFlightSince = -1;
     try {
-      final ledgers = await (db.select(db.ledgers)
-            ..where((l) => l.syncId.equals(ledgerExternalId)))
-          .get();
-      if (ledgers.length != 1) {
-        throw StateError('Hydration requires one registered target ledger');
-      }
-      final ledger = ledgers.single;
-      Future<void> checkPending() async {
-        if ((await changeTracker.getUnpushedChangesForLedger(ledger.id))
-            .isNotEmpty) {
-          throw StateError('Hydration target has unpushed local changes');
+      Future<Ledger> currentTarget() async {
+        final rows = await (db.select(db.ledgers)
+              ..where((row) => recoveryTarget == null
+                  ? row.syncId.equals(ledgerExternalId)
+                  : row.id.equals(recoveryTarget.id)))
+            .get();
+        if (rows.length != 1 ||
+            (rows.single.syncId ?? rows.single.id.toString()) != ledgerExternalId) {
+          throw StateError('Hydration requires one registered target ledger');
         }
+        return rows.single;
       }
 
-      await checkPending();
+      final ledger = await currentTarget();
+      final watermark = journalWatermark ?? await _hydrationWatermark();
+      Future<void> checkPending(Ledger current) =>
+          _checkHydrationEdits(current, watermark, includeOwnDictionaries: true);
+      await checkPending(ledger);
       final content = await provider.storage.download(path: ledgerExternalId);
       if (content == null) {
-        throw StateError('Hydration target has no formal snapshot');
+        if (recoveryTarget == null)
+          throw StateError('Hydration target has no formal snapshot');
+        completer.complete(0);
+        return 0;
       }
       final decoded = jsonDecode(content);
+      if (recoveryTarget != null &&
+          decoded is Map<String, dynamic> &&
+          !decoded.containsKey('ledgerSyncId') &&
+          decoded['items'] is List) {
+        // Legacy exports use local integer ledger IDs and names. Keep their
+        // original import/dedup behavior; never reinterpret a scoped snapshot.
+        final restored = await db.transaction(() async {
+          await checkPending(await currentTarget());
+          final items = (decoded['items'] as List).cast<Map<String, dynamic>>();
+          final ids = items
+              .map((item) => item['syncId'])
+              .whereType<String>()
+              .where((id) => id.isNotEmpty)
+              .toSet()
+              .toList();
+          final seen = <String>{};
+          for (var start = 0; start < ids.length; start += 400) {
+            final rows = await (db.select(db.transactions)
+                  ..where((row) => row.syncId.isIn(ids.skip(start).take(400))))
+                .get();
+            for (final row in rows) {
+              if (row.ledgerId != ledger.id) {
+                throw const FormatException(
+                    'Legacy snapshot transaction belongs to another ledger');
+              }
+              seen.add(row.syncId!);
+            }
+          }
+          final missing = items.where((item) {
+            final id = item['syncId'] as String?;
+            return id == null || id.isEmpty || seen.add(id);
+          }).toList();
+          return importTransactionsJson(
+              repo, ledger.id, jsonEncode({...decoded, 'items': missing}),
+              recordChanges: false);
+        });
+        completer.complete(restored.inserted);
+        return restored.inserted;
+      }
       if (decoded is! Map<String, dynamic> ||
           decoded['ledgerSyncId'] != ledgerExternalId ||
           decoded['items'] is! List ||
@@ -530,6 +689,31 @@ extension SyncEngineRealtime on SyncEngine {
       }
 
       bool finite(dynamic value) => value is num && value.isFinite;
+      // Some personal snapshots predate stable relationship IDs. Resolve a
+      // name only against a unique identity in this snapshot's own dictionary.
+        final legacyIds = <(String, String, String?), Set<String>>{};
+        if (ledger.myRole == 'owner') {
+          for (final key in const ['accounts', 'categories', 'tags']) {
+            final records = decoded[key];
+            if (records == null) continue;
+            if (records is! List) invalid(key);
+            for (final record in records) {
+              if (record is! Map<String, dynamic>) invalid(key);
+              final id = identity(record['syncId'], '$key.syncId');
+              final name = record['name'];
+              if (name is! String) invalid('$key.name');
+              legacyIds.putIfAbsent((key, name, null), () => {}).add(id);
+              if (key == 'categories' && record['kind'] is String) {
+                legacyIds.putIfAbsent(
+                    (key, name, record['kind'] as String), () => {}).add(id);
+              }
+            }
+          }
+        }
+        String? legacyId(String field, String name, [String? kind]) {
+          final ids = legacyIds[(field, name, kind)];
+          return ids?.length == 1 ? ids!.single : null;
+        }
       final txs = <Map<String, dynamic>>[];
       final budgets = <Map<String, dynamic>>[];
       final txIds = <String>{};
@@ -555,6 +739,7 @@ extension SyncEngineRealtime on SyncEngine {
           invalid('items.happenedAt');
         }
         for (final flag in ['excludeFromStats', 'excludeFromBudget']) {
+          if (recoveryTarget != null && !item.containsKey(flag)) continue;
           if (item[flag] is! bool) invalid('items.$flag');
         }
         if (item['note'] != null && item['note'] is! String) {
@@ -573,6 +758,7 @@ extension SyncEngineRealtime on SyncEngine {
         // 复用原 apply 的 containsKey 语义,不让 native 缺省退化为 amount。
         item.putIfAbsent('nativeAmount', () => null);
         item.putIfAbsent('currencyCode', () => null);
+        item.putIfAbsent('note', () => null);
         final tags = item['tagIds'];
         if (tags != null && tags is! List) invalid('items.tagIds');
         final tagIds = <String>{};
@@ -585,7 +771,14 @@ extension SyncEngineRealtime on SyncEngine {
           invalid('items.tags');
         }
         if (tagIds.isEmpty && (item['tags'] as String? ?? '').isNotEmpty) {
-          invalid('items.tagIds missing stable identity');
+          for (final name in (item['tags'] as String)
+              .split(',')
+              .map((s) => s.trim())
+              .where((s) => s.isNotEmpty)) {
+            final id = legacyId('tags', name);
+            if (id == null) invalid('items.tagIds missing stable identity');
+            tagIds.add(id);
+          }
         }
         item['tagIds'] = tagIds.toList();
         if (tagIds.isEmpty) item['tags'] = null;
@@ -598,6 +791,20 @@ extension SyncEngineRealtime on SyncEngine {
           if (item[field] != null && item[field] is! String) {
             invalid('items.$field');
           }
+        }
+        for (final relation in const [
+          'category',
+          'account',
+          'fromAccount',
+          'toAccount'
+        ]) {
+          final name = item['${relation}Name'];
+          if (item['${relation}Id'] != null || name is! String || name.isEmpty)
+            continue;
+          final id = relation == 'category'
+              ? legacyId('categories', name, item['categoryKind'] as String?)
+              : legacyId('accounts', name);
+          if (id != null) item['${relation}Id'] = id;
         }
         if (item['type'] == 'transfer' && item['accountId'] != null &&
             item['fromAccountId'] != null &&
@@ -662,7 +869,6 @@ extension SyncEngineRealtime on SyncEngine {
         }
         budgets.add(item);
       }
-
       // S1-01a: lockPeriods 是**可选**顶层 key,不进上面的必需 key 校验。
       // 老快照没这个 key → 空列表,行为完全不变;新快照带 key 时按同一
       // 健壮 parser 归一化 lockedAt 后入库。
@@ -694,15 +900,45 @@ extension SyncEngineRealtime on SyncEngine {
         lockPeriods.add(item);
       }
 
-      final applied = await db.transaction(() async {
+      // US-01: upstream #660 把 hydrate 的写库包进 _applyWithAttachmentCleanup
+      // (内部已含 db.transaction),fork 的 lockPeriods 解析保留在其之前。
+      final applied = await _applyWithAttachmentCleanup((removedFiles) async {
         // HTTP 等待期间可能退出/删除/重新登记目标;写前确认仍是同一本。
-        final currentLedgers = await (db.select(db.ledgers)
-              ..where((l) => l.syncId.equals(ledgerExternalId))).get();
-        if (currentLedgers.length != 1 || currentLedgers.single.id != ledger.id) {
+        final current = await currentTarget();
+        if (current.id != ledger.id || current.myRole != ledger.myRole)
           throw StateError('Hydration target ledger changed during download');
+        await checkPending(current);
+        if (recoveryTarget != null) {
+          if (current.syncId == null) {
+            await (db.update(db.ledgers)..where((row) => row.id.equals(ledger.id)))
+                .write(LedgersCompanion(syncId: d.Value(ledgerExternalId)));
+          }
+          final name = decoded['ledgerName'];
+          final currency = decoded['currency'];
+          final monthStartDay = decoded['monthStartDay'];
+          if (name != null && (name is! String || name.trim().isEmpty))
+            invalid('ledgerName');
+          if (currency != null && (currency is! String || currency.isEmpty))
+            invalid('currency');
+          if (monthStartDay != null &&
+              (monthStartDay is! int || monthStartDay < 1 || monthStartDay > 28)) {
+            invalid('monthStartDay');
+          }
+          await _applyLedgerChange(BeeCountCloudSyncChange(
+              changeId: 0,
+              ledgerId: ledgerExternalId,
+              entityType: 'ledger',
+              entitySyncId: ledgerExternalId,
+              action: 'upsert',
+              payload: {
+                'ledgerName': name,
+                'currency': currency,
+                'monthStartDay': monthStartDay
+              }));
         }
-        // 用户可能在 HTTP 等待期间编辑;事务内再次保护,校验完才开始写。
-        await checkPending();
+        if (current.myRole == 'owner') {
+          await _restoreMissingSnapshotDictionaries(ledgerExternalId, decoded);
+        }
         final localCategories = (await db.select(db.categories).get())
             .map((r) => r.syncId).whereType<String>().toSet();
         final localAccounts = (await db.select(db.accounts).get())
@@ -793,7 +1029,7 @@ extension SyncEngineRealtime on SyncEngine {
               entityType: 'transaction',
               entitySyncId: item['syncId'] as String,
               action: 'upsert',
-              payload: item));
+              payload: item), removedFiles);
         }
         for (final item in budgets) {
           await _applyBudgetChange(BeeCountCloudSyncChange(

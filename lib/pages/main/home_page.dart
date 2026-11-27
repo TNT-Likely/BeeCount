@@ -23,6 +23,7 @@ import '../../utils/month_range.dart';
 import '../../services/export/share_poster_service.dart';
 import '../report/annual_report_page.dart';
 import '../calendar/calendar_page.dart';
+import '../cloud/beecount_cloud_sync_page.dart';
 import '../shared/selectors/ledger_picker_sheet.dart';
 import 'ledgers_page_new.dart';
 import '../../providers/shared_ledger_providers.dart';
@@ -295,7 +296,11 @@ class _HomePageState extends ConsumerState<HomePage> {
                 MaterialPageRoute(
                     builder: (_) => AnnualReportPage(initialYear: year))),
             onBudget: () => Navigator.push(context,
-                MaterialPageRoute(builder: (_) => const BudgetPage()))),
+                MaterialPageRoute(builder: (_) => const BudgetPage())),
+            onCloudVersion: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => const BeeCountCloudSyncPage()))),
         journal: HomeJournalFrame(
             key: _journalFrameKey,
             initialPreview: initialPreview?.preview,

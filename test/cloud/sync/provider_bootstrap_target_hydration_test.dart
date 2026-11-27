@@ -270,6 +270,80 @@ void main() {
         oldTransactions);
   });
 
+  test(
+      'fresh unselected device restores its own snapshot references and cursor',
+      () async {
+    await db.delete(db.transactions).go();
+    await db.delete(db.ledgers).go();
+    await engine.appCursor.commit(0);
+    cloud.reset();
+    const id = 'fresh-personal';
+    cloud.pushFakeLedger(ledgerId: id);
+    final last = cloud.pushFakeChange(
+      entityType: 'tag',
+      entitySyncId: 'tag-existing',
+      payload: {'name': 'Current cloud tag'},
+    );
+    await cloud.storage.upload(
+      path: id,
+      data: jsonEncode({
+        'ledgerSyncId': id,
+        'count': 1,
+        'accounts': [
+          {'syncId': 'acc-fresh', 'name': 'Wallet'},
+        ],
+        'categories': [
+          {
+            'syncId': 'cat-child',
+            'name': 'Tea',
+            'kind': 'expense',
+            'level': 2,
+            'parentSyncId': 'cat-parent'
+          },
+          {
+            'syncId': 'cat-parent',
+            'name': 'Food',
+            'kind': 'expense',
+            'level': 1
+          },
+        ],
+        'tags': [
+          {'syncId': 'tag-existing', 'name': 'Older snapshot tag'},
+          {'syncId': 'tag-fresh', 'name': 'New tag'},
+        ],
+        'items': [
+          {
+            'syncId': 'tx-fresh',
+            'type': 'expense',
+            'amount': 11.25,
+            'happenedAt': '2026-11-10T04:30:00Z',
+            'accountId': 'acc-fresh',
+            'categoryId': 'cat-child',
+            'tagIds': ['tag-existing', 'tag-fresh'],
+            'excludeFromStats': false,
+            'excludeFromBudget': false
+          },
+        ],
+        'budgets': [],
+      }),
+    );
+    await start(noCurrentLedger: true);
+    await eventually(
+        () async => (await db.select(db.transactions).get()).isNotEmpty);
+
+    final tx = await db.select(db.transactions).getSingle();
+    final category = (await repo.getCategoryById(tx.categoryId!))!;
+    expect(category.syncId, 'cat-child');
+    expect(
+        (await repo.getCategoryById(category.parentId!))!.syncId, 'cat-parent');
+    expect((await repo.getAccount(tx.accountId!))!.syncId, 'acc-fresh');
+    expect((await repo.getTagsForTransaction(tx.id)).map((tag) => tag.name),
+        unorderedEquals(['Current cloud tag', 'New tag']));
+    expect(cloud.pullCalls.map((call) => call.since), [0]);
+    expect(await engine.appCursor.read(), last.changeId);
+    expect(await engine.changeTracker.getUnpushedChanges(), isEmpty);
+  });
+
   test('bootstrap with no new ledger preserves normal sync and never hydrates',
       () async {
     await start();

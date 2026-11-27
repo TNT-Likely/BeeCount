@@ -8,8 +8,10 @@ import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_cloud_sync/flutter_cloud_sync.dart' hide SyncStatus;
+import '../cloud/cloud_version_policy.dart';
 import '../cloud/sync_service.dart';
 import '../data/db.dart';
 import 'shared_ledger_providers.dart';
@@ -501,6 +503,24 @@ final syncServiceProvider = Provider<SyncService>((ref) {
   if (engine != null) {
     final db = ref.read(databaseProvider);
 
+    // 版本匹配守护：仅在触发必须档（低于 min 版本）时暂停云同步，本地记账不受影响。
+    engine.versionGuard = () async {
+      final runtimeBlock = ref.read(cloudVersionRuntimeBlockProvider);
+      if (runtimeBlock != null && runtimeBlock.isBlocking) {
+        return runtimeBlock;
+      }
+      try {
+        return await ref
+            .read(cloudVersionCompatibilityProvider.future)
+            .timeout(const Duration(seconds: 4));
+      } catch (_) {
+        return null;
+      }
+    };
+    engine.onUpgradeRequired = (compatibility) {
+      ref.read(cloudVersionRuntimeBlockProvider.notifier).state = compatibility;
+    };
+
     // PR 2/3:订阅 SyncEvent stream 替代 7 个 callback 绑定。
     //
     // SyncEngine 完全不知道 Riverpod / widget 存在,只往 events stream 写;
@@ -721,6 +741,16 @@ final syncServiceProvider = Provider<SyncService>((ref) {
     Future<void> hydrateNewLedgers(Set<String> existingSyncIds) async {
       final newSyncIds =
           (await registeredLedgerSyncIds()).difference(existingSyncIds);
+      if (existingSyncIds.isEmpty && newSyncIds.isNotEmpty) {
+        // With no previously registered ledger, consume the account's ordinary
+        // delta first. A subsequent scoped snapshot can supply history omitted
+        // by device filtering and is authoritative for its own ledger.
+        try {
+          await engine.pull('');
+        } catch (e, st) {
+          logger.warning('SyncProvider', '首次拉取增量失败，继续恢复账本快照: $e', st);
+        }
+      }
       for (final syncId in newSyncIds) {
         try {
           final hydrated = await engine.hydrateLedgerFromServer(syncId);
@@ -777,7 +807,7 @@ final syncServiceProvider = Provider<SyncService>((ref) {
           ref.read(cachedTransactionsProvider.notifier).state = null;
           // 不再无条件 bump avatarRefreshProvider — engine.onAvatarChanged
           // 只在真下载头像时触发,避免每次 bootstrap 闪一次头像。
-          ref.read(lastSyncErrorProvider.notifier).state = null;
+          ref.read(lastSyncErrorProvider.notifier).state = result.error;
         } catch (e, st) {
           logger.error('SyncProvider', '自动同步异常', e, st);
           ref.read(lastSyncErrorProvider.notifier).state = e.toString();
@@ -819,28 +849,98 @@ final beecountCloudProviderInstance =
   return provider is BeeCountCloudProvider ? provider : null;
 });
 
-/// BeeCount Cloud 服务端版本号。Mine 页面 / 云同步页都能直接用;失败就
-/// null,UI 自己隐藏。非 BeeCount Cloud 模式直接 null。
+/// 当前运行的 App 版本号（独立成 Provider 以便测试覆盖）。
+final currentAppVersionProvider = FutureProvider<String?>((ref) async {
+  try {
+    final info = await PackageInfo.fromPlatform();
+    final version = info.version.trim();
+    return version.isEmpty ? null : version;
+  } catch (_) {
+    return null;
+  }
+});
+
+/// BeeCount Cloud 公开 `/version` 完整信息（版本号、App 最低/推荐版本与能力）。
 ///
-/// **自动刷新**:依赖 [syncStatusRefreshProvider],每次同步完成会 bump 这个
-/// ticker,版本号 provider 重新跑 fetchServerVersion。这样 server 升级后用户
-/// 不需要重登/手动到云配置页点确认,下一次同步触发后版本号就更新了。
-///
-/// /version 是个轻量 endpoint,跟着每次 sync 多发一次 HTTP 请求开销可忽略。
-final beecountCloudServerVersionProvider = FutureProvider<String?>((ref) async {
-  // server 升级后用户在 app 内做任何会触发同步的操作(加交易 / 切账本 / 进
-  // Mine 页面 bump refresh 等)都能让版本号刷新。
+/// **自动刷新**:依赖 [syncStatusRefreshProvider],每次同步完成或手动点「重新检测」
+/// 会 bump/invalidate，从而刷新服务端版本与匹配状态。
+final beecountCloudServerInfoProvider =
+    FutureProvider<BeeCountCloudServerVersion?>((ref) async {
   ref.watch(syncStatusRefreshProvider);
 
   final cloud = await ref.watch(beecountCloudProviderInstance.future);
   if (cloud == null) return null;
   try {
-    final v = await cloud.fetchServerVersion();
-    return v.version.isEmpty ? null : v.version;
+    final info = await cloud.fetchServerVersion().timeout(
+          const Duration(seconds: 6),
+        );
+    return info.version.isEmpty ? null : info;
   } catch (_) {
     return null;
   }
 });
+
+/// BeeCount Cloud 服务端版本号。Mine 页面 / 云同步页都能直接用;失败就
+/// null,UI 自己隐藏。非 BeeCount Cloud 模式直接 null。
+final beecountCloudServerVersionProvider = FutureProvider<String?>((ref) async {
+  final info = await ref.watch(beecountCloudServerInfoProvider.future);
+  return info == null || info.version.isEmpty ? null : info.version;
+});
+
+/// 实时同步收到服务端 HTTP 426 时写入的覆盖态，在重新检测通过后清除。
+final cloudVersionRuntimeBlockProvider =
+    StateProvider<CloudVersionCompatibility?>((ref) => null);
+
+/// 统一的 App ↔ Cloud 版本匹配状态。
+final cloudVersionCompatibilityProvider =
+    FutureProvider<CloudVersionCompatibility>((ref) async {
+  final runtimeBlock = ref.watch(cloudVersionRuntimeBlockProvider);
+  final appVersion = await ref.watch(currentAppVersionProvider.future);
+  final server = await ref.watch(beecountCloudServerInfoProvider.future);
+  final evaluated = evaluateCloudVersionCompatibility(
+    appVersion: appVersion,
+    server: server,
+  );
+  if (runtimeBlock != null && runtimeBlock.isBlocking) {
+    return runtimeBlock;
+  }
+  return evaluated;
+});
+
+const _kCloudVersionDismissedPairsKey = 'cloud_version_dismissed_pairs_v1';
+
+class CloudVersionDismissedNotifier extends AsyncNotifier<Set<String>> {
+  @override
+  Future<Set<String>> build() async {
+    final prefs = await SharedPreferences.getInstance();
+    return (prefs.getStringList(_kCloudVersionDismissedPairsKey) ?? const [])
+        .toSet();
+  }
+
+  Future<void> dismiss(String pairKey) async {
+    final current = state.valueOrNull ?? await future;
+    if (current.contains(pairKey)) return;
+    final next = {...current, pairKey};
+    state = AsyncData(next);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(_kCloudVersionDismissedPairsKey, next.toList());
+  }
+}
+
+final cloudVersionDismissedPairsProvider =
+    AsyncNotifierProvider<CloudVersionDismissedNotifier, Set<String>>(
+  CloudVersionDismissedNotifier.new,
+);
+
+/// 清除 426 运行时阻断并重新探测 Cloud `/version`，返回最新匹配结果。
+Future<CloudVersionCompatibility> recheckCloudVersionCompatibility(
+  WidgetRef ref,
+) async {
+  ref.read(cloudVersionRuntimeBlockProvider.notifier).state = null;
+  ref.invalidate(beecountCloudServerInfoProvider);
+  ref.invalidate(cloudVersionCompatibilityProvider);
+  return ref.read(cloudVersionCompatibilityProvider.future);
+}
 
 /// 双向对齐 profile:server 上缺失但本地有的字段,把本地推上去。
 /// 解决"用户一直在用 A,但 AI 配置 / 主题 / 外观早就设好了,server 从未收到过"

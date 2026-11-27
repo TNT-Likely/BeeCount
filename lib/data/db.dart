@@ -288,7 +288,13 @@ class LocalChanges extends Table {
   TextColumn get entitySyncId => text()(); // 实体的 syncId (UUID)
   IntColumn get ledgerId => integer()(); // 关联账本ID
   TextColumn get action => text()(); // create/update/delete
-  TextColumn get payloadJson => text().nullable()(); // 变更后的完整 JSON
+  TextColumn get payloadJson => text().nullable()(); // 本地保存时记录的字段补丁
+  TextColumn get operationId => text().nullable()();
+  IntColumn get writeMicros => integer().nullable()();
+  TextColumn get wireJson => text().nullable()(); // 已发送内容，重试和冲突核对共用
+  TextColumn get deferredJson => text().nullable()(); // 待传期间收到的最新远端事件
+  IntColumn get confirmedChangeId => integer().nullable()();
+  TextColumn get receiptScope => text().nullable()();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get pushedAt => dateTime().nullable()(); // 非null表示已推送
 }
@@ -546,7 +552,9 @@ class BeeDatabase extends _$BeeDatabase {
   BeeDatabase.forTesting(QueryExecutor executor) : super(executor);
 
   @override
-  int get schemaVersion => 37; // 自动接管时保留需要人工核对的原因
+  // US-01: upstream #665 占用了 37(local_changes 加列),S1-01a 的锁账建表
+  // 顺延到 38;两处迁移各占一个版本号,不再撞号。
+  int get schemaVersion => 38; // 自动接管时保留需要人工核对的原因
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -1312,6 +1320,17 @@ class BeeDatabase extends _$BeeDatabase {
                 'ALTER TABLE recurring_transactions ADD COLUMN cloud_handoff_issue TEXT;');
           }
           if (from < 37) {
+            // upstream #660/#665: local_changes 增加同步审计列
+            for (final column in const {
+              'operation_id': 'TEXT', 'write_micros': 'INTEGER', 'wire_json': 'TEXT',
+              'deferred_json': 'TEXT', 'confirmed_change_id': 'INTEGER', 'receipt_scope': 'TEXT',
+            }.entries) {
+              await _addColumnIfMissing('local_changes', column.key,
+                  'ALTER TABLE local_changes ADD COLUMN ${column.key} ${column.value}');
+            }
+          }
+          if (from < 38) {
+            // S1-01a 锁账建表:原占 37,US-01 顺延到 38。
             // 净新增:空表即无锁账,无回填。列级 UNIQUE 随建表 DDL 生成;
             // _createTableIfMissing 在 partial state 重跑时安全。
             await _createTableIfMissing(migrator, 'lock_periods', lockPeriods);
@@ -1332,6 +1351,8 @@ class BeeDatabase extends _$BeeDatabase {
   /// without changing their rows, constraints or schema version.
   Future<void> _ensureQueryIndexes() async {
     for (final ddl in const [
+      'CREATE INDEX IF NOT EXISTS idx_local_changes_entity '
+          'ON local_changes(entity_type, entity_sync_id, id)',
       'CREATE INDEX IF NOT EXISTS idx_transaction_tags_transaction '
           'ON transaction_tags(transaction_id)',
       'CREATE INDEX IF NOT EXISTS idx_transaction_tags_tag '

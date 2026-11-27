@@ -19,12 +19,15 @@ import '../../services/custom_icon_service.dart';
 import '../../utils/date_in_tz.dart';
 import '../../services/system/logger_service.dart';
 import '../../services/ui/avatar_service.dart';
+import '../../utils/app_localizations_resolver.dart';
+import '../cloud_version_policy.dart';
 import '../sync_service.dart' as app;
 import '../recurring/recurring_handoff.dart';
 import '../transactions_json.dart';
 import 'change_tracker.dart';
 import 'entity_serializer.dart';
 import 'sync_events.dart';
+import 'transaction_sync_payload.dart';
 export 'sync_events.dart';
 
 // SyncEngine 按职责拆分到多个 part 文件,共享同一 library:
@@ -38,6 +41,7 @@ export 'sync_events.dart';
 // - sync_engine_pull.dart:        pull 路径错误恢复 — AppCursorStore + SyncErrorStore
 //                                 (cursor 安全 + 失败 change 持久化暴露给 UI)
 part 'sync_engine_attachments.dart';
+part 'sync_engine_outbox.dart';
 part 'sync_engine_resolvers.dart';
 part 'sync_engine_status.dart';
 part 'sync_engine_realtime.dart';
@@ -74,6 +78,8 @@ class SyncResult {
 /// 同步状态
 enum SyncEngineStatus { idle, pushing, pulling, syncing, error }
 
+enum InitialUploadAction { incremental, create, resume }
+
 /// 核心同步编排器 — 实现 SyncService 接口
 /// 负责 push 本地变更到服务端、pull 远程变更到本地
 class SyncEngine implements app.SyncService {
@@ -99,6 +105,7 @@ class SyncEngine implements app.SyncService {
   /// 和 connectivity 恢复几乎同时命中时重复 sync。
   bool _autoSyncing = false;
   Timer? _autoSyncDebounce;
+  String? _pendingAutoSyncReason;
 
   /// 外部注入:当前活跃 ledgerId 的解析器。WS 重连 / 网络恢复 时需要知道
   /// 往哪个 ledger 触发 sync,但 SyncEngine 内部不挂 Riverpod ref,所以让
@@ -108,6 +115,12 @@ class SyncEngine implements app.SyncService {
   /// 在 engine 内部,需要主动读当前 ledger)。所有正向"engine → UI"通知都
   /// 走 [events] stream。
   String Function()? ledgerIdResolver;
+
+  /// 版本匹配守护：仅在触发必须档（低于 min 版本）时暂停云同步，本地记账不受影响。
+  Future<CloudVersionCompatibility?> Function()? versionGuard;
+
+  /// 同步请求收到服务端 HTTP 426 时回调，立即通知 UI 切换到必须更新 App 状态。
+  void Function(CloudVersionCompatibility compatibility)? onUpgradeRequired;
 
   /// 对外广播事件总线 — UI 通过 Riverpod `syncEventStreamProvider` 订阅,
   /// SyncEngine 完全不知道 widget / ref 存在。
@@ -157,8 +170,8 @@ class SyncEngine implements app.SyncService {
   ///
   /// `_pushInFlight` key 用 String(跟 [push] 入参一致),`_fullPushInFlight`
   /// 用 int(跟 [fullPush] 入参一致)。
-  final Map<String, Completer<int>> _pushInFlight = {};
-  final Map<int, Completer<void>> _fullPushInFlight = {};
+  final Map<String, Completer<_PushTally>> _pushInFlight = {};
+  final Map<int, Completer<_PushTally>> _fullPushInFlight = {};
 
   /// user-global 实体(account/category/tag)推送的**全局**单飞锁。
   ///
@@ -170,7 +183,7 @@ class SyncEngine implements app.SyncService {
   /// 解法:所有 push 路径都先 `await pushUserGlobalEntities()`,**单飞**保证
   /// 全 session 只跑一次 user-global push,后续 caller 复用第一个的 future,
   /// 拿到的时候 ChangeTracker 已经 markPushed,再各自处理 ledger-scoped 部分。
-  Completer<void>? _userGlobalPushInFlight;
+  Completer<_PushTally>? _userGlobalPushInFlight;
 
   /// fullPull 的 in-flight 单飞锁。**per-ledger**,跟 fullPush 同款。
   ///
@@ -212,20 +225,16 @@ class SyncEngine implements app.SyncService {
   Future<void> uploadCurrentLedger({required int ledgerId}) async {
     logger.info('SyncEngine', '上传账本 ledger=$ledgerId');
 
-    // 用户主动点"上传"永远只做增量：用 server 的 entity diff log 把本地未推
-    // 送的 changes 推上去，绝不触发 fullPush。
-    //
-    // 原因：fullPush 会把本地当前 ledger 的 JSON 快照整体覆盖到 server 的
-    // snapshot（path = ledger.syncId），一旦本地不是"完整权威版本"（比如
-    // B 刚登录、bootstrap pull 还没跑完 / 跑了但漏了几条、多设备期间某条
-    // 交易延迟到达），web 立刻就看到"剩几条"的残缺快照 —— 这是典型的
-    // "覆盖丢数据"场景。
-    //
-    // 即使一次 fullPush 之后后续 pull 再回灌也不行：snapshot 是权威源，
-    // sync_changes 只是 diff，web 端读的是 snapshot。
-    //
-    // 增量 push 只推 changeTracker 登记过的本地操作，不会把没 own 的数据
-    // 误推回去，所以是安全的。本地没变更时直接返回，不需要 fallback。
+    // A partial restore must never replace an existing remote snapshot. Only
+    // this device's persisted, unfinished preparation can resume an initial upload.
+    final ledger = await (db.select(db.ledgers)..where((l) => l.id.equals(ledgerId))).getSingleOrNull();
+    if (ledger != null && await _hasFullPreparation(ledger)) {
+      final remote = await provider.storage.list(path: '');
+      final action = await initialUploadAction(ledger, remoteExists: remote.any((r) => r.path == ledger.syncId));
+      if (action != InitialUploadAction.incremental) {
+        await fullPush(ledgerId: ledgerId, resumePreparation: action == InitialUploadAction.resume);
+      }
+    }
     final pushed = await push(ledgerId.toString());
     logger.info('SyncEngine', '上传账本完成：增量推送 $pushed 条变更');
 
@@ -238,14 +247,6 @@ class SyncEngine implements app.SyncService {
       {required int ledgerId}) async {
     logger.info('SyncEngine', '下载并恢复账本 ledger=$ledgerId');
 
-    // 先尝试增量拉取
-    final pulled = await pull(ledgerId.toString());
-    if (pulled > 0) {
-      _statusCache.remove(ledgerId);
-      return (inserted: pulled, deletedDup: 0);
-    }
-
-    // 增量拉取无数据，尝试全量拉取
     final result = await runFullPull(ledgerId: ledgerId);
     _statusCache.remove(ledgerId);
     return result;
@@ -253,11 +254,6 @@ class SyncEngine implements app.SyncService {
 
   @override
   Future<app.SyncStatus> getStatus({required int ledgerId}) async {
-    // 返回缓存（如果有且未标记变更）
-    if (!_localChanged && _statusCache.containsKey(ledgerId)) {
-      return _statusCache[ledgerId]!;
-    }
-
     try {
       final user = await provider.auth.currentUser;
       if (user == null) {
@@ -268,31 +264,37 @@ class SyncEngine implements app.SyncService {
         );
       }
 
-      // 本地交易数
-      final localTxs = await (db.select(db.transactions)
-            ..where((t) => t.ledgerId.equals(ledgerId)))
-          .get();
-      final localCount = localTxs.length;
-
-      // 检查是否有未推送的本地变更
-      final unpushedCount =
-          (await changeTracker.getUnpushedChangesForLedger(ledgerId)).length;
-
-      // 检查云端是否有数据。path 用 ledger.syncId 跟 push 侧保持一致。
       final ledgerRowStatus = await (db.select(db.ledgers)
             ..where((l) => l.id.equals(ledgerId)))
           .getSingleOrNull();
+      final preparing = ledgerRowStatus != null && await _hasFullPreparation(ledgerRowStatus);
+      final unpushedCount = await _countPendingUploads(ledgerId) + (preparing ? 1 : 0);
+      final fingerprint = unpushedCount > 0 ? 'has_changes' : 'synced';
+      final cached = _statusCache[ledgerId];
+      if (!_localChanged &&
+          cached != null &&
+          cached.localFingerprint == fingerprint) {
+        return cached;
+      }
+      final txCount = db.transactions.id.count();
+      final countRow = await (db.selectOnly(db.transactions)
+            ..addColumns([txCount])
+            ..where(db.transactions.ledgerId.equals(ledgerId)))
+          .getSingle();
+      final localCount = countRow.read(txCount) ?? 0;
+
+      // 检查云端是否有数据。path 用 ledger.syncId 跟 push 侧保持一致。
       final hasRemote = await provider.storage.exists(
         path: ledgerRowStatus?.syncId ?? ledgerId.toString(),
       );
 
       app.SyncDiff diff;
-      if (!hasRemote && localCount == 0) {
+      if (unpushedCount > 0) {
+        diff = app.SyncDiff.localNewer;
+      } else if (!hasRemote && localCount == 0) {
         diff = app.SyncDiff.noRemote;
       } else if (!hasRemote) {
         diff = app.SyncDiff.localNewer; // 本地有数据，云端没有
-      } else if (unpushedCount > 0) {
-        diff = app.SyncDiff.localNewer;
       } else {
         diff = app.SyncDiff.inSync;
       }
@@ -300,7 +302,7 @@ class SyncEngine implements app.SyncService {
       final status = app.SyncStatus(
         diff: diff,
         localCount: localCount,
-        localFingerprint: unpushedCount > 0 ? 'has_changes' : 'synced',
+        localFingerprint: fingerprint,
       );
       _statusCache[ledgerId] = status;
       _localChanged = false;
@@ -370,6 +372,7 @@ class SyncEngine implements app.SyncService {
 
   /// 释放资源。Runtime 在释放底层 provider 前等待 realtime listener 关闭。
   Future<void> dispose() async {
+    _pendingAutoSyncReason = null;
     _pullDebounce?.cancel();
     _pullDebounce = null;
     _autoSyncDebounce?.cancel();
@@ -386,9 +389,15 @@ class SyncEngine implements app.SyncService {
   Future<SyncResult> sync({required String ledgerId}) async {
     logger.info('SyncEngine', '开始同步 ledger=$ledgerId');
     try {
+      final versionCheck = await versionGuard?.call();
+      if (versionCheck != null && versionCheck.isBlocking) {
+        logger.warning('SyncEngine',
+            '版本不兼容，已暂停云同步 (${versionCheck.status.name})');
+        return const SyncResult(error: 'sync_paused_version_mismatch');
+      }
       await _recoverTransactionMoves();
       final ledgerIdInt = int.tryParse(ledgerId) ?? -1;
-      int pushed = 0;
+      var outcome = const _PushTally();
 
       // 先上传附件文件，确保 cloudFileId 写入本地 DB，后续 push 的 payload 才包含 cloudFileId
       try {
@@ -422,35 +431,25 @@ class SyncEngine implements app.SyncService {
       // delete + transaction:delete + budget:delete 推到 server,清掉 canonical
       // state,否则 remote ledgers 列表里还会显示这个被删的账本。
       if (ledgerRow == null) {
-        final pushed = await push(ledgerId);
+        final outcome = await _pushResult(ledgerId);
         logger.info(
-            'SyncEngine', '账本 $ledgerId 已本地删除,push delete changes: $pushed 条');
-        return SyncResult(pushed: pushed, pulled: 0);
+            'SyncEngine', '账本 $ledgerId 已本地删除,push delete changes: ${outcome.accepted} 条');
+        return outcome.syncResult(0);
       }
 
       // §7 共享账本:Editor 永不 fullPush(会把 Editor 本地状态覆盖 Owner 的)。
-      final isSharedAsEditor =
-          ledgerRow.isShared && ledgerRow.myRole != 'owner';
-
-      bool shouldFullPush = false;
-      if (!isSharedAsEditor) {
+      bool? remoteExists;
+      if (!ledgerRow.isShared || ledgerRow.myRole == 'owner') {
         try {
-          final remoteLedgers = await provider.storage.list(path: '');
-          // 用本账本的 syncId 跟远端列表比对(没 syncId 视为不在)。
-          final mySyncId = ledgerRow.syncId;
-          final remoteHasThisLedger = mySyncId != null &&
-              mySyncId.isNotEmpty &&
-              remoteLedgers.any((l) => l.path == mySyncId);
-          shouldFullPush = !remoteHasThisLedger;
-          logger.info('SyncEngine',
-              '远端账本=${remoteLedgers.length}, 本账本(syncId=$mySyncId) 命中=$remoteHasThisLedger → fullPush=$shouldFullPush');
+          final remote = await provider.storage.list(path: '');
+          remoteExists = remote.any((r) => r.path == ledgerRow.syncId);
         } catch (e, st) {
-          // list 失败保守走增量(fullPush 风险更大)。
-          logger.warning('SyncEngine', '远端 ledger 列表查询失败,按已存在处理: $e', st);
+          logger.warning('SyncEngine', '远端 ledger 列表查询失败,仅推已登记变更: $e', st);
         }
       }
-
-      if (shouldFullPush) {
+      final action = await initialUploadAction(ledgerRow, remoteExists: remoteExists);
+      if (action != InitialUploadAction.incremental) {
+        final resumePreparation = action == InitialUploadAction.resume;
         // 远端没这个账本 → 首次绑定 / server 数据被清。
         // fullPush 推所有 entity + ledger 自身。
 
@@ -461,26 +460,16 @@ class SyncEngine implements app.SyncService {
         // 设备 sync 必然分裂。
         await _ensureLedgerSyncId(ledgerRow);
 
-        final localTxCount = (await (db.select(db.transactions)
-                  ..where((t) => t.ledgerId.equals(ledgerIdInt)))
-                .get())
-            .length;
-        logger.info('SyncEngine', '远端无数据,本地 $localTxCount 条交易,触发 fullPush');
-
-        if (localTxCount > 0) {
-          // server 端重建/切换后,本地 attachments.cloudFileId 指向的文件已
-          // 失效。清掉云端引用,让 uploadAttachments 重新上传并回填新 ID。
+        if (!resumePreparation) {
+          // Only a genuinely new remote ledger needs fresh attachment references.
           await _resetAttachmentCloudRefs(ledgerIdInt);
         }
-        await fullPush(ledgerId: ledgerIdInt);
-        // fullPush 不处理 delete change(_pushAllEntities 只 upsert 当前实体)。
-        // fullPush 已把非 delete change 都 markPushed,这里 _push 推剩余的
-        // delete change,清掉 server canonical state。
-        final extraPushed = await push(ledgerId);
-        pushed = localTxCount + extraPushed;
+        outcome = await _fullPushResult(ledgerIdInt, remoteExists: resumePreparation);
+        // Deletes and edits made during the upload need their own receipts.
+        if (outcome.rejected == 0) outcome += await _pushResult(ledgerId);
       } else {
-        pushed = await push(ledgerId);
-        logger.info('SyncEngine', '增量推送: $pushed 条');
+        outcome = await _pushResult(ledgerId);
+        logger.info('SyncEngine', '增量推送: ${outcome.accepted} 条');
       }
 
       final pulled = await pull(ledgerId);
@@ -495,7 +484,8 @@ class SyncEngine implements app.SyncService {
       // 顺手再拉一次 profile（多数场景 bootstrap 已经拉过，这里幂等兜底）。
       await syncMyProfile();
 
-      final result = SyncResult(pushed: pushed, pulled: pulled);
+      final result = outcome.syncResult(pulled);
+      final pushed = outcome.accepted;
       // 【根因修复】同步完成后清掉本账本 getStatus 的 _statusCache,跟手动上传/
       // 下载路径(uploadToCloudFromCurrentLedger / downloadAndRestoreToCurrentLedger
       // 里的 _statusCache.remove)保持一致。否则 push 后 unpushedCount 已归零,但
@@ -516,8 +506,16 @@ class SyncEngine implements app.SyncService {
       if (pushed > 0) {
         _emit(PushCompleted(ledgerId: ledgerId, pushed: pushed));
       }
-      logger.info('SyncEngine', '同步完成: $result');
+      if (result.hasError) {
+        logger.warning('SyncEngine', '同步存在未接受的变更: $result');
+      } else {
+        logger.info('SyncEngine', '同步完成: $result');
+      }
       return result;
+    } on BeeCountCloudUpgradeRequiredException catch (e) {
+      logger.warning('SyncEngine', '服务端要求升级 App，已暂停云同步: $e');
+      onUpgradeRequired?.call(CloudVersionCompatibility.fromUpgradeRequired(e));
+      return const SyncResult(error: 'sync_paused_version_mismatch');
     } catch (e, st) {
       logger.error('SyncEngine', '同步失败', e, st);
       return SyncResult(error: e.toString());
@@ -581,6 +579,14 @@ class SyncEngine implements app.SyncService {
   Future<int> _syncLedgersFromServerLocked() async {
     logger.info('SyncEngine', 'syncLedgersFromServer start');
     try {
+      // A list request can finish after a local edit has already been acknowledged.
+      // Keep its edited fields even when they have disappeared from the pending queue.
+      final (watermark, pendingBeforeRead) = await db.transaction(() async {
+        final lastId = db.localChanges.id.max();
+        final row = await (db.selectOnly(db.localChanges)..addColumns([lastId]))
+            .getSingle();
+        return (row.read(lastId) ?? 0, await _ledgerChangesToProtect());
+      });
       final remote = await provider.readLedgers();
       int upserted = 0;
       int inserted = 0;
@@ -590,70 +596,63 @@ class SyncEngine implements app.SyncService {
       // await 是因为 fetchAndStoreSharedResources 走 HTTP,放循环里会串行慢,
       // 也会让单个失败影响其它账本。
       final newSharedLedgerSyncIds = <String>[];
-      for (final r in remote) {
-        final syncId = r.ledgerId;
-        if (syncId.isEmpty) continue;
-        // 用 get() 不用 getSingleOrNull() — 历史可能已经产生过同 syncId 多行
-        // (并发 syncLedgersFromServer 串行化前的遗留 / 老版本残留)。这里取 list,
-        // 有就保第一行,GC 其余 dup。
-        final existingList = await (db.select(db.ledgers)
-              ..where((l) => l.syncId.equals(syncId)))
-            .get();
-        if (existingList.isNotEmpty) {
-          final existing = existingList.first;
-          // update meta（name / currency / 共享账本字段 server 可能改过）
-          await (db.update(db.ledgers)..where((l) => l.id.equals(existing.id)))
-              .write(LedgersCompanion(
-            name: d.Value(r.ledgerName),
-            currency: d.Value(r.currency),
-            myRole: d.Value(r.role),
-            isShared: d.Value(r.isShared),
-            memberCount: d.Value(r.memberCount),
-            monthStartDay: r.monthStartDay != null
-                ? d.Value(r.monthStartDay!.clamp(1, 28))
-                : const d.Value.absent(),
-          ));
-          // 删 dup 行(及其关联 tx/local_changes,虽然 dup 行还没有这些)
-          if (existingList.length > 1) {
-            final dupIds = existingList.skip(1).map((l) => l.id).toList();
-            logger.warning('SyncEngine',
-                '检测到 ledger.syncId=$syncId 重复 ${existingList.length} 行,清除 dup id=$dupIds');
-            await (db.delete(db.transactions)
-                  ..where((t) => t.ledgerId.isIn(dupIds)))
-                .go();
-            await (db.delete(db.localChanges)
-                  ..where((c) => c.ledgerId.isIn(dupIds)))
-                .go();
-            await (db.delete(db.ledgers)..where((l) => l.id.isIn(dupIds))).go();
+      await db.transaction(() async {
+        final edits = <String, List<LocalChange>>{};
+        final recent = await _ledgerChangesToProtect(afterId: watermark);
+        for (final c in [...pendingBeforeRead, ...recent]) {
+          (edits[c.entitySyncId] ??= []).add(c);
+        }
+        for (final r in remote) {
+          final syncId = r.ledgerId;
+          if (syncId.isEmpty) continue;
+          final localEdits = edits[syncId] ?? const <LocalChange>[];
+          if (localEdits.any((c) => c.entityType == 'ledger_snapshot')) {
+            continue;
           }
-          upserted++;
-          continue;
-        }
-        // fallback：同名 + syncId 为 NULL 的 seed 行 → 收编
-        final byName = await (db.select(db.ledgers)
-              ..where((l) => l.name.equals(r.ledgerName))
-              ..where((l) => l.syncId.isNull()))
-            .getSingleOrNull();
-        if (byName != null) {
-          await (db.update(db.ledgers)..where((l) => l.id.equals(byName.id)))
-              .write(LedgersCompanion(
-            syncId: d.Value(syncId),
-            currency: d.Value(r.currency),
-            myRole: d.Value(r.role),
-            isShared: d.Value(r.isShared),
-            memberCount: d.Value(r.memberCount),
-            monthStartDay: r.monthStartDay != null
-                ? d.Value(r.monthStartDay!.clamp(1, 28))
-                : const d.Value.absent(),
-          ));
-          upserted++;
-          continue;
-        }
-        // 全新账本：insert。id 是本地 autoIncrement，跟 server 无关。
-        await db.into(db.ledgers).insert(LedgersCompanion.insert(
-              name: r.ledgerName,
-              currency: d.Value(r.currency),
+          // 用 get() 不用 getSingleOrNull() — 历史可能已经产生过同 syncId 多行
+          // (并发 syncLedgersFromServer 串行化前的遗留 / 老版本残留)。这里取 list,
+          // 有就保第一行,GC 其余 dup。
+          final existingList = await (db.select(db.ledgers)
+                ..where((l) => l.syncId.equals(syncId)))
+              .get();
+          if (existingList.isNotEmpty) {
+            final existing = existingList.first;
+            final metadata = _remoteLedgerMetadata(localEdits,
+                name: r.ledgerName,
+                currency: r.currency,
+                monthStartDay: r.monthStartDay);
+            await (db.update(db.ledgers)..where((l) => l.id.equals(existing.id)))
+                .write(metadata.copyWith(
+              myRole: d.Value(r.role),
+              isShared: d.Value(r.isShared),
+              memberCount: d.Value(r.memberCount),
+            ));
+            // 删 dup 行(及其关联 tx/local_changes,虽然 dup 行还没有这些)
+            if (existingList.length > 1) {
+              final dupIds = existingList.skip(1).map((l) => l.id).toList();
+              logger.warning('SyncEngine',
+                  '检测到 ledger.syncId=$syncId 重复 ${existingList.length} 行,清除 dup id=$dupIds');
+              await (db.delete(db.transactions)
+                    ..where((t) => t.ledgerId.isIn(dupIds)))
+                  .go();
+              await (db.delete(db.localChanges)
+                    ..where((c) => c.ledgerId.isIn(dupIds)))
+                  .go();
+              await (db.delete(db.ledgers)..where((l) => l.id.isIn(dupIds))).go();
+            }
+            upserted++;
+            continue;
+          }
+          // fallback：同名 + syncId 为 NULL 的 seed 行 → 收编
+          final byName = await (db.select(db.ledgers)
+                ..where((l) => l.name.equals(r.ledgerName))
+                ..where((l) => l.syncId.isNull()))
+              .getSingleOrNull();
+          if (byName != null) {
+            await (db.update(db.ledgers)..where((l) => l.id.equals(byName.id)))
+                .write(LedgersCompanion(
               syncId: d.Value(syncId),
+              currency: d.Value(r.currency),
               myRole: d.Value(r.role),
               isShared: d.Value(r.isShared),
               memberCount: d.Value(r.memberCount),
@@ -661,14 +660,30 @@ class SyncEngine implements app.SyncService {
                   ? d.Value(r.monthStartDay!.clamp(1, 28))
                   : const d.Value.absent(),
             ));
-        inserted++;
-        // 新设备登录:Editor 的共享账本需要拉 /shared-resources 才能在
-        // picker / 详情页 / 洞察 等显示 Owner 的资源。fallback 给 byName
-        // 收编路径不记(那是同 ledger 的 syncId 收编,不算新 ledger)。
-        if (r.isShared && r.role != 'owner') {
-          newSharedLedgerSyncIds.add(syncId);
+            upserted++;
+            continue;
+          }
+          // 全新账本：insert。id 是本地 autoIncrement，跟 server 无关。
+          await db.into(db.ledgers).insert(LedgersCompanion.insert(
+                name: r.ledgerName,
+                currency: d.Value(r.currency),
+                syncId: d.Value(syncId),
+                myRole: d.Value(r.role),
+                isShared: d.Value(r.isShared),
+                memberCount: d.Value(r.memberCount),
+                monthStartDay: r.monthStartDay != null
+                    ? d.Value(r.monthStartDay!.clamp(1, 28))
+                    : const d.Value.absent(),
+              ));
+          inserted++;
+          // 新设备登录:Editor 的共享账本需要拉 /shared-resources 才能在
+          // picker / 详情页 / 洞察 等显示 Owner 的资源。fallback 给 byName
+          // 收编路径不记(那是同 ledger 的 syncId 收编,不算新 ledger)。
+          if (r.isShared && r.role != 'owner') {
+            newSharedLedgerSyncIds.add(syncId);
+          }
         }
-      }
+      });
       logger.info('SyncEngine',
           'syncLedgersFromServer done: total=${remote.length} upserted=$upserted inserted=$inserted');
 
@@ -720,6 +735,46 @@ class SyncEngine implements app.SyncService {
     }
   }
 
+  Future<List<LocalChange>> _ledgerChangesToProtect(
+      {String? syncId, int? afterId}) {
+    final query = db.select(db.localChanges)
+      ..where((c) => c.entityType.equals('ledger') |
+          (c.entityType.equals('ledger_snapshot') & c.action.equals('delete')))
+      ..where((c) => afterId == null
+          ? c.pushedAt.isNull()
+          : c.pushedAt.isNull() | c.id.isBiggerThanValue(afterId));
+    if (syncId != null) query.where((c) => c.entitySyncId.equals(syncId));
+    return query.get();
+  }
+
+  LedgersCompanion _remoteLedgerMetadata(Iterable<LocalChange> edits,
+      {String? name, String? currency, int? monthStartDay}) {
+    final dirty = <String>{};
+    for (final change in edits) {
+      final payload = change.payloadJson;
+      // Older clients journaled the whole row, without a field list.
+      if (payload == null) return const LedgersCompanion();
+      try {
+        final fields = jsonDecode(payload);
+        if (fields is! Map<String, dynamic>) return const LedgersCompanion();
+        dirty.addAll(fields.keys);
+      } on FormatException {
+        return const LedgersCompanion();
+      }
+    }
+    return LedgersCompanion(
+      name: name != null && !dirty.contains('ledgerName')
+          ? d.Value(name)
+          : const d.Value.absent(),
+      currency: currency != null && !dirty.contains('currency')
+          ? d.Value(currency)
+          : const d.Value.absent(),
+      monthStartDay: monthStartDay != null && !dirty.contains('monthStartDay')
+          ? d.Value(monthStartDay.clamp(1, 28))
+          : const d.Value.absent(),
+    );
+  }
+
   /// 推送 user-global 实体(account / category / tag)的未推 change。
   ///
   /// **全局单飞**:并发调用复用第一个的 future。多账本场景下 Phase 2 并行的
@@ -729,19 +784,22 @@ class SyncEngine implements app.SyncService {
   /// 注意:**不要在 `_push` / `_pushAllEntities` 内部重复推 user-global**,
   /// 否则单飞失效。这俩内部应该只处理 ledger-scope change(transaction / budget /
   /// ledger / ledger_snapshot)。
-  Future<int> pushUserGlobalEntities() async {
+  Future<int> pushUserGlobalEntities() async =>
+      (await _pushUserGlobalResult()).requireSuccess();
+
+  Future<_PushTally> _pushUserGlobalResult() async {
     final inFlight = _userGlobalPushInFlight;
     if (inFlight != null) {
       logger.info('SyncEngine', 'pushUserGlobalEntities 已在执行,复用 in-flight');
-      await inFlight.future;
-      return 0; // 复用不计数,只是等
+      final result = await inFlight.future;
+      return _PushTally(conflicts: result.conflicts, rejected: result.rejected);
     }
-    final completer = Completer<void>();
+    final completer = Completer<_PushTally>();
     completer.future.ignore();
     _userGlobalPushInFlight = completer;
     try {
       final n = await _doPushUserGlobalEntities();
-      completer.complete();
+      completer.complete(n);
       return n;
     } catch (e, st) {
       completer.completeError(e, st);
@@ -753,7 +811,7 @@ class SyncEngine implements app.SyncService {
     }
   }
 
-  Future<int> _doPushUserGlobalEntities() async {
+  Future<_PushTally> _doPushUserGlobalEntities() async {
     // Legacy backfill:v19 migration 给老 user-global 实体填了 syncId 但没登记
     // local_changes,这里一次性补登记。每 SyncEngine 实例只跑一次。
     if (!_userGlobalLegacyBackfilled) {
@@ -765,69 +823,20 @@ class SyncEngine implements app.SyncService {
     if (globalChanges.isEmpty) {
       logger.debug(
           'SyncEngine', 'pushUserGlobalEntities: 无未推 user-global change');
-      return 0;
+      return const _PushTally();
     }
 
-    // change ↔ 序列化字典配对(后面按 entity_type 拆批时要凭 change.id 标记已推)。
-    final mainChanges = <LocalChange>[];
-    final mainSyncChanges = <Map<String, dynamic>>[];
-    final overrideChanges = <LocalChange>[];
-    final overrideSyncChanges = <Map<String, dynamic>>[];
-    for (final change in globalChanges) {
-      Map<String, dynamic> payload;
-      if (change.action == 'delete') {
-        payload = <String, dynamic>{};
-      } else {
-        // user-global 实体序列化不需要 ledger 上下文,ledgerId 传 0 占位
-        // (_serializeEntityForPush 内部用它查 parent ledger.syncId,user-global
-        // 实体不会用到 parentLedgerSyncId)。
-        payload = await _serializeEntityForPush(
-          entityType: change.entityType,
-          entityId: change.entityId,
-          ledgerId: 0,
-        );
-      }
-      final syncChange = {
-        'ledger_id': null,
-        'scope': 'user',
-        'entity_type': change.entityType,
-        'entity_sync_id': change.entitySyncId,
-        'action': change.action == 'delete' ? 'delete' : 'upsert',
-        'payload': payload,
-        'updated_at': change.createdAt.toUtc().toIso8601String(),
-      };
-      if (change.entityType == 'exchange_rate_override') {
-        overrideChanges.add(change);
-        overrideSyncChanges.add(syncChange);
-      } else {
-        mainChanges.add(change);
-        mainSyncChanges.add(syncChange);
-      }
+    final main = globalChanges.where((c) => c.entityType != 'exchange_rate_override').toList();
+    final overrides = globalChanges.where((c) => c.entityType == 'exchange_rate_override').toList();
+    final first = await _sendTracked(main, null);
+    if (overrides.isEmpty) return first;
+    try {
+      return first + await _sendTracked(overrides, null);
+    } on CloudStorageException catch (e) {
+      // Older servers can reject this entity type while accepting other changes.
+      logger.warning('SyncEngine', '自定义汇率保留待传: $e');
+      return first + _PushTally(rejected: overrides.length);
     }
-
-    // 主批(account/category/tag):照原逻辑推送 + 标记已推。
-    if (mainSyncChanges.isNotEmpty) {
-      await provider.pushChanges(changes: mainSyncChanges);
-      await changeTracker.markPushed(mainChanges.map((c) => c.id).toList());
-    }
-
-    // exchange_rate_override 独立批:旧服务器白名单会拒绝该 entity_type,
-    // 混在主批会整批失败、阻塞 account/category/tag 同步(README D10)。
-    // 失败只 warning、不标记已推 → 留在 local_changes 下次重试。
-    if (overrideSyncChanges.isNotEmpty) {
-      try {
-        await provider.pushChanges(changes: overrideSyncChanges);
-        await changeTracker
-            .markPushed(overrideChanges.map((c) => c.id).toList());
-      } catch (e, st) {
-        logger.warning(
-            'SyncEngine', 'override 批推送失败(server 可能未升级),跳过本轮不阻塞: $e', st);
-      }
-    }
-
-    logger.info('SyncEngine',
-        'pushUserGlobalEntities: 推送 ${mainChanges.length} 条主批 + ${overrideChanges.length} 条 override 批 user-global change');
-    return globalChanges.length;
   }
 
   /// 扫 accounts/categories/tags,给 local_changes 里没登记过的 legacy 实体
@@ -922,14 +931,19 @@ class SyncEngine implements app.SyncService {
   /// 注意:**只推 ledger-scope change**(transaction / budget / ledger / ledger_snapshot)。
   /// user-global change(account / category / tag)由 [pushUserGlobalEntities] 统一推
   /// (在 [_doPush] 开头调用),避免多账本场景下并行 push 重复推送 user-global。
-  Future<int> push(String ledgerId) async {
+  Future<int> push(String ledgerId) async =>
+      (await _pushResult(ledgerId)).requireSuccess();
+
+  Future<_PushTally> _pushResult(String ledgerId) async {
     await _recoverTransactionMoves();
+    final full = _fullPushInFlight[int.tryParse(ledgerId)];
+    if (full != null) await full.future;
     final inFlight = _pushInFlight[ledgerId];
     if (inFlight != null) {
       logger.info('SyncEngine', 'push(ledger=$ledgerId) 已在执行,复用 in-flight');
       return inFlight.future;
     }
-    final completer = Completer<int>();
+    final completer = Completer<_PushTally>();
     completer.future.ignore(); // 防 unhandled async error
     _pushInFlight[ledgerId] = completer;
     try {
@@ -946,13 +960,13 @@ class SyncEngine implements app.SyncService {
     }
   }
 
-  Future<int> _doPush(String ledgerId) async {
+  Future<_PushTally> _doPush(String ledgerId) async {
     final ledgerIdInt = int.tryParse(ledgerId) ?? -1;
 
     // 1) 先推 user-global change(account / category / tag)。
     //    全局单飞,Phase 2 多 ledger 并行场景下只跑一次,跨 ledger 不再各推一份。
     //    详见 [pushUserGlobalEntities] doc + .docs/concurrent-fullpush-bloat.md。
-    final userGlobalPushed = await pushUserGlobalEntities();
+    final userGlobalPushed = await _pushUserGlobalResult();
 
     // 2) ledgerId="0" / "" 语义是"只推 user-global",上面一步已经做完。
     if (ledgerIdInt == 0) return userGlobalPushed;
@@ -1008,62 +1022,8 @@ class SyncEngine implements app.SyncService {
               '从 snapshot change 拿到 ledgerSyncId=$deletedLedgerSyncId,继续 push');
     }
 
-    // 构建服务端 push 格式：从 DB 读取最新数据序列化
-    final syncChanges = <Map<String, dynamic>>[];
-
-    for (final change in changes) {
-      final isUserGlobal =
-          ChangeTracker.userGlobalEntityTypes.contains(change.entityType);
-
-      Map<String, dynamic> payload;
-
-      if (change.action == 'delete') {
-        payload = <String, dynamic>{};
-      } else {
-        // 从数据库读取最新实体并序列化。注意:正常流程到这里 ledger 一定非
-        // null —— ledger==null 的唯一来源是 deleteLedger,而它只产生 delete
-        // changes(已被 if 分支拦走)。这里用 ledgerIdInt 兜底防御,避免 NPE。
-        payload = await _serializeEntityForPush(
-          entityType: change.entityType,
-          entityId: change.entityId,
-          ledgerId: ledger?.id ?? ledgerIdInt,
-        );
-      }
-
-      // user-global 重构后协议(参考 .docs/user-global-refactor/plan.md):
-      //   - scope='user' (category/account/tag):ledger_id 发 null,server 按
-      //     entity_type 强制按 user-scope 路由,不再依附任何 ledger。
-      //   - scope='ledger' (transaction/budget/ledger/ledger_snapshot):
-      //     ledger_id 用 ledger.syncId(跨设备唯一 external_id)。删账本路径
-      //     从 ledger_snapshot:delete change 拉回 syncId,保证 server 认得。
-      final String? pushLedgerId;
-      final String pushScope;
-      if (isUserGlobal) {
-        pushLedgerId = null;
-        pushScope = 'user';
-      } else {
-        pushLedgerId = ledger?.syncId ?? deletedLedgerSyncId ?? ledgerId;
-        pushScope = 'ledger';
-      }
-      syncChanges.add({
-        'ledger_id': pushLedgerId,
-        'scope': pushScope,
-        'entity_type': change.entityType,
-        'entity_sync_id': change.entitySyncId,
-        'action': change.action == 'delete' ? 'delete' : 'upsert',
-        'payload': payload,
-        'updated_at': change.createdAt.toUtc().toIso8601String(),
-      });
-    }
-
-    // 使用 pushChanges 直接推送个体变更
-    await provider.pushChanges(changes: syncChanges);
-
-    // 标记已推送
-    await changeTracker.markPushed(changes.map((c) => c.id).toList());
-    logger.info('SyncEngine',
-        'push: 推送 ${changes.length} 条 ledger-scope 变更 + 本会话 user-global $userGlobalPushed 条');
-    return changes.length + userGlobalPushed;
+    return userGlobalPushed + await _sendTracked(
+        changes, ledger?.syncId ?? deletedLedgerSyncId ?? ledgerId);
   }
 
   /// 拉取远程变更并应用到本地。
@@ -1085,6 +1045,12 @@ class SyncEngine implements app.SyncService {
   ///   轮)
   /// - replay(sinceOverride 非 null)语义独立,等 in-flight 完成后再自己跑
   Future<int> pull(String ledgerId, {int? sinceOverride}) async {
+    final versionCheck = await versionGuard?.call();
+    if (versionCheck != null && versionCheck.isBlocking) {
+      logger.warning('SyncEngine',
+          '版本不兼容，已暂停拉取 (${versionCheck.status.name})');
+      return 0;
+    }
     await _recoverTransactionMoves();
     // 1. in-flight 单飞
     final inFlight = _pullInFlight;
@@ -1114,6 +1080,11 @@ class SyncEngine implements app.SyncService {
       final n = await _doPull(ledgerId, sinceOverride);
       completer.complete(n);
       return n;
+    } on BeeCountCloudUpgradeRequiredException catch (e) {
+      logger.warning('SyncEngine', '拉取时服务端要求升级 App，已暂停云同步: $e');
+      onUpgradeRequired?.call(CloudVersionCompatibility.fromUpgradeRequired(e));
+      completer.complete(0);
+      return 0;
     } catch (e, st) {
       completer.completeError(e, st);
       rethrow;
@@ -1130,22 +1101,27 @@ class SyncEngine implements app.SyncService {
   int? _pullInFlightSince;
 
   Future<int> _doPull(String ledgerId, int? sinceOverride) async {
-    int? nextSince = sinceOverride ?? await appCursor.read();
-    if (nextSince == 0 && sinceOverride == null) {
+    final restoreCursor = await appCursor._readRestoreCursor();
+    int nextSince = sinceOverride ?? restoreCursor ?? await appCursor.read();
+    if (nextSince == 0 && sinceOverride == null && restoreCursor == null) {
       await appCursor.migrateFromProviderCursor();
       nextSince = await appCursor.read();
     }
+    final restoring =
+        nextSince == 0 || (sinceOverride == null && restoreCursor != null);
+    // An explicit replay can start from an advanced normal cursor. Remember
+    // its starting point even if the very first request or transaction fails.
+    if (sinceOverride == 0) await appCursor._restartRestore();
 
     // **Lazy prime**:先 HTTP 一次试探有没有数据。99% 场景(无变更)直接
     // return,跳过 LookupCache 全表 SELECT(transactions 10k+ 行的 prime
     // 每次都要 200-500ms 主线程时间)。多账本场景这里是大头 — 启动时 5 个
     // ledger 各跑一次 sync,空跑也要 prime 5 次,白白卡 1-2s。
-    final probe = await provider.pullChanges(
-      since: nextSince,
-      limit: 500,
-      persistCursor: false,
-    );
+    final probe = await _readPullPage(nextSince, restoring: restoring);
     if (probe.changes.isEmpty) {
+      if (restoreCursor != null || sinceOverride == 0) {
+        await appCursor.commit(probe.serverCursor, restoring: true);
+      }
       logger.info(
           'SyncEngine', 'pull: since=$nextSince 无新变更,跳过 LookupCache prime');
       return 0;
@@ -1157,15 +1133,23 @@ class SyncEngine implements app.SyncService {
     activePullCache = cache;
 
     try {
-      return await _runPullLoop(ledgerId, nextSince, firstPage: probe);
+      return await _runPullLoop(ledgerId, nextSince,
+          restoring: restoring, firstPage: probe);
     } finally {
       activePullCache = null;
     }
   }
 
+  Future<BeeCountCloudPullResult> _readPullPage(int since,
+          {required bool restoring}) =>
+      restoring
+          ? provider.pullRestorePage(since: since, limit: 500)
+          : provider.pullChanges(since: since, limit: 500, persistCursor: false);
+
   Future<int> _runPullLoop(
     String ledgerId,
-    int? nextSince, {
+    int nextSince, {
+    required bool restoring,
     BeeCountCloudPullResult? firstPage,
   }) async {
     int totalApplied = 0;
@@ -1184,20 +1168,19 @@ class SyncEngine implements app.SyncService {
         logger.info('SyncEngine',
             'pull #$pageIndex: since=$nextSince got ${result.changes.length} hasMore=${result.hasMore} (reused probe)');
       } else {
-        result = await provider.pullChanges(
-          since: nextSince,
-          limit: 500,
-          persistCursor: false, // cursor 由 appCursor 接管
-        );
+        result = await _readPullPage(nextSince, restoring: restoring);
         final httpMs = DateTime.now().difference(pageStart).inMilliseconds;
         logger.info('SyncEngine',
             'pull #$pageIndex: since=$nextSince got ${result.changes.length} hasMore=${result.hasMore} (HTTP ${httpMs}ms)');
       }
-      if (result.changes.isEmpty) break;
+      if (result.changes.isEmpty) {
+        if (restoring) await appCursor.commit(result.serverCursor, restoring: true);
+        break;
+      }
 
       final applyStart = DateTime.now();
       await _recoverTransactionMoves();
-      final outcome = await _applyPullPage(result.changes);
+      final outcome = await _applyPullPage(result.changes, restoring: restoring);
       final applyMs = DateTime.now().difference(applyStart).inMilliseconds;
       logger.info('SyncEngine',
           'pull #$pageIndex: applied ${outcome.applied}/${result.changes.length} (apply ${applyMs}ms, page total ${DateTime.now().difference(pageStart).inMilliseconds}ms)');
@@ -1209,7 +1192,8 @@ class SyncEngine implements app.SyncService {
       }
 
       // 整页成功:推进 cursor,处理本页 enqueue 的自定义图标
-      await appCursor.commit(result.serverCursor);
+      await appCursor.commit(result.serverCursor,
+          restoring: restoring, hasMore: result.hasMore);
       nextSince = result.serverCursor;
 
       // 同 change_id 之前如果有未 resolved 错误(server 修了脏数据 + 推新
@@ -1238,16 +1222,17 @@ class SyncEngine implements app.SyncService {
   /// - 不可恢复异常 → rollback + 错误入 [pullErrors] + return blocked
   /// - SQLite busy/locked → 单条 retry 2 次
   Future<_PullPageOutcome> _applyPullPage(
-      List<BeeCountCloudSyncChange> changes) async {
+      List<BeeCountCloudSyncChange> changes, {required bool restoring}) async {
     int applied = 0;
     int skipped = 0;
     BeeCountCloudSyncChange? failingChange;
 
     try {
-      await db.transaction(() async {
+      await _applyWithAttachmentCleanup((removedFiles) async {
         for (final ch in changes) {
           failingChange = ch;
-          final ok = await _applyOneWithBusyRetry(ch);
+          final ok = await _applyOneWithBusyRetry(ch, removedFiles,
+              restoring: restoring);
           // 口径澄清(S1-01a 评审):applied 统计的是"处理条数"而非"落库条数"。
           // _applyOneWithBusyRetry 返回 true 仅表示该 change 被正常处理(含
           // lock_period 因 ledgerId 无法解析而 warning+return 跳过的场景),
@@ -1283,11 +1268,12 @@ class SyncEngine implements app.SyncService {
   ///
   /// 用 `e.toString()` 探测 SqliteException 类型,避免引入 sqlite3 包依赖
   /// (Drift 内部用,但这里直接 import 会触发 depend_on_referenced_packages)。
-  Future<bool> _applyOneWithBusyRetry(BeeCountCloudSyncChange ch) async {
+  Future<bool> _applyOneWithBusyRetry(
+      BeeCountCloudSyncChange ch, Set<String> removedFiles, {required bool restoring}) async {
     var attempts = 0;
     while (true) {
       try {
-        return await applyRemoteChange(ch);
+        return await _applyRemoteChange(ch, removedFiles, restoring: restoring);
       } catch (e) {
         final msg = e.toString().toLowerCase();
         final transient =
@@ -1314,7 +1300,7 @@ class SyncEngine implements app.SyncService {
 
   // 附件相关方法搬到 sync_engine_attachments.dart 这个 part 文件:
   //   _resetAttachmentCloudRefs / _uploadCategoryIcons / uploadAttachments
-  //   downloadAttachments / _getAttachmentFile / _cleanupTxAttachmentFilesOnDisk
+  //   downloadAttachments / _getAttachmentFile / _applyWithAttachmentCleanup
   //   _cleanupCategoryIconFilesOnDisk
 
   /// 新设备全量拉取。
@@ -1349,28 +1335,36 @@ class SyncEngine implements app.SyncService {
       {required int ledgerId}) async {
     logger.info('SyncEngine', '开始全量拉取 ledger=$ledgerId');
 
-    // path 对齐 fullPush 上传时用的 ledger.syncId。
-    final ledgerRow = await (db.select(db.ledgers)
-          ..where((l) => l.id.equals(ledgerId)))
-        .getSingleOrNull();
-    final path = ledgerRow?.syncId ?? ledgerId.toString();
-    final data = await provider.storage.download(path: path);
-    if (data == null) {
-      logger.warning('SyncEngine', '全量拉取: 服务端无数据');
-      return (inserted: 0, deletedDup: 0);
-    }
-
-    // 复用 importTransactionsJson;recordChanges:false 阻止反向回流:
-    // 从云端拉下来的数据**不应该**再以 local_changes 形式推回去,否则 10k
-    // 条 fullPull 会触发 SyncCoordinator 反向 sync,白白多一轮 10k push。
-    final result = await importTransactionsJson(
-      repo,
-      ledgerId,
-      data,
-      recordChanges: false,
-    );
-    logger.info('SyncEngine', '全量拉取完成: inserted=${result.inserted}');
-
+    final ledger = await repo.getLedgerById(ledgerId);
+    if (ledger == null) throw StateError('Download target ledger does not exist');
+    final watermark = await _hydrationWatermark();
+    await _checkHydrationEdits(ledger, watermark, includeOwnDictionaries: true);
+    final transactions = db.transactions;
+    final maxId = transactions.id.max();
+    final before = await (db.selectOnly(transactions)..addColumns([maxId]))
+        .getSingle();
+    final lastId = before.read(maxId) ?? 0;
+    // New incremental changes may belong to other ledgers. They cannot repair
+    // an older target change that a previous global cursor already skipped.
+    await pull(ledgerId.toString());
+    await hydrateLedgerFromServer(ledger.syncId ?? ledgerId.toString(),
+        recoveryTarget: ledger, journalWatermark: watermark);
+    // Both the delta and the snapshot can add transactions. Their local IDs
+    // auto-increment, even when the same download also deletes older rows.
+    final changes = db.localChanges;
+    final localCreates = db.selectOnly(changes)
+      ..addColumns([changes.entityId])
+      ..where(changes.id.isBiggerThanValue(watermark) &
+          changes.ledgerId.equals(ledgerId) &
+          changes.entityType.equals('transaction') &
+          changes.action.equals('create'));
+    final count = transactions.id.count();
+    final downloaded = await (db.selectOnly(transactions)
+          ..addColumns([count])
+          ..where(transactions.ledgerId.equals(ledgerId) &
+              transactions.id.isBiggerThanValue(lastId) &
+              transactions.id.isNotInQuery(localCreates)))
+        .getSingle();
     // 下载附件
     try {
       await downloadAttachments(ledgerId: ledgerId);
@@ -1378,13 +1372,13 @@ class SyncEngine implements app.SyncService {
       logger.error('SyncEngine', '附件下载失败（不阻塞拉取）', e, st);
     }
 
-    return (inserted: result.inserted, deletedDup: 0);
+    return (inserted: downloaded.read(count) ?? 0, deletedDup: 0);
   }
 
   // ==================== 附件云端同步 ====================
   //
   // uploadAttachments / downloadAttachments / _getAttachmentFile
-  // _cleanupTxAttachmentFilesOnDisk / _cleanupCategoryIconFilesOnDisk
+  // _applyWithAttachmentCleanup / _cleanupCategoryIconFilesOnDisk
   // 这些方法都搬到 sync_engine_attachments.dart 这个 part 文件里了。
 }
 
@@ -1416,6 +1410,7 @@ class SyncHealthReport {
     required this.categories,
     required this.tags,
     required this.unpushedChanges,
+    this.recentConflicts = 0,
     this.error,
   });
 
@@ -1445,6 +1440,7 @@ class SyncHealthReport {
         categories: categories,
         tags: tags,
         unpushedChanges: unpushedChanges,
+        recentConflicts: recentConflicts,
         error: message,
       );
 
@@ -1469,6 +1465,7 @@ class SyncHealthReport {
   final SyncCountPair tags;
 
   final int unpushedChanges;
+  final int recentConflicts;
   final String? error;
 
   bool get hasDiff {

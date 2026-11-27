@@ -32,7 +32,8 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     db = BeeDatabase.forTesting(NativeDatabase.memory());
     changeTracker = ChangeTracker(db);
-    repo = LocalRepository(db, changeTracker: changeTracker);
+    // Seed the acknowledged version; pending local edits follow the outbox contract.
+    repo = LocalRepository(db);
     provider = FakeBeeCountCloudProvider();
     engine = SyncEngine(
       db: db,

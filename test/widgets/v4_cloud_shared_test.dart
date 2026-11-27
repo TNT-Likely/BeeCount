@@ -824,6 +824,56 @@ void main() {
     expect(find.byType(MemberListPage), findsOneWidget);
     expect(await db.select(db.ledgers).get(), hasLength(2));
   });
+  String receiptScope({String origin='https://qa.invalid',String user='owner'}) =>
+      jsonEncode([origin,'/api/v1',user,'synthetic-device']);
+  Future<void> receipt(int book,{String? scope,String? wire,
+      int ageDays=0,bool acknowledged=true,int? confirmed=17}) async {
+    final identity=scope??receiptScope();
+    await db.into(db.localChanges).insert(LocalChangesCompanion.insert(
+        entityType:book==0?'tag':'transaction',entityId:22,entitySyncId:'sample',ledgerId:book,
+        action:'update',receiptScope:Value(identity),confirmedChangeId:Value(confirmed),
+        pushedAt:Value(acknowledged?DateTime.now().subtract(Duration(days:ageDays)):null),
+        wireJson:Value(wire??jsonEncode({'scope':identity,'conflict':'stale_version'}))));
+  }
+  test('七天回执只统计对应服务、用户、账本及全局的已确认版本冲突', () async {
+    await receipt(ledger);
+    await receipt(0,ageDays:6,wire:jsonEncode({'scope':receiptScope(),'conflict':null}));
+    await receipt(ledger+1);
+    await receipt(ledger,ageDays:8);
+    await receipt(ledger,scope:receiptScope(user:'another'));
+    await receipt(ledger,scope:receiptScope(origin:'https://other.invalid'));
+    await receipt(ledger,confirmed:null);
+    await receipt(ledger,wire:'malformed');
+    await receipt(ledger,wire:jsonEncode({'scope':receiptScope(),'rejected':'business_rule'}));
+    await receipt(ledger,wire:jsonEncode({'scope':receiptScope(),'change':{'conflict':'in payload'}}));
+    await receipt(ledger,wire:jsonEncode({'scope':receiptScope(user:'another'),'conflict':'old'}));
+    final settled=await engine.checkSyncHealth(ledgerId:ledger);
+    expect(settled.recentConflicts,2);
+    expect(settled.unpushedChanges,0);
+    expect(settled.hasDiff,isFalse);
+    expect(settled.needsBackfill,isFalse);
+    await receipt(ledger,acknowledged:false);
+    final pending=await engine.checkSyncHealth(ledgerId:ledger);
+    expect(pending.recentConflicts,2);
+    expect(pending.unpushedChanges,1);
+  });
+  scenario('已结束的后台冲突在随后打开的健康面板显示，重新打开仍可见', (t) async {
+    final hint=AppLocalizationsEn().syncHealthRecentConflicts(1);
+    await show(t,const BeeCountCloudSyncPage());
+    expect(find.text(hint),findsNothing);
+    await t.pumpWidget(const SizedBox.shrink());
+    await receipt(ledger);
+    await show(t,const BeeCountCloudSyncPage());
+    expect(find.text(hint),findsOneWidget);
+    await t.pumpWidget(const SizedBox.shrink());
+    await show(t,const BeeCountCloudSyncPage());
+    expect(find.text(hint),findsOneWidget);
+    auth.user = const CloudUser(id:'other-user');
+    auth.events.add(auth.user);
+    await flush(t);
+    expect(find.text(hint),findsNothing);
+  });
+
   scenario('同步当前与全部账本真实SQLite计数不混淆', (t) async {
     final other =
         (await db.select(db.ledgers).get()).singleWhere((x) => x.id != ledger);
@@ -931,7 +981,8 @@ void main() {
     final tags = await db.select(db.transactionTagOverrides).get();
     expect(tags.single.transactionSyncId, 'history-tx');
     expect(tags.single.tagSyncId, 'shared-tag');
-    await t.runAsync(() => engine.onInviteAccepted('book-shared'));
+    // Reuse the test clock that owns this engine and its Drift connection.
+    await engine.onInviteAccepted('book-shared');
     await flush(t);
     expect(await db.select(db.transactions).get(), hasLength(1));
     expect(await db.select(db.sharedLedgerTags).get(), hasLength(1));
