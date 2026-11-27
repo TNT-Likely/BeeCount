@@ -2,7 +2,9 @@
 import 'package:beecount/cloud/cloud_version_policy.dart';
 import 'package:beecount/main.dart' show MainApp;
 import 'package:beecount/providers/database_providers.dart';
+import 'package:beecount/providers/language_provider.dart';
 import 'package:beecount/providers/sync_providers.dart';
+import 'package:beecount/providers/theme_providers.dart';
 import 'package:beecount/providers/ui_state_providers.dart';
 import 'package:beecount_business_ui/beecount_business_ui.dart';
 import 'package:flutter/material.dart';
@@ -36,9 +38,11 @@ void main() {
         {Duration timeout = const Duration(seconds: 25)}) async {
       final deadline = DateTime.now().add(timeout);
       while (DateTime.now().isBefore(deadline)) {
-        await tester.pump(const Duration(milliseconds: 250));
+        await tester.pump(const Duration(milliseconds: 100));
         if (finder.evaluate().isNotEmpty) return;
+        await Future<void>.delayed(const Duration(milliseconds: 50));
       }
+      await binding.takeScreenshot('failure-version-compat-ui');
       expect(finder, findsWidgets);
     }
 
@@ -114,7 +118,7 @@ void main() {
     await prefs.setInt('current_ledger_id', ledgerId);
     await prefs.setString('qa_run_id', runId);
     final ledgerSyncId = (await repo.getLedgerById(ledgerId))!.syncId!;
-    final catId = await repo.createCategory(name: '餐饮', kind: 'expense');
+    final catId = await repo.createCategory(name: 'QA版本餐饮', kind: 'expense');
 
     final tx1Id = await repo.addTransaction(
       ledgerId: ledgerId,
@@ -137,12 +141,18 @@ void main() {
     }
 
     // 启动生产 UI（挂载 SyncService 的 versionGuard 与 onUpgradeRequired）
+    await container.read(primaryColorInitProvider.future);
+    await container.read(themeModeInitProvider.future);
+    container.read(themeModeProvider.notifier).state = ThemeMode.light;
+    await container
+        .read(languageProvider.notifier)
+        .setLanguage(const Locale('zh'));
     container.read(syncServiceProvider);
     container.read(appInitStateProvider.notifier).state = AppInitState.ready;
     await tester.pumpWidget(
       UncontrolledProviderScope(container: container, child: const MainApp()),
     );
-    await waitFor(find.text('餐饮'));
+    await waitFor(find.text('QA版本餐饮'));
 
     // 1. 匹配状态（App 4.1.0 + Cloud 1.11.0）
     final initialSync = await engine
@@ -275,12 +285,12 @@ void main() {
     // 回到明细页准备正常入口重启验证
     nav.popUntil((route) => route.isFirst);
     await tap(find.text('明细'));
-    await waitFor(find.text('餐饮'));
+    await waitFor(find.text('QA版本餐饮'));
 
     binding.reportData!.addAll({
       'ledger_sync_id': ledgerSyncId,
       'expected_tx_sync_ids': [tx1SyncId, tx2SyncId, tx3SyncId],
-      'normal_ui_markers': ['餐饮', '31'],
+      'normal_ui_markers': ['QA版本餐饮', '31'],
     });
   }, timeout: const Timeout(Duration(minutes: 8)));
 }
