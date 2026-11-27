@@ -5373,5 +5373,196 @@
   "skinPreviewLunch": "Lunch",
   "skinPreviewMetro": "Subway",
   "skinPreviewCoffee": "Coffee",
-  "skinPreviewIncome": "Freelance income"
+  "skinPreviewIncome": "Freelance income",
+  "cloudVersionRecommendCloudTitle": "Upgrade BeeCount Cloud",
+  "cloudVersionRequireCloudTitle": "BeeCount Cloud Upgrade Required",
+  "cloudVersionRecommendAppTitle": "Update BeeCount App",
+  "cloudVersionRequireAppTitle": "BeeCount App Update Required",
+  "cloudVersionHomePauseCloudTitle": "Sync Paused · Upgrade Cloud",
+  "cloudVersionHomePauseAppTitle": "Sync Paused · Update App",
+  "cloudVersionRecommendCloudDesc": "Your Cloud server is below the recommended v{target}+ for this App. Some new features or sync improvements may not work as expected.",
+  "@cloudVersionRecommendCloudDesc": {
+    "placeholders": {
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "cloudVersionRequireCloudDesc": "Your Cloud server is below the minimum required v{target}+. Cloud sync is paused to avoid sync errors, while local bookkeeping continues normally.",
+  "@cloudVersionRequireCloudDesc": {
+    "placeholders": {
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "cloudVersionRecommendAppDesc": "Your Cloud server is running a newer version. Update BeeCount App to v{target}+ for the best matched experience.",
+  "@cloudVersionRecommendAppDesc": {
+    "placeholders": {
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "cloudVersionRequireAppDesc": "Cloud v{server} requires BeeCount App v{target}+. Cloud sync is paused while local bookkeeping continues normally.",
+  "@cloudVersionRequireAppDesc": {
+    "placeholders": {
+      "server": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "cloudVersionHomeRecommendCloudDesc": "Connected to Cloud v{server}. Upgrade to v{target}+ to match this App version.",
+  "@cloudVersionHomeRecommendCloudDesc": {
+    "placeholders": {
+      "server": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "cloudVersionHomePauseCloudDesc": "Cloud v{server} is below minimum v{target}. Local bookkeeping still works and will sync after upgrading.",
+  "@cloudVersionHomePauseCloudDesc": {
+    "placeholders": {
+      "server": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "cloudVersionHomeRecommendAppDesc": "Cloud is now v{server}. Update BeeCount App to v{target}+ to stay matched.",
+  "@cloudVersionHomeRecommendAppDesc": {
+    "placeholders": {
+      "server": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "cloudVersionHomePauseAppDesc": "Cloud v{server} requires App v{target}+. Local bookkeeping still works and will resume after updating.",
+  "@cloudVersionHomePauseAppDesc": {
+    "placeholders": {
+      "server": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "cloudVersionChipMinCloud": "Min Cloud v{version}+",
+  "@cloudVersionChipMinCloud": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "cloudVersionChipRecCloud": "Rec Cloud v{version}+",
+  "@cloudVersionChipRecCloud": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "cloudVersionChipMinApp": "Min App v{version}+",
+  "@cloudVersionChipMinApp": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "cloudVersionChipRecApp": "Rec App v{version}+",
+  "@cloudVersionChipRecApp": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "cloudVersionRecheckAction": "Re-check",
+  "cloudVersionUpgradeGuideAction": "Upgrade guide",
+  "cloudVersionGoUpdateAction": "Update app",
+  "cloudVersionViewAction": "Details",
+  "cloudVersionDismissAction": "Got it",
+  "cloudVersionUseOfflineAction": "Use offline",
+  "cloudVersionBadgeRecommend": "Upgrade advised",
+  "cloudVersionBadgeOutdated": "Outdated",
+  "cloudVersionBadgeUpdateApp": "Update app",
+  "cloudVersionSyncPausedCloud": "Sync paused · Upgrade Cloud",
+  "cloudVersionSyncPausedApp": "Sync paused · Update App",
+  "cloudVersionMatchedShort": "Matched",
+  "cloudVersionRecheckMatched": "Connected to Cloud v{version}, versions matched",
+  "@cloudVersionRecheckMatched": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "cloudVersionRecheckStillMismatch": "Versions still mismatch. Please upgrade and try again.",
+  "cloudVersionRecheckFailed": "Unable to reach server. Check your network and try again.",
+  "cloudTestSuccessVersionMatched": "Connected · BeeCount Cloud v{version} (matched with current App)",
+  "@cloudTestSuccessVersionMatched": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "cloudTestVersionRecommendCloud": "Connected to BeeCount Cloud v{version}, below recommended v{target}. Upgrading the server is advised, though you can still save and use it.",
+  "@cloudTestVersionRecommendCloud": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "cloudTestVersionRequireCloud": "Reached BeeCount Cloud v{version}, below minimum required v{target}. Please upgrade the server before syncing.",
+  "@cloudTestVersionRequireCloud": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "cloudTestVersionRecommendApp": "Connected to BeeCount Cloud v{version}. This server recommends BeeCount App v{target}+.",
+  "@cloudTestVersionRecommendApp": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "cloudTestVersionRequireApp": "Reached BeeCount Cloud v{version}, which requires BeeCount App v{target}+. Please update the app before syncing.",
+  "@cloudTestVersionRequireApp": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  }
 }

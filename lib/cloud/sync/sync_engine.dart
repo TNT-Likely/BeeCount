@@ -18,6 +18,7 @@ import '../../services/custom_icon_service.dart';
 import '../../services/system/logger_service.dart';
 import '../../services/ui/avatar_service.dart';
 import '../../utils/app_localizations_resolver.dart';
+import '../cloud_version_policy.dart';
 import '../sync_service.dart' as app;
 import '../recurring/recurring_handoff.dart';
 import '../transactions_json.dart';
@@ -112,6 +113,12 @@ class SyncEngine implements app.SyncService {
   /// 在 engine 内部,需要主动读当前 ledger)。所有正向"engine → UI"通知都
   /// 走 [events] stream。
   String Function()? ledgerIdResolver;
+
+  /// 版本匹配守护：仅在触发必须档（低于 min 版本）时暂停云同步，本地记账不受影响。
+  Future<CloudVersionCompatibility?> Function()? versionGuard;
+
+  /// 同步请求收到服务端 HTTP 426 时回调，立即通知 UI 切换到必须更新 App 状态。
+  void Function(CloudVersionCompatibility compatibility)? onUpgradeRequired;
 
   /// 对外广播事件总线 — UI 通过 Riverpod `syncEventStreamProvider` 订阅,
   /// SyncEngine 完全不知道 widget / ref 存在。
@@ -380,6 +387,12 @@ class SyncEngine implements app.SyncService {
   Future<SyncResult> sync({required String ledgerId}) async {
     logger.info('SyncEngine', '开始同步 ledger=$ledgerId');
     try {
+      final versionCheck = await versionGuard?.call();
+      if (versionCheck != null && versionCheck.isBlocking) {
+        logger.warning('SyncEngine',
+            '版本不兼容，已暂停云同步 (${versionCheck.status.name})');
+        return const SyncResult(error: 'sync_paused_version_mismatch');
+      }
       await _recoverTransactionMoves();
       final ledgerIdInt = int.tryParse(ledgerId) ?? -1;
       var outcome = const _PushTally();
@@ -497,6 +510,10 @@ class SyncEngine implements app.SyncService {
         logger.info('SyncEngine', '同步完成: $result');
       }
       return result;
+    } on BeeCountCloudUpgradeRequiredException catch (e) {
+      logger.warning('SyncEngine', '服务端要求升级 App，已暂停云同步: $e');
+      onUpgradeRequired?.call(CloudVersionCompatibility.fromUpgradeRequired(e));
+      return const SyncResult(error: 'sync_paused_version_mismatch');
     } catch (e, st) {
       logger.error('SyncEngine', '同步失败', e, st);
       return SyncResult(error: e.toString());
@@ -1026,6 +1043,12 @@ class SyncEngine implements app.SyncService {
   ///   轮)
   /// - replay(sinceOverride 非 null)语义独立,等 in-flight 完成后再自己跑
   Future<int> pull(String ledgerId, {int? sinceOverride}) async {
+    final versionCheck = await versionGuard?.call();
+    if (versionCheck != null && versionCheck.isBlocking) {
+      logger.warning('SyncEngine',
+          '版本不兼容，已暂停拉取 (${versionCheck.status.name})');
+      return 0;
+    }
     await _recoverTransactionMoves();
     // 1. in-flight 单飞
     final inFlight = _pullInFlight;
@@ -1055,6 +1078,11 @@ class SyncEngine implements app.SyncService {
       final n = await _doPull(ledgerId, sinceOverride);
       completer.complete(n);
       return n;
+    } on BeeCountCloudUpgradeRequiredException catch (e) {
+      logger.warning('SyncEngine', '拉取时服务端要求升级 App，已暂停云同步: $e');
+      onUpgradeRequired?.call(CloudVersionCompatibility.fromUpgradeRequired(e));
+      completer.complete(0);
+      return 0;
     } catch (e, st) {
       completer.completeError(e, st);
       rethrow;

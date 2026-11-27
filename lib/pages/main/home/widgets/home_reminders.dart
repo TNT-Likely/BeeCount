@@ -8,6 +8,7 @@ import '../../../../l10n/app_localizations.dart';
 import '../../../../providers.dart';
 import '../../../../providers/budget_providers.dart';
 import '../../../../utils/month_range.dart';
+import '../../../../widgets/cloud_version_notice_card.dart';
 
 /// Retains the original reminder windows and preference keys across V4.
 class HomeReminderPolicy {
@@ -38,10 +39,12 @@ class HomeReminders extends ConsumerStatefulWidget {
       required this.onMonthly,
       required this.onAnnual,
       required this.onBudget,
+      this.onCloudVersion,
       this.now});
   final ValueChanged<DateTime> onMonthly;
   final ValueChanged<int> onAnnual;
   final VoidCallback onBudget;
+  final VoidCallback? onCloudVersion;
   final DateTime? now;
   @override
   ConsumerState<HomeReminders> createState() => _HomeRemindersState();
@@ -90,7 +93,31 @@ class _HomeRemindersState extends ConsumerState<HomeReminders> {
     final label =
         labelForDate(current.now, ref.watch(currentMonthStartDayProvider));
     final lastMonth = DateTime(label.year, label.month - 1);
+    final cloudCompat = ref.watch(cloudVersionCompatibilityProvider).valueOrNull;
+    final dismissedPairs =
+        ref.watch(cloudVersionDismissedPairsProvider).valueOrNull;
+    final showCloudVersion = widget.onCloudVersion != null &&
+        cloudCompat != null &&
+        cloudCompat.needsNotice &&
+        dismissedPairs != null &&
+        !dismissedPairs.contains(cloudCompat.dismissPairKey);
     final cards = <Widget>[
+      if (showCloudVersion)
+        Padding(
+          padding: const EdgeInsets.fromLTRB(17, 0, 17, 8),
+          child: CloudVersionNoticeCard(
+            compatibility: cloudCompat,
+            compact: true,
+            primaryLabel: l10n.cloudVersionViewAction,
+            onPrimary: widget.onCloudVersion,
+            secondaryLabel: cloudCompat.isBlocking
+                ? l10n.cloudVersionUseOfflineAction
+                : l10n.cloudVersionDismissAction,
+            onSecondary: () => ref
+                .read(cloudVersionDismissedPairsProvider.notifier)
+                .dismiss(cloudCompat.dismissPairKey),
+          ),
+        ),
       if (monthly)
         _notice(context,
             icon: 'Sparkles',

@@ -1432,6 +1432,11 @@ class BeeCountCloudAuthService implements CloudAuthService {
     };
   }
 
+  Future<String?> resolveAppVersion() async {
+    final metadata = await _resolveDeviceMetadata();
+    return metadata.appVersion;
+  }
+
   Future<_BeeCountDeviceMetadata> _resolveDeviceMetadata() {
     final cached = _deviceMetadataCache;
     if (cached != null) {
@@ -3505,6 +3510,10 @@ class BeeCountCloudStorageService implements CloudStorageService {
       );
     }
 
+    if (response.statusCode == 426) {
+      throw BeeCountCloudUpgradeRequiredException.fromResponse(response);
+    }
+
     return response;
   }
 
@@ -3546,6 +3555,10 @@ class BeeCountCloudStorageService implements CloudStorageService {
     final request = http.Request(method, uri);
     request.headers['Authorization'] = 'Bearer $token';
     request.headers['Content-Type'] = 'application/json';
+    final appVersion = await auth.resolveAppVersion();
+    if (appVersion != null && appVersion.isNotEmpty) {
+      request.headers['X-BeeCount-App-Version'] = appVersion;
+    }
     if (path == '/sync/push') {
       request.headers['X-BeeCount-Recurring'] = 'cloud-v1';
     }
@@ -3977,19 +3990,70 @@ class BeeCountCloudServerVersion {
   const BeeCountCloudServerVersion({
     required this.name,
     required this.version,
+    this.minAppVersion,
+    this.recommendedAppVersion,
     this.capabilities = const {},
   });
 
   final String name;
   final String version;
+  final String? minAppVersion;
+  final String? recommendedAppVersion;
   final Set<String> capabilities;
 
   factory BeeCountCloudServerVersion.fromJson(Map<String, dynamic> json) {
+    String? trimOpt(Object? v) {
+      if (v is! String) return null;
+      final t = v.trim();
+      return t.isEmpty ? null : t;
+    }
+
     return BeeCountCloudServerVersion(
       name: (json['name'] as String?)?.trim() ?? 'BeeCount Cloud',
       version: (json['version'] as String?)?.trim() ?? '',
+      minAppVersion: trimOpt(json['min_app_version']),
+      recommendedAppVersion: trimOpt(json['recommended_app_version']),
       capabilities:
           (json['capabilities'] as List?)?.whereType<String>().toSet() ?? {},
+    );
+  }
+}
+
+class BeeCountCloudUpgradeRequiredException extends CloudStorageException {
+  BeeCountCloudUpgradeRequiredException(
+    String message, {
+    this.serverVersion,
+    this.minAppVersion,
+    this.recommendedAppVersion,
+    this.clientAppVersion,
+  }) : super(message);
+
+  final String? serverVersion;
+  final String? minAppVersion;
+  final String? recommendedAppVersion;
+  final String? clientAppVersion;
+
+  factory BeeCountCloudUpgradeRequiredException.fromResponse(
+    http.Response response,
+  ) {
+    Map<String, dynamic> body = const {};
+    try {
+      body = _decodeJsonObject(response.body);
+    } catch (_) {
+      body = const {};
+    }
+    String? trimOpt(Object? v) {
+      if (v is! String) return null;
+      final t = v.trim();
+      return t.isEmpty ? null : t;
+    }
+
+    return BeeCountCloudUpgradeRequiredException(
+      _extractErrorMessage(response),
+      serverVersion: trimOpt(body['server_version']),
+      minAppVersion: trimOpt(body['min_app_version']),
+      recommendedAppVersion: trimOpt(body['recommended_app_version']),
+      clientAppVersion: trimOpt(body['client_app_version']),
     );
   }
 }
