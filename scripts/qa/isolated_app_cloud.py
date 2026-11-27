@@ -555,7 +555,7 @@ def review(root, manifest, cloud_repo=None):
         inside(data, env[key])
     if any((runtime / name).exists() for name in ('.env', '.env.local')):
         raise ValueError('QA runtime must not load local environment files')
-    allowed = {'PATH', 'PYTHONPATH', 'PYTHONDONTWRITEBYTECODE', 'APP_ENV', 'TZ', 'JWT_SECRET',
+    allowed = {'PATH', 'PYTHONPATH', 'PYTHONDONTWRITEBYTECODE', 'APP_ENV', 'APP_VERSION', 'TZ', 'JWT_SECRET',
                'BOOTSTRAP_ADMIN_EMAIL', 'BOOTSTRAP_ADMIN_PASSWORD', 'REGISTRATION_ENABLED',
                'ALLOW_APP_RW_SCOPES', 'BACKUP_SCHEDULER_ENABLED', 'RAG_INDEX_REFRESH_INTERVAL_SECONDS',
                'EXCHANGE_RATE_PROXY_ENABLED', 'EMBEDDING_API_KEY', 'DATA_DIR', 'DATABASE_URL',
