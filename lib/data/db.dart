@@ -489,6 +489,25 @@ class SharedLedgerTags extends Table {
   Set<Column> get primaryKey => {ledgerSyncId, syncId};
 }
 
+/// 锁账期间(S1-01a 净新增)。
+///
+/// 契约:空表 = 无锁账,无历史数据需回填;老客户端不读该表,行为不变。
+/// syncId 用列级 UNIQUE(不另建 index)——apply 直接按 syncId upsert,
+/// 该唯一约束是幂等保证,且随建表 DDL 一起生成,partial-state 重跑安全。
+/// lockedAt 存 UTC ISO8601 字符串:App 用 Text 避免 dateTime() 秒级精度丢失,
+/// Cloud 侧是 DateTime(timezone=True),两端传输统一 UTC ISO8601。
+class LockPeriods extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get syncId => text().unique()();
+  IntColumn get ledgerId => integer()();
+  TextColumn get lockDate => text()(); // YYYY-MM-DD 业务日期(非 UTC)
+  IntColumn get batchNo => integer()(); // MAX+1,审计/展示序号,非幂等键
+  TextColumn get lockedBy => text()(); // 展示串,离线写 'local'
+  TextColumn get lockedAt => text()(); // UTC ISO8601
+  TextColumn get createdByUserId => text().nullable()();
+  TextColumn get lastEditedByUserId => text().nullable()();
+}
+
 @DriftDatabase(tables: [
   Ledgers,
   Accounts,
@@ -516,6 +535,7 @@ class SharedLedgerTags extends Table {
   PendingTransactionMoves,
   ExchangeRates,
   ExchangeRateOverrides,
+  LockPeriods,
 ])
 class BeeDatabase extends _$BeeDatabase {
   BeeDatabase() : super(_openConnection());
@@ -526,7 +546,7 @@ class BeeDatabase extends _$BeeDatabase {
   BeeDatabase.forTesting(QueryExecutor executor) : super(executor);
 
   @override
-  int get schemaVersion => 36; // 自动接管时保留需要人工核对的原因
+  int get schemaVersion => 37; // 自动接管时保留需要人工核对的原因
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -1291,6 +1311,11 @@ class BeeDatabase extends _$BeeDatabase {
             await _addColumnIfMissing('recurring_transactions', 'cloud_handoff_issue',
                 'ALTER TABLE recurring_transactions ADD COLUMN cloud_handoff_issue TEXT;');
           }
+          if (from < 37) {
+            // 净新增:空表即无锁账,无回填。列级 UNIQUE 随建表 DDL 生成;
+            // _createTableIfMissing 在 partial state 重跑时安全。
+            await _createTableIfMissing(migrator, 'lock_periods', lockPeriods);
+          }
         },
         onCreate: (m) async {
           await m.createAll();
@@ -1367,6 +1392,12 @@ class BeeDatabase extends _$BeeDatabase {
     }
     await m.createTable(table);
   }
+
+  /// 测试钩子:验证 v37 partial-state 重跑幂等(重复调用不抛异常、不建重表)。
+  /// 生产路径仍只走 onUpgrade 内的私有 [_createTableIfMissing]。
+  Future<void> createTableIfMissingForTest(
+          Migrator m, String tableName, dynamic table) =>
+      _createTableIfMissing(m, tableName, table);
 
   // Seed minimal data
   /// [l10n] 国际化对象，如果为null则使用英文作为默认语言

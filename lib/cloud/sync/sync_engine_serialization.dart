@@ -279,6 +279,15 @@ extension SyncEngineSerializationExt on SyncEngine {
         }
         return EntitySerializer.serializeLedger(ledger);
 
+      case 'lock_period':
+        // 按本地 int id 反查;行已删(delete change)返回空 payload —— 与
+        // exchange_rate_override 同款,delete 路径 server 只看 action。
+        final period = await (db.select(db.lockPeriods)
+              ..where((t) => t.id.equals(entityId)))
+            .getSingleOrNull();
+        if (period == null) return <String, dynamic>{};
+        return EntitySerializer.serializeLockPeriod(period);
+
       default:
         return <String, dynamic>{};
     }
@@ -489,6 +498,22 @@ extension SyncEngineSerializationExt on SyncEngine {
       });
     }
 
+    // 锁账期间(ledger-scoped,净新增)。空表时 syncChanges 里没有该类型,
+    // 老服务端/老客户端不受影响。
+    final lockPeriods = await (db.select(db.lockPeriods)
+          ..where((t) => t.ledgerId.equals(ledger.id)))
+        .get();
+    for (final period in lockPeriods) {
+      syncChanges.add({
+        'ledger_id': ledgerId,
+        'entity_type': 'lock_period',
+        'entity_sync_id': period.syncId,
+        'action': 'upsert',
+        'payload': EntitySerializer.serializeLockPeriod(period),
+        'updated_at': now,
+      });
+    }
+
     // 交易
     final transactions = await (db.select(db.transactions)
           ..where((t) => t.ledgerId.equals(ledger.id)))
@@ -596,7 +621,8 @@ extension SyncEngineSerializationExt on SyncEngine {
     logger.info(
         'SyncEngine',
         '开始推送个体变更 共${syncChanges.length}条 '
-            '(accounts=$accountCount, categories=$categoryCount, tags=$tagCount, transactions=$txCount)');
+            '(accounts=$accountCount, categories=$categoryCount, tags=$tagCount, '
+            'transactions=$txCount, lockPeriods=${lockPeriods.length})');
 
     // 分批推送:每条 change 平均 ~500 字节,500 条 ≈ 250KB,远低于网关限制,
     // 但单次请求内 server 事务处理时间 ~100ms 可接受。
@@ -632,6 +658,13 @@ extension SyncEngineSerializationExt on SyncEngine {
         .get();
     final categories = await db.select(db.categories).get();
     final tags = await db.select(db.tags).get();
+    final lockPeriods = await (db.select(db.lockPeriods)
+          ..where((t) => t.ledgerId.equals(ledger.id))
+          ..orderBy([
+            (t) => d.OrderingTerm.asc(t.batchNo),
+            (t) => d.OrderingTerm.asc(t.lockedAt),
+          ]))
+        .get();
 
     final items = <Map<String, dynamic>>[];
     for (final tx in transactions) {
@@ -710,6 +743,10 @@ extension SyncEngineSerializationExt on SyncEngine {
       }).toList(),
       'tags': tags.map((t) => EntitySerializer.serializeTag(t)).toList(),
       'items': items,
+      // 空表导出 [] —— 老客户端读到未知 key 直接忽略,不崩。
+      'lockPeriods': lockPeriods
+          .map((p) => EntitySerializer.serializeLockPeriod(p))
+          .toList(),
     });
   }
 }

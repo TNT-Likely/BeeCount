@@ -42,6 +42,9 @@ extension SyncEngineApplyExt on SyncEngine {
       case 'ledger':
         await _applyLedgerChange(change);
         return true;
+      case 'lock_period':
+        await _applyLockPeriodChange(change);
+        return true;
       case 'ledger_snapshot':
         // 全量快照在 fullPull 中处理，这里跳过
         return false;
@@ -1121,6 +1124,55 @@ extension SyncEngineApplyExt on SyncEngine {
         logger.warning('SyncEngine', '删除本地孤立附件文件失败: $fn', st);
       }
     }
+  }
+
+  /// 应用远端锁账期间变更。upsert 命中依据是 payload/change 的 syncId
+  /// (列级 UNIQUE 是幂等保证),ledgerId 一律按服务端 external_id 解析本地
+  /// int id —— 跨设备本地 autoIncrement 不一致,不能直接用 payload 的 int。
+  /// 三条解析路径(syncId 解析 / int.tryParse / payload int)全部失效时
+  /// 跳过不落库:不能写 ledgerId=-1 的孤儿行,那行不属于任何账本却会被
+  /// MAX(lock_date) 读进锁定线判定,污染其他账本。
+  Future<void> _applyLockPeriodChange(BeeCountCloudSyncChange change) async {
+    final syncId = change.entitySyncId;
+    final lockRepo = LockPeriodRepository(db);
+    if (change.action == 'delete') {
+      await lockRepo.deleteBySyncId(syncId);
+      return;
+    }
+    final p = change.payload;
+    if (p == null) return;
+    final lockDate = p['lockDate'] as String?;
+    if (lockDate == null || lockDate.isEmpty) {
+      logger.warning('SyncEngine', 'pull: lock_period payload 缺 lockDate,跳过 $syncId');
+      return;
+    }
+    // ledgerId 一律按服务端 external_id（string）解析本地 int id——
+    // 跨设备本地 autoIncrement 不一致，不能直接用 payload 的 int。
+    // 三条解析路径全部失效时不兜底 -1：插入 ledgerId=-1 的幽灵锁账行
+    // 不属于任何账本，却会被 MAX(lock_date) 读进锁定线判定，污染其他账本。
+    // 对齐 lockDate 缺失的处理口径：解析不到有效 ledgerId 就 logger.warning + return 跳过，不落库。
+    final ledgerId = await _resolveLedgerIdBySyncId(change.ledgerId);
+    if (ledgerId == null) {
+      logger.warning(
+        'SyncEngine',
+        'pull: lock_period 无法解析本地 ledgerId,跳过 $syncId '
+        '(change.ledgerId=${change.ledgerId}, payload.ledgerId=${p['ledgerId']})',
+      );
+      return;
+    }
+    // 三条解析路径(apply / import / hydration)共用同一 parser:
+    // Z / ±HH:MM / 无后缀都归一到 UTC ISO8601,避免排序/LWW 比错时间。
+    final lockedAt = normalizeUtcIso8601(p['lockedAt']) ?? utcIsoNow();
+    await lockRepo.upsertBySyncId(
+      syncId: syncId,
+      ledgerId: ledgerId,
+      lockDate: lockDate,
+      batchNo: (p['batchNo'] as num?)?.toInt(),
+      lockedBy: p['lockedBy'] as String? ?? 'local',
+      lockedAt: lockedAt,
+      createdByUserId: p['createdByUserId'] as String?,
+      lastEditedByUserId: p['lastEditedByUserId'] as String?,
+    );
   }
 }
 

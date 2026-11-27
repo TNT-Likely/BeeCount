@@ -14,7 +14,9 @@ import 'package:uuid/uuid.dart';
 import '../../data/db.dart';
 import '../../data/repositories/base_repository.dart';
 import '../../data/repositories/local/local_repository.dart';
+import '../../data/repositories/local/lock_period_repository.dart';
 import '../../services/custom_icon_service.dart';
+import '../../utils/date_in_tz.dart';
 import '../../services/system/logger_service.dart';
 import '../../services/ui/avatar_service.dart';
 import '../sync_service.dart' as app;
@@ -1246,6 +1248,10 @@ class SyncEngine implements app.SyncService {
         for (final ch in changes) {
           failingChange = ch;
           final ok = await _applyOneWithBusyRetry(ch);
+          // 口径澄清(S1-01a 评审):applied 统计的是"处理条数"而非"落库条数"。
+          // _applyOneWithBusyRetry 返回 true 仅表示该 change 被正常处理(含
+          // lock_period 因 ledgerId 无法解析而 warning+return 跳过的场景),
+          // 跳过不落库时 applied 仍计数。真正的落库条数以各实体仓储写入为准。
           if (ok) {
             applied++;
           } else {

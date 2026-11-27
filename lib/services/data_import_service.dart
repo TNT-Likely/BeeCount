@@ -1,6 +1,8 @@
 import 'package:drift/drift.dart' as d;
 import '../data/db.dart';
 import '../data/repositories/base_repository.dart';
+import '../data/repositories/local/local_repository.dart';
+import '../data/repositories/local/lock_period_repository.dart';
 import '../data/repositories/transaction_repository.dart' show BatchAttachmentData;
 import 'currency/rate_math.dart';
 import 'system/logger_service.dart';
@@ -121,12 +123,37 @@ class ImportTransaction {
   });
 }
 
+/// 导入锁账期间数据（S1-01a 净新增，字段对齐传输 camelCase）。
+/// ledgerId 仅作来源参考:落库一律用导入目标账本的 int id。
+class ImportLockPeriod {
+  final String syncId;
+  final int? ledgerId;
+  final String lockDate;
+  final int? batchNo;
+  final String lockedBy;
+  final String lockedAt;
+  final String? createdByUserId;
+  final String? lastEditedByUserId;
+
+  const ImportLockPeriod({
+    required this.syncId,
+    this.ledgerId,
+    required this.lockDate,
+    this.batchNo,
+    this.lockedBy = 'local',
+    required this.lockedAt,
+    this.createdByUserId,
+    this.lastEditedByUserId,
+  });
+}
+
 /// 统一的导入数据格式
 class ImportData {
   final List<ImportAccount> accounts;
   final List<ImportCategory> categories;
   final List<ImportTag> tags;
   final List<ImportTransaction> transactions;
+  final List<ImportLockPeriod> lockPeriods;
 
   /// 账本名称（可选，用于更新账本信息）
   final String? ledgerName;
@@ -138,6 +165,7 @@ class ImportData {
     this.categories = const [],
     this.tags = const [],
     this.transactions = const [],
+    this.lockPeriods = const [],
     this.ledgerName,
     this.currency,
   });
@@ -218,6 +246,26 @@ class DataImportService {
       onProgress: onProgress,
       recordChanges: recordChanges,
     );
+
+    // 6. 锁账期间(S1-01a):JSON 文件 / 云端快照都走这里落库。
+    // 本卡不登记 local_changes —— 数据通道只负责不丢数据;是否反向推由
+    // S1-01b 的预校验/交互接入决定。repo 为非 LocalRepository 的实现
+    // (当前不存在)跳过,不阻塞其余导入。
+    if (data.lockPeriods.isNotEmpty && repo is LocalRepository) {
+      final lockRepo = LockPeriodRepository(repo.db);
+      for (final period in data.lockPeriods) {
+        await lockRepo.upsertBySyncId(
+          syncId: period.syncId,
+          ledgerId: ledgerId,
+          lockDate: period.lockDate,
+          batchNo: period.batchNo ?? await lockRepo.nextBatchNo(ledgerId),
+          lockedBy: period.lockedBy,
+          lockedAt: period.lockedAt,
+          createdByUserId: period.createdByUserId,
+          lastEditedByUserId: period.lastEditedByUserId,
+        );
+      }
+    }
 
     return result;
   }

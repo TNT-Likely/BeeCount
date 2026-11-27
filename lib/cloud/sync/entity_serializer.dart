@@ -194,6 +194,22 @@ class EntitySerializer {
     };
   }
 
+  // ==================== Lock Period ====================
+
+  /// 锁账期间 payload(净新增,S1-01a)。字段名与 Cloud `lock_period`
+  /// entity_type 的传输契约一一对应(camelCase);lockDate 是业务日期
+  /// `YYYY-MM-DD`,lockedAt 已是 UTC ISO8601 字符串,原样透传。
+  static Map<String, dynamic> serializeLockPeriod(LockPeriod period) {
+    return {
+      'syncId': period.syncId,
+      'ledgerId': period.ledgerId,
+      'lockDate': period.lockDate,
+      'batchNo': period.batchNo,
+      'lockedBy': period.lockedBy,
+      'lockedAt': period.lockedAt,
+    };
+  }
+
   // ==================== JSON Encode ====================
 
   static String toJsonString(Map<String, dynamic> payload) {

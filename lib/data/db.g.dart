@@ -4140,6 +4140,8 @@ class $ConversationsTable extends Conversations
 
 class Conversation extends DataClass implements Insertable<Conversation> {
   final int id;
+
+  /// Older global conversations are adopted on first access.
   final int? ledgerId;
   final String title;
   final DateTime createdAt;
@@ -12896,6 +12898,481 @@ class ExchangeRateOverridesCompanion
   }
 }
 
+class $LockPeriodsTable extends LockPeriods
+    with TableInfo<$LockPeriodsTable, LockPeriod> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $LockPeriodsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _syncIdMeta = const VerificationMeta('syncId');
+  @override
+  late final GeneratedColumn<String> syncId = GeneratedColumn<String>(
+      'sync_id', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'));
+  static const VerificationMeta _ledgerIdMeta =
+      const VerificationMeta('ledgerId');
+  @override
+  late final GeneratedColumn<int> ledgerId = GeneratedColumn<int>(
+      'ledger_id', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _lockDateMeta =
+      const VerificationMeta('lockDate');
+  @override
+  late final GeneratedColumn<String> lockDate = GeneratedColumn<String>(
+      'lock_date', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _batchNoMeta =
+      const VerificationMeta('batchNo');
+  @override
+  late final GeneratedColumn<int> batchNo = GeneratedColumn<int>(
+      'batch_no', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _lockedByMeta =
+      const VerificationMeta('lockedBy');
+  @override
+  late final GeneratedColumn<String> lockedBy = GeneratedColumn<String>(
+      'locked_by', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _lockedAtMeta =
+      const VerificationMeta('lockedAt');
+  @override
+  late final GeneratedColumn<String> lockedAt = GeneratedColumn<String>(
+      'locked_at', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _createdByUserIdMeta =
+      const VerificationMeta('createdByUserId');
+  @override
+  late final GeneratedColumn<String> createdByUserId = GeneratedColumn<String>(
+      'created_by_user_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _lastEditedByUserIdMeta =
+      const VerificationMeta('lastEditedByUserId');
+  @override
+  late final GeneratedColumn<String> lastEditedByUserId =
+      GeneratedColumn<String>('last_edited_by_user_id', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        syncId,
+        ledgerId,
+        lockDate,
+        batchNo,
+        lockedBy,
+        lockedAt,
+        createdByUserId,
+        lastEditedByUserId
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'lock_periods';
+  @override
+  VerificationContext validateIntegrity(Insertable<LockPeriod> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('sync_id')) {
+      context.handle(_syncIdMeta,
+          syncId.isAcceptableOrUnknown(data['sync_id']!, _syncIdMeta));
+    } else if (isInserting) {
+      context.missing(_syncIdMeta);
+    }
+    if (data.containsKey('ledger_id')) {
+      context.handle(_ledgerIdMeta,
+          ledgerId.isAcceptableOrUnknown(data['ledger_id']!, _ledgerIdMeta));
+    } else if (isInserting) {
+      context.missing(_ledgerIdMeta);
+    }
+    if (data.containsKey('lock_date')) {
+      context.handle(_lockDateMeta,
+          lockDate.isAcceptableOrUnknown(data['lock_date']!, _lockDateMeta));
+    } else if (isInserting) {
+      context.missing(_lockDateMeta);
+    }
+    if (data.containsKey('batch_no')) {
+      context.handle(_batchNoMeta,
+          batchNo.isAcceptableOrUnknown(data['batch_no']!, _batchNoMeta));
+    } else if (isInserting) {
+      context.missing(_batchNoMeta);
+    }
+    if (data.containsKey('locked_by')) {
+      context.handle(_lockedByMeta,
+          lockedBy.isAcceptableOrUnknown(data['locked_by']!, _lockedByMeta));
+    } else if (isInserting) {
+      context.missing(_lockedByMeta);
+    }
+    if (data.containsKey('locked_at')) {
+      context.handle(_lockedAtMeta,
+          lockedAt.isAcceptableOrUnknown(data['locked_at']!, _lockedAtMeta));
+    } else if (isInserting) {
+      context.missing(_lockedAtMeta);
+    }
+    if (data.containsKey('created_by_user_id')) {
+      context.handle(
+          _createdByUserIdMeta,
+          createdByUserId.isAcceptableOrUnknown(
+              data['created_by_user_id']!, _createdByUserIdMeta));
+    }
+    if (data.containsKey('last_edited_by_user_id')) {
+      context.handle(
+          _lastEditedByUserIdMeta,
+          lastEditedByUserId.isAcceptableOrUnknown(
+              data['last_edited_by_user_id']!, _lastEditedByUserIdMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  LockPeriod map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LockPeriod(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      syncId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}sync_id'])!,
+      ledgerId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}ledger_id'])!,
+      lockDate: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}lock_date'])!,
+      batchNo: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}batch_no'])!,
+      lockedBy: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}locked_by'])!,
+      lockedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}locked_at'])!,
+      createdByUserId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}created_by_user_id']),
+      lastEditedByUserId: attachedDatabase.typeMapping.read(DriftSqlType.string,
+          data['${effectivePrefix}last_edited_by_user_id']),
+    );
+  }
+
+  @override
+  $LockPeriodsTable createAlias(String alias) {
+    return $LockPeriodsTable(attachedDatabase, alias);
+  }
+}
+
+class LockPeriod extends DataClass implements Insertable<LockPeriod> {
+  final int id;
+  final String syncId;
+  final int ledgerId;
+  final String lockDate;
+  final int batchNo;
+  final String lockedBy;
+  final String lockedAt;
+  final String? createdByUserId;
+  final String? lastEditedByUserId;
+  const LockPeriod(
+      {required this.id,
+      required this.syncId,
+      required this.ledgerId,
+      required this.lockDate,
+      required this.batchNo,
+      required this.lockedBy,
+      required this.lockedAt,
+      this.createdByUserId,
+      this.lastEditedByUserId});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['sync_id'] = Variable<String>(syncId);
+    map['ledger_id'] = Variable<int>(ledgerId);
+    map['lock_date'] = Variable<String>(lockDate);
+    map['batch_no'] = Variable<int>(batchNo);
+    map['locked_by'] = Variable<String>(lockedBy);
+    map['locked_at'] = Variable<String>(lockedAt);
+    if (!nullToAbsent || createdByUserId != null) {
+      map['created_by_user_id'] = Variable<String>(createdByUserId);
+    }
+    if (!nullToAbsent || lastEditedByUserId != null) {
+      map['last_edited_by_user_id'] = Variable<String>(lastEditedByUserId);
+    }
+    return map;
+  }
+
+  LockPeriodsCompanion toCompanion(bool nullToAbsent) {
+    return LockPeriodsCompanion(
+      id: Value(id),
+      syncId: Value(syncId),
+      ledgerId: Value(ledgerId),
+      lockDate: Value(lockDate),
+      batchNo: Value(batchNo),
+      lockedBy: Value(lockedBy),
+      lockedAt: Value(lockedAt),
+      createdByUserId: createdByUserId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(createdByUserId),
+      lastEditedByUserId: lastEditedByUserId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastEditedByUserId),
+    );
+  }
+
+  factory LockPeriod.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LockPeriod(
+      id: serializer.fromJson<int>(json['id']),
+      syncId: serializer.fromJson<String>(json['syncId']),
+      ledgerId: serializer.fromJson<int>(json['ledgerId']),
+      lockDate: serializer.fromJson<String>(json['lockDate']),
+      batchNo: serializer.fromJson<int>(json['batchNo']),
+      lockedBy: serializer.fromJson<String>(json['lockedBy']),
+      lockedAt: serializer.fromJson<String>(json['lockedAt']),
+      createdByUserId: serializer.fromJson<String?>(json['createdByUserId']),
+      lastEditedByUserId:
+          serializer.fromJson<String?>(json['lastEditedByUserId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'syncId': serializer.toJson<String>(syncId),
+      'ledgerId': serializer.toJson<int>(ledgerId),
+      'lockDate': serializer.toJson<String>(lockDate),
+      'batchNo': serializer.toJson<int>(batchNo),
+      'lockedBy': serializer.toJson<String>(lockedBy),
+      'lockedAt': serializer.toJson<String>(lockedAt),
+      'createdByUserId': serializer.toJson<String?>(createdByUserId),
+      'lastEditedByUserId': serializer.toJson<String?>(lastEditedByUserId),
+    };
+  }
+
+  LockPeriod copyWith(
+          {int? id,
+          String? syncId,
+          int? ledgerId,
+          String? lockDate,
+          int? batchNo,
+          String? lockedBy,
+          String? lockedAt,
+          Value<String?> createdByUserId = const Value.absent(),
+          Value<String?> lastEditedByUserId = const Value.absent()}) =>
+      LockPeriod(
+        id: id ?? this.id,
+        syncId: syncId ?? this.syncId,
+        ledgerId: ledgerId ?? this.ledgerId,
+        lockDate: lockDate ?? this.lockDate,
+        batchNo: batchNo ?? this.batchNo,
+        lockedBy: lockedBy ?? this.lockedBy,
+        lockedAt: lockedAt ?? this.lockedAt,
+        createdByUserId: createdByUserId.present
+            ? createdByUserId.value
+            : this.createdByUserId,
+        lastEditedByUserId: lastEditedByUserId.present
+            ? lastEditedByUserId.value
+            : this.lastEditedByUserId,
+      );
+  LockPeriod copyWithCompanion(LockPeriodsCompanion data) {
+    return LockPeriod(
+      id: data.id.present ? data.id.value : this.id,
+      syncId: data.syncId.present ? data.syncId.value : this.syncId,
+      ledgerId: data.ledgerId.present ? data.ledgerId.value : this.ledgerId,
+      lockDate: data.lockDate.present ? data.lockDate.value : this.lockDate,
+      batchNo: data.batchNo.present ? data.batchNo.value : this.batchNo,
+      lockedBy: data.lockedBy.present ? data.lockedBy.value : this.lockedBy,
+      lockedAt: data.lockedAt.present ? data.lockedAt.value : this.lockedAt,
+      createdByUserId: data.createdByUserId.present
+          ? data.createdByUserId.value
+          : this.createdByUserId,
+      lastEditedByUserId: data.lastEditedByUserId.present
+          ? data.lastEditedByUserId.value
+          : this.lastEditedByUserId,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LockPeriod(')
+          ..write('id: $id, ')
+          ..write('syncId: $syncId, ')
+          ..write('ledgerId: $ledgerId, ')
+          ..write('lockDate: $lockDate, ')
+          ..write('batchNo: $batchNo, ')
+          ..write('lockedBy: $lockedBy, ')
+          ..write('lockedAt: $lockedAt, ')
+          ..write('createdByUserId: $createdByUserId, ')
+          ..write('lastEditedByUserId: $lastEditedByUserId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, syncId, ledgerId, lockDate, batchNo,
+      lockedBy, lockedAt, createdByUserId, lastEditedByUserId);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LockPeriod &&
+          other.id == this.id &&
+          other.syncId == this.syncId &&
+          other.ledgerId == this.ledgerId &&
+          other.lockDate == this.lockDate &&
+          other.batchNo == this.batchNo &&
+          other.lockedBy == this.lockedBy &&
+          other.lockedAt == this.lockedAt &&
+          other.createdByUserId == this.createdByUserId &&
+          other.lastEditedByUserId == this.lastEditedByUserId);
+}
+
+class LockPeriodsCompanion extends UpdateCompanion<LockPeriod> {
+  final Value<int> id;
+  final Value<String> syncId;
+  final Value<int> ledgerId;
+  final Value<String> lockDate;
+  final Value<int> batchNo;
+  final Value<String> lockedBy;
+  final Value<String> lockedAt;
+  final Value<String?> createdByUserId;
+  final Value<String?> lastEditedByUserId;
+  const LockPeriodsCompanion({
+    this.id = const Value.absent(),
+    this.syncId = const Value.absent(),
+    this.ledgerId = const Value.absent(),
+    this.lockDate = const Value.absent(),
+    this.batchNo = const Value.absent(),
+    this.lockedBy = const Value.absent(),
+    this.lockedAt = const Value.absent(),
+    this.createdByUserId = const Value.absent(),
+    this.lastEditedByUserId = const Value.absent(),
+  });
+  LockPeriodsCompanion.insert({
+    this.id = const Value.absent(),
+    required String syncId,
+    required int ledgerId,
+    required String lockDate,
+    required int batchNo,
+    required String lockedBy,
+    required String lockedAt,
+    this.createdByUserId = const Value.absent(),
+    this.lastEditedByUserId = const Value.absent(),
+  })  : syncId = Value(syncId),
+        ledgerId = Value(ledgerId),
+        lockDate = Value(lockDate),
+        batchNo = Value(batchNo),
+        lockedBy = Value(lockedBy),
+        lockedAt = Value(lockedAt);
+  static Insertable<LockPeriod> custom({
+    Expression<int>? id,
+    Expression<String>? syncId,
+    Expression<int>? ledgerId,
+    Expression<String>? lockDate,
+    Expression<int>? batchNo,
+    Expression<String>? lockedBy,
+    Expression<String>? lockedAt,
+    Expression<String>? createdByUserId,
+    Expression<String>? lastEditedByUserId,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (syncId != null) 'sync_id': syncId,
+      if (ledgerId != null) 'ledger_id': ledgerId,
+      if (lockDate != null) 'lock_date': lockDate,
+      if (batchNo != null) 'batch_no': batchNo,
+      if (lockedBy != null) 'locked_by': lockedBy,
+      if (lockedAt != null) 'locked_at': lockedAt,
+      if (createdByUserId != null) 'created_by_user_id': createdByUserId,
+      if (lastEditedByUserId != null)
+        'last_edited_by_user_id': lastEditedByUserId,
+    });
+  }
+
+  LockPeriodsCompanion copyWith(
+      {Value<int>? id,
+      Value<String>? syncId,
+      Value<int>? ledgerId,
+      Value<String>? lockDate,
+      Value<int>? batchNo,
+      Value<String>? lockedBy,
+      Value<String>? lockedAt,
+      Value<String?>? createdByUserId,
+      Value<String?>? lastEditedByUserId}) {
+    return LockPeriodsCompanion(
+      id: id ?? this.id,
+      syncId: syncId ?? this.syncId,
+      ledgerId: ledgerId ?? this.ledgerId,
+      lockDate: lockDate ?? this.lockDate,
+      batchNo: batchNo ?? this.batchNo,
+      lockedBy: lockedBy ?? this.lockedBy,
+      lockedAt: lockedAt ?? this.lockedAt,
+      createdByUserId: createdByUserId ?? this.createdByUserId,
+      lastEditedByUserId: lastEditedByUserId ?? this.lastEditedByUserId,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (syncId.present) {
+      map['sync_id'] = Variable<String>(syncId.value);
+    }
+    if (ledgerId.present) {
+      map['ledger_id'] = Variable<int>(ledgerId.value);
+    }
+    if (lockDate.present) {
+      map['lock_date'] = Variable<String>(lockDate.value);
+    }
+    if (batchNo.present) {
+      map['batch_no'] = Variable<int>(batchNo.value);
+    }
+    if (lockedBy.present) {
+      map['locked_by'] = Variable<String>(lockedBy.value);
+    }
+    if (lockedAt.present) {
+      map['locked_at'] = Variable<String>(lockedAt.value);
+    }
+    if (createdByUserId.present) {
+      map['created_by_user_id'] = Variable<String>(createdByUserId.value);
+    }
+    if (lastEditedByUserId.present) {
+      map['last_edited_by_user_id'] =
+          Variable<String>(lastEditedByUserId.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LockPeriodsCompanion(')
+          ..write('id: $id, ')
+          ..write('syncId: $syncId, ')
+          ..write('ledgerId: $ledgerId, ')
+          ..write('lockDate: $lockDate, ')
+          ..write('batchNo: $batchNo, ')
+          ..write('lockedBy: $lockedBy, ')
+          ..write('lockedAt: $lockedAt, ')
+          ..write('createdByUserId: $createdByUserId, ')
+          ..write('lastEditedByUserId: $lastEditedByUserId')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$BeeDatabase extends GeneratedDatabase {
   _$BeeDatabase(QueryExecutor e) : super(e);
   $BeeDatabaseManager get managers => $BeeDatabaseManager(this);
@@ -12935,6 +13412,7 @@ abstract class _$BeeDatabase extends GeneratedDatabase {
   late final $ExchangeRatesTable exchangeRates = $ExchangeRatesTable(this);
   late final $ExchangeRateOverridesTable exchangeRateOverrides =
       $ExchangeRateOverridesTable(this);
+  late final $LockPeriodsTable lockPeriods = $LockPeriodsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -12965,7 +13443,8 @@ abstract class _$BeeDatabase extends GeneratedDatabase {
         syncPullErrors,
         pendingTransactionMoves,
         exchangeRates,
-        exchangeRateOverrides
+        exchangeRateOverrides,
+        lockPeriods
       ];
 }
 
@@ -19174,6 +19653,231 @@ typedef $$ExchangeRateOverridesTableProcessedTableManager
         ),
         ExchangeRateOverride,
         PrefetchHooks Function()>;
+typedef $$LockPeriodsTableCreateCompanionBuilder = LockPeriodsCompanion
+    Function({
+  Value<int> id,
+  required String syncId,
+  required int ledgerId,
+  required String lockDate,
+  required int batchNo,
+  required String lockedBy,
+  required String lockedAt,
+  Value<String?> createdByUserId,
+  Value<String?> lastEditedByUserId,
+});
+typedef $$LockPeriodsTableUpdateCompanionBuilder = LockPeriodsCompanion
+    Function({
+  Value<int> id,
+  Value<String> syncId,
+  Value<int> ledgerId,
+  Value<String> lockDate,
+  Value<int> batchNo,
+  Value<String> lockedBy,
+  Value<String> lockedAt,
+  Value<String?> createdByUserId,
+  Value<String?> lastEditedByUserId,
+});
+
+class $$LockPeriodsTableFilterComposer
+    extends Composer<_$BeeDatabase, $LockPeriodsTable> {
+  $$LockPeriodsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get syncId => $composableBuilder(
+      column: $table.syncId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get ledgerId => $composableBuilder(
+      column: $table.ledgerId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get lockDate => $composableBuilder(
+      column: $table.lockDate, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get batchNo => $composableBuilder(
+      column: $table.batchNo, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get lockedBy => $composableBuilder(
+      column: $table.lockedBy, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get lockedAt => $composableBuilder(
+      column: $table.lockedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get createdByUserId => $composableBuilder(
+      column: $table.createdByUserId,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get lastEditedByUserId => $composableBuilder(
+      column: $table.lastEditedByUserId,
+      builder: (column) => ColumnFilters(column));
+}
+
+class $$LockPeriodsTableOrderingComposer
+    extends Composer<_$BeeDatabase, $LockPeriodsTable> {
+  $$LockPeriodsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get syncId => $composableBuilder(
+      column: $table.syncId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get ledgerId => $composableBuilder(
+      column: $table.ledgerId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get lockDate => $composableBuilder(
+      column: $table.lockDate, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get batchNo => $composableBuilder(
+      column: $table.batchNo, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get lockedBy => $composableBuilder(
+      column: $table.lockedBy, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get lockedAt => $composableBuilder(
+      column: $table.lockedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get createdByUserId => $composableBuilder(
+      column: $table.createdByUserId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get lastEditedByUserId => $composableBuilder(
+      column: $table.lastEditedByUserId,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$LockPeriodsTableAnnotationComposer
+    extends Composer<_$BeeDatabase, $LockPeriodsTable> {
+  $$LockPeriodsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get syncId =>
+      $composableBuilder(column: $table.syncId, builder: (column) => column);
+
+  GeneratedColumn<int> get ledgerId =>
+      $composableBuilder(column: $table.ledgerId, builder: (column) => column);
+
+  GeneratedColumn<String> get lockDate =>
+      $composableBuilder(column: $table.lockDate, builder: (column) => column);
+
+  GeneratedColumn<int> get batchNo =>
+      $composableBuilder(column: $table.batchNo, builder: (column) => column);
+
+  GeneratedColumn<String> get lockedBy =>
+      $composableBuilder(column: $table.lockedBy, builder: (column) => column);
+
+  GeneratedColumn<String> get lockedAt =>
+      $composableBuilder(column: $table.lockedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get createdByUserId => $composableBuilder(
+      column: $table.createdByUserId, builder: (column) => column);
+
+  GeneratedColumn<String> get lastEditedByUserId => $composableBuilder(
+      column: $table.lastEditedByUserId, builder: (column) => column);
+}
+
+class $$LockPeriodsTableTableManager extends RootTableManager<
+    _$BeeDatabase,
+    $LockPeriodsTable,
+    LockPeriod,
+    $$LockPeriodsTableFilterComposer,
+    $$LockPeriodsTableOrderingComposer,
+    $$LockPeriodsTableAnnotationComposer,
+    $$LockPeriodsTableCreateCompanionBuilder,
+    $$LockPeriodsTableUpdateCompanionBuilder,
+    (LockPeriod, BaseReferences<_$BeeDatabase, $LockPeriodsTable, LockPeriod>),
+    LockPeriod,
+    PrefetchHooks Function()> {
+  $$LockPeriodsTableTableManager(_$BeeDatabase db, $LockPeriodsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$LockPeriodsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$LockPeriodsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$LockPeriodsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> syncId = const Value.absent(),
+            Value<int> ledgerId = const Value.absent(),
+            Value<String> lockDate = const Value.absent(),
+            Value<int> batchNo = const Value.absent(),
+            Value<String> lockedBy = const Value.absent(),
+            Value<String> lockedAt = const Value.absent(),
+            Value<String?> createdByUserId = const Value.absent(),
+            Value<String?> lastEditedByUserId = const Value.absent(),
+          }) =>
+              LockPeriodsCompanion(
+            id: id,
+            syncId: syncId,
+            ledgerId: ledgerId,
+            lockDate: lockDate,
+            batchNo: batchNo,
+            lockedBy: lockedBy,
+            lockedAt: lockedAt,
+            createdByUserId: createdByUserId,
+            lastEditedByUserId: lastEditedByUserId,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required String syncId,
+            required int ledgerId,
+            required String lockDate,
+            required int batchNo,
+            required String lockedBy,
+            required String lockedAt,
+            Value<String?> createdByUserId = const Value.absent(),
+            Value<String?> lastEditedByUserId = const Value.absent(),
+          }) =>
+              LockPeriodsCompanion.insert(
+            id: id,
+            syncId: syncId,
+            ledgerId: ledgerId,
+            lockDate: lockDate,
+            batchNo: batchNo,
+            lockedBy: lockedBy,
+            lockedAt: lockedAt,
+            createdByUserId: createdByUserId,
+            lastEditedByUserId: lastEditedByUserId,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$LockPeriodsTableProcessedTableManager = ProcessedTableManager<
+    _$BeeDatabase,
+    $LockPeriodsTable,
+    LockPeriod,
+    $$LockPeriodsTableFilterComposer,
+    $$LockPeriodsTableOrderingComposer,
+    $$LockPeriodsTableAnnotationComposer,
+    $$LockPeriodsTableCreateCompanionBuilder,
+    $$LockPeriodsTableUpdateCompanionBuilder,
+    (LockPeriod, BaseReferences<_$BeeDatabase, $LockPeriodsTable, LockPeriod>),
+    LockPeriod,
+    PrefetchHooks Function()>;
 
 class $BeeDatabaseManager {
   final _$BeeDatabase _db;
@@ -19235,4 +19939,6 @@ class $BeeDatabaseManager {
       $$ExchangeRatesTableTableManager(_db, _db.exchangeRates);
   $$ExchangeRateOverridesTableTableManager get exchangeRateOverrides =>
       $$ExchangeRateOverridesTableTableManager(_db, _db.exchangeRateOverrides);
+  $$LockPeriodsTableTableManager get lockPeriods =>
+      $$LockPeriodsTableTableManager(_db, _db.lockPeriods);
 }

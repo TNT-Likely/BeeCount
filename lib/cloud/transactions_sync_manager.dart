@@ -13,9 +13,87 @@ import '../data/repositories/base_repository.dart';
 import '../models/ledger_display_item.dart';
 import '../services/data_import_service.dart';
 import '../services/system/logger_service.dart';
+import '../utils/date_in_tz.dart';
 import 'sync_diff_service.dart';
 import 'sync_service.dart';
 import 'transactions_json.dart';
+
+/// 账本快照内容指纹 —— **两处指纹实现的唯一真源**。
+///
+/// `TransactionsSyncManager._contentFingerprintFromMap` 与
+/// `_TransactionSerializer._contentFingerprintFromMap` 都委托到这里,
+/// 避免再出现两份逐字重复的实现漂移。
+///
+/// S1-01a 硬口径:`lockPeriods` 为空数组与「快照里没有该 key」必须
+/// 产出**同一指纹**(否则 Cloud 下发带不带 key 会让 inSync 永久 false);
+/// 非空时追加规范化后的锁账段,指纹必然不同。空表不改变存量用户指纹。
+String contentFingerprintFromPayload(Map<String, dynamic> payload) {
+  final items = (payload['items'] as List).cast<Map<String, dynamic>>();
+  final canon = items
+      .map((it) {
+        final tags = (it['tags'] as String?) ?? '';
+        final sortedTags =
+            tags.isNotEmpty ? (tags.split(',')..sort()).join(',') : '';
+        final accountName = it['accountName'] as String? ?? '';
+        final fromAccountName = it['fromAccountName'] as String? ?? '';
+        final toAccountName = it['toAccountName'] as String? ?? '';
+        final type = it['type'] as String? ?? '';
+        final isTransfer = type == 'transfer';
+        return <String, dynamic>{
+          'happenedAt': it['happenedAt'] as String? ?? '',
+          'type': type,
+          'amount': (it['amount'] as num?)?.toDouble().toString() ?? '0.0',
+          'categoryName': isTransfer ? '' : (it['categoryName'] as String? ?? ''),
+          'categoryKind': isTransfer ? '' : (it['categoryKind'] as String? ?? ''),
+          'note': it['note'] as String? ?? '',
+          'tags': sortedTags,
+          'accountName': accountName,
+          'fromAccountName': fromAccountName,
+          'toAccountName': toAccountName,
+        };
+      })
+      .toList();
+  canon.sort((a, b) {
+    final c1 =
+        (a['happenedAt'] as String).compareTo(b['happenedAt'] as String);
+    if (c1 != 0) return c1;
+    final c2 = (a['type'] as String).compareTo(b['type'] as String);
+    if (c2 != 0) return c2;
+    final c3 = (a['amount'] as String).compareTo(b['amount'] as String);
+    if (c3 != 0) return c3;
+    final c4 = (a['categoryName'] as String).compareTo(b['categoryName'] as String);
+    if (c4 != 0) return c4;
+    final c5 = (a['categoryKind'] as String).compareTo(b['categoryKind'] as String);
+    if (c5 != 0) return c5;
+    return (a['note'] as String).compareTo(b['note'] as String);
+  });
+
+  // 锁账段:缺 key 与 [] 都产出空段 → 指纹不变;非空按 (lockDate, syncId)
+  // 稳定排序后追加。lockedAt 归一到 UTC,避免 Z / +08:00 表达差异误判。
+  final rawLockPeriods = payload['lockPeriods'];
+  if (rawLockPeriods is List && rawLockPeriods.isNotEmpty) {
+    final lockCanon = <Map<String, dynamic>>[];
+    for (final raw in rawLockPeriods) {
+      if (raw is! Map<String, dynamic>) continue;
+      lockCanon.add({
+        'syncId': raw['syncId']?.toString() ?? '',
+        'lockDate': raw['lockDate']?.toString() ?? '',
+        'batchNo': (raw['batchNo'] as num?)?.toInt() ?? 0,
+        'lockedBy': raw['lockedBy']?.toString() ?? '',
+        'lockedAt': normalizeUtcIso8601(raw['lockedAt']) ?? '',
+      });
+    }
+    lockCanon.sort((a, b) {
+      final c1 = (a['lockDate'] as String).compareTo(b['lockDate'] as String);
+      if (c1 != 0) return c1;
+      return (a['syncId'] as String).compareTo(b['syncId'] as String);
+    });
+    canon.addAll(lockCanon);
+  }
+
+  final bytes = utf8.encode(jsonEncode(canon));
+  return sha256.convert(bytes).toString();
+}
 
 /// 账本交易的云同步管理器
 ///
@@ -866,59 +944,9 @@ class TransactionsSyncManager implements SyncService {
     logger.info('CloudSync', '标记本地变更: $ledgerId');
   }
 
-  /// 从 JSON payload 计算内容指纹
-  String _contentFingerprintFromMap(Map<String, dynamic> payload) {
-    final items = (payload['items'] as List).cast<Map<String, dynamic>>();
-    final canon = items
-        .map((it) {
-          // 标签：排序后拼接，确保顺序一致
-          final tags = (it['tags'] as String?) ?? '';
-          final sortedTags = tags.isNotEmpty
-              ? (tags.split(',')..sort()).join(',')
-              : '';
-          // 账户：区分转账和普通交易
-          final accountName = it['accountName'] as String? ?? '';
-          final fromAccountName = it['fromAccountName'] as String? ?? '';
-          final toAccountName = it['toAccountName'] as String? ?? '';
-          // 转账交易不依赖分类，忽略 categoryName/categoryKind 避免跨设备分类缺失导致指纹不一致
-          final type = it['type'] as String? ?? '';
-          final isTransfer = type == 'transfer';
-
-          return {
-            'happenedAt': it['happenedAt'] as String? ?? '',
-            'type': type,
-            'amount': (it['amount'] as num?)?.toDouble().toString() ?? '0.0',
-            'categoryName': isTransfer ? '' : (it['categoryName'] as String? ?? ''),
-            'categoryKind': isTransfer ? '' : (it['categoryKind'] as String? ?? ''),
-            'note': it['note'] as String? ?? '',
-            'tags': sortedTags,
-            'accountName': accountName,
-            'fromAccountName': fromAccountName,
-            'toAccountName': toAccountName,
-          };
-        })
-        .toList();
-    canon.sort((a, b) {
-      final c1 =
-          (a['happenedAt'] as String).compareTo(b['happenedAt'] as String);
-      if (c1 != 0) return c1;
-      final c2 = (a['type'] as String).compareTo(b['type'] as String);
-      if (c2 != 0) return c2;
-      final c3 = (a['amount'] as String).compareTo(b['amount'] as String);
-      if (c3 != 0) return c3;
-      final c4 =
-          (a['categoryName'] as String).compareTo(b['categoryName'] as String);
-      if (c4 != 0) return c4;
-      final c5 =
-          (a['categoryKind'] as String).compareTo(b['categoryKind'] as String);
-      if (c5 != 0) return c5;
-      return (a['note'] as String).compareTo(b['note'] as String);
-    });
-    final bytes = utf8.encode(jsonEncode(canon));
-    final fp = sha256.convert(bytes).toString();
-    logger.debug('Fingerprint', '交易数: ${canon.length}, 指纹: ${fp.substring(0, 16)}...');
-    return fp;
-  }
+  /// 从 JSON payload 计算内容指纹（委托共享 helper,与 serializer 路径同值）
+  String _contentFingerprintFromMap(Map<String, dynamic> payload) =>
+      contentFingerprintFromPayload(payload);
 
   @override
   Future<void> deleteRemoteBackup({required int ledgerId}) async {
@@ -1391,59 +1419,9 @@ class _TransactionSerializer implements fcs.DataSerializer<int> {
     return _contentFingerprintFromMap(json);
   }
 
-  /// 从 payload 计算内容指纹（Serializer 版本）
-  String _contentFingerprintFromMap(Map<String, dynamic> payload) {
-    final items = (payload['items'] as List).cast<Map<String, dynamic>>();
-    final canon = items
-        .map((it) {
-          // 标签：排序后拼接，确保顺序一致
-          final tags = (it['tags'] as String?) ?? '';
-          final sortedTags = tags.isNotEmpty
-              ? (tags.split(',')..sort()).join(',')
-              : '';
-          // 账户：区分转账和普通交易
-          final accountName = it['accountName'] as String? ?? '';
-          final fromAccountName = it['fromAccountName'] as String? ?? '';
-          final toAccountName = it['toAccountName'] as String? ?? '';
-          // 转账交易不依赖分类，忽略 categoryName/categoryKind 避免跨设备分类缺失导致指纹不一致
-          final type = it['type'] as String? ?? '';
-          final isTransfer = type == 'transfer';
-
-          return {
-            'happenedAt': it['happenedAt'] as String? ?? '',
-            'type': type,
-            'amount': (it['amount'] as num?)?.toDouble().toString() ?? '0.0',
-            'categoryName': isTransfer ? '' : (it['categoryName'] as String? ?? ''),
-            'categoryKind': isTransfer ? '' : (it['categoryKind'] as String? ?? ''),
-            'note': it['note'] as String? ?? '',
-            'tags': sortedTags,
-            'accountName': accountName,
-            'fromAccountName': fromAccountName,
-            'toAccountName': toAccountName,
-          };
-        })
-        .toList();
-    canon.sort((a, b) {
-      final c1 =
-          (a['happenedAt'] as String).compareTo(b['happenedAt'] as String);
-      if (c1 != 0) return c1;
-      final c2 = (a['type'] as String).compareTo(b['type'] as String);
-      if (c2 != 0) return c2;
-      final c3 = (a['amount'] as String).compareTo(b['amount'] as String);
-      if (c3 != 0) return c3;
-      final c4 =
-          (a['categoryName'] as String).compareTo(b['categoryName'] as String);
-      if (c4 != 0) return c4;
-      final c5 =
-          (a['categoryKind'] as String).compareTo(b['categoryKind'] as String);
-      if (c5 != 0) return c5;
-      return (a['note'] as String).compareTo(b['note'] as String);
-    });
-    final bytes = utf8.encode(jsonEncode(canon));
-    final fp = sha256.convert(bytes).toString();
-    logger.debug('Fingerprint-Serializer', '交易数: ${canon.length}, 指纹: ${fp.substring(0, 16)}...');
-    return fp;
-  }
+  /// 从 payload 计算内容指纹（Serializer 版本,委托共享 helper）
+  String _contentFingerprintFromMap(Map<String, dynamic> payload) =>
+      contentFingerprintFromPayload(payload);
 }
 
 /// 近期上传记录（用于处理 CDN 缓存延迟）

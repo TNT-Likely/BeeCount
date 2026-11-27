@@ -1,8 +1,10 @@
 import 'dart:convert';
+import 'package:drift/drift.dart' show OrderingTerm;
 import '../data/db.dart';
 import '../data/repositories/base_repository.dart';
 import '../services/data_import_service.dart';
 import '../utils/app_localizations_resolver.dart';
+import '../utils/date_in_tz.dart';
 import '../services/system/logger_service.dart';
 
 /// 账本交易数据的 JSON 导入导出工具
@@ -280,6 +282,16 @@ Future<String> exportTransactionsJson(BeeDatabase db, int ledgerId) async {
     throw Exception(resolveAppLocalizations(null).ledgerMissing);
   }
 
+  // 锁账期间(净新增):空表导出 [],老快照旧文件没有这个 key,
+  // 两条解析路径都按可选处理。
+  final lockPeriods = await (db.select(db.lockPeriods)
+        ..where((t) => t.ledgerId.equals(ledgerId))
+        ..orderBy([
+          (t) => OrderingTerm.asc(t.batchNo),
+          (t) => OrderingTerm.asc(t.lockedAt),
+        ]))
+      .get();
+
   final payload = {
     'version': 6, // 版本升级,新增 syncId 用于跨设备同步
     'exportedAt': DateTime.now().toUtc().toIso8601String(),
@@ -292,6 +304,16 @@ Future<String> exportTransactionsJson(BeeDatabase db, int ledgerId) async {
     'categories': categoryItems,
     'tags': tagItems, // 新增：标签信息
     'items': items,
+    'lockPeriods': lockPeriods
+        .map((p) => {
+              'syncId': p.syncId,
+              'ledgerId': p.ledgerId,
+              'lockDate': p.lockDate,
+              'batchNo': p.batchNo,
+              'lockedBy': p.lockedBy,
+              'lockedAt': p.lockedAt,
+            })
+        .toList(),
   };
 
   logger.debug('TransactionsJson', '导出完成: ${items.length} 条交易, ${categoryItems.length} 个分类');
@@ -398,6 +420,32 @@ ImportData parseJsonToImportData(String jsonStr) {
     }
   }
 
+  // 锁账期间(S1-01a):key 缺失 / 空数组 / 单行残缺都容忍,不抛异常。
+  // 老快照(no key)解析结果与 [] 完全一致。
+  final lockPeriods = <ImportLockPeriod>[];
+  final jsonLockPeriods = data['lockPeriods'] as List?;
+  if (jsonLockPeriods != null) {
+    for (final raw in jsonLockPeriods) {
+      if (raw is! Map<String, dynamic>) continue;
+      final syncId = raw['syncId'] as String?;
+      final lockDate = raw['lockDate'] as String?;
+      if (syncId == null || syncId.isEmpty || lockDate == null || lockDate.isEmpty) {
+        continue;
+      }
+      lockPeriods.add(ImportLockPeriod(
+        syncId: syncId,
+        ledgerId: (raw['ledgerId'] as num?)?.toInt(),
+        lockDate: lockDate,
+        batchNo: (raw['batchNo'] as num?)?.toInt(),
+        lockedBy: raw['lockedBy'] as String? ?? 'local',
+        // 与 apply / hydration 共用同一 parser:Z / ±HH:MM / 无后缀归一到 UTC。
+        lockedAt: normalizeUtcIso8601(raw['lockedAt']) ?? utcIsoNow(),
+        createdByUserId: raw['createdByUserId'] as String?,
+        lastEditedByUserId: raw['lastEditedByUserId'] as String?,
+      ));
+    }
+  }
+
   // monthStartDay 在导出 payload 里有,但这里刻意不读 —— 恢复路径由
   // syncLedgersFromServer 收敛(见 .docs/period-start-date/design.md §4)。
   return ImportData(
@@ -405,6 +453,7 @@ ImportData parseJsonToImportData(String jsonStr) {
     categories: categories,
     tags: tags,
     transactions: transactions,
+    lockPeriods: lockPeriods,
     ledgerName: data['ledgerName'] as String?,
     currency: data['currency'] as String?,
   );

@@ -662,6 +662,38 @@ extension SyncEngineRealtime on SyncEngine {
         }
         budgets.add(item);
       }
+
+      // S1-01a: lockPeriods 是**可选**顶层 key,不进上面的必需 key 校验。
+      // 老快照没这个 key → 空列表,行为完全不变;新快照带 key 时按同一
+      // 健壮 parser 归一化 lockedAt 后入库。
+      final lockPeriods = <Map<String, dynamic>>[];
+      final rawLockPeriods = decoded['lockPeriods'];
+      if (rawLockPeriods != null && rawLockPeriods is! List) {
+        invalid('lockPeriods');
+      }
+      final lockIds = <String>{};
+      for (final raw in (rawLockPeriods as List?) ?? const []) {
+        if (raw is! Map<String, dynamic>) invalid('lockPeriods');
+        final item = Map<String, dynamic>.from(raw);
+        final id = identity(item['syncId'], 'lockPeriods.syncId');
+        if (!lockIds.add(id)) invalid('lockPeriods.syncId duplicate');
+        final lockDate = item['lockDate'];
+        if (lockDate is! String ||
+            !RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(lockDate)) {
+          invalid('lockPeriods.lockDate');
+        }
+        final lockedAt = item['lockedAt'];
+        if (lockedAt is! String) invalid('lockPeriods.lockedAt');
+        item['lockedAt'] = normalizeUtcIso8601(lockedAt) ?? utcIsoNow();
+        if (item['batchNo'] != null && item['batchNo'] is! int) {
+          invalid('lockPeriods.batchNo');
+        }
+        if (item['lockedBy'] != null && item['lockedBy'] is! String) {
+          invalid('lockPeriods.lockedBy');
+        }
+        lockPeriods.add(item);
+      }
+
       final applied = await db.transaction(() async {
         // HTTP 等待期间可能退出/删除/重新登记目标;写前确认仍是同一本。
         final currentLedgers = await (db.select(db.ledgers)
@@ -772,7 +804,20 @@ extension SyncEngineRealtime on SyncEngine {
               action: 'upsert',
               payload: item));
         }
-        return txs.length + budgets.length;
+        final lockRepo = LockPeriodRepository(db);
+        for (final item in lockPeriods) {
+          await lockRepo.upsertBySyncId(
+            syncId: item['syncId'] as String,
+            ledgerId: ledger.id,
+            lockDate: item['lockDate'] as String,
+            batchNo: item['batchNo'] as int?,
+            lockedBy: item['lockedBy'] as String? ?? 'local',
+            lockedAt: item['lockedAt'] as String,
+            createdByUserId: item['createdByUserId'] as String?,
+            lastEditedByUserId: item['lastEditedByUserId'] as String?,
+          );
+        }
+        return txs.length + budgets.length + lockPeriods.length;
       });
       completer.complete(applied);
       return applied;
