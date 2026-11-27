@@ -4,3 +4,14 @@ output-localization-file: app_localizations.dart
 nullable-getter: false
 synthetic-package: false
 preferred-supported-locales: ["en"]
+
+# 不对生成的 l10n 代码跑 `dart format`。
+#
+# Flutter 3.27.3(本仓库 CI 使用的版本)gen-l10n 的 format 默认就是 false,
+# 已入库的 app_localizations*.dart 就是"未经格式化"的生成产物;但 Flutter
+# 3.5x 把默认值改成了 true,新 SDK 的 `dart format` 是 tall style,会把整份
+# 产物重排 —— 一次 gen-l10n 就能产生几千行与业务无关的 diff。
+#
+# 显式写死 false = 锁住"生成产物即入库产物",任何 SDK 版本重新生成都得到
+# 同样的字节,review 时只看真实新增的 key。
+format: false

@@ -3106,14 +3106,14 @@
     "recalcForeignTxDone": "已重算 {count} 筆外幣交易的折算值",
     "@recalcForeignTxDone": {
         "placeholders": {
-            "count": {}
+            "count": { "type": "int" }
         }
     },
     "txCurrencyPickerTitle": "選擇幣種",
     "recalcSyncCountHint": "將重算並同步 {count} 筆交易",
     "@recalcSyncCountHint": {
         "placeholders": {
-            "count": {}
+            "count": { "type": "int" }
         }
     },
     "exportCsvHeaderCurrency": "幣種",
