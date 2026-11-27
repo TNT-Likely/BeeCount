@@ -93,6 +93,18 @@ void main() {
       expect(result.isMatched, isTrue);
       expect(result.needsNotice, isFalse);
       expect(result.isBlocking, isFalse);
+
+      // Local dev build 0.0.1 (uninjected pubspec.yaml) must not be blocked by min_app_version.
+      final devBuild = evaluateCloudVersionCompatibility(
+        appVersion: '0.0.1',
+        server: const BeeCountCloudServerVersion(
+          name: 'BeeCount Cloud',
+          version: '1.11.0',
+          minAppVersion: '4.0.0',
+          recommendedAppVersion: '4.1.0',
+        ),
+      );
+      expect(devBuild.status, CloudVersionMatchStatus.matched);
     });
 
     test('distinguishes recommended vs required Cloud upgrades', () {

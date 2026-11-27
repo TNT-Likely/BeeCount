@@ -179,6 +179,8 @@ CloudVersionCompatibility evaluateCloudVersionCompatibility({
     return CloudVersionCompatibility.unknown(appVersion: appVersion);
   }
   final parsedApp = CloudSemVer.tryParse(appVersion);
+  final effectiveApp =
+      (parsedApp != null && parsedApp.major > 0) ? parsedApp : null;
   final parsedServer = CloudSemVer.tryParse(server.version);
   if (parsedServer == null || isDevFallbackServerVersion(server.version)) {
     return CloudVersionCompatibility.unknown(
@@ -217,7 +219,9 @@ CloudVersionCompatibility evaluateCloudVersionCompatibility({
       target: parsedMinCloud.normalized,
     );
   }
-  if (parsedApp != null && parsedMinApp != null && parsedApp < parsedMinApp) {
+  if (effectiveApp != null &&
+      parsedMinApp != null &&
+      effectiveApp < parsedMinApp) {
     return build(
       CloudVersionMatchStatus.upgradeAppRequired,
       target: parsedMinApp.normalized,
@@ -229,7 +233,9 @@ CloudVersionCompatibility evaluateCloudVersionCompatibility({
       target: parsedRecCloud.normalized,
     );
   }
-  if (parsedApp != null && parsedRecApp != null && parsedApp < parsedRecApp) {
+  if (effectiveApp != null &&
+      parsedRecApp != null &&
+      effectiveApp < parsedRecApp) {
     return build(
       CloudVersionMatchStatus.upgradeAppRecommended,
       target: parsedRecApp.normalized,
