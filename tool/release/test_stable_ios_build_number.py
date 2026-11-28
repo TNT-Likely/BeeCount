@@ -43,6 +43,22 @@ class StableIosBuildNumberTests(unittest.TestCase):
                 self.assertNotEqual(result.returncode, 0)
                 self.assertNotIn('RESULT=', result.stdout)
 
+    def test_official_skins_defaults_to_true_for_official_repo_and_dispatch(self):
+        text = (ROOT / '.github/workflows/release.yml').read_text()
+        self.assertIn(
+            '      official_skins:\n'
+            '        description: "在 iOS App Store 包中接入官方付费皮肤"\n'
+            '        type: boolean\n'
+            '        default: true\n',
+            text,
+        )
+        self.assertIn(
+            "((github.repository == 'TNT-Likely/BeeCount' && "
+            "(github.event_name != 'workflow_dispatch' || inputs.official_skins != false)) "
+            "|| inputs.official_skins == true) && '[\"app-store\", \"public\"]' || '[\"standard\"]'",
+            text,
+        )
+
 
 if __name__ == '__main__':
     unittest.main()

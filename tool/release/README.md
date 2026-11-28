@@ -162,8 +162,8 @@ Release禁用自动生成日志，`make_latest=false`，不替代正式Latest。
 
 ## iOS 正式包的官方付费皮肤
 
-在 `main` 上手动运行现有的 `Release` 时，可勾选 `official_skins`。iOS job 使用 `ios-app-store` 环境，检出两个私有仓库的 `main`，通过构建目录里的 `pubspec_overrides.yaml` 接入本地 Flutter 包。
+在官方仓库 `TNT-Likely/BeeCount` 推送正式版 tag 或在 `main` 上手动运行 `Release` 时，`official_skins` 默认开启（手动运行可取消勾选切换回 `standard`）。开启后 iOS job 拆分为 `app-store` 与 `public` 两个构建变体：`app-store` 使用 `ios-app-store` 环境检出两个私有仓库的 `main`，通过构建目录里的 `pubspec_overrides.yaml` 接入本地 Flutter 包；`public` 构建不含私有付费皮肤的公开下载产物供 GitHub Release 发布。
 
 `tool/official_app/main.dart` 把私有画面、购买和权益接到主工程的皮肤选择与调节页面。Flutter 自动注册商业包提供的 iOS StoreKit 插件。随后按原流程编译、归档、签名和上传 App Store Connect，官方 IPA 只上传到 Apple。
 
-`official_skins` 默认关闭。普通克隆使用 `lib/main.dart`，可直接运行免费皮肤。构建时可传 `BEECOUNT_SKINS_ENABLED=false` 关闭皮肤，官方入口的 `BEECOUNT_PAID_SKINS_ENABLED` 控制付费合集。
+Fork 仓库在未显式勾选 `official_skins` 时仍默认走 `standard`，普通克隆使用 `lib/main.dart`，可直接运行免费皮肤。构建时可传 `BEECOUNT_SKINS_ENABLED=false` 关闭皮肤，官方入口的 `BEECOUNT_PAID_SKINS_ENABLED` 控制付费合集。
