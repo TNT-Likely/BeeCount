@@ -22,7 +22,7 @@ void main() {
       "2,'银行卡','CNY',0,'bank_card'",
       "3,'美元现金','USD',0,'cash'",
       "4,'历史钱包','CNY',1,'wechat'",
-      "5,'资产估值','CNY',0,'investment'"
+      "5,'资产估值','CNY',0,'real_estate'"
     ]) {
       await db.customStatement(
           'INSERT INTO accounts (id,name,currency,hidden,type,ledger_id) SELECT $row,1');

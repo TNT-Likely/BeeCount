@@ -347,8 +347,8 @@ void main() {
   testWidgets('备注可以实际清空，估值账户的元信息保存保留原价值', (tester) async {
     final id = await repo.createAccount(
         ledgerId: 1,
-        name: '合成投资',
-        type: 'investment',
+        name: '合成不动产',
+        type: 'real_estate',
         initialBalance: -100,
         note: '需要清除');
     await open(tester, account: await repo.getAccount(id));
